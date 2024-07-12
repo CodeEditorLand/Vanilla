@@ -1,0 +1,3 @@
+[submodule "Microsoft/VSCode"]
+	path = Microsoft/VSCode
+	url = ssh://git@github.com/Microsoft/VSCode.git
