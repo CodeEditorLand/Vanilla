@@ -1,3 +1,6 @@
 [submodule "Microsoft/VSCode"]
 	path = Microsoft/VSCode
 	url = ssh://git@github.com/Microsoft/VSCode.git
+[submodule "CodeEditorLand/Editor"]
+	path = CodeEditorLand/Editor
+	url = ssh://git@github.com/CodeEditorLand/Editor.git
