@@ -1,0 +1,1 @@
+import{bootstrapSimpleWorker as r}from"../../../../../vs/base/common/worker/simpleWorkerBootstrap.js";import{create as o}from"../../../../../vs/workbench/services/search/worker/localFileSearch.js";r(o);

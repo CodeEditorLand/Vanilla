@@ -1,0 +1,54 @@
+import { ActionBar } from "vs/base/browser/ui/actionbar/actionbar";
+import { IHighlight } from "vs/base/browser/ui/highlightedlabel/highlightedLabel";
+import { ITreeNode } from "vs/base/browser/ui/tree/tree";
+import { FuzzyScore } from "vs/base/common/filters";
+import { IMenuService } from "vs/platform/actions/common/actions";
+import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { IContextMenuService, IContextViewService } from "vs/platform/contextview/browser/contextView";
+import { IHoverService } from "vs/platform/hover/browser/hover";
+import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import { IOpenerService } from "vs/platform/opener/common/opener";
+import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IThemeService } from "vs/platform/theme/common/themeService";
+import { ViewPane } from "vs/workbench/browser/parts/views/viewPane";
+import { IViewletViewOptions } from "vs/workbench/browser/parts/views/viewsViewlet";
+import { IViewDescriptorService } from "vs/workbench/common/views";
+import { AbstractExpressionsRenderer, IExpressionTemplateData, IInputBoxOptions } from "vs/workbench/contrib/debug/browser/baseDebugView";
+import { LinkDetector } from "vs/workbench/contrib/debug/browser/linkDetector";
+import { IDebugService, IExpression } from "vs/workbench/contrib/debug/common/debug";
+export declare class WatchExpressionsView extends ViewPane {
+    private readonly debugService;
+    private watchExpressionsUpdatedScheduler;
+    private needsRefresh;
+    private tree;
+    private watchExpressionsExist;
+    private watchItemType;
+    private variableReadonly;
+    private menu;
+    constructor(options: IViewletViewOptions, contextMenuService: IContextMenuService, debugService: IDebugService, keybindingService: IKeybindingService, instantiationService: IInstantiationService, viewDescriptorService: IViewDescriptorService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, openerService: IOpenerService, themeService: IThemeService, telemetryService: ITelemetryService, hoverService: IHoverService, menuService: IMenuService);
+    protected renderBody(container: HTMLElement): void;
+    protected layoutBody(height: number, width: number): void;
+    focus(): void;
+    collapseAll(): void;
+    private onMouseDblClick;
+    private onContextMenu;
+}
+export declare class WatchExpressionsRenderer extends AbstractExpressionsRenderer {
+    private readonly linkDetector;
+    private readonly menuService;
+    private readonly contextKeyService;
+    private configurationService;
+    static readonly ID = "watchexpression";
+    constructor(linkDetector: LinkDetector, menuService: IMenuService, contextKeyService: IContextKeyService, debugService: IDebugService, contextViewService: IContextViewService, hoverService: IHoverService, configurationService: IConfigurationService);
+    get templateId(): string;
+    renderElement(node: ITreeNode<IExpression, FuzzyScore>, index: number, data: IExpressionTemplateData): void;
+    protected renderExpression(expression: IExpression, data: IExpressionTemplateData, highlights: IHighlight[]): void;
+    protected getInputBoxOptions(expression: IExpression, settingValue: boolean): IInputBoxOptions;
+    protected renderActionBar(actionBar: ActionBar, expression: IExpression): void;
+}
+export declare const ADD_WATCH_ID = "workbench.debug.viewlet.action.addWatchExpression";
+export declare const ADD_WATCH_LABEL: any;
+export declare const REMOVE_WATCH_EXPRESSIONS_COMMAND_ID = "workbench.debug.viewlet.action.removeAllWatchExpressions";
+export declare const REMOVE_WATCH_EXPRESSIONS_LABEL: any;

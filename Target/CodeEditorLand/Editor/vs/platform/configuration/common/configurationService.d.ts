@@ -1,0 +1,43 @@
+import { Event } from "vs/base/common/event";
+import { Disposable, IDisposable } from "vs/base/common/lifecycle";
+import { URI } from "vs/base/common/uri";
+import { ConfigurationTarget, IConfigurationChangeEvent, IConfigurationData, IConfigurationOverrides, IConfigurationService, IConfigurationUpdateOptions, IConfigurationUpdateOverrides, IConfigurationValue } from "vs/platform/configuration/common/configuration";
+import { IFileService } from "vs/platform/files/common/files";
+import { ILogService } from "vs/platform/log/common/log";
+import { IPolicyService } from "vs/platform/policy/common/policy";
+export declare class ConfigurationService extends Disposable implements IConfigurationService, IDisposable {
+    private readonly settingsResource;
+    private readonly logService;
+    readonly _serviceBrand: undefined;
+    private configuration;
+    private readonly defaultConfiguration;
+    private readonly policyConfiguration;
+    private readonly userConfiguration;
+    private readonly reloadConfigurationScheduler;
+    private readonly _onDidChangeConfiguration;
+    readonly onDidChangeConfiguration: Event<IConfigurationChangeEvent>;
+    private readonly configurationEditing;
+    constructor(settingsResource: URI, fileService: IFileService, policyService: IPolicyService, logService: ILogService);
+    initialize(): Promise<void>;
+    getConfigurationData(): IConfigurationData;
+    getValue<T>(): T;
+    getValue<T>(section: string): T;
+    getValue<T>(overrides: IConfigurationOverrides): T;
+    getValue<T>(section: string, overrides: IConfigurationOverrides): T;
+    updateValue(key: string, value: any): Promise<void>;
+    updateValue(key: string, value: any, overrides: IConfigurationOverrides | IConfigurationUpdateOverrides): Promise<void>;
+    updateValue(key: string, value: any, target: ConfigurationTarget): Promise<void>;
+    updateValue(key: string, value: any, overrides: IConfigurationOverrides | IConfigurationUpdateOverrides, target: ConfigurationTarget, options?: IConfigurationUpdateOptions): Promise<void>;
+    inspect<T>(key: string, overrides?: IConfigurationOverrides): IConfigurationValue<T>;
+    keys(): {
+        default: string[];
+        user: string[];
+        workspace: string[];
+        workspaceFolder: string[];
+    };
+    reloadConfiguration(): Promise<void>;
+    private onDidChangeUserConfiguration;
+    private onDidDefaultConfigurationChange;
+    private onDidPolicyConfigurationChange;
+    private trigger;
+}

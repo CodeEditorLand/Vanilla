@@ -1,0 +1,131 @@
+import { Disposable } from "vs/base/common/lifecycle";
+import { OperatingSystem } from "vs/base/common/platform";
+import { URI } from "vs/base/common/uri";
+import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { INotificationService } from "vs/platform/notification/common/notification";
+import { IProductService } from "vs/platform/product/common/productService";
+import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IEnvironmentVariableCollection, IMergedEnvironmentVariableCollection } from "vs/platform/terminal/common/environmentVariable";
+import { IProcessPropertyMap, IReconnectionProperties, IShellLaunchConfig, ITerminalBackend, ITerminalLaunchError, ITerminalLogService, ProcessPropertyType } from "vs/platform/terminal/common/terminal";
+import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
+import { ITerminalConfigurationService, ITerminalInstanceService } from "vs/workbench/contrib/terminal/browser/terminal";
+import { IEnvironmentVariableInfo, IEnvironmentVariableService } from "vs/workbench/contrib/terminal/common/environmentVariable";
+import { ITerminalProcessManager, ITerminalProfileResolverService, ProcessState } from "vs/workbench/contrib/terminal/common/terminal";
+import { IConfigurationResolverService } from "vs/workbench/services/configurationResolver/common/configurationResolver";
+import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
+import { IHistoryService } from "vs/workbench/services/history/common/history";
+import { IPathService } from "vs/workbench/services/path/common/pathService";
+import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+/**
+ * Holds all state related to the creation and management of terminal processes.
+ *
+ * Internal definitions:
+ * - Process: The process launched with the terminalProcess.ts file, or the pty as a whole
+ * - Pty Process: The pseudoterminal parent process (or the conpty/winpty agent process)
+ * - Shell Process: The pseudoterminal child process (ie. the shell)
+ */
+export declare class TerminalProcessManager extends Disposable implements ITerminalProcessManager {
+    private readonly _instanceId;
+    private readonly _historyService;
+    private readonly _instantiationService;
+    private readonly _logService;
+    private readonly _workspaceContextService;
+    private readonly _configurationResolverService;
+    private readonly _workbenchEnvironmentService;
+    private readonly _productService;
+    private readonly _remoteAgentService;
+    private readonly _pathService;
+    private readonly _environmentVariableService;
+    private readonly _terminalConfigurationService;
+    private readonly _terminalProfileResolverService;
+    private readonly _configurationService;
+    private readonly _terminalInstanceService;
+    private readonly _telemetryService;
+    private readonly _notificationService;
+    processState: ProcessState;
+    ptyProcessReady: Promise<void>;
+    shellProcessId: number | undefined;
+    readonly remoteAuthority: string | undefined;
+    os: OperatingSystem | undefined;
+    userHome: string | undefined;
+    environmentVariableInfo: IEnvironmentVariableInfo | undefined;
+    backend: ITerminalBackend | undefined;
+    readonly capabilities: any;
+    readonly shellIntegrationNonce: string;
+    private _isDisposed;
+    private _process;
+    private _processType;
+    private _preLaunchInputQueue;
+    private _initialCwd;
+    private _extEnvironmentVariableCollection;
+    private _ackDataBufferer;
+    private _hasWrittenData;
+    private _hasChildProcesses;
+    private _ptyResponsiveListener;
+    private _ptyListenersAttached;
+    private _dataFilter;
+    private _processListeners?;
+    private _isDisconnected;
+    private _shellLaunchConfig?;
+    private _dimensions;
+    private readonly _onPtyDisconnect;
+    readonly onPtyDisconnect: any;
+    private readonly _onPtyReconnect;
+    readonly onPtyReconnect: any;
+    private readonly _onProcessReady;
+    readonly onProcessReady: any;
+    private readonly _onProcessStateChange;
+    readonly onProcessStateChange: any;
+    private readonly _onBeforeProcessData;
+    readonly onBeforeProcessData: any;
+    private readonly _onProcessData;
+    readonly onProcessData: any;
+    private readonly _onProcessReplayComplete;
+    readonly onProcessReplayComplete: any;
+    private readonly _onDidChangeProperty;
+    readonly onDidChangeProperty: any;
+    private readonly _onEnvironmentVariableInfoChange;
+    readonly onEnvironmentVariableInfoChanged: any;
+    private readonly _onProcessExit;
+    readonly onProcessExit: any;
+    private readonly _onRestoreCommands;
+    readonly onRestoreCommands: any;
+    private _cwdWorkspaceFolder;
+    get persistentProcessId(): number | undefined;
+    get shouldPersist(): boolean;
+    get hasWrittenData(): boolean;
+    get hasChildProcesses(): boolean;
+    get reconnectionProperties(): IReconnectionProperties | undefined;
+    get extEnvironmentVariableCollection(): IMergedEnvironmentVariableCollection | undefined;
+    constructor(_instanceId: number, cwd: string | URI | undefined, environmentVariableCollections: ReadonlyMap<string, IEnvironmentVariableCollection> | undefined, shellIntegrationNonce: string | undefined, _historyService: IHistoryService, _instantiationService: IInstantiationService, _logService: ITerminalLogService, _workspaceContextService: IWorkspaceContextService, _configurationResolverService: IConfigurationResolverService, _workbenchEnvironmentService: IWorkbenchEnvironmentService, _productService: IProductService, _remoteAgentService: IRemoteAgentService, _pathService: IPathService, _environmentVariableService: IEnvironmentVariableService, _terminalConfigurationService: ITerminalConfigurationService, _terminalProfileResolverService: ITerminalProfileResolverService, _configurationService: IConfigurationService, _terminalInstanceService: ITerminalInstanceService, _telemetryService: ITelemetryService, _notificationService: INotificationService);
+    freePortKillProcess(port: string): Promise<void>;
+    dispose(immediate?: boolean): void;
+    private _createPtyProcessReadyPromise;
+    detachFromProcess(forcePersist?: boolean): Promise<void>;
+    createProcess(shellLaunchConfig: IShellLaunchConfig, cols: number, rows: number, reset?: boolean): Promise<ITerminalLaunchError | {
+        injectedArgs: string[];
+    } | undefined>;
+    relaunch(shellLaunchConfig: IShellLaunchConfig, cols: number, rows: number, reset: boolean): Promise<ITerminalLaunchError | {
+        injectedArgs: string[];
+    } | undefined>;
+    private _resolveEnvironment;
+    private _launchLocalProcess;
+    private _setupPtyHostListeners;
+    getBackendOS(): Promise<OperatingSystem>;
+    setDimensions(cols: number, rows: number): Promise<void>;
+    setDimensions(cols: number, rows: number, sync: false): Promise<void>;
+    setDimensions(cols: number, rows: number, sync: true): void;
+    setUnicodeVersion(version: "6" | "11"): Promise<void>;
+    private _resize;
+    write(data: string): Promise<void>;
+    processBinary(data: string): Promise<void>;
+    get initialCwd(): string;
+    refreshProperty<T extends ProcessPropertyType>(type: T): Promise<IProcessPropertyMap[T]>;
+    updateProperty<T extends ProcessPropertyType>(type: T, value: IProcessPropertyMap[T]): Promise<void>;
+    acknowledgeDataEvent(charCount: number): void;
+    private _onExit;
+    private _setProcessState;
+    private _onEnvironmentVariableCollectionChange;
+    clearBuffer(): Promise<void>;
+}

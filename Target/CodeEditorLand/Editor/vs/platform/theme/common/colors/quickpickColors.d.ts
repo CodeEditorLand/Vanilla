@@ -1,0 +1,9 @@
+export declare const quickInputBackground: any;
+export declare const quickInputForeground: any;
+export declare const quickInputTitleBackground: any;
+export declare const pickerGroupForeground: any;
+export declare const pickerGroupBorder: any;
+export declare const _deprecatedQuickInputListFocusBackground: any;
+export declare const quickInputListFocusForeground: any;
+export declare const quickInputListFocusIconForeground: any;
+export declare const quickInputListFocusBackground: any;

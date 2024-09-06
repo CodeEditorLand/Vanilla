@@ -1,0 +1,13 @@
+export declare const diff: any;
+export declare const diffWord: any;
+export declare const diffBase: any;
+export declare const diffWordBase: any;
+export declare const conflictBorderUnhandledUnfocused: any;
+export declare const conflictBorderUnhandledFocused: any;
+export declare const conflictBorderHandledUnfocused: any;
+export declare const conflictBorderHandledFocused: any;
+export declare const handledConflictMinimapOverViewRulerColor: any;
+export declare const unhandledConflictMinimapOverViewRulerColor: any;
+export declare const conflictingLinesBackground: any;
+export declare const conflictInput1Background: any;
+export declare const conflictInput2Background: any;

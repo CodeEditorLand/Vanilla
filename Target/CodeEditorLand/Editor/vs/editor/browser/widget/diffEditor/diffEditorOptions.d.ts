@@ -1,0 +1,47 @@
+import { IObservable } from "vs/base/common/observable";
+import { DiffEditorViewModel } from "vs/editor/browser/widget/diffEditor/diffEditorViewModel";
+import { IDiffEditorOptions, IEditorOptions } from "vs/editor/common/config/editorOptions";
+import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
+export declare class DiffEditorOptions {
+    private readonly _accessibilityService;
+    private readonly _options;
+    get editorOptions(): IObservable<IEditorOptions, {
+        changedOptions: IEditorOptions;
+    }>;
+    private readonly _diffEditorWidth;
+    private readonly _screenReaderMode;
+    constructor(options: Readonly<IDiffEditorOptions>, _accessibilityService: IAccessibilityService);
+    readonly couldShowInlineViewBecauseOfSize: any;
+    readonly renderOverviewRuler: any;
+    readonly renderSideBySide: any;
+    readonly readOnly: any;
+    readonly shouldRenderOldRevertArrows: any;
+    readonly shouldRenderGutterMenu: any;
+    readonly renderIndicators: any;
+    readonly enableSplitViewResizing: any;
+    readonly splitViewDefaultRatio: any;
+    readonly ignoreTrimWhitespace: any;
+    readonly maxComputationTimeMs: any;
+    readonly showMoves: any;
+    readonly isInEmbeddedEditor: any;
+    readonly diffWordWrap: any;
+    readonly originalEditable: any;
+    readonly diffCodeLens: any;
+    readonly accessibilityVerbose: any;
+    readonly diffAlgorithm: any;
+    readonly showEmptyDecorations: any;
+    readonly onlyShowAccessibleDiffViewer: any;
+    readonly compactMode: any;
+    private readonly trueInlineDiffRenderingEnabled;
+    readonly useTrueInlineDiffRendering: IObservable<boolean>;
+    readonly hideUnchangedRegions: any;
+    readonly hideUnchangedRegionsRevealLineCount: any;
+    readonly hideUnchangedRegionsContextLineCount: any;
+    readonly hideUnchangedRegionsMinimumLineCount: any;
+    updateOptions(changedOptions: IDiffEditorOptions): void;
+    setWidth(width: number): void;
+    private readonly _model;
+    setModel(model: DiffEditorViewModel | undefined): void;
+    private readonly shouldRenderInlineViewInSmartMode;
+    readonly inlineViewHideOriginalLineNumbers: any;
+}

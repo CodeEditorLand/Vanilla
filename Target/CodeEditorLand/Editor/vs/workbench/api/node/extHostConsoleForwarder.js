@@ -1,0 +1,6 @@
+var d=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var g=(a,r,s,t)=>{for(var e=t>1?void 0:t?v(r,s):r,o=a.length-1,i;o>=0;o--)(i=a[o])&&(e=(t?i(r,s,e):i(e))||e);return t&&e&&d(r,s,e),e},c=(a,r)=>(s,t)=>r(s,t,a);import{AbstractExtHostConsoleForwarder as _}from"../../../../vs/workbench/api/common/extHostConsoleForwarder.js";import{IExtHostInitDataService as S}from"../../../../vs/workbench/api/common/extHostInitDataService.js";import{IExtHostRpcService as u}from"../../../../vs/workbench/api/common/extHostRpcService.js";import{NativeLogMarkers as f}from"../../../../vs/workbench/services/extensions/common/extensionHostProtocol.js";const w=1024*1024;let n=class extends _{_isMakingConsoleCall=!1;constructor(r,s){super(r,s),this._wrapStream("stderr","error"),this._wrapStream("stdout","log")}_nativeConsoleLogMessage(r,s,t){const e=r==="error"||r==="warn"?process.stderr:process.stdout;this._isMakingConsoleCall=!0,e.write(`
+${f.Start}
+`),s.apply(console,t),e.write(`
+${f.End}
+`),this._isMakingConsoleCall=!1}_wrapStream(r,s){const t=process[r],e=t.write;let o="";Object.defineProperty(t,"write",{set:()=>{},get:()=>(i,p,m)=>{if(!this._isMakingConsoleCall){o+=i.toString(p);const l=o.length>w?o.length:o.lastIndexOf(`
+`);l!==-1&&(console[s](o.slice(0,l)),o=o.slice(l+1))}e.call(t,i,p,m)}})}};n=g([c(0,u),c(1,S)],n);export{n as ExtHostConsoleForwarder};

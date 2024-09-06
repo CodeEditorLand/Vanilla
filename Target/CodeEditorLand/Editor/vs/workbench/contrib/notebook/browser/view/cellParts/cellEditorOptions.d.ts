@@ -1,0 +1,36 @@
+import { Event } from "vs/base/common/event";
+import { URI } from "vs/base/common/uri";
+import { IEditorOptions } from "vs/editor/common/config/editorOptions";
+import { ITextModelUpdateOptions } from "vs/editor/common/model";
+import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IBaseCellEditorOptions, ICellViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { NotebookOptions } from "vs/workbench/contrib/notebook/browser/notebookOptions";
+import { CellViewModelStateChangeEvent } from "vs/workbench/contrib/notebook/browser/notebookViewEvents";
+import { CellContentPart } from "vs/workbench/contrib/notebook/browser/view/cellPart";
+import { NotebookCellInternalMetadata } from "vs/workbench/contrib/notebook/common/notebookCommon";
+export declare class CellEditorOptions extends CellContentPart implements ITextModelUpdateOptions {
+    private readonly base;
+    readonly notebookOptions: NotebookOptions;
+    readonly configurationService: IConfigurationService;
+    private _lineNumbers;
+    private _tabSize?;
+    private _indentSize?;
+    private _insertSpaces?;
+    set tabSize(value: number | undefined);
+    get tabSize(): number | undefined;
+    set indentSize(value: number | "tabSize" | undefined);
+    get indentSize(): number | "tabSize" | undefined;
+    set insertSpaces(value: boolean | undefined);
+    get insertSpaces(): boolean | undefined;
+    private readonly _onDidChange;
+    readonly onDidChange: Event<void>;
+    private _value;
+    constructor(base: IBaseCellEditorOptions, notebookOptions: NotebookOptions, configurationService: IConfigurationService);
+    updateState(element: ICellViewModel, e: CellViewModelStateChangeEvent): void;
+    private _recomputeOptions;
+    private _computeEditorOptions;
+    getUpdatedValue(internalMetadata: NotebookCellInternalMetadata, cellUri: URI): IEditorOptions;
+    getValue(internalMetadata: NotebookCellInternalMetadata, cellUri: URI): IEditorOptions;
+    getDefaultValue(): IEditorOptions;
+    setLineNumbers(lineNumbers: "on" | "off" | "inherit"): void;
+}

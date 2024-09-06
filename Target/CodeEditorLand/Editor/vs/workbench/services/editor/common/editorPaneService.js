@@ -1,0 +1,1 @@
+import"../../../../../vs/base/common/event.js";import{createDecorator as e}from"../../../../../vs/platform/instantiation/common/instantiation.js";import"../../../../../vs/workbench/common/editor.js";const a=e("editorPaneService");export{a as IEditorPaneService};

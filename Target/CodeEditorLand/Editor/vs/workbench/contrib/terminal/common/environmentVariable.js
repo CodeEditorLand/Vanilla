@@ -1,0 +1,1 @@
+import"../../../../../vs/base/common/event.js";import{createDecorator as e}from"../../../../../vs/platform/instantiation/common/instantiation.js";import"../../../../../vs/platform/terminal/common/environmentVariable.js";import"../../../../../vs/workbench/contrib/terminal/common/terminal.js";const v=e("environmentVariableService");export{v as IEnvironmentVariableService};

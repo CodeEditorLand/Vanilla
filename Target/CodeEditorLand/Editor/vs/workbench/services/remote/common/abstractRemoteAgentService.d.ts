@@ -1,0 +1,34 @@
+import { Disposable } from "vs/base/common/lifecycle";
+import { IDiagnosticInfo, IDiagnosticInfoOptions } from "vs/platform/diagnostics/common/diagnostics";
+import { ILogService } from "vs/platform/log/common/log";
+import { IProductService } from "vs/platform/product/common/productService";
+import { IRemoteAgentEnvironment } from "vs/platform/remote/common/remoteAgentEnvironment";
+import { IRemoteAuthorityResolverService } from "vs/platform/remote/common/remoteAuthorityResolver";
+import { IRemoteSocketFactoryService } from "vs/platform/remote/common/remoteSocketFactoryService";
+import { ISignService } from "vs/platform/sign/common/sign";
+import { ITelemetryData, TelemetryLevel } from "vs/platform/telemetry/common/telemetry";
+import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
+import { IExtensionHostExitInfo, IRemoteAgentConnection, IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+export declare abstract class AbstractRemoteAgentService extends Disposable implements IRemoteAgentService {
+    private readonly remoteSocketFactoryService;
+    private readonly userDataProfileService;
+    protected readonly _environmentService: IWorkbenchEnvironmentService;
+    private readonly _remoteAuthorityResolverService;
+    readonly _serviceBrand: undefined;
+    private readonly _connection;
+    private _environment;
+    constructor(remoteSocketFactoryService: IRemoteSocketFactoryService, userDataProfileService: IUserDataProfileService, _environmentService: IWorkbenchEnvironmentService, productService: IProductService, _remoteAuthorityResolverService: IRemoteAuthorityResolverService, signService: ISignService, logService: ILogService);
+    getConnection(): IRemoteAgentConnection | null;
+    getEnvironment(): Promise<IRemoteAgentEnvironment | null>;
+    getRawEnvironment(): Promise<IRemoteAgentEnvironment | null>;
+    getExtensionHostExitInfo(reconnectionToken: string): Promise<IExtensionHostExitInfo | null>;
+    getDiagnosticInfo(options: IDiagnosticInfoOptions): Promise<IDiagnosticInfo | undefined>;
+    updateTelemetryLevel(telemetryLevel: TelemetryLevel): Promise<void>;
+    logTelemetry(eventName: string, data: ITelemetryData): Promise<void>;
+    flushTelemetry(): Promise<void>;
+    getRoundTripTime(): Promise<number | undefined>;
+    endConnection(): Promise<void>;
+    private _withChannel;
+    private _withTelemetryChannel;
+}

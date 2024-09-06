@@ -1,0 +1,32 @@
+import { Disposable } from "vs/base/common/lifecycle";
+import { URI } from "vs/base/common/uri";
+import { ITextModelService } from "vs/editor/common/services/resolverService";
+import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
+import { INotificationService } from "vs/platform/notification/common/notification";
+import { IStorageService } from "vs/platform/storage/common/storage";
+import { IWorkbenchContribution } from "vs/workbench/common/contributions";
+import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { ISaveErrorHandler, ITextFileEditorModel, ITextFileSaveOptions, ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
+export declare const CONFLICT_RESOLUTION_CONTEXT = "saveConflictResolutionContext";
+export declare const CONFLICT_RESOLUTION_SCHEME = "conflictResolution";
+export declare class TextFileSaveErrorHandler extends Disposable implements ISaveErrorHandler, IWorkbenchContribution {
+    private readonly notificationService;
+    private readonly textFileService;
+    private contextKeyService;
+    private readonly editorService;
+    private readonly instantiationService;
+    private readonly storageService;
+    static readonly ID = "workbench.contrib.textFileSaveErrorHandler";
+    private readonly messages;
+    private readonly conflictResolutionContext;
+    private activeConflictResolutionResource;
+    constructor(notificationService: INotificationService, textFileService: ITextFileService, contextKeyService: IContextKeyService, editorService: IEditorService, textModelService: ITextModelService, instantiationService: IInstantiationService, storageService: IStorageService);
+    private registerListeners;
+    private onActiveEditorChanged;
+    private onFileSavedOrReverted;
+    onSaveError(error: unknown, model: ITextFileEditorModel, options: ITextFileSaveOptions): void;
+    dispose(): void;
+}
+export declare const acceptLocalChangesCommand: (accessor: ServicesAccessor, resource: URI) => Promise<any>;
+export declare const revertLocalChangesCommand: (accessor: ServicesAccessor, resource: URI) => Promise<any>;

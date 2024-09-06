@@ -1,0 +1,1 @@
+import"../../../../vs/base/common/cancellation.js";import"../../../../vs/base/common/lifecycle.js";import"../../../../vs/base/common/uri.js";import{createDecorator as r}from"../../../../vs/platform/instantiation/common/instantiation.js";const d=r("canonicalUriIdentityService");export{d as ICanonicalUriService};

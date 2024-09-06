@@ -1,0 +1,1 @@
+import"../../../../../vs/base/common/event.js";import"../../../../../vs/base/common/lifecycle.js";import"../../../../../vs/base/common/uri.js";import"../../../../../vs/editor/common/languageSelector.js";import{createDecorator as i}from"../../../../../vs/platform/instantiation/common/instantiation.js";const l=i("quickDiff");export{l as IQuickDiffService};

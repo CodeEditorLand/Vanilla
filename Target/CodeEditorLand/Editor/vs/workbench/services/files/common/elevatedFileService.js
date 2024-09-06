@@ -1,0 +1,1 @@
+import"../../../../../vs/base/common/buffer.js";import"../../../../../vs/base/common/uri.js";import"../../../../../vs/platform/files/common/files.js";import{createDecorator as e}from"../../../../../vs/platform/instantiation/common/instantiation.js";const m=e("elevatedFileService");export{m as IElevatedFileService};

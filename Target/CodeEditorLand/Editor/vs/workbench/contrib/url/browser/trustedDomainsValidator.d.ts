@@ -1,0 +1,30 @@
+import { URI } from "vs/base/common/uri";
+import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
+import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IDialogService } from "vs/platform/dialogs/common/dialogs";
+import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { IOpenerService, OpenOptions } from "vs/platform/opener/common/opener";
+import { IProductService } from "vs/platform/product/common/productService";
+import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
+import { IStorageService } from "vs/platform/storage/common/storage";
+import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IWorkspaceTrustManagementService } from "vs/platform/workspace/common/workspaceTrust";
+import { IWorkbenchContribution } from "vs/workbench/common/contributions";
+import { ITrustedDomainService } from "vs/workbench/contrib/url/browser/trustedDomainService";
+import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+export declare class OpenerValidatorContributions implements IWorkbenchContribution {
+    private readonly _openerService;
+    private readonly _storageService;
+    private readonly _dialogService;
+    private readonly _productService;
+    private readonly _quickInputService;
+    private readonly _editorService;
+    private readonly _clipboardService;
+    private readonly _telemetryService;
+    private readonly _instantiationService;
+    private readonly _configurationService;
+    private readonly _workspaceTrustService;
+    private readonly _trustedDomainService;
+    constructor(_openerService: IOpenerService, _storageService: IStorageService, _dialogService: IDialogService, _productService: IProductService, _quickInputService: IQuickInputService, _editorService: IEditorService, _clipboardService: IClipboardService, _telemetryService: ITelemetryService, _instantiationService: IInstantiationService, _configurationService: IConfigurationService, _workspaceTrustService: IWorkspaceTrustManagementService, _trustedDomainService: ITrustedDomainService);
+    validateLink(resource: URI | string, openOptions?: OpenOptions): Promise<boolean>;
+}

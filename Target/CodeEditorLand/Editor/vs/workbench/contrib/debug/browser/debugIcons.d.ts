@@ -1,0 +1,72 @@
+export declare const debugConsoleViewIcon: any;
+export declare const runViewIcon: any;
+export declare const variablesViewIcon: any;
+export declare const watchViewIcon: any;
+export declare const callStackViewIcon: any;
+export declare const breakpointsViewIcon: any;
+export declare const loadedScriptsViewIcon: any;
+export declare const breakpoint: {
+    regular: any;
+    disabled: any;
+    unverified: any;
+    pending: any;
+};
+export declare const functionBreakpoint: {
+    regular: any;
+    disabled: any;
+    unverified: any;
+};
+export declare const conditionalBreakpoint: {
+    regular: any;
+    disabled: any;
+    unverified: any;
+};
+export declare const dataBreakpoint: {
+    regular: any;
+    disabled: any;
+    unverified: any;
+};
+export declare const logBreakpoint: {
+    regular: any;
+    disabled: any;
+    unverified: any;
+};
+export declare const debugBreakpointHint: any;
+export declare const debugBreakpointUnsupported: any;
+export declare const allBreakpoints: {
+    regular: any;
+    disabled: any;
+    unverified: any;
+}[];
+export declare const debugStackframe: any;
+export declare const debugStackframeFocused: any;
+export declare const debugGripper: any;
+export declare const debugRestartFrame: any;
+export declare const debugStop: any;
+export declare const debugDisconnect: any;
+export declare const debugRestart: any;
+export declare const debugStepOver: any;
+export declare const debugStepInto: any;
+export declare const debugStepOut: any;
+export declare const debugStepBack: any;
+export declare const debugPause: any;
+export declare const debugContinue: any;
+export declare const debugReverseContinue: any;
+export declare const debugRun: any;
+export declare const debugStart: any;
+export declare const debugConfigure: any;
+export declare const debugConsole: any;
+export declare const debugRemoveConfig: any;
+export declare const debugCollapseAll: any;
+export declare const callstackViewSession: any;
+export declare const debugConsoleClearAll: any;
+export declare const watchExpressionsRemoveAll: any;
+export declare const watchExpressionRemove: any;
+export declare const watchExpressionsAdd: any;
+export declare const watchExpressionsAddFuncBreakpoint: any;
+export declare const watchExpressionsAddDataBreakpoint: any;
+export declare const breakpointsRemoveAll: any;
+export declare const breakpointsActivate: any;
+export declare const debugConsoleEvaluationInput: any;
+export declare const debugConsoleEvaluationPrompt: any;
+export declare const debugInspectMemory: any;

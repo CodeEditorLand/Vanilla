@@ -1,0 +1,1 @@
+import{IChecksumService as e}from"../../../../../vs/platform/checksum/common/checksumService.js";import{registerSharedProcessRemoteService as r}from"../../../../../vs/platform/ipc/electron-sandbox/services.js";r(e,"checksum");

@@ -1,0 +1,1 @@
+import{homedir as e}from"os";import{ExtHostVariableResolverProviderService as r}from"../../../../vs/workbench/api/common/extHostVariableResolverService.js";class d extends r{homeDir(){return e()}}export{d as NodeExtHostVariableResolverProviderService};

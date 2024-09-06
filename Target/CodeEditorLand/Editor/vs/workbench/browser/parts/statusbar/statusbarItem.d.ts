@@ -1,0 +1,36 @@
+import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
+import { Disposable } from "vs/base/common/lifecycle";
+import { ICommandService } from "vs/platform/commands/common/commands";
+import { IHoverService } from "vs/platform/hover/browser/hover";
+import { INotificationService } from "vs/platform/notification/common/notification";
+import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IThemeService } from "vs/platform/theme/common/themeService";
+import { IStatusbarEntry } from "vs/workbench/services/statusbar/browser/statusbar";
+export declare class StatusbarEntryItem extends Disposable {
+    private container;
+    private readonly hoverDelegate;
+    private readonly commandService;
+    private readonly hoverService;
+    private readonly notificationService;
+    private readonly telemetryService;
+    private readonly themeService;
+    private readonly label;
+    private entry;
+    private readonly foregroundListener;
+    private readonly backgroundListener;
+    private readonly commandMouseListener;
+    private readonly commandTouchListener;
+    private readonly commandKeyboardListener;
+    private readonly focusListener;
+    private readonly focusOutListener;
+    private hover;
+    readonly labelContainer: HTMLElement;
+    readonly beakContainer: HTMLElement;
+    get name(): string;
+    get hasCommand(): boolean;
+    constructor(container: HTMLElement, entry: IStatusbarEntry, hoverDelegate: IHoverDelegate, commandService: ICommandService, hoverService: IHoverService, notificationService: INotificationService, telemetryService: ITelemetryService, themeService: IThemeService);
+    update(entry: IStatusbarEntry): void;
+    private isEqualTooltip;
+    private executeCommand;
+    private applyColor;
+}

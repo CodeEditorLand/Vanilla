@@ -1,0 +1,72 @@
+import "vs/css!./media/userDataProfilesEditor";
+import { Dimension, IDomPosition } from "vs/base/browser/dom";
+import { CancellationToken } from "vs/base/common/cancellation";
+import { ThemeIcon } from "vs/base/common/themables";
+import { URI } from "vs/base/common/uri";
+import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
+import { IFileDialogService } from "vs/platform/dialogs/common/dialogs";
+import { IEditorOptions } from "vs/platform/editor/common/editor";
+import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
+import { IStorageService } from "vs/platform/storage/common/storage";
+import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IThemeService } from "vs/platform/theme/common/themeService";
+import { IUserDataProfile } from "vs/platform/userDataProfile/common/userDataProfile";
+import { EditorPane } from "vs/workbench/browser/parts/editor/editorPane";
+import { IEditorOpenContext, IEditorSerializer, IUntypedEditorInput } from "vs/workbench/common/editor";
+import { EditorInput } from "vs/workbench/common/editor/editorInput";
+import { UserDataProfilesEditorModel } from "vs/workbench/contrib/userDataProfile/browser/userDataProfilesEditorModel";
+import { IUserDataProfilesEditor } from "vs/workbench/contrib/userDataProfile/common/userDataProfile";
+import { IEditorGroup } from "vs/workbench/services/editor/common/editorGroupsService";
+export declare const profilesSashBorder: any;
+export declare class UserDataProfilesEditor extends EditorPane implements IUserDataProfilesEditor {
+    private readonly quickInputService;
+    private readonly fileDialogService;
+    private readonly contextMenuService;
+    private readonly instantiationService;
+    static readonly ID: string;
+    private container;
+    private splitView;
+    private profilesList;
+    private profileWidget;
+    private model;
+    constructor(group: IEditorGroup, telemetryService: ITelemetryService, themeService: IThemeService, storageService: IStorageService, quickInputService: IQuickInputService, fileDialogService: IFileDialogService, contextMenuService: IContextMenuService, instantiationService: IInstantiationService);
+    layout(dimension: Dimension, position?: IDomPosition | undefined): void;
+    protected createEditor(parent: HTMLElement): void;
+    updateStyles(): void;
+    private renderSidebar;
+    private renderNewProfileButton;
+    private getCreateFromTemplateActions;
+    private registerListeners;
+    private getTreeContextMenuActions;
+    private importProfile;
+    createNewProfile(copyFrom?: URI | IUserDataProfile): Promise<void>;
+    selectProfile(profile: IUserDataProfile): void;
+    private getProfileUriFromFileSystem;
+    setInput(input: UserDataProfilesEditorInput, options: IEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void>;
+    focus(): void;
+    private updateProfilesList;
+}
+export declare class UserDataProfilesEditorInput extends EditorInput {
+    private readonly instantiationService;
+    static readonly ID: string;
+    readonly resource: undefined;
+    private readonly model;
+    private _dirty;
+    get dirty(): boolean;
+    set dirty(dirty: boolean);
+    constructor(instantiationService: IInstantiationService);
+    get typeId(): string;
+    getName(): string;
+    getIcon(): ThemeIcon | undefined;
+    resolve(): Promise<UserDataProfilesEditorModel>;
+    isDirty(): boolean;
+    save(): Promise<EditorInput>;
+    revert(): Promise<void>;
+    matches(otherInput: EditorInput | IUntypedEditorInput): boolean;
+}
+export declare class UserDataProfilesEditorInputSerializer implements IEditorSerializer {
+    canSerialize(editorInput: EditorInput): boolean;
+    serialize(editorInput: EditorInput): string;
+    deserialize(instantiationService: IInstantiationService): EditorInput;
+}

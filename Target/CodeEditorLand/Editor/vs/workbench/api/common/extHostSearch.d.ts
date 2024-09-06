@@ -1,0 +1,51 @@
+import { CancellationToken } from "vs/base/common/cancellation";
+import { IDisposable } from "vs/base/common/lifecycle";
+import { URI } from "vs/base/common/uri";
+import { ILogService } from "vs/platform/log/common/log";
+import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
+import { IURITransformerService } from "vs/workbench/api/common/extHostUriTransformerService";
+import { IAITextQuery, IFileQuery, IRawAITextQuery, IRawFileQuery, IRawQuery, IRawTextQuery, ISearchCompleteStats, ITextQuery } from "vs/workbench/services/search/common/search";
+import { TextSearchManager } from "vs/workbench/services/search/common/textSearchManager";
+import type * as vscode from "vscode";
+import { ExtHostSearchShape, MainThreadSearchShape } from "../common/extHost.protocol";
+export interface IExtHostSearch extends ExtHostSearchShape {
+    registerTextSearchProviderOld(scheme: string, provider: vscode.TextSearchProvider): IDisposable;
+    registerAITextSearchProviderOld(scheme: string, provider: vscode.AITextSearchProvider): IDisposable;
+    registerFileSearchProviderOld(scheme: string, provider: vscode.FileSearchProvider): IDisposable;
+    registerTextSearchProvider(scheme: string, provider: vscode.TextSearchProviderNew): IDisposable;
+    registerAITextSearchProvider(scheme: string, provider: vscode.AITextSearchProviderNew): IDisposable;
+    registerFileSearchProvider(scheme: string, provider: vscode.FileSearchProviderNew): IDisposable;
+    doInternalFileSearchWithCustomCallback(query: IFileQuery, token: CancellationToken, handleFileMatch: (data: URI[]) => void): Promise<ISearchCompleteStats>;
+}
+export declare const IExtHostSearch: any;
+export declare class ExtHostSearch implements IExtHostSearch {
+    private extHostRpc;
+    protected _uriTransformer: IURITransformerService;
+    protected _logService: ILogService;
+    protected readonly _proxy: MainThreadSearchShape;
+    protected _handlePool: number;
+    private readonly _textSearchProvider;
+    private readonly _textSearchUsedSchemes;
+    private readonly _aiTextSearchProvider;
+    private readonly _aiTextSearchUsedSchemes;
+    private readonly _fileSearchProvider;
+    private readonly _fileSearchUsedSchemes;
+    private readonly _fileSearchManager;
+    constructor(extHostRpc: IExtHostRpcService, _uriTransformer: IURITransformerService, _logService: ILogService);
+    protected _transformScheme(scheme: string): string;
+    registerTextSearchProviderOld(scheme: string, provider: vscode.TextSearchProvider): IDisposable;
+    registerTextSearchProvider(scheme: string, provider: vscode.TextSearchProviderNew): IDisposable;
+    registerAITextSearchProviderOld(scheme: string, provider: vscode.AITextSearchProvider): IDisposable;
+    registerAITextSearchProvider(scheme: string, provider: vscode.AITextSearchProviderNew): IDisposable;
+    registerFileSearchProviderOld(scheme: string, provider: vscode.FileSearchProvider): IDisposable;
+    registerFileSearchProvider(scheme: string, provider: vscode.FileSearchProviderNew): IDisposable;
+    $provideFileSearchResults(handle: number, session: number, rawQuery: IRawFileQuery, token: vscode.CancellationToken): Promise<ISearchCompleteStats>;
+    doInternalFileSearchWithCustomCallback(query: IFileQuery, token: CancellationToken, handleFileMatch: (data: URI[]) => void): Promise<ISearchCompleteStats>;
+    $clearCache(cacheKey: string): Promise<void>;
+    $provideTextSearchResults(handle: number, session: number, rawQuery: IRawTextQuery, token: vscode.CancellationToken): Promise<ISearchCompleteStats>;
+    $provideAITextSearchResults(handle: number, session: number, rawQuery: IRawAITextQuery, token: vscode.CancellationToken): Promise<ISearchCompleteStats>;
+    $enableExtensionHostSearch(): void;
+    protected createTextSearchManager(query: ITextQuery, provider: vscode.TextSearchProviderNew): TextSearchManager;
+    protected createAITextSearchManager(query: IAITextQuery, provider: vscode.AITextSearchProviderNew): TextSearchManager;
+}
+export declare function reviveQuery<U extends IRawQuery>(rawQuery: U): U extends IRawTextQuery ? ITextQuery : U extends IRawAITextQuery ? IAITextQuery : IFileQuery;

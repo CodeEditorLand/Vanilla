@@ -1,0 +1,57 @@
+import { CancellationToken } from "vs/base/common/cancellation";
+import { Disposable, IDisposable } from "vs/base/common/lifecycle";
+import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { ILogService } from "vs/platform/log/common/log";
+import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { ISpeechProvider, ISpeechService, ISpeechToTextSession, ITextToSpeechSession, KeywordRecognitionStatus } from "vs/workbench/contrib/speech/common/speechService";
+import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { IHostService } from "vs/workbench/services/host/browser/host";
+export interface ISpeechProviderDescriptor {
+    readonly name: string;
+    readonly description?: string;
+}
+export declare class SpeechService extends Disposable implements ISpeechService {
+    private readonly logService;
+    private readonly contextKeyService;
+    private readonly hostService;
+    private readonly telemetryService;
+    private readonly configurationService;
+    private readonly extensionService;
+    readonly _serviceBrand: undefined;
+    private readonly _onDidChangeHasSpeechProvider;
+    readonly onDidChangeHasSpeechProvider: any;
+    get hasSpeechProvider(): boolean;
+    private readonly providers;
+    private readonly providerDescriptors;
+    private readonly hasSpeechProviderContext;
+    constructor(logService: ILogService, contextKeyService: IContextKeyService, hostService: IHostService, telemetryService: ITelemetryService, configurationService: IConfigurationService, extensionService: IExtensionService);
+    private handleAndRegisterSpeechExtensions;
+    registerSpeechProvider(identifier: string, provider: ISpeechProvider): IDisposable;
+    private handleHasSpeechProviderChange;
+    private readonly _onDidStartSpeechToTextSession;
+    readonly onDidStartSpeechToTextSession: any;
+    private readonly _onDidEndSpeechToTextSession;
+    readonly onDidEndSpeechToTextSession: any;
+    private activeSpeechToTextSessions;
+    get hasActiveSpeechToTextSession(): boolean;
+    private readonly speechToTextInProgress;
+    createSpeechToTextSession(token: CancellationToken, context?: string): Promise<ISpeechToTextSession>;
+    private getProvider;
+    private readonly _onDidStartTextToSpeechSession;
+    readonly onDidStartTextToSpeechSession: any;
+    private readonly _onDidEndTextToSpeechSession;
+    readonly onDidEndTextToSpeechSession: any;
+    private activeTextToSpeechSessions;
+    get hasActiveTextToSpeechSession(): boolean;
+    private readonly textToSpeechInProgress;
+    createTextToSpeechSession(token: CancellationToken, context?: string): Promise<ITextToSpeechSession>;
+    private readonly _onDidStartKeywordRecognition;
+    readonly onDidStartKeywordRecognition: any;
+    private readonly _onDidEndKeywordRecognition;
+    readonly onDidEndKeywordRecognition: any;
+    private activeKeywordRecognitionSessions;
+    get hasActiveKeywordRecognition(): boolean;
+    recognizeKeyword(token: CancellationToken): Promise<KeywordRecognitionStatus>;
+    private doRecognizeKeyword;
+}

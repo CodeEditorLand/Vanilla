@@ -1,0 +1,1 @@
+import{InstantiationType as e,registerSingleton as r}from"../../../../../vs/platform/instantiation/common/extensions.js";import{SpeechService as i}from"../../../../../vs/workbench/contrib/speech/browser/speechService.js";import{ISpeechService as o}from"../../../../../vs/workbench/contrib/speech/common/speechService.js";r(o,i,e.Eager);

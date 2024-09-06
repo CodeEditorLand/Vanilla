@@ -1,0 +1,1 @@
+import"../../../../../vs/base/common/uri.js";import{createDecorator as e}from"../../../../../vs/platform/instantiation/common/instantiation.js";import"../../../../../vs/platform/workspace/common/workspace.js";import"../../../../../vs/platform/workspaces/common/workspaces.js";const n=e("workspaceEditingService");export{n as IWorkspaceEditingService};

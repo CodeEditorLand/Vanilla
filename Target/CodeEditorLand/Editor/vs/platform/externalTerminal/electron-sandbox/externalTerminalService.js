@@ -1,0 +1,1 @@
+import"../../../../vs/platform/externalTerminal/common/externalTerminal.js";import{createDecorator as e}from"../../../../vs/platform/instantiation/common/instantiation.js";import{registerMainProcessRemoteService as r}from"../../../../vs/platform/ipc/electron-sandbox/services.js";const n=e("externalTerminal");r(n,"externalTerminal");export{n as IExternalTerminalService};

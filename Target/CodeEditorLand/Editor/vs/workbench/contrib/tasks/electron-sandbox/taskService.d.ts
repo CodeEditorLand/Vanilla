@@ -1,0 +1,52 @@
+import { IModelService } from "vs/editor/common/services/model";
+import { ITextModelService } from "vs/editor/common/services/resolverService";
+import { IAccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
+import { ICommandService } from "vs/platform/commands/common/commands";
+import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { IDialogService } from "vs/platform/dialogs/common/dialogs";
+import { IFileService } from "vs/platform/files/common/files";
+import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { ILogService } from "vs/platform/log/common/log";
+import { IMarkerService } from "vs/platform/markers/common/markers";
+import { INotificationService } from "vs/platform/notification/common/notification";
+import { IOpenerService } from "vs/platform/opener/common/opener";
+import { IProgressService } from "vs/platform/progress/common/progress";
+import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
+import { IStorageService } from "vs/platform/storage/common/storage";
+import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IThemeService } from "vs/platform/theme/common/themeService";
+import { IWorkspaceContextService, IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
+import { IWorkspaceTrustManagementService, IWorkspaceTrustRequestService } from "vs/platform/workspace/common/workspaceTrust";
+import { IViewDescriptorService } from "vs/workbench/common/views";
+import { AbstractTaskService } from "vs/workbench/contrib/tasks/browser/abstractTaskService";
+import { ITaskFilter } from "vs/workbench/contrib/tasks/common/taskService";
+import { ITaskSystem } from "vs/workbench/contrib/tasks/common/taskSystem";
+import { ITerminalGroupService, ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
+import { ITerminalProfileResolverService } from "vs/workbench/contrib/terminal/common/terminal";
+import { IConfigurationResolverService } from "vs/workbench/services/configurationResolver/common/configurationResolver";
+import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
+import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
+import { IOutputService } from "vs/workbench/services/output/common/output";
+import { IPaneCompositePartService } from "vs/workbench/services/panecomposite/browser/panecomposite";
+import { IPathService } from "vs/workbench/services/path/common/pathService";
+import { IPreferencesService } from "vs/workbench/services/preferences/common/preferences";
+import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
+import { IViewsService } from "vs/workbench/services/views/common/viewsService";
+import * as TaskConfig from "../common/taskConfiguration";
+interface IWorkspaceFolderConfigurationResult {
+    workspaceFolder: IWorkspaceFolder;
+    config: TaskConfig.IExternalTaskRunnerConfiguration | undefined;
+    hasErrors: boolean;
+}
+export declare class TaskService extends AbstractTaskService {
+    constructor(configurationService: IConfigurationService, markerService: IMarkerService, outputService: IOutputService, paneCompositeService: IPaneCompositePartService, viewsService: IViewsService, commandService: ICommandService, editorService: IEditorService, fileService: IFileService, contextService: IWorkspaceContextService, telemetryService: ITelemetryService, textFileService: ITextFileService, lifecycleService: ILifecycleService, modelService: IModelService, extensionService: IExtensionService, quickInputService: IQuickInputService, configurationResolverService: IConfigurationResolverService, terminalService: ITerminalService, terminalGroupService: ITerminalGroupService, storageService: IStorageService, progressService: IProgressService, openerService: IOpenerService, dialogService: IDialogService, notificationService: INotificationService, contextKeyService: IContextKeyService, environmentService: IWorkbenchEnvironmentService, terminalProfileResolverService: ITerminalProfileResolverService, pathService: IPathService, textModelResolverService: ITextModelService, preferencesService: IPreferencesService, viewDescriptorService: IViewDescriptorService, workspaceTrustRequestService: IWorkspaceTrustRequestService, workspaceTrustManagementService: IWorkspaceTrustManagementService, logService: ILogService, themeService: IThemeService, instantiationService: IInstantiationService, remoteAgentService: IRemoteAgentService, accessibilitySignalService: IAccessibilitySignalService);
+    protected _getTaskSystem(): ITaskSystem;
+    protected _computeLegacyConfiguration(workspaceFolder: IWorkspaceFolder): Promise<IWorkspaceFolderConfigurationResult>;
+    protected _versionAndEngineCompatible(filter?: ITaskFilter): boolean;
+    beforeShutdown(): boolean | Promise<boolean>;
+}
+export {};

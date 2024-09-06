@@ -1,0 +1,53 @@
+import { IAnchor } from "vs/base/browser/ui/contextview/contextview";
+import { Disposable } from "vs/base/common/lifecycle";
+import { ICodeEditor } from "vs/editor/browser/editorBrowser";
+import { IPosition } from "vs/editor/common/core/position";
+import { IEditorContribution } from "vs/editor/common/editorCommon";
+import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
+import { CodeActionAutoApply, CodeActionFilter, CodeActionSet, CodeActionTrigger, CodeActionTriggerSource } from "vs/editor/contrib/codeAction/common/types";
+import { IActionWidgetService } from "vs/platform/actionWidget/browser/actionWidget";
+import { ICommandService } from "vs/platform/commands/common/commands";
+import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { IMarkerService } from "vs/platform/markers/common/markers";
+import { IEditorProgressService } from "vs/platform/progress/common/progress";
+import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+interface IActionShowOptions {
+    readonly includeDisabledActions?: boolean;
+    readonly fromLightbulb?: boolean;
+}
+export declare class CodeActionController extends Disposable implements IEditorContribution {
+    private readonly _commandService;
+    private readonly _configurationService;
+    private readonly _actionWidgetService;
+    private readonly _instantiationService;
+    private readonly _telemetryService;
+    static readonly ID = "editor.contrib.codeActionController";
+    static get(editor: ICodeEditor): CodeActionController | null;
+    private readonly _editor;
+    private readonly _model;
+    private readonly _lightBulbWidget;
+    private readonly _activeCodeActions;
+    private _showDisabled;
+    private readonly _resolver;
+    private _disposed;
+    constructor(editor: ICodeEditor, markerService: IMarkerService, contextKeyService: IContextKeyService, instantiationService: IInstantiationService, languageFeaturesService: ILanguageFeaturesService, progressService: IEditorProgressService, _commandService: ICommandService, _configurationService: IConfigurationService, _actionWidgetService: IActionWidgetService, _instantiationService: IInstantiationService, _telemetryService: ITelemetryService);
+    dispose(): void;
+    private showCodeActionsFromLightbulb;
+    showCodeActions(_trigger: CodeActionTrigger, actions: CodeActionSet, at: IAnchor | IPosition): Promise<void>;
+    hideCodeActions(): void;
+    manualTriggerAtCurrentPosition(notAvailableMessage: string, triggerAction: CodeActionTriggerSource, filter?: CodeActionFilter, autoApply?: CodeActionAutoApply): void;
+    private _trigger;
+    private _applyCodeAction;
+    hideLightBulbWidget(): void;
+    private update;
+    private getInvalidActionThatWouldHaveBeenApplied;
+    private tryGetValidActionToApply;
+    private static readonly DECORATION;
+    showCodeActionList(actions: CodeActionSet, at: IAnchor | IPosition, options: IActionShowOptions): Promise<void>;
+    private toCoords;
+    private _shouldShowHeaders;
+    private _getActionBarActions;
+}
+export {};

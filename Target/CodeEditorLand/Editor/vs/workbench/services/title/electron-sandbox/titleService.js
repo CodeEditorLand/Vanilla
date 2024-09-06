@@ -1,0 +1,1 @@
+import{InstantiationType as e,registerSingleton as i}from"../../../../../vs/platform/instantiation/common/extensions.js";import{NativeTitleService as r}from"../../../../../vs/workbench/electron-sandbox/parts/titlebar/titlebarPart.js";import{ITitleService as t}from"../../../../../vs/workbench/services/title/browser/titleService.js";i(t,r,e.Eager);

@@ -1,0 +1,44 @@
+import * as DOM from "vs/base/browser/dom";
+import { CancellationToken } from "vs/base/common/cancellation";
+import { URI } from "vs/base/common/uri";
+import { ICodeEditor } from "vs/editor/browser/editorBrowser";
+import { MultiDiffEditorViewModel } from "vs/editor/browser/widget/multiDiffEditor/multiDiffEditorViewModel";
+import { IMultiDiffEditorOptions, IMultiDiffEditorViewState } from "vs/editor/browser/widget/multiDiffEditor/multiDiffEditorWidgetImpl";
+import { IDiffEditor } from "vs/editor/common/editorCommon";
+import { ITextResourceConfigurationService } from "vs/editor/common/services/textResourceConfiguration";
+import { InstantiationService } from "vs/platform/instantiation/common/instantiationService";
+import { IStorageService } from "vs/platform/storage/common/storage";
+import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IThemeService } from "vs/platform/theme/common/themeService";
+import { AbstractEditorWithViewState } from "vs/workbench/browser/parts/editor/editorWithViewState";
+import { ICompositeControl } from "vs/workbench/common/composite";
+import { IEditorOpenContext } from "vs/workbench/common/editor";
+import { EditorInput } from "vs/workbench/common/editor/editorInput";
+import { MultiDiffEditorInput } from "vs/workbench/contrib/multiDiffEditor/browser/multiDiffEditorInput";
+import { MultiDiffEditorItem } from "vs/workbench/contrib/multiDiffEditor/browser/multiDiffSourceResolverService";
+import { IEditorGroup, IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
+import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+export declare class MultiDiffEditor extends AbstractEditorWithViewState<IMultiDiffEditorViewState> {
+    static readonly ID = "multiDiffEditor";
+    private _multiDiffEditorWidget;
+    private _viewModel;
+    get viewModel(): MultiDiffEditorViewModel | undefined;
+    constructor(group: IEditorGroup, instantiationService: InstantiationService, telemetryService: ITelemetryService, themeService: IThemeService, storageService: IStorageService, editorService: IEditorService, editorGroupService: IEditorGroupsService, textResourceConfigurationService: ITextResourceConfigurationService);
+    protected createEditor(parent: HTMLElement): void;
+    setInput(input: MultiDiffEditorInput, options: IMultiDiffEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void>;
+    setOptions(options: IMultiDiffEditorOptions | undefined): void;
+    private _applyOptions;
+    clearInput(): Promise<void>;
+    layout(dimension: DOM.Dimension): void;
+    getControl(): ICompositeControl | undefined;
+    focus(): void;
+    hasFocus(): boolean;
+    protected computeEditorViewState(resource: URI): IMultiDiffEditorViewState | undefined;
+    protected tracksEditorViewState(input: EditorInput): boolean;
+    protected toEditorViewStateResource(input: EditorInput): URI | undefined;
+    tryGetCodeEditor(resource: URI): {
+        diffEditor: IDiffEditor;
+        editor: ICodeEditor;
+    } | undefined;
+    findDocumentDiffItem(resource: URI): MultiDiffEditorItem | undefined;
+}

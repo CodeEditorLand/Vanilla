@@ -1,0 +1,1 @@
+import{registerSharedProcessRemoteService as e}from"../../../../../vs/platform/ipc/electron-sandbox/services.js";import{ILanguagePackService as r}from"../../../../../vs/platform/languagePacks/common/languagePacks.js";e(r,"languagePacks");

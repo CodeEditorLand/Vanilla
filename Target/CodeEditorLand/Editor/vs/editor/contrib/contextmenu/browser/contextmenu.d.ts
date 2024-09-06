@@ -1,0 +1,31 @@
+import { IMouseEvent } from "vs/base/browser/mouseEvent";
+import { ICodeEditor } from "vs/editor/browser/editorBrowser";
+import { IEditorContribution } from "vs/editor/common/editorCommon";
+import { IMenuService } from "vs/platform/actions/common/actions";
+import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { IContextMenuService, IContextViewService } from "vs/platform/contextview/browser/contextView";
+import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
+export declare class ContextMenuController implements IEditorContribution {
+    private readonly _contextMenuService;
+    private readonly _contextViewService;
+    private readonly _contextKeyService;
+    private readonly _keybindingService;
+    private readonly _menuService;
+    private readonly _configurationService;
+    private readonly _workspaceContextService;
+    static readonly ID = "editor.contrib.contextmenu";
+    static get(editor: ICodeEditor): ContextMenuController | null;
+    private readonly _toDispose;
+    private _contextMenuIsBeingShownCount;
+    private readonly _editor;
+    constructor(editor: ICodeEditor, _contextMenuService: IContextMenuService, _contextViewService: IContextViewService, _contextKeyService: IContextKeyService, _keybindingService: IKeybindingService, _menuService: IMenuService, _configurationService: IConfigurationService, _workspaceContextService: IWorkspaceContextService);
+    private _onContextMenu;
+    showContextMenu(anchor?: IMouseEvent | null): void;
+    private _getMenuActions;
+    private _doShowContextMenu;
+    private _showScrollbarContextMenu;
+    private _keybindingFor;
+    dispose(): void;
+}

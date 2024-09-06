@@ -1,0 +1,35 @@
+import { IDisposable } from "vs/base/common/lifecycle";
+import { URI } from "vs/base/common/uri";
+import * as pfs from "vs/base/node/pfs";
+import { ILogService } from "vs/platform/log/common/log";
+import { IExtHostConfiguration } from "vs/workbench/api/common/extHostConfiguration";
+import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
+import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
+import { ExtHostSearch } from "vs/workbench/api/common/extHostSearch";
+import { IURITransformerService } from "vs/workbench/api/common/extHostUriTransformerService";
+import { IFileQuery, IRawFileQuery, ISearchCompleteStats, ITextQuery } from "vs/workbench/services/search/common/search";
+import { TextSearchManager } from "vs/workbench/services/search/common/textSearchManager";
+import type * as vscode from "vscode";
+export declare class NativeExtHostSearch extends ExtHostSearch implements IDisposable {
+    private readonly configurationService;
+    protected _pfs: typeof pfs;
+    private _internalFileSearchHandle;
+    private _internalFileSearchProvider;
+    private _registeredEHSearchProvider;
+    private _numThreadsPromise;
+    private readonly _disposables;
+    private isDisposed;
+    constructor(extHostRpc: IExtHostRpcService, initData: IExtHostInitDataService, _uriTransformer: IURITransformerService, configurationService: IExtHostConfiguration, _logService: ILogService);
+    private handleConfigurationChanged;
+    getNumThreads(): Promise<number | undefined>;
+    getNumThreadsCached(): Promise<number | undefined>;
+    dispose(): void;
+    $enableExtensionHostSearch(): void;
+    private _registerEHSearchProviders;
+    private registerInternalFileSearchProvider;
+    $provideFileSearchResults(handle: number, session: number, rawQuery: IRawFileQuery, token: vscode.CancellationToken): Promise<ISearchCompleteStats>;
+    doInternalFileSearchWithCustomCallback(rawQuery: IFileQuery, token: vscode.CancellationToken, handleFileMatch: (data: URI[]) => void): Promise<ISearchCompleteStats>;
+    private doInternalFileSearch;
+    $clearCache(cacheKey: string): Promise<void>;
+    protected createTextSearchManager(query: ITextQuery, provider: vscode.TextSearchProviderNew): TextSearchManager;
+}

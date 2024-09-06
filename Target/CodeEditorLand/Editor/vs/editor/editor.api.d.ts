@@ -1,0 +1,14 @@
+export declare const CancellationTokenSource: any;
+export declare const Emitter: any;
+export declare const KeyCode: any;
+export declare const KeyMod: any;
+export declare const Position: any;
+export declare const Range: any;
+export declare const Selection: any;
+export declare const SelectionDirection: any;
+export declare const MarkerSeverity: any;
+export declare const MarkerTag: any;
+export declare const Uri: any;
+export declare const Token: any;
+export declare const editor: any;
+export declare const languages: any;

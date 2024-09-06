@@ -1,0 +1,12 @@
+export declare const settingsScopeDropDownIcon: any;
+export declare const settingsMoreActionIcon: any;
+export declare const keybindingsRecordKeysIcon: any;
+export declare const keybindingsSortIcon: any;
+export declare const keybindingsEditIcon: any;
+export declare const keybindingsAddIcon: any;
+export declare const settingsEditIcon: any;
+export declare const settingsRemoveIcon: any;
+export declare const settingsDiscardIcon: any;
+export declare const preferencesClearInputIcon: any;
+export declare const preferencesFilterIcon: any;
+export declare const preferencesOpenSettingsIcon: any;

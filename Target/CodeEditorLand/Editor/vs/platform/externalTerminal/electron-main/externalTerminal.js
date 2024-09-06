@@ -1,0 +1,1 @@
+import"../../../../vs/platform/externalTerminal/common/externalTerminal.js";import{createDecorator as e}from"../../../../vs/platform/instantiation/common/instantiation.js";const i=e("externalTerminal");export{i as IExternalTerminalMainService};

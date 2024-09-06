@@ -1,0 +1,1 @@
+import{createDecorator as e}from"../../../../../vs/platform/instantiation/common/instantiation.js";import"../../../../../vs/platform/languagePacks/common/languagePacks.js";const i=e("localizationService"),o=e("activeLanguageService");export{o as IActiveLanguagePackService,i as ILocaleService};

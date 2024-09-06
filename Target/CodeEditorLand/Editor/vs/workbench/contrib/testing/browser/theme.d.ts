@@ -1,0 +1,33 @@
+import { TestResultState } from "vs/workbench/contrib/testing/common/testTypes";
+export declare const testingColorIconFailed: any;
+export declare const testingColorIconErrored: any;
+export declare const testingColorIconPassed: any;
+export declare const testingColorRunAction: any;
+export declare const testingColorIconQueued: any;
+export declare const testingColorIconUnset: any;
+export declare const testingColorIconSkipped: any;
+export declare const testingPeekBorder: any;
+export declare const testingMessagePeekBorder: any;
+export declare const testingPeekHeaderBackground: any;
+export declare const testingPeekMessageHeaderBackground: any;
+export declare const testingCoveredBackground: any;
+export declare const testingCoveredBorder: any;
+export declare const testingCoveredGutterBackground: any;
+export declare const testingUncoveredBranchBackground: any;
+export declare const testingUncoveredBackground: any;
+export declare const testingUncoveredBorder: any;
+export declare const testingUncoveredGutterBackground: any;
+export declare const testingCoverCountBadgeBackground: any;
+export declare const testingCoverCountBadgeForeground: any;
+export declare const testStatesToIconColors: {
+    [K in TestResultState]?: string;
+};
+export declare const testingRetiredColorIconErrored: any;
+export declare const testingRetiredColorIconFailed: any;
+export declare const testingRetiredColorIconPassed: any;
+export declare const testingRetiredColorIconQueued: any;
+export declare const testingRetiredColorIconUnset: any;
+export declare const testingRetiredColorIconSkipped: any;
+export declare const testStatesToRetiredIconColors: {
+    [K in TestResultState]?: string;
+};

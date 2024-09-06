@@ -1,0 +1,34 @@
+import { Disposable, IDisposable } from "vs/base/common/lifecycle";
+import { INotification, INotificationHandle, INotificationService, INotificationSource, INotificationSourceFilter, IPromptChoice, IPromptOptions, IStatusMessageOptions, NotificationMessage, NotificationsFilter, Severity } from "vs/platform/notification/common/notification";
+import { IStorageService } from "vs/platform/storage/common/storage";
+export declare class NotificationService extends Disposable implements INotificationService {
+    private readonly storageService;
+    readonly _serviceBrand: undefined;
+    readonly model: any;
+    private readonly _onDidAddNotification;
+    readonly onDidAddNotification: any;
+    private readonly _onDidRemoveNotification;
+    readonly onDidRemoveNotification: any;
+    constructor(storageService: IStorageService);
+    private registerListeners;
+    private static readonly GLOBAL_FILTER_SETTINGS_KEY;
+    private static readonly PER_SOURCE_FILTER_SETTINGS_KEY;
+    private readonly _onDidChangeFilter;
+    readonly onDidChangeFilter: any;
+    private globalFilterEnabled;
+    private readonly mapSourceToFilter;
+    setFilter(filter: NotificationsFilter | INotificationSourceFilter): void;
+    getFilter(source?: INotificationSource): NotificationsFilter;
+    private updateSourceFilter;
+    private saveSourceFilters;
+    getFilters(): INotificationSourceFilter[];
+    private updateFilters;
+    removeFilter(sourceId: string): void;
+    info(message: NotificationMessage | NotificationMessage[]): void;
+    warn(message: NotificationMessage | NotificationMessage[]): void;
+    error(message: NotificationMessage | NotificationMessage[]): void;
+    notify(notification: INotification): INotificationHandle;
+    private toStorageScope;
+    prompt(severity: Severity, message: string, choices: IPromptChoice[], options?: IPromptOptions): INotificationHandle;
+    status(message: NotificationMessage, options?: IStatusMessageOptions): IDisposable;
+}

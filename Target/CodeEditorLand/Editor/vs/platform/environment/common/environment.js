@@ -1,0 +1,1 @@
+import"../../../../vs/base/common/uri.js";import"../../../../vs/platform/environment/common/argv.js";import{createDecorator as e,refineServiceDecorator as n}from"../../../../vs/platform/instantiation/common/instantiation.js";const o=e("environmentService"),c=n(o);export{o as IEnvironmentService,c as INativeEnvironmentService};

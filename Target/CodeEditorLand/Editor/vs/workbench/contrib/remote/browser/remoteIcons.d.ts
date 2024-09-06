@@ -1,0 +1,17 @@
+export declare const getStartedIcon: any;
+export declare const documentationIcon: any;
+export declare const feedbackIcon: any;
+export declare const reviewIssuesIcon: any;
+export declare const reportIssuesIcon: any;
+export declare const remoteExplorerViewIcon: any;
+export declare const portsViewIcon: any;
+export declare const portIcon: any;
+export declare const privatePortIcon: any;
+export declare const forwardPortIcon: any;
+export declare const stopForwardIcon: any;
+export declare const openBrowserIcon: any;
+export declare const openPreviewIcon: any;
+export declare const copyAddressIcon: any;
+export declare const labelPortIcon: any;
+export declare const forwardedPortWithoutProcessIcon: any;
+export declare const forwardedPortWithProcessIcon: any;

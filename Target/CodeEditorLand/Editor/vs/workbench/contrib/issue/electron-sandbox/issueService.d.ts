@@ -1,0 +1,32 @@
+import { IMenuService } from "vs/platform/actions/common/actions";
+import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { IExtensionManagementService } from "vs/platform/extensionManagement/common/extensionManagement";
+import { IIssueMainService, OldIssueReporterStyles } from "vs/platform/issue/common/issue";
+import { IColorTheme, IThemeService } from "vs/platform/theme/common/themeService";
+import { IWorkspaceTrustManagementService } from "vs/platform/workspace/common/workspaceTrust";
+import { IIssueFormService, IssueReporterData, IssueReporterStyles, IWorkbenchIssueService } from "vs/workbench/contrib/issue/common/issue";
+import { IWorkbenchAssignmentService } from "vs/workbench/services/assignment/common/assignmentService";
+import { IAuthenticationService } from "vs/workbench/services/authentication/common/authentication";
+import { IWorkbenchExtensionEnablementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
+import { IIntegrityService } from "vs/workbench/services/integrity/common/integrity";
+export declare class NativeIssueService implements IWorkbenchIssueService {
+    private readonly issueMainService;
+    private readonly issueFormService;
+    private readonly themeService;
+    private readonly extensionManagementService;
+    private readonly extensionEnablementService;
+    private readonly workspaceTrustManagementService;
+    private readonly experimentService;
+    private readonly authenticationService;
+    private readonly integrityService;
+    private readonly menuService;
+    private readonly contextKeyService;
+    private readonly configurationService;
+    readonly _serviceBrand: undefined;
+    private extensionIdentifierSet;
+    constructor(issueMainService: IIssueMainService, issueFormService: IIssueFormService, themeService: IThemeService, extensionManagementService: IExtensionManagementService, extensionEnablementService: IWorkbenchExtensionEnablementService, workspaceTrustManagementService: IWorkspaceTrustManagementService, experimentService: IWorkbenchAssignmentService, authenticationService: IAuthenticationService, integrityService: IIntegrityService, menuService: IMenuService, contextKeyService: IContextKeyService, configurationService: IConfigurationService);
+    openReporter(dataOverrides?: Partial<IssueReporterData>): Promise<void>;
+}
+export declare function getIssueReporterStyles(theme: IColorTheme): IssueReporterStyles;
+export declare function oldGetIssueReporterStyles(theme: IColorTheme): OldIssueReporterStyles;

@@ -1,0 +1,42 @@
+import { RawContextKey } from "vs/platform/contextkey/common/contextkey";
+import { TestRunProfileBitset } from "vs/workbench/contrib/testing/common/testTypes";
+export declare namespace TestingContextKeys {
+    const providerCount: any;
+    const canRefreshTests: any;
+    const isRefreshingTests: any;
+    const isContinuousModeOn: any;
+    const hasDebuggableTests: any;
+    const hasRunnableTests: any;
+    const hasCoverableTests: any;
+    const hasNonDefaultProfile: any;
+    const hasConfigurableProfile: any;
+    const supportsContinuousRun: any;
+    const isParentRunningContinuously: any;
+    const activeEditorHasTests: any;
+    const cursorInsideTestRange: any;
+    const isTestCoverageOpen: any;
+    const hasPerTestCoverage: any;
+    const isCoverageFilteredToTest: any;
+    const coverageToolbarEnabled: any;
+    const inlineCoverageEnabled: any;
+    const canGoToRelatedCode: any;
+    const canGoToRelatedTest: any;
+    const capabilityToContextKey: {
+        [K in TestRunProfileBitset]: RawContextKey<boolean>;
+    };
+    const hasAnyResults: any;
+    const viewMode: any;
+    const viewSorting: any;
+    const isRunning: any;
+    const isInPeek: any;
+    const isPeekVisible: any;
+    const peekItemType: any;
+    const controllerId: any;
+    const testItemExtId: any;
+    const testItemHasUri: any;
+    const testItemIsHidden: any;
+    const testMessageContext: any;
+    const testResultOutdated: any;
+    const testResultState: any;
+    const testProfileContextGroup: any;
+}

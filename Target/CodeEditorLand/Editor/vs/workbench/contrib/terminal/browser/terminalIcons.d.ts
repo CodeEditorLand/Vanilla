@@ -1,0 +1,12 @@
+export declare const terminalViewIcon: any;
+export declare const renameTerminalIcon: any;
+export declare const killTerminalIcon: any;
+export declare const newTerminalIcon: any;
+export declare const configureTerminalProfileIcon: any;
+export declare const terminalDecorationMark: any;
+export declare const terminalDecorationIncomplete: any;
+export declare const terminalDecorationError: any;
+export declare const terminalDecorationSuccess: any;
+export declare const commandHistoryRemoveIcon: any;
+export declare const commandHistoryOutputIcon: any;
+export declare const commandHistoryFuzzySearchIcon: any;

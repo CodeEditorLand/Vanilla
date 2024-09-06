@@ -1,0 +1,1 @@
+import"../../../../vs/base/browser/dom.js";import"../../../../vs/base/common/event.js";import"../../../../vs/base/common/lifecycle.js";import{createDecorator as e}from"../../../../vs/platform/instantiation/common/instantiation.js";const l=e("layoutService");export{l as ILayoutService};

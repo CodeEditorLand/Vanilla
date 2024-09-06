@@ -1,0 +1,1 @@
+import"../../../../../vs/base/common/uri.js";import{IEnvironmentService as e}from"../../../../../vs/platform/environment/common/environment.js";import{refineServiceDecorator as o}from"../../../../../vs/platform/instantiation/common/instantiation.js";import"../../../../../vs/platform/window/common/window.js";const d=o(e);export{d as IWorkbenchEnvironmentService};

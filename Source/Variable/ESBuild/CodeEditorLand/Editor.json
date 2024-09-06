@@ -1,0 +1,10 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		"baseUrl": "../../../../",
+		"outDir": "../../../../Target/CodeEditorLand/Editor",
+		"rootDir": "../../../../CodeEditorLand/Editor/Source"
+	},
+	"extends": "@playform/build/tsconfig",
+	"include": ["../../../../CodeEditorLand/Editor/Source"]
+}

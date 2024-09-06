@@ -1,0 +1,1 @@
+import{DomActivityTracker as r}from"../../../../../vs/workbench/services/userActivity/browser/domActivityTracker.js";import{userActivityRegistry as i}from"../../../../../vs/workbench/services/userActivity/common/userActivityRegistry.js";i.add(r);

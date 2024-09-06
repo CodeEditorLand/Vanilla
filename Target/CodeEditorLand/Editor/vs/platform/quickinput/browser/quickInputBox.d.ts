@@ -1,0 +1,35 @@
+import { StandardKeyboardEvent } from "vs/base/browser/keyboardEvent";
+import { StandardMouseEvent } from "vs/base/browser/mouseEvent";
+import { IInputBoxStyles, IRange } from "vs/base/browser/ui/inputbox/inputBox";
+import { IToggleStyles, Toggle } from "vs/base/browser/ui/toggle/toggle";
+import { Disposable, IDisposable } from "vs/base/common/lifecycle";
+import Severity from "vs/base/common/severity";
+import "vs/css!./media/quickInput";
+export declare class QuickInputBox extends Disposable {
+    private parent;
+    private container;
+    private findInput;
+    constructor(parent: HTMLElement, inputBoxStyles: IInputBoxStyles, toggleStyles: IToggleStyles);
+    onKeyDown: (handler: (event: StandardKeyboardEvent) => void) => IDisposable;
+    onMouseDown: (handler: (event: StandardMouseEvent) => void) => IDisposable;
+    onDidChange: (handler: (event: string) => void) => IDisposable;
+    get value(): string;
+    set value(value: string);
+    select(range?: IRange | null): void;
+    getSelection(): IRange | null;
+    isSelectionAtEnd(): boolean;
+    setPlaceholder(placeholder: string): void;
+    get placeholder(): string;
+    set placeholder(placeholder: string);
+    get password(): boolean;
+    set password(password: boolean);
+    set enabled(enabled: boolean);
+    set toggles(toggles: Toggle[] | undefined);
+    hasFocus(): boolean;
+    setAttribute(name: string, value: string): void;
+    removeAttribute(name: string): void;
+    showDecoration(decoration: Severity): void;
+    stylesForType(decoration: Severity): any;
+    setFocus(): void;
+    layout(): void;
+}

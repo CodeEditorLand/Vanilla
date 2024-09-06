@@ -1,0 +1,1 @@
+import"../../../../../vs/base/common/buffer.js";import"../../../../../vs/base/common/cancellation.js";import{createDecorator as e}from"../../../../../vs/platform/instantiation/common/instantiation.js";import"../../../../../vs/workbench/services/workingCopy/common/workingCopy.js";const c=e("workingCopyBackupService");export{c as IWorkingCopyBackupService};

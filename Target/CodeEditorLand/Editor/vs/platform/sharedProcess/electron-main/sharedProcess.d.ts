@@ -1,0 +1,35 @@
+import { MessagePortMain } from "electron";
+import { Disposable } from "vs/base/common/lifecycle";
+import { IEnvironmentMainService } from "vs/platform/environment/electron-main/environmentMainService";
+import { ILifecycleMainService } from "vs/platform/lifecycle/electron-main/lifecycleMainService";
+import { ILogService } from "vs/platform/log/common/log";
+import { ILoggerMainService } from "vs/platform/log/electron-main/loggerService";
+import { IPolicyService } from "vs/platform/policy/common/policy";
+import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
+export declare class SharedProcess extends Disposable {
+    private readonly machineId;
+    private readonly sqmId;
+    private readonly devDeviceId;
+    private readonly environmentMainService;
+    private readonly userDataProfilesService;
+    private readonly lifecycleMainService;
+    private readonly logService;
+    private readonly loggerMainService;
+    private readonly policyService;
+    private readonly firstWindowConnectionBarrier;
+    private utilityProcess;
+    private utilityProcessLogListener;
+    private readonly _onDidCrash;
+    readonly onDidCrash: any;
+    constructor(machineId: string, sqmId: string, devDeviceId: string, environmentMainService: IEnvironmentMainService, userDataProfilesService: IUserDataProfilesService, lifecycleMainService: ILifecycleMainService, logService: ILogService, loggerMainService: ILoggerMainService, policyService: IPolicyService);
+    private registerListeners;
+    private onWindowConnection;
+    private onWillShutdown;
+    private _whenReady;
+    whenReady(): Promise<void>;
+    private _whenIpcReady;
+    private get whenIpcReady();
+    private createUtilityProcess;
+    private createSharedProcessConfiguration;
+    connect(payload?: unknown): Promise<MessagePortMain>;
+}

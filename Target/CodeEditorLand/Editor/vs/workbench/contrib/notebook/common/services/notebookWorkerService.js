@@ -1,0 +1,1 @@
+import"../../../../../../vs/base/common/uri.js";import{createDecorator as o}from"../../../../../../vs/platform/instantiation/common/instantiation.js";import"../../../../../../vs/workbench/contrib/notebook/common/notebookCommon.js";const e="notebookEditorWorkerService",f=o(e);export{e as ID_NOTEBOOK_EDITOR_WORKER_SERVICE,f as INotebookEditorWorkerService};

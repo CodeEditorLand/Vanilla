@@ -1,0 +1,15 @@
+export declare const diffMoveBorder: any;
+export declare const diffMoveBorderActive: any;
+export declare const diffEditorUnchangedRegionShadow: any;
+export declare const diffInsertIcon: any;
+export declare const diffRemoveIcon: any;
+export declare const diffLineAddDecorationBackgroundWithIndicator: any;
+export declare const diffLineDeleteDecorationBackgroundWithIndicator: any;
+export declare const diffLineAddDecorationBackground: any;
+export declare const diffLineDeleteDecorationBackground: any;
+export declare const diffAddDecoration: any;
+export declare const diffWholeLineAddDecoration: any;
+export declare const diffAddDecorationEmpty: any;
+export declare const diffDeleteDecoration: any;
+export declare const diffWholeLineDeleteDecoration: any;
+export declare const diffDeleteDecorationEmpty: any;

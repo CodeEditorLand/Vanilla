@@ -1,0 +1,1 @@
+import{createDecorator as e}from"../../../../vs/platform/instantiation/common/instantiation.js";import"../../../../vs/platform/terminal/common/terminal.js";const t=e("externalTerminal"),a="Terminal.app";export{a as DEFAULT_TERMINAL_OSX,t as IExternalTerminalService};

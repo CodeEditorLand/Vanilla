@@ -1,0 +1,1 @@
+import"../../../../vs/base/common/event.js";import"../../../../vs/editor/common/model.js";import{createDecorator as e}from"../../../../vs/platform/instantiation/common/instantiation.js";const o="editor.experimental.preferTreeSitter",s=e("treeSitterParserService");export{o as EDITOR_EXPERIMENTAL_PREFER_TREESITTER,s as ITreeSitterParserService};

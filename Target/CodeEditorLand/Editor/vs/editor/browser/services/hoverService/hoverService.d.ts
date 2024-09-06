@@ -1,0 +1,33 @@
+import type { IHoverOptions, IHoverWidget, IManagedHover, IManagedHoverContentOrFactory, IManagedHoverOptions } from "vs/base/browser/ui/hover/hover";
+import type { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
+import { Disposable } from "vs/base/common/lifecycle";
+import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
+import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
+import { IHoverService } from "vs/platform/hover/browser/hover";
+import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import { ILayoutService } from "vs/platform/layout/browser/layoutService";
+export declare class HoverService extends Disposable implements IHoverService {
+    private readonly _instantiationService;
+    private readonly _keybindingService;
+    private readonly _layoutService;
+    private readonly _accessibilityService;
+    readonly _serviceBrand: undefined;
+    private _contextViewHandler;
+    private _currentHoverOptions;
+    private _currentHover;
+    private _lastHoverOptions;
+    private _lastFocusedElementBeforeOpen;
+    constructor(_instantiationService: IInstantiationService, contextMenuService: IContextMenuService, _keybindingService: IKeybindingService, _layoutService: ILayoutService, _accessibilityService: IAccessibilityService);
+    showHover(options: IHoverOptions, focus?: boolean, skipLastFocusedUpdate?: boolean): IHoverWidget | undefined;
+    hideHover(): void;
+    private doHideHover;
+    private _intersectionChange;
+    showAndFocusLastHover(): void;
+    private _keyDown;
+    private _keyUp;
+    private readonly _managedHovers;
+    setupManagedHover(hoverDelegate: IHoverDelegate, targetElement: HTMLElement, content: IManagedHoverContentOrFactory, options?: IManagedHoverOptions | undefined): IManagedHover;
+    showManagedHover(target: HTMLElement): void;
+    dispose(): void;
+}

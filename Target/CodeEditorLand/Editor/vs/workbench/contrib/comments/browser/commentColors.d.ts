@@ -1,0 +1,10 @@
+import { Color } from "vs/base/common/color";
+import * as languages from "vs/editor/common/languages";
+import { IColorTheme } from "vs/platform/theme/common/themeService";
+export declare const commentThreadRangeBackground: any;
+export declare const commentThreadRangeActiveBackground: any;
+export declare const commentThreadStateColorVar = "--comment-thread-state-color";
+export declare const commentViewThreadStateColorVar = "--comment-view-thread-state-color";
+export declare const commentThreadStateBackgroundColorVar = "--comment-thread-state-background-color";
+export declare function getCommentThreadStateBorderColor(state: languages.CommentThreadState | undefined, theme: IColorTheme): Color | undefined;
+export declare function getCommentThreadStateIconColor(state: languages.CommentThreadState | undefined, theme: IColorTheme): Color | undefined;

@@ -1,0 +1,32 @@
+import { IFileService } from "vs/platform/files/common/files";
+import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { ILogService } from "vs/platform/log/common/log";
+import { IRequestService } from "vs/platform/request/common/request";
+import { IStorageService } from "vs/platform/storage/common/storage";
+import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
+import { IBrowserWorkbenchEnvironmentService } from "vs/workbench/services/environment/browser/environmentService";
+import { IUserDataInitializer } from "vs/workbench/services/userData/browser/userDataInit";
+import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+export declare class UserDataProfileInitializer implements IUserDataInitializer {
+    private readonly environmentService;
+    private readonly fileService;
+    private readonly userDataProfileService;
+    private readonly storageService;
+    private readonly logService;
+    private readonly uriIdentityService;
+    private readonly requestService;
+    _serviceBrand: any;
+    private readonly initialized;
+    private readonly initializationFinished;
+    constructor(environmentService: IBrowserWorkbenchEnvironmentService, fileService: IFileService, userDataProfileService: IUserDataProfileService, storageService: IStorageService, logService: ILogService, uriIdentityService: IUriIdentityService, requestService: IRequestService);
+    whenInitializationFinished(): Promise<void>;
+    requiresInitialization(): Promise<boolean>;
+    initializeRequiredResources(): Promise<void>;
+    initializeOtherResources(instantiationService: IInstantiationService): Promise<void>;
+    private initializeInstalledExtensionsPromise;
+    initializeInstalledExtensions(instantiationService: IInstantiationService): Promise<void>;
+    private profileTemplatePromise;
+    private getProfileTemplate;
+    private doGetProfileTemplate;
+    private initialize;
+}

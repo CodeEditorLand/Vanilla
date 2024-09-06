@@ -1,0 +1,10 @@
+export declare const CTX_NOTEBOOK_CELL_CHAT_FOCUSED: any;
+export declare const CTX_NOTEBOOK_CHAT_HAS_ACTIVE_REQUEST: any;
+export declare const CTX_NOTEBOOK_CHAT_USER_DID_EDIT: any;
+export declare const CTX_NOTEBOOK_CHAT_OUTER_FOCUS_POSITION: any;
+export declare const MENU_CELL_CHAT_INPUT: any;
+export declare const MENU_CELL_CHAT_WIDGET: any;
+export declare const MENU_CELL_CHAT_WIDGET_STATUS: any;
+export declare const MENU_CELL_CHAT_WIDGET_FEEDBACK: any;
+export declare const MENU_CELL_CHAT_WIDGET_TOOLBAR: any;
+export declare const CTX_NOTEBOOK_CHAT_HAS_AGENT: any;

@@ -1,0 +1,63 @@
+import { IActionViewItem } from "vs/base/browser/ui/actionbar/actionbar";
+import { IBaseActionViewItemOptions } from "vs/base/browser/ui/actionbar/actionViewItems";
+import { Action } from "vs/base/common/actions";
+import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
+import { IMenuService } from "vs/platform/actions/common/actions";
+import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
+import { IHoverService } from "vs/platform/hover/browser/hover";
+import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import { INotificationService } from "vs/platform/notification/common/notification";
+import { IOpenerService } from "vs/platform/opener/common/opener";
+import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IThemeService } from "vs/platform/theme/common/themeService";
+import { IViewPaneOptions, ViewPane } from "vs/workbench/browser/parts/views/viewPane";
+import { IViewDescriptorService } from "vs/workbench/common/views";
+import { ITerminalConfigurationService, ITerminalGroupService, ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
+import { TerminalTabbedView } from "vs/workbench/contrib/terminal/browser/terminalTabbedView";
+import { ITerminalProfileResolverService, ITerminalProfileService } from "vs/workbench/contrib/terminal/common/terminal";
+export declare class TerminalViewPane extends ViewPane {
+    private readonly _contextKeyService;
+    private readonly _configurationService;
+    private readonly _contextMenuService;
+    private readonly _instantiationService;
+    private readonly _terminalService;
+    private readonly _terminalConfigurationService;
+    private readonly _terminalGroupService;
+    private readonly _notificationService;
+    private readonly _keybindingService;
+    private readonly _menuService;
+    private readonly _terminalProfileService;
+    private readonly _terminalProfileResolverService;
+    private readonly _themeService;
+    private readonly _accessibilityService;
+    private _parentDomElement;
+    private _terminalTabbedView?;
+    get terminalTabbedView(): TerminalTabbedView | undefined;
+    private _isInitialized;
+    private readonly _newDropdown;
+    private readonly _dropdownMenu;
+    private readonly _singleTabMenu;
+    private _viewShowing;
+    private readonly _disposableStore;
+    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, _contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, _configurationService: IConfigurationService, _contextMenuService: IContextMenuService, _instantiationService: IInstantiationService, _terminalService: ITerminalService, _terminalConfigurationService: ITerminalConfigurationService, _terminalGroupService: ITerminalGroupService, themeService: IThemeService, telemetryService: ITelemetryService, hoverService: IHoverService, _notificationService: INotificationService, _keybindingService: IKeybindingService, openerService: IOpenerService, _menuService: IMenuService, _terminalProfileService: ITerminalProfileService, _terminalProfileResolverService: ITerminalProfileResolverService, _themeService: IThemeService, _accessibilityService: IAccessibilityService);
+    private _updateForShellIntegration;
+    private _gutterDecorationsEnabled;
+    private _initializeTerminal;
+    protected renderBody(container: HTMLElement): void;
+    private _createTabsView;
+    protected layoutBody(height: number, width: number): void;
+    getActionViewItem(action: Action, options: IBaseActionViewItemOptions): IActionViewItem | undefined;
+    /**
+     * Actions might be of type Action (disposable) or Separator or SubmenuAction, which don't extend Disposable
+     */
+    private _registerDisposableActions;
+    private _getDefaultProfileName;
+    private _getKeybindingLabel;
+    private _updateTabActionBar;
+    focus(): void;
+    private _hasWelcomeScreen;
+    shouldShowWelcome(): boolean;
+}

@@ -1,0 +1,1 @@
+import"../../../../vs/base/common/event.js";import"../../../../vs/base/common/lifecycle.js";import"../../../../vs/base/common/uri.js";import"../../../../vs/editor/common/languages.js";import{createDecorator as e}from"../../../../vs/platform/instantiation/common/instantiation.js";const l=e("languageService");export{l as ILanguageService};

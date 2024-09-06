@@ -1,0 +1,1 @@
+import{createDecorator as e}from"../../../../vs/platform/instantiation/common/instantiation.js";import"../../../../vs/platform/menubar/common/menubar.js";const a=e("menubarService");export{a as IMenubarService};

@@ -1,0 +1,36 @@
+import { URI } from "vs/base/common/uri";
+import { ITextModelService } from "vs/editor/common/services/resolverService";
+import { ITextResourceConfigurationService } from "vs/editor/common/services/textResourceConfiguration";
+import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IFileDialogService } from "vs/platform/dialogs/common/dialogs";
+import { IFileService } from "vs/platform/files/common/files";
+import { ILabelService } from "vs/platform/label/common/label";
+import { IInteractiveHistoryService } from "vs/workbench/contrib/interactive/browser/interactiveHistoryService";
+import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
+import { ICompositeNotebookEditorInput, NotebookEditorInput } from "vs/workbench/contrib/notebook/common/notebookEditorInput";
+import { INotebookEditorModelResolverService } from "vs/workbench/contrib/notebook/common/notebookEditorModelResolverService";
+import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
+import { ICustomEditorLabelService } from "vs/workbench/services/editor/common/customEditorLabelService";
+import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { IFilesConfigurationService } from "vs/workbench/services/filesConfiguration/common/filesConfigurationService";
+export declare class ReplEditorInput extends NotebookEditorInput implements ICompositeNotebookEditorInput {
+    readonly historyService: IInteractiveHistoryService;
+    private readonly _textModelService;
+    static ID: string;
+    private inputModelRef;
+    private isScratchpad;
+    private label;
+    private isDisposing;
+    constructor(resource: URI, label: string | undefined, _notebookService: INotebookService, _notebookModelResolverService: INotebookEditorModelResolverService, _fileDialogService: IFileDialogService, labelService: ILabelService, fileService: IFileService, filesConfigurationService: IFilesConfigurationService, extensionService: IExtensionService, editorService: IEditorService, textResourceConfigurationService: ITextResourceConfigurationService, customEditorLabelService: ICustomEditorLabelService, historyService: IInteractiveHistoryService, _textModelService: ITextModelService, configurationService: IConfigurationService);
+    private createEditorLabel;
+    get typeId(): string;
+    get editorId(): string | undefined;
+    getName(): string;
+    get editorInputs(): this[];
+    get capabilities(): number;
+    resolve(): Promise<any>;
+    private ensureInputBoxCell;
+    resolveInput(notebook: NotebookTextModel): Promise<any>;
+    dispose(): void;
+}

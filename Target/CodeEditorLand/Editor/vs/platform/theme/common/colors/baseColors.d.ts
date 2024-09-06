@@ -1,0 +1,17 @@
+export declare const foreground: any;
+export declare const disabledForeground: any;
+export declare const errorForeground: any;
+export declare const descriptionForeground: any;
+export declare const iconForeground: any;
+export declare const focusBorder: any;
+export declare const contrastBorder: any;
+export declare const activeContrastBorder: any;
+export declare const selectionBackground: any;
+export declare const textLinkForeground: any;
+export declare const textLinkActiveForeground: any;
+export declare const textSeparatorForeground: any;
+export declare const textPreformatForeground: any;
+export declare const textPreformatBackground: any;
+export declare const textBlockQuoteBackground: any;
+export declare const textBlockQuoteBorder: any;
+export declare const textCodeBlockBackground: any;

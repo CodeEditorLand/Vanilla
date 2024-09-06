@@ -1,0 +1,1 @@
+import{createDecorator as t}from"../../../../vs/platform/instantiation/common/instantiation.js";import"../../../../vs/workbench/services/extensions/common/extensionHostProtocol.js";const n=t("IExtHostInitDataService");export{n as IExtHostInitDataService};

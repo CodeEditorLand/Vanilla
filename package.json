@@ -1,0 +1,9 @@
+{
+	"name": "@codeeditorland/vanilla",
+	"scripts": {
+		"prepublishOnly": "Build 'CodeEditorLand/Editor/Source/**/*.ts' --ESBuild Source/Variable/ESBuild/CodeEditorLand/Editor.ts --TypeScript Source/Variable/ESBuild/CodeEditorLand/Editor.json"
+	},
+	"devDependencies": {
+		"@playform/build": "0.1.4"
+	}
+}

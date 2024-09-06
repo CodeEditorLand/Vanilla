@@ -1,0 +1,1 @@
+import"../../../../../vs/workbench/contrib/localHistory/browser/localHistoryCommands.js";import{registerWorkbenchContribution2 as r,WorkbenchPhase as e}from"../../../../../vs/workbench/common/contributions.js";import{LocalHistoryTimeline as o}from"../../../../../vs/workbench/contrib/localHistory/browser/localHistoryTimeline.js";r(o.ID,o,e.BlockRestore);

@@ -1,0 +1,35 @@
+import { CancellationToken } from "vs/base/common/cancellation";
+import { Disposable } from "vs/base/common/lifecycle";
+import { URI } from "vs/base/common/uri";
+import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IFileService } from "vs/platform/files/common/files";
+import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
+import { IWorkbenchContribution } from "vs/workbench/common/contributions";
+import { ITimelineService, Timeline, TimelineOptions, TimelineProvider } from "vs/workbench/contrib/timeline/common/timeline";
+import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
+import { IPathService } from "vs/workbench/services/path/common/pathService";
+import { IWorkingCopyHistoryService } from "vs/workbench/services/workingCopy/common/workingCopyHistory";
+export declare class LocalHistoryTimeline extends Disposable implements IWorkbenchContribution, TimelineProvider {
+    private readonly timelineService;
+    private readonly workingCopyHistoryService;
+    private readonly pathService;
+    private readonly fileService;
+    private readonly environmentService;
+    private readonly configurationService;
+    private readonly contextService;
+    static readonly ID = "workbench.contrib.localHistoryTimeline";
+    private static readonly LOCAL_HISTORY_ENABLED_SETTINGS_KEY;
+    readonly id = "timeline.localHistory";
+    readonly label: any;
+    readonly scheme = "*";
+    private readonly _onDidChange;
+    readonly onDidChange: any;
+    private readonly timelineProviderDisposable;
+    constructor(timelineService: ITimelineService, workingCopyHistoryService: IWorkingCopyHistoryService, pathService: IPathService, fileService: IFileService, environmentService: IWorkbenchEnvironmentService, configurationService: IConfigurationService, contextService: IWorkspaceContextService);
+    private registerComponents;
+    private updateTimelineRegistration;
+    private registerListeners;
+    private onDidChangeWorkingCopyHistoryEntry;
+    provideTimeline(uri: URI, options: TimelineOptions, token: CancellationToken): Promise<Timeline>;
+    private toTimelineItem;
+}

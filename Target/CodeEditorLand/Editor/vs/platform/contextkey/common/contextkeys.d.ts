@@ -1,0 +1,11 @@
+export declare const IsMacContext: any;
+export declare const IsLinuxContext: any;
+export declare const IsWindowsContext: any;
+export declare const IsWebContext: any;
+export declare const IsMacNativeContext: any;
+export declare const IsIOSContext: any;
+export declare const IsMobileContext: any;
+export declare const IsDevelopmentContext: any;
+export declare const ProductQualityContext: any;
+export declare const InputFocusedContextKey = "inputFocus";
+export declare const InputFocusedContext: any;
