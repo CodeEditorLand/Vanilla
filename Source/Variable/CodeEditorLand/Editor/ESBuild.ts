@@ -11,7 +11,7 @@ export default {
 	outdir: "Target",
 	platform: "node",
 	target: "esnext",
-	tsconfig: "Source/Variable/ESBuild/CodeEditorLand/Editor.json",
+	tsconfig: "Source/CodeEditorLand/Editor/tsconfig.json",
 	write: true,
 	plugins: [
 		{
