@@ -1,8 +1,8 @@
-import "vs/workbench/contrib/comments/browser/commentsEditorContribution";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { ICommentService } from "vs/workbench/contrib/comments/browser/commentService";
-import { IActivityService } from "vs/workbench/services/activity/common/activity";
+import "./commentsEditorContribution.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IActivityService } from "../../../services/activity/common/activity.js";
+import { ICommentService } from "./commentService.js";
 export declare class UnresolvedCommentsBadge extends Disposable implements IWorkbenchContribution {
     private readonly _commentService;
     private readonly activityService;

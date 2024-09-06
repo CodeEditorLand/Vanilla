@@ -1,15 +1,15 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ITerminalConfigurationService, LinuxDistro } from "vs/workbench/contrib/terminal/browser/terminal";
-import type { IXtermCore } from "vs/workbench/contrib/terminal/browser/xterm-private";
-import { ITerminalConfiguration, type ITerminalFont } from "vs/workbench/contrib/terminal/common/terminal";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ITerminalConfiguration, type ITerminalFont } from "../common/terminal.js";
+import { ITerminalConfigurationService, LinuxDistro } from "./terminal.js";
+import type { IXtermCore } from "./xterm-private.js";
 export declare class TerminalConfigurationService extends Disposable implements ITerminalConfigurationService {
     private readonly _configurationService;
     _serviceBrand: undefined;
     protected _fontMetrics: TerminalFontMetrics;
     protected _config: Readonly<ITerminalConfiguration>;
-    get config(): ITerminalConfiguration;
+    get config(): Readonly<ITerminalConfiguration>;
     private readonly _onConfigChanged;
     get onConfigChanged(): Event<void>;
     constructor(_configurationService: IConfigurationService);

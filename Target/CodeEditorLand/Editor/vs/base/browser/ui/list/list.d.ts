@@ -1,9 +1,9 @@
-import { IDragAndDropData } from "vs/base/browser/dnd";
-import { IKeyboardEvent } from "vs/base/browser/keyboardEvent";
-import { IMouseEvent } from "vs/base/browser/mouseEvent";
-import { GestureEvent } from "vs/base/browser/touch";
-import { ListViewTargetSector } from "vs/base/browser/ui/list/listView";
-import { IDisposable } from "vs/base/common/lifecycle";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { IDragAndDropData } from "../../dnd.js";
+import { IKeyboardEvent } from "../../keyboardEvent.js";
+import { IMouseEvent } from "../../mouseEvent.js";
+import { GestureEvent } from "../../touch.js";
+import { ListViewTargetSector } from "./listView.js";
 export interface IListVirtualDelegate<T> {
     getHeight(element: T): number;
     getTemplateId(element: T): string;

@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IEditorOptions } from "vs/editor/common/config/editorOptions";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IBaseCellEditorOptions, INotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookOptions } from "vs/workbench/contrib/notebook/browser/notebookOptions";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IEditorOptions } from "../../../../../editor/common/config/editorOptions.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IBaseCellEditorOptions, INotebookEditorDelegate } from "../notebookBrowser.js";
+import { NotebookOptions } from "../notebookOptions.js";
 export declare class BaseCellEditorOptions extends Disposable implements IBaseCellEditorOptions {
     readonly notebookEditor: INotebookEditorDelegate;
     readonly notebookOptions: NotebookOptions;

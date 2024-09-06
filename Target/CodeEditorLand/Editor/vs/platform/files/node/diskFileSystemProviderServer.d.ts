@@ -1,13 +1,13 @@
-import { Emitter, Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IURITransformer } from "vs/base/common/uriIpc";
-import { IServerChannel } from "vs/base/parts/ipc/common/ipc";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IFileChange, IFileDeleteOptions, IWatchOptions } from "vs/platform/files/common/files";
-import { IRecursiveWatcherOptions } from "vs/platform/files/common/watcher";
-import { DiskFileSystemProvider } from "vs/platform/files/node/diskFileSystemProvider";
-import { ILogService } from "vs/platform/log/common/log";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IURITransformer } from "../../../base/common/uriIpc.js";
+import { IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { ILogService } from "../../log/common/log.js";
+import { IFileChange, IFileDeleteOptions, IWatchOptions } from "../common/files.js";
+import { IRecursiveWatcherOptions } from "../common/watcher.js";
+import { DiskFileSystemProvider } from "./diskFileSystemProvider.js";
 export interface ISessionFileWatcher extends IDisposable {
     watch(req: number, resource: URI, opts: IWatchOptions): IDisposable;
 }

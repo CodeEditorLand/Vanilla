@@ -1,12 +1,12 @@
-import "vs/css!./media/editorstatus";
-import { Action } from "vs/base/common/actions";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { Action2 } from "vs/platform/actions/common/actions";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IExtensionGalleryService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
+import "./media/editorstatus.css";
+import { Action } from "../../../../base/common/actions.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IExtensionGalleryService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
 export declare class EditorStatusContribution extends Disposable implements IWorkbenchContribution {
     private readonly editorGroupService;
     static readonly ID = "workbench.contrib.editorStatus";

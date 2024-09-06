@@ -1,14 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfirmation, IConfirmationResult, IDialogService, IInput, IInputResult, IPrompt, IPromptResult, IPromptResultWithCancel, IPromptWithCustomCancel, IPromptWithDefaultCancel } from "vs/platform/dialogs/common/dialogs";
-import { ILogService } from "vs/platform/log/common/log";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfirmation, IConfirmationResult, IDialogService, IInput, IInputResult, IPrompt, IPromptResult, IPromptResultWithCancel, IPromptWithCustomCancel, IPromptWithDefaultCancel } from "../../../../platform/dialogs/common/dialogs.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { DialogsModel } from "../../../common/dialogs.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 export declare class DialogService extends Disposable implements IDialogService {
     private readonly environmentService;
     private readonly logService;
     readonly _serviceBrand: undefined;
-    readonly model: any;
-    readonly onWillShowDialog: any;
-    readonly onDidShowDialog: any;
+    readonly model: DialogsModel;
+    readonly onWillShowDialog: import("../../../workbench.web.main.internal.js").Event<void>;
+    readonly onDidShowDialog: import("../../../workbench.web.main.internal.js").Event<void>;
     constructor(environmentService: IWorkbenchEnvironmentService, logService: ILogService);
     private skipDialogs;
     confirm(confirmation: IConfirmation): Promise<IConfirmationResult>;

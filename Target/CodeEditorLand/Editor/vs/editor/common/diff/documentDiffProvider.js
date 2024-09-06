@@ -1,1 +1,1 @@
-import"../../../../vs/base/common/cancellation.js";import"../../../../vs/base/common/event.js";import"../../../../vs/editor/common/diff/linesDiffComputer.js";import"../../../../vs/editor/common/model.js";import"./rangeMapping.js";
+import"../../../base/common/cancellation.js";import"../../../base/common/event.js";import"../model.js";import"./linesDiffComputer.js";import"./rangeMapping.js";

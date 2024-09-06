@@ -1,15 +1,15 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { CodeEditorWidget, ICodeEditorWidgetOptions } from "vs/editor/browser/widget/codeEditor/codeEditorWidget";
-import { IEditorOptions } from "vs/editor/common/config/editorOptions";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IThemeService } from "vs/platform/theme/common/themeService";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IEditorOptions } from "../../../common/config/editorOptions.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { ICodeEditor } from "../../editorBrowser.js";
+import { ICodeEditorService } from "../../services/codeEditorService.js";
+import { CodeEditorWidget, ICodeEditorWidgetOptions } from "./codeEditorWidget.js";
 export declare class EmbeddedCodeEditorWidget extends CodeEditorWidget {
     private readonly _parentEditor;
     private readonly _overwriteOptions;

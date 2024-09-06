@@ -1,22 +1,22 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IReference } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { IEditorCommentsOptions } from "vs/editor/common/config/editorOptions";
-import { IPosition } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { Selection } from "vs/editor/common/core/selection";
-import * as editorCommon from "vs/editor/common/editorCommon";
-import * as model from "vs/editor/common/model";
-import { IResolvedTextEditorModel, ITextModelService } from "vs/editor/common/services/resolverService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IUndoRedoService } from "vs/platform/undoRedo/common/undoRedo";
-import { CellEditState, CellFocusMode, CellLayoutChangeEvent, CursorAtBoundary, CursorAtLineBoundary, IEditableCellViewModel, INotebookCellDecorationOptions } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookOptionsChangeEvent } from "vs/workbench/contrib/notebook/browser/notebookOptions";
-import { CellViewModelStateChangeEvent } from "vs/workbench/contrib/notebook/browser/notebookViewEvents";
-import { ViewContext } from "vs/workbench/contrib/notebook/browser/viewModel/viewContext";
-import { NotebookCellTextModel } from "vs/workbench/contrib/notebook/common/model/notebookCellTextModel";
-import { CellKind, INotebookCellStatusBarItem, INotebookFindOptions } from "vs/workbench/contrib/notebook/common/notebookCommon";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, IReference } from "../../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { IEditorCommentsOptions } from "../../../../../editor/common/config/editorOptions.js";
+import { IPosition } from "../../../../../editor/common/core/position.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { Selection } from "../../../../../editor/common/core/selection.js";
+import * as editorCommon from "../../../../../editor/common/editorCommon.js";
+import * as model from "../../../../../editor/common/model.js";
+import { IResolvedTextEditorModel, ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
+import { CellKind, INotebookCellStatusBarItem, INotebookFindOptions } from "../../common/notebookCommon.js";
+import { CellEditState, CellFocusMode, CellLayoutChangeEvent, CursorAtBoundary, CursorAtLineBoundary, IEditableCellViewModel, INotebookCellDecorationOptions } from "../notebookBrowser.js";
+import { NotebookOptionsChangeEvent } from "../notebookOptions.js";
+import { CellViewModelStateChangeEvent } from "../notebookViewEvents.js";
+import { ViewContext } from "./viewContext.js";
 export declare abstract class BaseCellViewModel extends Disposable {
     readonly viewType: string;
     readonly model: NotebookCellTextModel;
@@ -26,16 +26,16 @@ export declare abstract class BaseCellViewModel extends Disposable {
     private readonly _modelService;
     private readonly _undoRedoService;
     private readonly _codeEditorService;
-    protected readonly _onDidChangeEditorAttachState: any;
-    readonly onDidChangeEditorAttachState: any;
-    protected readonly _onDidChangeState: any;
+    protected readonly _onDidChangeEditorAttachState: Emitter<void>;
+    readonly onDidChangeEditorAttachState: Event<void>;
+    protected readonly _onDidChangeState: Emitter<CellViewModelStateChangeEvent>;
     readonly onDidChangeState: Event<CellViewModelStateChangeEvent>;
-    get handle(): any;
-    get uri(): any;
-    get lineCount(): any;
-    get metadata(): any;
-    get internalMetadata(): any;
-    get language(): any;
+    get handle(): number;
+    get uri(): import("../../../../workbench.web.main.internal.js").URI;
+    get lineCount(): number;
+    get metadata(): import("../../common/notebookCommon.js").NotebookCellMetadata;
+    get internalMetadata(): import("../../common/notebookCommon.js").NotebookCellInternalMetadata;
+    get language(): string;
     get mime(): string;
     abstract cellKind: CellKind;
     private _editState;
@@ -95,7 +95,7 @@ export declare abstract class BaseCellViewModel extends Disposable {
     enableAutoLanguageDetection(): void;
     private saveViewState;
     private saveTransientState;
-    saveEditorViewState(): any;
+    saveEditorViewState(): editorCommon.ICodeEditorViewState | null;
     restoreEditorViewState(editorViewStates: editorCommon.ICodeEditorViewState | null, totalHeight?: number): void;
     private _restoreViewState;
     addModelDecoration(decoration: model.IModelDeltaDecoration): string;
@@ -111,7 +111,7 @@ export declare abstract class BaseCellViewModel extends Disposable {
     revealRangeInCenter(range: Range): void;
     setSelection(range: Range): void;
     setSelections(selections: Selection[]): void;
-    getSelections(): any;
+    getSelections(): Selection[];
     getSelectionsStartPosition(): IPosition[] | undefined;
     getLineScrollTopOffset(line: number): number;
     getPositionScrollTopOffset(range: Selection | Range): number;
@@ -121,7 +121,7 @@ export declare abstract class BaseCellViewModel extends Disposable {
     get editStateSource(): string;
     updateEditState(newState: CellEditState, source: string): void;
     getEditState(): CellEditState;
-    get textBuffer(): any;
+    get textBuffer(): model.IReadonlyTextBuffer;
     /**
      * Text model is used for editing.
      */

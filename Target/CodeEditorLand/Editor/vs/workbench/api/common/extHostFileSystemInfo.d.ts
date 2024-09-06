@@ -1,6 +1,6 @@
-import { IExtUri } from "vs/base/common/resources";
-import { UriComponents } from "vs/base/common/uri";
-import { ExtHostFileSystemInfoShape } from "vs/workbench/api/common/extHost.protocol";
+import { IExtUri } from "../../../base/common/resources.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { ExtHostFileSystemInfoShape } from "./extHost.protocol.js";
 export declare class ExtHostFileSystemInfo implements ExtHostFileSystemInfoShape {
     readonly _serviceBrand: undefined;
     private readonly _systemSchemes;
@@ -14,4 +14,4 @@ export declare class ExtHostFileSystemInfo implements ExtHostFileSystemInfoShape
 export interface IExtHostFileSystemInfo extends ExtHostFileSystemInfo {
     readonly extUri: IExtUri;
 }
-export declare const IExtHostFileSystemInfo: any;
+export declare const IExtHostFileSystemInfo: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostFileSystemInfo>;

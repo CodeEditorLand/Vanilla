@@ -1,15 +1,15 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IFileService } from "vs/platform/files/common/files";
-import { IKeyboardEvent } from "vs/platform/keybinding/common/keybinding";
-import { IKeyboardLayoutInfo, IKeyboardLayoutService, IKeyboardMapping } from "vs/platform/keyboardLayout/common/keyboardLayout";
-import { IKeyboardMapper } from "vs/platform/keyboardLayout/common/keyboardMapper";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { KeymapInfo } from "vs/workbench/services/keybinding/common/keymapInfo";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IKeyboardEvent } from "../../../../platform/keybinding/common/keybinding.js";
+import { IKeyboardLayoutInfo, IKeyboardLayoutService, IKeyboardMapping } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
+import { IKeyboardMapper } from "../../../../platform/keyboardLayout/common/keyboardMapper.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { KeymapInfo } from "../common/keymapInfo.js";
 export declare class BrowserKeyboardMapperFactoryBase extends Disposable {
     private readonly _configurationService;
     protected _initialized: boolean;
@@ -32,8 +32,8 @@ export declare class BrowserKeyboardMapperFactoryBase extends Disposable {
         result: KeymapInfo;
         score: number;
     } | null;
-    getUSStandardLayout(): any;
-    isKeyMappingActive(keymap: IKeyboardMapping | null): any;
+    getUSStandardLayout(): KeymapInfo | null | undefined;
+    isKeyMappingActive(keymap: IKeyboardMapping | null): boolean | null;
     setUSKeyboardLayout(): void;
     setActiveKeyMapping(keymap: IKeyboardMapping | null): void;
     setActiveKeymapInfo(keymapInfo: KeymapInfo): void;

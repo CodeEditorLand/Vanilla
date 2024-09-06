@@ -1,15 +1,15 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { UriComponents } from "vs/base/common/uri";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { ExtHostTimelineShape, IMainContext } from "vs/workbench/api/common/extHost.protocol";
-import { CommandsConverter, ExtHostCommands } from "vs/workbench/api/common/extHostCommands";
-import { Timeline } from "vs/workbench/contrib/timeline/common/timeline";
 import * as vscode from "vscode";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { Timeline } from "../../contrib/timeline/common/timeline.js";
+import { ExtHostTimelineShape, IMainContext } from "./extHost.protocol.js";
+import { CommandsConverter, ExtHostCommands } from "./extHostCommands.js";
 export interface IExtHostTimeline extends ExtHostTimelineShape {
     readonly _serviceBrand: undefined;
     $getTimeline(id: string, uri: UriComponents, options: vscode.TimelineOptions, token: vscode.CancellationToken): Promise<Timeline | undefined>;
 }
-export declare const IExtHostTimeline: any;
+export declare const IExtHostTimeline: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostTimeline>;
 export declare class ExtHostTimeline implements IExtHostTimeline {
     readonly _serviceBrand: undefined;
     private _proxy;

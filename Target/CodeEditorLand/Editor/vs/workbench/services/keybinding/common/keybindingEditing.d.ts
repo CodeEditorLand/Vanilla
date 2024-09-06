@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { IFileService } from "vs/platform/files/common/files";
-import { ResolvedKeybindingItem } from "vs/platform/keybinding/common/resolvedKeybindingItem";
-import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
-import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
-export declare const IKeybindingEditingService: any;
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ResolvedKeybindingItem } from "../../../../platform/keybinding/common/resolvedKeybindingItem.js";
+import { ITextFileService } from "../../textfile/common/textfiles.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+export declare const IKeybindingEditingService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IKeybindingEditingService>;
 export interface IKeybindingEditingService {
     readonly _serviceBrand: undefined;
     addKeybinding(keybindingItem: ResolvedKeybindingItem, key: string, when: string | undefined): Promise<void>;

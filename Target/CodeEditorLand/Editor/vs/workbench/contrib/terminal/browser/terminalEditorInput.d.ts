@@ -1,16 +1,17 @@
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ConfirmResult, IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IShellLaunchConfig } from "vs/platform/terminal/common/terminal";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { EditorInputCapabilities, IEditorIdentifier, IUntypedEditorInput } from "vs/workbench/common/editor";
-import { EditorInput, IEditorCloseHandler } from "vs/workbench/common/editor/editorInput";
-import { ITerminalInstance, ITerminalInstanceService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { IEditorGroup } from "vs/workbench/services/editor/common/editorGroupsService";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
+import { Emitter } from "../../../../base/common/event.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ConfirmResult, IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IShellLaunchConfig } from "../../../../platform/terminal/common/terminal.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { EditorInputCapabilities, IEditorIdentifier, IUntypedEditorInput } from "../../../common/editor.js";
+import { EditorInput, IEditorCloseHandler } from "../../../common/editor/editorInput.js";
+import { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { ITerminalInstance, ITerminalInstanceService } from "./terminal.js";
 export declare class TerminalEditorInput extends EditorInput implements IEditorCloseHandler {
     readonly resource: URI;
     private _terminalInstance;
@@ -29,8 +30,8 @@ export declare class TerminalEditorInput extends EditorInput implements IEditorC
     private _copyLaunchConfig?;
     private _terminalEditorFocusContextKey;
     private _group;
-    protected readonly _onDidRequestAttach: any;
-    readonly onDidRequestAttach: any;
+    protected readonly _onDidRequestAttach: Emitter<ITerminalInstance>;
+    readonly onDidRequestAttach: import("../../../../base/common/event.js").Event<ITerminalInstance>;
     setGroup(group: IEditorGroup | undefined): void;
     get group(): IEditorGroup | undefined;
     get typeId(): string;
@@ -52,7 +53,7 @@ export declare class TerminalEditorInput extends EditorInput implements IEditorC
     revert(): Promise<void>;
     constructor(resource: URI, _terminalInstance: ITerminalInstance | undefined, _themeService: IThemeService, _terminalInstanceService: ITerminalInstanceService, _instantiationService: IInstantiationService, _configurationService: IConfigurationService, _lifecycleService: ILifecycleService, _contextKeyService: IContextKeyService, _dialogService: IDialogService);
     private _setupInstanceListeners;
-    getName(): any;
+    getName(): string;
     getIcon(): ThemeIcon | undefined;
     getLabelExtraClasses(): string[];
     /**

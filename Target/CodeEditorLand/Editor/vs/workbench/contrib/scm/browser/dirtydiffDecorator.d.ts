@@ -1,39 +1,39 @@
-import "vs/css!./media/dirtydiffDecorator";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ISplice } from "vs/base/common/sequence";
-import { URI } from "vs/base/common/uri";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { IChange } from "vs/editor/common/diff/legacyLinesDiffComputer";
-import { IDiffEditorModel, IEditorContribution, IEditorModel } from "vs/editor/common/editorCommon";
-import { ITextModel } from "vs/editor/common/model";
-import { IEditorWorkerService } from "vs/editor/common/services/editorWorker";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IProgressService } from "vs/platform/progress/common/progress";
-import * as ext from "vs/workbench/common/contributions";
-import { IQuickDiffService, QuickDiff } from "vs/workbench/contrib/scm/common/quickDiff";
-import { ISCMService } from "vs/workbench/contrib/scm/common/scm";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IResolvedTextFileEditorModel, ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
+import "./media/dirtydiffDecorator.css";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ISplice } from "../../../../base/common/sequence.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { EditorAction, ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { IChange } from "../../../../editor/common/diff/legacyLinesDiffComputer.js";
+import { IDiffEditorModel, IEditorContribution, IEditorModel } from "../../../../editor/common/editorCommon.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import * as ext from "../../../common/contributions.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IResolvedTextFileEditorModel, ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { IQuickDiffService, QuickDiff } from "../common/quickDiff.js";
+import { ISCMService } from "../common/scm.js";
 export interface IModelRegistry {
     getModel(editorModel: IEditorModel, codeEditor: ICodeEditor): DirtyDiffModel | undefined;
 }
 export interface DirtyDiffContribution extends IEditorContribution {
     getChanges(): IChange[];
 }
-export declare const isDirtyDiffVisible: any;
+export declare const isDirtyDiffVisible: RawContextKey<boolean>;
 export declare class ShowPreviousChangeAction extends EditorAction {
     private readonly outerEditor?;
-    constructor(outerEditor?: any);
+    constructor(outerEditor?: ICodeEditor | undefined);
     run(accessor: ServicesAccessor): void;
 }
 export declare class ShowNextChangeAction extends EditorAction {
     private readonly outerEditor?;
-    constructor(outerEditor?: any);
+    constructor(outerEditor?: ICodeEditor | undefined);
     run(accessor: ServicesAccessor): void;
 }
 export declare class GotoPreviousChangeAction extends EditorAction {

@@ -1,14 +1,14 @@
 import type { IBufferLine, IBufferRange, Terminal } from "@xterm/xterm";
-import type { IHoverAction } from "vs/base/browser/ui/hover/hover";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ITextEditorSelection } from "vs/platform/editor/common/editor";
-import { ITerminalBackend } from "vs/platform/terminal/common/terminal";
-import { ITerminalExternalLinkProvider } from "vs/workbench/contrib/terminal/browser/terminal";
-import { ITerminalProcessManager } from "vs/workbench/contrib/terminal/common/terminal";
-import { IParsedLink } from "vs/workbench/contrib/terminalContrib/links/browser/terminalLinkParsing";
-export declare const ITerminalLinkProviderService: any;
+import type { IHoverAction } from "../../../../../base/browser/ui/hover/hover.js";
+import { Event } from "../../../../../base/common/event.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ITextEditorSelection } from "../../../../../platform/editor/common/editor.js";
+import { ITerminalBackend } from "../../../../../platform/terminal/common/terminal.js";
+import { ITerminalExternalLinkProvider } from "../../../terminal/browser/terminal.js";
+import { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
+import { IParsedLink } from "./terminalLinkParsing.js";
+export declare const ITerminalLinkProviderService: import("../../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITerminalLinkProviderService>;
 export interface ITerminalLinkProviderService {
     readonly _serviceBrand: undefined;
     readonly linkProviders: ReadonlySet<ITerminalExternalLinkProvider>;

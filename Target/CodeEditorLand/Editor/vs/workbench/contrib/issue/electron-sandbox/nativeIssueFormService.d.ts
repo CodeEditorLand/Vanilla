@@ -1,15 +1,15 @@
-import "vs/css!./media/newIssueReporter";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { INativeEnvironmentService } from "vs/platform/environment/common/environment";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { IssueFormService } from "vs/workbench/contrib/issue/browser/issueFormService";
-import { IIssueFormService, IssueReporterData } from "vs/workbench/contrib/issue/common/issue";
-import { IAuxiliaryWindowService } from "vs/workbench/services/auxiliaryWindow/browser/auxiliaryWindowService";
-import { IHostService } from "vs/workbench/services/host/browser/host";
+import "./media/newIssueReporter.css";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IAuxiliaryWindowService } from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IssueFormService } from "../browser/issueFormService.js";
+import { IIssueFormService, IssueReporterData } from "../common/issue.js";
 export declare class NativeIssueFormService extends IssueFormService implements IIssueFormService {
     private readonly nativeHostService;
     private readonly environmentService;

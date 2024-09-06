@@ -1,12 +1,12 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { UriComponents } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { ExtHostNotebookDocumentSaveParticipantShape, MainThreadBulkEditsShape } from "vs/workbench/api/common/extHost.protocol";
-import { ExtHostNotebookController } from "vs/workbench/api/common/extHostNotebook";
-import { SaveReason } from "vs/workbench/common/editor";
 import { NotebookDocumentWillSaveEvent } from "vscode";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { SaveReason } from "../../common/editor.js";
+import { ExtHostNotebookDocumentSaveParticipantShape, MainThreadBulkEditsShape } from "./extHost.protocol.js";
+import { ExtHostNotebookController } from "./extHostNotebook.js";
 export declare class ExtHostNotebookDocumentSaveParticipant implements ExtHostNotebookDocumentSaveParticipantShape {
     private readonly _logService;
     private readonly _notebooksAndEditors;

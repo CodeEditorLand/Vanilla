@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IAccessibilitySignalService } from "./accessibilitySignalService.js";
 /**
  * Schedules a signal to play while progress is happening.
  */

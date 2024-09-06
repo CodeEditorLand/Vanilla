@@ -1,5 +1,5 @@
-import { Widget } from "vs/base/browser/ui/widget";
-import { ThemeIcon } from "vs/base/common/themables";
+import { ThemeIcon } from "../../../common/themables.js";
+import { Widget } from "../widget.js";
 /**
  * The arrow image size.
  */

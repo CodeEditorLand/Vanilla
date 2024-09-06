@@ -1,8 +1,8 @@
-import { ISingleEditOperation } from "vs/editor/common/core/editOperation";
-import { Selection } from "vs/editor/common/core/selection";
-import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "vs/editor/common/editorCommon";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ITextModel } from "vs/editor/common/model";
+import { ISingleEditOperation } from "../../../common/core/editOperation.js";
+import { Selection } from "../../../common/core/selection.js";
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../../../common/editorCommon.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ITextModel } from "../../../common/model.js";
 export interface IInsertionPoint {
     ignore: boolean;
     commentStrOffset: number;

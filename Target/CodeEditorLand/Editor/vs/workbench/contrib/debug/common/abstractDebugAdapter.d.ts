@@ -1,5 +1,5 @@
-import { Event } from "vs/base/common/event";
-import { IDebugAdapter } from "vs/workbench/contrib/debug/common/debug";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { IDebugAdapter } from "./debug.js";
 /**
  * Abstract implementation of the low level API for a debug adapter.
  * Missing is how this API communicates with the debug adapter.
@@ -11,8 +11,8 @@ export declare abstract class AbstractDebugAdapter implements IDebugAdapter {
     private eventCallback;
     private messageCallback;
     private queue;
-    protected readonly _onError: any;
-    protected readonly _onExit: any;
+    protected readonly _onError: Emitter<Error>;
+    protected readonly _onExit: Emitter<number | null>;
     constructor();
     abstract startSession(): Promise<void>;
     abstract stopSession(): Promise<void>;

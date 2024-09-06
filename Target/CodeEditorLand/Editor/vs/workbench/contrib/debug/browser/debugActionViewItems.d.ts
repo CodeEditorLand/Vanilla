@@ -1,13 +1,13 @@
-import { BaseActionViewItem, IBaseActionViewItemOptions, SelectActionViewItem } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { IAction } from "vs/base/common/actions";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextViewService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IDebugService, IDebugSession } from "vs/workbench/contrib/debug/common/debug";
+import { BaseActionViewItem, IBaseActionViewItemOptions, SelectActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IDebugService, IDebugSession } from "../common/debug.js";
 export declare class StartDebugActionViewItem extends BaseActionViewItem {
     private context;
     private readonly debugService;

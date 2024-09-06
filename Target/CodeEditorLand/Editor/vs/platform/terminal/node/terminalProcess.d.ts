@@ -1,8 +1,9 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IProcessEnvironment } from "vs/base/common/platform";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IProcessPropertyMap, IProcessReadyWindowsPty, IShellLaunchConfig, ITerminalChildProcess, ITerminalLaunchError, ITerminalProcessOptions, ProcessPropertyType, TerminalShellType } from "vs/platform/terminal/common/terminal";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IProcessEnvironment } from "../../../base/common/platform.js";
+import { ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IProcessReadyWindowsPty, IShellLaunchConfig, ITerminalChildProcess, ITerminalLaunchError, ITerminalProcessOptions, ProcessPropertyType, TerminalShellType } from "../common/terminal.js";
 export declare class TerminalProcess extends Disposable implements ITerminalChildProcess {
     readonly shellLaunchConfig: IShellLaunchConfig;
     /**
@@ -37,13 +38,13 @@ export declare class TerminalProcess extends Disposable implements ITerminalChil
     get shellType(): TerminalShellType | undefined;
     get hasChildProcesses(): boolean;
     private readonly _onProcessData;
-    readonly onProcessData: any;
+    readonly onProcessData: Event<string>;
     private readonly _onProcessReady;
-    readonly onProcessReady: any;
+    readonly onProcessReady: Event<IProcessReadyEvent>;
     private readonly _onDidChangeProperty;
-    readonly onDidChangeProperty: any;
+    readonly onDidChangeProperty: Event<IProcessProperty<any>>;
     private readonly _onProcessExit;
-    readonly onProcessExit: any;
+    readonly onProcessExit: Event<number>;
     constructor(shellLaunchConfig: IShellLaunchConfig, cwd: string, cols: number, rows: number, env: IProcessEnvironment, 
     /**
      * environment used for `findExecutable`

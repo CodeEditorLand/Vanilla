@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { Range } from "vs/editor/common/core/range";
-import { IModelDecoration, ITextModel } from "vs/editor/common/model";
-import { IMarkerDecorationsService } from "vs/editor/common/services/markerDecorations";
-import { IModelService } from "vs/editor/common/services/model";
-import { IMarker, IMarkerService } from "vs/platform/markers/common/markers";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IMarker, IMarkerService } from "../../../platform/markers/common/markers.js";
+import { Range } from "../core/range.js";
+import { IModelDecoration, ITextModel } from "../model.js";
+import { IMarkerDecorationsService } from "./markerDecorations.js";
+import { IModelService } from "./model.js";
 export declare class MarkerDecorationsService extends Disposable implements IMarkerDecorationsService {
     private readonly _markerService;
     readonly _serviceBrand: undefined;

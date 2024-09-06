@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { IWillInstantiateEditorPaneEvent } from "vs/workbench/common/editor";
-export declare const IEditorPaneService: any;
+import { Event } from "../../../../base/common/event.js";
+import { IWillInstantiateEditorPaneEvent } from "../../../common/editor.js";
+export declare const IEditorPaneService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditorPaneService>;
 export interface IEditorPaneService {
     readonly _serviceBrand: undefined;
     /**

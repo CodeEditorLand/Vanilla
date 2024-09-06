@@ -1,12 +1,12 @@
-import { IAction } from "vs/base/common/actions";
-import { AsyncIterableObject } from "vs/base/common/async";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { INotebookKernelSourceAction } from "vs/workbench/contrib/notebook/common/notebookCommon";
+import { IAction } from "../../../../base/common/actions.js";
+import { AsyncIterableObject } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { INotebookKernelSourceAction } from "./notebookCommon.js";
 export interface ISelectedNotebooksChangeEvent {
     notebook: URI;
     oldKernel: string | undefined;
@@ -86,7 +86,7 @@ export interface INotebookTextModelLike {
     uri: URI;
     notebookType: string;
 }
-export declare const INotebookKernelService: any;
+export declare const INotebookKernelService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INotebookKernelService>;
 export interface INotebookKernelService {
     _serviceBrand: undefined;
     readonly onDidAddKernel: Event<INotebookKernel>;
@@ -123,7 +123,7 @@ export interface INotebookKernelService {
     getKernelSourceActions2(notebook: INotebookTextModelLike): Promise<INotebookKernelSourceAction[]>;
     notifyVariablesChange(notebookUri: URI): void;
 }
-export declare const INotebookKernelHistoryService: any;
+export declare const INotebookKernelHistoryService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INotebookKernelHistoryService>;
 export interface INotebookKernelHistoryService {
     _serviceBrand: undefined;
     getKernels(notebook: INotebookTextModelLike): {

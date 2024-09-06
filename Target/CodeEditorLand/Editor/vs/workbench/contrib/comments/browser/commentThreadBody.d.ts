@@ -1,16 +1,17 @@
-import * as dom from "vs/base/browser/dom";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IMarkdownRendererOptions } from "vs/editor/browser/widget/markdownRenderer/browser/markdownRenderer";
-import { IRange } from "vs/editor/common/core/range";
-import * as languages from "vs/editor/common/languages";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { ICommentService } from "vs/workbench/contrib/comments/browser/commentService";
-import { LayoutableEditor } from "vs/workbench/contrib/comments/browser/simpleCommentEditor";
-import { ICommentThreadWidget } from "vs/workbench/contrib/comments/common/commentThreadWidget";
-import { ICellRange } from "vs/workbench/contrib/notebook/common/notebookRange";
+import * as dom from "../../../../base/browser/dom.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IMarkdownRendererOptions } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import * as languages from "../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ICellRange } from "../../notebook/common/notebookRange.js";
+import { ICommentThreadWidget } from "../common/commentThreadWidget.js";
+import { CommentNode } from "./commentNode.js";
+import { ICommentService } from "./commentService.js";
+import { LayoutableEditor } from "./simpleCommentEditor.js";
 export declare class CommentThreadBody<T extends IRange | ICellRange = IRange> extends Disposable {
     private readonly _parentEditor;
     readonly owner: string;
@@ -29,11 +30,11 @@ export declare class CommentThreadBody<T extends IRange | ICellRange = IRange> e
     private _resizeObserver;
     private _focusedComment;
     private _onDidResize;
-    onDidResize: any;
+    onDidResize: import("../../../../base/common/event.js").Event<dom.Dimension>;
     private _commentDisposable;
     private _markdownRenderer;
-    get length(): any;
-    get activeComment(): any;
+    get length(): number;
+    get activeComment(): CommentNode<T> | undefined;
     constructor(_parentEditor: LayoutableEditor, owner: string, parentResourceUri: URI, container: HTMLElement, _options: IMarkdownRendererOptions, _commentThread: languages.CommentThread<T>, _pendingEdits: {
         [key: number]: string;
     } | undefined, _scopedInstatiationService: IInstantiationService, _parentCommentThreadWidget: ICommentThreadWidget, commentService: ICommentService, openerService: IOpenerService, languageService: ILanguageService);
@@ -41,7 +42,7 @@ export declare class CommentThreadBody<T extends IRange | ICellRange = IRange> e
     ensureFocusIntoNewEditingComment(): void;
     display(): Promise<void>;
     private _refresh;
-    getDimensions(): any;
+    getDimensions(): dom.Dimension;
     layout(widthInPixel?: number): void;
     getPendingEdits(): {
         [key: number]: string;

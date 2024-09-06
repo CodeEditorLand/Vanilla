@@ -1,20 +1,20 @@
-import { VSBufferReadableStream } from "vs/base/common/buffer";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IFileService } from "vs/platform/files/common/files";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IMainProcessService } from "vs/platform/ipc/common/mainProcessService";
-import { ILogService } from "vs/platform/log/common/log";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IRemoteAuthorityResolverService } from "vs/platform/remote/common/remoteAuthorityResolver";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { ITunnelService } from "vs/platform/tunnel/common/tunnel";
-import { WebviewThemeDataProvider } from "vs/workbench/contrib/webview/browser/themeing";
-import { WebviewInitInfo } from "vs/workbench/contrib/webview/browser/webview";
-import { WebviewElement } from "vs/workbench/contrib/webview/browser/webviewElement";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
+import { VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ITunnelService } from "../../../../platform/tunnel/common/tunnel.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { WebviewThemeDataProvider } from "../browser/themeing.js";
+import { WebviewInitInfo } from "../browser/webview.js";
+import { WebviewElement } from "../browser/webviewElement.js";
 /**
  * Webview backed by an iframe but that uses Electron APIs to power the webview.
  */

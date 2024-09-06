@@ -1,5 +1,5 @@
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IUserActivityService } from "vs/workbench/services/userActivity/common/userActivityService";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IUserActivityService } from "./userActivityService.js";
 declare class UserActivityRegistry {
     private todo;
     add: (ctor: {

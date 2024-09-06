@@ -1,9 +1,9 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { URI } from "vs/base/common/uri";
-import { ResourceFileEdit } from "vs/editor/browser/services/bulkEditService";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IProgress } from "vs/platform/progress/common/progress";
-import { IUndoRedoService, UndoRedoGroup, UndoRedoSource } from "vs/platform/undoRedo/common/undoRedo";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ResourceFileEdit } from "../../../../editor/browser/services/bulkEditService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
+import { IUndoRedoService, UndoRedoGroup, UndoRedoSource } from "../../../../platform/undoRedo/common/undoRedo.js";
 export declare class BulkFileEdits {
     private readonly _label;
     private readonly _code;

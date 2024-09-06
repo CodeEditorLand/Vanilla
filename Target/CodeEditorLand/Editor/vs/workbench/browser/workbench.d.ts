@@ -1,8 +1,10 @@
-import "vs/workbench/browser/style";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ServiceCollection } from "vs/platform/instantiation/common/serviceCollection";
-import { ILogService } from "vs/platform/log/common/log";
-import { Layout } from "vs/workbench/browser/layout";
+import "./style.js";
+import { Event } from "../../base/common/event.js";
+import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../platform/instantiation/common/serviceCollection.js";
+import { ILogService } from "../../platform/log/common/log.js";
+import { WillShutdownEvent } from "../services/lifecycle/common/lifecycle.js";
+import { Layout } from "./layout.js";
 export interface IWorkbenchOptions {
     /**
      * Extra classes to be added to the workbench container.
@@ -13,9 +15,9 @@ export declare class Workbench extends Layout {
     private readonly options;
     private readonly serviceCollection;
     private readonly _onWillShutdown;
-    readonly onWillShutdown: any;
+    readonly onWillShutdown: Event<WillShutdownEvent>;
     private readonly _onDidShutdown;
-    readonly onDidShutdown: any;
+    readonly onDidShutdown: Event<void>;
     constructor(parent: HTMLElement, options: IWorkbenchOptions | undefined, serviceCollection: ServiceCollection, logService: ILogService);
     private registerErrorHandler;
     private previousUnexpectedError;

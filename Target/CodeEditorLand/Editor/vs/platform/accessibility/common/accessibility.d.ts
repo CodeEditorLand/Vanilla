@@ -1,5 +1,6 @@
-import { Event } from "vs/base/common/event";
-export declare const IAccessibilityService: any;
+import { Event } from "../../../base/common/event.js";
+import { RawContextKey } from "../../contextkey/common/contextkey.js";
+export declare const IAccessibilityService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IAccessibilityService>;
 export interface IAccessibilityService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeScreenReaderOptimized: Event<void>;
@@ -20,7 +21,7 @@ export declare const enum AccessibilitySupport {
     Disabled = 1,
     Enabled = 2
 }
-export declare const CONTEXT_ACCESSIBILITY_MODE_ENABLED: any;
+export declare const CONTEXT_ACCESSIBILITY_MODE_ENABLED: RawContextKey<boolean>;
 export interface IAccessibilityInformation {
     label: string;
     role?: string;

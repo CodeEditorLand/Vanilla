@@ -1,7 +1,7 @@
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { INativeWorkbenchEnvironmentService } from "vs/workbench/services/environment/electron-sandbox/environmentService";
-import { AbstractPathService } from "vs/workbench/services/path/common/pathService";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { AbstractPathService } from "../common/pathService.js";
 export declare class NativePathService extends AbstractPathService {
     constructor(remoteAgentService: IRemoteAgentService, environmentService: INativeWorkbenchEnvironmentService, contextService: IWorkspaceContextService);
 }

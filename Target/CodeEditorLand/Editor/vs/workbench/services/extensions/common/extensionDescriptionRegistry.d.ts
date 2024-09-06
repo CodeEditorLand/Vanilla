@@ -1,5 +1,5 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ExtensionIdentifier, IExtensionDescription } from "vs/platform/extensions/common/extensions";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
 export declare class DeltaExtensionsResult {
     readonly versionId: number;
     readonly removedDueToLooping: IExtensionDescription[];
@@ -18,7 +18,7 @@ export declare class ExtensionDescriptionRegistry implements IReadOnlyExtensionD
     private readonly _activationEventsReader;
     static isHostExtension(extensionId: ExtensionIdentifier | string, myRegistry: ExtensionDescriptionRegistry, globalRegistry: ExtensionDescriptionRegistry): boolean;
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: import("../../../../base/common/event.js").Event<void>;
     private _versionId;
     private _extensionDescriptions;
     private _extensionsMap;

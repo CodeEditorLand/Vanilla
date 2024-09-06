@@ -15,5 +15,5 @@ export declare function fromNowByDay(date: number | Date, appendAgoLabel?: boole
  * @param useFullTimeWords Whether to use full words (eg. seconds) instead of
  * shortened (eg. secs).
  */
-export declare function getDurationString(ms: number, useFullTimeWords?: boolean): any;
+export declare function getDurationString(ms: number, useFullTimeWords?: boolean): string;
 export declare function toLocalISOString(date: Date): string;

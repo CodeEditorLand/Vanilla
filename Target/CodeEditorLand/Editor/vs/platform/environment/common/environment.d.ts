@@ -1,7 +1,7 @@
-import { URI } from "vs/base/common/uri";
-import { NativeParsedArgs } from "vs/platform/environment/common/argv";
-export declare const IEnvironmentService: any;
-export declare const INativeEnvironmentService: any;
+import { URI } from "../../../base/common/uri.js";
+import { NativeParsedArgs } from "./argv.js";
+export declare const IEnvironmentService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IEnvironmentService>;
+export declare const INativeEnvironmentService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<INativeEnvironmentService>;
 export interface IDebugParams {
     port: number | null;
     break: boolean;

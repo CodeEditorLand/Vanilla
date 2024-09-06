@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { Range } from "vs/editor/common/core/range";
-import { CellFindMatchWithIndex, ICellModelDecorations, ICellViewModel, INotebookEditor } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { CellFindMatchWithIndex, ICellModelDecorations, ICellViewModel, INotebookEditor } from "../../notebookBrowser.js";
 export declare class FindMatchDecorationModel extends Disposable {
     private readonly _notebookEditor;
     private readonly ownerID;

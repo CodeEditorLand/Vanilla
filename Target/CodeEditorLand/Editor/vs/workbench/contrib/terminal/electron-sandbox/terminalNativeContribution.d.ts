@@ -1,9 +1,9 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IFileService } from "vs/platform/files/common/files";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { ITerminalService } from "../browser/terminal.js";
 export declare class TerminalNativeContribution extends Disposable implements IWorkbenchContribution {
     private readonly _fileService;
     private readonly _terminalService;

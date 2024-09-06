@@ -1,39 +1,39 @@
-import { IDataTransferItem } from "vs/base/common/dataTransfer";
-import * as htmlContent from "vs/base/common/htmlContent";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IURITransformer } from "vs/base/common/uriIpc";
-import { RenderLineNumbersType } from "vs/editor/common/config/editorOptions";
-import { IPosition } from "vs/editor/common/core/position";
-import * as editorRange from "vs/editor/common/core/range";
-import { ISelection } from "vs/editor/common/core/selection";
-import { IContentDecorationRenderOptions, IDecorationOptions, IDecorationRenderOptions, IThemeDecorationRenderOptions } from "vs/editor/common/editorCommon";
-import * as encodedTokenAttributes from "vs/editor/common/encodedTokenAttributes";
-import * as languages from "vs/editor/common/languages";
-import * as languageSelector from "vs/editor/common/languageSelector";
-import { EndOfLineSequence, TrackedRangeStickiness } from "vs/editor/common/model";
-import { ITextEditorOptions } from "vs/platform/editor/common/editor";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { IMarkerData, IRelatedInformation, MarkerSeverity, MarkerTag } from "vs/platform/markers/common/markers";
-import { ProgressLocation as MainProgressLocation } from "vs/platform/progress/common/progress";
-import * as extHostProtocol from "vs/workbench/api/common/extHost.protocol";
-import { CommandsConverter } from "vs/workbench/api/common/extHostCommands";
-import { SaveReason } from "vs/workbench/common/editor";
-import { IViewBadge } from "vs/workbench/common/views";
-import { ChatAgentLocation, IChatAgentRequest, IChatAgentResult } from "vs/workbench/contrib/chat/common/chatAgents";
-import { IChatRequestVariableEntry } from "vs/workbench/contrib/chat/common/chatModel";
-import { IChatAgentDetection, IChatAgentMarkdownContentWithVulnerability, IChatCodeCitation, IChatCommandButton, IChatConfirmation, IChatContentInlineReference, IChatContentReference, IChatFollowup, IChatMarkdownContent, IChatMoveMessage, IChatProgressMessage, IChatTaskDto, IChatTaskResult, IChatTextEdit, IChatTreeData, IChatUserActionEvent, IChatWarningMessage } from "vs/workbench/contrib/chat/common/chatService";
-import * as chatProvider from "vs/workbench/contrib/chat/common/languageModels";
-import { IToolData, IToolResult } from "vs/workbench/contrib/chat/common/languageModelToolsService";
-import { IDebugVisualizationTreeItem } from "vs/workbench/contrib/debug/common/debug";
-import * as notebooks from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { ICellRange } from "vs/workbench/contrib/notebook/common/notebookRange";
-import * as search from "vs/workbench/contrib/search/common/search";
-import { CoverageDetails, IFileCoverage, ISerializedTestResults, ITestErrorMessage, ITestItem, ITestTag } from "vs/workbench/contrib/testing/common/testTypes";
-import { EditorGroupColumn } from "vs/workbench/services/editor/common/editorGroupColumn";
-import { Dto } from "vs/workbench/services/extensions/common/proxyIdentifier";
 import type * as vscode from "vscode";
-import * as types from "./extHostTypes";
+import { IDataTransferItem } from "../../../base/common/dataTransfer.js";
+import * as htmlContent from "../../../base/common/htmlContent.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IURITransformer } from "../../../base/common/uriIpc.js";
+import { RenderLineNumbersType } from "../../../editor/common/config/editorOptions.js";
+import { IPosition } from "../../../editor/common/core/position.js";
+import * as editorRange from "../../../editor/common/core/range.js";
+import { ISelection } from "../../../editor/common/core/selection.js";
+import { IContentDecorationRenderOptions, IDecorationOptions, IDecorationRenderOptions, IThemeDecorationRenderOptions } from "../../../editor/common/editorCommon.js";
+import * as encodedTokenAttributes from "../../../editor/common/encodedTokenAttributes.js";
+import * as languages from "../../../editor/common/languages.js";
+import * as languageSelector from "../../../editor/common/languageSelector.js";
+import { EndOfLineSequence, TrackedRangeStickiness } from "../../../editor/common/model.js";
+import { ITextEditorOptions } from "../../../platform/editor/common/editor.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { IMarkerData, IRelatedInformation, MarkerSeverity, MarkerTag } from "../../../platform/markers/common/markers.js";
+import { ProgressLocation as MainProgressLocation } from "../../../platform/progress/common/progress.js";
+import { SaveReason } from "../../common/editor.js";
+import { IViewBadge } from "../../common/views.js";
+import { ChatAgentLocation, IChatAgentRequest, IChatAgentResult } from "../../contrib/chat/common/chatAgents.js";
+import { IChatRequestVariableEntry } from "../../contrib/chat/common/chatModel.js";
+import { IChatAgentDetection, IChatAgentMarkdownContentWithVulnerability, IChatCodeCitation, IChatCommandButton, IChatConfirmation, IChatContentInlineReference, IChatContentReference, IChatFollowup, IChatMarkdownContent, IChatMoveMessage, IChatProgressMessage, IChatTaskDto, IChatTaskResult, IChatTextEdit, IChatTreeData, IChatUserActionEvent, IChatWarningMessage } from "../../contrib/chat/common/chatService.js";
+import * as chatProvider from "../../contrib/chat/common/languageModels.js";
+import { IToolData, IToolResult } from "../../contrib/chat/common/languageModelToolsService.js";
+import { IDebugVisualizationTreeItem } from "../../contrib/debug/common/debug.js";
+import * as notebooks from "../../contrib/notebook/common/notebookCommon.js";
+import { ICellRange } from "../../contrib/notebook/common/notebookRange.js";
+import * as search from "../../contrib/search/common/search.js";
+import { CoverageDetails, IFileCoverage, ISerializedTestResults, ITestErrorMessage, ITestItem, ITestTag } from "../../contrib/testing/common/testTypes.js";
+import { EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
+import { Dto } from "../../services/extensions/common/proxyIdentifier.js";
+import * as extHostProtocol from "./extHost.protocol.js";
+import { CommandsConverter } from "./extHostCommands.js";
+import * as types from "./extHostTypes.js";
 export declare namespace Command {
     interface ICommandsConverter {
         fromInternal(command: extHostProtocol.ICommandDto): vscode.Command | undefined;
@@ -371,8 +371,11 @@ export declare namespace TestMessage {
     function to(item: ITestErrorMessage.Serialized): vscode.TestMessage;
 }
 export declare namespace TestTag {
-    const namespace: any;
-    const denamespace: any;
+    const namespace: (ctrlId: string, tagId: string) => string;
+    const denamespace: (namespaced: string) => {
+        ctrlId: string;
+        tagId: string;
+    };
 }
 export declare namespace TestItem {
     type Raw = vscode.TestItem;

@@ -1,4 +1,4 @@
-import { SimpleCompletionItem } from "vs/workbench/services/suggest/browser/simpleCompletionItem";
+import { SimpleCompletionItem } from "./simpleCompletionItem.js";
 export interface ISimpleCompletionStats {
     pLabelLen: number;
 }

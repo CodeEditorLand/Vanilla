@@ -1,6 +1,6 @@
-import { Position } from "vs/editor/common/core/position";
-import { CursorConfiguration, ICursorSimpleModel, SingleCursorState } from "vs/editor/common/cursorCommon";
-import { PositionAffinity } from "vs/editor/common/model";
+import { Position } from "../core/position.js";
+import { CursorConfiguration, ICursorSimpleModel, SingleCursorState } from "../cursorCommon.js";
+import { PositionAffinity } from "../model.js";
 export declare class CursorPosition {
     _cursorPositionBrand: void;
     readonly lineNumber: number;

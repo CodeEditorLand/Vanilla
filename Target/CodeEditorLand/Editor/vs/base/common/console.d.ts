@@ -1,4 +1,4 @@
-import { URI } from "vs/base/common/uri";
+import { URI } from "./uri.js";
 export interface IRemoteConsoleLog {
     type: string;
     severity: string;

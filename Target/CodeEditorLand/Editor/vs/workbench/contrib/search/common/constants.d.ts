@@ -1,3 +1,4 @@
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 export declare const enum SearchCommandIds {
     FindInFilesActionId = "workbench.action.findInFiles",
     FocusActiveEditorCommandId = "search.action.focusActiveEditor",
@@ -46,29 +47,29 @@ export declare const enum SearchCommandIds {
     FindInWorkspaceId = "filesExplorer.findInWorkspace"
 }
 export declare const SearchContext: {
-    SearchViewVisibleKey: any;
-    SearchViewFocusedKey: any;
-    InputBoxFocusedKey: any;
-    SearchInputBoxFocusedKey: any;
-    ReplaceInputBoxFocusedKey: any;
-    PatternIncludesFocusedKey: any;
-    PatternExcludesFocusedKey: any;
-    ReplaceActiveKey: any;
-    HasSearchResults: any;
-    FirstMatchFocusKey: any;
-    FileMatchOrMatchFocusKey: any;
-    FileMatchOrFolderMatchFocusKey: any;
-    FileMatchOrFolderMatchWithResourceFocusKey: any;
-    FileFocusKey: any;
-    FolderFocusKey: any;
-    ResourceFolderFocusKey: any;
-    IsEditableItemKey: any;
-    MatchFocusKey: any;
-    ViewHasSearchPatternKey: any;
-    ViewHasReplacePatternKey: any;
-    ViewHasFilePatternKey: any;
-    ViewHasSomeCollapsibleKey: any;
-    InTreeViewKey: any;
-    AIResultsVisibleKey: any;
-    hasAIResultProvider: any;
+    SearchViewVisibleKey: RawContextKey<boolean>;
+    SearchViewFocusedKey: RawContextKey<boolean>;
+    InputBoxFocusedKey: RawContextKey<boolean>;
+    SearchInputBoxFocusedKey: RawContextKey<boolean>;
+    ReplaceInputBoxFocusedKey: RawContextKey<boolean>;
+    PatternIncludesFocusedKey: RawContextKey<boolean>;
+    PatternExcludesFocusedKey: RawContextKey<boolean>;
+    ReplaceActiveKey: RawContextKey<boolean>;
+    HasSearchResults: RawContextKey<boolean>;
+    FirstMatchFocusKey: RawContextKey<boolean>;
+    FileMatchOrMatchFocusKey: RawContextKey<boolean>;
+    FileMatchOrFolderMatchFocusKey: RawContextKey<boolean>;
+    FileMatchOrFolderMatchWithResourceFocusKey: RawContextKey<boolean>;
+    FileFocusKey: RawContextKey<boolean>;
+    FolderFocusKey: RawContextKey<boolean>;
+    ResourceFolderFocusKey: RawContextKey<boolean>;
+    IsEditableItemKey: RawContextKey<boolean>;
+    MatchFocusKey: RawContextKey<boolean>;
+    ViewHasSearchPatternKey: RawContextKey<boolean>;
+    ViewHasReplacePatternKey: RawContextKey<boolean>;
+    ViewHasFilePatternKey: RawContextKey<boolean>;
+    ViewHasSomeCollapsibleKey: RawContextKey<boolean>;
+    InTreeViewKey: RawContextKey<boolean>;
+    AIResultsVisibleKey: RawContextKey<boolean>;
+    hasAIResultProvider: RawContextKey<boolean>;
 };

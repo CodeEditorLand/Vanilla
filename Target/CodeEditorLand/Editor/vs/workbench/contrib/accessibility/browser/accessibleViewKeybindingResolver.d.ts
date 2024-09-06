@@ -1,6 +1,6 @@
-import { MarkdownString } from "vs/base/common/htmlContent";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IPickerQuickAccessItem } from "vs/platform/quickinput/browser/pickerQuickAccess";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IPickerQuickAccessItem } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
 export declare function resolveContentAndKeybindingItems(keybindingService: IKeybindingService, value?: string): {
     content: MarkdownString;
     configureKeybindingItems: IPickerQuickAccessItem[] | undefined;

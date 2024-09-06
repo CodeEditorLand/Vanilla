@@ -1,47 +1,48 @@
-import "vs/css!./media/extensionActions";
-import { IContextMenuProvider } from "vs/base/browser/contextmenu";
-import { ActionViewItem, IActionViewItemOptions } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { ActionWithDropdownActionViewItem, IActionWithDropdownActionViewItemOptions } from "vs/base/browser/ui/dropdown/dropdownActionViewItem";
-import { Action, IAction, IActionChangeEvent } from "vs/base/common/actions";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IExtensionGalleryService, InstallOperation, InstallOptions } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IExtensionManifest } from "vs/platform/extensions/common/extensions";
-import { IFileService } from "vs/platform/files/common/files";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILabelService } from "vs/platform/label/common/label";
-import { ILogService } from "vs/platform/log/common/log";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IProgressService } from "vs/platform/progress/common/progress";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IUpdateService } from "vs/platform/update/common/update";
-import { IUserDataSyncEnablementService } from "vs/platform/userDataSync/common/userDataSync";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkspaceTrustEnablementService, IWorkspaceTrustManagementService } from "vs/platform/workspace/common/workspaceTrust";
-import { IExtension, IExtensionContainer, IExtensionsWorkbenchService } from "vs/workbench/contrib/extensions/common/extensions";
-import { IJSONEditingService } from "vs/workbench/services/configuration/common/jsonEditing";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IExtensionFeaturesManagementService } from "vs/workbench/services/extensionManagement/common/extensionFeatures";
-import { IExtensionManagementServer, IExtensionManagementServerService, IWorkbenchExtensionEnablementService, IWorkbenchExtensionManagementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-import { IExtensionIgnoredRecommendationsService } from "vs/workbench/services/extensionRecommendations/common/extensionRecommendations";
-import { IExtensionManifestPropertiesService } from "vs/workbench/services/extensions/common/extensionManifestPropertiesService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { ILocaleService } from "vs/workbench/services/localization/common/locale";
-import { IPaneCompositePartService } from "vs/workbench/services/panecomposite/browser/panecomposite";
-import { IPreferencesService } from "vs/workbench/services/preferences/common/preferences";
-import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
-import { IWorkbenchThemeService } from "vs/workbench/services/themes/common/workbenchThemeService";
+import "./media/extensionActions.css";
+import { IContextMenuProvider } from "../../../../base/browser/contextmenu.js";
+import { ActionViewItem, IActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { ActionWithDropdownActionViewItem, IActionWithDropdownActionViewItemOptions } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { Action, IAction, IActionChangeEvent } from "../../../../base/common/actions.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IExtensionGalleryService, InstallOperation, InstallOptions } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { IUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceTrustEnablementService, IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IJSONEditingService } from "../../../services/configuration/common/jsonEditing.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionFeaturesManagementService } from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { IExtensionManagementServer, IExtensionManagementServerService, IWorkbenchExtensionEnablementService, IWorkbenchExtensionManagementService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IExtensionIgnoredRecommendationsService } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
+import { IExtensionManifestPropertiesService } from "../../../services/extensions/common/extensionManifestPropertiesService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { ILocaleService } from "../../../services/localization/common/locale.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { IWorkbenchThemeService } from "../../../services/themes/common/workbenchThemeService.js";
+import { IExtension, IExtensionContainer, IExtensionsWorkbenchService } from "../common/extensions.js";
 export declare class PromptExtensionInstallFailureAction extends Action {
     private readonly extension;
     private readonly version;
@@ -66,8 +67,8 @@ export interface IExtensionActionChangeEvent extends IActionChangeEvent {
     readonly menuActions?: IAction[];
 }
 export declare abstract class ExtensionAction extends Action implements IExtensionContainer {
-    protected _onDidChange: any;
-    readonly onDidChange: any;
+    protected _onDidChange: Emitter<IExtensionActionChangeEvent>;
+    readonly onDidChange: Event<IExtensionActionChangeEvent>;
     static readonly EXTENSION_ACTION_CLASS = "extension-action";
     static readonly TEXT_ACTION_CLASS: string;
     static readonly LABEL_ACTION_CLASS: string;
@@ -145,8 +146,8 @@ export declare abstract class InstallInOtherServerAction extends ExtensionAction
     private readonly extensionsWorkbenchService;
     protected readonly extensionManagementServerService: IExtensionManagementServerService;
     private readonly extensionManifestPropertiesService;
-    protected static readonly INSTALL_LABEL: any;
-    protected static readonly INSTALLING_LABEL: any;
+    protected static readonly INSTALL_LABEL: string;
+    protected static readonly INSTALLING_LABEL: string;
     private static readonly Class;
     private static readonly InstallingClass;
     updateWhenCounterExtensionChanges: boolean;
@@ -171,7 +172,7 @@ export declare class WebInstallAction extends InstallInOtherServerAction {
 export declare class UninstallAction extends ExtensionAction {
     private readonly extensionsWorkbenchService;
     private readonly dialogService;
-    static readonly UninstallLabel: any;
+    static readonly UninstallLabel: string;
     private static readonly UninstallingLabel;
     static readonly UninstallClass: string;
     private static readonly UnInstallingClass;
@@ -198,7 +199,7 @@ export declare class ToggleAutoUpdateForExtensionAction extends ExtensionAction 
     private readonly extensionsWorkbenchService;
     private readonly extensionEnablementService;
     static readonly ID = "workbench.extensions.action.toggleAutoUpdateForExtension";
-    static readonly LABEL: any;
+    static readonly LABEL: import("../../../../nls.js").ILocalizedString;
     private static readonly EnabledClass;
     private static readonly DisabledClass;
     constructor(extensionsWorkbenchService: IExtensionsWorkbenchService, extensionEnablementService: IWorkbenchExtensionEnablementService, configurationService: IConfigurationService);
@@ -208,7 +209,7 @@ export declare class ToggleAutoUpdateForExtensionAction extends ExtensionAction 
 export declare class ToggleAutoUpdatesForPublisherAction extends ExtensionAction {
     private readonly extensionsWorkbenchService;
     static readonly ID = "workbench.extensions.action.toggleAutoUpdatesForPublisher";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(extensionsWorkbenchService: IExtensionsWorkbenchService);
     update(): void;
     run(): Promise<any>;
@@ -268,7 +269,7 @@ export declare class MenuItemExtensionAction extends ExtensionAction {
 export declare class TogglePreReleaseExtensionAction extends ExtensionAction {
     private readonly extensionsWorkbenchService;
     static readonly ID = "workbench.extensions.action.togglePreRlease";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     private static readonly EnabledClass;
     private static readonly DisabledClass;
     constructor(extensionsWorkbenchService: IExtensionsWorkbenchService);
@@ -284,7 +285,7 @@ export declare class InstallAnotherVersionAction extends ExtensionAction {
     private readonly instantiationService;
     private readonly dialogService;
     static readonly ID = "workbench.extensions.action.install.anotherVersion";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(extension: IExtension | null, whenInstalled: boolean, extensionsWorkbenchService: IExtensionsWorkbenchService, extensionManagementService: IWorkbenchExtensionManagementService, extensionGalleryService: IExtensionGalleryService, quickInputService: IQuickInputService, instantiationService: IInstantiationService, dialogService: IDialogService);
     update(): void;
     run(): Promise<any>;
@@ -293,7 +294,7 @@ export declare class EnableForWorkspaceAction extends ExtensionAction {
     private readonly extensionsWorkbenchService;
     private readonly extensionEnablementService;
     static readonly ID = "extensions.enableForWorkspace";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(extensionsWorkbenchService: IExtensionsWorkbenchService, extensionEnablementService: IWorkbenchExtensionEnablementService);
     update(): void;
     run(): Promise<any>;
@@ -302,7 +303,7 @@ export declare class EnableGloballyAction extends ExtensionAction {
     private readonly extensionsWorkbenchService;
     private readonly extensionEnablementService;
     static readonly ID = "extensions.enableGlobally";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(extensionsWorkbenchService: IExtensionsWorkbenchService, extensionEnablementService: IWorkbenchExtensionEnablementService);
     update(): void;
     run(): Promise<any>;
@@ -313,7 +314,7 @@ export declare class DisableForWorkspaceAction extends ExtensionAction {
     private readonly extensionEnablementService;
     private readonly extensionService;
     static readonly ID = "extensions.disableForWorkspace";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(workspaceContextService: IWorkspaceContextService, extensionsWorkbenchService: IExtensionsWorkbenchService, extensionEnablementService: IWorkbenchExtensionEnablementService, extensionService: IExtensionService);
     update(): void;
     run(): Promise<any>;
@@ -323,7 +324,7 @@ export declare class DisableGloballyAction extends ExtensionAction {
     private readonly extensionEnablementService;
     private readonly extensionService;
     static readonly ID = "extensions.disableGlobally";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(extensionsWorkbenchService: IExtensionsWorkbenchService, extensionEnablementService: IWorkbenchExtensionEnablementService, extensionService: IExtensionService);
     update(): void;
     run(): Promise<any>;
@@ -353,7 +354,7 @@ export declare class SetColorThemeAction extends ExtensionAction {
     private readonly quickInputService;
     private readonly extensionEnablementService;
     static readonly ID = "workbench.extensions.action.setColorTheme";
-    static readonly TITLE: any;
+    static readonly TITLE: import("../../../../nls.js").ILocalizedString;
     private static readonly EnabledClass;
     private static readonly DisabledClass;
     constructor(extensionService: IExtensionService, workbenchThemeService: IWorkbenchThemeService, quickInputService: IQuickInputService, extensionEnablementService: IWorkbenchExtensionEnablementService);
@@ -369,7 +370,7 @@ export declare class SetFileIconThemeAction extends ExtensionAction {
     private readonly quickInputService;
     private readonly extensionEnablementService;
     static readonly ID = "workbench.extensions.action.setFileIconTheme";
-    static readonly TITLE: any;
+    static readonly TITLE: import("../../../../nls.js").ILocalizedString;
     private static readonly EnabledClass;
     private static readonly DisabledClass;
     constructor(extensionService: IExtensionService, workbenchThemeService: IWorkbenchThemeService, quickInputService: IQuickInputService, extensionEnablementService: IWorkbenchExtensionEnablementService);
@@ -385,7 +386,7 @@ export declare class SetProductIconThemeAction extends ExtensionAction {
     private readonly quickInputService;
     private readonly extensionEnablementService;
     static readonly ID = "workbench.extensions.action.setProductIconTheme";
-    static readonly TITLE: any;
+    static readonly TITLE: import("../../../../nls.js").ILocalizedString;
     private static readonly EnabledClass;
     private static readonly DisabledClass;
     constructor(extensionService: IExtensionService, workbenchThemeService: IWorkbenchThemeService, quickInputService: IQuickInputService, extensionEnablementService: IWorkbenchExtensionEnablementService);
@@ -399,7 +400,7 @@ export declare class SetProductIconThemeAction extends ExtensionAction {
 export declare class SetLanguageAction extends ExtensionAction {
     private readonly extensionsWorkbenchService;
     static readonly ID = "workbench.extensions.action.setDisplayLanguage";
-    static readonly TITLE: any;
+    static readonly TITLE: import("../../../../nls.js").ILocalizedString;
     private static readonly EnabledClass;
     private static readonly DisabledClass;
     constructor(extensionsWorkbenchService: IExtensionsWorkbenchService);
@@ -410,7 +411,7 @@ export declare class ClearLanguageAction extends ExtensionAction {
     private readonly extensionsWorkbenchService;
     private readonly localeService;
     static readonly ID = "workbench.extensions.action.clearLanguage";
-    static readonly TITLE: any;
+    static readonly TITLE: import("../../../../nls.js").ILocalizedString;
     private static readonly EnabledClass;
     private static readonly DisabledClass;
     constructor(extensionsWorkbenchService: IExtensionsWorkbenchService, localeService: ILocaleService);
@@ -421,7 +422,7 @@ export declare class ShowRecommendedExtensionAction extends Action {
     private readonly paneCompositeService;
     private readonly extensionWorkbenchService;
     static readonly ID = "workbench.extensions.action.showRecommendedExtension";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     private extensionId;
     constructor(extensionId: string, paneCompositeService: IPaneCompositePartService, extensionWorkbenchService: IExtensionsWorkbenchService);
     run(): Promise<any>;
@@ -431,7 +432,7 @@ export declare class InstallRecommendedExtensionAction extends Action {
     private readonly instantiationService;
     private readonly extensionWorkbenchService;
     static readonly ID = "workbench.extensions.action.installRecommendedExtension";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     private extensionId;
     constructor(extensionId: string, paneCompositeService: IPaneCompositePartService, instantiationService: IInstantiationService, extensionWorkbenchService: IExtensionsWorkbenchService);
     run(): Promise<any>;
@@ -474,7 +475,7 @@ export declare abstract class AbstractConfigureRecommendedExtensionsAction exten
 }
 export declare class ConfigureWorkspaceRecommendedExtensionsAction extends AbstractConfigureRecommendedExtensionsAction {
     static readonly ID = "workbench.extensions.action.configureWorkspaceRecommendedExtensions";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(id: string, label: string, fileService: IFileService, textFileService: ITextFileService, contextService: IWorkspaceContextService, editorService: IEditorService, jsonEditingService: IJSONEditingService, textModelResolverService: ITextModelService);
     private update;
     run(): Promise<void>;
@@ -482,7 +483,7 @@ export declare class ConfigureWorkspaceRecommendedExtensionsAction extends Abstr
 export declare class ConfigureWorkspaceFolderRecommendedExtensionsAction extends AbstractConfigureRecommendedExtensionsAction {
     private readonly commandService;
     static readonly ID = "workbench.extensions.action.configureWorkspaceFolderRecommendedExtensions";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(id: string, label: string, fileService: IFileService, textFileService: ITextFileService, contextService: IWorkspaceContextService, editorService: IEditorService, jsonEditingService: IJSONEditingService, textModelResolverService: ITextModelService, commandService: ICommandService);
     run(): Promise<any>;
 }
@@ -536,7 +537,7 @@ export declare class ExtensionStatusAction extends ExtensionAction {
     private _status;
     get status(): ExtensionStatus[];
     private readonly _onDidChangeStatus;
-    readonly onDidChangeStatus: any;
+    readonly onDidChangeStatus: Event<void>;
     private readonly updateThrottler;
     constructor(extensionManagementServerService: IExtensionManagementServerService, labelService: ILabelService, commandService: ICommandService, workspaceTrustEnablementService: IWorkspaceTrustEnablementService, workspaceTrustService: IWorkspaceTrustManagementService, extensionsWorkbenchService: IExtensionsWorkbenchService, extensionService: IExtensionService, extensionManifestPropertiesService: IExtensionManifestPropertiesService, contextService: IWorkspaceContextService, productService: IProductService, workbenchExtensionEnablementService: IWorkbenchExtensionEnablementService, extensionFeaturesManagementService: IExtensionFeaturesManagementService);
     update(): void;
@@ -553,7 +554,7 @@ export declare class ReinstallAction extends Action {
     private readonly instantiationService;
     private readonly extensionService;
     static readonly ID = "workbench.extensions.action.reinstall";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(id: string | undefined, label: string | undefined, extensionsWorkbenchService: IExtensionsWorkbenchService, extensionManagementServerService: IExtensionManagementServerService, quickInputService: IQuickInputService, notificationService: INotificationService, hostService: IHostService, instantiationService: IInstantiationService, extensionService: IExtensionService);
     get enabled(): boolean;
     run(): Promise<any>;
@@ -566,7 +567,7 @@ export declare class InstallSpecificVersionOfExtensionAction extends Action {
     private readonly instantiationService;
     private readonly extensionEnablementService;
     static readonly ID = "workbench.extensions.action.install.specificVersion";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(id: string | undefined, label: string | undefined, extensionsWorkbenchService: IExtensionsWorkbenchService, quickInputService: IQuickInputService, instantiationService: IInstantiationService, extensionEnablementService: IWorkbenchExtensionEnablementService);
     get enabled(): boolean;
     run(): Promise<any>;
@@ -614,4 +615,4 @@ export declare class InstallRemoteExtensionsInLocalAction extends AbstractInstal
     protected installExtensions(extensions: IExtension[]): Promise<void>;
 }
 export declare const showExtensionsWithIdsCommandId = "workbench.extensions.action.showExtensionsWithIds";
-export declare const extensionButtonProminentBackground: any;
+export declare const extensionButtonProminentBackground: string;

@@ -1,15 +1,15 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { InlineCompletionsModel } from "vs/editor/contrib/inlineCompletions/browser/model/inlineCompletionsModel";
-import { IAccessibleViewContentProvider } from "vs/platform/accessibility/browser/accessibleView";
-import { IAccessibleViewImplentation } from "vs/platform/accessibility/browser/accessibleViewRegistry";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { InlineCompletionsModel } from "./model/inlineCompletionsModel.js";
 export declare class InlineCompletionsAccessibleView implements IAccessibleViewImplentation {
-    readonly type: any;
+    readonly type = AccessibleViewType.View;
     readonly priority = 95;
     readonly name = "inline-completions";
-    readonly when: any;
+    readonly when: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression | undefined;
     getProvider(accessor: ServicesAccessor): InlineCompletionsAccessibleViewContentProvider | undefined;
 }
 declare class InlineCompletionsAccessibleViewContentProvider extends Disposable implements IAccessibleViewContentProvider {
@@ -18,11 +18,11 @@ declare class InlineCompletionsAccessibleViewContentProvider extends Disposable 
     private readonly _onDidChangeContent;
     readonly onDidChangeContent: Event<void>;
     constructor(_editor: ICodeEditor, _model: InlineCompletionsModel);
-    readonly id: any;
+    readonly id = AccessibleViewProviderId.InlineCompletions;
     readonly verbositySettingKey = "accessibility.verbosity.inlineCompletions";
     readonly options: {
-        language: any;
-        type: any;
+        language: string | undefined;
+        type: AccessibleViewType;
     };
     provideContent(): string;
     provideNextContent(): string | undefined;

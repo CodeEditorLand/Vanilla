@@ -1,6 +1,6 @@
-import { URI } from "vs/base/common/uri";
-import { IV8Profile } from "vs/platform/profiling/common/profiling";
-import { BottomUpSample } from "vs/platform/profiling/common/profilingModel";
+import { URI } from "../../../base/common/uri.js";
+import { IV8Profile } from "../common/profiling.js";
+import { BottomUpSample } from "../common/profilingModel.js";
 export declare const enum ProfilingOutput {
     Failure = 0,
     Irrelevant = 1,
@@ -9,7 +9,7 @@ export declare const enum ProfilingOutput {
 export interface IScriptUrlClassifier {
     (scriptUrl: string): string;
 }
-export declare const IProfileAnalysisWorkerService: any;
+export declare const IProfileAnalysisWorkerService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IProfileAnalysisWorkerService>;
 export interface IProfileAnalysisWorkerService {
     readonly _serviceBrand: undefined;
     analyseBottomUp(profile: IV8Profile, callFrameClassifier: IScriptUrlClassifier, perfBaseline: number, sendAsErrorTelemtry: boolean): Promise<ProfilingOutput>;

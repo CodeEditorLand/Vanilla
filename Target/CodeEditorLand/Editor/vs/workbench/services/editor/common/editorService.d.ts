@@ -1,13 +1,13 @@
-import { Event } from "vs/base/common/event";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IDiffEditor, IEditor } from "vs/editor/common/editorCommon";
-import { IEditorOptions, IResourceEditorInput, IResourceEditorInputIdentifier, ITextResourceEditorInput } from "vs/platform/editor/common/editor";
-import { EditorsOrder, GroupIdentifier, IEditorCloseEvent, IEditorIdentifier, IEditorPane, IEditorWillOpenEvent, IFindEditorOptions, IResourceDiffEditorInput, IRevertOptions, ISaveOptions, ITextDiffEditorPane, IUntitledTextResourceEditorInput, IUntypedEditorInput, IVisibleEditorPane } from "vs/workbench/common/editor";
-import { IGroupModelChangeEvent } from "vs/workbench/common/editor/editorGroupModel";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { ICloseEditorOptions, IEditorGroup, IEditorGroupsContainer } from "vs/workbench/services/editor/common/editorGroupsService";
-export declare const IEditorService: any;
+import { Event } from "../../../../base/common/event.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IDiffEditor, IEditor } from "../../../../editor/common/editorCommon.js";
+import { IEditorOptions, IResourceEditorInput, IResourceEditorInputIdentifier, ITextResourceEditorInput } from "../../../../platform/editor/common/editor.js";
+import { EditorsOrder, GroupIdentifier, IEditorCloseEvent, IEditorIdentifier, IEditorPane, IEditorWillOpenEvent, IFindEditorOptions, IResourceDiffEditorInput, IRevertOptions, ISaveOptions, ITextDiffEditorPane, IUntitledTextResourceEditorInput, IUntypedEditorInput, IVisibleEditorPane } from "../../../common/editor.js";
+import { IGroupModelChangeEvent } from "../../../common/editor/editorGroupModel.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { ICloseEditorOptions, IEditorGroup, IEditorGroupsContainer } from "./editorGroupsService.js";
+export declare const IEditorService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditorService>;
 /**
  * Open an editor in the currently active group.
  */

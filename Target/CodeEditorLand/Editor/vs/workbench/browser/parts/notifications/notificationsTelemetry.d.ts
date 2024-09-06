@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { INotificationService, NotificationMessage } from "vs/platform/notification/common/notification";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { INotificationService, NotificationMessage } from "../../../../platform/notification/common/notification.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 export interface NotificationMetrics {
     readonly id: string;
     readonly silent: boolean;

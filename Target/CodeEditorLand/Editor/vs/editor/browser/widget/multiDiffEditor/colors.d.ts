@@ -1,3 +1,3 @@
-export declare const multiDiffEditorHeaderBackground: any;
-export declare const multiDiffEditorBackground: any;
-export declare const multiDiffEditorBorder: any;
+export declare const multiDiffEditorHeaderBackground: string;
+export declare const multiDiffEditorBackground: string;
+export declare const multiDiffEditorBorder: string;

@@ -1,7 +1,7 @@
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ExtHostNotebookRenderersShape, IMainContext } from "vs/workbench/api/common/extHost.protocol";
-import { ExtHostNotebookController } from "vs/workbench/api/common/extHostNotebook";
 import * as vscode from "vscode";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostNotebookRenderersShape, IMainContext } from "./extHost.protocol.js";
+import { ExtHostNotebookController } from "./extHostNotebook.js";
 export declare class ExtHostNotebookRenderers implements ExtHostNotebookRenderersShape {
     private readonly _extHostNotebook;
     private readonly _rendererMessageEmitters;

@@ -1,12 +1,12 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IRange } from "vs/editor/common/core/range";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IExtensionManagementService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IPreferencesSearchService, IRemoteSearchProvider, ISearchProvider } from "vs/workbench/contrib/preferences/common/preferences";
-import { IWorkbenchExtensionEnablementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-import { ISearchResult, ISetting, ISettingsEditorModel, SettingMatchType } from "vs/workbench/services/preferences/common/preferences";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { ISearchResult, ISetting, ISettingsEditorModel, SettingMatchType } from "../../../services/preferences/common/preferences.js";
+import { IPreferencesSearchService, IRemoteSearchProvider, ISearchProvider } from "../common/preferences.js";
 export interface IEndpointDetails {
     urlBase?: string;
     key?: string;

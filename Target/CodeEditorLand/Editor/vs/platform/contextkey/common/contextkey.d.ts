@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { LexingError } from "vs/platform/contextkey/common/scanner";
+import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { LexingError } from "./scanner.js";
 /** allow register constant context keys that are known only after startup; requires running `substituteConstants` on the context key - https://github.com/microsoft/vscode/issues/174218#issuecomment-1437972127 */
 export declare function setConstant(key: string, value: boolean): void;
 export declare const enum ContextKeyExprType {
@@ -410,7 +410,7 @@ export interface IContextKeyServiceTarget {
     hasAttribute(attr: string): boolean;
     getAttribute(attr: string): string | null;
 }
-export declare const IContextKeyService: any;
+export declare const IContextKeyService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IContextKeyService>;
 export interface IReadableSet<T> {
     has(value: T): boolean;
 }

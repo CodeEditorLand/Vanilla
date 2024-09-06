@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { IProgressIndicator } from "vs/platform/progress/common/progress";
-import { IPaneComposite } from "vs/workbench/common/panecomposite";
-import { IView, IViewPaneContainer, ViewContainer, ViewContainerLocation } from "vs/workbench/common/views";
-export declare const IViewsService: any;
+import { Event } from "../../../../base/common/event.js";
+import { IProgressIndicator } from "../../../../platform/progress/common/progress.js";
+import { IPaneComposite } from "../../../common/panecomposite.js";
+import { IView, IViewPaneContainer, ViewContainer, ViewContainerLocation } from "../../../common/views.js";
+export declare const IViewsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IViewsService>;
 export interface IViewsService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeViewContainerVisibility: Event<{
@@ -11,6 +11,7 @@ export interface IViewsService {
         location: ViewContainerLocation;
     }>;
     isViewContainerVisible(id: string): boolean;
+    isViewContainerActive(id: string): boolean;
     openViewContainer(id: string, focus?: boolean): Promise<IPaneComposite | null>;
     closeViewContainer(id: string): void;
     getVisibleViewContainer(location: ViewContainerLocation): ViewContainer | null;

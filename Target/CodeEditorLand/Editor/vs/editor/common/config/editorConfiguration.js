@@ -1,1 +1,1 @@
-import"../../../../vs/base/common/event.js";import"../../../../vs/base/common/lifecycle.js";import"../../../../vs/editor/common/config/editorOptions.js";import"../../../../vs/editor/common/core/dimension.js";import"../../../../vs/platform/actions/common/actions.js";
+import"../../../base/common/event.js";import"../../../base/common/lifecycle.js";import"../../../platform/actions/common/actions.js";import"../core/dimension.js";import"./editorOptions.js";

@@ -1,18 +1,18 @@
-import { IDomNodePagePosition } from "vs/base/browser/dom";
-import { IBoundarySashes } from "vs/base/browser/ui/sash/sash";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IEditorOptions } from "vs/platform/editor/common/editor";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IEditorProgressService } from "vs/platform/progress/common/progress";
-import { IWorkspaceTrustManagementService } from "vs/platform/workspace/common/workspaceTrust";
-import { IEditorGroupView, IInternalEditorOpenOptions } from "vs/workbench/browser/parts/editor/editor";
-import { EditorPane } from "vs/workbench/browser/parts/editor/editorPane";
-import { IEditorOpenContext, IVisibleEditorPane } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
+import { IDomNodePagePosition } from "../../../../base/browser/dom.js";
+import { IBoundarySashes } from "../../../../base/browser/ui/sash/sash.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IEditorOpenContext, IVisibleEditorPane } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { IEditorGroupView, IInternalEditorOpenOptions } from "./editor.js";
+import { EditorPane } from "./editorPane.js";
 export interface IOpenEditorResult {
     /**
      * The editor pane used for opening. This can be a generic
@@ -54,13 +54,16 @@ export declare class EditorPanes extends Disposable {
     private readonly dialogService;
     private readonly hostService;
     private readonly _onDidFocus;
-    readonly onDidFocus: any;
+    readonly onDidFocus: import("../../../../base/common/event.js").Event<void>;
     private _onDidChangeSizeConstraints;
-    readonly onDidChangeSizeConstraints: any;
-    get minimumWidth(): any;
-    get minimumHeight(): any;
-    get maximumWidth(): any;
-    get maximumHeight(): any;
+    readonly onDidChangeSizeConstraints: import("../../../../base/common/event.js").Event<{
+        width: number;
+        height: number;
+    } | undefined>;
+    get minimumWidth(): number;
+    get minimumHeight(): number;
+    get maximumWidth(): number;
+    get maximumHeight(): number;
     private _activeEditorPane;
     get activeEditorPane(): IVisibleEditorPane | null;
     private readonly editorPanes;

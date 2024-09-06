@@ -1,24 +1,25 @@
-import { Dimension } from "vs/base/browser/dom";
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import "vs/css!./media/inlineChat";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ICodeEditorViewState } from "vs/editor/common/editorCommon";
-import { IResolvedTextEditorModel, ITextModelService } from "vs/editor/common/services/resolverService";
-import { IAccessibleViewService } from "vs/platform/accessibility/browser/accessibleView";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IWorkbenchButtonBarOptions } from "vs/platform/actions/browser/buttonbar";
-import { MenuId } from "vs/platform/actions/common/actions";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IChatWidgetViewOptions } from "vs/workbench/contrib/chat/browser/chat";
-import { ChatWidget, IChatWidgetLocationOptions } from "vs/workbench/contrib/chat/browser/chatWidget";
-import { IChatModel } from "vs/workbench/contrib/chat/common/chatModel";
-import { IChatService } from "vs/workbench/contrib/chat/common/chatService";
-import { HunkInformation, Session } from "vs/workbench/contrib/inlineChat/browser/inlineChatSession";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import "./media/inlineChat.css";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { ICodeEditorViewState } from "../../../../editor/common/editorCommon.js";
+import { IResolvedTextEditorModel, ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IAccessibleViewService } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IWorkbenchButtonBarOptions } from "../../../../platform/actions/browser/buttonbar.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IChatWidgetViewOptions } from "../../chat/browser/chat.js";
+import { ChatWidget, IChatWidgetLocationOptions } from "../../chat/browser/chatWidget.js";
+import { IChatModel } from "../../chat/common/chatModel.js";
+import { IChatService } from "../../chat/common/chatService.js";
+import { HunkInformation, Session } from "./inlineChatSession.js";
 export interface InlineChatWidgetViewState {
     editorViewState: ICodeEditorViewState;
     input: string;
@@ -32,6 +33,7 @@ export interface IInlineChatWidgetConstructionOptions {
         menu: MenuId;
         options: IWorkbenchButtonBarOptions;
     };
+    secondaryMenuId?: MenuId;
     /**
      * The options for the chat widget
      */
@@ -56,13 +58,22 @@ export declare class InlineChatWidget {
     protected readonly _textModelResolverService: ITextModelService;
     private readonly _chatService;
     private readonly _hoverService;
-    protected readonly _elements: any;
-    protected readonly _store: any;
+    protected readonly _elements: {
+        root: any;
+        chatWidget: any;
+        accessibleViewer: any;
+        infoLabel: any;
+        toolbar1: any;
+        statusLabel: any;
+        toolbar2: any;
+        status: any;
+    };
+    protected readonly _store: DisposableStore;
     private readonly _defaultChatModel;
     private readonly _ctxInputEditorFocused;
     private readonly _ctxResponseFocused;
     private readonly _chatWidget;
-    protected readonly _onDidChangeHeight: any;
+    protected readonly _onDidChangeHeight: Emitter<void>;
     readonly onDidChangeHeight: Event<void>;
     private readonly _onDidChangeInput;
     readonly onDidChangeInput: Event<this>;

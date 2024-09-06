@@ -1,5 +1,5 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ICellViewModel, INotebookEditor } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { IDisposable } from "../../../../../../base/common/lifecycle.js";
+import { ICellViewModel, INotebookEditor } from "../../notebookBrowser.js";
 export declare function registerCellToolbarStickyScroll(notebookEditor: INotebookEditor, cell: ICellViewModel, element: HTMLElement, opts?: {
     extraOffset?: number;
     min?: number;

@@ -1,13 +1,12 @@
-import { IIdentityProvider, IListVirtualDelegate } from "vs/base/browser/ui/list/list";
-import { IListStyles } from "vs/base/browser/ui/list/listWidget";
-import { AbstractTreePart, IAbstractTreeOptions, IAbstractTreeOptionsUpdate, TreeFindMatchType, TreeFindMode } from "vs/base/browser/ui/tree/abstractTree";
-import { ICompressedTreeElement, ICompressedTreeNode } from "vs/base/browser/ui/tree/compressedObjectTreeModel";
-import { CompressibleObjectTree, ICompressibleKeyboardNavigationLabelProvider, ICompressibleTreeRenderer, IObjectTreeSetChildrenOptions, ObjectTree } from "vs/base/browser/ui/tree/objectTree";
-import { IAsyncDataSource, ICollapseStateChangeEvent, IObjectTreeElement, ITreeContextMenuEvent, ITreeEvent, ITreeMouseEvent, ITreeNode, ITreeRenderer, ITreeSorter, ObjectTreeElementCollapseState, WeakMapper } from "vs/base/browser/ui/tree/tree";
-import { Event } from "vs/base/common/event";
-import { Iterable } from "vs/base/common/iterator";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ScrollEvent } from "vs/base/common/scrollable";
+import { Emitter, Event } from "../../../common/event.js";
+import { DisposableStore, IDisposable } from "../../../common/lifecycle.js";
+import { ScrollEvent } from "../../../common/scrollable.js";
+import { IIdentityProvider, IListVirtualDelegate } from "../list/list.js";
+import { IListStyles } from "../list/listWidget.js";
+import { AbstractTreePart, IAbstractTreeOptions, IAbstractTreeOptionsUpdate, TreeFindMatchType, TreeFindMode } from "./abstractTree.js";
+import { ICompressedTreeElement, ICompressedTreeNode } from "./compressedObjectTreeModel.js";
+import { CompressibleObjectTree, ICompressibleKeyboardNavigationLabelProvider, ICompressibleTreeRenderer, IObjectTreeSetChildrenOptions, ObjectTree } from "./objectTree.js";
+import { IAsyncDataSource, ICollapseStateChangeEvent, IObjectTreeElement, ITreeContextMenuEvent, ITreeEvent, ITreeMouseEvent, ITreeNode, ITreeRenderer, ITreeSorter, ObjectTreeElementCollapseState, WeakMapper } from "./tree.js";
 interface IAsyncDataTreeNode<TInput, T> {
     element: TInput | T;
     readonly parent: IAsyncDataTreeNode<TInput, T> | null;
@@ -57,9 +56,9 @@ export declare class AsyncDataTree<TInput, T, TFilterData = void> implements IDi
     protected readonly identityProvider?: IIdentityProvider<T>;
     private readonly autoExpandSingleChildren;
     private readonly _onDidRender;
-    protected readonly _onDidChangeNodeSlowState: any;
+    protected readonly _onDidChangeNodeSlowState: Emitter<IAsyncDataTreeNode<TInput, T>>;
     protected readonly nodeMapper: AsyncDataTreeNodeMapper<TInput, T, TFilterData>;
-    protected readonly disposables: any;
+    protected readonly disposables: DisposableStore;
     get onDidScroll(): Event<ScrollEvent>;
     get onDidChangeFocus(): Event<ITreeEvent<T>>;
     get onDidChangeSelection(): Event<ITreeEvent<T>>;

@@ -1,2 +1,2 @@
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 export declare function showDebugSessionMenu(accessor: ServicesAccessor, selectAndStartID: string): Promise<void>;

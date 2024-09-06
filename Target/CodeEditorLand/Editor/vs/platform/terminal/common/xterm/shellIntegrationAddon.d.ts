@@ -1,9 +1,10 @@
 import type { ITerminalAddon, Terminal } from "@xterm/headless";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IBufferMarkCapability, ICommandDetectionCapability, ICwdDetectionCapability, ISerializedCommandDetectionCapability } from "vs/platform/terminal/common/capabilities/capabilities";
-import { IShellIntegration, ShellIntegrationStatus } from "vs/platform/terminal/common/terminal";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILogService } from "../../../log/common/log.js";
+import { ITelemetryService } from "../../../telemetry/common/telemetry.js";
+import { IBufferMarkCapability, ICommandDetectionCapability, ICwdDetectionCapability, ISerializedCommandDetectionCapability } from "../capabilities/capabilities.js";
+import { TerminalCapabilityStore } from "../capabilities/terminalCapabilityStore.js";
+import { IShellIntegration, ShellIntegrationStatus } from "../terminal.js";
 /**
  * Shell integration is a feature that enhances the terminal's understanding of what's happening
  * in the shell by injecting special sequences into the shell's prompt using the "Set Text
@@ -48,14 +49,14 @@ export declare class ShellIntegrationAddon extends Disposable implements IShellI
     private readonly _telemetryService;
     private readonly _logService;
     private _terminal?;
-    readonly capabilities: any;
+    readonly capabilities: TerminalCapabilityStore;
     private _hasUpdatedTelemetry;
     private _activationTimeout;
     private _commonProtocolDisposables;
     private _status;
     get status(): ShellIntegrationStatus;
     private readonly _onDidChangeStatus;
-    readonly onDidChangeStatus: any;
+    readonly onDidChangeStatus: import("../../../../base/common/event.js").Event<ShellIntegrationStatus>;
     constructor(_nonce: string, _disableTelemetry: boolean | undefined, _telemetryService: ITelemetryService | undefined, _logService: ILogService);
     private _disposeCommonProtocol;
     activate(xterm: Terminal): void;

@@ -1,13 +1,13 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ExtensionKind } from "vs/platform/environment/common/environment";
-import { ExtensionIdentifier, ExtensionIdentifierMap, IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IReadOnlyExtensionDescriptionRegistry } from "vs/workbench/services/extensions/common/extensionDescriptionRegistry";
-import { ExtensionHostKind, IExtensionHostKindPicker } from "vs/workbench/services/extensions/common/extensionHostKind";
-import { IExtensionHostManager } from "vs/workbench/services/extensions/common/extensionHostManagers";
-import { IExtensionManifestPropertiesService } from "vs/workbench/services/extensions/common/extensionManifestPropertiesService";
-import { ExtensionRunningLocation } from "vs/workbench/services/extensions/common/extensionRunningLocation";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ExtensionKind } from "../../../../platform/environment/common/environment.js";
+import { ExtensionIdentifier, ExtensionIdentifierMap, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IReadOnlyExtensionDescriptionRegistry } from "./extensionDescriptionRegistry.js";
+import { ExtensionHostKind, IExtensionHostKindPicker } from "./extensionHostKind.js";
+import { IExtensionHostManager } from "./extensionHostManagers.js";
+import { IExtensionManifestPropertiesService } from "./extensionManifestPropertiesService.js";
+import { ExtensionRunningLocation } from "./extensionRunningLocation.js";
 export declare class ExtensionRunningLocationTracker {
     private readonly _registry;
     private readonly _extensionHostKindPicker;

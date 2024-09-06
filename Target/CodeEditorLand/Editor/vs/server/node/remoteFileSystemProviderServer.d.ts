@@ -1,11 +1,11 @@
-import { Emitter } from "vs/base/common/event";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IURITransformer } from "vs/base/common/uriIpc";
-import { IFileChange } from "vs/platform/files/common/files";
-import { AbstractDiskFileSystemProviderChannel, ISessionFileWatcher } from "vs/platform/files/node/diskFileSystemProviderServer";
-import { ILogService } from "vs/platform/log/common/log";
-import { RemoteAgentConnectionContext } from "vs/platform/remote/common/remoteAgentEnvironment";
-import { IServerEnvironmentService } from "vs/server/node/serverEnvironmentService";
+import { Emitter } from "../../base/common/event.js";
+import { URI, UriComponents } from "../../base/common/uri.js";
+import { IURITransformer } from "../../base/common/uriIpc.js";
+import { IFileChange } from "../../platform/files/common/files.js";
+import { AbstractDiskFileSystemProviderChannel, ISessionFileWatcher } from "../../platform/files/node/diskFileSystemProviderServer.js";
+import { ILogService } from "../../platform/log/common/log.js";
+import { RemoteAgentConnectionContext } from "../../platform/remote/common/remoteAgentEnvironment.js";
+import { IServerEnvironmentService } from "./serverEnvironmentService.js";
 export declare class RemoteAgentFileSystemProviderChannel extends AbstractDiskFileSystemProviderChannel<RemoteAgentConnectionContext> {
     private readonly environmentService;
     private readonly uriTransformerCache;

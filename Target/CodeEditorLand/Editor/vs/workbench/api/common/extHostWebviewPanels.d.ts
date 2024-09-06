@@ -1,19 +1,19 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ExtHostWebview, ExtHostWebviews } from "vs/workbench/api/common/extHostWebview";
-import { IExtHostWorkspace } from "vs/workbench/api/common/extHostWorkspace";
-import { EditorGroupColumn } from "vs/workbench/services/editor/common/editorGroupColumn";
 import type * as vscode from "vscode";
-import * as extHostProtocol from "./extHost.protocol";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
+import * as extHostProtocol from "./extHost.protocol.js";
+import { ExtHostWebview, ExtHostWebviews } from "./extHostWebview.js";
+import { IExtHostWorkspace } from "./extHostWorkspace.js";
 type IconPath = URI | {
     readonly light: URI;
     readonly dark: URI;
 };
 declare class ExtHostWebviewPanel extends Disposable implements vscode.WebviewPanel {
     #private;
-    readonly onDidDispose: any;
-    readonly onDidChangeViewState: any;
+    readonly onDidDispose: import("../../../base/common/event.js").Event<void>;
+    readonly onDidChangeViewState: import("../../../base/common/event.js").Event<vscode.WebviewPanelOnDidChangeViewStateEvent>;
     constructor(handle: extHostProtocol.WebviewHandle, proxy: extHostProtocol.MainThreadWebviewPanelsShape, webview: ExtHostWebview, params: {
         viewType: string;
         title: string;

@@ -1,13 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable, ISettableObservable } from "vs/base/common/observable";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { TestCoverage } from "vs/workbench/contrib/testing/common/testCoverage";
-import { TestId } from "vs/workbench/contrib/testing/common/testId";
-import { ITestRunTaskResults } from "vs/workbench/contrib/testing/common/testResult";
-import { ITestResultService } from "vs/workbench/contrib/testing/common/testResultService";
-import { IViewsService } from "vs/workbench/services/views/common/viewsService";
-export declare const ITestCoverageService: any;
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IObservable, ISettableObservable } from "../../../../base/common/observable.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { TestCoverage } from "./testCoverage.js";
+import { TestId } from "./testId.js";
+import { ITestRunTaskResults } from "./testResult.js";
+import { ITestResultService } from "./testResultService.js";
+export declare const ITestCoverageService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITestCoverageService>;
 export interface ITestCoverageService {
     readonly _serviceBrand: undefined;
     /**
@@ -36,9 +36,9 @@ export declare class TestCoverageService extends Disposable implements ITestCove
     private readonly viewsService;
     readonly _serviceBrand: undefined;
     private readonly lastOpenCts;
-    readonly selected: any;
-    readonly filterToTest: any;
-    readonly showInline: any;
+    readonly selected: ISettableObservable<TestCoverage | undefined, void>;
+    readonly filterToTest: ISettableObservable<TestId | undefined, void>;
+    readonly showInline: ISettableObservable<boolean, void>;
     constructor(contextKeyService: IContextKeyService, resultService: ITestResultService, configService: IConfigurationService, viewsService: IViewsService);
     /** @inheritdoc */
     openCoverage(task: ITestRunTaskResults, focus?: boolean): Promise<void>;

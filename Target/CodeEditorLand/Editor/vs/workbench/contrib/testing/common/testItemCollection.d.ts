@@ -1,8 +1,8 @@
-import { Barrier } from "vs/base/common/async";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { TestId } from "vs/workbench/contrib/testing/common/testId";
-import { ITestItem, ITestTag, TestItemExpandState, TestsDiff, TestsDiffOp } from "vs/workbench/contrib/testing/common/testTypes";
+import { Barrier } from "../../../../base/common/async.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { TestId } from "./testId.js";
+import { ITestItem, ITestTag, TestItemExpandState, TestsDiff, TestsDiffOp } from "./testTypes.js";
 /**
  * @private
  */
@@ -104,7 +104,7 @@ export declare class TestItemCollection<T extends ITestItemLike> extends Disposa
     /**
      * Fires when an operation happens that should result in a diff.
      */
-    readonly onDidGenerateDiff: any;
+    readonly onDidGenerateDiff: import("../../../../base/common/event.js").Event<TestsDiff>;
     /**
      * Gets a diff of all changes that have been made, and clears the diff queue.
      */

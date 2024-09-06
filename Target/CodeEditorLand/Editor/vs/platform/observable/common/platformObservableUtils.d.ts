@@ -1,7 +1,7 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IObservable, IReader } from "vs/base/common/observable";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ContextKeyValue, IContextKeyService, RawContextKey } from "vs/platform/contextkey/common/contextkey";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { IObservable, IReader } from "../../../base/common/observable.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { ContextKeyValue, IContextKeyService, RawContextKey } from "../../contextkey/common/contextkey.js";
 /** Creates an observable update when a configuration key updates. */
 export declare function observableConfigValue<T>(key: string, defaultValue: T, configurationService: IConfigurationService): IObservable<T>;
 /** Update the configuration key with a value derived from observables. */

@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 export declare const enum CommentsSortOrder {
     ResourceAscending = "resourceAscending",
     UpdatedAtDescending = "updatedAtDescending"

@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IWorkspaceTrustEnablementService, IWorkspaceTrustManagementService } from "vs/platform/workspace/common/workspaceTrust";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IWorkbenchExtensionEnablementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IHostService } from "vs/workbench/services/host/browser/host";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWorkspaceTrustEnablementService, IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IHostService } from "../../../services/host/browser/host.js";
 export declare class ExtensionEnablementWorkspaceTrustTransitionParticipant extends Disposable implements IWorkbenchContribution {
     constructor(extensionService: IExtensionService, hostService: IHostService, environmentService: IWorkbenchEnvironmentService, extensionEnablementService: IWorkbenchExtensionEnablementService, workspaceTrustEnablementService: IWorkspaceTrustEnablementService, workspaceTrustManagementService: IWorkspaceTrustManagementService);
 }

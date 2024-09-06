@@ -1,9 +1,9 @@
 import type { IBufferLine, Terminal } from "@xterm/xterm";
-import { ITerminalBackend, ITerminalLogService } from "vs/platform/terminal/common/terminal";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { ITerminalProcessManager } from "vs/workbench/contrib/terminal/common/terminal";
-import { ITerminalLinkDetector, ITerminalLinkResolver, ITerminalSimpleLink } from "vs/workbench/contrib/terminalContrib/links/browser/links";
+import { ITerminalBackend, ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
+import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
+import { ITerminalLinkDetector, ITerminalLinkResolver, ITerminalSimpleLink } from "./links.js";
 export declare class TerminalMultiLineLinkDetector implements ITerminalLinkDetector {
     readonly xterm: Terminal;
     private readonly _processManager;

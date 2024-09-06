@@ -1,13 +1,13 @@
 import type { Terminal } from "@xterm/xterm";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAccessibleViewService, NavigationType } from "vs/platform/accessibility/browser/accessibleView";
-import { IAccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ITerminalContribution, ITerminalInstance, ITerminalService, IXtermTerminal } from "vs/workbench/contrib/terminal/browser/terminal";
-import { TerminalWidgetManager } from "vs/workbench/contrib/terminal/browser/widgets/widgetManager";
-import { ITerminalProcessManager } from "vs/workbench/contrib/terminal/common/terminal";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IAccessibleViewService, NavigationType } from "../../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ITerminalContribution, ITerminalInstance, ITerminalService, IXtermTerminal } from "../../../terminal/browser/terminal.js";
+import { TerminalWidgetManager } from "../../../terminal/browser/widgets/widgetManager.js";
+import { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
 export declare class TerminalAccessibleViewContribution extends Disposable implements ITerminalContribution {
     private readonly _instance;
     private readonly _accessibleViewService;

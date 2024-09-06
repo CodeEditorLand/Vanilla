@@ -1,8 +1,8 @@
-import { type IReference } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import type { INotebookEditor } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookCellOutlineDataSource } from "vs/workbench/contrib/notebook/browser/viewModel/notebookOutlineDataSource";
-export declare const INotebookCellOutlineDataSourceFactory: any;
+import { type IReference } from "../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import type { INotebookEditor } from "../notebookBrowser.js";
+import { NotebookCellOutlineDataSource } from "./notebookOutlineDataSource.js";
+export declare const INotebookCellOutlineDataSourceFactory: import("../../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INotebookCellOutlineDataSourceFactory>;
 export interface INotebookCellOutlineDataSourceFactory {
     getOrCreate(editor: INotebookEditor): IReference<NotebookCellOutlineDataSource>;
 }

@@ -1,1 +1,1 @@
-import "vs/css!./placeholderText";
+import "./placeholderText.css";

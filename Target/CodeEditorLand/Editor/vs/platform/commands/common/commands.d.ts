@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { IJSONSchema } from "vs/base/common/jsonSchema";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { TypeConstraint } from "vs/base/common/types";
-import { ILocalizedString } from "vs/platform/action/common/action";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-export declare const ICommandService: any;
+import { Event } from "../../../base/common/event.js";
+import { IJSONSchema } from "../../../base/common/jsonSchema.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { TypeConstraint } from "../../../base/common/types.js";
+import { ILocalizedString } from "../../action/common/action.js";
+import { ServicesAccessor } from "../../instantiation/common/instantiation.js";
+export declare const ICommandService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ICommandService>;
 export interface ICommandEvent {
     commandId: string;
     args: any[];

@@ -1,16 +1,18 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { FontInfo } from "vs/editor/common/config/fontInfo";
-import * as editorCommon from "vs/editor/common/editorCommon";
-import { DiffNestedCellViewModel } from "vs/workbench/contrib/notebook/browser/diff/diffNestedCellViewModel";
-import { NotebookDiffEditorEventDispatcher } from "vs/workbench/contrib/notebook/browser/diff/eventDispatcher";
-import { DiffSide, IDiffElementLayoutInfo } from "vs/workbench/contrib/notebook/browser/diff/notebookDiffEditorBrowser";
-import { IGenericCellViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookLayoutInfo } from "vs/workbench/contrib/notebook/browser/notebookViewEvents";
-import { NotebookCellTextModel } from "vs/workbench/contrib/notebook/common/model/notebookCellTextModel";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
-import { ICellOutput, INotebookTextModel, IOutputDto, IOutputItemDto, NotebookCellMetadata } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { FontInfo } from "../../../../../editor/common/config/fontInfo.js";
+import * as editorCommon from "../../../../../editor/common/editorCommon.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
+import { NotebookTextModel } from "../../common/model/notebookTextModel.js";
+import { ICellOutput, INotebookTextModel, IOutputDto, IOutputItemDto } from "../../common/notebookCommon.js";
+import { INotebookService } from "../../common/notebookService.js";
+import { IGenericCellViewModel } from "../notebookBrowser.js";
+import { NotebookLayoutInfo } from "../notebookViewEvents.js";
+import { DiffNestedCellViewModel } from "./diffNestedCellViewModel.js";
+import { NotebookDiffEditorEventDispatcher } from "./eventDispatcher.js";
+import { CellDiffViewModelLayoutChangeEvent, DiffSide, IDiffElementLayoutInfo } from "./notebookDiffEditorBrowser.js";
 export declare enum PropertyFoldingState {
     Expanded = 0,
     Collapsed = 1
@@ -32,8 +34,8 @@ export declare abstract class DiffElementViewModelBase extends Disposable {
         outputStatusHeight: number;
         fontInfo: FontInfo | undefined;
     };
-    protected _layoutInfoEmitter: any;
-    onDidLayoutChange: any;
+    protected _layoutInfoEmitter: Emitter<CellDiffViewModelLayoutChangeEvent>;
+    onDidLayoutChange: import("../../../../../base/common/event.js").Event<CellDiffViewModelLayoutChangeEvent>;
     constructor(mainDocumentTextModel: INotebookTextModel, editorEventDispatcher: NotebookDiffEditorEventDispatcher, initData: {
         metadataStatusHeight: number;
         outputStatusHeight: number;
@@ -46,8 +48,8 @@ export declare abstract class DiffElementViewModelBase extends Disposable {
 export declare class DiffElementPlaceholderViewModel extends DiffElementViewModelBase {
     readonly type: "placeholder";
     hiddenCells: DiffElementCellViewModelBase[];
-    protected _unfoldHiddenCells: any;
-    onUnfoldHiddenCells: any;
+    protected _unfoldHiddenCells: Emitter<void>;
+    onUnfoldHiddenCells: import("../../../../../base/common/event.js").Event<void>;
     constructor(mainDocumentTextModel: INotebookTextModel, editorEventDispatcher: NotebookDiffEditorEventDispatcher, initData: {
         metadataStatusHeight: number;
         outputStatusHeight: number;
@@ -60,15 +62,20 @@ export declare class DiffElementPlaceholderViewModel extends DiffElementViewMode
 }
 export declare abstract class DiffElementCellViewModelBase extends DiffElementViewModelBase {
     readonly type: "unchanged" | "insert" | "delete" | "modified";
+    private readonly configurationService;
     cellFoldingState: PropertyFoldingState;
     metadataFoldingState: PropertyFoldingState;
     outputFoldingState: PropertyFoldingState;
-    protected _stateChangeEmitter: any;
-    onDidStateChange: any;
+    protected _stateChangeEmitter: Emitter<{
+        renderOutput: boolean;
+    }>;
+    onDidStateChange: import("../../../../../base/common/event.js").Event<{
+        renderOutput: boolean;
+    }>;
     protected _layoutInfo: IDiffElementLayoutInfo;
     displayIconToHideUnmodifiedCells?: boolean;
     private _hideUnchangedCells;
-    onHideUnchangedCells: any;
+    onHideUnchangedCells: import("../../../../../base/common/event.js").Event<void>;
     hideUnchangedCells(): void;
     set rawOutputHeight(height: number);
     get rawOutputHeight(): number;
@@ -88,7 +95,8 @@ export declare abstract class DiffElementCellViewModelBase extends DiffElementVi
     set renderOutput(value: boolean);
     get renderOutput(): boolean;
     get layoutInfo(): IDiffElementLayoutInfo;
-    get totalHeight(): any;
+    get totalHeight(): number;
+    private get ignoreOutputs();
     private _sourceEditorViewState;
     private _outputEditorViewState;
     private _metadataEditorViewState;
@@ -98,11 +106,11 @@ export declare abstract class DiffElementCellViewModelBase extends DiffElementVi
         metadataStatusHeight: number;
         outputStatusHeight: number;
         fontInfo: FontInfo | undefined;
-    }, notebookService: INotebookService);
+    }, notebookService: INotebookService, configurationService: IConfigurationService);
     layoutChange(): void;
     private _estimateEditorHeight;
     protected _layout(delta: ILayoutInfoDelta): void;
-    getHeight(lineHeight: number): any;
+    getHeight(lineHeight: number): number;
     private _computeTotalHeight;
     private estimateEditorHeight;
     private _getOutputTotalHeight;
@@ -142,7 +150,7 @@ export declare class SideBySideDiffElementViewModel extends DiffElementCellViewM
         metadataStatusHeight: number;
         outputStatusHeight: number;
         fontInfo: FontInfo | undefined;
-    }, notebookService: INotebookService);
+    }, notebookService: INotebookService, configurationService: IConfigurationService);
     checkIfInputModified(): false | {
         reason: string | undefined;
     };
@@ -154,8 +162,8 @@ export declare class SideBySideDiffElementViewModel extends DiffElementCellViewM
         reason: undefined;
     };
     updateOutputHeight(diffSide: DiffSide, index: number, height: number): void;
-    getOutputOffsetInContainer(diffSide: DiffSide, index: number): any;
-    getOutputOffsetInCell(diffSide: DiffSide, index: number): any;
+    getOutputOffsetInContainer(diffSide: DiffSide, index: number): number;
+    getOutputOffsetInCell(diffSide: DiffSide, index: number): number;
     isOutputEmpty(): boolean;
     getRichOutputTotalHeight(): number;
     getNestedCellViewModel(diffSide: DiffSide): DiffNestedCellViewModel;
@@ -163,15 +171,15 @@ export declare class SideBySideDiffElementViewModel extends DiffElementCellViewM
 }
 export declare class SingleSideDiffElementViewModel extends DiffElementCellViewModelBase {
     readonly otherDocumentTextModel: NotebookTextModel;
-    get cellViewModel(): any;
-    get originalDocument(): any;
-    get modifiedDocument(): any;
+    get cellViewModel(): DiffNestedCellViewModel;
+    get originalDocument(): NotebookTextModel | INotebookTextModel;
+    get modifiedDocument(): NotebookTextModel | INotebookTextModel;
     readonly type: "insert" | "delete";
     constructor(mainDocumentTextModel: NotebookTextModel, otherDocumentTextModel: NotebookTextModel, original: NotebookCellTextModel | undefined, modified: NotebookCellTextModel | undefined, type: "insert" | "delete", editorEventDispatcher: NotebookDiffEditorEventDispatcher, initData: {
         metadataStatusHeight: number;
         outputStatusHeight: number;
         fontInfo: FontInfo | undefined;
-    }, notebookService: INotebookService);
+    }, notebookService: INotebookService, configurationService: IConfigurationService);
     checkIfInputModified(): false | {
         reason: string | undefined;
     };
@@ -183,10 +191,10 @@ export declare class SingleSideDiffElementViewModel extends DiffElementCellViewM
         reason: string | undefined;
     };
     updateOutputHeight(diffSide: DiffSide, index: number, height: number): void;
-    getOutputOffsetInContainer(diffSide: DiffSide, index: number): any;
-    getOutputOffsetInCell(diffSide: DiffSide, index: number): any;
+    getOutputOffsetInContainer(diffSide: DiffSide, index: number): number;
+    getOutputOffsetInCell(diffSide: DiffSide, index: number): number;
     isOutputEmpty(): boolean;
-    getRichOutputTotalHeight(): any;
+    getRichOutputTotalHeight(): number;
     getCellByUri(cellUri: URI): IGenericCellViewModel;
 }
 export declare const enum OutputComparison {
@@ -195,7 +203,6 @@ export declare const enum OutputComparison {
     Other = 2
 }
 export declare function outputEqual(a: ICellOutput, b: ICellOutput): OutputComparison;
-export declare function getFormattedMetadataJSON(documentTextModel: INotebookTextModel, metadata: NotebookCellMetadata, language?: string): any;
 export declare function getStreamOutputData(outputs: IOutputItemDto[]): string | null;
 export declare function getFormattedOutputJSON(outputs: IOutputDto[]): string;
 export {};

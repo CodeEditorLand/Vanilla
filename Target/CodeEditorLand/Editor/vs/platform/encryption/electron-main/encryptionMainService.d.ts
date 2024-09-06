@@ -1,5 +1,5 @@
-import { IEncryptionMainService, KnownStorageProvider } from "vs/platform/encryption/common/encryptionService";
-import { ILogService } from "vs/platform/log/common/log";
+import { ILogService } from "../../log/common/log.js";
+import { IEncryptionMainService, KnownStorageProvider } from "../common/encryptionService.js";
 export declare class EncryptionMainService implements IEncryptionMainService {
     private readonly logService;
     _serviceBrand: undefined;

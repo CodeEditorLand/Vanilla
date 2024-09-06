@@ -1,5 +1,5 @@
-import "vs/workbench/contrib/chat/browser/contrib/chatContextAttachments";
-import "vs/workbench/contrib/chat/browser/contrib/chatInputCompletions";
-import "vs/workbench/contrib/chat/browser/contrib/chatInputEditorContrib";
-import "vs/workbench/contrib/chat/browser/contrib/chatInputEditorHover";
-import "../common/chatColors";
+import "./contrib/chatContextAttachments.js";
+import "./contrib/chatInputCompletions.js";
+import "./contrib/chatInputEditorContrib.js";
+import "./contrib/chatInputEditorHover.js";
+import "../common/chatColors.js";

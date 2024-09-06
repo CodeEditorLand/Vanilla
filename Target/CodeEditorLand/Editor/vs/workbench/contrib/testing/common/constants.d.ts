@@ -1,4 +1,4 @@
-import { TestResultState, TestRunProfileBitset } from "vs/workbench/contrib/testing/common/testTypes";
+import { TestResultState, TestRunProfileBitset } from "./testTypes.js";
 export declare const enum Testing {
     ViewletId = "workbench.view.extension.test",
     ExplorerViewId = "workbench.view.testing",
@@ -19,7 +19,7 @@ export declare const enum TestExplorerViewSorting {
     ByStatus = "status",
     ByDuration = "duration"
 }
-export declare const labelForTestInState: (label: string, state: TestResultState) => any;
+export declare const labelForTestInState: (label: string, state: TestResultState) => string;
 export declare const testConfigurationGroupNames: Partial<Record<TestRunProfileBitset, string | undefined>>;
 export declare const enum TestCommandId {
     CancelTestRefreshAction = "testing.cancelTestRefresh",

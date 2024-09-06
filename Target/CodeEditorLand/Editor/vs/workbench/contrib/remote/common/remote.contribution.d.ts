@@ -1,6 +1,6 @@
-import { ILabelService } from "vs/platform/label/common/label";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
 export declare class LabelContribution implements IWorkbenchContribution {
     private readonly labelService;
     private readonly remoteAgentService;

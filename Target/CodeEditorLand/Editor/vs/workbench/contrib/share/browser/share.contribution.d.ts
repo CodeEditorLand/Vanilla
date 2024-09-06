@@ -1,1 +1,1 @@
-import "vs/css!./share";
+import "./share.css";

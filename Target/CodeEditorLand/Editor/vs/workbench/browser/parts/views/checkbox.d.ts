@@ -1,9 +1,9 @@
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { Toggle } from "vs/base/browser/ui/toggle/toggle";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import type { IHoverService } from "vs/platform/hover/browser/hover";
-import { ITreeItem } from "vs/workbench/common/views";
+import { IHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegate.js";
+import { Toggle } from "../../../../base/browser/ui/toggle/toggle.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import type { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { ITreeItem } from "../../../common/views.js";
 export declare class CheckboxStateHandler extends Disposable {
     private readonly _onDidChangeCheckboxState;
     readonly onDidChangeCheckboxState: Event<ITreeItem[]>;

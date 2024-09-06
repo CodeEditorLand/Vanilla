@@ -1,13 +1,13 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { WellDefinedPrefixTree } from "vs/base/common/prefixTree";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { TestCoverage } from "vs/workbench/contrib/testing/common/testCoverage";
-import { TestStateCount } from "vs/workbench/contrib/testing/common/testingStates";
-import { IRichLocation, ISerializedTestResults, ITestItem, ITestMessage, ITestOutputMessage, ITestRunTask, ITestTaskState, ResolvedTestRunRequest, TestResultItem, TestResultState } from "vs/workbench/contrib/testing/common/testTypes";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../base/common/observable.js";
+import { WellDefinedPrefixTree } from "../../../../base/common/prefixTree.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { TestCoverage } from "./testCoverage.js";
+import { TestStateCount } from "./testingStates.js";
+import { IRichLocation, ISerializedTestResults, ITestItem, ITestMessage, ITestOutputMessage, ITestRunTask, ITestTaskState, ResolvedTestRunRequest, TestResultItem, TestResultState } from "./testTypes.js";
 export interface ITestRunTaskResults extends ITestRunTask {
     /**
      * Contains test coverage for the result, if it's available.
@@ -84,9 +84,9 @@ export declare class TaskRawOutput implements ITaskRawOutput {
     private readonly endDeferred;
     private offset;
     /** @inheritdoc */
-    readonly onDidWriteData: any;
+    readonly onDidWriteData: Event<VSBuffer>;
     /** @inheritdoc */
-    readonly endPromise: any;
+    readonly endPromise: Promise<void>;
     /** @inheritdoc */
     readonly buffers: VSBuffer[];
     /** @inheritdoc */
@@ -94,20 +94,20 @@ export declare class TaskRawOutput implements ITaskRawOutput {
     /** @inheritdoc */
     getRange(start: number, length: number): VSBuffer;
     /** @inheritdoc */
-    getRangeIter(start: number, length: number): Generator<any, void, unknown>;
+    getRangeIter(start: number, length: number): Generator<VSBuffer, void, unknown>;
     /**
      * Appends data to the output, returning the byte range where the data can be found.
      */
     append(data: VSBuffer, marker?: number): {
         offset: number;
-        length: any;
+        length: number;
     };
     private push;
     /** Signals the output has ended. */
     end(): void;
 }
-export declare const resultItemParents: (results: ITestResult, item: TestResultItem) => Generator<any, void, unknown>;
-export declare const maxCountPriority: (counts: Readonly<TestStateCount>) => any;
+export declare const resultItemParents: (results: ITestResult, item: TestResultItem) => Generator<TestResultItem, void, unknown>;
+export declare const maxCountPriority: (counts: Readonly<TestStateCount>) => TestResultState;
 interface TestResultItemWithChildren extends TestResultItem {
     /** Children in the run */
     children: TestResultItemWithChildren[];
@@ -148,14 +148,14 @@ export declare class LiveTestResult extends Disposable implements ITestResult {
     private testMarkerCounter;
     private _completedAt?;
     readonly startedAt: number;
-    readonly onChange: any;
-    readonly onComplete: any;
-    readonly onNewTask: any;
-    readonly onEndTask: any;
+    readonly onChange: Event<TestResultItemChange>;
+    readonly onComplete: Event<void>;
+    readonly onNewTask: Event<number>;
+    readonly onEndTask: Event<number>;
     readonly tasks: (ITestRunTaskResults & {
         output: TaskRawOutput;
     })[];
-    readonly name: any;
+    readonly name: string;
     /**
      * @inheritdoc
      */
@@ -163,13 +163,13 @@ export declare class LiveTestResult extends Disposable implements ITestResult {
     /**
      * @inheritdoc
      */
-    readonly counts: any;
+    readonly counts: TestStateCount;
     /**
      * @inheritdoc
      */
     get tests(): IterableIterator<TestResultItemWithChildren>;
     /** Gets an included test item by ID. */
-    getTestById(id: string): any;
+    getTestById(id: string): ITestItem | undefined;
     private readonly computedStateAccessor;
     constructor(id: string, persist: boolean, request: ResolvedTestRunRequest, telemetry: ITelemetryService);
     /**
@@ -233,7 +233,7 @@ export declare class HydratedTestResult implements ITestResult {
     /**
      * @inheritdoc
      */
-    readonly counts: any;
+    readonly counts: TestStateCount;
     /**
      * @inheritdoc
      */
@@ -263,7 +263,7 @@ export declare class HydratedTestResult implements ITestResult {
     /**
      * @inheritdoc
      */
-    getStateById(extTestId: string): any;
+    getStateById(extTestId: string): TestResultItem | undefined;
     /**
      * @inheritdoc
      */

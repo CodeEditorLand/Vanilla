@@ -1,5 +1,5 @@
-import { IRequestHandler, IWorkerServer } from "vs/base/common/worker/simpleWorker";
-import { ILanguageDetectionWorker } from "vs/workbench/services/languageDetection/browser/languageDetectionWorker.protocol";
+import { IRequestHandler, IWorkerServer } from "../../../../base/common/worker/simpleWorker.js";
+import { ILanguageDetectionWorker } from "./languageDetectionWorker.protocol.js";
 /**
  * Defines the worker entry point. Must be exported and named `create`.
  * @skipMangle

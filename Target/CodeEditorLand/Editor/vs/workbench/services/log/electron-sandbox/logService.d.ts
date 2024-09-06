@@ -1,6 +1,6 @@
-import { LoggerChannelClient } from "vs/platform/log/common/logIpc";
-import { LogService } from "vs/platform/log/common/logService";
-import { INativeWorkbenchEnvironmentService } from "vs/workbench/services/environment/electron-sandbox/environmentService";
+import { LoggerChannelClient } from "../../../../platform/log/common/logIpc.js";
+import { LogService } from "../../../../platform/log/common/logService.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
 export declare class NativeLogService extends LogService {
     constructor(loggerService: LoggerChannelClient, environmentService: INativeWorkbenchEnvironmentService);
 }

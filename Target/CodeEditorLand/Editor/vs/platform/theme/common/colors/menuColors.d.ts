@@ -1,7 +1,7 @@
-export declare const menuBorder: any;
-export declare const menuForeground: any;
-export declare const menuBackground: any;
-export declare const menuSelectionForeground: any;
-export declare const menuSelectionBackground: any;
-export declare const menuSelectionBorder: any;
-export declare const menuSeparatorBackground: any;
+export declare const menuBorder: string;
+export declare const menuForeground: string;
+export declare const menuBackground: string;
+export declare const menuSelectionForeground: string;
+export declare const menuSelectionBackground: string;
+export declare const menuSelectionBorder: string;
+export declare const menuSeparatorBackground: string;

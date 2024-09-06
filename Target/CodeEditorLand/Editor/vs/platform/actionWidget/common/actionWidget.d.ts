@@ -1,4 +1,4 @@
-import { IDisposable } from "vs/base/common/lifecycle";
+import { IDisposable } from "../../../base/common/lifecycle.js";
 export interface ActionSet<T> extends IDisposable {
     readonly validActions: readonly T[];
     readonly allActions: readonly T[];

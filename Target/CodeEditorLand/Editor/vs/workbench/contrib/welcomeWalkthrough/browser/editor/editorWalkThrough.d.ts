@@ -1,11 +1,11 @@
-import { Action2 } from "vs/platform/actions/common/actions";
-import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IEditorSerializer } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { WalkThroughInput } from "vs/workbench/contrib/welcomeWalkthrough/browser/walkThroughInput";
+import { Action2 } from "../../../../../platform/actions/common/actions.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IEditorSerializer } from "../../../../common/editor.js";
+import { EditorInput } from "../../../../common/editor/editorInput.js";
+import { WalkThroughInput } from "../walkThroughInput.js";
 export declare class EditorWalkThroughAction extends Action2 {
     static readonly ID = "workbench.action.showInteractivePlayground";
-    static readonly LABEL: any;
+    static readonly LABEL: import("../../../../../nls.js").ILocalizedString;
     constructor();
     run(serviceAccessor: ServicesAccessor): Promise<void>;
 }

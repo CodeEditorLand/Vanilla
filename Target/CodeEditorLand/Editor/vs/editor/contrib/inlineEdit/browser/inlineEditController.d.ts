@@ -1,13 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IDiffProviderFactoryService } from "vs/editor/browser/widget/diffEditor/diffProviderFactoryService";
-import { Range } from "vs/editor/common/core/range";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IModelService } from "vs/editor/common/services/model";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IDiffProviderFactoryService } from "../../../browser/widget/diffEditor/diffProviderFactoryService.js";
+import { Range } from "../../../common/core/range.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { IModelService } from "../../../common/services/model.js";
 export declare class InlineEditController extends Disposable {
     readonly editor: ICodeEditor;
     private readonly instantiationService;
@@ -19,10 +19,10 @@ export declare class InlineEditController extends Disposable {
     private readonly _modelService;
     static ID: string;
     static readonly inlineEditVisibleKey = "inlineEditVisible";
-    static readonly inlineEditVisibleContext: any;
+    static readonly inlineEditVisibleContext: RawContextKey<boolean>;
     private _isVisibleContext;
     static readonly cursorAtInlineEditKey = "cursorAtInlineEdit";
-    static readonly cursorAtInlineEditContext: any;
+    static readonly cursorAtInlineEditContext: RawContextKey<boolean>;
     private _isCursorAtInlineEditContext;
     static get(editor: ICodeEditor): InlineEditController | null;
     private _currentEdit;
@@ -43,6 +43,6 @@ export declare class InlineEditController extends Disposable {
     jumpToCurrent(): void;
     clear(sendRejection?: boolean): Promise<void>;
     private freeEdit;
-    shouldShowHoverAt(range: Range): any;
+    shouldShowHoverAt(range: Range): boolean;
     shouldShowHoverAtViewZone(viewZoneId: string): boolean;
 }

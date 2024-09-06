@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { EditorsOrder, GroupIdentifier, IMatchEditorOptions, IUntypedEditorInput } from "vs/workbench/common/editor";
-import { IReadonlyEditorGroupModel } from "vs/workbench/common/editor/editorGroupModel";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { EditorsOrder, GroupIdentifier, IMatchEditorOptions, IUntypedEditorInput } from "../editor.js";
+import { IGroupModelChangeEvent, IReadonlyEditorGroupModel } from "./editorGroupModel.js";
+import { EditorInput } from "./editorInput.js";
 declare abstract class FilteredEditorGroupModel extends Disposable implements IReadonlyEditorGroupModel {
     protected readonly model: IReadonlyEditorGroupModel;
     private readonly _onDidModelChange;
-    readonly onDidModelChange: any;
+    readonly onDidModelChange: import("../../../base/common/event.js").Event<IGroupModelChangeEvent>;
     constructor(model: IReadonlyEditorGroupModel);
     get id(): GroupIdentifier;
     get isLocked(): boolean;

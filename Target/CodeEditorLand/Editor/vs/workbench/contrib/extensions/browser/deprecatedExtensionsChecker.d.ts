@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IExtensionManagementService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IExtensionsWorkbenchService } from "vs/workbench/contrib/extensions/common/extensions";
-import { IWorkbenchExtensionEnablementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IExtensionsWorkbenchService } from "../common/extensions.js";
 export declare class DeprecatedExtensionsChecker extends Disposable implements IWorkbenchContribution {
     private readonly extensionsWorkbenchService;
     private readonly extensionEnablementService;

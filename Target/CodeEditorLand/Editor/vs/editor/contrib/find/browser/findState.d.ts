@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { Range } from "vs/editor/common/core/range";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Range } from "../../../common/core/range.js";
 export interface FindReplaceStateChangedEvent {
     moveCursor: boolean;
     updateHistory: boolean;

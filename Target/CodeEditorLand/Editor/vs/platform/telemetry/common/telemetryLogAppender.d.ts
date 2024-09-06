@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { ILoggerService, ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { ITelemetryAppender } from "vs/platform/telemetry/common/telemetryUtils";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { ILoggerService, ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { ITelemetryAppender } from "./telemetryUtils.js";
 export declare class TelemetryLogAppender extends Disposable implements ITelemetryAppender {
     private readonly prefix;
     private readonly logger;

@@ -1,19 +1,20 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import "vs/css!./standalone-tokens";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IPosition } from "vs/editor/common/core/position";
-import { IRange } from "vs/editor/common/core/range";
-import { IDiffEditor } from "vs/editor/common/editorCommon";
-import * as languages from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { IColorizerElementOptions, IColorizerOptions } from "vs/editor/standalone/browser/colorizer";
-import { IActionDescriptor, IStandaloneCodeEditor, IStandaloneDiffEditor, IStandaloneDiffEditorConstructionOptions, IStandaloneEditorConstructionOptions } from "vs/editor/standalone/browser/standaloneCodeEditor";
-import { IEditorOverrideServices } from "vs/editor/standalone/browser/standaloneServices";
-import { IWebWorkerOptions, MonacoWebWorker } from "vs/editor/standalone/browser/standaloneWebWorker";
-import { IStandaloneThemeData } from "vs/editor/standalone/common/standaloneTheme";
-import { ICommandHandler } from "vs/platform/commands/common/commands";
-import { IMarker, IMarkerData } from "vs/platform/markers/common/markers";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import "./standalone-tokens.css";
+import { ICommandHandler } from "../../../platform/commands/common/commands.js";
+import { IMarker, IMarkerData } from "../../../platform/markers/common/markers.js";
+import { ICodeEditor } from "../../browser/editorBrowser.js";
+import { MultiDiffEditorWidget } from "../../browser/widget/multiDiffEditor/multiDiffEditorWidget.js";
+import { IPosition } from "../../common/core/position.js";
+import { IRange } from "../../common/core/range.js";
+import { IDiffEditor } from "../../common/editorCommon.js";
+import * as languages from "../../common/languages.js";
+import { ITextModel } from "../../common/model.js";
+import { IStandaloneThemeData } from "../common/standaloneTheme.js";
+import { IColorizerElementOptions, IColorizerOptions } from "./colorizer.js";
+import { IActionDescriptor, IStandaloneCodeEditor, IStandaloneDiffEditor, IStandaloneDiffEditorConstructionOptions, IStandaloneEditorConstructionOptions } from "./standaloneCodeEditor.js";
+import { IEditorOverrideServices } from "./standaloneServices.js";
+import { IWebWorkerOptions, MonacoWebWorker } from "./standaloneWebWorker.js";
 /**
  * Create a new editor under `domElement`.
  * `domElement` should be empty (not contain other dom nodes).
@@ -45,7 +46,7 @@ export declare function getDiffEditors(): readonly IDiffEditor[];
  * The editor will read the size of `domElement`.
  */
 export declare function createDiffEditor(domElement: HTMLElement, options?: IStandaloneDiffEditorConstructionOptions, override?: IEditorOverrideServices): IStandaloneDiffEditor;
-export declare function createMultiFileDiffEditor(domElement: HTMLElement, override?: IEditorOverrideServices): any;
+export declare function createMultiFileDiffEditor(domElement: HTMLElement, override?: IEditorOverrideServices): MultiDiffEditorWidget;
 /**
  * Description of a command contribution
  */

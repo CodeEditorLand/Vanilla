@@ -1,1 +1,1 @@
-import"../../../vs/base/common/collections.js";import"../../../vs/base/common/platform.js";
+import"./collections.js";import"./platform.js";

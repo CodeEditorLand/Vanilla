@@ -1,9 +1,9 @@
-import { URI } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { ExtHostLocalizationShape, IStringDetails } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
+import { URI } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { ExtHostLocalizationShape, IStringDetails } from "./extHost.protocol.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export declare class ExtHostLocalizationService implements ExtHostLocalizationShape {
     private readonly logService;
     readonly _serviceBrand: undefined;
@@ -20,6 +20,6 @@ export declare class ExtHostLocalizationService implements ExtHostLocalizationSh
     initializeLocalizedMessages(extension: IExtensionDescription): Promise<void>;
     private getBundleLocation;
 }
-export declare const IExtHostLocalizationService: any;
+export declare const IExtHostLocalizationService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostLocalizationService>;
 export interface IExtHostLocalizationService extends ExtHostLocalizationService {
 }

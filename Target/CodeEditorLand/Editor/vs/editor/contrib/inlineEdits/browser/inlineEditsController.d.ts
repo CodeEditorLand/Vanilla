@@ -1,10 +1,12 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ILanguageFeatureDebounceService } from "vs/editor/common/services/languageFeatureDebounce";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { InlineEditsModel } from "./inlineEditsModel.js";
+import { InlineEditsWidget } from "./inlineEditsWidget.js";
 export declare class InlineEditsController extends Disposable {
     readonly editor: ICodeEditor;
     private readonly _instantiationService;
@@ -18,8 +20,8 @@ export declare class InlineEditsController extends Disposable {
     private readonly _editorObs;
     private readonly _selection;
     private readonly _debounceValue;
-    readonly model: any;
+    readonly model: import("../../../../base/common/observable.js").IObservable<InlineEditsModel | undefined, unknown>;
     private readonly _hadInlineEdit;
-    protected readonly _widget: any;
+    protected readonly _widget: import("../../../../base/common/observable.js").IObservable<InlineEditsWidget | undefined, unknown>;
     constructor(editor: ICodeEditor, _instantiationService: IInstantiationService, _contextKeyService: IContextKeyService, _debounceService: ILanguageFeatureDebounceService, _languageFeaturesService: ILanguageFeaturesService, _configurationService: IConfigurationService);
 }

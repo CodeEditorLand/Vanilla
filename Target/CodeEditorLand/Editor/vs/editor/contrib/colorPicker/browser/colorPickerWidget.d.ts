@@ -1,11 +1,11 @@
-import { Widget } from "vs/base/browser/ui/widget";
-import { Color } from "vs/base/common/color";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./colorPicker";
-import { ColorPickerModel } from "vs/editor/contrib/colorPicker/browser/colorPickerModel";
-import { IEditorHoverColorPickerWidget } from "vs/editor/contrib/hover/browser/hoverTypes";
-import { IThemeService } from "vs/platform/theme/common/themeService";
+import { Widget } from "../../../../base/browser/ui/widget.js";
+import { Color } from "../../../../base/common/color.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import "./colorPicker.css";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IEditorHoverColorPickerWidget } from "../../hover/browser/hoverTypes.js";
+import { ColorPickerModel } from "./colorPickerModel.js";
 export declare class ColorPickerHeader extends Disposable {
     private readonly model;
     private showingStandaloneColorPicker;
@@ -26,7 +26,7 @@ export declare class ColorPickerHeader extends Disposable {
 declare class CloseButton extends Disposable {
     private _button;
     private readonly _onClicked;
-    readonly onClicked: any;
+    readonly onClicked: Event<void>;
     constructor(container: HTMLElement);
 }
 export declare class ColorPickerBody extends Disposable {
@@ -96,7 +96,7 @@ declare abstract class Strip extends Disposable {
 export declare class InsertButton extends Disposable {
     private _button;
     private readonly _onClicked;
-    readonly onClicked: any;
+    readonly onClicked: Event<void>;
     constructor(container: HTMLElement);
     get button(): HTMLElement;
 }

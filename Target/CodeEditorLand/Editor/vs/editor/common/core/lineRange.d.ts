@@ -1,5 +1,5 @@
-import { OffsetRange } from "vs/editor/common/core/offsetRange";
-import { Range } from "vs/editor/common/core/range";
+import { OffsetRange } from "./offsetRange.js";
+import { Range } from "./range.js";
 /**
  * A range of lines (1-based).
  */

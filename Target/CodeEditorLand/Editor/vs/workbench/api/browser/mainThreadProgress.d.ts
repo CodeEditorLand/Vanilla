@@ -1,7 +1,7 @@
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IProgressOptions, IProgressService, IProgressStep } from "vs/platform/progress/common/progress";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { MainThreadProgressShape } from "../common/extHost.protocol";
+import { ICommandService } from "../../../platform/commands/common/commands.js";
+import { IProgressOptions, IProgressService, IProgressStep } from "../../../platform/progress/common/progress.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadProgressShape } from "../common/extHost.protocol.js";
 export declare class MainThreadProgress implements MainThreadProgressShape {
     private readonly _commandService;
     private readonly _progressService;

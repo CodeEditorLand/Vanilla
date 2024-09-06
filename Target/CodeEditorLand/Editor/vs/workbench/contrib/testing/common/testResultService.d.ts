@@ -1,11 +1,12 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { ITestProfileService } from "vs/workbench/contrib/testing/common/testProfileService";
-import { ITestResult, LiveTestResult, TestResultItemChange } from "vs/workbench/contrib/testing/common/testResult";
-import { ITestResultStorage } from "vs/workbench/contrib/testing/common/testResultStorage";
-import { ExtensionRunTestsRequest, ResolvedTestRunRequest, TestResultItem } from "vs/workbench/contrib/testing/common/testTypes";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ITestProfileService } from "./testProfileService.js";
+import { ITestResult, LiveTestResult, TestResultItemChange } from "./testResult.js";
+import { ITestResultStorage } from "./testResultStorage.js";
+import { ExtensionRunTestsRequest, ResolvedTestRunRequest, TestResultItem } from "./testTypes.js";
 export type ResultChangeEvent = {
     completed: LiveTestResult;
 } | {
@@ -50,7 +51,7 @@ export interface ITestResultService {
      */
     getStateById(extId: string): [results: ITestResult, item: TestResultItem] | undefined;
 }
-export declare const ITestResultService: any;
+export declare const ITestResultService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITestResultService>;
 export declare class TestResultService extends Disposable implements ITestResultService {
     private readonly storage;
     private readonly testProfiles;
@@ -67,15 +68,15 @@ export declare class TestResultService extends Disposable implements ITestResult
     /**
      * @inheritdoc
      */
-    readonly onResultsChanged: any;
+    readonly onResultsChanged: Event<ResultChangeEvent>;
     /**
      * @inheritdoc
      */
-    readonly onTestChanged: any;
+    readonly onTestChanged: Event<TestResultItemChange>;
     private readonly isRunning;
     private readonly hasAnyResults;
     private readonly loadResults;
-    protected readonly persistScheduler: any;
+    protected readonly persistScheduler: RunOnceScheduler;
     constructor(contextKeyService: IContextKeyService, storage: ITestResultStorage, testProfiles: ITestProfileService, telemetryService: ITelemetryService);
     /**
      * @inheritdoc
@@ -84,7 +85,7 @@ export declare class TestResultService extends Disposable implements ITestResult
     /**
      * @inheritdoc
      */
-    createLiveResult(req: ResolvedTestRunRequest | ExtensionRunTestsRequest): any;
+    createLiveResult(req: ResolvedTestRunRequest | ExtensionRunTestsRequest): LiveTestResult;
     /**
      * @inheritdoc
      */
@@ -92,7 +93,7 @@ export declare class TestResultService extends Disposable implements ITestResult
     /**
      * @inheritdoc
      */
-    getResult(id: string): any;
+    getResult(id: string): ITestResult | undefined;
     /**
      * @inheritdoc
      */

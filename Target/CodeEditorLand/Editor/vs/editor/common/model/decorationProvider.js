@@ -1,1 +1,1 @@
-import"../../../../vs/base/common/event.js";import"../../../../vs/editor/common/core/range.js";import"../../../../vs/editor/common/model.js";
+import"../../../base/common/event.js";import"../core/range.js";import"../model.js";

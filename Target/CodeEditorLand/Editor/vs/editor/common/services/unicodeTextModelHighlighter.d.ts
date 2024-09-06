@@ -1,5 +1,5 @@
-import { IRange } from "vs/editor/common/core/range";
-import { IUnicodeHighlightsResult } from "vs/editor/common/services/editorWorker";
+import { IRange } from "../core/range.js";
+import { IUnicodeHighlightsResult } from "./editorWorker.js";
 export declare class UnicodeTextModelHighlighter {
     static computeUnicodeHighlights(model: IUnicodeCharacterSearcherTarget, options: UnicodeHighlighterOptions, range?: IRange): IUnicodeHighlightsResult;
     static computeUnicodeHighlightReason(char: string, options: UnicodeHighlighterOptions): UnicodeHighlighterReason | null;

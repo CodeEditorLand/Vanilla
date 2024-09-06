@@ -1,10 +1,10 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { ISplashStorageService } from "vs/workbench/contrib/splash/browser/splash";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { ISplashStorageService } from "./splash.js";
 export declare class PartsSplash {
     private readonly _themeService;
     private readonly _layoutService;

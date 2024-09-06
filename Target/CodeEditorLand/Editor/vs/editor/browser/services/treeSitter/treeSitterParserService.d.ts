@@ -1,15 +1,15 @@
 import type { Parser } from "@vscode/tree-sitter-wasm";
-import { Emitter, Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ITextModel } from "vs/editor/common/model";
-import { IModelService } from "vs/editor/common/services/model";
-import { ITreeSitterParseResult, ITreeSitterParserService } from "vs/editor/common/services/treeSitterParserService";
-import { IModelContentChange } from "vs/editor/common/textModelEvents";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ITextModel } from "../../../common/model.js";
+import { IModelService } from "../../../common/services/model.js";
+import { ITreeSitterParseResult, ITreeSitterParserService } from "../../../common/services/treeSitterParserService.js";
+import { IModelContentChange } from "../../../common/textModelEvents.js";
 export declare class TextModelTreeSitter extends Disposable {
     readonly model: ITextModel;
     private readonly _treeSitterLanguages;

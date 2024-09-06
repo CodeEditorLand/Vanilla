@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILocalExtension } from "vs/platform/extensionManagement/common/extensionManagement";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { ILocalExtension } from "../common/extensionManagement.js";
 export declare class ExtensionsLifecycle extends Disposable {
     private userDataProfilesService;
     private readonly logService;

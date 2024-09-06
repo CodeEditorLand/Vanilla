@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { INotificationsModel } from "vs/workbench/common/notifications";
-import { IStatusbarService } from "vs/workbench/services/statusbar/browser/statusbar";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { INotificationsModel } from "../../../common/notifications.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
 export declare class NotificationsStatus extends Disposable {
     private readonly model;
     private readonly statusbarService;

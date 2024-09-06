@@ -1,6 +1,6 @@
-import "vs/css!./media/editorHoverWrapper";
-import { IHoverAction } from "vs/base/browser/ui/hover/hover";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import "./media/editorHoverWrapper.css";
+import { IHoverAction } from "../../../../../base/browser/ui/hover/hover.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
 /**
  * This borrows some of HoverWidget so that a chat editor hover can be rendered in the same way as a workbench hover.
  * Maybe it can be reusable in a generic way.

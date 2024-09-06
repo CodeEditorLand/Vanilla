@@ -1,4 +1,4 @@
-import type { IHoverDelegate2 } from "vs/base/browser/ui/hover/hover";
+import type { IHoverDelegate2 } from "./hover.js";
 /**
  * Sets the hover delegate for use **only in the `base/` layer**.
  */

@@ -1,13 +1,13 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IProgressIndicator } from "vs/platform/progress/common/progress";
-import { IPaneComposite } from "vs/workbench/common/panecomposite";
-import { IView, IViewDescriptorService, IViewPaneContainer, ViewContainer, ViewContainerLocation } from "vs/workbench/common/views";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IWorkbenchLayoutService, Parts } from "vs/workbench/services/layout/browser/layoutService";
-import { IPaneCompositePartService } from "vs/workbench/services/panecomposite/browser/panecomposite";
-import { IViewsService } from "vs/workbench/services/views/common/viewsService";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IProgressIndicator } from "../../../../platform/progress/common/progress.js";
+import { IPaneComposite } from "../../../common/panecomposite.js";
+import { IView, IViewDescriptorService, IViewPaneContainer, ViewContainer, ViewContainerLocation } from "../../../common/views.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IWorkbenchLayoutService, Parts } from "../../layout/browser/layoutService.js";
+import { IPaneCompositePartService } from "../../panecomposite/browser/panecomposite.js";
+import { IViewsService } from "../common/viewsService.js";
 export declare class ViewsService extends Disposable implements IViewsService {
     private readonly viewDescriptorService;
     private readonly paneCompositeService;
@@ -23,9 +23,13 @@ export declare class ViewsService extends Disposable implements IViewsService {
         visible: boolean;
     }>;
     private readonly _onDidChangeViewContainerVisibility;
-    readonly onDidChangeViewContainerVisibility: any;
+    readonly onDidChangeViewContainerVisibility: Event<{
+        id: string;
+        visible: boolean;
+        location: ViewContainerLocation;
+    }>;
     private readonly _onDidChangeFocusedView;
-    readonly onDidChangeFocusedView: any;
+    readonly onDidChangeFocusedView: Event<void>;
     private readonly viewContainerDisposables;
     private readonly enabledViewContainersContextKeys;
     private readonly visibleViewContextKeys;
@@ -45,6 +49,7 @@ export declare class ViewsService extends Disposable implements IViewsService {
     private openComposite;
     private getComposite;
     isViewContainerVisible(id: string): boolean;
+    isViewContainerActive(id: string): boolean;
     getVisibleViewContainer(location: ViewContainerLocation): ViewContainer | null;
     getActiveViewPaneContainerWithId(viewContainerId: string): IViewPaneContainer | null;
     openViewContainer(id: string, focus?: boolean): Promise<IPaneComposite | null>;

@@ -1,13 +1,13 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { Action2 } from "vs/platform/actions/common/actions";
+import { Action2 } from "../../../../../platform/actions/common/actions.js";
+import { ICodeEditor } from "../../../../browser/editorBrowser.js";
+import { EditorAction, ServicesAccessor } from "../../../../browser/editorExtensions.js";
 export declare class ShowNextInlineSuggestionAction extends EditorAction {
-    static ID: any;
+    static ID: string;
     constructor();
     run(accessor: ServicesAccessor | undefined, editor: ICodeEditor): Promise<void>;
 }
 export declare class ShowPreviousInlineSuggestionAction extends EditorAction {
-    static ID: any;
+    static ID: string;
     constructor();
     run(accessor: ServicesAccessor | undefined, editor: ICodeEditor): Promise<void>;
 }

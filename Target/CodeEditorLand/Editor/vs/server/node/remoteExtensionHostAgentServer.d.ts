@@ -1,6 +1,6 @@
 import * as http from "http";
 import * as net from "net";
-import { ServerParsedArgs } from "vs/server/node/serverEnvironmentService";
+import { ServerParsedArgs } from "./serverEnvironmentService.js";
 export interface IServerAPI {
     /**
      * Do not remove!!. Called from server-main.js

@@ -1,7 +1,7 @@
-import { Widget } from "vs/base/browser/ui/widget";
-import { ThemeIcon } from "vs/base/common/themables";
-import "vs/css!./radio";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
+import { ThemeIcon } from "../../../common/themables.js";
+import { Widget } from "../widget.js";
+import "./radio.css";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
 export interface IRadioStyles {
     readonly activeForeground?: string;
     readonly activeBackground?: string;
@@ -24,7 +24,7 @@ export interface IRadioOptions {
 }
 export declare class Radio extends Widget {
     private readonly _onDidSelect;
-    readonly onDidSelect: any;
+    readonly onDidSelect: import("../../../common/event.js").Event<number>;
     readonly domNode: HTMLElement;
     private readonly hoverDelegate;
     private items;

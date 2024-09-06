@@ -2,12 +2,12 @@
  * Create a syntax highighter with a fully declarative JSON style lexer description
  * using regular expressions.
  */
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import * as languages from "vs/editor/common/languages";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import * as monarchCommon from "vs/editor/standalone/common/monarch/monarchCommon";
-import { IStandaloneThemeService } from "vs/editor/standalone/common/standaloneTheme";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import * as languages from "../../../common/languages.js";
+import { ILanguageService } from "../../../common/languages/language.js";
+import { IStandaloneThemeService } from "../standaloneTheme.js";
+import * as monarchCommon from "./monarchCommon.js";
 export type ILoadStatus = {
     loaded: true;
 } | {

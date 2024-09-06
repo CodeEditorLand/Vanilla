@@ -1,8 +1,8 @@
-import { URI } from "vs/base/common/uri";
-import { MirrorTextModel } from "vs/editor/common/model/mirrorTextModel";
-import { MainThreadDocumentsShape } from "vs/workbench/api/common/extHost.protocol";
-import { Range } from "vs/workbench/api/common/extHostTypes";
 import type * as vscode from "vscode";
+import { URI } from "../../../base/common/uri.js";
+import { MirrorTextModel } from "../../../editor/common/model/mirrorTextModel.js";
+import { MainThreadDocumentsShape } from "./extHost.protocol.js";
+import { Range } from "./extHostTypes.js";
 export declare function setWordDefinitionFor(languageId: string, wordDefinition: RegExp | undefined): void;
 export declare class ExtHostDocumentData extends MirrorTextModel {
     private readonly _proxy;

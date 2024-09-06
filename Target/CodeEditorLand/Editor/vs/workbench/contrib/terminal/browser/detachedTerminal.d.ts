@@ -1,16 +1,17 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { OperatingSystem } from "vs/base/common/platform";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IMergedEnvironmentVariableCollection } from "vs/platform/terminal/common/environmentVariable";
-import { ITerminalBackend } from "vs/platform/terminal/common/terminal";
-import { IDetachedTerminalInstance, IDetachedXTermOptions, IDetachedXtermTerminal, ITerminalContribution, IXtermAttachToElementOptions } from "vs/workbench/contrib/terminal/browser/terminal";
-import { XtermTerminal } from "vs/workbench/contrib/terminal/browser/xterm/xtermTerminal";
-import { IEnvironmentVariableInfo } from "vs/workbench/contrib/terminal/common/environmentVariable";
-import { ITerminalProcessInfo } from "vs/workbench/contrib/terminal/common/terminal";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { OperatingSystem } from "../../../../base/common/platform.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { TerminalCapabilityStore } from "../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";
+import { IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
+import { ITerminalBackend } from "../../../../platform/terminal/common/terminal.js";
+import { IEnvironmentVariableInfo } from "../common/environmentVariable.js";
+import { ITerminalProcessInfo, ProcessState } from "../common/terminal.js";
+import { IDetachedTerminalInstance, IDetachedXTermOptions, IDetachedXtermTerminal, ITerminalContribution, IXtermAttachToElementOptions } from "./terminal.js";
+import { XtermTerminal } from "./xterm/xtermTerminal.js";
 export declare class DetachedTerminal extends Disposable implements IDetachedTerminalInstance {
     private readonly _xterm;
     private readonly _widgets;
-    readonly capabilities: any;
+    readonly capabilities: TerminalCapabilityStore;
     private readonly _contributions;
     domElement?: HTMLElement;
     get xterm(): IDetachedXtermTerminal;
@@ -30,7 +31,7 @@ export declare class DetachedTerminal extends Disposable implements IDetachedTer
  * the instantiator.
  */
 export declare class DetachedProcessInfo implements ITerminalProcessInfo {
-    processState: any;
+    processState: ProcessState;
     ptyProcessReady: Promise<void>;
     shellProcessId: number | undefined;
     remoteAuthority: string | undefined;
@@ -43,7 +44,7 @@ export declare class DetachedProcessInfo implements ITerminalProcessInfo {
     hasWrittenData: boolean;
     hasChildProcesses: boolean;
     backend: ITerminalBackend | undefined;
-    capabilities: any;
+    capabilities: TerminalCapabilityStore;
     shellIntegrationNonce: string;
     extEnvironmentVariableCollection: IMergedEnvironmentVariableCollection | undefined;
     constructor(initialValues: Partial<ITerminalProcessInfo>);

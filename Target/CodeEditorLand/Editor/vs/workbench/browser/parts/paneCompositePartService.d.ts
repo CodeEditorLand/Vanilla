@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IProgressIndicator } from "vs/platform/progress/common/progress";
-import { PaneCompositeDescriptor } from "vs/workbench/browser/panecomposite";
-import { IPaneComposite } from "vs/workbench/common/panecomposite";
-import { ViewContainerLocation } from "vs/workbench/common/views";
-import { IPaneCompositePartService } from "vs/workbench/services/panecomposite/browser/panecomposite";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { IProgressIndicator } from "../../../platform/progress/common/progress.js";
+import { IPaneComposite } from "../../common/panecomposite.js";
+import { ViewContainerLocation } from "../../common/views.js";
+import { IPaneCompositePartService } from "../../services/panecomposite/browser/panecomposite.js";
+import { PaneCompositeDescriptor } from "../panecomposite.js";
 export declare class PaneCompositePartService extends Disposable implements IPaneCompositePartService {
     readonly _serviceBrand: undefined;
     readonly onDidPaneCompositeOpen: Event<{

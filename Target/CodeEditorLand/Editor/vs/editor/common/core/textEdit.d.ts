@@ -1,7 +1,7 @@
-import { ISingleEditOperation } from "vs/editor/common/core/editOperation";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { TextLength } from "vs/editor/common/core/textLength";
+import { ISingleEditOperation } from "./editOperation.js";
+import { Position } from "./position.js";
+import { Range } from "./range.js";
+import { TextLength } from "./textLength.js";
 export declare class TextEdit {
     readonly edits: readonly SingleTextEdit[];
     static single(originalRange: Range, newText: string): TextEdit;
@@ -24,7 +24,7 @@ export declare class SingleTextEdit {
     readonly text: string;
     constructor(range: Range, text: string);
     get isEmpty(): boolean;
-    static equals(first: SingleTextEdit, second: SingleTextEdit): any;
+    static equals(first: SingleTextEdit, second: SingleTextEdit): boolean;
     toSingleEditOperation(): ISingleEditOperation;
 }
 export declare abstract class AbstractText {

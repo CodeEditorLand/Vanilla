@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IAddressProvider, IConnectionOptions } from "vs/platform/remote/common/remoteAgentConnection";
-import { IRemoteSocketFactoryService } from "vs/platform/remote/common/remoteSocketFactoryService";
-import { ISignService } from "vs/platform/sign/common/sign";
-import { AbstractTunnelService, ISharedTunnelsService, ITunnelProvider, RemoteTunnel } from "vs/platform/tunnel/common/tunnel";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IAddressProvider, IConnectionOptions } from "../../remote/common/remoteAgentConnection.js";
+import { IRemoteSocketFactoryService } from "../../remote/common/remoteSocketFactoryService.js";
+import { ISignService } from "../../sign/common/sign.js";
+import { AbstractTunnelService, ISharedTunnelsService, ITunnelProvider, RemoteTunnel, TunnelPrivacyId } from "../common/tunnel.js";
 export declare class NodeRemoteTunnel extends Disposable implements RemoteTunnel {
     private readonly defaultTunnelHost;
     private readonly suggestedLocalPort?;
@@ -13,7 +13,7 @@ export declare class NodeRemoteTunnel extends Disposable implements RemoteTunnel
     tunnelLocalPort: number;
     tunnelRemoteHost: string;
     localAddress: string;
-    readonly privacy: any;
+    readonly privacy = TunnelPrivacyId.Private;
     private readonly _options;
     private readonly _server;
     private readonly _barrier;

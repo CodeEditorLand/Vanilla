@@ -1,8 +1,8 @@
-import { URI } from "vs/base/common/uri";
-import { FindMatch } from "vs/editor/common/model";
-import { CellWebviewFindMatch, ICellViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { INotebookCellMatchNoModel, INotebookFileMatchNoModel } from "vs/workbench/contrib/search/common/searchNotebookHelpers";
-import { IFileMatch, ITextSearchMatch } from "vs/workbench/services/search/common/search";
+import { URI } from "../../../../../base/common/uri.js";
+import { FindMatch } from "../../../../../editor/common/model.js";
+import { IFileMatch, ITextSearchMatch } from "../../../../services/search/common/search.js";
+import { CellWebviewFindMatch, ICellViewModel } from "../../../notebook/browser/notebookBrowser.js";
+import { INotebookCellMatchNoModel, INotebookFileMatchNoModel } from "../../common/searchNotebookHelpers.js";
 export type INotebookCellMatch = INotebookCellMatchWithModel | INotebookCellMatchNoModel;
 export type INotebookFileMatch = INotebookFileMatchWithModel | INotebookFileMatchNoModel;
 export declare function getIDFromINotebookCellMatch(match: INotebookCellMatch): string;

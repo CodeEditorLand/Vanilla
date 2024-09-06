@@ -1,5 +1,5 @@
-import { IProcessEnvironment } from "vs/base/common/platform";
-import { IWorkspaceFolderData } from "vs/platform/workspace/common/workspace";
+import { IProcessEnvironment } from "../../../base/common/platform.js";
+import { IWorkspaceFolderData } from "../../workspace/common/workspace.js";
 export declare enum EnvironmentVariableMutatorType {
     Replace = 1,
     Append = 2,

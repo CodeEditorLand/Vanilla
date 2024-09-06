@@ -1,13 +1,13 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILayoutService } from "vs/platform/layout/browser/layoutService";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IDebugService, IDebugSession, State } from "vs/workbench/contrib/debug/common/debug";
-import { IStatusbarService } from "vs/workbench/services/statusbar/browser/statusbar";
-export declare const STATUS_BAR_DEBUGGING_BACKGROUND: any;
-export declare const STATUS_BAR_DEBUGGING_FOREGROUND: any;
-export declare const STATUS_BAR_DEBUGGING_BORDER: any;
-export declare const COMMAND_CENTER_DEBUGGING_BACKGROUND: any;
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { IDebugService, IDebugSession, State } from "../common/debug.js";
+export declare const STATUS_BAR_DEBUGGING_BACKGROUND: string;
+export declare const STATUS_BAR_DEBUGGING_FOREGROUND: string;
+export declare const STATUS_BAR_DEBUGGING_BORDER: string;
+export declare const COMMAND_CENTER_DEBUGGING_BACKGROUND: string;
 export declare class StatusBarColorProvider implements IWorkbenchContribution {
     private readonly debugService;
     private readonly contextService;

@@ -1,5 +1,5 @@
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { SnippetsAction } from "vs/workbench/contrib/snippets/browser/commands/abstractSnippetsActions";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { SnippetsAction } from "./abstractSnippetsActions.js";
 export declare class ApplyFileSnippetAction extends SnippetsAction {
     static readonly Id = "workbench.action.populateFileFromSnippet";
     constructor();

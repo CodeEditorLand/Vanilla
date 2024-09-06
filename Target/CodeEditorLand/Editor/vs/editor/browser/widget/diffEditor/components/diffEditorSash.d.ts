@@ -1,14 +1,14 @@
-import { IBoundarySashes } from "vs/base/browser/ui/sash/sash";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable, ISettableObservable } from "vs/base/common/observable";
-import { DiffEditorOptions } from "../diffEditorOptions";
+import { IBoundarySashes } from "../../../../../base/browser/ui/sash/sash.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable, ISettableObservable } from "../../../../../base/common/observable.js";
+import { DiffEditorOptions } from "../diffEditorOptions.js";
 export declare class SashLayout {
     private readonly _options;
     readonly dimensions: {
         height: IObservable<number>;
         width: IObservable<number>;
     };
-    readonly sashLeft: any;
+    readonly sashLeft: ISettableObservable<number, void>;
     private readonly _sashRatio;
     resetSash(): void;
     constructor(_options: DiffEditorOptions, dimensions: {

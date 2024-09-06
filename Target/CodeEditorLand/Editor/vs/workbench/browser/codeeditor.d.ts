@@ -1,15 +1,15 @@
-import { IAction } from "vs/base/common/actions";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { IRange } from "vs/editor/common/core/range";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { AbstractFloatingClickMenu, FloatingClickWidget } from "vs/platform/actions/browser/floatingMenu";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { IAction } from "../../base/common/actions.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { URI } from "../../base/common/uri.js";
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "../../editor/browser/editorBrowser.js";
+import { IRange } from "../../editor/common/core/range.js";
+import { IEditorContribution } from "../../editor/common/editorCommon.js";
+import { AbstractFloatingClickMenu, FloatingClickWidget } from "../../platform/actions/browser/floatingMenu.js";
+import { IMenuService } from "../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../platform/keybinding/common/keybinding.js";
+import { IEditorService } from "../services/editor/common/editorService.js";
 export interface IRangeHighlightDecoration {
     resource: URI;
     range: IRange;
@@ -18,7 +18,7 @@ export interface IRangeHighlightDecoration {
 export declare class RangeHighlightDecorations extends Disposable {
     private readonly editorService;
     private readonly _onHighlightRemoved;
-    readonly onHighlightRemoved: any;
+    readonly onHighlightRemoved: import("../../base/common/event.js").Event<void>;
     private rangeHighlightDecorationId;
     private editor;
     private readonly editorDisposables;
@@ -47,6 +47,6 @@ export declare class FloatingEditorClickMenu extends AbstractFloatingClickMenu i
     static readonly ID = "editor.contrib.floatingClickMenu";
     constructor(editor: ICodeEditor, instantiationService: IInstantiationService, menuService: IMenuService, contextKeyService: IContextKeyService);
     protected createWidget(action: IAction): FloatingClickWidget;
-    protected isVisible(): any;
+    protected isVisible(): boolean;
     protected getActionArg(): unknown;
 }

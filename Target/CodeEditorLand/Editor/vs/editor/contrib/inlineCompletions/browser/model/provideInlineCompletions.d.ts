@@ -1,13 +1,13 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ISingleEditOperation } from "vs/editor/common/core/editOperation";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { SingleTextEdit } from "vs/editor/common/core/textEdit";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import { Command, InlineCompletion, InlineCompletionContext, InlineCompletions, InlineCompletionsProvider } from "vs/editor/common/languages";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ITextModel } from "vs/editor/common/model";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { ISingleEditOperation } from "../../../../common/core/editOperation.js";
+import { Position } from "../../../../common/core/position.js";
+import { Range } from "../../../../common/core/range.js";
+import { SingleTextEdit } from "../../../../common/core/textEdit.js";
+import { LanguageFeatureRegistry } from "../../../../common/languageFeatureRegistry.js";
+import { Command, InlineCompletion, InlineCompletionContext, InlineCompletions, InlineCompletionsProvider } from "../../../../common/languages.js";
+import { ILanguageConfigurationService } from "../../../../common/languages/languageConfigurationRegistry.js";
+import { ITextModel } from "../../../../common/model.js";
 export declare function provideInlineCompletions(registry: LanguageFeatureRegistry<InlineCompletionsProvider>, positionOrRange: Position | Range, model: ITextModel, context: InlineCompletionContext, token?: CancellationToken, languageConfigurationService?: ILanguageConfigurationService): Promise<InlineCompletionProviderResult>;
 export declare class InlineCompletionProviderResult implements IDisposable {
     /**

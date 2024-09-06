@@ -1,7 +1,6 @@
-import { Iterable } from "vs/base/common/iterator";
-import { URI } from "vs/base/common/uri";
-import { IMainThreadTestCollection } from "vs/workbench/contrib/testing/common/testService";
-import { AbstractIncrementalTestCollection, IncrementalChangeCollector, IncrementalTestCollectionItem, InternalTestItem, ITestUriCanonicalizer, TestsDiff } from "vs/workbench/contrib/testing/common/testTypes";
+import { URI } from "../../../../base/common/uri.js";
+import { IMainThreadTestCollection } from "./testService.js";
+import { AbstractIncrementalTestCollection, IncrementalChangeCollector, IncrementalTestCollectionItem, InternalTestItem, ITestUriCanonicalizer, TestsDiff } from "./testTypes.js";
 export declare class MainThreadTestCollection extends AbstractIncrementalTestCollection<IncrementalTestCollectionItem> implements IMainThreadTestCollection {
     private readonly expandActual;
     private testsByUrl;
@@ -10,17 +9,17 @@ export declare class MainThreadTestCollection extends AbstractIncrementalTestCol
     /**
      * @inheritdoc
      */
-    get busyProviders(): any;
+    get busyProviders(): number;
     /**
      * @inheritdoc
      */
-    get rootItems(): any;
+    get rootItems(): Set<IncrementalTestCollectionItem>;
     /**
      * @inheritdoc
      */
-    get all(): Generator<any, void, unknown>;
-    get rootIds(): any;
-    readonly onBusyProvidersChange: any;
+    get all(): Generator<IncrementalTestCollectionItem, void, unknown>;
+    get rootIds(): Iterable<string>;
+    readonly onBusyProvidersChange: import("../../../../base/common/event.js").Event<number>;
     constructor(uriIdentityService: ITestUriCanonicalizer, expandActual: (id: string, levels: number) => Promise<void>);
     /**
      * @inheritdoc
@@ -29,7 +28,7 @@ export declare class MainThreadTestCollection extends AbstractIncrementalTestCol
     /**
      * @inheritdoc
      */
-    getNodeById(id: string): any;
+    getNodeById(id: string): IncrementalTestCollectionItem | undefined;
     /**
      * @inheritdoc
      */

@@ -1,2 +1,2 @@
-import { IRequestHandlerFactory } from "vs/base/common/worker/simpleWorker";
+import { IRequestHandlerFactory } from "./simpleWorker.js";
 export declare function bootstrapSimpleWorker(factory: IRequestHandlerFactory): void;

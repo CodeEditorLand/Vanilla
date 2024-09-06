@@ -1,5 +1,5 @@
-import { Event } from "vs/base/common/event";
-export declare const IExtensionHostStarter: any;
+import { Event } from "../../../base/common/event.js";
+export declare const IExtensionHostStarter: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionHostStarter>;
 export declare const ipcExtensionHostStarterChannelName = "extensionHostStarter";
 export interface IExtensionHostProcessOptions {
     responseWindowId: number;

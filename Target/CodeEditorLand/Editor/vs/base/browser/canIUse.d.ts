@@ -9,7 +9,7 @@ export declare const enum KeyboardSupport {
 export declare const BrowserFeatures: {
     clipboard: {
         writeText: any;
-        readText: any;
+        readText: boolean;
     };
     keyboard: KeyboardSupport;
     touch: boolean;

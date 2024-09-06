@@ -1,15 +1,15 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { OperatingSystem } from "vs/base/common/platform";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IExtensionTerminalProfile, IShellLaunchConfig, ITerminalProfile } from "vs/platform/terminal/common/terminal";
-import { ITerminalInstanceService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { IRegisterContributedProfileArgs, ITerminalProfileProvider, ITerminalProfileService } from "vs/workbench/contrib/terminal/common/terminal";
-import { ITerminalContributionService } from "vs/workbench/contrib/terminal/common/terminalExtensionPoints";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { OperatingSystem } from "../../../../base/common/platform.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IExtensionTerminalProfile, IShellLaunchConfig, ITerminalProfile } from "../../../../platform/terminal/common/terminal.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { IRegisterContributedProfileArgs, ITerminalProfileProvider, ITerminalProfileService } from "../common/terminal.js";
+import { ITerminalContributionService } from "../common/terminalExtensionPoints.js";
+import { ITerminalInstanceService } from "./terminal.js";
 export declare class TerminalProfileService extends Disposable implements ITerminalProfileService {
     private readonly _contextKeyService;
     private readonly _configurationService;

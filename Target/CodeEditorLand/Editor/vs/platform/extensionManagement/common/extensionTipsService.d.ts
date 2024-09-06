@@ -1,12 +1,12 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IConfigBasedExtensionTip, IExecutableBasedExtensionTip, IExtensionManagementService, IExtensionTipsService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IExtensionRecommendationNotificationService } from "vs/platform/extensionRecommendations/common/extensionRecommendations";
-import { IFileService } from "vs/platform/files/common/files";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IExtensionRecommendationNotificationService } from "../../extensionRecommendations/common/extensionRecommendations.js";
+import { IFileService } from "../../files/common/files.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IConfigBasedExtensionTip, IExecutableBasedExtensionTip, IExtensionManagementService, IExtensionTipsService } from "./extensionManagement.js";
 export declare class ExtensionTipsService extends Disposable implements IExtensionTipsService {
     protected readonly fileService: IFileService;
     private readonly productService;

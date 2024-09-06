@@ -1,6 +1,6 @@
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { TextLength } from "vs/editor/common/core/textLength";
+import { Position } from "../../../core/position.js";
+import { Range } from "../../../core/range.js";
+import { TextLength } from "../../../core/textLength.js";
 /**
  * The end must be greater than or equal to the start.
  */

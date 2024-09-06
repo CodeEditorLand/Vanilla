@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IExtensionFeaturesManagementService } from "vs/workbench/services/extensionManagement/common/extensionFeatures";
-export declare const ILanguageModelStatsService: any;
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IExtensionFeaturesManagementService } from "../../../services/extensionManagement/common/extensionFeatures.js";
+export declare const ILanguageModelStatsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ILanguageModelStatsService>;
 export interface ILanguageModelStatsService {
     readonly _serviceBrand: undefined;
     update(model: string, extensionId: ExtensionIdentifier, agent: string | undefined, tokenCount: number | undefined): Promise<void>;
@@ -14,7 +14,7 @@ export declare class LanguageModelStatsService extends Disposable implements ILa
     private static readonly MODEL_ACCESS_STORAGE_KEY_PREFIX;
     _serviceBrand: undefined;
     private readonly _onDidChangeStats;
-    readonly onDidChangeLanguageMoelStats: any;
+    readonly onDidChangeLanguageMoelStats: import("../../../../base/common/event.js").Event<string>;
     private readonly sessionStats;
     constructor(extensionFeaturesManagementService: IExtensionFeaturesManagementService, _storageService: IStorageService);
     hasAccessedModel(extensionId: string, model: string): boolean;

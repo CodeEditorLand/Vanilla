@@ -1,7 +1,7 @@
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { IFileChange } from "vs/platform/files/common/files";
-import { AbstractUniversalWatcherClient, ILogMessage, IRecursiveWatcher } from "vs/platform/files/common/watcher";
-import { IUtilityProcessWorkerWorkbenchService } from "vs/workbench/services/utilityProcess/electron-sandbox/utilityProcessWorkerWorkbenchService";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IFileChange } from "../../../../platform/files/common/files.js";
+import { AbstractUniversalWatcherClient, ILogMessage, IRecursiveWatcher } from "../../../../platform/files/common/watcher.js";
+import { IUtilityProcessWorkerWorkbenchService } from "../../utilityProcess/electron-sandbox/utilityProcessWorkerWorkbenchService.js";
 export declare class UniversalWatcherClient extends AbstractUniversalWatcherClient {
     private readonly utilityProcessWorkerWorkbenchService;
     constructor(onFileChanges: (changes: IFileChange[]) => void, onLogMessage: (msg: ILogMessage) => void, verboseLogging: boolean, utilityProcessWorkerWorkbenchService: IUtilityProcessWorkerWorkbenchService);

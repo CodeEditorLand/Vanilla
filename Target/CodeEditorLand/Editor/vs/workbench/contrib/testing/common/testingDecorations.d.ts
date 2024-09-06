@@ -1,9 +1,9 @@
-import { IAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { Position } from "vs/editor/common/core/position";
-import { IModelDeltaDecoration } from "vs/editor/common/model";
-import { ITestMessage } from "vs/workbench/contrib/testing/common/testTypes";
+import { IAction } from "../../../../base/common/actions.js";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { IModelDeltaDecoration } from "../../../../editor/common/model.js";
+import { ITestMessage } from "./testTypes.js";
 export interface ITestingDecorationsService {
     _serviceBrand: undefined;
     /**
@@ -67,4 +67,4 @@ export declare class TestDecorations<T extends {
      */
     lines(): Iterable<[number, T[]]>;
 }
-export declare const ITestingDecorationsService: any;
+export declare const ITestingDecorationsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITestingDecorationsService>;

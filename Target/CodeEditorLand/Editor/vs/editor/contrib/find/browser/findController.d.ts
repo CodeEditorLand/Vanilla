@@ -1,18 +1,18 @@
-import { Delayer } from "vs/base/common/async";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { FindReplaceState, INewFindReplaceState } from "vs/editor/contrib/find/browser/findState";
-import { IFindController } from "vs/editor/contrib/find/browser/findWidget";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextViewService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IThemeService } from "vs/platform/theme/common/themeService";
+import { Delayer } from "../../../../base/common/async.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, MultiEditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { FindReplaceState, INewFindReplaceState } from "./findState.js";
+import { IFindController } from "./findWidget.js";
 export declare function getSelectionSearchString(editor: ICodeEditor, seedSearchStringFromSelection?: "single" | "multiple", seedSearchStringFromNonEmptySelection?: boolean): string | null;
 export declare const enum FindStartFocusAction {
     NoFocusChange = 0,
@@ -92,7 +92,7 @@ export declare class FindController extends CommonFindController implements IFin
     saveViewState(): any;
     restoreViewState(state: any): void;
 }
-export declare const StartFindAction: any;
+export declare const StartFindAction: MultiEditorAction;
 export declare class StartFindWithArgsAction extends EditorAction {
     constructor();
     run(accessor: ServicesAccessor | null, editor: ICodeEditor, args?: IFindStartArguments): Promise<void>;
@@ -132,4 +132,4 @@ export declare class PreviousSelectionMatchFindAction extends SelectionMatchFind
     constructor();
     protected _run(controller: CommonFindController): boolean;
 }
-export declare const StartFindReplaceAction: any;
+export declare const StartFindReplaceAction: MultiEditorAction;

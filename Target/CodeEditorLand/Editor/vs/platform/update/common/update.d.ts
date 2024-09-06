@@ -1,4 +1,4 @@
-import { Event } from "vs/base/common/event";
+import { Event } from "../../../base/common/event.js";
 export interface IUpdate {
     version: string;
     productVersion?: string;
@@ -100,7 +100,7 @@ export interface IAutoUpdater extends Event.NodeEventEmitter {
     applyUpdate?(): Promise<void>;
     quitAndInstall(): void;
 }
-export declare const IUpdateService: any;
+export declare const IUpdateService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUpdateService>;
 export interface IUpdateService {
     readonly _serviceBrand: undefined;
     readonly onStateChange: Event<State>;

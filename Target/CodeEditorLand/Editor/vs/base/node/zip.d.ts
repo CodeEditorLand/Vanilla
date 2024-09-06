@@ -1,4 +1,4 @@
-import { CancellationToken } from "vs/base/common/cancellation";
+import { CancellationToken } from "../common/cancellation.js";
 export declare const CorruptZipMessage: string;
 export interface IExtractOptions {
     overwrite?: boolean;

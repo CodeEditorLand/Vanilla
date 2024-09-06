@@ -1,5 +1,5 @@
-import { IProductService } from "vs/platform/product/common/productService";
-import { ExtensionRecommendation, ExtensionRecommendations } from "vs/workbench/contrib/extensions/browser/extensionRecommendations";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ExtensionRecommendation, ExtensionRecommendations } from "./extensionRecommendations.js";
 export declare class LanguageRecommendations extends ExtensionRecommendations {
     private readonly productService;
     private _recommendations;

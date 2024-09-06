@@ -1,2 +1,2 @@
-import { IURITransformer } from "vs/base/common/uriIpc";
+import { IURITransformer } from "../../../base/common/uriIpc.js";
 export declare function createURITransformer(remoteAuthority: string): IURITransformer;

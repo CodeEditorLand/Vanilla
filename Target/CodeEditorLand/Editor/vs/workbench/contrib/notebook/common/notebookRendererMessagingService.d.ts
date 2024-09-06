@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-export declare const INotebookRendererMessagingService: any;
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+export declare const INotebookRendererMessagingService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INotebookRendererMessagingService>;
 export interface INotebookRendererMessagingService {
     readonly _serviceBrand: undefined;
     /**

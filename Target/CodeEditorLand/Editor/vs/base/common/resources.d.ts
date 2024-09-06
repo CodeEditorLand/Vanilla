@@ -1,4 +1,4 @@
-import { URI } from "vs/base/common/uri";
+import { URI } from "./uri.js";
 export declare function originalFSPath(uri: URI): string;
 export interface IExtUri {
     /**
@@ -120,7 +120,7 @@ export declare class ExtUri implements IExtUri {
     relativePath(from: URI, to: URI): string | undefined;
     resolvePath(base: URI, path: string): URI;
     isAbsolutePath(resource: URI): boolean;
-    isEqualAuthority(a1: string | undefined, a2: string | undefined): any;
+    isEqualAuthority(a1: string | undefined, a2: string | undefined): boolean;
     hasTrailingPathSeparator(resource: URI, sep?: string): boolean;
     removeTrailingPathSeparator(resource: URI, sep?: string): URI;
     addTrailingPathSeparator(resource: URI, sep?: string): URI;
@@ -169,7 +169,7 @@ export declare const normalizePath: (resource: URI) => URI;
 export declare const relativePath: (from: URI, to: URI) => string | undefined;
 export declare const resolvePath: (base: URI, path: string) => URI;
 export declare const isAbsolutePath: (resource: URI) => boolean;
-export declare const isEqualAuthority: (a1: string | undefined, a2: string | undefined) => any;
+export declare const isEqualAuthority: (a1: string | undefined, a2: string | undefined) => boolean;
 export declare const hasTrailingPathSeparator: (resource: URI, sep?: string) => boolean;
 export declare const removeTrailingPathSeparator: (resource: URI, sep?: string) => URI;
 export declare const addTrailingPathSeparator: (resource: URI, sep?: string) => URI;

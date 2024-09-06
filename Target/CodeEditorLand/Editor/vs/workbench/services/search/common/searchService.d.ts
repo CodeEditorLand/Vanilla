@@ -1,14 +1,14 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ResourceSet } from "vs/base/common/map";
-import { IModelService } from "vs/editor/common/services/model";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IAITextQuery, IFileQuery, ISearchComplete, ISearchProgressItem, ISearchResultProvider, ISearchService, ITextQuery, SearchProviderType } from "vs/workbench/services/search/common/search";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { ResourceSet } from "../../../../base/common/map.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IAITextQuery, IFileQuery, ISearchComplete, ISearchProgressItem, ISearchResultProvider, ISearchService, ITextQuery, SearchProviderType } from "./search.js";
 export declare class SearchService extends Disposable implements ISearchService {
     private readonly modelService;
     private readonly editorService;

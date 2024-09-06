@@ -1,7 +1,7 @@
-import { MarkdownString } from "vs/base/common/htmlContent";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { ILinkDescriptor } from "vs/platform/opener/browser/link";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ILinkDescriptor } from "../../../../platform/opener/browser/link.js";
 export interface IBannerItem {
     readonly id: string;
     readonly icon: ThemeIcon | URI | undefined;
@@ -11,7 +11,7 @@ export interface IBannerItem {
     readonly onClose?: () => void;
     readonly closeLabel?: string;
 }
-export declare const IBannerService: any;
+export declare const IBannerService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IBannerService>;
 export interface IBannerService {
     readonly _serviceBrand: undefined;
     focus(): void;

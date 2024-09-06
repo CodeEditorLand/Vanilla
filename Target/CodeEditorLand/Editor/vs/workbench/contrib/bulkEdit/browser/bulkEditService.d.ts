@@ -1,13 +1,13 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IBulkEditOptions, IBulkEditPreviewHandler, IBulkEditResult, IBulkEditService, ResourceEdit } from "vs/editor/browser/services/bulkEditService";
-import { WorkspaceEdit } from "vs/editor/common/languages";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
-import { IWorkingCopyService } from "vs/workbench/services/workingCopy/common/workingCopyService";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IBulkEditOptions, IBulkEditPreviewHandler, IBulkEditResult, IBulkEditService, ResourceEdit } from "../../../../editor/browser/services/bulkEditService.js";
+import { WorkspaceEdit } from "../../../../editor/common/languages.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
 export declare class BulkEditService implements IBulkEditService {
     private readonly _instaService;
     private readonly _logService;

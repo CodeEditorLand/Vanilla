@@ -1,13 +1,13 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { UriComponents } from "vs/base/common/uri";
-import { ExtensionIdentifier, IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { ExtHostNotebookKernelsShape, IMainContext } from "vs/workbench/api/common/extHost.protocol";
-import { ExtHostCommands } from "vs/workbench/api/common/extHostCommands";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
-import { ExtHostNotebookController } from "vs/workbench/api/common/extHostNotebook";
-import { INotebookKernelSourceAction, NotebookCellExecutionState } from "vs/workbench/contrib/notebook/common/notebookCommon";
 import * as vscode from "vscode";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { INotebookKernelSourceAction, NotebookCellExecutionState } from "../../contrib/notebook/common/notebookCommon.js";
+import { ExtHostNotebookKernelsShape, IMainContext } from "./extHost.protocol.js";
+import { ExtHostCommands } from "./extHostCommands.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { ExtHostNotebookController } from "./extHostNotebook.js";
 export declare class ExtHostNotebookKernels implements ExtHostNotebookKernelsShape {
     private readonly _initData;
     private readonly _extHostNotebook;
@@ -23,7 +23,7 @@ export declare class ExtHostNotebookKernels implements ExtHostNotebookKernelsSha
     private readonly _kernelData;
     private _handlePool;
     private readonly _onDidChangeCellExecutionState;
-    readonly onDidChangeNotebookCellExecutionState: any;
+    readonly onDidChangeNotebookCellExecutionState: import("../../../base/common/event.js").Event<vscode.NotebookCellExecutionStateChangeEvent>;
     constructor(mainContext: IMainContext, _initData: IExtHostInitDataService, _extHostNotebook: ExtHostNotebookController, _commands: ExtHostCommands, _logService: ILogService);
     createNotebookController(extension: IExtensionDescription, id: string, viewType: string, label: string, handler?: (cells: vscode.NotebookCell[], notebook: vscode.NotebookDocument, controller: vscode.NotebookController) => void | Thenable<void>, preloads?: vscode.NotebookRendererScript[]): vscode.NotebookController;
     getIdByController(controller: vscode.NotebookController): string | null;

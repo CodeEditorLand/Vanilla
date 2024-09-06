@@ -1,14 +1,14 @@
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Range } from "vs/editor/common/core/range";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { ITextModel } from "vs/editor/common/model";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITestCoverageService } from "vs/workbench/contrib/testing/common/testCoverageService";
-import { CoverageDetails, DetailType, IStatementCoverage } from "vs/workbench/contrib/testing/common/testTypes";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ITestCoverageService } from "../common/testCoverageService.js";
+import { CoverageDetails, DetailType, IStatementCoverage } from "../common/testTypes.js";
 export declare class CodeCoverageDecorations extends Disposable implements IEditorContribution {
     private readonly editor;
     private readonly coverage;

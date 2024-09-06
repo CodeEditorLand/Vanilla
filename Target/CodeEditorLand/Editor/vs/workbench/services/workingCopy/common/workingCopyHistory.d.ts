@@ -1,8 +1,8 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { SaveSource } from "vs/workbench/common/editor";
-export declare const IWorkingCopyHistoryService: any;
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { SaveSource } from "../../../common/editor.js";
+export declare const IWorkingCopyHistoryService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkingCopyHistoryService>;
 export interface IWorkingCopyHistoryEvent {
     /**
      * The entry this event is about.

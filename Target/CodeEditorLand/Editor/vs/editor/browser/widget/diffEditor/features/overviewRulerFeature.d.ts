@@ -1,9 +1,9 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { DiffEditorEditors } from "vs/editor/browser/widget/diffEditor/components/diffEditorEditors";
-import { DiffEditorViewModel } from "vs/editor/browser/widget/diffEditor/diffEditorViewModel";
-import { EditorLayoutInfo } from "vs/editor/common/config/editorOptions";
-import { IThemeService } from "vs/platform/theme/common/themeService";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../../base/common/observable.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { EditorLayoutInfo } from "../../../../common/config/editorOptions.js";
+import { DiffEditorEditors } from "../components/diffEditorEditors.js";
+import { DiffEditorViewModel } from "../diffEditorViewModel.js";
 export declare class OverviewRulerFeature extends Disposable {
     private readonly _editors;
     private readonly _rootElement;

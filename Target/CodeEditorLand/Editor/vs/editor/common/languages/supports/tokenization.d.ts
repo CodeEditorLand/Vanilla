@@ -1,5 +1,5 @@
-import { Color } from "vs/base/common/color";
-import { ColorId, FontStyle, LanguageId, StandardTokenType } from "vs/editor/common/encodedTokenAttributes";
+import { Color } from "../../../../base/common/color.js";
+import { ColorId, FontStyle, LanguageId, StandardTokenType } from "../../encodedTokenAttributes.js";
 export interface ITokenThemeRule {
     token: string;
     foreground?: string;

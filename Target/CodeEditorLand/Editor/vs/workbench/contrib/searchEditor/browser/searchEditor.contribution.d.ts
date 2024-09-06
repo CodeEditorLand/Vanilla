@@ -1,4 +1,4 @@
-import { SearchConfiguration } from "vs/workbench/contrib/searchEditor/browser/searchEditorInput";
+import { SearchConfiguration } from "./searchEditorInput.js";
 export type LegacySearchEditorArgs = Partial<{
     query: string;
     includes: string;

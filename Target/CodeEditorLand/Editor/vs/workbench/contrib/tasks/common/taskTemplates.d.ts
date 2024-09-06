@@ -1,4 +1,4 @@
-import { IQuickPickItem } from "vs/platform/quickinput/common/quickInput";
+import { IQuickPickItem } from "../../../../platform/quickinput/common/quickInput.js";
 export interface ITaskEntry extends IQuickPickItem {
     sort?: string;
     autoDetect: boolean;

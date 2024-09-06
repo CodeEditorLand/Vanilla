@@ -1,1 +1,1 @@
-import "vs/css!./inspectTokens";
+import "./inspectTokens.css";

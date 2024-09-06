@@ -1,9 +1,9 @@
-import { URI } from "vs/base/common/uri";
-import { IWorkspace, WorkbenchState } from "vs/platform/workspace/common/workspace";
+import { URI } from "../../../../base/common/uri.js";
+import { IWorkspace, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
 export type Tags = {
     [index: string]: boolean | number | string | undefined;
 };
-export declare const IWorkspaceTagsService: any;
+export declare const IWorkspaceTagsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkspaceTagsService>;
 export interface IWorkspaceTagsService {
     readonly _serviceBrand: undefined;
     getTags(): Promise<Tags>;

@@ -1,8 +1,8 @@
-import { IAction } from "vs/base/common/actions";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable } from "vs/base/common/lifecycle";
-import { INotificationSource, NotificationPriority } from "vs/platform/notification/common/notification";
-export declare const IProgressService: any;
+import { IAction } from "../../../base/common/actions.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { INotificationSource, NotificationPriority } from "../../notification/common/notification.js";
+export declare const IProgressService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IProgressService>;
 /**
  * A progress service that can be used to report progress to various locations of the UI.
  */
@@ -126,7 +126,7 @@ export declare class LongRunningOperation extends Disposable {
     stop(): void;
     private doStop;
 }
-export declare const IEditorProgressService: any;
+export declare const IEditorProgressService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IEditorProgressService>;
 /**
  * A progress service that will report progress local to the editor triggered from.
  */

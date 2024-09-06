@@ -1,7 +1,7 @@
-import { NativeParsedArgs } from "vs/platform/environment/common/argv";
-import { IDebugParams } from "vs/platform/environment/common/environment";
-import { AbstractNativeEnvironmentService } from "vs/platform/environment/common/environmentService";
-import { IProductService } from "vs/platform/product/common/productService";
+import { IProductService } from "../../product/common/productService.js";
+import { NativeParsedArgs } from "../common/argv.js";
+import { IDebugParams } from "../common/environment.js";
+import { AbstractNativeEnvironmentService } from "../common/environmentService.js";
 export declare class NativeEnvironmentService extends AbstractNativeEnvironmentService {
     constructor(args: NativeParsedArgs, productService: IProductService);
 }

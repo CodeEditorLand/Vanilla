@@ -1,14 +1,14 @@
-import { Action2 } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "vs/platform/quickinput/browser/pickerQuickAccess";
-import { IQuickPickSeparator } from "vs/platform/quickinput/common/quickInput";
-import { IViewDescriptorService } from "vs/workbench/common/views";
-import { IDebugService } from "vs/workbench/contrib/debug/common/debug";
-import { ITerminalGroupService, ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { IOutputService } from "vs/workbench/services/output/common/output";
-import { IPaneCompositePartService } from "vs/workbench/services/panecomposite/browser/panecomposite";
-import { IViewsService } from "vs/workbench/services/views/common/viewsService";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IOutputService } from "../../../services/output/common/output.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IDebugService } from "../../debug/common/debug.js";
+import { ITerminalGroupService, ITerminalService } from "../../terminal/browser/terminal.js";
 interface IViewQuickPickItem extends IPickerQuickAccessItem {
     containerLabel: string;
 }

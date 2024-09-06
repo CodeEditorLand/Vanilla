@@ -1,29 +1,29 @@
-import { type Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { type UriComponents } from "vs/base/common/uri";
-import { type ExtHostTerminalShellIntegrationShape, type MainThreadTerminalShellIntegrationShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { IExtHostTerminalService } from "vs/workbench/api/common/extHostTerminalService";
 import type * as vscode from "vscode";
-import { TerminalShellExecutionCommandLineConfidence } from "./extHostTypes";
+import { Emitter, type Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { type UriComponents } from "../../../base/common/uri.js";
+import { type ExtHostTerminalShellIntegrationShape, type MainThreadTerminalShellIntegrationShape } from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { IExtHostTerminalService } from "./extHostTerminalService.js";
+import { TerminalShellExecutionCommandLineConfidence } from "./extHostTypes.js";
 export interface IExtHostTerminalShellIntegration extends ExtHostTerminalShellIntegrationShape {
     readonly _serviceBrand: undefined;
     readonly onDidChangeTerminalShellIntegration: Event<vscode.TerminalShellIntegrationChangeEvent>;
     readonly onDidStartTerminalShellExecution: Event<vscode.TerminalShellExecutionStartEvent>;
     readonly onDidEndTerminalShellExecution: Event<vscode.TerminalShellExecutionEndEvent>;
 }
-export declare const IExtHostTerminalShellIntegration: any;
+export declare const IExtHostTerminalShellIntegration: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostTerminalShellIntegration>;
 export declare class ExtHostTerminalShellIntegration extends Disposable implements IExtHostTerminalShellIntegration {
     private readonly _extHostTerminalService;
     readonly _serviceBrand: undefined;
     protected _proxy: MainThreadTerminalShellIntegrationShape;
     private _activeShellIntegrations;
-    protected readonly _onDidChangeTerminalShellIntegration: any;
-    readonly onDidChangeTerminalShellIntegration: any;
-    protected readonly _onDidStartTerminalShellExecution: any;
-    readonly onDidStartTerminalShellExecution: any;
-    protected readonly _onDidEndTerminalShellExecution: any;
-    readonly onDidEndTerminalShellExecution: any;
+    protected readonly _onDidChangeTerminalShellIntegration: Emitter<vscode.TerminalShellIntegrationChangeEvent>;
+    readonly onDidChangeTerminalShellIntegration: Event<vscode.TerminalShellIntegrationChangeEvent>;
+    protected readonly _onDidStartTerminalShellExecution: Emitter<vscode.TerminalShellExecutionStartEvent>;
+    readonly onDidStartTerminalShellExecution: Event<vscode.TerminalShellExecutionStartEvent>;
+    protected readonly _onDidEndTerminalShellExecution: Emitter<vscode.TerminalShellExecutionEndEvent>;
+    readonly onDidEndTerminalShellExecution: Event<vscode.TerminalShellExecutionEndEvent>;
     constructor(extHostRpc: IExtHostRpcService, _extHostTerminalService: IExtHostTerminalService);
     $shellIntegrationChange(instanceId: number): void;
     $shellExecutionStart(instanceId: number, commandLineValue: string, commandLineConfidence: TerminalShellExecutionCommandLineConfidence, isTrusted: boolean, cwd: UriComponents | undefined): void;

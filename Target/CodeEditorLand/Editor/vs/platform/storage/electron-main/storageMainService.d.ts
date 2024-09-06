@@ -1,17 +1,17 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IStorage } from "vs/base/parts/storage/common/storage";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILifecycleMainService } from "vs/platform/lifecycle/electron-main/lifecycleMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { AbstractStorageService, IStorageService, StorageScope, StorageTarget } from "vs/platform/storage/common/storage";
-import { IStorageChangeEvent, IStorageMain, IStorageMainOptions } from "vs/platform/storage/electron-main/storageMain";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IUserDataProfile, IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IUserDataProfilesMainService } from "vs/platform/userDataProfile/electron-main/userDataProfile";
-import { IAnyWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
-export declare const IStorageMainService: any;
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IStorage } from "../../../base/parts/storage/common/storage.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { IUserDataProfilesMainService } from "../../userDataProfile/electron-main/userDataProfile.js";
+import { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { AbstractStorageService, IStorageService, StorageScope, StorageTarget } from "../common/storage.js";
+import { IStorageChangeEvent, IStorageMain, IStorageMainOptions } from "./storageMain.js";
+export declare const IStorageMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IStorageMainService>;
 export interface IProfileStorageChangeEvent extends IStorageChangeEvent {
     readonly storage: IStorageMain;
     readonly profile: IUserDataProfile;
@@ -62,11 +62,11 @@ export declare class StorageMainService extends Disposable implements IStorageMa
     readonly _serviceBrand: undefined;
     private shutdownReason;
     private readonly _onDidChangeProfileStorage;
-    readonly onDidChangeProfileStorage: any;
+    readonly onDidChangeProfileStorage: Event<IProfileStorageChangeEvent>;
     constructor(logService: ILogService, environmentService: IEnvironmentService, userDataProfilesService: IUserDataProfilesMainService, lifecycleMainService: ILifecycleMainService, fileService: IFileService, uriIdentityService: IUriIdentityService);
     protected getStorageOptions(): IStorageMainOptions;
     private registerListeners;
-    readonly applicationStorage: any;
+    readonly applicationStorage: IStorageMain;
     private createApplicationStorage;
     private readonly mapProfileToStorage;
     profileStorage(profile: IUserDataProfile): IStorageMain;
@@ -76,7 +76,7 @@ export declare class StorageMainService extends Disposable implements IStorageMa
     private createWorkspaceStorage;
     isUsed(path: string): boolean;
 }
-export declare const IApplicationStorageMainService: any;
+export declare const IApplicationStorageMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IStorageMainService>;
 /**
  * A specialized `IStorageService` interface that only allows
  * access to the `StorageScope.APPLICATION` scope.
@@ -110,7 +110,7 @@ export declare class ApplicationStorageMainService extends AbstractStorageServic
     private readonly userDataProfilesService;
     private readonly storageMainService;
     readonly _serviceBrand: undefined;
-    readonly whenReady: any;
+    readonly whenReady: Promise<void>;
     constructor(userDataProfilesService: IUserDataProfilesService, storageMainService: IStorageMainService);
     protected doInitialize(): Promise<void>;
     protected getStorage(scope: StorageScope): IStorage | undefined;

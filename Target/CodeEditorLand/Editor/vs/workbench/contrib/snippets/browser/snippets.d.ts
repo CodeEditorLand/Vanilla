@@ -1,5 +1,5 @@
-import { Snippet, SnippetFile } from "vs/workbench/contrib/snippets/browser/snippetsFile";
-export declare const ISnippetsService: any;
+import { Snippet, SnippetFile } from "./snippetsFile.js";
+export declare const ISnippetsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISnippetsService>;
 export interface ISnippetGetOptions {
     includeDisabledSnippets?: boolean;
     includeNoPrefixSnippets?: boolean;

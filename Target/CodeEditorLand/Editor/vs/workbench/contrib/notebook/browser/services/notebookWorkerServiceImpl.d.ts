@@ -1,12 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { INotebookDiffResult } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
-import { INotebookEditorWorkerService } from "vs/workbench/contrib/notebook/common/services/notebookWorkerService";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { INotebookDiffResult } from "../../common/notebookCommon.js";
+import { INotebookService } from "../../common/notebookService.js";
+import { INotebookEditorWorkerService } from "../../common/services/notebookWorkerService.js";
 export declare class NotebookEditorWorkerServiceImpl extends Disposable implements INotebookEditorWorkerService {
     readonly _serviceBrand: undefined;
     private readonly _workerManager;
-    constructor(notebookService: INotebookService);
+    constructor(notebookService: INotebookService, modelService: IModelService);
     canComputeDiff(original: URI, modified: URI): boolean;
     computeDiff(original: URI, modified: URI): Promise<INotebookDiffResult>;
     canPromptRecommendation(model: URI): Promise<boolean>;

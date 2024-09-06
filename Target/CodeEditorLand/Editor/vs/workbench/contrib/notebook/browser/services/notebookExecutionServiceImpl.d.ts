@@ -1,13 +1,13 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IWorkspaceTrustRequestService } from "vs/platform/workspace/common/workspaceTrust";
-import { NotebookCellTextModel } from "vs/workbench/contrib/notebook/common/model/notebookCellTextModel";
-import { INotebookTextModel } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { ICellExecutionParticipant, INotebookExecutionService } from "vs/workbench/contrib/notebook/common/notebookExecutionService";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
-import { INotebookKernelHistoryService, INotebookKernelService } from "vs/workbench/contrib/notebook/common/notebookKernelService";
-import { INotebookLoggingService } from "vs/workbench/contrib/notebook/common/notebookLoggingService";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IWorkspaceTrustRequestService } from "../../../../../platform/workspace/common/workspaceTrust.js";
+import { NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
+import { INotebookTextModel } from "../../common/notebookCommon.js";
+import { ICellExecutionParticipant, INotebookExecutionService } from "../../common/notebookExecutionService.js";
+import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";
+import { INotebookKernelHistoryService, INotebookKernelService } from "../../common/notebookKernelService.js";
+import { INotebookLoggingService } from "../../common/notebookLoggingService.js";
 export declare class NotebookExecutionService implements INotebookExecutionService, IDisposable {
     private readonly _commandService;
     private readonly _notebookKernelService;
@@ -22,7 +22,7 @@ export declare class NotebookExecutionService implements INotebookExecutionServi
     cancelNotebookCellHandles(notebook: INotebookTextModel, cells: Iterable<number>): Promise<void>;
     cancelNotebookCells(notebook: INotebookTextModel, cells: Iterable<NotebookCellTextModel>): Promise<void>;
     private readonly cellExecutionParticipants;
-    registerExecutionParticipant(participant: ICellExecutionParticipant): any;
+    registerExecutionParticipant(participant: ICellExecutionParticipant): IDisposable;
     private runExecutionParticipants;
     dispose(): void;
 }

@@ -1,13 +1,13 @@
-import { Action } from "vs/base/common/actions";
-import { ICommandActionTitle } from "vs/platform/action/common/action";
-import { Action2, IAction2Options } from "vs/platform/actions/common/actions";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingRule } from "vs/platform/keybinding/common/keybindingsRegistry";
-import { ItemActivation } from "vs/platform/quickinput/common/quickInput";
-import { IEditorCommandsContext, IEditorIdentifier } from "vs/workbench/common/editor";
-import { GroupDirection, IEditorGroup, IEditorGroupsService, IFindGroupScope } from "vs/workbench/services/editor/common/editorGroupsService";
+import { Action } from "../../../../base/common/actions.js";
+import { ICommandActionTitle } from "../../../../platform/action/common/action.js";
+import { Action2, IAction2Options } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingRule } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ItemActivation } from "../../../../platform/quickinput/common/quickInput.js";
+import { IEditorCommandsContext, IEditorIdentifier } from "../../../common/editor.js";
+import { GroupDirection, IEditorGroup, IEditorGroupsService, IFindGroupScope } from "../../../services/editor/common/editorGroupsService.js";
 declare class ExecuteCommandAction extends Action2 {
     private readonly commandId;
     private readonly commandArgs?;
@@ -19,7 +19,7 @@ declare abstract class AbstractSplitEditorAction extends Action2 {
     run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void>;
 }
 export declare class SplitEditorAction extends AbstractSplitEditorAction {
-    static readonly ID: any;
+    static readonly ID = "workbench.action.splitEditor";
     constructor();
 }
 export declare class SplitEditorOrthogonalAction extends AbstractSplitEditorAction {
@@ -33,11 +33,11 @@ export declare class SplitEditorRightAction extends ExecuteCommandAction {
     constructor();
 }
 export declare class SplitEditorUpAction extends ExecuteCommandAction {
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor();
 }
 export declare class SplitEditorDownAction extends ExecuteCommandAction {
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor();
 }
 export declare class JoinTwoGroupsAction extends Action2 {
@@ -88,21 +88,21 @@ export declare class FocusBelowGroup extends AbstractFocusGroupAction {
 export declare class CloseEditorAction extends Action {
     private readonly commandService;
     static readonly ID = "workbench.action.closeActiveEditor";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(id: string, label: string, commandService: ICommandService);
     run(context?: IEditorCommandsContext): Promise<void>;
 }
 export declare class UnpinEditorAction extends Action {
     private readonly commandService;
     static readonly ID = "workbench.action.unpinActiveEditor";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(id: string, label: string, commandService: ICommandService);
     run(context?: IEditorCommandsContext): Promise<void>;
 }
 export declare class CloseEditorTabAction extends Action {
     private readonly editorGroupService;
     static readonly ID = "workbench.action.closeActiveEditor";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(id: string, label: string, editorGroupService: IEditorGroupsService);
     run(context?: IEditorCommandsContext): Promise<void>;
 }
@@ -126,7 +126,7 @@ declare abstract class AbstractCloseAllAction extends Action2 {
 }
 export declare class CloseAllEditorsAction extends AbstractCloseAllAction {
     static readonly ID = "workbench.action.closeAllEditors";
-    static readonly LABEL: any;
+    static readonly LABEL: import("../../../../nls.js").ILocalizedString;
     constructor();
     protected get excludeSticky(): boolean;
 }
@@ -234,13 +234,13 @@ export declare class OpenLastEditorInGroup extends AbstractNavigateEditorAction 
 }
 export declare class NavigateForwardAction extends Action2 {
     static readonly ID = "workbench.action.navigateForward";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor();
     run(accessor: ServicesAccessor): Promise<void>;
 }
 export declare class NavigateBackwardsAction extends Action2 {
     static readonly ID = "workbench.action.navigateBack";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor();
     run(accessor: ServicesAccessor): Promise<void>;
 }
@@ -392,7 +392,7 @@ export declare class SplitEditorToBelowGroupAction extends ExecuteCommandAction 
 }
 export declare class SplitEditorToLeftGroupAction extends ExecuteCommandAction {
     static readonly ID = "workbench.action.splitEditorToLeftGroup";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor();
 }
 export declare class SplitEditorToRightGroupAction extends ExecuteCommandAction {

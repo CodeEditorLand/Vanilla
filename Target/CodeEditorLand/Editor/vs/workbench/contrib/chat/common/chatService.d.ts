@@ -1,18 +1,18 @@
-import { DeferredPromise } from "vs/base/common/async";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { IRange } from "vs/editor/common/core/range";
-import { ISelection } from "vs/editor/common/core/selection";
-import { Command, Location, TextEdit } from "vs/editor/common/languages";
-import { FileType } from "vs/platform/files/common/files";
-import { ChatAgentLocation, IChatAgentCommand, IChatAgentData, IChatAgentResult } from "vs/workbench/contrib/chat/common/chatAgents";
-import { ChatModel, IChatModel, IChatRequestModel, IChatRequestVariableData, IChatRequestVariableEntry, IChatResponseModel, IExportableChatData, ISerializableChatData } from "vs/workbench/contrib/chat/common/chatModel";
-import { IParsedChatRequest } from "vs/workbench/contrib/chat/common/chatParserTypes";
-import { IChatParserContext } from "vs/workbench/contrib/chat/common/chatRequestParser";
-import { IChatRequestVariableValue } from "vs/workbench/contrib/chat/common/chatVariables";
+import { DeferredPromise } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { ISelection } from "../../../../editor/common/core/selection.js";
+import { Command, Location, TextEdit } from "../../../../editor/common/languages.js";
+import { FileType } from "../../../../platform/files/common/files.js";
+import { ChatAgentLocation, IChatAgentCommand, IChatAgentData, IChatAgentResult } from "./chatAgents.js";
+import { ChatModel, IChatModel, IChatRequestModel, IChatRequestVariableData, IChatRequestVariableEntry, IChatResponseModel, IExportableChatData, ISerializableChatData } from "./chatModel.js";
+import { IParsedChatRequest } from "./chatParserTypes.js";
+import { IChatParserContext } from "./chatRequestParser.js";
+import { IChatRequestVariableValue } from "./chatVariables.js";
 export interface IChatRequest {
     message: string;
     variables: Record<string, IChatRequestVariableValue[]>;
@@ -156,10 +156,21 @@ export declare enum ChatAgentVoteDirection {
     Down = 0,
     Up = 1
 }
+export declare enum ChatAgentVoteDownReason {
+    IncorrectCode = "incorrectCode",
+    DidNotFollowInstructions = "didNotFollowInstructions",
+    IncompleteCode = "incompleteCode",
+    MissingContext = "missingContext",
+    PoorlyWrittenOrFormatted = "poorlyWrittenOrFormatted",
+    RefusedAValidRequest = "refusedAValidRequest",
+    OffensiveOrUnsafe = "offensiveOrUnsafe",
+    Other = "other",
+    WillReportIssue = "willReportIssue"
+}
 export interface IChatVoteAction {
     kind: "vote";
     direction: ChatAgentVoteDirection;
-    reportIssue?: boolean;
+    reason: ChatAgentVoteDownReason | undefined;
 }
 export declare enum ChatCopyKind {
     Action = 1,
@@ -277,7 +288,7 @@ export interface IChatSendRequestOptions {
      */
     confirmation?: string;
 }
-export declare const IChatService: any;
+export declare const IChatService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IChatService>;
 export interface IChatService {
     _serviceBrand: undefined;
     transferredSessionData: IChatTransferredSessionData | undefined;

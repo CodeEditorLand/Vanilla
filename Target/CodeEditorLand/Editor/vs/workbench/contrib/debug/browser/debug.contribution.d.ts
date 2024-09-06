@@ -1,3 +1,3 @@
-import "vs/css!./media/debug.contribution";
-import "vs/css!./media/debugHover";
-import "./debugSettingMigration";
+import "./media/debug.contribution.css";
+import "./media/debugHover.css";
+import "./debugSettingMigration.js";

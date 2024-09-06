@@ -1,13 +1,13 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IReadonlyVSDataTransfer } from "vs/base/common/dataTransfer";
-import { HierarchicalKind } from "vs/base/common/hierarchicalKind";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IPosition } from "vs/editor/common/core/position";
-import { IRange } from "vs/editor/common/core/range";
-import { DocumentDropEditProvider, DocumentDropEditsSession, DocumentPasteContext, DocumentPasteEdit, DocumentPasteEditProvider, DocumentPasteEditsSession } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IReadonlyVSDataTransfer } from "../../../../base/common/dataTransfer.js";
+import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IPosition } from "../../../common/core/position.js";
+import { IRange } from "../../../common/core/range.js";
+import { DocumentDropEditProvider, DocumentDropEditsSession, DocumentPasteContext, DocumentPasteEdit, DocumentPasteEditProvider, DocumentPasteEditsSession } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
 declare abstract class SimplePasteAndDropProvider implements DocumentDropEditProvider, DocumentPasteEditProvider {
     abstract readonly kind: HierarchicalKind;
     abstract readonly dropMimeTypes: readonly string[] | undefined;
@@ -18,11 +18,11 @@ declare abstract class SimplePasteAndDropProvider implements DocumentDropEditPro
 }
 export declare class DefaultTextPasteOrDropEditProvider extends SimplePasteAndDropProvider {
     static readonly id = "text";
-    static readonly kind: any;
+    static readonly kind: HierarchicalKind;
     readonly id = "text";
-    readonly kind: any;
-    readonly dropMimeTypes: any[];
-    readonly pasteMimeTypes: any[];
+    readonly kind: HierarchicalKind;
+    readonly dropMimeTypes: "text/plain"[];
+    readonly pasteMimeTypes: "text/plain"[];
     protected getEdit(dataTransfer: IReadonlyVSDataTransfer, _token: CancellationToken): Promise<DocumentPasteEdit | undefined>;
 }
 export declare class DefaultDropProvidersFeature extends Disposable {

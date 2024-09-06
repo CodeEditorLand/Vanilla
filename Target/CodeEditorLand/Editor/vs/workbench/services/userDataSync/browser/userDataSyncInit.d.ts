@@ -1,15 +1,15 @@
-import { IFileService } from "vs/platform/files/common/files";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IRequestService } from "vs/platform/request/common/request";
-import { ISecretStorageService } from "vs/platform/secrets/common/secrets";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IUserDataSyncStoreManagementService } from "vs/platform/userDataSync/common/userDataSync";
-import { IBrowserWorkbenchEnvironmentService } from "vs/workbench/services/environment/browser/environmentService";
-import { IUserDataInitializer } from "vs/workbench/services/userData/browser/userDataInit";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IRequestService } from "../../../../platform/request/common/request.js";
+import { ISecretStorageService } from "../../../../platform/secrets/common/secrets.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IUserDataSyncStoreManagementService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
+import { IUserDataInitializer } from "../../userData/browser/userDataInit.js";
 export declare class UserDataSyncInitializer implements IUserDataInitializer {
     private readonly environmentService;
     private readonly secretStorageService;

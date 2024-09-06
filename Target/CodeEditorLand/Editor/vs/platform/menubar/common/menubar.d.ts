@@ -1,4 +1,4 @@
-import { URI } from "vs/base/common/uri";
+import { URI } from "../../../base/common/uri.js";
 export interface ICommonMenubarService {
     updateMenubar(windowId: number, menuData: IMenubarData): Promise<void>;
 }

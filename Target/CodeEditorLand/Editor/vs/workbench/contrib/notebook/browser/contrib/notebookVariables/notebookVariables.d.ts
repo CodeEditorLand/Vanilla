@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
-import { INotebookKernelService } from "vs/workbench/contrib/notebook/common/notebookKernelService";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IWorkbenchContribution } from "../../../../../common/contributions.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { INotebookKernelService } from "../../../common/notebookKernelService.js";
+import { INotebookService } from "../../../common/notebookService.js";
 export declare class NotebookVariables extends Disposable implements IWorkbenchContribution {
     private readonly configurationService;
     private readonly editorService;

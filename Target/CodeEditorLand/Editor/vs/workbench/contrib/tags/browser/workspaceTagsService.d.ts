@@ -1,6 +1,6 @@
-import { URI } from "vs/base/common/uri";
-import { IWorkspace, WorkbenchState } from "vs/platform/workspace/common/workspace";
-import { IWorkspaceTagsService, Tags } from "vs/workbench/contrib/tags/common/workspaceTags";
+import { URI } from "../../../../base/common/uri.js";
+import { IWorkspace, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceTagsService, Tags } from "../common/workspaceTags.js";
 export declare class NoOpWorkspaceTagsService implements IWorkspaceTagsService {
     readonly _serviceBrand: undefined;
     getTags(): Promise<Tags>;

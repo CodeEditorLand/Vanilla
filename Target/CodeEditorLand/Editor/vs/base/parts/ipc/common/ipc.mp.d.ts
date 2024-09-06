@@ -1,6 +1,7 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IMessagePassingProtocol, IPCClient } from "vs/base/parts/ipc/common/ipc";
+import { VSBuffer } from "../../../common/buffer.js";
+import { Event } from "../../../common/event.js";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { IMessagePassingProtocol, IPCClient } from "./ipc.js";
 /**
  * Declare minimal `MessageEvent` and `MessagePort` interfaces here
  * so that this utility can be used both from `browser` and
@@ -27,7 +28,7 @@ export interface MessagePort {
  */
 export declare class Protocol implements IMessagePassingProtocol {
     private port;
-    readonly onMessage: any;
+    readonly onMessage: Event<VSBuffer>;
     constructor(port: MessagePort);
     send(message: VSBuffer): void;
     disconnect(): void;

@@ -1,4 +1,4 @@
-import { IRange, Range } from "vs/editor/common/core/range";
+import { IRange, Range } from "../core/range.js";
 /**
  * Represents sparse tokens over a contiguous range of lines.
  */

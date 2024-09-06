@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { MainThreadAiRelatedInformationShape } from "vs/workbench/api/common/extHost.protocol";
-import { RelatedInformationType } from "vs/workbench/api/common/extHostTypes";
-import { IAiRelatedInformationService, RelatedInformationResult } from "vs/workbench/services/aiRelatedInformation/common/aiRelatedInformation";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IAiRelatedInformationService, RelatedInformationResult } from "../../services/aiRelatedInformation/common/aiRelatedInformation.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadAiRelatedInformationShape } from "../common/extHost.protocol.js";
+import { RelatedInformationType } from "../common/extHostTypes.js";
 export declare class MainThreadAiRelatedInformation extends Disposable implements MainThreadAiRelatedInformationShape {
     private readonly _aiRelatedInformationService;
     private readonly _proxy;

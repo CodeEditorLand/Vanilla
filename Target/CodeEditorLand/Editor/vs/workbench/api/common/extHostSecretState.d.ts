@@ -1,9 +1,12 @@
-import { ExtHostSecretStateShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
+import { ExtHostSecretStateShape } from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export declare class ExtHostSecretState implements ExtHostSecretStateShape {
     private _proxy;
     private _onDidChangePassword;
-    readonly onDidChangePassword: any;
+    readonly onDidChangePassword: import("../../../base/common/event.js").Event<{
+        extensionId: string;
+        key: string;
+    }>;
     constructor(mainContext: IExtHostRpcService);
     $onDidChangePassword(e: {
         extensionId: string;
@@ -15,4 +18,4 @@ export declare class ExtHostSecretState implements ExtHostSecretStateShape {
 }
 export interface IExtHostSecretState extends ExtHostSecretState {
 }
-export declare const IExtHostSecretState: any;
+export declare const IExtHostSecretState: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostSecretState>;

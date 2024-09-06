@@ -1,9 +1,9 @@
-import "vs/css!./margin";
-import { FastDomNode } from "vs/base/browser/fastDomNode";
-import { RenderingContext, RestrictedRenderingContext } from "vs/editor/browser/view/renderingContext";
-import { ViewPart } from "vs/editor/browser/view/viewPart";
-import * as viewEvents from "vs/editor/common/viewEvents";
-import { ViewContext } from "vs/editor/common/viewModel/viewContext";
+import "./margin.css";
+import { FastDomNode } from "../../../../base/browser/fastDomNode.js";
+import * as viewEvents from "../../../common/viewEvents.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
+import { ViewPart } from "../../view/viewPart.js";
 export declare class Margin extends ViewPart {
     static readonly CLASS_NAME = "glyph-margin";
     static readonly OUTER_CLASS_NAME = "margin";

@@ -1,10 +1,10 @@
-import { IKeyboardEvent } from "vs/base/browser/keyboardEvent";
-import { IMouseEvent } from "vs/base/browser/mouseEvent";
-import { CodeWindow } from "vs/base/browser/window";
-import { AbstractIdleValue, IdleDeadline, IntervalTimer } from "vs/base/common/async";
-import * as event from "vs/base/common/event";
-import { Disposable, DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
+import { AbstractIdleValue, IdleDeadline, IntervalTimer } from "../common/async.js";
+import * as event from "../common/event.js";
+import { Disposable, DisposableStore, IDisposable } from "../common/lifecycle.js";
+import { URI } from "../common/uri.js";
+import { IKeyboardEvent } from "./keyboardEvent.js";
+import { IMouseEvent } from "./mouseEvent.js";
+import { CodeWindow } from "./window.js";
 export interface IRegisteredCodeWindow {
     readonly window: CodeWindow;
     readonly disposables: DisposableStore;
@@ -12,7 +12,7 @@ export interface IRegisteredCodeWindow {
 export declare const registerWindow: (window: CodeWindow) => IDisposable, getWindow: (e: Node | UIEvent | undefined | null) => CodeWindow, getDocument: (e: Node | UIEvent | undefined | null) => Document, getWindows: () => Iterable<IRegisteredCodeWindow>, getWindowsCount: () => number, getWindowId: (targetWindow: Window) => number, getWindowById: {
     (windowId: number): IRegisteredCodeWindow | undefined;
     (windowId: number | undefined, fallbackToMain: true): IRegisteredCodeWindow;
-}, hasWindow: (windowId: number) => boolean, onDidRegisterWindow: any, onWillUnregisterWindow: any, onDidUnregisterWindow: any;
+}, hasWindow: (windowId: number) => boolean, onDidRegisterWindow: event.Event<IRegisteredCodeWindow>, onWillUnregisterWindow: event.Event<CodeWindow>, onDidUnregisterWindow: event.Event<CodeWindow>;
 export declare function clearNode(node: HTMLElement): void;
 export declare function addDisposableListener<K extends keyof GlobalEventHandlersEventMap>(node: EventTarget, type: K, handler: (event: GlobalEventHandlersEventMap[K]) => void, useCapture?: boolean): IDisposable;
 export declare function addDisposableListener(node: EventTarget, type: string, handler: (event: any) => void, useCapture?: boolean): IDisposable;
@@ -525,6 +525,7 @@ export declare function svgElem<TTag extends string, T extends Child[]>(tag: TTa
 } : never;
 export declare function copyAttributes(from: Element, to: Element, filter?: string[]): void;
 export declare function trackAttributes(from: Element, to: Element, filter?: string[]): IDisposable;
+export declare function isEditableElement(element: Element): boolean;
 /**
  * Helper for calculating the "safe triangle" occluded by hovers to avoid early dismissal.
  * @see https://www.smashingmagazine.com/2023/08/better-context-menus-safe-triangles/ for example

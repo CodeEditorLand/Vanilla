@@ -1,4 +1,4 @@
-import { IPCServer } from "vs/base/parts/ipc/common/ipc";
+import { IPCServer } from "../common/ipc.js";
 /**
  * An implementation of `IPCServer` on top of Electron `ipcMain` API.
  */

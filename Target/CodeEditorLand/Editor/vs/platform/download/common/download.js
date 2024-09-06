@@ -1,1 +1,1 @@
-import"../../../../vs/base/common/cancellation.js";import"../../../../vs/base/common/uri.js";import{createDecorator as o}from"../../../../vs/platform/instantiation/common/instantiation.js";const c=o("downloadService");export{c as IDownloadService};
+import"../../../base/common/cancellation.js";import"../../../base/common/uri.js";import{createDecorator as o}from"../../instantiation/common/instantiation.js";const c=o("downloadService");export{c as IDownloadService};

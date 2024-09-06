@@ -1,15 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IProcessEnvironment, OperatingSystem } from "vs/base/common/platform";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IShellLaunchConfig, ITerminalLogService, ITerminalProfile, TerminalIcon } from "vs/platform/terminal/common/terminal";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { ITerminalInstanceService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { IShellLaunchConfigResolveOptions, ITerminalProfileResolverService, ITerminalProfileService } from "vs/workbench/contrib/terminal/common/terminal";
-import { IConfigurationResolverService } from "vs/workbench/services/configurationResolver/common/configurationResolver";
-import { IHistoryService } from "vs/workbench/services/history/common/history";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IProcessEnvironment, OperatingSystem } from "../../../../base/common/platform.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IShellLaunchConfig, ITerminalLogService, ITerminalProfile, TerminalIcon } from "../../../../platform/terminal/common/terminal.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
+import { IHistoryService } from "../../../services/history/common/history.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { IShellLaunchConfigResolveOptions, ITerminalProfileResolverService, ITerminalProfileService } from "../common/terminal.js";
+import { ITerminalInstanceService } from "./terminal.js";
 export interface IProfileContextProvider {
     getDefaultSystemShell(remoteAuthority: string | undefined, os: OperatingSystem): Promise<string>;
     getEnvironment(remoteAuthority: string | undefined): Promise<IProcessEnvironment>;

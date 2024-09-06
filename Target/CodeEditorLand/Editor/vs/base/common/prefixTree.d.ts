@@ -1,4 +1,3 @@
-import { Iterable } from "vs/base/common/iterator";
 declare const unset: unique symbol;
 export interface IPrefixTreeNode<T> {
     /** Possible children of the node. */
@@ -43,7 +42,7 @@ export declare class WellDefinedPrefixTree<V> {
     private getPathToKey;
     private opNode;
     /** Returns an iterable of the tree values in no defined order. */
-    values(): Generator<Iterable<Node<T>>, void, unknown>;
+    values(): Generator<V, void, unknown>;
 }
 declare class Node<T> implements IPrefixTreeNode<T> {
     children?: Map<string, Node<T>>;

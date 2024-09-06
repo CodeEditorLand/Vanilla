@@ -1,5 +1,5 @@
-import { IExtensionManifest } from "vs/platform/extensions/common/extensions";
-import { ILogger } from "vs/platform/log/common/log";
+import { IExtensionManifest } from "../../extensions/common/extensions.js";
+import { ILogger } from "../../log/common/log.js";
 export interface ITranslations {
     [key: string]: string | {
         message: string;

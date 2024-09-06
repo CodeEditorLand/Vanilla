@@ -1,4 +1,4 @@
-import { IEditorOptions } from "vs/editor/common/config/editorOptions";
+import { IEditorOptions } from "../../common/config/editorOptions.js";
 export interface ISettingsReader {
     (key: string): any;
 }

@@ -1,13 +1,13 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { Metadata } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IExtension, IExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IExtension, IExtensionIdentifier } from "../../extensions/common/extensions.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { Metadata } from "./extensionManagement.js";
 export declare const enum ExtensionsProfileScanningErrorCode {
     /**
      * Error when trying to scan extensions from a profile that does not exist.
@@ -41,7 +41,7 @@ export interface DidRemoveProfileExtensionsEvent extends ProfileExtensionsEvent 
 export interface IProfileExtensionsScanOptions {
     readonly bailOutWhenFileNotFound?: boolean;
 }
-export declare const IExtensionsProfileScannerService: any;
+export declare const IExtensionsProfileScannerService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionsProfileScannerService>;
 export interface IExtensionsProfileScannerService {
     readonly _serviceBrand: undefined;
     readonly onAddExtensions: Event<ProfileExtensionsEvent>;
@@ -62,13 +62,13 @@ export declare abstract class AbstractExtensionsProfileScannerService extends Di
     private readonly logService;
     readonly _serviceBrand: undefined;
     private readonly _onAddExtensions;
-    readonly onAddExtensions: any;
+    readonly onAddExtensions: Event<ProfileExtensionsEvent>;
     private readonly _onDidAddExtensions;
-    readonly onDidAddExtensions: any;
+    readonly onDidAddExtensions: Event<DidAddProfileExtensionsEvent>;
     private readonly _onRemoveExtensions;
-    readonly onRemoveExtensions: any;
+    readonly onRemoveExtensions: Event<ProfileExtensionsEvent>;
     private readonly _onDidRemoveExtensions;
-    readonly onDidRemoveExtensions: any;
+    readonly onDidRemoveExtensions: Event<DidRemoveProfileExtensionsEvent>;
     private readonly resourcesAccessQueueMap;
     constructor(extensionsLocation: URI, fileService: IFileService, userDataProfilesService: IUserDataProfilesService, uriIdentityService: IUriIdentityService, telemetryService: ITelemetryService, logService: ILogService);
     scanProfileExtensions(profileLocation: URI, options?: IProfileExtensionsScanOptions): Promise<IScannedProfileExtension[]>;

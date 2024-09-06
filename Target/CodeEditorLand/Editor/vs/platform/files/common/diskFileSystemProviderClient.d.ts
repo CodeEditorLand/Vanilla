@@ -1,10 +1,10 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ReadableStreamEvents } from "vs/base/common/stream";
-import { URI } from "vs/base/common/uri";
-import { IChannel } from "vs/base/parts/ipc/common/ipc";
-import { FileSystemProviderCapabilities, FileType, IFileAtomicReadOptions, IFileDeleteOptions, IFileOpenOptions, IFileOverwriteOptions, IFileReadStreamOptions, IFileSystemProviderWithFileAtomicReadCapability, IFileSystemProviderWithFileCloneCapability, IFileSystemProviderWithFileFolderCopyCapability, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithOpenReadWriteCloseCapability, IFileWriteOptions, IStat, IWatchOptions } from "vs/platform/files/common/files";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { ReadableStreamEvents } from "../../../base/common/stream.js";
+import { URI } from "../../../base/common/uri.js";
+import { IChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { FileSystemProviderCapabilities, FileType, IFileAtomicReadOptions, IFileChange, IFileDeleteOptions, IFileOpenOptions, IFileOverwriteOptions, IFileReadStreamOptions, IFileSystemProviderWithFileAtomicReadCapability, IFileSystemProviderWithFileCloneCapability, IFileSystemProviderWithFileFolderCopyCapability, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithOpenReadWriteCloseCapability, IFileWriteOptions, IStat, IWatchOptions } from "./files.js";
 export declare const LOCAL_FILE_SYSTEM_CHANNEL_NAME = "localFilesystem";
 /**
  * An implementation of a local disk file system provider
@@ -36,9 +36,9 @@ export declare class DiskFileSystemProviderClient extends Disposable implements 
     copy(resource: URI, target: URI, opts: IFileOverwriteOptions): Promise<void>;
     cloneFile(resource: URI, target: URI): Promise<void>;
     private readonly _onDidChange;
-    readonly onDidChangeFile: any;
+    readonly onDidChangeFile: Event<readonly IFileChange[]>;
     private readonly _onDidWatchError;
-    readonly onDidWatchError: any;
+    readonly onDidWatchError: Event<string>;
     private readonly sessionId;
     private registerFileChangeListeners;
     watch(resource: URI, opts: IWatchOptions): IDisposable;

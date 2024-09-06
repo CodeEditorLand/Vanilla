@@ -1,14 +1,14 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IActiveNotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookCellEditorPool } from "vs/workbench/contrib/notebook/browser/view/notebookCellEditorPool";
-import { CodeCellRenderTemplate } from "vs/workbench/contrib/notebook/browser/view/notebookRenderingCommon";
-import { CodeCellViewModel } from "vs/workbench/contrib/notebook/browser/viewModel/codeCellViewModel";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { IActiveNotebookEditorDelegate } from "../../notebookBrowser.js";
+import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
+import { NotebookCellEditorPool } from "../notebookCellEditorPool.js";
+import { CodeCellRenderTemplate } from "../notebookRenderingCommon.js";
 export declare class CodeCell extends Disposable {
     private readonly notebookEditor;
     private readonly viewCell;

@@ -1,5 +1,5 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
+import { Emitter, Event } from "./event.js";
+import { Disposable, IDisposable } from "./lifecycle.js";
 export interface ITelemetryData {
     readonly from?: string;
     readonly target?: string;
@@ -51,8 +51,8 @@ export interface IActionChangeEvent {
     readonly checked?: boolean;
 }
 export declare class Action extends Disposable implements IAction {
-    protected _onDidChange: any;
-    readonly onDidChange: any;
+    protected _onDidChange: Emitter<IActionChangeEvent>;
+    readonly onDidChange: Event<IActionChangeEvent>;
     protected readonly _id: string;
     protected _label: string;
     protected _tooltip: string | undefined;
@@ -85,9 +85,9 @@ export interface IRunEvent {
 }
 export declare class ActionRunner extends Disposable implements IActionRunner {
     private readonly _onWillRun;
-    readonly onWillRun: any;
+    readonly onWillRun: Event<IRunEvent>;
     private readonly _onDidRun;
-    readonly onDidRun: any;
+    readonly onDidRun: Event<IRunEvent>;
     run(action: IAction, context?: unknown): Promise<void>;
     protected runAction(action: IAction, context?: unknown): Promise<void>;
 }

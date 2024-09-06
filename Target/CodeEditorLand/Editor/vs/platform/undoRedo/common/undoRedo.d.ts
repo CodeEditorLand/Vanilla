@@ -1,6 +1,6 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-export declare const IUndoRedoService: any;
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+export declare const IUndoRedoService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUndoRedoService>;
 export declare const enum UndoRedoElementType {
     Resource = 0,
     Workspace = 1

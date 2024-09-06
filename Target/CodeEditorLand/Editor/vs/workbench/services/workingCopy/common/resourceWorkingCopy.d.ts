@@ -1,10 +1,10 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IFileService } from "vs/platform/files/common/files";
-import { IRevertOptions, ISaveOptions } from "vs/workbench/common/editor";
-import { IWorkingCopy, IWorkingCopyBackup, IWorkingCopySaveEvent, WorkingCopyCapabilities } from "vs/workbench/services/workingCopy/common/workingCopy";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IRevertOptions, ISaveOptions } from "../../../common/editor.js";
+import { IWorkingCopy, IWorkingCopyBackup, IWorkingCopySaveEvent, WorkingCopyCapabilities } from "./workingCopy.js";
 /**
  * A resource based `IWorkingCopy` is backed by a `URI` from a
  * known file system provider.
@@ -32,13 +32,13 @@ export declare abstract class ResourceWorkingCopy extends Disposable implements 
     protected readonly fileService: IFileService;
     constructor(resource: URI, fileService: IFileService);
     private readonly _onDidChangeOrphaned;
-    readonly onDidChangeOrphaned: any;
+    readonly onDidChangeOrphaned: Event<void>;
     private orphaned;
     isOrphaned(): boolean;
     private onDidFilesChange;
     protected setOrphaned(orphaned: boolean): void;
     private readonly _onWillDispose;
-    readonly onWillDispose: any;
+    readonly onWillDispose: Event<void>;
     isDisposed(): boolean;
     dispose(): void;
     isModified(): boolean;

@@ -1,5 +1,5 @@
-import { ServiceIdentifier } from "vs/platform/instantiation/common/instantiation";
-import { SyncDescriptor } from "./descriptors";
+import { SyncDescriptor } from "./descriptors.js";
+import { ServiceIdentifier } from "./instantiation.js";
 export declare class ServiceCollection {
     private _entries;
     constructor(...entries: [ServiceIdentifier<any>, any][]);

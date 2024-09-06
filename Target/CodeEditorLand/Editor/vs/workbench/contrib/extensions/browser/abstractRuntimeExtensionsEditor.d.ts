@@ -1,24 +1,24 @@
-import { Dimension } from "vs/base/browser/dom";
-import { Action } from "vs/base/common/actions";
-import "vs/css!./media/runtimeExtensionsEditor";
-import { Action2 } from "vs/platform/actions/common/actions";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { ExtensionIdentifier, IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { ILabelService } from "vs/platform/label/common/label";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { EditorPane } from "vs/workbench/browser/parts/editor/editorPane";
-import { IExtension, IExtensionsWorkbenchService } from "vs/workbench/contrib/extensions/common/extensions";
-import { IEditorGroup } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IExtensionFeaturesManagementService } from "vs/workbench/services/extensionManagement/common/extensionFeatures";
-import { IExtensionHostProfile, IExtensionService, IExtensionsStatus } from "vs/workbench/services/extensions/common/extensions";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { Action } from "../../../../base/common/actions.js";
+import "./media/runtimeExtensionsEditor.css";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IExtensionFeaturesManagementService } from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { IExtensionHostProfile, IExtensionService, IExtensionsStatus } from "../../../services/extensions/common/extensions.js";
+import { IExtension, IExtensionsWorkbenchService } from "../common/extensions.js";
 interface IExtensionProfileInformation {
     /**
      * segment when the extension was running.

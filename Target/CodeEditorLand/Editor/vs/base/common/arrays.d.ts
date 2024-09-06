@@ -1,5 +1,5 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { ISplice } from "vs/base/common/sequence";
+import { CancellationToken } from "./cancellation.js";
+import { ISplice } from "./sequence.js";
 /**
  * Returns the last element of an array.
  * @param array The array.
@@ -116,10 +116,6 @@ export declare function isNonEmptyArray<T>(obj: readonly T[] | undefined | null)
  */
 export declare function distinct<T>(array: ReadonlyArray<T>, keyFn?: (value: T) => any): T[];
 export declare function uniqueFilter<T, R>(keyFn: (t: T) => R): (t: T) => boolean;
-export declare function firstOrDefault<T, NotFound = T>(array: ReadonlyArray<T>, notFoundValue: NotFound): T | NotFound;
-export declare function firstOrDefault<T>(array: ReadonlyArray<T>): T | undefined;
-export declare function lastOrDefault<T, NotFound = T>(array: ReadonlyArray<T>, notFoundValue: NotFound): T | NotFound;
-export declare function lastOrDefault<T>(array: ReadonlyArray<T>): T | undefined;
 export declare function commonPrefixLength<T>(one: ReadonlyArray<T>, other: ReadonlyArray<T>, equals?: (a: T, b: T) => boolean): number;
 export declare function range(to: number): number[];
 export declare function range(from: number, to: number): number[];

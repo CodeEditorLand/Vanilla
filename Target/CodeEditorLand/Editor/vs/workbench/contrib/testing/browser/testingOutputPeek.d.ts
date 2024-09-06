@@ -1,33 +1,34 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction2 } from "vs/editor/browser/editorExtensions";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { Action2 } from "vs/platform/actions/common/actions";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { ITextEditorOptions } from "vs/platform/editor/common/editor";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IViewPaneOptions, ViewPane } from "vs/workbench/browser/parts/views/viewPane";
-import { IViewDescriptorService } from "vs/workbench/common/views";
-import { InspectSubject } from "vs/workbench/contrib/testing/browser/testResultsView/testResultsSubject";
-import { IShowResultOptions, ITestingPeekOpener } from "vs/workbench/contrib/testing/common/testingPeekOpener";
-import { ITestResult } from "vs/workbench/contrib/testing/common/testResult";
-import { ITestResultService } from "vs/workbench/contrib/testing/common/testResultService";
-import { ITestService } from "vs/workbench/contrib/testing/common/testService";
-import { TestResultItem } from "vs/workbench/contrib/testing/common/testTypes";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IViewsService } from "vs/workbench/services/views/common/viewsService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { EditorAction2 } from "../../../../editor/browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IViewPaneOptions, ViewPane } from "../../../browser/parts/views/viewPane.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { MutableObservableValue } from "../common/observableValue.js";
+import { IShowResultOptions, ITestingPeekOpener } from "../common/testingPeekOpener.js";
+import { ITestResult } from "../common/testResult.js";
+import { ITestResultService } from "../common/testResultService.js";
+import { ITestService } from "../common/testService.js";
+import { TestResultItem } from "../common/testTypes.js";
+import { InspectSubject } from "./testResultsView/testResultsSubject.js";
 export declare class TestingPeekOpener extends Disposable implements ITestingPeekOpener {
     private readonly configuration;
     private readonly editorService;
@@ -41,7 +42,7 @@ export declare class TestingPeekOpener extends Disposable implements ITestingPee
     _serviceBrand: undefined;
     private lastUri?;
     /** @inheritdoc */
-    readonly historyVisible: any;
+    readonly historyVisible: MutableObservableValue<boolean>;
     constructor(configuration: IConfigurationService, editorService: IEditorService, codeEditorService: ICodeEditorService, testResults: ITestResultService, testService: ITestService, storageService: IStorageService, viewsService: IViewsService, commandService: ICommandService, notificationService: INotificationService);
     /** @inheritdoc */
     open(): Promise<boolean>;
@@ -95,7 +96,7 @@ export declare class TestingOutputPeekController extends Disposable implements I
     /**
      * Gets the currently display subject. Undefined if the peek is not open.
      */
-    get subject(): any;
+    get subject(): InspectSubject | undefined;
     constructor(editor: ICodeEditor, codeEditorService: ICodeEditorService, instantiationService: IInstantiationService, testResults: ITestResultService, contextKeyService: IContextKeyService);
     /**
      * Shows a peek for the message in the editor.
@@ -110,6 +111,10 @@ export declare class TestingOutputPeekController extends Disposable implements I
      * Disposes the peek view, if any.
      */
     removePeek(): void;
+    /**
+     * Collapses all displayed stack frames.
+     */
+    collapseStack(): void;
     /**
      * Shows the next message in the peek, if possible.
      */
@@ -134,7 +139,7 @@ export declare class TestResultsView extends ViewPane {
     private readonly resultService;
     private readonly content;
     constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, telemetryService: ITelemetryService, hoverService: IHoverService, resultService: ITestResultService);
-    get subject(): any;
+    get subject(): InspectSubject | undefined;
     showLatestRun(preserveFocus?: boolean): void;
     protected renderBody(container: HTMLElement): void;
     protected layoutBody(height: number, width: number): void;
@@ -151,6 +156,11 @@ export declare class GoToNextMessageAction extends Action2 {
 }
 export declare class GoToPreviousMessageAction extends Action2 {
     static readonly ID = "testing.goToPreviousMessage";
+    constructor();
+    run(accessor: ServicesAccessor): void;
+}
+export declare class CollapsePeekStack extends Action2 {
+    static readonly ID = "testing.collapsePeekStack";
     constructor();
     run(accessor: ServicesAccessor): void;
 }

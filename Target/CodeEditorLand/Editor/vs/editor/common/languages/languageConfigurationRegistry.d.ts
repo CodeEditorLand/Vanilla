@@ -1,15 +1,15 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { EditorAutoIndentStrategy } from "vs/editor/common/config/editorOptions";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { AutoClosingPairs, EnterAction, FoldingRules, IAutoClosingPair, IndentationRule, LanguageConfiguration } from "vs/editor/common/languages/languageConfiguration";
-import { CharacterPairSupport } from "vs/editor/common/languages/supports/characterPair";
-import { BracketElectricCharacterSupport } from "vs/editor/common/languages/supports/electricCharacter";
-import { IndentRulesSupport } from "vs/editor/common/languages/supports/indentRules";
-import { LanguageBracketsConfiguration } from "vs/editor/common/languages/supports/languageBracketsConfiguration";
-import { RichEditBrackets } from "vs/editor/common/languages/supports/richEditBrackets";
-import { ITextModel } from "vs/editor/common/model";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { EditorAutoIndentStrategy } from "../config/editorOptions.js";
+import { ITextModel } from "../model.js";
+import { ILanguageService } from "./language.js";
+import { AutoClosingPairs, EnterAction, FoldingRules, IAutoClosingPair, IndentationRule, LanguageConfiguration } from "./languageConfiguration.js";
+import { CharacterPairSupport } from "./supports/characterPair.js";
+import { BracketElectricCharacterSupport } from "./supports/electricCharacter.js";
+import { IndentRulesSupport } from "./supports/indentRules.js";
+import { LanguageBracketsConfiguration } from "./supports/languageBracketsConfiguration.js";
+import { RichEditBrackets } from "./supports/richEditBrackets.js";
 /**
  * Interface used to support insertion of mode specific comments.
  */
@@ -32,14 +32,14 @@ export declare class LanguageConfigurationServiceChangeEvent {
     constructor(languageId: string | undefined);
     affects(languageId: string): boolean;
 }
-export declare const ILanguageConfigurationService: any;
+export declare const ILanguageConfigurationService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ILanguageConfigurationService>;
 export declare class LanguageConfigurationService extends Disposable implements ILanguageConfigurationService {
     private readonly configurationService;
     private readonly languageService;
     _serviceBrand: undefined;
     private readonly _registry;
     private readonly onDidChangeEmitter;
-    readonly onDidChange: any;
+    readonly onDidChange: Event<LanguageConfigurationServiceChangeEvent>;
     private readonly configurations;
     constructor(configurationService: IConfigurationService, languageService: ILanguageService);
     register(languageId: string, configuration: LanguageConfiguration, priority?: number): IDisposable;

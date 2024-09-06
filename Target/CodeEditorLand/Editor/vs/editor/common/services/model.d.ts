@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { DocumentRangeSemanticTokensProvider, DocumentSemanticTokensProvider } from "vs/editor/common/languages";
-import { ILanguageSelection } from "vs/editor/common/languages/language";
-import { ITextBufferFactory, ITextModel, ITextModelCreationOptions } from "vs/editor/common/model";
-export declare const IModelService: any;
+import { Event } from "../../../base/common/event.js";
+import { URI } from "../../../base/common/uri.js";
+import { DocumentRangeSemanticTokensProvider, DocumentSemanticTokensProvider } from "../languages.js";
+import { ILanguageSelection } from "../languages/language.js";
+import { ITextBufferFactory, ITextModel, ITextModelCreationOptions } from "../model.js";
+export declare const IModelService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IModelService>;
 export type DocumentTokensProvider = DocumentSemanticTokensProvider | DocumentRangeSemanticTokensProvider;
 export interface IModelService {
     readonly _serviceBrand: undefined;

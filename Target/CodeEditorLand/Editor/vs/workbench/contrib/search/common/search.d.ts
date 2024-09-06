@@ -1,10 +1,11 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IRange } from "vs/editor/common/core/range";
-import { Location, ProviderResult, SymbolKind, SymbolTag } from "vs/editor/common/languages";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { ISearchConfiguration, ISearchConfigurationProperties } from "vs/workbench/services/search/common/search";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { Location, ProviderResult, SymbolKind, SymbolTag } from "../../../../editor/common/languages.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { ISearchConfiguration, ISearchConfigurationProperties } from "../../../services/search/common/search.js";
 export interface IWorkspaceSymbol {
     name: string;
     containerName?: string;
@@ -52,7 +53,7 @@ export declare enum SearchUIState {
     Searching = 1,
     SlowSearch = 2
 }
-export declare const SearchStateKey: any;
+export declare const SearchStateKey: RawContextKey<SearchUIState>;
 export interface NotebookPriorityInfo {
     isFromSettings: boolean;
     filenamePatterns: string[];

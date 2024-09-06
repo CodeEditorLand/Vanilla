@@ -1,4 +1,4 @@
-import { IModelChangedEvent } from "vs/editor/common/model/mirrorTextModel";
+import { IModelChangedEvent } from "../../model/mirrorTextModel.js";
 export interface IWorkerTextModelSyncChannelServer {
     $acceptNewModel(data: IRawModelData): void;
     $acceptModelChanged(strURL: string, e: IModelChangedEvent): void;

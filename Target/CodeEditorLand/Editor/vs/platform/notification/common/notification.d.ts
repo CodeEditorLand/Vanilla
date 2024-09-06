@@ -1,9 +1,9 @@
-import { IAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import BaseSeverity from "vs/base/common/severity";
+import { IAction } from "../../../base/common/actions.js";
+import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import BaseSeverity from "../../../base/common/severity.js";
 export import Severity = BaseSeverity;
-export declare const INotificationService: any;
+export declare const INotificationService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<INotificationService>;
 export type NotificationMessage = string | Error;
 export declare enum NotificationPriority {
     /**
@@ -354,8 +354,8 @@ export interface INotificationService {
 }
 export declare class NoOpNotification implements INotificationHandle {
     readonly progress: NoOpProgress;
-    readonly onDidClose: any;
-    readonly onDidChangeVisibility: any;
+    readonly onDidClose: Event<any>;
+    readonly onDidChangeVisibility: Event<any>;
     updateSeverity(severity: Severity): void;
     updateMessage(message: NotificationMessage): void;
     updateActions(actions?: INotificationActions): void;

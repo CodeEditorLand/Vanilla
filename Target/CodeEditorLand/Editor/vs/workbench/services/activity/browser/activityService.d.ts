@@ -1,14 +1,15 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IViewDescriptorService } from "vs/workbench/common/views";
-import { IActivity, IActivityService } from "vs/workbench/services/activity/common/activity";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IViewDescriptorService, ViewContainer } from "../../../common/views.js";
+import { IActivity, IActivityService } from "../common/activity.js";
 export declare class ActivityService extends Disposable implements IActivityService {
     private readonly viewDescriptorService;
     private readonly instantiationService;
     _serviceBrand: undefined;
     private readonly viewActivities;
     private readonly _onDidChangeActivity;
-    readonly onDidChangeActivity: any;
+    readonly onDidChangeActivity: Event<string | ViewContainer>;
     private readonly viewContainerActivities;
     private readonly globalActivities;
     constructor(viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService);

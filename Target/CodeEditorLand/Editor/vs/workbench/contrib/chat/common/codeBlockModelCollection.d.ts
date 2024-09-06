@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IResolvedTextEditorModel, ITextModelService } from "vs/editor/common/services/resolverService";
-import { IChatRequestViewModel, IChatResponseViewModel } from "vs/workbench/contrib/chat/common/chatViewModel";
-import { IMarkdownVulnerability } from "./annotations";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IResolvedTextEditorModel, ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IMarkdownVulnerability } from "./annotations.js";
+import { IChatRequestViewModel, IChatResponseViewModel } from "./chatViewModel.js";
 export declare class CodeBlockModelCollection extends Disposable {
     private readonly languageService;
     private readonly textModelService;

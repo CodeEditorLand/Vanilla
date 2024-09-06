@@ -1,14 +1,15 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { AccessibleViewType, IAccessibleViewContentProvider, IAccessibleViewService } from "vs/platform/accessibility/browser/accessibleView";
-import { IAccessibleViewImplentation } from "vs/platform/accessibility/browser/accessibleViewRegistry";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { Repl } from "vs/workbench/contrib/debug/browser/repl";
-import { IReplElement } from "vs/workbench/contrib/debug/common/debug";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider, IAccessibleViewService } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { IReplElement } from "../common/debug.js";
+import { Repl } from "./repl.js";
 export declare class ReplAccessibleView implements IAccessibleViewImplentation {
     priority: number;
     name: string;
-    when: any;
+    when: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
     type: AccessibleViewType;
     getProvider(accessor: ServicesAccessor): ReplOutputAccessibleViewProvider | undefined;
 }
@@ -16,15 +17,15 @@ declare class ReplOutputAccessibleViewProvider extends Disposable implements IAc
     private readonly _replView;
     private readonly _focusedElement;
     private readonly _accessibleViewService;
-    readonly id: any;
+    readonly id = AccessibleViewProviderId.Repl;
     private _content;
     private readonly _onDidChangeContent;
     readonly onDidChangeContent: Event<void>;
     private readonly _onDidResolveChildren;
     readonly onDidResolveChildren: Event<void>;
-    readonly verbositySettingKey: any;
+    readonly verbositySettingKey = AccessibilityVerbositySettingId.Debug;
     readonly options: {
-        type: any;
+        type: AccessibleViewType;
     };
     private _elementPositionMap;
     private _treeHadFocus;

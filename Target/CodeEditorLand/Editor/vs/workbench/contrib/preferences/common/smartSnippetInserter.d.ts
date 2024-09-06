@@ -1,5 +1,5 @@
-import { Position } from "vs/editor/common/core/position";
-import { ITextModel } from "vs/editor/common/model";
+import { Position } from "../../../../editor/common/core/position.js";
+import { ITextModel } from "../../../../editor/common/model.js";
 export interface InsertSnippetResult {
     position: Position;
     prepend: string;

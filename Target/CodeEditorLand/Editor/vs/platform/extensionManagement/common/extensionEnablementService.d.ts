@@ -1,7 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IExtensionIdentifier, IExtensionManagementService, IGlobalExtensionEnablementService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IStorageService, StorageScope } from "vs/platform/storage/common/storage";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IStorageService, StorageScope } from "../../storage/common/storage.js";
+import { IExtensionIdentifier, IExtensionManagementService, IGlobalExtensionEnablementService } from "./extensionManagement.js";
 export declare class GlobalExtensionEnablementService extends Disposable implements IGlobalExtensionEnablementService {
     readonly _serviceBrand: undefined;
     private _onDidChangeEnablement;
@@ -9,7 +9,7 @@ export declare class GlobalExtensionEnablementService extends Disposable impleme
         readonly extensions: IExtensionIdentifier[];
         readonly source?: string;
     }>;
-    private readonly storageManger;
+    private readonly storageManager;
     constructor(storageService: IStorageService, extensionManagementService: IExtensionManagementService);
     enableExtension(extension: IExtensionIdentifier, source?: string): Promise<boolean>;
     disableExtension(extension: IExtensionIdentifier, source?: string): Promise<boolean>;

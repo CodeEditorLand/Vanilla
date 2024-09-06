@@ -1,24 +1,24 @@
-import "vs/css!./media/userDataProfilesEditor";
-import { Dimension, IDomPosition } from "vs/base/browser/dom";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IFileDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IEditorOptions } from "vs/platform/editor/common/editor";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IUserDataProfile } from "vs/platform/userDataProfile/common/userDataProfile";
-import { EditorPane } from "vs/workbench/browser/parts/editor/editorPane";
-import { IEditorOpenContext, IEditorSerializer, IUntypedEditorInput } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { UserDataProfilesEditorModel } from "vs/workbench/contrib/userDataProfile/browser/userDataProfilesEditorModel";
-import { IUserDataProfilesEditor } from "vs/workbench/contrib/userDataProfile/common/userDataProfile";
-import { IEditorGroup } from "vs/workbench/services/editor/common/editorGroupsService";
-export declare const profilesSashBorder: any;
+import "./media/userDataProfilesEditor.css";
+import { Dimension, IDomPosition } from "../../../../base/browser/dom.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { IEditorOpenContext, IEditorSerializer, IUntypedEditorInput } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
+import { IUserDataProfilesEditor } from "../common/userDataProfile.js";
+import { UserDataProfilesEditorModel } from "./userDataProfilesEditorModel.js";
+export declare const profilesSashBorder: string;
 export declare class UserDataProfilesEditor extends EditorPane implements IUserDataProfilesEditor {
     private readonly quickInputService;
     private readonly fileDialogService;
@@ -30,6 +30,7 @@ export declare class UserDataProfilesEditor extends EditorPane implements IUserD
     private profilesList;
     private profileWidget;
     private model;
+    private templates;
     constructor(group: IEditorGroup, telemetryService: ITelemetryService, themeService: IThemeService, storageService: IStorageService, quickInputService: IQuickInputService, fileDialogService: IFileDialogService, contextMenuService: IContextMenuService, instantiationService: IInstantiationService);
     layout(dimension: Dimension, position?: IDomPosition | undefined): void;
     protected createEditor(parent: HTMLElement): void;
@@ -64,6 +65,7 @@ export declare class UserDataProfilesEditorInput extends EditorInput {
     save(): Promise<EditorInput>;
     revert(): Promise<void>;
     matches(otherInput: EditorInput | IUntypedEditorInput): boolean;
+    dispose(): void;
 }
 export declare class UserDataProfilesEditorInputSerializer implements IEditorSerializer {
     canSerialize(editorInput: EditorInput): boolean;

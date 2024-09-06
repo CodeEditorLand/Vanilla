@@ -1,11 +1,11 @@
-import { CallbackIterable } from "vs/base/common/arrays";
-import { Disposable } from "vs/base/common/lifecycle";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { ResolvedLanguageConfiguration } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { TextModel } from "vs/editor/common/model/textModel";
-import { BracketInfo, BracketPairWithMinIndentationInfo, IFoundBracket } from "vs/editor/common/textModelBracketPairs";
-import { IModelContentChangedEvent, IModelTokensChangedEvent } from "vs/editor/common/textModelEvents";
+import { CallbackIterable } from "../../../../../base/common/arrays.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { Position } from "../../../core/position.js";
+import { Range } from "../../../core/range.js";
+import { ResolvedLanguageConfiguration } from "../../../languages/languageConfigurationRegistry.js";
+import { BracketInfo, BracketPairWithMinIndentationInfo, IFoundBracket } from "../../../textModelBracketPairs.js";
+import { IModelContentChangedEvent, IModelTokensChangedEvent } from "../../../textModelEvents.js";
+import { TextModel } from "../../textModel.js";
 export declare class BracketPairsTree extends Disposable {
     private readonly textModel;
     private readonly getLanguageConfiguration;
@@ -15,7 +15,7 @@ export declare class BracketPairsTree extends Disposable {
     private readonly denseKeyProvider;
     private readonly brackets;
     didLanguageChange(languageId: string): boolean;
-    readonly onDidChange: any;
+    readonly onDidChange: import("../../../../../base/common/event.js").Event<void>;
     private queuedTextEditsForInitialAstWithoutTokens;
     private queuedTextEdits;
     constructor(textModel: TextModel, getLanguageConfiguration: (languageId: string) => ResolvedLanguageConfiguration);

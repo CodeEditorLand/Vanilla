@@ -1,6 +1,6 @@
-import { IExtUri } from "vs/base/common/resources";
-import { URI } from "vs/base/common/uri";
-export declare const IUriIdentityService: any;
+import { IExtUri } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+export declare const IUriIdentityService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUriIdentityService>;
 export interface IUriIdentityService {
     readonly _serviceBrand: undefined;
     /**

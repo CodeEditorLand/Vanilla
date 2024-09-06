@@ -1,4 +1,4 @@
-import { ICommandAndKeybindingRule } from "vs/platform/keybinding/common/keybindingsRegistry";
+import { ICommandAndKeybindingRule } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 export declare const WalkThroughArrowUp: ICommandAndKeybindingRule;
 export declare const WalkThroughArrowDown: ICommandAndKeybindingRule;
 export declare const WalkThroughPageUp: ICommandAndKeybindingRule;

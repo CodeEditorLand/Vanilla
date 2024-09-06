@@ -1,10 +1,10 @@
-import { ILogService } from "vs/platform/log/common/log";
-import { ISignService } from "vs/platform/sign/common/sign";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { ExtHostTunnelService } from "vs/workbench/api/common/extHostTunnelService";
-import { CandidatePort } from "vs/workbench/services/remote/common/tunnelModel";
 import * as vscode from "vscode";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { ISignService } from "../../../platform/sign/common/sign.js";
+import { CandidatePort } from "../../services/remote/common/tunnelModel.js";
+import { IExtHostInitDataService } from "../common/extHostInitDataService.js";
+import { IExtHostRpcService } from "../common/extHostRpcService.js";
+import { ExtHostTunnelService } from "../common/extHostTunnelService.js";
 export declare function getSockets(stdout: string): Record<string, {
     pid: number;
     socket: number;

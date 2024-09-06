@@ -1,5 +1,5 @@
-import { EditorAction2 } from "vs/editor/browser/editorExtensions";
-import { Action2, IAction2Options } from "vs/platform/actions/common/actions";
+import { EditorAction2 } from "../../../../../editor/browser/editorExtensions.js";
+import { Action2, IAction2Options } from "../../../../../platform/actions/common/actions.js";
 export declare abstract class SnippetsAction extends Action2 {
     constructor(desc: Readonly<IAction2Options>);
 }

@@ -1,11 +1,11 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Position } from "vs/editor/common/core/position";
-import { IRange } from "vs/editor/common/core/range";
-import { ITextModel } from "vs/editor/common/model";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IConfigPresentation, IDebuggerContribution, IDebugSession } from "vs/workbench/contrib/debug/common/debug";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IConfigPresentation, IDebuggerContribution, IDebugSession } from "./debug.js";
 export declare function formatPII(value: string, excludePII: boolean, args: {
     [key: string]: string;
 } | undefined): string;
@@ -22,7 +22,7 @@ export declare function isSessionAttach(session: IDebugSession): boolean;
  * Returns undefined if there's none.
  */
 export declare function getExtensionHostDebugSession(session: IDebugSession): IDebugSession | void;
-export declare function isDebuggerMainContribution(dbg: IDebuggerContribution): any;
+export declare function isDebuggerMainContribution(dbg: IDebuggerContribution): string | undefined;
 export declare function getExactExpressionStartAndEnd(lineContent: string, looseStart: number, looseEnd: number): {
     start: number;
     end: number;

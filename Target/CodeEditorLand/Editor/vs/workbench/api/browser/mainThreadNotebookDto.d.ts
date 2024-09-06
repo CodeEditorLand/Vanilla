@@ -1,6 +1,6 @@
-import * as extHostProtocol from "vs/workbench/api/common/extHost.protocol";
-import * as notebookCommon from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { ICellExecuteUpdate, ICellExecutionComplete } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
+import * as notebookCommon from "../../contrib/notebook/common/notebookCommon.js";
+import { ICellExecuteUpdate, ICellExecutionComplete } from "../../contrib/notebook/common/notebookExecutionStateService.js";
+import * as extHostProtocol from "../common/extHost.protocol.js";
 export declare namespace NotebookDto {
     function toNotebookOutputItemDto(item: notebookCommon.IOutputItemDto): extHostProtocol.NotebookOutputItemDto;
     function toNotebookOutputDto(output: notebookCommon.IOutputDto): extHostProtocol.NotebookOutputDto;

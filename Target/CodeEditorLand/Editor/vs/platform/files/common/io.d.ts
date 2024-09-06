@@ -1,8 +1,8 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDataTransformer, IErrorTransformer, WriteableStream } from "vs/base/common/stream";
-import { URI } from "vs/base/common/uri";
-import { IFileReadStreamOptions, IFileSystemProviderWithOpenReadWriteCloseCapability } from "vs/platform/files/common/files";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IDataTransformer, IErrorTransformer, WriteableStream } from "../../../base/common/stream.js";
+import { URI } from "../../../base/common/uri.js";
+import { IFileReadStreamOptions, IFileSystemProviderWithOpenReadWriteCloseCapability } from "./files.js";
 export interface ICreateReadStreamOptions extends IFileReadStreamOptions {
     /**
      * The size of the buffer to use before sending to the stream.

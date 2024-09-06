@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IStateService } from "vs/platform/state/node/state";
-import { IPartsSplash } from "vs/platform/theme/common/themeService";
-import { IColorScheme } from "vs/platform/window/common/window";
-export declare const IThemeMainService: any;
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IStateService } from "../../state/node/state.js";
+import { IColorScheme } from "../../window/common/window.js";
+import { IPartsSplash } from "../common/themeService.js";
+export declare const IThemeMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IThemeMainService>;
 export interface IThemeMainService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeColorScheme: Event<IColorScheme>;
@@ -18,7 +18,7 @@ export declare class ThemeMainService extends Disposable implements IThemeMainSe
     private configurationService;
     readonly _serviceBrand: undefined;
     private readonly _onDidChangeColorScheme;
-    readonly onDidChangeColorScheme: any;
+    readonly onDidChangeColorScheme: Event<IColorScheme>;
     constructor(stateService: IStateService, configurationService: IConfigurationService);
     private updateSystemColorTheme;
     getColorScheme(): IColorScheme;

@@ -1,10 +1,11 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability, IFileWriteOptions, IStat } from "vs/platform/files/common/files";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability, IFileWriteOptions, IStat } from "../../../../platform/files/common/files.js";
 export declare class FetchFileSystemProvider implements IFileSystemProviderWithFileReadWriteCapability {
-    readonly capabilities: any;
-    readonly onDidChangeCapabilities: any;
-    readonly onDidChangeFile: any;
+    readonly capabilities: number;
+    readonly onDidChangeCapabilities: Event<any>;
+    readonly onDidChangeFile: Event<any>;
     readFile(resource: URI): Promise<Uint8Array>;
     stat(_resource: URI): Promise<IStat>;
     watch(): IDisposable;

@@ -1,9 +1,9 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IPCClient } from "vs/base/parts/ipc/common/ipc";
-import { IMainProcessService } from "vs/platform/ipc/common/mainProcessService";
-import { ILogService } from "vs/platform/log/common/log";
-import { IOnDidTerminateUtilityrocessWorkerProcess, IUtilityProcessWorkerProcess } from "vs/platform/utilityProcess/common/utilityProcessWorkerService";
-export declare const IUtilityProcessWorkerWorkbenchService: any;
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IPCClient } from "../../../../base/parts/ipc/common/ipc.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IOnDidTerminateUtilityrocessWorkerProcess, IUtilityProcessWorkerProcess } from "../../../../platform/utilityProcess/common/utilityProcessWorkerService.js";
+export declare const IUtilityProcessWorkerWorkbenchService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IUtilityProcessWorkerWorkbenchService>;
 export interface IUtilityProcessWorker extends IDisposable {
     /**
      * A IPC client to communicate to the worker process.

@@ -1,14 +1,14 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IPosition } from "vs/editor/common/core/position";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { FindMatch } from "vs/editor/common/model";
-import { IModelService } from "vs/editor/common/services/model";
-import { IUndoRedoService, UndoRedoGroup } from "vs/platform/undoRedo/common/undoRedo";
-import { NotebookCellTextModel } from "vs/workbench/contrib/notebook/common/model/notebookCellTextModel";
-import { ICellDto2, ICellEditOperation, INotebookTextModel, ISelectionState, NotebookCellDefaultCollapseConfig, NotebookDocumentMetadata, TransientOptions } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { ILanguageDetectionService } from "vs/workbench/services/languageDetection/common/languageDetectionWorkerService";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IPosition } from "../../../../../editor/common/core/position.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { FindMatch } from "../../../../../editor/common/model.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { IUndoRedoService, UndoRedoGroup } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { ILanguageDetectionService } from "../../../../services/languageDetection/common/languageDetectionWorkerService.js";
+import { ICellDto2, ICellEditOperation, INotebookTextModel, ISelectionState, NotebookCellDefaultCollapseConfig, NotebookDocumentMetadata, NotebookTextModelChangedEvent, NotebookTextModelWillAddRemoveEvent, TransientOptions } from "../notebookCommon.js";
+import { NotebookCellTextModel } from "./notebookCellTextModel.js";
 export declare class NotebookTextModel extends Disposable implements INotebookTextModel {
     readonly viewType: string;
     readonly uri: URI;
@@ -21,8 +21,8 @@ export declare class NotebookTextModel extends Disposable implements INotebookTe
     private readonly _onWillAddRemoveCells;
     private readonly _onDidChangeContent;
     readonly onWillDispose: Event<void>;
-    readonly onWillAddRemoveCells: any;
-    readonly onDidChangeContent: any;
+    readonly onWillAddRemoveCells: Event<NotebookTextModelWillAddRemoveEvent>;
+    readonly onDidChangeContent: Event<NotebookTextModelChangedEvent>;
     private _cellhandlePool;
     private readonly _cellListeners;
     private _cells;

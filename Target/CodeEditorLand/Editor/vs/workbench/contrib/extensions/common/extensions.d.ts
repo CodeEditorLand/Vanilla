@@ -1,15 +1,17 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IPager } from "vs/base/common/paging";
-import { URI } from "vs/base/common/uri";
-import { IDeprecationInfo, IExtensionIdentifier, IExtensionInfo, IExtensionQueryOptions, IGalleryExtension, ILocalExtension, InstallExtensionResult, InstallOptions, IQueryOptions } from "vs/platform/extensionManagement/common/extensionManagement";
-import { ExtensionType, IExtensionManifest } from "vs/platform/extensions/common/extensions";
-import { ProgressLocation } from "vs/platform/progress/common/progress";
-import { IView, IViewPaneContainer } from "vs/workbench/common/views";
-import { IExtensionEditorOptions } from "vs/workbench/contrib/extensions/common/extensionsInput";
-import { EnablementState, IExtensionManagementServer, IResourceExtension } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-import { IExtensionsStatus } from "vs/workbench/services/extensions/common/extensions";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IPager } from "../../../../base/common/paging.js";
+import { URI } from "../../../../base/common/uri.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDeprecationInfo, IExtensionIdentifier, IExtensionInfo, IExtensionQueryOptions, IGalleryExtension, ILocalExtension, InstallExtensionResult, InstallOptions, IQueryOptions } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionType, IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
+import { ProgressLocation } from "../../../../platform/progress/common/progress.js";
+import { IView, IViewPaneContainer } from "../../../common/views.js";
+import { EnablementState, IExtensionManagementServer, IResourceExtension } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IExtensionsStatus } from "../../../services/extensions/common/extensions.js";
+import { IExtensionEditorOptions } from "./extensionsInput.js";
 export declare const VIEWLET_ID = "workbench.view.extensions";
 export interface IExtensionsViewPaneContainer extends IViewPaneContainer {
     readonly searchValue: string | undefined;
@@ -91,7 +93,7 @@ export interface IExtension {
     readonly isMalicious: boolean;
     readonly deprecationInfo?: IDeprecationInfo;
 }
-export declare const IExtensionsWorkbenchService: any;
+export declare const IExtensionsWorkbenchService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionsWorkbenchService>;
 export interface InstallExtensionOptions extends InstallOptions {
     version?: string;
     justification?: string | {
@@ -176,12 +178,12 @@ export declare const TOGGLE_IGNORE_EXTENSION_ACTION_ID = "workbench.extensions.a
 export declare const SELECT_INSTALL_VSIX_EXTENSION_COMMAND_ID = "workbench.extensions.action.installVSIX";
 export declare const INSTALL_EXTENSION_FROM_VSIX_COMMAND_ID = "workbench.extensions.command.installFromVSIX";
 export declare const LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID = "workbench.extensions.action.listWorkspaceUnsupportedExtensions";
-export declare const HasOutdatedExtensionsContext: any;
-export declare const CONTEXT_HAS_GALLERY: any;
+export declare const HasOutdatedExtensionsContext: RawContextKey<boolean>;
+export declare const CONTEXT_HAS_GALLERY: RawContextKey<boolean>;
 export declare const THEME_ACTIONS_GROUP = "_theme_";
 export declare const INSTALL_ACTIONS_GROUP = "0_install";
 export declare const UPDATE_ACTIONS_GROUP = "0_update";
-export declare const extensionsSearchActionsMenu: any;
+export declare const extensionsSearchActionsMenu: MenuId;
 export interface IExtensionArg {
     id: string;
     version: string;

@@ -1,4 +1,5 @@
-export declare const InSearchEditor: any;
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+export declare const InSearchEditor: RawContextKey<boolean>;
 export declare const SearchEditorScheme = "search-editor";
 export declare const SearchEditorWorkingCopyTypeId = "search/editor";
 export declare const SearchEditorFindMatchClass = "searchEditorFindMatch";

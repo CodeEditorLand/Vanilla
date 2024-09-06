@@ -1,6 +1,6 @@
-import { MainThreadInteractiveShape } from "vs/workbench/api/common/extHost.protocol";
-import { IInteractiveDocumentService } from "vs/workbench/contrib/interactive/browser/interactiveDocumentService";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { IInteractiveDocumentService } from "../../contrib/interactive/browser/interactiveDocumentService.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadInteractiveShape } from "../common/extHost.protocol.js";
 export declare class MainThreadInteractive implements MainThreadInteractiveShape {
     private readonly _proxy;
     private readonly _disposables;

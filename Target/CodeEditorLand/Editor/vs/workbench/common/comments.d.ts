@@ -1,5 +1,5 @@
-import { MarshalledId } from "vs/base/common/marshallingIds";
-import { CommentThread } from "vs/editor/common/languages";
+import { MarshalledId } from "../../base/common/marshallingIds.js";
+import { CommentThread } from "../../editor/common/languages.js";
 export interface MarshalledCommentThread {
     $mid: MarshalledId.CommentThread;
     commentControlHandle: number;

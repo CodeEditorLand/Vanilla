@@ -1,10 +1,10 @@
-import { IBoundarySashes, Orientation } from "vs/base/browser/ui/sash/sash";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./gridview";
-import { Box, GridLocation, GridView, Sizing as GridViewSizing, IGridViewOptions, IGridViewStyles, IView as IGridViewView, IViewSize } from "./gridview";
+import { Event } from "../../../common/event.js";
+import { Disposable } from "../../../common/lifecycle.js";
+import { IBoundarySashes, Orientation } from "../sash/sash.js";
+import "./gridview.css";
+import { Box, GridLocation, GridView, Sizing as GridViewSizing, IGridViewOptions, IGridViewStyles, IView as IGridViewView, IViewSize } from "./gridview.js";
 export type { IViewSize };
-export { LayoutPriority, Orientation, orthogonal } from "./gridview";
+export { LayoutPriority, Orientation, orthogonal } from "./gridview.js";
 export declare const enum Direction {
     Up = 0,
     Down = 1,

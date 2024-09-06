@@ -1,7 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { IModelDecorationOptions, IModelDecorationsChangeAccessor, ITextModel } from "vs/editor/common/model";
-import { SelectedLines } from "vs/editor/contrib/folding/browser/folding";
-import { FoldingRegion, FoldingRegions, FoldSource, ILineRange } from "./foldingRanges";
+import { Event } from "../../../../base/common/event.js";
+import { IModelDecorationOptions, IModelDecorationsChangeAccessor, ITextModel } from "../../../common/model.js";
+import { SelectedLines } from "./folding.js";
+import { FoldingRegion, FoldingRegions, FoldSource, ILineRange } from "./foldingRanges.js";
 export interface IDecorationProvider {
     getDecorationOption(isCollapsed: boolean, isHidden: boolean, isManual: boolean): IModelDecorationOptions;
     changeDecorations<T>(callback: (changeAccessor: IModelDecorationsChangeAccessor) => T): T | null;

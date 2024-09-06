@@ -1,4 +1,4 @@
-import { ExtensionToggleData } from "vs/workbench/contrib/preferences/common/preferences";
+import { ExtensionToggleData } from "../common/preferences.js";
 export interface ITOCEntry<T> {
     id: string;
     label: string;

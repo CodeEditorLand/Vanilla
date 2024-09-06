@@ -1,7 +1,9 @@
-import { IPosition } from "vs/editor/common/core/position";
-import { ColorId, ITokenPresentation, StandardTokenType } from "vs/editor/common/encodedTokenAttributes";
-import { ILanguageIdCodec } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
+import { OffsetRange } from "../core/offsetRange.js";
+import { IPosition } from "../core/position.js";
+import { ColorId, ITokenPresentation, StandardTokenType } from "../encodedTokenAttributes.js";
+import { ILanguageIdCodec } from "../languages.js";
+import { ITextModel } from "../model.js";
+import { TokenArray } from "./tokenArray.js";
 export interface IViewLineTokens {
     languageIdCodec: ILanguageIdCodec;
     equals(other: IViewLineTokens): boolean;
@@ -20,17 +22,19 @@ export interface IViewLineTokens {
     forEach(callback: (tokenIndex: number) => void): void;
 }
 export declare class LineTokens implements IViewLineTokens {
+    static createEmpty(lineContent: string, decoder: ILanguageIdCodec): LineTokens;
+    static createFromTextAndMetadata(data: {
+        text: string;
+        metadata: number;
+    }[], decoder: ILanguageIdCodec): LineTokens;
+    static convertToEndOffset(tokens: Uint32Array, lineTextLength: number): void;
+    static findIndexInTokensArray(tokens: Uint32Array, desiredIndex: number): number;
     _lineTokensBrand: void;
     private readonly _tokens;
     private readonly _tokensCount;
     private readonly _text;
     readonly languageIdCodec: ILanguageIdCodec;
     static defaultTokenMetadata: number;
-    static createEmpty(lineContent: string, decoder: ILanguageIdCodec): LineTokens;
-    static createFromTextAndMetadata(data: {
-        text: string;
-        metadata: number;
-    }[], decoder: ILanguageIdCodec): LineTokens;
     constructor(tokens: Uint32Array, text: string, decoder: ILanguageIdCodec);
     equals(other: IViewLineTokens): boolean;
     slicedEquals(other: LineTokens, sliceFromTokenIndex: number, sliceTokenCount: number): boolean;
@@ -53,8 +57,6 @@ export declare class LineTokens implements IViewLineTokens {
     findTokenIndexAtOffset(offset: number): number;
     inflate(): IViewLineTokens;
     sliceAndInflate(startOffset: number, endOffset: number, deltaOffset: number): IViewLineTokens;
-    static convertToEndOffset(tokens: Uint32Array, lineTextLength: number): void;
-    static findIndexInTokensArray(tokens: Uint32Array, desiredIndex: number): number;
     /**
      * @pure
      * @param insertTokens Must be sorted by offset.
@@ -64,6 +66,7 @@ export declare class LineTokens implements IViewLineTokens {
         text: string;
         tokenMetadata: number;
     }[]): LineTokens;
+    getTokensInRange(range: OffsetRange): TokenArray;
     getTokenText(tokenIndex: number): string;
     forEach(callback: (tokenIndex: number) => void): void;
 }

@@ -1,11 +1,11 @@
 import * as http from "http";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IRequestContext, IRequestOptions } from "vs/base/parts/request/common/request";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { INativeEnvironmentService } from "vs/platform/environment/common/environment";
-import { ILoggerService, ILogService } from "vs/platform/log/common/log";
-import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from "vs/platform/request/common/request";
-import { Agent } from "vs/platform/request/node/proxy";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IRequestContext, IRequestOptions } from "../../../base/parts/request/common/request.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { INativeEnvironmentService } from "../../environment/common/environment.js";
+import { ILogger, ILogService } from "../../log/common/log.js";
+import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from "../common/request.js";
+import { Agent } from "./proxy.js";
 export interface IRawRequestFunction {
     (options: http.RequestOptions, callback?: (res: http.IncomingMessage) => void): http.ClientRequest;
 }
@@ -28,7 +28,7 @@ export declare class RequestService extends AbstractRequestService implements IR
     private strictSSL;
     private authorization?;
     private shellEnvErrorLogged?;
-    constructor(configurationService: IConfigurationService, environmentService: INativeEnvironmentService, logService: ILogService, loggerService: ILoggerService);
+    constructor(logger: ILogger, configurationService: IConfigurationService, environmentService: INativeEnvironmentService, logService: ILogService);
     private configure;
     request(options: NodeRequestOptions, token: CancellationToken): Promise<IRequestContext>;
     resolveProxy(url: string): Promise<string | undefined>;

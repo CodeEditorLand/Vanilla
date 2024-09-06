@@ -1,17 +1,17 @@
-import { VSBufferReadableStream } from "vs/base/common/buffer";
-import { IStringDictionary } from "vs/base/common/collections";
-import { Event } from "vs/base/common/event";
-import { FormattingOptions } from "vs/base/common/jsonFormatter";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IExtUri } from "vs/base/common/resources";
-import { URI } from "vs/base/common/uri";
-import { IHeaders } from "vs/base/parts/request/common/request";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IExtensionIdentifier } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IExtensionManifest } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUserDataProfile, UseDefaultProfileFlags } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IUserDataSyncMachine } from "vs/platform/userDataSync/common/userDataSyncMachines";
+import { VSBufferReadableStream } from "../../../base/common/buffer.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { Event } from "../../../base/common/event.js";
+import { FormattingOptions } from "../../../base/common/jsonFormatter.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { IExtUri } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { IHeaders } from "../../../base/parts/request/common/request.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IExtensionIdentifier } from "../../extensionManagement/common/extensionManagement.js";
+import { IExtensionManifest } from "../../extensions/common/extensions.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUserDataProfile, UseDefaultProfileFlags } from "../../userDataProfile/common/userDataProfile.js";
+import { IUserDataSyncMachine } from "./userDataSyncMachines.js";
 export declare function getDisallowedIgnoredSettings(): string[];
 export declare function getDefaultIgnoredSettings(excludeExtensions?: boolean): string[];
 export declare function getIgnoredSettingsForExtension(manifest: IExtensionManifest): string[];
@@ -90,7 +90,7 @@ export interface IResourceRefHandle {
 }
 export type ServerResource = SyncResource | "machines" | "editSessions" | "workspaceState";
 export type UserDataSyncStoreType = "insiders" | "stable";
-export declare const IUserDataSyncStoreManagementService: any;
+export declare const IUserDataSyncStoreManagementService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncStoreManagementService>;
 export interface IUserDataSyncStoreManagementService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeUserDataSyncStore: Event<void>;
@@ -98,7 +98,7 @@ export interface IUserDataSyncStoreManagementService {
     switch(type: UserDataSyncStoreType): Promise<void>;
     getPreviousUserDataSyncStore(): Promise<IUserDataSyncStore | undefined>;
 }
-export declare const IUserDataSyncStoreService: any;
+export declare const IUserDataSyncStoreService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncStoreService>;
 export interface IUserDataSyncStoreService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeDonotMakeRequestsUntil: Event<void>;
@@ -118,7 +118,7 @@ export interface IUserDataSyncStoreService {
     getActivityData(): Promise<VSBufferReadableStream>;
     clear(): Promise<void>;
 }
-export declare const IUserDataSyncLocalStoreService: any;
+export declare const IUserDataSyncLocalStoreService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncLocalStoreService>;
 export interface IUserDataSyncLocalStoreService {
     readonly _serviceBrand: undefined;
     writeResource(resource: ServerResource, content: string, cTime: Date, collection?: string, root?: URI): Promise<void>;
@@ -304,7 +304,7 @@ export interface IUserDataSynchroniser {
 }
 export declare const SYNC_SERVICE_URL_TYPE = "sync.store.url.type";
 export declare function getEnablementKey(resource: SyncResource): string;
-export declare const IUserDataSyncEnablementService: any;
+export declare const IUserDataSyncEnablementService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncEnablementService>;
 export interface IUserDataSyncEnablementService {
     _serviceBrand: any;
     readonly onDidChangeEnablement: Event<boolean>;
@@ -327,7 +327,7 @@ export interface IUserDataManualSyncTask {
     apply(): Promise<void>;
     stop(): Promise<void>;
 }
-export declare const IUserDataSyncService: any;
+export declare const IUserDataSyncService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncService>;
 export interface IUserDataSyncService {
     _serviceBrand: any;
     readonly status: SyncStatus;
@@ -356,7 +356,7 @@ export interface IUserDataSyncService {
     saveRemoteActivityData(location: URI): Promise<void>;
     extractActivityData(activityDataResource: URI, location: URI): Promise<void>;
 }
-export declare const IUserDataSyncResourceProviderService: any;
+export declare const IUserDataSyncResourceProviderService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncResourceProviderService>;
 export interface IUserDataSyncResourceProviderService {
     _serviceBrand: any;
     getRemoteSyncedProfiles(): Promise<ISyncUserDataProfile[]>;
@@ -372,7 +372,7 @@ export interface IUserDataSyncResourceProviderService {
     resolveContent(resource: URI): Promise<string | null>;
     resolveUserDataSyncResource(syncResourceHandle: ISyncResourceHandle): IUserDataSyncResource | undefined;
 }
-export declare const IUserDataAutoSyncService: any;
+export declare const IUserDataAutoSyncService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataAutoSyncService>;
 export interface IUserDataAutoSyncService {
     _serviceBrand: any;
     readonly onError: Event<UserDataSyncError>;
@@ -380,14 +380,14 @@ export interface IUserDataAutoSyncService {
     turnOff(everywhere: boolean): Promise<void>;
     triggerSync(sources: string[], hasToLimitSync: boolean, disableCache: boolean): Promise<void>;
 }
-export declare const IUserDataSyncUtilService: any;
+export declare const IUserDataSyncUtilService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncUtilService>;
 export interface IUserDataSyncUtilService {
     readonly _serviceBrand: undefined;
     resolveUserBindings(userbindings: string[]): Promise<IStringDictionary<string>>;
     resolveFormattingOptions(resource: URI): Promise<FormattingOptions>;
     resolveDefaultCoreIgnoredSettings(): Promise<string[]>;
 }
-export declare const IUserDataSyncLogService: any;
+export declare const IUserDataSyncLogService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncLogService>;
 export interface IUserDataSyncLogService extends ILogService {
 }
 export interface IConflictSetting {

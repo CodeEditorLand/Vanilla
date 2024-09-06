@@ -1,8 +1,8 @@
-import { IEncryptionService } from "vs/platform/encryption/common/encryptionService";
-import { ILogService } from "vs/platform/log/common/log";
-import { BaseSecretStorageService } from "vs/platform/secrets/common/secrets";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IBrowserWorkbenchEnvironmentService } from "vs/workbench/services/environment/browser/environmentService";
+import { IEncryptionService } from "../../../../platform/encryption/common/encryptionService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { BaseSecretStorageService } from "../../../../platform/secrets/common/secrets.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
 export declare class BrowserSecretStorageService extends BaseSecretStorageService {
     private readonly _secretStorageProvider;
     private readonly _embedderSequencer;
@@ -10,5 +10,5 @@ export declare class BrowserSecretStorageService extends BaseSecretStorageServic
     get(key: string): Promise<string | undefined>;
     set(key: string, value: string): Promise<void>;
     delete(key: string): Promise<void>;
-    get type(): any;
+    get type(): "unknown" | "in-memory" | "persisted";
 }

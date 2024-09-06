@@ -1,12 +1,12 @@
-import { IContextMenuProvider } from "vs/base/browser/contextmenu";
-import { ActionBar, ActionsOrientation, IActionViewItemProvider } from "vs/base/browser/ui/actionbar/actionbar";
-import { AnchorAlignment } from "vs/base/browser/ui/contextview/contextview";
-import { Action, IAction, IActionRunner } from "vs/base/common/actions";
-import { ResolvedKeybinding } from "vs/base/common/keybindings";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import "vs/css!./toolbar";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
+import { Action, IAction, IActionRunner } from "../../../common/actions.js";
+import { ResolvedKeybinding } from "../../../common/keybindings.js";
+import { Disposable } from "../../../common/lifecycle.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import { IContextMenuProvider } from "../../contextmenu.js";
+import { ActionBar, ActionsOrientation, IActionViewItemProvider } from "../actionbar/actionbar.js";
+import { AnchorAlignment } from "../contextview/contextview.js";
+import "./toolbar.css";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
 export interface IToolBarOptions {
     orientation?: ActionsOrientation;
     actionViewItemProvider?: IActionViewItemProvider;
@@ -45,7 +45,7 @@ export declare class ToolBar extends Disposable {
     private hasSecondaryActions;
     private readonly element;
     private _onDidChangeDropdownVisibility;
-    readonly onDidChangeDropdownVisibility: any;
+    readonly onDidChangeDropdownVisibility: import("../../../common/event.js").Event<boolean>;
     private readonly disposables;
     constructor(container: HTMLElement, contextMenuProvider: IContextMenuProvider, options?: IToolBarOptions);
     set actionRunner(actionRunner: IActionRunner);
@@ -54,7 +54,7 @@ export declare class ToolBar extends Disposable {
     getElement(): HTMLElement;
     focus(): void;
     getItemsWidth(): number;
-    getItemAction(indexOrElement: number | HTMLElement): any;
+    getItemAction(indexOrElement: number | HTMLElement): IAction | undefined;
     getItemWidth(index: number): number;
     getItemsLength(): number;
     setAriaLabel(label: string): void;

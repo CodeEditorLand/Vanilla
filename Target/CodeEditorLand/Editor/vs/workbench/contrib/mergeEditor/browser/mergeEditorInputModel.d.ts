@@ -1,15 +1,15 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { URI } from "vs/base/common/uri";
-import { IModelService } from "vs/editor/common/services/model";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { ConfirmResult } from "vs/platform/dialogs/common/dialogs";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IRevertOptions } from "vs/workbench/common/editor";
-import { MergeEditorInputData } from "vs/workbench/contrib/mergeEditor/browser/mergeEditorInput";
-import { MergeEditorModel } from "vs/workbench/contrib/mergeEditor/browser/model/mergeEditorModel";
-import { MergeEditorTelemetry } from "vs/workbench/contrib/mergeEditor/browser/telemetry";
-import { ITextFileSaveOptions, ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../base/common/observable.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { ConfirmResult } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IRevertOptions } from "../../../common/editor.js";
+import { ITextFileSaveOptions, ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { MergeEditorInputData } from "./mergeEditorInput.js";
+import { MergeEditorModel } from "./model/mergeEditorModel.js";
+import { MergeEditorTelemetry } from "./telemetry.js";
 export interface MergeEditorArgs {
     base: URI;
     input1: MergeEditorInputData;

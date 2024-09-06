@@ -1,6 +1,6 @@
-import { WrappingIndent } from "vs/editor/common/config/editorOptions";
-import { FontInfo } from "vs/editor/common/config/fontInfo";
-import { ILineBreaksComputer, ILineBreaksComputerFactory } from "vs/editor/common/modelLineProjectionData";
+import { WrappingIndent } from "../../common/config/editorOptions.js";
+import { FontInfo } from "../../common/config/fontInfo.js";
+import { ILineBreaksComputer, ILineBreaksComputerFactory } from "../../common/modelLineProjectionData.js";
 export declare class DOMLineBreaksComputerFactory implements ILineBreaksComputerFactory {
     private targetWindow;
     static create(targetWindow: Window): DOMLineBreaksComputerFactory;

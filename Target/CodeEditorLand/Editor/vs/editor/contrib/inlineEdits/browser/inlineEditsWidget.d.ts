@@ -1,10 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable, ISettableObservable } from "vs/base/common/observable";
-import "vs/css!./inlineEditsWidget";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { LineRange } from "vs/editor/common/core/lineRange";
-import { DetailedLineRangeMapping } from "vs/editor/common/diff/rangeMapping";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IObservable, ISettableObservable } from "../../../../base/common/observable.js";
+import "./inlineEditsWidget.css";
+import { MenuWorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { LineRange } from "../../../common/core/lineRange.js";
+import { DetailedLineRangeMapping } from "../../../common/diff/rangeMapping.js";
 export declare class InlineEdit {
     readonly range: LineRange;
     readonly newLines: string[];
@@ -18,7 +19,7 @@ export declare class InlineEditsWidget extends Disposable {
     private readonly _instantiationService;
     private readonly _editorObs;
     private readonly _elements;
-    protected readonly _toolbar: any;
+    protected readonly _toolbar: MenuWorkbenchToolBar;
     private readonly _previewTextModel;
     private readonly _setText;
     private readonly _promptTextModel;

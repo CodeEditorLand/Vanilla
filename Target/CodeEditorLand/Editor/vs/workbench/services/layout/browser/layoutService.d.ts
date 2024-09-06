@@ -1,11 +1,11 @@
-import { IDimension } from "vs/base/browser/dom";
-import { Direction } from "vs/base/browser/ui/grid/grid";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILayoutService } from "vs/platform/layout/browser/layoutService";
-import { Part } from "vs/workbench/browser/part";
-export declare const IWorkbenchLayoutService: any;
+import { IDimension } from "../../../../base/browser/dom.js";
+import { Direction } from "../../../../base/browser/ui/grid/grid.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import { Part } from "../../../browser/part.js";
+export declare const IWorkbenchLayoutService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkbenchLayoutService>;
 export declare const enum Parts {
     TITLEBAR_PART = "workbench.parts.titlebar",
     BANNER_PART = "workbench.parts.banner",

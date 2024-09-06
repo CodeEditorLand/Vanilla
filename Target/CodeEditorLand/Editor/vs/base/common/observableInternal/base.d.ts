@@ -1,8 +1,8 @@
-import { EqualityComparer } from "vs/base/common/equals";
-import { DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { keepObserved, recomputeInitiallyAndOnChange } from "vs/base/common/observable";
-import { DebugNameData, DebugOwner } from "vs/base/common/observableInternal/debugName";
-import type { derivedOpts } from "vs/base/common/observableInternal/derived";
+import { EqualityComparer } from "../equals.js";
+import { DisposableStore, IDisposable } from "../lifecycle.js";
+import { keepObserved, recomputeInitiallyAndOnChange } from "../observable.js";
+import { DebugNameData, DebugOwner } from "./debugName.js";
+import type { derivedOpts } from "./derived.js";
 /**
  * Represents an observable value.
  *
@@ -216,7 +216,7 @@ export declare class ObservableValue<T, TChange = void> extends BaseObservable<T
     private readonly _debugNameData;
     private readonly _equalityComparator;
     protected _value: T;
-    get debugName(): any;
+    get debugName(): string;
     constructor(_debugNameData: DebugNameData, initialValue: T, _equalityComparator: EqualityComparer<T>);
     get(): T;
     set(value: T, tx: ITransaction | undefined, change: TChange): void;

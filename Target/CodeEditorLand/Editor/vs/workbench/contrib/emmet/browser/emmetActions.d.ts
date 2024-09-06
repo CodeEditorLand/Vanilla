@@ -1,5 +1,5 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, IActionOptions, ServicesAccessor } from "vs/editor/browser/editorExtensions";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { EditorAction, IActionOptions, ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
 export interface IGrammarContributions {
     getGrammar(mode: string): string;
 }
@@ -15,7 +15,7 @@ export declare abstract class EmmetEditorAction extends EditorAction {
     private _withGrammarContributions;
     run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void>;
     static getLanguage(editor: ICodeEditor, grammars: IGrammarContributions): {
-        language: any;
+        language: string;
         parentMode: string;
     } | null;
 }

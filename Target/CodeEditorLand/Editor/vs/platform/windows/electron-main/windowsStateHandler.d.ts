@@ -1,13 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILifecycleMainService } from "vs/platform/lifecycle/electron-main/lifecycleMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { IStateService } from "vs/platform/state/node/state";
-import { INativeWindowConfiguration } from "vs/platform/window/common/window";
-import { IWindowState as IWindowUIState } from "vs/platform/window/electron-main/window";
-import { IWindowsMainService } from "vs/platform/windows/electron-main/windows";
-import { IWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IStateService } from "../../state/node/state.js";
+import { INativeWindowConfiguration } from "../../window/common/window.js";
+import { IWindowState as IWindowUIState } from "../../window/electron-main/window.js";
+import { IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { IWindowsMainService } from "./windows.js";
 export interface IWindowState {
     readonly windowId?: number;
     workspace?: IWorkspaceIdentifier;

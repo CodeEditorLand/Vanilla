@@ -1,9 +1,9 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IChatAccessibilityService } from "vs/workbench/contrib/chat/browser/chat";
-import { IChatResponseViewModel } from "vs/workbench/contrib/chat/common/chatViewModel";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IChatResponseViewModel } from "../common/chatViewModel.js";
+import { IChatAccessibilityService } from "./chat.js";
 export declare class ChatAccessibilityService extends Disposable implements IChatAccessibilityService {
     private readonly _accessibilitySignalService;
     private readonly _instantiationService;

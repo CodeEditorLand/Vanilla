@@ -1,9 +1,9 @@
-import { URI } from "vs/base/common/uri";
-import { IEditor } from "vs/editor/common/editorCommon";
-import { ITextEditorOptions } from "vs/platform/editor/common/editor";
-import { MutableObservableValue } from "vs/workbench/contrib/testing/common/observableValue";
-import { ITestResult } from "vs/workbench/contrib/testing/common/testResult";
-import { TestResultItem } from "vs/workbench/contrib/testing/common/testTypes";
+import { URI } from "../../../../base/common/uri.js";
+import { IEditor } from "../../../../editor/common/editorCommon.js";
+import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { MutableObservableValue } from "./observableValue.js";
+import { ITestResult } from "./testResult.js";
+import { TestResultItem } from "./testTypes.js";
 export interface IShowResultOptions {
     /** Reveal the peek, if configured, in the given editor */
     inEditor?: IEditor;
@@ -37,4 +37,4 @@ export interface ITestingPeekOpener {
      */
     closeAllPeeks(): void;
 }
-export declare const ITestingPeekOpener: any;
+export declare const ITestingPeekOpener: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITestingPeekOpener>;

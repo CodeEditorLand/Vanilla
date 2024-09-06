@@ -1,11 +1,11 @@
-import { URI } from "vs/base/common/uri";
-import { IRange } from "vs/editor/common/core/range";
-import { IDocumentDiff, IDocumentDiffProviderOptions } from "vs/editor/common/diff/documentDiffProvider";
-import { IChange } from "vs/editor/common/diff/legacyLinesDiffComputer";
-import { IColorInformation, IInplaceReplaceSupportResult, TextEdit } from "vs/editor/common/languages";
-import { FindSectionHeaderOptions, SectionHeader } from "vs/editor/common/services/findSectionHeaders";
-import { UnicodeHighlighterOptions } from "vs/editor/common/services/unicodeTextModelHighlighter";
-export declare const IEditorWorkerService: any;
+import { URI } from "../../../base/common/uri.js";
+import { IRange } from "../core/range.js";
+import { IDocumentDiff, IDocumentDiffProviderOptions } from "../diff/documentDiffProvider.js";
+import { IChange } from "../diff/legacyLinesDiffComputer.js";
+import { IColorInformation, IInplaceReplaceSupportResult, TextEdit } from "../languages.js";
+import { FindSectionHeaderOptions, SectionHeader } from "./findSectionHeaders.js";
+import { UnicodeHighlighterOptions } from "./unicodeTextModelHighlighter.js";
+export declare const IEditorWorkerService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditorWorkerService>;
 export type DiffAlgorithmName = "legacy" | "advanced";
 export interface IEditorWorkerService {
     readonly _serviceBrand: undefined;

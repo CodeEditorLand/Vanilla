@@ -1,5 +1,5 @@
-import { IResolvableEditorModel } from "vs/platform/editor/common/editor";
-import { EditorModel } from "vs/workbench/common/editor/editorModel";
+import { IResolvableEditorModel } from "../../../platform/editor/common/editor.js";
+import { EditorModel } from "./editorModel.js";
 /**
  * The base editor model for the diff editor. It is made up of two editor models, the original version
  * and the modified version.

@@ -1,4 +1,4 @@
-import { Event } from "vs/base/common/event";
+import { Event } from "../common/event.js";
 export interface IHistoryNavigationWidget {
     readonly element: HTMLElement;
     showPreviousValue(): void;

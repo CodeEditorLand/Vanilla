@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { LanguageId } from "vs/editor/common/encodedTokenAttributes";
-import { ILanguageIdCodec } from "vs/editor/common/languages";
-import { ILanguageExtensionPoint, ILanguageIcon, ILanguageNameIdPair } from "vs/editor/common/languages/language";
+import { Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { LanguageId } from "../encodedTokenAttributes.js";
+import { ILanguageIdCodec } from "../languages.js";
+import { ILanguageExtensionPoint, ILanguageIcon, ILanguageNameIdPair } from "../languages/language.js";
 export declare class LanguageIdCodec implements ILanguageIdCodec {
     private _nextLanguageId;
     private readonly _languageIdToLanguage;

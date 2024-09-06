@@ -1,12 +1,12 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ILabelService, ResourceLabelFormatter, ResourceLabelFormatting, Verbosity } from "vs/platform/label/common/label";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ISingleFolderWorkspaceIdentifier, IWorkspace, IWorkspaceContextService, IWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
-import { IPathService } from "vs/workbench/services/path/common/pathService";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFormatterChangeEvent, ILabelService, ResourceLabelFormatter, ResourceLabelFormatting, Verbosity } from "../../../../platform/label/common/label.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ISingleFolderWorkspaceIdentifier, IWorkspace, IWorkspaceContextService, IWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
 export declare class LabelService extends Disposable implements ILabelService {
     private readonly environmentService;
     private readonly contextService;
@@ -15,7 +15,7 @@ export declare class LabelService extends Disposable implements ILabelService {
     readonly _serviceBrand: undefined;
     private formatters;
     private readonly _onDidChangeFormatters;
-    readonly onDidChangeFormatters: any;
+    readonly onDidChangeFormatters: import("../../../../base/common/event.js").Event<IFormatterChangeEvent>;
     private readonly storedFormattersMemento;
     private readonly storedFormatters;
     private os;

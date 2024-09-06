@@ -1,16 +1,16 @@
-import "vs/css!./media/typeHierarchy";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IPosition } from "vs/editor/common/core/position";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import * as peekView from "vs/editor/contrib/peekView/browser/peekView";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import * as typeHTree from "vs/workbench/contrib/typeHierarchy/browser/typeHierarchyTree";
-import { TypeHierarchyDirection, TypeHierarchyModel } from "vs/workbench/contrib/typeHierarchy/common/typeHierarchy";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import "./media/typeHierarchy.css";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IPosition } from "../../../../editor/common/core/position.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import * as peekView from "../../../../editor/contrib/peekView/browser/peekView.js";
+import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { TypeHierarchyDirection, TypeHierarchyModel } from "../common/typeHierarchy.js";
+import * as typeHTree from "./typeHierarchyTree.js";
 export declare class TypeHierarchyTreePeekWidget extends peekView.PeekViewWidget {
     private readonly _where;
     private _direction;
@@ -21,7 +21,7 @@ export declare class TypeHierarchyTreePeekWidget extends peekView.PeekViewWidget
     private readonly _menuService;
     private readonly _contextKeyService;
     private readonly _instantiationService;
-    static readonly TitleMenu: any;
+    static readonly TitleMenu: MenuId;
     private _parent;
     private _message;
     private _splitView;

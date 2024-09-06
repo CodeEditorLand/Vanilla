@@ -1,6 +1,6 @@
-import { IExtensionTipsService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { ExtensionRecommendation, ExtensionRecommendations } from "vs/workbench/contrib/extensions/browser/extensionRecommendations";
+import { IExtensionTipsService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ExtensionRecommendation, ExtensionRecommendations } from "./extensionRecommendations.js";
 type ConfigBasedExtensionRecommendation = ExtensionRecommendation & {
     whenNotInstalled: string[] | undefined;
 };
@@ -10,7 +10,7 @@ export declare class ConfigBasedRecommendations extends ExtensionRecommendations
     private importantTips;
     private otherTips;
     private _onDidChangeRecommendations;
-    readonly onDidChangeRecommendations: any;
+    readonly onDidChangeRecommendations: import("../../../../base/common/event.js").Event<void>;
     private _otherRecommendations;
     get otherRecommendations(): ReadonlyArray<ConfigBasedExtensionRecommendation>;
     private _importantRecommendations;

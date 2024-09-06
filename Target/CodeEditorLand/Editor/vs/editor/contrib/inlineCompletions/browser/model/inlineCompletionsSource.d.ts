@@ -1,14 +1,14 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IObservable, IReader, ITransaction } from "vs/base/common/observable";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { SingleTextEdit } from "vs/editor/common/core/textEdit";
-import { InlineCompletionContext } from "vs/editor/common/languages";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ITextModel } from "vs/editor/common/model";
-import { IFeatureDebounceInformation } from "vs/editor/common/services/languageFeatureDebounce";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { InlineCompletionItem, InlineCompletionProviderResult } from "vs/editor/contrib/inlineCompletions/browser/model/provideInlineCompletions";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable, IReader, ITransaction } from "../../../../../base/common/observable.js";
+import { Position } from "../../../../common/core/position.js";
+import { Range } from "../../../../common/core/range.js";
+import { SingleTextEdit } from "../../../../common/core/textEdit.js";
+import { InlineCompletionContext } from "../../../../common/languages.js";
+import { ILanguageConfigurationService } from "../../../../common/languages/languageConfigurationRegistry.js";
+import { ITextModel } from "../../../../common/model.js";
+import { IFeatureDebounceInformation } from "../../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../../common/services/languageFeatures.js";
+import { InlineCompletionItem, InlineCompletionProviderResult } from "./provideInlineCompletions.js";
 export declare class InlineCompletionsSource extends Disposable {
     private readonly textModel;
     private readonly versionId;
@@ -16,8 +16,8 @@ export declare class InlineCompletionsSource extends Disposable {
     private readonly languageFeaturesService;
     private readonly languageConfigurationService;
     private readonly _updateOperation;
-    readonly inlineCompletions: any;
-    readonly suggestWidgetInlineCompletions: any;
+    readonly inlineCompletions: import("../../../../../base/common/observable.js").ISettableObservable<UpToDateInlineCompletions | undefined, void> & IDisposable;
+    readonly suggestWidgetInlineCompletions: import("../../../../../base/common/observable.js").ISettableObservable<UpToDateInlineCompletions | undefined, void> & IDisposable;
     constructor(textModel: ITextModel, versionId: IObservable<number | null>, _debounceValue: IFeatureDebounceInformation, languageFeaturesService: ILanguageFeaturesService, languageConfigurationService: ILanguageConfigurationService);
     fetch(position: Position, context: InlineCompletionContext, activeInlineCompletion: InlineCompletionWithUpdatedRange | undefined): Promise<boolean>;
     clear(tx: ITransaction): void;
@@ -51,7 +51,7 @@ export declare class InlineCompletionWithUpdatedRange {
     private readonly _textModel;
     private readonly _modelVersion;
     readonly semanticId: string;
-    get forwardStable(): any;
+    get forwardStable(): boolean;
     private readonly _updatedRange;
     constructor(inlineCompletion: InlineCompletionItem, decorationId: string, _textModel: ITextModel, _modelVersion: IObservable<number | null>);
     toInlineCompletion(reader: IReader | undefined): InlineCompletionItem;

@@ -1,9 +1,9 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILanguagePackService } from "vs/platform/languagePacks/common/languagePacks";
-import { MainThreadLocalizationShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IFileService } from "../../../platform/files/common/files.js";
+import { ILanguagePackService } from "../../../platform/languagePacks/common/languagePacks.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadLocalizationShape } from "../common/extHost.protocol.js";
 export declare class MainThreadLocalization extends Disposable implements MainThreadLocalizationShape {
     private readonly fileService;
     private readonly languagePackService;

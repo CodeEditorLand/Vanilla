@@ -1,4 +1,4 @@
-import { IDisposable } from "vs/base/common/lifecycle";
+import { IDisposable } from "../../../common/lifecycle.js";
 export declare class SimpleIconLabel implements IDisposable {
     private readonly _container;
     private hover?;

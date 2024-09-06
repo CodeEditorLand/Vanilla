@@ -1,10 +1,10 @@
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { AbstractDialogHandler, IAsyncPromptResult, IConfirmation, IConfirmationResult, IInput, IInputResult, IPrompt } from "vs/platform/dialogs/common/dialogs";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ILayoutService } from "vs/platform/layout/browser/layoutService";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { AbstractDialogHandler, IAsyncPromptResult, IConfirmation, IConfirmationResult, IInput, IInputResult, IPrompt } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
 export declare class BrowserDialogHandler extends AbstractDialogHandler {
     private readonly logService;
     private readonly layoutService;

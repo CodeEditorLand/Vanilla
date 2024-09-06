@@ -1,4 +1,4 @@
-import { DiffAlgorithmResult, IDiffAlgorithm, ISequence, ITimeout } from "vs/editor/common/diff/defaultLinesDiffComputer/algorithms/diffAlgorithm";
+import { DiffAlgorithmResult, IDiffAlgorithm, ISequence, ITimeout } from "./diffAlgorithm.js";
 /**
  * An O(ND) diff algorithm that has a quadratic space worst-case complexity.
  */

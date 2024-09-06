@@ -1,12 +1,12 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IStorage, Storage } from "vs/base/parts/storage/common/storage";
-import { ISQLiteStorageDatabaseLoggingOptions } from "vs/base/parts/storage/node/storage";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUserDataProfile, IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IAnyWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { IStorage, Storage } from "../../../base/parts/storage/common/storage.js";
+import { ISQLiteStorageDatabaseLoggingOptions } from "../../../base/parts/storage/node/storage.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
 export interface IStorageMainOptions {
     /**
      * If enabled, storage will not persist to disk
@@ -84,16 +84,16 @@ declare abstract class BaseStorageMain extends Disposable implements IStorageMai
     protected readonly logService: ILogService;
     private readonly fileService;
     private static readonly LOG_SLOW_CLOSE_THRESHOLD;
-    protected readonly _onDidChangeStorage: any;
-    readonly onDidChangeStorage: any;
+    protected readonly _onDidChangeStorage: Emitter<IStorageChangeEvent>;
+    readonly onDidChangeStorage: Event<IStorageChangeEvent>;
     private readonly _onDidCloseStorage;
-    readonly onDidCloseStorage: any;
+    readonly onDidCloseStorage: Event<void>;
     private _storage;
     get storage(): IStorage;
     abstract get path(): string | undefined;
     private initializePromise;
     private readonly whenInitPromise;
-    readonly whenInit: any;
+    readonly whenInit: Promise<void>;
     private state;
     constructor(logService: ILogService, fileService: IFileService);
     isInMemory(): boolean;

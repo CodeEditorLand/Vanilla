@@ -1,7 +1,7 @@
-import { IProductConfiguration } from "vs/base/common/product";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { BaseIssueReporterService } from "vs/workbench/contrib/issue/browser/baseIssueReporterService";
-import { IIssueFormService, IssueReporterData } from "vs/workbench/contrib/issue/common/issue";
+import { IProductConfiguration } from "../../../../base/common/product.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IIssueFormService, IssueReporterData } from "../common/issue.js";
+import { BaseIssueReporterService } from "./baseIssueReporterService.js";
 export declare class IssueWebReporter extends BaseIssueReporterService {
     constructor(disableExtensions: boolean, data: IssueReporterData, os: {
         type: string;

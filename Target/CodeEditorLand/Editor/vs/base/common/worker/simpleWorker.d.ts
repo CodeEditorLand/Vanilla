@@ -1,5 +1,5 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
+import { Disposable, IDisposable } from "../lifecycle.js";
+import { URI } from "../uri.js";
 export interface IWorker extends IDisposable {
     getId(): number;
     postMessage(message: Message, transfer: ArrayBuffer[]): void;

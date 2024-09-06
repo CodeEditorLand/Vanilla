@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
 export declare class DiffEditorActiveAnnouncementContribution extends Disposable implements IWorkbenchContribution {
     private readonly _editorService;
     private readonly _accessibilityService;

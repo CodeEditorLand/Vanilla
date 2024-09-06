@@ -1,7 +1,7 @@
-import { IRange, Range } from "vs/editor/common/core/range";
-import { ILanguageIdCodec } from "vs/editor/common/languages";
-import { LineTokens } from "vs/editor/common/tokens/lineTokens";
-import { SparseMultilineTokens } from "vs/editor/common/tokens/sparseMultilineTokens";
+import { IRange, Range } from "../core/range.js";
+import { ILanguageIdCodec } from "../languages.js";
+import { LineTokens } from "./lineTokens.js";
+import { SparseMultilineTokens } from "./sparseMultilineTokens.js";
 /**
  * Represents sparse tokens in a text model.
  */

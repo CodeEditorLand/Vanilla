@@ -1,12 +1,12 @@
-import { LineRange } from "vs/editor/common/core/lineRange";
-import { OffsetRange } from "vs/editor/common/core/offsetRange";
-import { Position } from "vs/editor/common/core/position";
-import { StandardTokenType } from "vs/editor/common/encodedTokenAttributes";
-import { IBackgroundTokenizationStore, IBackgroundTokenizer, ILanguageIdCodec, IState, ITokenizationSupport } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { IModelContentChange } from "vs/editor/common/textModelEvents";
-import { ContiguousMultilineTokensBuilder } from "vs/editor/common/tokens/contiguousMultilineTokensBuilder";
-import { LineTokens } from "vs/editor/common/tokens/lineTokens";
+import { LineRange } from "../core/lineRange.js";
+import { OffsetRange } from "../core/offsetRange.js";
+import { Position } from "../core/position.js";
+import { StandardTokenType } from "../encodedTokenAttributes.js";
+import { IBackgroundTokenizationStore, IBackgroundTokenizer, ILanguageIdCodec, IState, ITokenizationSupport } from "../languages.js";
+import { ITextModel } from "../model.js";
+import { IModelContentChange } from "../textModelEvents.js";
+import { ITokenizeLineWithEditResult, LineEditWithAdditionalLines } from "../tokenizationTextModelPart.js";
+import { ContiguousMultilineTokensBuilder } from "../tokens/contiguousMultilineTokensBuilder.js";
 export declare class TokenizerWithStateStore<TState extends IState = IState> {
     readonly tokenizationSupport: ITokenizationSupport;
     private readonly initialState;
@@ -26,7 +26,7 @@ export declare class TokenizerWithStateStoreAndTextModel<TState extends IState =
     /** assumes state is up to date */
     getTokenTypeIfInsertingCharacter(position: Position, character: string): StandardTokenType;
     /** assumes state is up to date */
-    tokenizeLineWithEdit(position: Position, length: number, newText: string): LineTokens | null;
+    tokenizeLineWithEdit(lineNumber: number, edit: LineEditWithAdditionalLines): ITokenizeLineWithEditResult;
     hasAccurateTokensForLine(lineNumber: number): boolean;
     isCheapToTokenize(lineNumber: number): boolean;
     /**

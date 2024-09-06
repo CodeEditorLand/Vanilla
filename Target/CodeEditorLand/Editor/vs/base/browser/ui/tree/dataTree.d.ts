@@ -1,8 +1,7 @@
-import { IListVirtualDelegate } from "vs/base/browser/ui/list/list";
-import { AbstractTree, AbstractTreeViewState, IAbstractTreeOptions } from "vs/base/browser/ui/tree/abstractTree";
-import { IList } from "vs/base/browser/ui/tree/indexTreeModel";
-import { ObjectTreeModel } from "vs/base/browser/ui/tree/objectTreeModel";
-import { IDataSource, ITreeModel, ITreeNode, ITreeRenderer, ITreeSorter } from "vs/base/browser/ui/tree/tree";
+import { IListVirtualDelegate } from "../list/list.js";
+import { AbstractTree, AbstractTreeViewState, IAbstractTreeOptions } from "./abstractTree.js";
+import { ObjectTreeModel } from "./objectTreeModel.js";
+import { IDataSource, ITreeModel, ITreeRenderer, ITreeSorter } from "./tree.js";
 export interface IDataTreeOptions<T, TFilterData = void> extends IAbstractTreeOptions<T, TFilterData> {
     readonly sorter?: ITreeSorter<T>;
 }
@@ -21,5 +20,5 @@ export declare class DataTree<TInput, T, TFilterData = void> extends AbstractTre
     refresh(element?: T): void;
     private _refresh;
     private iterate;
-    protected createModel(user: string, view: IList<ITreeNode<T, TFilterData>>, options: IDataTreeOptions<T, TFilterData>): ITreeModel<T | null, TFilterData, T | null>;
+    protected createModel(user: string, options: IDataTreeOptions<T, TFilterData>): ITreeModel<T | null, TFilterData, T | null>;
 }

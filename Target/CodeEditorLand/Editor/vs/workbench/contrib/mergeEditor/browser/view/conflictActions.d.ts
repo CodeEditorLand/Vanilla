@@ -1,8 +1,8 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { ICodeEditor, IViewZoneChangeAccessor } from "vs/editor/browser/editorBrowser";
-import { ModifiedBaseRange } from "vs/workbench/contrib/mergeEditor/browser/model/modifiedBaseRange";
-import { MergeEditorViewModel } from "vs/workbench/contrib/mergeEditor/browser/view/viewModel";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../../base/common/observable.js";
+import { ICodeEditor, IViewZoneChangeAccessor } from "../../../../../editor/browser/editorBrowser.js";
+import { ModifiedBaseRange } from "../model/modifiedBaseRange.js";
+import { MergeEditorViewModel } from "./viewModel.js";
 export declare class ConflictActionsFactory extends Disposable {
     private readonly _editor;
     private readonly _styleClassName;
@@ -17,11 +17,11 @@ export declare class ActionsSource {
     private readonly modifiedBaseRange;
     constructor(viewModel: MergeEditorViewModel, modifiedBaseRange: ModifiedBaseRange);
     private getItemsInput;
-    readonly itemsInput1: IObservable<IContentWidgetAction[]>;
-    readonly itemsInput2: IObservable<IContentWidgetAction[]>;
-    readonly resultItems: any;
-    readonly isEmpty: any;
-    readonly inputIsEmpty: any;
+    readonly itemsInput1: IObservable<IContentWidgetAction[], unknown>;
+    readonly itemsInput2: IObservable<IContentWidgetAction[], unknown>;
+    readonly resultItems: IObservable<IContentWidgetAction[], unknown>;
+    readonly isEmpty: IObservable<boolean, unknown>;
+    readonly inputIsEmpty: IObservable<boolean, unknown>;
 }
 export interface IContentWidgetAction {
     text: string;

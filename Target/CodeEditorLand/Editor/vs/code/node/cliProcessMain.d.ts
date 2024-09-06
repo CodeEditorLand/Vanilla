@@ -1,2 +1,2 @@
-import { NativeParsedArgs } from "vs/platform/environment/common/argv";
+import { NativeParsedArgs } from "../../platform/environment/common/argv.js";
 export declare function main(argv: NativeParsedArgs): Promise<void>;

@@ -1,8 +1,8 @@
-import { IconSelectBox, IIconSelectBoxOptions } from "vs/base/browser/ui/icons/iconSelectBox";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-export declare const WorkbenchIconSelectBoxFocusContextKey: any;
-export declare const WorkbenchIconSelectBoxInputFocusContextKey: any;
-export declare const WorkbenchIconSelectBoxInputEmptyContextKey: any;
+import { IconSelectBox, IIconSelectBoxOptions } from "../../../../base/browser/ui/icons/iconSelectBox.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+export declare const WorkbenchIconSelectBoxFocusContextKey: RawContextKey<boolean>;
+export declare const WorkbenchIconSelectBoxInputFocusContextKey: RawContextKey<boolean>;
+export declare const WorkbenchIconSelectBoxInputEmptyContextKey: RawContextKey<boolean>;
 export declare class WorkbenchIconSelectBox extends IconSelectBox {
     private static focusedWidget;
     static getFocusedWidget(): WorkbenchIconSelectBox | undefined;

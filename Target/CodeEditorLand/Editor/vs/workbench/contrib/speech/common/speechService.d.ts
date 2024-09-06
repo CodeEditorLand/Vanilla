@@ -1,11 +1,12 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-export declare const ISpeechService: any;
-export declare const HasSpeechProvider: any;
-export declare const SpeechToTextInProgress: any;
-export declare const TextToSpeechInProgress: any;
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+export declare const ISpeechService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISpeechService>;
+export declare const HasSpeechProvider: RawContextKey<boolean>;
+export declare const SpeechToTextInProgress: RawContextKey<boolean>;
+export declare const TextToSpeechInProgress: RawContextKey<boolean>;
 export interface ISpeechProviderMetadata {
     readonly extension: ExtensionIdentifier;
     readonly displayName: string;
@@ -101,82 +102,82 @@ export declare const enum AccessibilityVoiceSettingId {
 export declare const SPEECH_LANGUAGE_CONFIG = AccessibilityVoiceSettingId.SpeechLanguage;
 export declare const SPEECH_LANGUAGES: {
     "da-DK": {
-        name: any;
+        name: string;
     };
     "de-DE": {
-        name: any;
+        name: string;
     };
     "en-AU": {
-        name: any;
+        name: string;
     };
     "en-CA": {
-        name: any;
+        name: string;
     };
     "en-GB": {
-        name: any;
+        name: string;
     };
     "en-IE": {
-        name: any;
+        name: string;
     };
     "en-IN": {
-        name: any;
+        name: string;
     };
     "en-NZ": {
-        name: any;
+        name: string;
     };
     "en-US": {
-        name: any;
+        name: string;
     };
     "es-ES": {
-        name: any;
+        name: string;
     };
     "es-MX": {
-        name: any;
+        name: string;
     };
     "fr-CA": {
-        name: any;
+        name: string;
     };
     "fr-FR": {
-        name: any;
+        name: string;
     };
     "hi-IN": {
-        name: any;
+        name: string;
     };
     "it-IT": {
-        name: any;
+        name: string;
     };
     "ja-JP": {
-        name: any;
+        name: string;
     };
     "ko-KR": {
-        name: any;
+        name: string;
     };
     "nl-NL": {
-        name: any;
+        name: string;
     };
     "pt-PT": {
-        name: any;
+        name: string;
     };
     "pt-BR": {
-        name: any;
+        name: string;
     };
     "ru-RU": {
-        name: any;
+        name: string;
     };
     "sv-SE": {
-        name: any;
+        name: string;
     };
     "tr-TR": {
-        name: any;
+        name: string;
     };
     "zh-CN": {
-        name: any;
+        name: string;
     };
     "zh-HK": {
-        name: any;
+        name: string;
     };
     "zh-TW": {
-        name: any;
+        name: string;
     };
 };
-export declare function speechLanguageConfigToLanguage(config: unknown, lang?: any): string;
+export declare function speechLanguageConfigToLanguage(config: unknown, lang?: string): string;

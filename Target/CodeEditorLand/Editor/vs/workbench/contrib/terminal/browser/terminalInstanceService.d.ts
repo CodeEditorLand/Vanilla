@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IShellLaunchConfig, ITerminalBackend, ITerminalProfile, TerminalLocation } from "vs/platform/terminal/common/terminal";
-import { ITerminalInstance, ITerminalInstanceService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IShellLaunchConfig, ITerminalBackend, ITerminalProfile, TerminalLocation } from "../../../../platform/terminal/common/terminal.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { ITerminalInstance, ITerminalInstanceService } from "./terminal.js";
 export declare class TerminalInstanceService extends Disposable implements ITerminalInstanceService {
     private readonly _instantiationService;
     private readonly _contextKeyService;

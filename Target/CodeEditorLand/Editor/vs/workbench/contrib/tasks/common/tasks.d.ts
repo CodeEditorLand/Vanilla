@@ -1,14 +1,15 @@
-import { IJSONSchemaMap } from "vs/base/common/jsonSchema";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { ConfigurationTarget } from "vs/platform/configuration/common/configuration";
-import { ContextKeyExpression } from "vs/platform/contextkey/common/contextkey";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { TerminalExitReason } from "vs/platform/terminal/common/terminal";
-import { IWorkspace, IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-import { ProblemMatcher } from "vs/workbench/contrib/tasks/common/problemMatcher";
+import { IJSONSchemaMap } from "../../../../base/common/jsonSchema.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import * as nls from "../../../../nls.js";
+import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpression, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { TerminalExitReason } from "../../../../platform/terminal/common/terminal.js";
+import { IWorkspace, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { ProblemMatcher } from "./problemMatcher.js";
 export declare const USER_TASKS_GROUP_KEY = "settings";
-export declare const TASK_RUNNING_STATE: any;
-export declare const TASKS_CATEGORY: any;
+export declare const TASK_RUNNING_STATE: RawContextKey<boolean>;
+export declare const TASKS_CATEGORY: nls.ILocalizedString;
 export declare enum ShellQuoting {
     /**
      * Use character escaping.

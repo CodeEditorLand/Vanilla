@@ -1,18 +1,19 @@
-import { IExpression } from "vs/base/common/glob";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IEditorOptions } from "vs/editor/common/config/editorOptions";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { ITextModel } from "vs/editor/common/model";
-import { IModelService } from "vs/editor/common/services/model";
-import { ITextModelContentProvider } from "vs/editor/common/services/resolverService";
-import { ITextEditorOptions } from "vs/platform/editor/common/editor";
-import { IFileService, IFilesConfiguration as PlatformIFilesConfiguration } from "vs/platform/files/common/files";
-import { IEditorIdentifier, IWorkbenchEditorConfiguration } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { IEditorGroup } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
+import { IExpression } from "../../../../base/common/glob.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IEditorOptions } from "../../../../editor/common/config/editorOptions.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ITextModelContentProvider } from "../../../../editor/common/services/resolverService.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IFileService, IFilesConfiguration as PlatformIFilesConfiguration } from "../../../../platform/files/common/files.js";
+import { IEditorIdentifier, IWorkbenchEditorConfiguration } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
 /**
  * Explorer viewlet id.
  */
@@ -24,27 +25,27 @@ export declare const VIEW_ID = "workbench.explorer.fileView";
 /**
  * Context Keys to use with keybindings for the Explorer and Open Editors view
  */
-export declare const ExplorerViewletVisibleContext: any;
-export declare const FoldersViewVisibleContext: any;
-export declare const ExplorerFolderContext: any;
-export declare const ExplorerResourceReadonlyContext: any;
-export declare const ExplorerResourceNotReadonlyContext: any;
+export declare const ExplorerViewletVisibleContext: RawContextKey<boolean>;
+export declare const FoldersViewVisibleContext: RawContextKey<boolean>;
+export declare const ExplorerFolderContext: RawContextKey<boolean>;
+export declare const ExplorerResourceReadonlyContext: RawContextKey<boolean>;
+export declare const ExplorerResourceNotReadonlyContext: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
 /**
  * Comma separated list of editor ids that can be used for the selected explorer resource.
  */
-export declare const ExplorerResourceAvailableEditorIdsContext: any;
-export declare const ExplorerRootContext: any;
-export declare const ExplorerResourceCut: any;
-export declare const ExplorerResourceMoveableToTrash: any;
-export declare const FilesExplorerFocusedContext: any;
-export declare const OpenEditorsFocusedContext: any;
-export declare const ExplorerFocusedContext: any;
-export declare const ExplorerCompressedFocusContext: any;
-export declare const ExplorerCompressedFirstFocusContext: any;
-export declare const ExplorerCompressedLastFocusContext: any;
-export declare const ViewHasSomeCollapsibleRootItemContext: any;
-export declare const FilesExplorerFocusCondition: any;
-export declare const ExplorerFocusCondition: any;
+export declare const ExplorerResourceAvailableEditorIdsContext: RawContextKey<string>;
+export declare const ExplorerRootContext: RawContextKey<boolean>;
+export declare const ExplorerResourceCut: RawContextKey<boolean>;
+export declare const ExplorerResourceMoveableToTrash: RawContextKey<boolean>;
+export declare const FilesExplorerFocusedContext: RawContextKey<boolean>;
+export declare const OpenEditorsFocusedContext: RawContextKey<boolean>;
+export declare const ExplorerFocusedContext: RawContextKey<boolean>;
+export declare const ExplorerCompressedFocusContext: RawContextKey<boolean>;
+export declare const ExplorerCompressedFirstFocusContext: RawContextKey<boolean>;
+export declare const ExplorerCompressedLastFocusContext: RawContextKey<boolean>;
+export declare const ViewHasSomeCollapsibleRootItemContext: RawContextKey<boolean>;
+export declare const FilesExplorerFocusCondition: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression | undefined;
+export declare const ExplorerFocusCondition: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression | undefined;
 /**
  * Text file editor id.
  */
@@ -143,7 +144,7 @@ export declare class OpenEditor implements IEditorIdentifier {
     constructor(_editor: EditorInput, _group: IEditorGroup);
     get editor(): EditorInput;
     get group(): IEditorGroup;
-    get groupId(): any;
+    get groupId(): number;
     getId(): string;
     isPreview(): boolean;
     isSticky(): boolean;

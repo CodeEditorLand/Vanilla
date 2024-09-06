@@ -1,11 +1,11 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IPickerQuickAccessItem } from "vs/platform/quickinput/browser/pickerQuickAccess";
-import { IKeyMods, IQuickInputService, IQuickPickItem } from "vs/platform/quickinput/common/quickInput";
-import { IExtensionTerminalProfile, ITerminalProfile } from "vs/platform/terminal/common/terminal";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IQuickPickTerminalObject, ITerminalInstance } from "vs/workbench/contrib/terminal/browser/terminal";
-import { ITerminalProfileResolverService, ITerminalProfileService } from "vs/workbench/contrib/terminal/common/terminal";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IPickerQuickAccessItem } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { IKeyMods, IQuickInputService, IQuickPickItem } from "../../../../platform/quickinput/common/quickInput.js";
+import { IExtensionTerminalProfile, ITerminalProfile } from "../../../../platform/terminal/common/terminal.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ITerminalProfileResolverService, ITerminalProfileService } from "../common/terminal.js";
+import { IQuickPickTerminalObject, ITerminalInstance } from "./terminal.js";
 type DefaultProfileName = string;
 export declare class TerminalProfileQuickpick {
     private readonly _terminalProfileService;

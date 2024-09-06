@@ -1,5 +1,5 @@
-import { IExternalTerminalService as ICommonExternalTerminalService } from "vs/platform/externalTerminal/common/externalTerminal";
-export declare const IExternalTerminalService: any;
+import { IExternalTerminalService as ICommonExternalTerminalService } from "../common/externalTerminal.js";
+export declare const IExternalTerminalService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExternalTerminalService>;
 export interface IExternalTerminalService extends ICommonExternalTerminalService {
     readonly _serviceBrand: undefined;
 }

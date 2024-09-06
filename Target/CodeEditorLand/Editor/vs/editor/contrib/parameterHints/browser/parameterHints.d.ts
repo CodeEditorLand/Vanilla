@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { TriggerContext } from "vs/editor/contrib/parameterHints/browser/parameterHintsModel";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { TriggerContext } from "./parameterHintsModel.js";
 export declare class ParameterHintsController extends Disposable implements IEditorContribution {
     static readonly ID = "editor.controller.parameterHints";
     static get(editor: ICodeEditor): ParameterHintsController | null;

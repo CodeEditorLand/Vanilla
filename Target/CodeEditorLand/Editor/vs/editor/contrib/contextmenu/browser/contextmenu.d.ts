@@ -1,12 +1,12 @@
-import { IMouseEvent } from "vs/base/browser/mouseEvent";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService, IContextViewService } from "vs/platform/contextview/browser/contextView";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
+import { IMouseEvent } from "../../../../base/browser/mouseEvent.js";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService, IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
 export declare class ContextMenuController implements IEditorContribution {
     private readonly _contextMenuService;
     private readonly _contextViewService;

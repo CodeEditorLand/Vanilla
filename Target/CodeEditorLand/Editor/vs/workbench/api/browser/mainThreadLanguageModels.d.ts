@@ -1,14 +1,14 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { SerializedError } from "vs/base/common/errors";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { MainThreadLanguageModelsShape } from "vs/workbench/api/common/extHost.protocol";
-import { IChatMessage, IChatResponseFragment, ILanguageModelChatMetadata, ILanguageModelChatSelector, ILanguageModelsService } from "vs/workbench/contrib/chat/common/languageModels";
-import { ILanguageModelStatsService } from "vs/workbench/contrib/chat/common/languageModelStats";
-import { IAuthenticationAccessService } from "vs/workbench/services/authentication/browser/authenticationAccessService";
-import { IAuthenticationService } from "vs/workbench/services/authentication/common/authentication";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { SerializedError } from "../../../base/common/errors.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IChatMessage, IChatResponseFragment, ILanguageModelChatMetadata, ILanguageModelChatSelector, ILanguageModelsService } from "../../contrib/chat/common/languageModels.js";
+import { ILanguageModelStatsService } from "../../contrib/chat/common/languageModelStats.js";
+import { IAuthenticationAccessService } from "../../services/authentication/browser/authenticationAccessService.js";
+import { IAuthenticationService } from "../../services/authentication/common/authentication.js";
+import { IExtensionService } from "../../services/extensions/common/extensions.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadLanguageModelsShape } from "../common/extHost.protocol.js";
 export declare class MainThreadLanguageModels implements MainThreadLanguageModelsShape {
     private readonly _chatProviderService;
     private readonly _languageModelStatsService;

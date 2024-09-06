@@ -1,4 +1,4 @@
-import { URI } from "vs/base/common/uri";
+import { URI } from "../../../../base/common/uri.js";
 export declare class StickyRange {
     readonly startLineNumber: number;
     readonly endLineNumber: number;

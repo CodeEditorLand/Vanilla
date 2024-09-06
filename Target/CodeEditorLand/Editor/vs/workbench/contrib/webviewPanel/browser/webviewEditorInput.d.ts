@@ -1,9 +1,10 @@
-import { CodeWindow } from "vs/base/browser/window";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { EditorInputCapabilities, GroupIdentifier, IUntypedEditorInput, Verbosity } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { IOverlayWebview } from "vs/workbench/contrib/webview/browser/webview";
-import { WebviewIconManager, WebviewIcons } from "vs/workbench/contrib/webviewPanel/browser/webviewIconManager";
+import { CodeWindow } from "../../../../base/browser/window.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { EditorInputCapabilities, GroupIdentifier, IUntypedEditorInput, Verbosity } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IOverlayWebview } from "../../webview/browser/webview.js";
+import { WebviewIconManager, WebviewIcons } from "./webviewIconManager.js";
 export interface WebviewInputInitInfo {
     readonly viewType: string;
     readonly providedId: string | undefined;
@@ -21,7 +22,7 @@ export declare class WebviewInput extends EditorInput {
     private _group?;
     private _webview;
     private _hasTransfered;
-    get resource(): any;
+    get resource(): URI;
     readonly viewType: string;
     readonly providedId: string | undefined;
     constructor(init: WebviewInputInitInfo, webview: IOverlayWebview, _iconManager: WebviewIconManager);
@@ -31,7 +32,7 @@ export declare class WebviewInput extends EditorInput {
     getDescription(): string | undefined;
     setName(value: string): void;
     get webview(): IOverlayWebview;
-    get extension(): any;
+    get extension(): import("../../webview/browser/webview.js").WebviewExtensionDescription | undefined;
     get iconPath(): WebviewIcons | undefined;
     set iconPath(value: WebviewIcons | undefined);
     matches(other: EditorInput | IUntypedEditorInput): boolean;

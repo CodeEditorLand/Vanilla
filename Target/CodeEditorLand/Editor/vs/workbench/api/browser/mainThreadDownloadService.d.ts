@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { UriComponents } from "vs/base/common/uri";
-import { IDownloadService } from "vs/platform/download/common/download";
-import { MainThreadDownloadServiceShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IDownloadService } from "../../../platform/download/common/download.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadDownloadServiceShape } from "../common/extHost.protocol.js";
 export declare class MainThreadDownloadService extends Disposable implements MainThreadDownloadServiceShape {
     private readonly downloadService;
     constructor(extHostContext: IExtHostContext, downloadService: IDownloadService);

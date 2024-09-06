@@ -1,5 +1,5 @@
-import { IAddress } from "vs/platform/remote/common/remoteAgentConnection";
-export declare const ISharedProcessTunnelService: any;
+import { IAddress } from "./remoteAgentConnection.js";
+export declare const ISharedProcessTunnelService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ISharedProcessTunnelService>;
 export declare const ipcSharedProcessTunnelChannelName = "sharedProcessTunnel";
 export interface ISharedProcessTunnel {
     tunnelLocalPort: number | undefined;

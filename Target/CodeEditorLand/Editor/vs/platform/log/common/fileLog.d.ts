@@ -1,6 +1,6 @@
-import { URI } from "vs/base/common/uri";
-import { IFileService } from "vs/platform/files/common/files";
-import { AbstractLoggerService, ILogger, ILoggerOptions, ILoggerService, LogLevel } from "vs/platform/log/common/log";
+import { URI } from "../../../base/common/uri.js";
+import { IFileService } from "../../files/common/files.js";
+import { AbstractLoggerService, ILogger, ILoggerOptions, ILoggerService, LogLevel } from "./log.js";
 export declare class FileLoggerService extends AbstractLoggerService implements ILoggerService {
     private readonly fileService;
     constructor(logLevel: LogLevel, logsHome: URI, fileService: IFileService);

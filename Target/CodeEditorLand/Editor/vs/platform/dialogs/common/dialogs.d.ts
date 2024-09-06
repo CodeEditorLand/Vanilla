@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import Severity from "vs/base/common/severity";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { MessageBoxOptions } from "vs/base/parts/sandbox/common/electronTypes";
-import { IProductService } from "vs/platform/product/common/productService";
-import { ITelemetryData } from "vs/platform/telemetry/common/telemetry";
+import { Event } from "../../../base/common/event.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import Severity from "../../../base/common/severity.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { URI } from "../../../base/common/uri.js";
+import { MessageBoxOptions } from "../../../base/parts/sandbox/common/electronTypes.js";
+import { IProductService } from "../../product/common/productService.js";
+import { ITelemetryData } from "../../telemetry/common/telemetry.js";
 export interface IDialogArgs {
     readonly confirmArgs?: IConfirmDialogArgs;
     readonly inputArgs?: IInputDialogArgs;
@@ -202,7 +202,7 @@ export interface IOpenDialogOptions {
      */
     availableFileSystems?: readonly string[];
 }
-export declare const IDialogService: any;
+export declare const IDialogService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IDialogService>;
 export interface ICustomDialogOptions {
     readonly buttonDetails?: string[];
     readonly markdownDetails?: ICustomDialogMarkdown[];
@@ -301,7 +301,7 @@ export interface IDialogService {
      */
     about(): Promise<void>;
 }
-export declare const IFileDialogService: any;
+export declare const IFileDialogService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IFileDialogService>;
 /**
  * A service to bring up file dialogs.
  */

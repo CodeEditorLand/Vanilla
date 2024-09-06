@@ -1,11 +1,11 @@
-import { Platform } from "vs/base/common/platform";
-import { IFileService } from "vs/platform/files/common/files";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IUserDataProfile } from "vs/platform/userDataProfile/common/userDataProfile";
-import { ITreeItemCheckboxState } from "vs/workbench/common/views";
-import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem, IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { Platform } from "../../../../base/common/platform.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfile, ProfileResourceType } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { ITreeItemCheckboxState, TreeItemCollapsibleState } from "../../../common/views.js";
+import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem, IUserDataProfileService } from "../common/userDataProfile.js";
 interface IKeybindingsResourceContent {
     platform: Platform;
     keybindings: string | null;
@@ -30,12 +30,12 @@ export declare class KeybindingsResourceTreeItem implements IProfileResourceTree
     private readonly profile;
     private readonly uriIdentityService;
     private readonly instantiationService;
-    readonly type: any;
-    readonly handle: any;
+    readonly type = ProfileResourceType.Keybindings;
+    readonly handle = ProfileResourceType.Keybindings;
     readonly label: {
-        label: any;
+        label: string;
     };
-    readonly collapsibleState: any;
+    readonly collapsibleState = TreeItemCollapsibleState.Expanded;
     checkbox: ITreeItemCheckboxState | undefined;
     constructor(profile: IUserDataProfile, uriIdentityService: IUriIdentityService, instantiationService: IInstantiationService);
     isFromDefaultProfile(): boolean;

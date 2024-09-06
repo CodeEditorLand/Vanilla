@@ -1,11 +1,11 @@
-import { URI } from "vs/base/common/uri";
-import { Range } from "vs/editor/common/core/range";
-import { Selection } from "vs/editor/common/core/selection";
-import { IResourceUndoRedoElement, UndoRedoElementType } from "vs/platform/undoRedo/common/undoRedo";
-import { BaseCellViewModel } from "vs/workbench/contrib/notebook/browser/viewModel/baseCellViewModel";
-import { ITextCellEditingDelegate } from "vs/workbench/contrib/notebook/common/model/cellEdit";
-import { NotebookCellTextModel } from "vs/workbench/contrib/notebook/common/model/notebookCellTextModel";
-import { CellKind, IOutputDto, NotebookCellMetadata } from "vs/workbench/contrib/notebook/common/notebookCommon";
+import { URI } from "../../../../../base/common/uri.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { Selection } from "../../../../../editor/common/core/selection.js";
+import { IResourceUndoRedoElement, UndoRedoElementType } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { ITextCellEditingDelegate } from "../../common/model/cellEdit.js";
+import { NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
+import { CellKind, IOutputDto, NotebookCellMetadata } from "../../common/notebookCommon.js";
+import { BaseCellViewModel } from "./baseCellViewModel.js";
 export interface IViewCellEditingDelegate extends ITextCellEditingDelegate {
     createCellViewModel?(cell: NotebookCellTextModel): BaseCellViewModel;
     createCell?(index: number, source: string, language: string, type: CellKind, metadata: NotebookCellMetadata | undefined, outputs: IOutputDto[]): BaseCellViewModel;

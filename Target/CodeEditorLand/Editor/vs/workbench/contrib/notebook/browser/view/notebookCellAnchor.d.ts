@@ -1,11 +1,11 @@
-import { IListView } from "vs/base/browser/ui/list/listView";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ScrollEvent } from "vs/base/common/scrollable";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ICellViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { CellViewModel } from "vs/workbench/contrib/notebook/browser/viewModel/notebookViewModelImpl";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
+import { IListView } from "../../../../../base/browser/ui/list/listView.js";
+import { Event } from "../../../../../base/common/event.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { ScrollEvent } from "../../../../../base/common/scrollable.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";
+import { ICellViewModel } from "../notebookBrowser.js";
+import { CellViewModel } from "../viewModel/notebookViewModelImpl.js";
 export declare class NotebookCellAnchor implements IDisposable {
     private readonly notebookExecutionStateService;
     private readonly configurationService;

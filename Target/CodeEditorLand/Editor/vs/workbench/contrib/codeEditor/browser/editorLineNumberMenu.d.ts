@@ -1,11 +1,11 @@
-import { IAction } from "vs/base/common/actions";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ICodeEditor, IEditorMouseEvent } from "vs/editor/browser/editorBrowser";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
+import { IAction } from "../../../../base/common/actions.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor, IEditorMouseEvent } from "../../../../editor/browser/editorBrowser.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 export interface IGutterActionsGenerator {
     (context: {
         lineNumber: number;

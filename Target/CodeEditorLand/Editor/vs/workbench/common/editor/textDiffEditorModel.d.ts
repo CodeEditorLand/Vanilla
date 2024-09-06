@@ -1,7 +1,7 @@
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { IDiffEditorModel } from "vs/editor/common/editorCommon";
-import { DiffEditorModel } from "vs/workbench/common/editor/diffEditorModel";
-import { BaseTextEditorModel } from "vs/workbench/common/editor/textEditorModel";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { IDiffEditorModel } from "../../../editor/common/editorCommon.js";
+import { DiffEditorModel } from "./diffEditorModel.js";
+import { BaseTextEditorModel } from "./textEditorModel.js";
 /**
  * The base text editor model for the diff editor. It is made up of two text editor models, the original version
  * and the modified version.

@@ -1,1 +1,1 @@
-import "vs/css!./media/languageStatus";
+import "./media/languageStatus.css";

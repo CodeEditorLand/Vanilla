@@ -1,20 +1,20 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IEditorSerializer } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { InteractiveEditorInput } from "vs/workbench/contrib/interactive/browser/interactiveEditorInput";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
-import { IEditorResolverService } from "vs/workbench/services/editor/common/editorResolverService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IEditorSerializer } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { INotebookService } from "../../notebook/common/notebookService.js";
+import { InteractiveEditorInput } from "./interactiveEditorInput.js";
 export declare class InteractiveDocumentContribution extends Disposable implements IWorkbenchContribution {
     private readonly instantiationService;
     static readonly ID = "workbench.contrib.interactiveDocument";
     constructor(notebookService: INotebookService, editorResolverService: IEditorResolverService, editorService: IEditorService, instantiationService: IInstantiationService);
 }
 export declare class InteractiveEditorSerializer implements IEditorSerializer {
-    static readonly ID: any;
+    static readonly ID: string;
     canSerialize(editor: EditorInput): editor is InteractiveEditorInput;
     serialize(input: EditorInput): string | undefined;
-    deserialize(instantiationService: IInstantiationService, raw: string): any;
+    deserialize(instantiationService: IInstantiationService, raw: string): InteractiveEditorInput | undefined;
 }

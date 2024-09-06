@@ -1,1 +1,1 @@
-import"../../../../vs/base/common/lifecycle.js";
+import"../../../base/common/lifecycle.js";

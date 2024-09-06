@@ -1,11 +1,11 @@
-import { FastDomNode } from "vs/base/browser/fastDomNode";
-import "vs/css!./glyphMargin";
-import { IGlyphMarginWidget, IGlyphMarginWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { DynamicViewOverlay } from "vs/editor/browser/view/dynamicViewOverlay";
-import { RenderingContext, RestrictedRenderingContext } from "vs/editor/browser/view/renderingContext";
-import { ViewPart } from "vs/editor/browser/view/viewPart";
-import * as viewEvents from "vs/editor/common/viewEvents";
-import { ViewContext } from "vs/editor/common/viewModel/viewContext";
+import { FastDomNode } from "../../../../base/browser/fastDomNode.js";
+import "./glyphMargin.css";
+import * as viewEvents from "../../../common/viewEvents.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import { IGlyphMarginWidget, IGlyphMarginWidgetPosition } from "../../editorBrowser.js";
+import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
+import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
+import { ViewPart } from "../../view/viewPart.js";
 /**
  * Represents a decoration that should be shown along the lines from `startLineNumber` to `endLineNumber`.
  * This can end up producing multiple `LineDecorationToRender`.

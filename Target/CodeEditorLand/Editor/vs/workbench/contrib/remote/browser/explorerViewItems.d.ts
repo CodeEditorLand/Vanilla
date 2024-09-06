@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IViewDescriptor } from "vs/workbench/common/views";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IRemoteExplorerService } from "vs/workbench/services/remote/common/remoteExplorerService";
-export declare const SELECTED_REMOTE_IN_EXPLORER: any;
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IViewDescriptor } from "../../../common/views.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IRemoteExplorerService } from "../../../services/remote/common/remoteExplorerService.js";
+export declare const SELECTED_REMOTE_IN_EXPLORER: RawContextKey<string>;
 export declare class SwitchRemoteViewItem extends Disposable {
     private readonly contextKeyService;
     private remoteExplorerService;

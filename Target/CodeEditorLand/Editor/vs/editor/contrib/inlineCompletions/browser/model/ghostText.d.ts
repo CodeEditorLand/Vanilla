@@ -1,4 +1,4 @@
-import { ColumnRange } from "vs/editor/contrib/inlineCompletions/browser/utils";
+import { ColumnRange } from "../utils.js";
 export declare class GhostText {
     readonly lineNumber: number;
     readonly parts: GhostTextPart[];
@@ -24,7 +24,7 @@ export declare class GhostTextPart {
      * Indicates if this part is a preview of an inline suggestion when a suggestion is previewed.
      */
     preview: boolean);
-    readonly lines: any;
+    readonly lines: string[];
     equals(other: GhostTextPart): boolean;
 }
 export declare class GhostTextReplacement {
@@ -34,7 +34,7 @@ export declare class GhostTextReplacement {
     readonly additionalReservedLineCount: number;
     readonly parts: ReadonlyArray<GhostTextPart>;
     constructor(lineNumber: number, columnRange: ColumnRange, text: string, additionalReservedLineCount?: number);
-    readonly newLines: any;
+    readonly newLines: string[];
     renderForScreenReader(_lineText: string): string;
     render(documentText: string, debug?: boolean): string;
     get lineCount(): number;

@@ -1,14 +1,14 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./links";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Position } from "vs/editor/common/core/position";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { IModelDecorationsChangeAccessor, IModelDeltaDecoration } from "vs/editor/common/model";
-import { ILanguageFeatureDebounceService } from "vs/editor/common/services/languageFeatureDebounce";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { Link } from "vs/editor/contrib/links/browser/getLinks";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IOpenerService } from "vs/platform/opener/common/opener";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import "./links.css";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { Position } from "../../../common/core/position.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { IModelDecorationsChangeAccessor, IModelDeltaDecoration } from "../../../common/model.js";
+import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { Link } from "./getLinks.js";
 export declare class LinkDetector extends Disposable implements IEditorContribution {
     private readonly editor;
     private readonly openerService;

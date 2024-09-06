@@ -1,8 +1,8 @@
-import { URI } from "vs/base/common/uri";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { IFileService } from "vs/platform/files/common/files";
-import { IJSONEditingService, IJSONValue } from "vs/workbench/services/configuration/common/jsonEditing";
-import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ITextFileService } from "../../textfile/common/textfiles.js";
+import { IJSONEditingService, IJSONValue } from "./jsonEditing.js";
 export declare class JSONEditingService implements IJSONEditingService {
     private readonly fileService;
     private readonly textModelResolverService;

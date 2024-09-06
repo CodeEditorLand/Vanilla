@@ -1,12 +1,12 @@
-import { AddFirstParameterToFunctions } from "vs/base/common/types";
-import { URI } from "vs/base/common/uri";
-import { IFolderBackupInfo, IWorkspaceBackupInfo } from "vs/platform/backup/common/backup";
-import { IBackupMainService } from "vs/platform/backup/electron-main/backup";
-import { IWindowsMainService } from "vs/platform/windows/electron-main/windows";
-import { IWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
-import { IEnterWorkspaceResult, IRecent, IRecentlyOpened, IWorkspaceFolderCreationData, IWorkspacesService } from "vs/platform/workspaces/common/workspaces";
-import { IWorkspacesHistoryMainService } from "vs/platform/workspaces/electron-main/workspacesHistoryMainService";
-import { IWorkspacesManagementMainService } from "vs/platform/workspaces/electron-main/workspacesManagementMainService";
+import { AddFirstParameterToFunctions } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { IFolderBackupInfo, IWorkspaceBackupInfo } from "../../backup/common/backup.js";
+import { IBackupMainService } from "../../backup/electron-main/backup.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { IEnterWorkspaceResult, IRecent, IRecentlyOpened, IWorkspaceFolderCreationData, IWorkspacesService } from "../common/workspaces.js";
+import { IWorkspacesHistoryMainService } from "./workspacesHistoryMainService.js";
+import { IWorkspacesManagementMainService } from "./workspacesManagementMainService.js";
 export declare class WorkspacesMainService implements AddFirstParameterToFunctions<IWorkspacesService, Promise<unknown>, number> {
     private readonly workspacesManagementMainService;
     private readonly windowsMainService;
@@ -18,7 +18,7 @@ export declare class WorkspacesMainService implements AddFirstParameterToFunctio
     createUntitledWorkspace(windowId: number, folders?: IWorkspaceFolderCreationData[], remoteAuthority?: string): Promise<IWorkspaceIdentifier>;
     deleteUntitledWorkspace(windowId: number, workspace: IWorkspaceIdentifier): Promise<void>;
     getWorkspaceIdentifier(windowId: number, workspacePath: URI): Promise<IWorkspaceIdentifier>;
-    readonly onDidChangeRecentlyOpened: any;
+    readonly onDidChangeRecentlyOpened: import("../../../workbench/workbench.web.main.internal.js").Event<void>;
     getRecentlyOpened(windowId: number): Promise<IRecentlyOpened>;
     addRecentlyOpened(windowId: number, recents: IRecent[]): Promise<void>;
     removeRecentlyOpened(windowId: number, paths: URI[]): Promise<void>;

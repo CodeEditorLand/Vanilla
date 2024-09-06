@@ -1,6 +1,6 @@
-import { IAuxiliaryTitlebarPart, ITitlebarPart } from "vs/workbench/browser/parts/titlebar/titlebarPart";
-import { IEditorGroupsContainer } from "vs/workbench/services/editor/common/editorGroupsService";
-export declare const ITitleService: any;
+import { IAuxiliaryTitlebarPart, ITitlebarPart } from "../../../browser/parts/titlebar/titlebarPart.js";
+import { IEditorGroupsContainer } from "../../editor/common/editorGroupsService.js";
+export declare const ITitleService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITitleService>;
 export interface ITitleService extends ITitlebarPart {
     readonly _serviceBrand: undefined;
     /**

@@ -1,10 +1,10 @@
-import { Orientation, Sash } from "vs/base/browser/ui/sash/sash";
-import { Color } from "vs/base/common/color";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ScrollbarVisibility, ScrollEvent } from "vs/base/common/scrollable";
-import "vs/css!./splitview";
-export { Orientation } from "vs/base/browser/ui/sash/sash";
+import { Color } from "../../../common/color.js";
+import { Event } from "../../../common/event.js";
+import { Disposable, IDisposable } from "../../../common/lifecycle.js";
+import { ScrollbarVisibility, ScrollEvent } from "../../../common/scrollable.js";
+import { Orientation, Sash } from "../sash/sash.js";
+import "./splitview.css";
+export { Orientation } from "../sash/sash.js";
 export interface ISplitViewStyles {
     readonly separatorBorder: Color;
 }
@@ -281,11 +281,11 @@ export declare class SplitView<TLayoutContext = undefined, TView extends IView<T
     /**
      * Fires whenever the user resizes a {@link Sash sash}.
      */
-    readonly onDidSashChange: any;
+    readonly onDidSashChange: Event<number>;
     /**
      * Fires whenever the user double clicks a {@link Sash sash}.
      */
-    readonly onDidSashReset: any;
+    readonly onDidSashReset: Event<number>;
     /**
      * Fires whenever the split view is scrolled.
      */

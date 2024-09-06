@@ -1,15 +1,15 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IPreparedQuery } from "vs/base/common/fuzzyScorer";
-import { DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IRange } from "vs/editor/common/core/range";
-import { DocumentSymbol, SymbolKind } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IOutlineModelService } from "vs/editor/contrib/documentSymbols/browser/outlineModel";
-import { AbstractEditorNavigationQuickAccessProvider, IEditorNavigationQuickAccessOptions, IQuickAccessTextEditorContext } from "vs/editor/contrib/quickAccess/browser/editorNavigationQuickAccess";
-import { IQuickAccessProviderRunOptions } from "vs/platform/quickinput/common/quickAccess";
-import { IQuickPick, IQuickPickItem, IQuickPickSeparator } from "vs/platform/quickinput/common/quickInput";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IPreparedQuery } from "../../../../base/common/fuzzyScorer.js";
+import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IQuickAccessProviderRunOptions } from "../../../../platform/quickinput/common/quickAccess.js";
+import { IQuickPick, IQuickPickItem, IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
+import { IRange } from "../../../common/core/range.js";
+import { DocumentSymbol, SymbolKind } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { IOutlineModelService } from "../../documentSymbols/browser/outlineModel.js";
+import { AbstractEditorNavigationQuickAccessProvider, IEditorNavigationQuickAccessOptions, IQuickAccessTextEditorContext } from "./editorNavigationQuickAccess.js";
 export interface IGotoSymbolQuickPickItem extends IQuickPickItem {
     kind: SymbolKind;
     index: number;

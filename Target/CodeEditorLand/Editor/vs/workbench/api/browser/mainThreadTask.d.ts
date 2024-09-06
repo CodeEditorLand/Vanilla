@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { MainThreadTaskShape } from "vs/workbench/api/common/extHost.protocol";
-import { ITaskDTO, ITaskExecutionDTO, ITaskFilterDTO, ITaskHandleDTO, ITaskSystemInfoDTO } from "vs/workbench/api/common/shared/tasks";
-import { ITaskService } from "vs/workbench/contrib/tasks/common/taskService";
-import { IConfigurationResolverService } from "vs/workbench/services/configurationResolver/common/configurationResolver";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IWorkspaceContextService } from "../../../platform/workspace/common/workspace.js";
+import { ITaskService } from "../../contrib/tasks/common/taskService.js";
+import { IConfigurationResolverService } from "../../services/configurationResolver/common/configurationResolver.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadTaskShape } from "../common/extHost.protocol.js";
+import { ITaskDTO, ITaskExecutionDTO, ITaskFilterDTO, ITaskHandleDTO, ITaskSystemInfoDTO } from "../common/shared/tasks.js";
 export declare class MainThreadTask extends Disposable implements MainThreadTaskShape {
     private readonly _taskService;
     private readonly _workspaceContextServer;

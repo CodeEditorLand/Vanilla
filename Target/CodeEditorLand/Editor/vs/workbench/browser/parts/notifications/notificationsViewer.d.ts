@@ -1,15 +1,15 @@
-import { ActionBar } from "vs/base/browser/ui/actionbar/actionbar";
-import { IListRenderer, IListVirtualDelegate } from "vs/base/browser/ui/list/list";
-import { ProgressBar } from "vs/base/browser/ui/progressbar/progressbar";
-import { IActionRunner } from "vs/base/common/actions";
-import { Disposable, DisposableStore } from "vs/base/common/lifecycle";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { INotificationViewItem } from "vs/workbench/common/notifications";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { IListRenderer, IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
+import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
+import { IActionRunner } from "../../../../base/common/actions.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { INotificationViewItem } from "../../../common/notifications.js";
 export declare class NotificationsListDelegate implements IListVirtualDelegate<INotificationViewItem> {
     private static readonly ROW_HEIGHT;
     private static readonly LINE_HEIGHT;

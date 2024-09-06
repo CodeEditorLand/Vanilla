@@ -1,11 +1,11 @@
-import { IContextMenuProvider } from "vs/base/browser/contextmenu";
-import { IActionViewItemProvider } from "vs/base/browser/ui/actionbar/actionbar";
-import { ActionViewItem, BaseActionViewItem, IActionViewItemOptions, IBaseActionViewItemOptions } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { AnchorAlignment } from "vs/base/browser/ui/contextview/contextview";
-import { IActionProvider } from "vs/base/browser/ui/dropdown/dropdown";
-import { IAction, IActionRunner } from "vs/base/common/actions";
-import { ResolvedKeybinding } from "vs/base/common/keybindings";
-import "vs/css!./dropdown";
+import { IAction, IActionRunner } from "../../../common/actions.js";
+import { ResolvedKeybinding } from "../../../common/keybindings.js";
+import { IContextMenuProvider } from "../../contextmenu.js";
+import { IActionViewItemProvider } from "../actionbar/actionbar.js";
+import { ActionViewItem, BaseActionViewItem, IActionViewItemOptions, IBaseActionViewItemOptions } from "../actionbar/actionViewItems.js";
+import { AnchorAlignment } from "../contextview/contextview.js";
+import { IActionProvider } from "./dropdown.js";
+import "./dropdown.css";
 export interface IKeybindingProvider {
     (action: IAction): ResolvedKeybinding | undefined;
 }
@@ -27,7 +27,7 @@ export declare class DropdownMenuActionViewItem extends BaseActionViewItem {
     private contextMenuProvider;
     private actionItem;
     private _onDidChangeVisibility;
-    readonly onDidChangeVisibility: any;
+    readonly onDidChangeVisibility: import("../../../common/event.js").Event<boolean>;
     protected readonly options: IDropdownMenuActionViewItemOptions;
     constructor(action: IAction, menuActionsOrProvider: readonly IAction[] | IActionProvider, contextMenuProvider: IContextMenuProvider, options?: IDropdownMenuActionViewItemOptions);
     render(container: HTMLElement): void;

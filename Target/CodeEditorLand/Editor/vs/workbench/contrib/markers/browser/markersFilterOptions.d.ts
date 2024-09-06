@@ -1,7 +1,7 @@
-import { IFilter } from "vs/base/common/filters";
-import { IExpression } from "vs/base/common/glob";
-import { URI } from "vs/base/common/uri";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
+import { IFilter } from "../../../../base/common/filters.js";
+import { IExpression } from "../../../../base/common/glob.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 export declare class ResourceGlobMatcher {
     private readonly globalExpression;
     private readonly expressionsByRoot;

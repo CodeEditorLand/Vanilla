@@ -1,4 +1,4 @@
-import { IWorkerClient, IWorkerServer } from "vs/base/common/worker/simpleWorker";
+import { IWorkerClient, IWorkerServer } from "../../../base/common/worker/simpleWorker.js";
 export declare abstract class EditorWorkerHost {
     static CHANNEL_NAME: string;
     static getChannel(workerServer: IWorkerServer): EditorWorkerHost;

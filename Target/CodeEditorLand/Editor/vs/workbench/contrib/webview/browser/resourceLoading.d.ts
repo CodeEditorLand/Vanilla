@@ -1,8 +1,8 @@
-import { VSBufferReadableStream } from "vs/base/common/buffer";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { URI } from "vs/base/common/uri";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
+import { VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 export declare namespace WebviewResourceResponse {
     enum Type {
         Success = 0,

@@ -1,3 +1,3 @@
-import { OptionDescriptions } from "vs/platform/environment/node/argv";
-import { ServerParsedArgs } from "vs/server/node/serverEnvironmentService";
+import { OptionDescriptions } from "../../platform/environment/node/argv.js";
+import { ServerParsedArgs } from "./serverEnvironmentService.js";
 export declare function run(args: ServerParsedArgs, REMOTE_DATA_FOLDER: string, optionDescriptions: OptionDescriptions<ServerParsedArgs>): Promise<void>;

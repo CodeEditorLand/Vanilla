@@ -1,7 +1,7 @@
-import { IActiveCodeEditor, ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, IActionOptions, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { Range } from "vs/editor/common/core/range";
-import { Selection } from "vs/editor/common/core/selection";
+import { IActiveCodeEditor, ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, IActionOptions, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { Range } from "../../../common/core/range.js";
+import { Selection } from "../../../common/core/selection.js";
 export declare class DuplicateSelectionAction extends EditorAction {
     constructor();
     run(accessor: ServicesAccessor, editor: ICodeEditor, args: any): void;

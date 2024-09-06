@@ -23,7 +23,7 @@ export interface IV8CallFrame {
     lineNumber: number;
     columnNumber: number;
 }
-export declare const IV8InspectProfilingService: any;
+export declare const IV8InspectProfilingService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IV8InspectProfilingService>;
 export interface IV8InspectProfilingService {
     _serviceBrand: undefined;
     startProfiling(options: {

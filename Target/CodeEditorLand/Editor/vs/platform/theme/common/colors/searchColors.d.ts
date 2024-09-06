@@ -1,3 +1,3 @@
-export declare const searchResultsInfoForeground: any;
-export declare const searchEditorFindMatch: any;
-export declare const searchEditorFindMatchBorder: any;
+export declare const searchResultsInfoForeground: string;
+export declare const searchEditorFindMatch: string;
+export declare const searchEditorFindMatchBorder: string;

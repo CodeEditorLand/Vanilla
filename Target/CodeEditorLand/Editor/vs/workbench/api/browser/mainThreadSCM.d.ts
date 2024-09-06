@@ -1,14 +1,14 @@
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { UriComponents } from "vs/base/common/uri";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IModelService } from "vs/editor/common/services/model";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IQuickDiffService } from "vs/workbench/contrib/scm/common/quickDiff";
-import { InputValidationType, ISCMService, ISCMViewService } from "vs/workbench/contrib/scm/common/scm";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { MainThreadSCMShape, SCMGroupFeatures, SCMHistoryItemGroupDto, SCMProviderFeatures, SCMRawResourceSplices } from "../common/extHost.protocol";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { ILanguageService } from "../../../editor/common/languages/language.js";
+import { IModelService } from "../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../editor/common/services/resolverService.js";
+import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../../platform/workspace/common/workspace.js";
+import { IQuickDiffService } from "../../contrib/scm/common/quickDiff.js";
+import { InputValidationType, ISCMService, ISCMViewService } from "../../contrib/scm/common/scm.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadSCMShape, SCMGroupFeatures, SCMHistoryItemGroupDto, SCMProviderFeatures, SCMRawResourceSplices } from "../common/extHost.protocol.js";
 export declare class MainThreadSCM implements MainThreadSCMShape {
     private readonly scmService;
     private readonly scmViewService;

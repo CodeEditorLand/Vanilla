@@ -1,20 +1,20 @@
-import { Emitter, Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ConfigurationTarget, IConfigurationChangeEvent, IConfigurationData, IConfigurationOverrides, IConfigurationUpdateOptions, IConfigurationUpdateOverrides, IConfigurationValue } from "vs/platform/configuration/common/configuration";
-import { ConfigurationModel } from "vs/platform/configuration/common/configurationModels";
-import { IFileService } from "vs/platform/files/common/files";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IPolicyService } from "vs/platform/policy/common/policy";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
-import { Workspace as BaseWorkspace, IAnyWorkspaceIdentifier, ISingleFolderWorkspaceIdentifier, IWorkspaceContextService, IWorkspaceFolder, IWorkspaceFoldersChangeEvent, IWorkspaceFoldersWillChangeEvent, IWorkspaceIdentifier, WorkbenchState } from "vs/platform/workspace/common/workspace";
-import { IWorkspaceFolderCreationData } from "vs/platform/workspaces/common/workspaces";
-import { IConfigurationCache, IWorkbenchConfigurationService } from "vs/workbench/services/configuration/common/configuration";
-import { IBrowserWorkbenchEnvironmentService } from "vs/workbench/services/environment/browser/environmentService";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
-import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ConfigurationTarget, IConfigurationChangeEvent, IConfigurationData, IConfigurationOverrides, IConfigurationUpdateOptions, IConfigurationUpdateOverrides, IConfigurationValue } from "../../../../platform/configuration/common/configuration.js";
+import { ConfigurationModel } from "../../../../platform/configuration/common/configurationModels.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IPolicyService } from "../../../../platform/policy/common/policy.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { Workspace as BaseWorkspace, IAnyWorkspaceIdentifier, ISingleFolderWorkspaceIdentifier, IWorkspaceContextService, IWorkspaceFolder, IWorkspaceFoldersChangeEvent, IWorkspaceFoldersWillChangeEvent, IWorkspaceIdentifier, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceFolderCreationData } from "../../../../platform/workspaces/common/workspaces.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { IConfigurationCache, IWorkbenchConfigurationService, RestrictedSettings } from "../common/configuration.js";
 declare class Workspace extends BaseWorkspace {
     initialized: boolean;
 }
@@ -55,7 +55,7 @@ export declare class WorkspaceService extends Disposable implements IWorkbenchCo
     private _restrictedSettings;
     get restrictedSettings(): RestrictedSettings;
     private readonly _onDidChangeRestrictedSettings;
-    readonly onDidChangeRestrictedSettings: any;
+    readonly onDidChangeRestrictedSettings: Event<RestrictedSettings>;
     private readonly configurationRegistry;
     private instantiationService;
     private configurationEditing;

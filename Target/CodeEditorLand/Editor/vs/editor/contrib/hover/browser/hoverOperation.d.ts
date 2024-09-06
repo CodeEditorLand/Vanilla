@@ -1,16 +1,16 @@
-import { AsyncIterableObject } from "vs/base/common/async";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-export interface IHoverComputer<T> {
+import { AsyncIterableObject } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+export interface IHoverComputer<TArgs, TResult> {
     /**
      * This is called after half the hover time
      */
-    computeAsync?: (token: CancellationToken) => AsyncIterableObject<T>;
+    computeAsync?: (args: TArgs, token: CancellationToken) => AsyncIterableObject<TResult>;
     /**
      * This is called after all the hover time
      */
-    computeSync?: () => T[];
+    computeSync?: (args: TArgs) => TResult[];
 }
 export declare const enum HoverStartMode {
     Delayed = 0,
@@ -20,11 +20,12 @@ export declare const enum HoverStartSource {
     Mouse = 0,
     Keyboard = 1
 }
-export declare class HoverResult<T> {
-    readonly value: T[];
+export declare class HoverResult<TArgs, TResult> {
+    readonly value: TResult[];
     readonly isComplete: boolean;
     readonly hasLoadingMessage: boolean;
-    constructor(value: T[], isComplete: boolean, hasLoadingMessage: boolean);
+    readonly options: TArgs;
+    constructor(value: TResult[], isComplete: boolean, hasLoadingMessage: boolean, options: TArgs);
 }
 /**
  * Computing the hover is very fine tuned.
@@ -36,19 +37,20 @@ export declare class HoverResult<T> {
  *   - if there are sync or async results, they are rendered.
  * - at 900ms, if the async computation hasn't finished, a "Loading..." result is added.
  */
-export declare class HoverOperation<T> extends Disposable {
+export declare class HoverOperation<TArgs, TResult> extends Disposable {
     private readonly _editor;
     private readonly _computer;
     private readonly _onResult;
-    readonly onResult: any;
-    private readonly _firstWaitScheduler;
-    private readonly _secondWaitScheduler;
+    readonly onResult: import("../../../../base/common/event.js").Event<HoverResult<TArgs, TResult>>;
+    private readonly _asyncComputationScheduler;
+    private readonly _syncComputationScheduler;
     private readonly _loadingMessageScheduler;
     private _state;
     private _asyncIterable;
     private _asyncIterableDone;
     private _result;
-    constructor(_editor: ICodeEditor, _computer: IHoverComputer<T>);
+    private _options;
+    constructor(_editor: ICodeEditor, _computer: IHoverComputer<TArgs, TResult>);
     dispose(): void;
     private get _hoverTime();
     private get _firstWaitTime();
@@ -59,6 +61,7 @@ export declare class HoverOperation<T> extends Disposable {
     private _triggerSyncComputation;
     private _triggerLoadingMessage;
     private _fireResult;
-    start(mode: HoverStartMode): void;
+    start(mode: HoverStartMode, options: TArgs): void;
     cancel(): void;
+    get options(): TArgs | undefined;
 }

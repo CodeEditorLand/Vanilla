@@ -1,28 +1,30 @@
-import "vs/css!./media/tunnelView";
-import { Event } from "vs/base/common/event";
-import { ILocalizedString } from "vs/platform/action/common/action";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { ICommandHandler, ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService, IContextViewService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { SyncDescriptor } from "vs/platform/instantiation/common/descriptors";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { TunnelPrivacy } from "vs/platform/remote/common/remoteAuthorityResolver";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { ITunnelService, TunnelPrivacyId, TunnelProtocol } from "vs/platform/tunnel/common/tunnel";
-import { IViewPaneOptions, ViewPane } from "vs/workbench/browser/parts/views/viewPane";
-import { IViewDescriptor, IViewDescriptorService } from "vs/workbench/common/views";
-import { IExternalUriOpenerService } from "vs/workbench/contrib/externalUriOpener/common/externalUriOpenerService";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IRemoteExplorerService, ITunnelItem, TunnelType } from "vs/workbench/services/remote/common/remoteExplorerService";
-import { Tunnel, TunnelModel, TunnelSource } from "vs/workbench/services/remote/common/tunnelModel";
-export declare const openPreviewEnabledContext: any;
+import "./media/tunnelView.css";
+import { Event } from "../../../../base/common/event.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ILocalizedString } from "../../../../platform/action/common/action.js";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { ICommandHandler, ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService, IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { TunnelPrivacy } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ITunnelService, TunnelPrivacyId, TunnelProtocol } from "../../../../platform/tunnel/common/tunnel.js";
+import { IViewPaneOptions, ViewPane } from "../../../browser/parts/views/viewPane.js";
+import { IViewDescriptor, IViewDescriptorService } from "../../../common/views.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IRemoteExplorerService, ITunnelItem, TunnelType } from "../../../services/remote/common/remoteExplorerService.js";
+import { Tunnel, TunnelModel, TunnelSource } from "../../../services/remote/common/tunnelModel.js";
+import { IExternalUriOpenerService } from "../../externalUriOpener/common/externalUriOpenerService.js";
+export declare const openPreviewEnabledContext: RawContextKey<boolean>;
 interface ITunnelViewModel {
     readonly onForwardedPortsChanged: Event<void>;
     readonly all: TunnelItem[];
@@ -36,9 +38,9 @@ export declare class TunnelViewModel implements ITunnelViewModel {
     private model;
     private _candidates;
     readonly input: {
-        label: any;
+        label: string;
         icon: undefined;
-        tunnelType: any;
+        tunnelType: TunnelType;
         hasRunningProcess: boolean;
         remoteHost: string;
         remotePort: number;
@@ -50,14 +52,14 @@ export declare class TunnelViewModel implements ITunnelViewModel {
         originTooltip: string;
         privacyTooltip: string;
         source: {
-            source: any;
+            source: TunnelSource;
             description: string;
         };
-        protocol: any;
+        protocol: TunnelProtocol;
         privacy: {
-            id: any;
-            themeIcon: any;
-            label: any;
+            id: TunnelPrivacyId;
+            themeIcon: string;
+            label: string;
         };
         strip: () => undefined;
     };
@@ -78,7 +80,7 @@ declare class TunnelItem implements ITunnelItem {
     };
     hasRunningProcess: boolean;
     protocol: TunnelProtocol;
-    localUri?: any;
+    localUri?: URI | undefined;
     localAddress?: string | undefined;
     localPort?: number | undefined;
     closeable?: boolean | undefined;
@@ -97,7 +99,7 @@ declare class TunnelItem implements ITunnelItem {
     constructor(tunnelType: TunnelType, remoteHost: string, remotePort: number, source: {
         source: TunnelSource;
         description: string;
-    }, hasRunningProcess: boolean, protocol: TunnelProtocol, localUri?: any, localAddress?: string | undefined, localPort?: number | undefined, closeable?: boolean | undefined, name?: string | undefined, runningProcess?: string | undefined, pid?: number | undefined, _privacy?: TunnelPrivacyId | string, remoteExplorerService?: any, tunnelService?: any);
+    }, hasRunningProcess: boolean, protocol: TunnelProtocol, localUri?: URI | undefined, localAddress?: string | undefined, localPort?: number | undefined, closeable?: boolean | undefined, name?: string | undefined, runningProcess?: string | undefined, pid?: number | undefined, _privacy?: (TunnelPrivacyId | string) | undefined, remoteExplorerService?: IRemoteExplorerService | undefined, tunnelService?: ITunnelService | undefined);
     get label(): string;
     set processDescription(description: string | undefined);
     get processDescription(): string | undefined;
@@ -116,7 +118,7 @@ export declare class TunnelPanel extends ViewPane {
     private readonly remoteExplorerService;
     private readonly tunnelService;
     private readonly contextViewService;
-    static readonly ID: any;
+    static readonly ID = "~remote.forwardedPorts";
     static readonly TITLE: ILocalizedString;
     private panelContainer;
     private table;
@@ -151,7 +153,7 @@ export declare class TunnelPanel extends ViewPane {
     protected layoutBody(height: number, width: number): void;
 }
 export declare class TunnelPanelDescriptor implements IViewDescriptor {
-    readonly id: any;
+    readonly id = "~remote.forwardedPorts";
     readonly name: ILocalizedString;
     readonly ctorDescriptor: SyncDescriptor<TunnelPanel>;
     readonly canToggleVisibility = true;
@@ -160,27 +162,27 @@ export declare class TunnelPanelDescriptor implements IViewDescriptor {
     readonly order = -500;
     readonly remoteAuthority?: string | string[];
     readonly canMoveView = true;
-    readonly containerIcon: any;
+    readonly containerIcon: ThemeIcon;
     constructor(viewModel: ITunnelViewModel, environmentService: IWorkbenchEnvironmentService);
 }
 export declare namespace ForwardPortAction {
     const INLINE_ID = "remote.tunnel.forwardInline";
     const COMMANDPALETTE_ID = "remote.tunnel.forwardCommandPalette";
     const LABEL: ILocalizedString;
-    const TREEITEM_LABEL: any;
+    const TREEITEM_LABEL: string;
     function inlineHandler(): ICommandHandler;
     function commandPaletteHandler(): ICommandHandler;
 }
 export declare namespace OpenPortInBrowserAction {
     const ID = "remote.tunnel.open";
-    const LABEL: any;
+    const LABEL: string;
     function handler(): ICommandHandler;
-    function run(model: TunnelModel, openerService: IOpenerService, key: string): any;
+    function run(model: TunnelModel, openerService: IOpenerService, key: string): Promise<void> | Promise<boolean>;
 }
 export declare namespace OpenPortInPreviewAction {
     const ID = "remote.tunnel.openPreview";
-    const LABEL: any;
+    const LABEL: string;
     function handler(): ICommandHandler;
-    function run(model: TunnelModel, openerService: IOpenerService, externalOpenerService: IExternalUriOpenerService, key: string): Promise<any>;
+    function run(model: TunnelModel, openerService: IOpenerService, externalOpenerService: IExternalUriOpenerService, key: string): Promise<boolean | void>;
 }
 export {};

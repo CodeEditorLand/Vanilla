@@ -1,13 +1,13 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ILogService } from "vs/platform/log/common/log";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { IURITransformerService } from "vs/workbench/api/common/extHostUriTransformerService";
-import { IAITextQuery, IFileQuery, IRawAITextQuery, IRawFileQuery, IRawQuery, IRawTextQuery, ISearchCompleteStats, ITextQuery } from "vs/workbench/services/search/common/search";
-import { TextSearchManager } from "vs/workbench/services/search/common/textSearchManager";
 import type * as vscode from "vscode";
-import { ExtHostSearchShape, MainThreadSearchShape } from "../common/extHost.protocol";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IAITextQuery, IFileQuery, IRawAITextQuery, IRawFileQuery, IRawQuery, IRawTextQuery, ISearchCompleteStats, ITextQuery } from "../../services/search/common/search.js";
+import { TextSearchManager } from "../../services/search/common/textSearchManager.js";
+import { ExtHostSearchShape, MainThreadSearchShape } from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { IURITransformerService } from "./extHostUriTransformerService.js";
 export interface IExtHostSearch extends ExtHostSearchShape {
     registerTextSearchProviderOld(scheme: string, provider: vscode.TextSearchProvider): IDisposable;
     registerAITextSearchProviderOld(scheme: string, provider: vscode.AITextSearchProvider): IDisposable;
@@ -17,7 +17,7 @@ export interface IExtHostSearch extends ExtHostSearchShape {
     registerFileSearchProvider(scheme: string, provider: vscode.FileSearchProviderNew): IDisposable;
     doInternalFileSearchWithCustomCallback(query: IFileQuery, token: CancellationToken, handleFileMatch: (data: URI[]) => void): Promise<ISearchCompleteStats>;
 }
-export declare const IExtHostSearch: any;
+export declare const IExtHostSearch: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostSearch>;
 export declare class ExtHostSearch implements IExtHostSearch {
     private extHostRpc;
     protected _uriTransformer: IURITransformerService;

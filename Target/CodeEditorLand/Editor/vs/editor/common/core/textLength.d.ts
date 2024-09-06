@@ -1,5 +1,5 @@
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
+import { Position } from "./position.js";
+import { Range } from "./range.js";
 /**
  * Represents a non-negative length of text in terms of line and column count.
  */

@@ -1,12 +1,12 @@
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { URI } from "vs/base/common/uri";
-import { ITextResourceConfigurationService } from "vs/editor/common/services/textResourceConfiguration";
-import { IFileReadLimits, IFileService } from "vs/platform/files/common/files";
-import { ILabelService } from "vs/platform/label/common/label";
-import { EditorInputCapabilities, EditorInputWithPreferredResource, IFileLimitedEditorInputOptions, Verbosity } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { ICustomEditorLabelService } from "vs/workbench/services/editor/common/customEditorLabelService";
-import { IFilesConfigurationService } from "vs/workbench/services/filesConfiguration/common/filesConfigurationService";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { URI } from "../../../base/common/uri.js";
+import { ITextResourceConfigurationService } from "../../../editor/common/services/textResourceConfiguration.js";
+import { IFileReadLimits, IFileService } from "../../../platform/files/common/files.js";
+import { ILabelService } from "../../../platform/label/common/label.js";
+import { ICustomEditorLabelService } from "../../services/editor/common/customEditorLabelService.js";
+import { IFilesConfigurationService } from "../../services/filesConfiguration/common/filesConfigurationService.js";
+import { EditorInputCapabilities, EditorInputWithPreferredResource, IFileLimitedEditorInputOptions, Verbosity } from "../editor.js";
+import { EditorInput } from "./editorInput.js";
 /**
  * The base class for all editor inputs that open resources.
  */
@@ -27,7 +27,7 @@ export declare abstract class AbstractResourceEditorInput extends EditorInput im
     setPreferredResource(preferredResource: URI): void;
     private _name;
     getName(): string;
-    getDescription(verbosity?: any): string | undefined;
+    getDescription(verbosity?: Verbosity): string | undefined;
     private _shortDescription;
     private get shortDescription();
     private _mediumDescription;

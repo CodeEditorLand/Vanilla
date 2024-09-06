@@ -1,12 +1,12 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { INotebookKernelSourceAction, INotebookTextModel } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { IKernelSourceActionProvider, INotebookKernel, INotebookKernelDetectionTask, INotebookKernelMatchResult, INotebookKernelService, INotebookSourceActionChangeEvent, INotebookTextModelLike, ISelectedNotebooksChangeEvent, ISourceAction } from "vs/workbench/contrib/notebook/common/notebookKernelService";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IMenuService } from "../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { INotebookKernelSourceAction, INotebookTextModel } from "../../common/notebookCommon.js";
+import { IKernelSourceActionProvider, INotebookKernel, INotebookKernelDetectionTask, INotebookKernelMatchResult, INotebookKernelService, INotebookSourceActionChangeEvent, INotebookTextModelLike, ISelectedNotebooksChangeEvent, ISourceAction } from "../../common/notebookKernelService.js";
+import { INotebookService } from "../../common/notebookService.js";
 export declare class NotebookKernelService extends Disposable implements INotebookKernelService {
     private readonly _notebookService;
     private readonly _storageService;

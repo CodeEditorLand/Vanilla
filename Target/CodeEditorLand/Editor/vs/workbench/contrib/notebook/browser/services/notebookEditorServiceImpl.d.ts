@@ -1,15 +1,15 @@
-import { Dimension } from "vs/base/browser/dom";
-import { CodeWindow } from "vs/base/browser/window";
-import { URI } from "vs/base/common/uri";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IEditorProgressService } from "vs/platform/progress/common/progress";
-import { INotebookEditor, INotebookEditorCreationOptions } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookEditorWidget } from "vs/workbench/contrib/notebook/browser/notebookEditorWidget";
-import { IBorrowValue, INotebookEditorService } from "vs/workbench/contrib/notebook/browser/services/notebookEditorService";
-import { NotebookEditorInput } from "vs/workbench/contrib/notebook/common/notebookEditorInput";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { Dimension } from "../../../../../base/browser/dom.js";
+import { CodeWindow } from "../../../../../base/browser/window.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IEditorProgressService } from "../../../../../platform/progress/common/progress.js";
+import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { NotebookEditorInput } from "../../common/notebookEditorInput.js";
+import { INotebookEditor, INotebookEditorCreationOptions } from "../notebookBrowser.js";
+import { NotebookEditorWidget } from "../notebookEditorWidget.js";
+import { IBorrowValue, INotebookEditorService } from "./notebookEditorService.js";
 export declare class NotebookEditorWidgetService implements INotebookEditorService {
     private readonly editorGroupService;
     private readonly instantiationService;
@@ -20,8 +20,8 @@ export declare class NotebookEditorWidgetService implements INotebookEditorServi
     private readonly groupListener;
     private readonly _onNotebookEditorAdd;
     private readonly _onNotebookEditorsRemove;
-    readonly onDidAddNotebookEditor: any;
-    readonly onDidRemoveNotebookEditor: any;
+    readonly onDidAddNotebookEditor: import("../../../../../base/common/event.js").Event<INotebookEditor>;
+    readonly onDidRemoveNotebookEditor: import("../../../../../base/common/event.js").Event<INotebookEditor>;
     private readonly _borrowableEditors;
     constructor(editorGroupService: IEditorGroupsService, editorService: IEditorService, contextKeyService: IContextKeyService, instantiationService: IInstantiationService);
     dispose(): void;
@@ -30,7 +30,7 @@ export declare class NotebookEditorWidgetService implements INotebookEditorServi
     retrieveExistingWidgetFromURI(resource: URI): IBorrowValue<NotebookEditorWidget> | undefined;
     retrieveAllExistingWidgets(): IBorrowValue<NotebookEditorWidget>[];
     retrieveWidget(accessor: ServicesAccessor, groupId: number, input: NotebookEditorInput, creationOptions?: INotebookEditorCreationOptions, initialDimension?: Dimension, codeWindow?: CodeWindow): IBorrowValue<NotebookEditorWidget>;
-    protected createWidget(editorGroupContextKeyService: IContextKeyService, editorGroupEditorProgressService: IEditorProgressService, creationOptions?: INotebookEditorCreationOptions, codeWindow?: CodeWindow, initialDimension?: Dimension): any;
+    protected createWidget(editorGroupContextKeyService: IContextKeyService, editorGroupEditorProgressService: IEditorProgressService, creationOptions?: INotebookEditorCreationOptions, codeWindow?: CodeWindow, initialDimension?: Dimension): NotebookEditorWidget;
     private _createBorrowValue;
     addNotebookEditor(editor: INotebookEditor): void;
     removeNotebookEditor(editor: INotebookEditor): void;

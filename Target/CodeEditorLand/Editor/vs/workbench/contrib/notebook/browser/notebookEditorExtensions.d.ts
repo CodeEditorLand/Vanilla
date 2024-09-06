@@ -1,5 +1,5 @@
-import { BrandedService } from "vs/platform/instantiation/common/instantiation";
-import { INotebookEditor, INotebookEditorContribution, INotebookEditorContributionDescription } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { BrandedService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotebookEditor, INotebookEditorContribution, INotebookEditorContributionDescription } from "./notebookBrowser.js";
 export declare function registerNotebookContribution<Services extends BrandedService[]>(id: string, ctor: {
     new (editor: INotebookEditor, ...services: Services): INotebookEditorContribution;
 }): void;

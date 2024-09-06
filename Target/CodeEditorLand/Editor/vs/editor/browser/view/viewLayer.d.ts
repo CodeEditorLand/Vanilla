@@ -1,7 +1,7 @@
-import { FastDomNode } from "vs/base/browser/fastDomNode";
-import { StringBuilder } from "vs/editor/common/core/stringBuilder";
-import * as viewEvents from "vs/editor/common/viewEvents";
-import { ViewportData } from "vs/editor/common/viewLayout/viewLinesViewportData";
+import { FastDomNode } from "../../../base/browser/fastDomNode.js";
+import { StringBuilder } from "../../common/core/stringBuilder.js";
+import * as viewEvents from "../../common/viewEvents.js";
+import { ViewportData } from "../../common/viewLayout/viewLinesViewportData.js";
 /**
  * Represents a visible line
  */

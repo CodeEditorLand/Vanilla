@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IUntitledTextEditorModel, UntitledTextEditorModel } from "vs/workbench/services/untitled/common/untitledTextEditorModel";
-export declare const IUntitledTextEditorService: any;
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IUntitledTextEditorModel, UntitledTextEditorModel } from "./untitledTextEditorModel.js";
+export declare const IUntitledTextEditorService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IUntitledTextEditorService>;
 export interface INewUntitledTextEditorOptions {
     /**
      * Initial value of the untitled editor. An untitled editor with initial
@@ -113,15 +113,15 @@ export declare class UntitledTextEditorService extends Disposable implements IUn
     readonly _serviceBrand: undefined;
     private static readonly UNTITLED_WITHOUT_ASSOCIATED_RESOURCE_REGEX;
     private readonly _onDidChangeDirty;
-    readonly onDidChangeDirty: any;
+    readonly onDidChangeDirty: Event<IUntitledTextEditorModel>;
     private readonly _onDidChangeEncoding;
-    readonly onDidChangeEncoding: any;
+    readonly onDidChangeEncoding: Event<IUntitledTextEditorModel>;
     private readonly _onDidCreate;
-    readonly onDidCreate: any;
+    readonly onDidCreate: Event<IUntitledTextEditorModel>;
     private readonly _onWillDispose;
-    readonly onWillDispose: any;
+    readonly onWillDispose: Event<IUntitledTextEditorModel>;
     private readonly _onDidChangeLabel;
-    readonly onDidChangeLabel: any;
+    readonly onDidChangeLabel: Event<IUntitledTextEditorModel>;
     private readonly mapResourceToModel;
     constructor(instantiationService: IInstantiationService, configurationService: IConfigurationService);
     get(resource: URI): UntitledTextEditorModel | undefined;

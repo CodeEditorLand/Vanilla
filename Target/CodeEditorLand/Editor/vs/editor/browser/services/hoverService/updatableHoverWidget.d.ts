@@ -1,6 +1,6 @@
-import type { IManagedHoverContent, IManagedHoverOptions } from "vs/base/browser/ui/hover/hover";
-import type { IHoverDelegate, IHoverDelegateTarget } from "vs/base/browser/ui/hover/hoverDelegate";
-import { IDisposable } from "vs/base/common/lifecycle";
+import type { IManagedHoverContent, IManagedHoverOptions } from "../../../../base/browser/ui/hover/hover.js";
+import type { IHoverDelegate, IHoverDelegateTarget } from "../../../../base/browser/ui/hover/hoverDelegate.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
 export declare class ManagedHoverWidget implements IDisposable {
     private hoverDelegate;
     private target;
@@ -11,6 +11,6 @@ export declare class ManagedHoverWidget implements IDisposable {
     update(content: IManagedHoverContent, focus?: boolean, options?: IManagedHoverOptions): Promise<void>;
     private show;
     private hasContent;
-    get isDisposed(): any;
+    get isDisposed(): boolean | undefined;
     dispose(): void;
 }

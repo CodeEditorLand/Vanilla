@@ -1,7 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { RGBA8 } from "vs/editor/common/core/rgba";
-import { ColorId } from "vs/editor/common/encodedTokenAttributes";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { RGBA8 } from "../core/rgba.js";
+import { ColorId } from "../encodedTokenAttributes.js";
 export declare class MinimapTokensColorTracker extends Disposable {
     private static _INSTANCE;
     static getInstance(): MinimapTokensColorTracker;

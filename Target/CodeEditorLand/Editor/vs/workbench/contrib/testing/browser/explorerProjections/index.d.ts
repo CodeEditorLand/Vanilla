@@ -1,13 +1,12 @@
-import { IIdentityProvider } from "vs/base/browser/ui/list/list";
-import { ObjectTree } from "vs/base/browser/ui/tree/objectTree";
-import { IObjectTreeElement } from "vs/base/browser/ui/tree/tree";
-import { Event } from "vs/base/common/event";
-import { FuzzyScore } from "vs/base/common/filters";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { Iterable } from "vs/base/common/iterator";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ISerializedTestTreeCollapseState } from "vs/workbench/contrib/testing/browser/explorerProjections/testingViewState";
-import { InternalTestItem } from "vs/workbench/contrib/testing/common/testTypes";
+import { IIdentityProvider } from "../../../../../base/browser/ui/list/list.js";
+import { ObjectTree } from "../../../../../base/browser/ui/tree/objectTree.js";
+import { IObjectTreeElement } from "../../../../../base/browser/ui/tree/tree.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { FuzzyScore } from "../../../../../base/common/filters.js";
+import { IMarkdownString } from "../../../../../base/common/htmlContent.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { InternalTestItem, ITestItemContext, TestResultState } from "../../common/testTypes.js";
+import { ISerializedTestTreeCollapseState } from "./testingViewState.js";
 /**
  * Describes a rendering of tests in the explorer view. Different
  * implementations of this are used for trees and lists, and groupings.
@@ -44,11 +43,11 @@ export declare abstract class TestItemTreeElement {
      * in a 'flat' projection.
      */
     readonly parent: TestItemTreeElement | null;
-    protected readonly changeEmitter: any;
+    protected readonly changeEmitter: Emitter<void>;
     /**
      * Fired whenever the element or test properties change.
      */
-    readonly onChange: any;
+    readonly onChange: Event<void>;
     /**
      * Tree children of this item.
      */
@@ -69,7 +68,7 @@ export declare abstract class TestItemTreeElement {
      * State to show on the item. This is generally the item's computed state
      * from its children.
      */
-    state: any;
+    state: TestResultState;
     /**
      * Time it took this test/item to run.
      */
@@ -84,14 +83,16 @@ export declare abstract class TestItemTreeElement {
      * in a 'flat' projection.
      */
     parent?: TestItemTreeElement | null);
-    toJSON(): any;
+    toJSON(): ITestItemContext | {
+        controllerId: string;
+    };
 }
 export declare class TestTreeErrorMessage {
     readonly message: string | IMarkdownString;
     readonly parent: TestExplorerTreeElement;
     readonly treeId: string;
     readonly children: Set<never>;
-    get description(): any;
+    get description(): string;
     constructor(message: string | IMarkdownString, parent: TestExplorerTreeElement);
 }
 export type TestExplorerTreeElement = TestItemTreeElement | TestTreeErrorMessage;

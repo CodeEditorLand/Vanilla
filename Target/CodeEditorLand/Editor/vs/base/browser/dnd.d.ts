@@ -1,4 +1,4 @@
-import { Disposable } from "vs/base/common/lifecycle";
+import { Disposable } from "../common/lifecycle.js";
 /**
  * A helper that will execute a provided function when the provided HTMLElement receives
  *  dragover event for 800ms. If the drag is aborted before, the callback will not be triggered.
@@ -25,7 +25,7 @@ export declare const DataTransfers: {
     /**
      * Typically transfer type for copy/paste transfers.
      */
-    TEXT: any;
+    TEXT: "text/plain";
     /**
      * Internal type used to pass around text/uri-list data.
      *

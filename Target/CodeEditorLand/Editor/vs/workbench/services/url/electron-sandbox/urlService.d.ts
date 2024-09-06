@@ -1,11 +1,11 @@
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IMainProcessService } from "vs/platform/ipc/common/mainProcessService";
-import { ILogService } from "vs/platform/log/common/log";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { IOpener, IOpenerService } from "vs/platform/opener/common/opener";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IOpenURLOptions, IURLHandler } from "vs/platform/url/common/url";
-import { NativeURLService } from "vs/platform/url/common/urlService";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IOpener, IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IOpenURLOptions, IURLHandler } from "../../../../platform/url/common/url.js";
+import { NativeURLService } from "../../../../platform/url/common/urlService.js";
 export interface IRelayOpenURLOptions extends IOpenURLOptions {
     openToSide?: boolean;
     openExternal?: boolean;

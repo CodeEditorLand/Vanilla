@@ -1,8 +1,8 @@
 import type { Terminal } from "@xterm/xterm";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ITerminalLogService } from "vs/platform/terminal/common/terminal";
-import { IXtermTerminal } from "vs/workbench/contrib/terminal/browser/terminal";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
+import { IXtermTerminal } from "../../../terminal/browser/terminal.js";
 export declare class BufferContentTracker extends Disposable {
     private readonly _xterm;
     private readonly _logService;

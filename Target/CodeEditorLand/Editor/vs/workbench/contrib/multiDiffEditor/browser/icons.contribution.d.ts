@@ -1,1 +1,1 @@
-export declare const MultiDiffEditorIcon: any;
+export declare const MultiDiffEditorIcon: import("../../../../base/common/themables.js").ThemeIcon;

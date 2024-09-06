@@ -1,7 +1,7 @@
-import { URI } from "vs/base/common/uri";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { AbstractPolicyService, IPolicyService } from "vs/platform/policy/common/policy";
+import { URI } from "../../../base/common/uri.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { AbstractPolicyService, IPolicyService } from "./policy.js";
 export declare class FilePolicyService extends AbstractPolicyService implements IPolicyService {
     private readonly file;
     private readonly fileService;

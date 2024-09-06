@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { TerminalShellType } from "vs/platform/terminal/common/terminal";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { TerminalShellType } from "../../../../platform/terminal/common/terminal.js";
 /**
  * Tracks a list of generic entries.
  */

@@ -1,11 +1,11 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { IBulkEditService } from "vs/editor/browser/services/bulkEditService";
-import { WorkspaceEdit } from "vs/editor/common/languages";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IWorkspaceEditDto, MainThreadBulkEditsShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { SerializableObjectWithBuffers } from "vs/workbench/services/extensions/common/proxyIdentifier";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { IBulkEditService } from "../../../editor/browser/services/bulkEditService.js";
+import { WorkspaceEdit } from "../../../editor/common/languages.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
+import { IWorkspaceEditDto, MainThreadBulkEditsShape } from "../common/extHost.protocol.js";
 export declare class MainThreadBulkEdits implements MainThreadBulkEditsShape {
     private readonly _bulkEditService;
     private readonly _logService;

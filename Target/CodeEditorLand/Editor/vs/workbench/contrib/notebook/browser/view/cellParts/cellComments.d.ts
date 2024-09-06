@@ -1,10 +1,10 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { ICommentService } from "vs/workbench/contrib/comments/browser/commentService";
-import { ICellViewModel, INotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { CellContentPart } from "vs/workbench/contrib/notebook/browser/view/cellPart";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
+import { ICommentService } from "../../../../comments/browser/commentService.js";
+import { ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
+import { CellContentPart } from "../cellPart.js";
 export declare class CellComments extends CellContentPart {
     private readonly notebookEditor;
     private readonly container;

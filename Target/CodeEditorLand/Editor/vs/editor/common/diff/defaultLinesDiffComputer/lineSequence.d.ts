@@ -1,5 +1,5 @@
-import { OffsetRange } from "vs/editor/common/core/offsetRange";
-import { ISequence } from "vs/editor/common/diff/defaultLinesDiffComputer/algorithms/diffAlgorithm";
+import { OffsetRange } from "../../core/offsetRange.js";
+import { ISequence } from "./algorithms/diffAlgorithm.js";
 export declare class LineSequence implements ISequence {
     private readonly trimmedHash;
     private readonly lines;

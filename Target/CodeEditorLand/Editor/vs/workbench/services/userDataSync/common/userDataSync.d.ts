@@ -1,15 +1,16 @@
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { ILocalizedString } from "vs/platform/action/common/action";
-import { IAction2Options } from "vs/platform/actions/common/actions";
-import { IAuthenticationProvider, IResourcePreview, IUserDataSyncResource, SyncResource } from "vs/platform/userDataSync/common/userDataSync";
-import { IView } from "vs/workbench/common/views";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ILocalizedString } from "../../../../platform/action/common/action.js";
+import { IAction2Options } from "../../../../platform/actions/common/actions.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IAuthenticationProvider, IResourcePreview, IUserDataSyncResource, SyncResource } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IView } from "../../../common/views.js";
 export interface IUserDataSyncAccount {
     readonly authenticationProviderId: string;
     readonly accountName: string;
     readonly accountId: string;
 }
-export declare const IUserDataSyncWorkbenchService: any;
+export declare const IUserDataSyncWorkbenchService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncWorkbenchService>;
 export interface IUserDataSyncWorkbenchService {
     _serviceBrand: any;
     readonly enabled: boolean;
@@ -38,13 +39,13 @@ export interface IUserDataSyncConflictsView extends IView {
     open(conflict: IResourcePreview): Promise<void>;
 }
 export declare const SYNC_TITLE: ILocalizedString;
-export declare const SYNC_VIEW_ICON: any;
-export declare const CONTEXT_SYNC_STATE: any;
-export declare const CONTEXT_SYNC_ENABLEMENT: any;
-export declare const CONTEXT_ACCOUNT_STATE: any;
-export declare const CONTEXT_ENABLE_ACTIVITY_VIEWS: any;
-export declare const CONTEXT_ENABLE_SYNC_CONFLICTS_VIEW: any;
-export declare const CONTEXT_HAS_CONFLICTS: any;
+export declare const SYNC_VIEW_ICON: import("../../../../base/common/themables.js").ThemeIcon;
+export declare const CONTEXT_SYNC_STATE: RawContextKey<string>;
+export declare const CONTEXT_SYNC_ENABLEMENT: RawContextKey<boolean>;
+export declare const CONTEXT_ACCOUNT_STATE: RawContextKey<string>;
+export declare const CONTEXT_ENABLE_ACTIVITY_VIEWS: RawContextKey<boolean>;
+export declare const CONTEXT_ENABLE_SYNC_CONFLICTS_VIEW: RawContextKey<boolean>;
+export declare const CONTEXT_HAS_CONFLICTS: RawContextKey<boolean>;
 export declare const CONFIGURE_SYNC_COMMAND_ID = "workbench.userDataSync.actions.configure";
 export declare const SHOW_SYNC_LOG_COMMAND_ID = "workbench.userDataSync.actions.showLog";
 export declare const SYNC_VIEW_CONTAINER_ID = "workbench.view.sync";

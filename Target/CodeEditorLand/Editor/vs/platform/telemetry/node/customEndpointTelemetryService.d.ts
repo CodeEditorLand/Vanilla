@@ -1,8 +1,8 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { ILoggerService, ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { ICustomEndpointTelemetryService, ITelemetryData, ITelemetryEndpoint, ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { ILoggerService, ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { ICustomEndpointTelemetryService, ITelemetryData, ITelemetryEndpoint, ITelemetryService } from "../common/telemetry.js";
 export declare class CustomEndpointTelemetryService implements ICustomEndpointTelemetryService {
     private readonly configurationService;
     private readonly telemetryService;

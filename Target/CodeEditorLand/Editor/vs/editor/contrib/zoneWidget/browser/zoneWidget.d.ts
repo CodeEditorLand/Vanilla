@@ -1,10 +1,11 @@
-import { IHorizontalSashLayoutProvider } from "vs/base/browser/ui/sash/sash";
-import { Color } from "vs/base/common/color";
-import "vs/css!./zoneWidget";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, IViewZone } from "vs/editor/browser/editorBrowser";
-import { EditorLayoutInfo } from "vs/editor/common/config/editorOptions";
-import { IPosition, Position } from "vs/editor/common/core/position";
-import { IRange, Range } from "vs/editor/common/core/range";
+import { IHorizontalSashLayoutProvider } from "../../../../base/browser/ui/sash/sash.js";
+import { Color } from "../../../../base/common/color.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import "./zoneWidget.css";
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, IViewZone } from "../../../browser/editorBrowser.js";
+import { EditorLayoutInfo } from "../../../common/config/editorOptions.js";
+import { IPosition, Position } from "../../../common/core/position.js";
+import { IRange, Range } from "../../../common/core/range.js";
 export interface IOptions {
     showFrame?: boolean;
     showArrow?: boolean;
@@ -51,7 +52,7 @@ export declare abstract class ZoneWidget implements IHorizontalSashLayoutProvide
     private _resizeSash;
     private readonly _positionMarkerId;
     protected _viewZone: ViewZoneDelegate | null;
-    protected readonly _disposables: any;
+    protected readonly _disposables: DisposableStore;
     container: HTMLElement | null;
     domNode: HTMLElement;
     editor: ICodeEditor;

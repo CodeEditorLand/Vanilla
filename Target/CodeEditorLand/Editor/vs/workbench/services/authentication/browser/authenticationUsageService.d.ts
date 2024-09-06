@@ -1,10 +1,10 @@
-import { IStorageService } from "vs/platform/storage/common/storage";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
 export interface IAccountUsage {
     extensionId: string;
     extensionName: string;
     lastUsed: number;
 }
-export declare const IAuthenticationUsageService: any;
+export declare const IAuthenticationUsageService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IAuthenticationUsageService>;
 export interface IAuthenticationUsageService {
     readonly _serviceBrand: undefined;
     readAccountUsages(providerId: string, accountName: string): IAccountUsage[];

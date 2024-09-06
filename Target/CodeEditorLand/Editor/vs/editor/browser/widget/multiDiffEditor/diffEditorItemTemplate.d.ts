@@ -1,10 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { DocumentDiffItemViewModel } from "vs/editor/browser/widget/multiDiffEditor/multiDiffEditorViewModel";
-import { IWorkbenchUIElementFactory } from "vs/editor/browser/widget/multiDiffEditor/workbenchUIElementFactory";
-import { OffsetRange } from "vs/editor/common/core/offsetRange";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IObjectData, IPooledObject } from "./objectPool";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { OffsetRange } from "../../../common/core/offsetRange.js";
+import { DiffEditorWidget } from "../diffEditor/diffEditorWidget.js";
+import { DocumentDiffItemViewModel } from "./multiDiffEditorViewModel.js";
+import { IObjectData, IPooledObject } from "./objectPool.js";
+import { IWorkbenchUIElementFactory } from "./workbenchUIElementFactory.js";
 export declare class TemplateData implements IObjectData {
     readonly viewModel: DocumentDiffItemViewModel;
     readonly deltaScrollVertical: (delta: number) => void;
@@ -19,17 +20,20 @@ export declare class DiffEditorItemTemplate extends Disposable implements IPoole
     private readonly _viewModel;
     private readonly _collapsed;
     private readonly _editorContentHeight;
-    readonly contentHeight: any;
+    readonly contentHeight: import("../../../../base/common/observable.js").IObservable<number, unknown>;
     private readonly _modifiedContentWidth;
     private readonly _modifiedWidth;
     private readonly _originalContentWidth;
     private readonly _originalWidth;
-    readonly maxScroll: any;
+    readonly maxScroll: import("../../../../base/common/observable.js").IObservable<{
+        maxScroll: number;
+        width: number;
+    }, unknown>;
     private readonly _elements;
-    readonly editor: any;
+    readonly editor: DiffEditorWidget;
     private readonly isModifedFocused;
     private readonly isOriginalFocused;
-    readonly isFocused: any;
+    readonly isFocused: import("../../../../base/common/observable.js").IObservable<boolean, unknown>;
     private readonly _resourceLabel;
     private readonly _resourceLabel2;
     private readonly _outerEditorHeight;

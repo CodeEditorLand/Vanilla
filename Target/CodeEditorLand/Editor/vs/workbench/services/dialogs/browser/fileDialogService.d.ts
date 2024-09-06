@@ -1,6 +1,6 @@
-import { URI } from "vs/base/common/uri";
-import { IFileDialogService, IOpenDialogOptions, IPickAndOpenOptions, ISaveDialogOptions } from "vs/platform/dialogs/common/dialogs";
-import { AbstractFileDialogService } from "vs/workbench/services/dialogs/browser/abstractFileDialogService";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileDialogService, IOpenDialogOptions, IPickAndOpenOptions, ISaveDialogOptions } from "../../../../platform/dialogs/common/dialogs.js";
+import { AbstractFileDialogService } from "./abstractFileDialogService.js";
 export declare class FileDialogService extends AbstractFileDialogService implements IFileDialogService {
     private get fileSystemProvider();
     pickFileFolderAndOpen(options: IPickAndOpenOptions): Promise<void>;

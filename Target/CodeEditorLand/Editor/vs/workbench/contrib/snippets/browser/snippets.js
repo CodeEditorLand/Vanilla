@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../../vs/platform/instantiation/common/instantiation.js";import"../../../../../vs/workbench/contrib/snippets/browser/snippetsFile.js";const o=e("snippetService");export{o as ISnippetsService};
+import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"./snippetsFile.js";const o=e("snippetService");export{o as ISnippetsService};

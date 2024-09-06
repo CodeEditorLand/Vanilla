@@ -1,9 +1,9 @@
-import { UriComponents } from "vs/base/common/uri";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { IWebviewContentOptions, MainThreadEditorInsetsShape } from "vs/workbench/api/common/extHost.protocol";
-import { IWebviewService } from "vs/workbench/contrib/webview/browser/webview";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { UriComponents } from "../../../base/common/uri.js";
+import { ICodeEditorService } from "../../../editor/browser/services/codeEditorService.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { IWebviewService } from "../../contrib/webview/browser/webview.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IWebviewContentOptions, MainThreadEditorInsetsShape } from "../common/extHost.protocol.js";
 export declare class MainThreadEditorInsets implements MainThreadEditorInsetsShape {
     private readonly _editorService;
     private readonly _webviewService;

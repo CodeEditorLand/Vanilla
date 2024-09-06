@@ -1,15 +1,15 @@
-import { IAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { ResourceTree } from "vs/base/common/resourceTree";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { Command } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { IMenu } from "vs/platform/actions/common/actions";
-import { ISCMHistoryProvider, ISCMHistoryProviderMenus } from "vs/workbench/contrib/scm/common/history";
+import { IAction } from "../../../../base/common/actions.js";
+import { Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../base/common/observable.js";
+import { ResourceTree } from "../../../../base/common/resourceTree.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Command } from "../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { IMenu } from "../../../../platform/actions/common/actions.js";
+import { ISCMHistoryProvider } from "./history.js";
 export declare const VIEWLET_ID = "workbench.view.scm";
 export declare const VIEW_PANE_ID = "workbench.scm";
 export declare const REPOSITORIES_VIEW_PANE_ID = "workbench.scm.repositories";
@@ -17,7 +17,7 @@ export declare const HISTORY_VIEW_PANE_ID = "workbench.scm.history";
 export interface IBaselineResourceProvider {
     getBaselineResource(resource: URI): Promise<URI>;
 }
-export declare const ISCMService: any;
+export declare const ISCMService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISCMService>;
 export interface ISCMResourceDecorations {
     icon?: URI | ThemeIcon;
     iconDark?: URI | ThemeIcon;
@@ -143,7 +143,6 @@ export interface ISCMTitleMenu {
 }
 export interface ISCMRepositoryMenus {
     readonly titleMenu: ISCMTitleMenu;
-    readonly historyProviderMenu: ISCMHistoryProviderMenus | undefined;
     readonly repositoryMenu: IMenu;
     readonly repositoryContextMenu: IMenu;
     getResourceGroupMenu(group: ISCMResourceGroup): IMenu;
@@ -158,7 +157,7 @@ export declare const enum ISCMRepositorySortKey {
     Name = "name",
     Path = "path"
 }
-export declare const ISCMViewService: any;
+export declare const ISCMViewService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISCMViewService>;
 export interface ISCMViewVisibleRepositoryChangeEvent {
     readonly added: Iterable<ISCMRepository>;
     readonly removed: Iterable<ISCMRepository>;
@@ -176,6 +175,10 @@ export interface ISCMViewService {
     readonly focusedRepository: ISCMRepository | undefined;
     readonly onDidFocusRepository: Event<ISCMRepository | undefined>;
     focus(repository: ISCMRepository): void;
+    /**
+     * Focused repository or the repository for the active editor
+     */
+    readonly activeRepository: IObservable<ISCMRepository | undefined>;
 }
 export declare const SCM_CHANGES_EDITOR_ID = "workbench.editor.scmChangesEditor";
 export interface ISCMChangesEditor {

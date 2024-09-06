@@ -1,15 +1,15 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { MarshalledId } from "vs/base/common/marshallingIds";
-import { IProcessEnvironment, OperatingSystem } from "vs/base/common/platform";
-import Severity from "vs/base/common/severity";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { ISerializedCommandDetectionCapability, ITerminalCapabilityStore } from "vs/platform/terminal/common/capabilities/capabilities";
-import { IMergedEnvironmentVariableCollection } from "vs/platform/terminal/common/environmentVariable";
-import { ICreateContributedTerminalProfileOptions, IExtensionTerminalProfile, IFixedTerminalDimensions, IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IProcessReadyWindowsPty, IShellLaunchConfig, ITerminalBackend, ITerminalContributions, ITerminalEnvironment, ITerminalLaunchError, ITerminalProfile, ITerminalProfileObject, ProcessPropertyType, TerminalIcon, TerminalLocationString, TitleEventSource } from "vs/platform/terminal/common/terminal";
-import { IEnvironmentVariableInfo } from "vs/workbench/contrib/terminal/common/environmentVariable";
-import { IExtensionPointDescriptor } from "vs/workbench/services/extensions/common/extensionsRegistry";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { MarshalledId } from "../../../../base/common/marshallingIds.js";
+import { IProcessEnvironment, OperatingSystem } from "../../../../base/common/platform.js";
+import Severity from "../../../../base/common/severity.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ISerializedCommandDetectionCapability, ITerminalCapabilityStore } from "../../../../platform/terminal/common/capabilities/capabilities.js";
+import { IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
+import { ICreateContributedTerminalProfileOptions, IExtensionTerminalProfile, IFixedTerminalDimensions, IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IProcessReadyWindowsPty, IShellLaunchConfig, ITerminalBackend, ITerminalContributions, ITerminalEnvironment, ITerminalLaunchError, ITerminalProfile, ITerminalProfileObject, ProcessPropertyType, TerminalIcon, TerminalLocationString, TitleEventSource } from "../../../../platform/terminal/common/terminal.js";
+import { IExtensionPointDescriptor } from "../../../services/extensions/common/extensionsRegistry.js";
+import { IEnvironmentVariableInfo } from "./environmentVariable.js";
 export declare const TERMINAL_VIEW_ID = "terminal";
 export declare const TERMINAL_CREATION_COMMANDS: string[];
 export declare const TERMINAL_CONFIG_SECTION = "terminal.integrated";
@@ -21,7 +21,7 @@ export declare const MAXIMUM_FONT_WEIGHT = 1000;
 export declare const DEFAULT_FONT_WEIGHT = "normal";
 export declare const DEFAULT_BOLD_FONT_WEIGHT = "bold";
 export declare const SUGGESTIONS_FONT_WEIGHT: string[];
-export declare const ITerminalProfileResolverService: any;
+export declare const ITerminalProfileResolverService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITerminalProfileResolverService>;
 export interface ITerminalProfileResolverService {
     readonly _serviceBrand: undefined;
     readonly defaultProfileName: string | undefined;
@@ -43,7 +43,7 @@ export interface IRegisterContributedProfileArgs {
     title: string;
     options: ICreateContributedTerminalProfileOptions;
 }
-export declare const ITerminalProfileService: any;
+export declare const ITerminalProfileService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITerminalProfileService>;
 export interface ITerminalProfileService {
     readonly _serviceBrand: undefined;
     readonly availableProfiles: ITerminalProfile[];

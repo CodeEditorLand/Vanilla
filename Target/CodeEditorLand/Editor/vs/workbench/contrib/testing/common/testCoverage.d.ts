@@ -1,10 +1,12 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { ITransaction } from "vs/base/common/observable";
-import { URI } from "vs/base/common/uri";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { TestId } from "vs/workbench/contrib/testing/common/testId";
-import { LiveTestResult } from "vs/workbench/contrib/testing/common/testResult";
-import { CoverageDetails, ICoverageCount, IFileCoverage } from "vs/workbench/contrib/testing/common/testTypes";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { ITransaction } from "../../../../base/common/observable.js";
+import { IPrefixTreeNode, WellDefinedPrefixTree } from "../../../../base/common/prefixTree.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { TestId } from "./testId.js";
+import { LiveTestResult } from "./testResult.js";
+import { CoverageDetails, ICoverageCount, IFileCoverage } from "./testTypes.js";
 export interface ICoverageAccessor {
     getCoverageDetails: (id: string, testId: string | undefined, token: CancellationToken) => Promise<CoverageDetails[]>;
 }
@@ -17,30 +19,30 @@ export declare class TestCoverage {
     private readonly uriIdentityService;
     private readonly accessor;
     private readonly fileCoverage;
-    readonly didAddCoverage: any;
-    readonly tree: any;
+    readonly didAddCoverage: import("../../../../base/common/observable.js").IObservableSignal<IPrefixTreeNode<AbstractFileCoverage>[]>;
+    readonly tree: WellDefinedPrefixTree<AbstractFileCoverage>;
     readonly associatedData: Map<unknown, unknown>;
     constructor(result: LiveTestResult, fromTaskId: string, uriIdentityService: IUriIdentityService, accessor: ICoverageAccessor);
     /** Gets all test IDs that were included in this test run. */
-    allPerTestIDs(): Generator<any, void, unknown>;
+    allPerTestIDs(): Generator<string, void, unknown>;
     append(coverage: IFileCoverage, tx: ITransaction | undefined): void;
     /**
      * Builds a new tree filtered to per-test coverage data for the given ID.
      */
-    filterTreeForTest(testId: TestId): any;
+    filterTreeForTest(testId: TestId): WellDefinedPrefixTree<AbstractFileCoverage>;
     /**
      * Gets coverage information for all files.
      */
-    getAllFiles(): any;
+    getAllFiles(): ResourceMap<FileCoverage>;
     /**
      * Gets coverage information for a specific file.
      */
-    getUri(uri: URI): any;
+    getUri(uri: URI): FileCoverage | undefined;
     /**
      * Gets computed information for a file, including DFS-computed information
      * from child tests.
      */
-    getComputedForUri(uri: URI): any;
+    getComputedForUri(uri: URI): AbstractFileCoverage | undefined;
     private treePathForUri;
     private treePathToUri;
 }
@@ -52,7 +54,7 @@ export declare abstract class AbstractFileCoverage {
     statement: ICoverageCount;
     branch?: ICoverageCount;
     declaration?: ICoverageCount;
-    readonly didChange: any;
+    readonly didChange: import("../../../../base/common/observable.js").IObservableSignal<void>;
     /**
      * Gets the total coverage percent based on information provided.
      * This is based on the Clover total coverage formula
@@ -87,10 +89,10 @@ export declare class FileCoverage extends AbstractFileCoverage {
     /**
      * Gets per-line coverage details.
      */
-    detailsForTest(_testId: TestId, token?: any): Promise<CoverageDetails[]>;
+    detailsForTest(_testId: TestId, token?: Readonly<CancellationToken>): Promise<CoverageDetails[]>;
     /**
      * Gets per-line coverage details.
      */
-    details(token?: any): Promise<CoverageDetails[]>;
+    details(token?: Readonly<CancellationToken>): Promise<CoverageDetails[]>;
 }
 export declare const totalFromCoverageDetails: (uri: URI, details: CoverageDetails[]) => IFileCoverage;

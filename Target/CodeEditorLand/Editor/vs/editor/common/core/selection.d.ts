@@ -1,5 +1,5 @@
-import { IPosition, Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
+import { IPosition, Position } from "./position.js";
+import { Range } from "./range.js";
 /**
  * A selection in the editor.
  * The selection is a range that has an orientation.

@@ -1,9 +1,9 @@
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { WordCharacterClassifier } from "vs/editor/common/core/wordCharacterClassifier";
-import { DeleteWordContext, WordNavigationType } from "vs/editor/common/cursor/cursorWordOperations";
-import { ITextModel } from "vs/editor/common/model";
-import { DeleteWordCommand, MoveWordCommand } from "vs/editor/contrib/wordOperations/browser/wordOperations";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { WordCharacterClassifier } from "../../../common/core/wordCharacterClassifier.js";
+import { DeleteWordContext, WordNavigationType } from "../../../common/cursor/cursorWordOperations.js";
+import { ITextModel } from "../../../common/model.js";
+import { DeleteWordCommand, MoveWordCommand } from "../../wordOperations/browser/wordOperations.js";
 export declare class DeleteWordPartLeft extends DeleteWordCommand {
     constructor();
     protected _delete(ctx: DeleteWordContext, wordNavigationType: WordNavigationType): Range;

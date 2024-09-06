@@ -1,13 +1,13 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { URI } from "vs/base/common/uri";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IUserDataProfile } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IUserDataProfileStorageService } from "vs/platform/userDataProfile/common/userDataProfileStorageService";
-import { ITreeItemCheckboxState } from "vs/workbench/common/views";
-import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfile, ProfileResourceType } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IUserDataProfileStorageService } from "../../../../platform/userDataProfile/common/userDataProfileStorageService.js";
+import { ITreeItemCheckboxState, TreeItemCollapsibleState } from "../../../common/views.js";
+import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem } from "../common/userDataProfile.js";
 interface IGlobalState {
     storage: IStringDictionary<string>;
 }
@@ -29,12 +29,12 @@ export declare class GlobalStateResource implements IProfileResource {
 export declare abstract class GlobalStateResourceTreeItem implements IProfileResourceTreeItem {
     private readonly resource;
     private readonly uriIdentityService;
-    readonly type: any;
-    readonly handle: any;
+    readonly type = ProfileResourceType.GlobalState;
+    readonly handle = ProfileResourceType.GlobalState;
     readonly label: {
-        label: any;
+        label: string;
     };
-    readonly collapsibleState: any;
+    readonly collapsibleState = TreeItemCollapsibleState.Collapsed;
     checkbox: ITreeItemCheckboxState | undefined;
     constructor(resource: URI, uriIdentityService: IUriIdentityService);
     getChildren(): Promise<IProfileResourceChildTreeItem[]>;

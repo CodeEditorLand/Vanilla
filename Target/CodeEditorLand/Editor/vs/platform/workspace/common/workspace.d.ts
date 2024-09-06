@@ -1,7 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-export declare const IWorkspaceContextService: any;
+import { Event } from "../../../base/common/event.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+export declare const IWorkspaceContextService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWorkspaceContextService>;
 export interface IWorkspaceContextService {
     readonly _serviceBrand: undefined;
     /**
@@ -229,7 +229,7 @@ export declare function toWorkspaceFolder(resource: URI): WorkspaceFolder;
 export declare const WORKSPACE_EXTENSION = "code-workspace";
 export declare const WORKSPACE_SUFFIX = ".code-workspace";
 export declare const WORKSPACE_FILTER: {
-    name: any;
+    name: string;
     extensions: string[];
 }[];
 export declare const UNTITLED_WORKSPACE_NAME = "workspace.json";

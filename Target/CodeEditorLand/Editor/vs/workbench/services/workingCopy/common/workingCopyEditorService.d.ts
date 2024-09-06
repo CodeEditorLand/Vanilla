@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IEditorIdentifier } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IWorkingCopy, IWorkingCopyIdentifier } from "vs/workbench/services/workingCopy/common/workingCopy";
-export declare const IWorkingCopyEditorService: any;
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IEditorIdentifier } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IWorkingCopy, IWorkingCopyIdentifier } from "./workingCopy.js";
+export declare const IWorkingCopyEditorService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkingCopyEditorService>;
 export interface IWorkingCopyEditorHandler {
     /**
      * Whether the handler is capable of opening the specific backup in
@@ -39,7 +39,7 @@ export declare class WorkingCopyEditorService extends Disposable implements IWor
     private readonly editorService;
     readonly _serviceBrand: undefined;
     private readonly _onDidRegisterHandler;
-    readonly onDidRegisterHandler: any;
+    readonly onDidRegisterHandler: Event<IWorkingCopyEditorHandler>;
     private readonly handlers;
     constructor(editorService: IEditorService);
     registerHandler(handler: IWorkingCopyEditorHandler): IDisposable;

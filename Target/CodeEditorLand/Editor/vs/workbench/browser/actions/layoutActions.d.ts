@@ -1,13 +1,13 @@
-import { ILocalizedString } from "vs/nls";
-import { ICommandActionTitle } from "vs/platform/action/common/action";
-import { Action2 } from "vs/platform/actions/common/actions";
-import { ContextKeyExpression } from "vs/platform/contextkey/common/contextkey";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
+import { ILocalizedString } from "../../../nls.js";
+import { ICommandActionTitle } from "../../../platform/action/common/action.js";
+import { Action2 } from "../../../platform/actions/common/actions.js";
+import { ContextKeyExpression } from "../../../platform/contextkey/common/contextkey.js";
+import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchLayoutService } from "../../services/layout/browser/layoutService.js";
 export declare const ToggleActivityBarVisibilityActionId = "workbench.action.toggleActivityBarVisibility";
 export declare class ToggleSidebarPositionAction extends Action2 {
     static readonly ID = "workbench.action.toggleSidebarPosition";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     static getLabel(layoutService: IWorkbenchLayoutService): string;
     constructor();
     run(accessor: ServicesAccessor): Promise<void>;

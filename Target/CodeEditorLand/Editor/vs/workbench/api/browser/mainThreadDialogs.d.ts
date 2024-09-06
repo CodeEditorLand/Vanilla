@@ -1,7 +1,7 @@
-import { URI } from "vs/base/common/uri";
-import { IFileDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { MainThreadDiaglogsShape, MainThreadDialogOpenOptions, MainThreadDialogSaveOptions } from "../common/extHost.protocol";
+import { URI } from "../../../base/common/uri.js";
+import { IFileDialogService } from "../../../platform/dialogs/common/dialogs.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadDiaglogsShape, MainThreadDialogOpenOptions, MainThreadDialogSaveOptions } from "../common/extHost.protocol.js";
 export declare class MainThreadDialogs implements MainThreadDiaglogsShape {
     private readonly _fileDialogService;
     constructor(context: IExtHostContext, _fileDialogService: IFileDialogService);

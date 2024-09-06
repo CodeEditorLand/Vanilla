@@ -1,14 +1,14 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { UriComponents } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ExtHostDocuments } from "vs/workbench/api/common/extHostDocuments";
-import { IExtensionStoragePaths } from "vs/workbench/api/common/extHostStoragePaths";
-import { ExtHostWebviews } from "vs/workbench/api/common/extHostWebview";
-import { ExtHostWebviewPanels } from "vs/workbench/api/common/extHostWebviewPanels";
-import { EditorGroupColumn } from "vs/workbench/services/editor/common/editorGroupColumn";
 import type * as vscode from "vscode";
-import * as extHostProtocol from "./extHost.protocol";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
+import * as extHostProtocol from "./extHost.protocol.js";
+import { ExtHostDocuments } from "./extHostDocuments.js";
+import { IExtensionStoragePaths } from "./extHostStoragePaths.js";
+import { ExtHostWebviews } from "./extHostWebview.js";
+import { ExtHostWebviewPanels } from "./extHostWebviewPanels.js";
 export declare class ExtHostCustomEditors implements extHostProtocol.ExtHostCustomEditorsShape {
     private readonly _extHostDocuments;
     private readonly _extensionStoragePaths;

@@ -1,8 +1,8 @@
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { SyncDescriptor0 } from "vs/platform/instantiation/common/descriptors";
-import { Graph } from "vs/platform/instantiation/common/graph";
-import { GetLeadingNonServiceArgs, IInstantiationService, ServiceIdentifier, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { ServiceCollection } from "vs/platform/instantiation/common/serviceCollection";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { SyncDescriptor0 } from "./descriptors.js";
+import { Graph } from "./graph.js";
+import { GetLeadingNonServiceArgs, IInstantiationService, ServiceIdentifier, ServicesAccessor } from "./instantiation.js";
+import { ServiceCollection } from "./serviceCollection.js";
 export declare class InstantiationService implements IInstantiationService {
     private readonly _services;
     private readonly _strict;

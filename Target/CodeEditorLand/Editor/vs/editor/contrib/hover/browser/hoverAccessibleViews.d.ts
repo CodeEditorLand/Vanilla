@@ -1,31 +1,31 @@
-import { IAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ContentHoverController } from "vs/editor/contrib/hover/browser/contentHoverController2";
-import { AccessibleContentProvider, IAccessibleViewContentProvider, IAccessibleViewOptions } from "vs/platform/accessibility/browser/accessibleView";
-import { IAccessibleViewImplentation } from "vs/platform/accessibility/browser/accessibleViewRegistry";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import { IAction } from "../../../../base/common/actions.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { AccessibleContentProvider, AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider, IAccessibleViewOptions } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { ContentHoverController } from "./contentHoverController.js";
 export declare class HoverAccessibleView implements IAccessibleViewImplentation {
-    readonly type: any;
+    readonly type = AccessibleViewType.View;
     readonly priority = 95;
     readonly name = "hover";
-    readonly when: any;
+    readonly when: import("../../../../platform/contextkey/common/contextkey.js").RawContextKey<boolean>;
     getProvider(accessor: ServicesAccessor): AccessibleContentProvider | undefined;
 }
 export declare class HoverAccessibilityHelp implements IAccessibleViewImplentation {
     readonly priority = 100;
     readonly name = "hover";
-    readonly type: any;
-    readonly when: any;
+    readonly type = AccessibleViewType.Help;
+    readonly when: import("../../../../platform/contextkey/common/contextkey.js").RawContextKey<boolean>;
     getProvider(accessor: ServicesAccessor): AccessibleContentProvider | undefined;
 }
 declare abstract class BaseHoverAccessibleViewProvider extends Disposable implements IAccessibleViewContentProvider {
     protected readonly _hoverController: ContentHoverController;
     abstract provideContent(): string;
     abstract options: IAccessibleViewOptions;
-    readonly id: any;
+    readonly id = AccessibleViewProviderId.Hover;
     readonly verbositySettingKey = "accessibility.verbosity.hover";
     private readonly _onDidChangeContent;
     readonly onDidChangeContent: Event<void>;
@@ -53,7 +53,7 @@ export declare class HoverAccessibleViewProvider extends BaseHoverAccessibleView
     private _initializeOptions;
 }
 export declare class ExtHoverAccessibleView implements IAccessibleViewImplentation {
-    readonly type: any;
+    readonly type = AccessibleViewType.View;
     readonly priority = 90;
     readonly name = "extension-hover";
     getProvider(accessor: ServicesAccessor): AccessibleContentProvider | undefined;

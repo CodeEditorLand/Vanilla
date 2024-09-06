@@ -1,6 +1,6 @@
-import { IChatVariableResolverProgressDto, MainThreadChatVariablesShape } from "vs/workbench/api/common/extHost.protocol";
-import { IChatVariableData, IChatVariablesService } from "vs/workbench/contrib/chat/common/chatVariables";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { IChatVariableData, IChatVariablesService } from "../../contrib/chat/common/chatVariables.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IChatVariableResolverProgressDto, MainThreadChatVariablesShape } from "../common/extHost.protocol.js";
 export declare class MainThreadChatVariables implements MainThreadChatVariablesShape {
     private readonly _chatVariablesService;
     private readonly _proxy;

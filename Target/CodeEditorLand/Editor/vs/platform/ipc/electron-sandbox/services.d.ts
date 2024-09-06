@@ -1,6 +1,6 @@
-import { IChannel, ProxyChannel } from "vs/base/parts/ipc/common/ipc";
-import { ServiceIdentifier } from "vs/platform/instantiation/common/instantiation";
-import { IRemoteService } from "vs/platform/ipc/common/services";
+import { IChannel, ProxyChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { ServiceIdentifier } from "../../instantiation/common/instantiation.js";
+import { IRemoteService } from "../common/services.js";
 type ChannelClientCtor<T> = {
     new (channel: IChannel, ...args: any[]): T;
 };
@@ -11,7 +11,7 @@ export interface IRemoteServiceWithProxyOptions {
     readonly proxyOptions?: ProxyChannel.ICreateProxyServiceOptions;
 }
 export declare function registerMainProcessRemoteService<T>(id: ServiceIdentifier<T>, channelName: string, options?: IRemoteServiceWithChannelClientOptions<T> | IRemoteServiceWithProxyOptions): void;
-export declare const ISharedProcessService: any;
+export declare const ISharedProcessService: ServiceIdentifier<ISharedProcessService>;
 export interface ISharedProcessService extends IRemoteService {
     /**
      * Allows to create a `MessagePort` connection between the

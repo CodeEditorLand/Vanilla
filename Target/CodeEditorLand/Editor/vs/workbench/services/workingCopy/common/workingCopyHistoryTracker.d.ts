@@ -1,13 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IFileService } from "vs/platform/files/common/files";
-import { IUndoRedoService } from "vs/platform/undoRedo/common/undoRedo";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IPathService } from "vs/workbench/services/path/common/pathService";
-import { IWorkingCopyHistoryService } from "vs/workbench/services/workingCopy/common/workingCopyHistory";
-import { IWorkingCopyService } from "vs/workbench/services/workingCopy/common/workingCopyService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IUndoRedoService } from "../../../../platform/undoRedo/common/undoRedo.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { IWorkingCopyHistoryService } from "./workingCopyHistory.js";
+import { IWorkingCopyService } from "./workingCopyService.js";
 export declare class WorkingCopyHistoryTracker extends Disposable implements IWorkbenchContribution {
     private readonly workingCopyService;
     private readonly workingCopyHistoryService;

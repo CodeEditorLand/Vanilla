@@ -1,4 +1,4 @@
-import "vs/css!./countBadge";
+import "./countBadge.css";
 export interface ICountBadgeOptions {
     readonly count?: number;
     readonly countFormat?: string;

@@ -1,11 +1,11 @@
-import { Emitter } from "vs/base/common/event";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IURITransformer } from "vs/base/common/uriIpc";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IFileChange, IFileDeleteOptions } from "vs/platform/files/common/files";
-import { DiskFileSystemProvider } from "vs/platform/files/node/diskFileSystemProvider";
-import { AbstractDiskFileSystemProviderChannel, ISessionFileWatcher } from "vs/platform/files/node/diskFileSystemProviderServer";
-import { ILogService } from "vs/platform/log/common/log";
+import { Emitter } from "../../../base/common/event.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IURITransformer } from "../../../base/common/uriIpc.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { ILogService } from "../../log/common/log.js";
+import { IFileChange, IFileDeleteOptions } from "../common/files.js";
+import { DiskFileSystemProvider } from "../node/diskFileSystemProvider.js";
+import { AbstractDiskFileSystemProviderChannel, ISessionFileWatcher } from "../node/diskFileSystemProviderServer.js";
 export declare class DiskFileSystemProviderChannel extends AbstractDiskFileSystemProviderChannel<unknown> {
     private readonly environmentService;
     constructor(provider: DiskFileSystemProvider, logService: ILogService, environmentService: IEnvironmentService);

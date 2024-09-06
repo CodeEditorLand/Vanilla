@@ -1,6 +1,7 @@
-import { IView } from "vs/workbench/common/views";
-import { CommentsFilters } from "vs/workbench/contrib/comments/browser/commentsViewActions";
-export declare const CommentsViewFilterFocusContextKey: any;
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IView } from "../../../common/views.js";
+import { CommentsFilters } from "./commentsViewActions.js";
+export declare const CommentsViewFilterFocusContextKey: RawContextKey<boolean>;
 export interface ICommentsView extends IView {
     readonly filters: CommentsFilters;
     focusFilter(): void;

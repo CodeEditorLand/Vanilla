@@ -1,6 +1,6 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, ItemActivation, QuickPickItem } from "vs/platform/quickinput/common/quickInput";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, ItemActivation, QuickPickItem } from "./quickInput.js";
 /**
  * Provider specific options for this particular showing of the
  * quick access.

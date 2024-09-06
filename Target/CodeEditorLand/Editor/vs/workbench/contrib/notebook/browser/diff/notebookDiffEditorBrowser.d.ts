@@ -1,16 +1,17 @@
-import { IMouseWheelEvent } from "vs/base/browser/mouseEvent";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { CodeEditorWidget } from "vs/editor/browser/widget/codeEditor/codeEditorWidget";
-import { DiffEditorWidget } from "vs/editor/browser/widget/diffEditor/diffEditorWidget";
-import { BareFontInfo } from "vs/editor/common/config/fontInfo";
-import { WorkbenchToolBar } from "vs/platform/actions/browser/toolbar";
-import { DiffElementCellViewModelBase, IDiffElementViewModelBase } from "vs/workbench/contrib/notebook/browser/diff/diffElementViewModel";
-import { CellLayoutState, ICellOutputViewModel, ICommonCellInfo, IGenericCellViewModel, IInsetRenderOutput } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookOptions } from "vs/workbench/contrib/notebook/browser/notebookOptions";
-import { NotebookLayoutInfo } from "vs/workbench/contrib/notebook/browser/notebookViewEvents";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
+import { IMouseWheelEvent } from "../../../../../base/browser/mouseEvent.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { Event } from "../../../../../base/common/event.js";
+import { DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { CodeEditorWidget } from "../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { DiffEditorWidget } from "../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js";
+import { BareFontInfo } from "../../../../../editor/common/config/fontInfo.js";
+import { WorkbenchToolBar } from "../../../../../platform/actions/browser/toolbar.js";
+import { RawContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
+import { NotebookTextModel } from "../../common/model/notebookTextModel.js";
+import { CellLayoutState, ICellOutputViewModel, ICommonCellInfo, IGenericCellViewModel, IInsetRenderOutput } from "../notebookBrowser.js";
+import { NotebookOptions } from "../notebookOptions.js";
+import { NotebookLayoutInfo } from "../notebookViewEvents.js";
+import { DiffElementCellViewModelBase, IDiffElementViewModelBase } from "./diffElementViewModel.js";
 export declare enum DiffSide {
     Original = 0,
     Modified = 1
@@ -128,16 +129,16 @@ export interface CellDiffViewModelLayoutChangeEvent extends IDiffElementSelfLayo
     outputView?: boolean;
 }
 export declare const DIFF_CELL_MARGIN = 16;
-export declare const NOTEBOOK_DIFF_CELL_INPUT: any;
+export declare const NOTEBOOK_DIFF_CELL_INPUT: RawContextKey<boolean>;
 export declare const NOTEBOOK_DIFF_CELL_IGNORE_WHITESPACE_KEY = "notebook.diffEditor.cell.ignoreWhitespace";
-export declare const NOTEBOOK_DIFF_CELL_IGNORE_WHITESPACE: any;
-export declare const NOTEBOOK_DIFF_CELL_PROPERTY: any;
-export declare const NOTEBOOK_DIFF_CELL_PROPERTY_EXPANDED: any;
-export declare const NOTEBOOK_DIFF_CELLS_COLLAPSED: any;
-export declare const NOTEBOOK_DIFF_HAS_UNCHANGED_CELLS: any;
-export declare const NOTEBOOK_DIFF_UNCHANGED_CELLS_HIDDEN: any;
-export declare const NOTEBOOK_DIFF_ITEM_KIND: any;
-export declare const NOTEBOOK_DIFF_ITEM_DIFF_STATE: any;
+export declare const NOTEBOOK_DIFF_CELL_IGNORE_WHITESPACE: RawContextKey<boolean>;
+export declare const NOTEBOOK_DIFF_CELL_PROPERTY: RawContextKey<boolean>;
+export declare const NOTEBOOK_DIFF_CELL_PROPERTY_EXPANDED: RawContextKey<boolean>;
+export declare const NOTEBOOK_DIFF_CELLS_COLLAPSED: RawContextKey<boolean>;
+export declare const NOTEBOOK_DIFF_HAS_UNCHANGED_CELLS: RawContextKey<boolean>;
+export declare const NOTEBOOK_DIFF_UNCHANGED_CELLS_HIDDEN: RawContextKey<boolean>;
+export declare const NOTEBOOK_DIFF_ITEM_KIND: RawContextKey<boolean>;
+export declare const NOTEBOOK_DIFF_ITEM_DIFF_STATE: RawContextKey<boolean>;
 export interface INotebookDiffViewModelUpdateEvent {
     readonly start: number;
     readonly deleteCount: number;

@@ -1,6 +1,6 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { ILogService } from "vs/platform/log/common/log";
-import { AbstractPolicyService, IPolicyService, PolicyDefinition } from "vs/platform/policy/common/policy";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { ILogService } from "../../log/common/log.js";
+import { AbstractPolicyService, IPolicyService, PolicyDefinition } from "../common/policy.js";
 export declare class NativePolicyService extends AbstractPolicyService implements IPolicyService {
     private readonly logService;
     private readonly productName;

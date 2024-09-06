@@ -1,17 +1,17 @@
-import { Event } from "vs/base/common/event";
-import Severity from "vs/base/common/severity";
-import { IMessagePassingProtocol } from "vs/base/parts/ipc/common/ipc";
-import { ExtensionIdentifier, IExtension, IExtensionContributions, IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ApiProposalName } from "vs/platform/extensions/common/extensionsApiProposals";
-import { IV8Profile } from "vs/platform/profiling/common/profiling";
-import { ExtensionHostKind } from "vs/workbench/services/extensions/common/extensionHostKind";
-import { IExtensionDescriptionDelta, IExtensionDescriptionSnapshot } from "vs/workbench/services/extensions/common/extensionHostProtocol";
-import { ExtensionRunningLocation } from "vs/workbench/services/extensions/common/extensionRunningLocation";
-import { IExtensionPoint } from "vs/workbench/services/extensions/common/extensionsRegistry";
-export declare const nullExtensionDescription: IExtensionDescription;
+import { Event } from "../../../../base/common/event.js";
+import Severity from "../../../../base/common/severity.js";
+import { IMessagePassingProtocol } from "../../../../base/parts/ipc/common/ipc.js";
+import { ExtensionIdentifier, IExtension, IExtensionContributions, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { ApiProposalName } from "../../../../platform/extensions/common/extensionsApiProposals.js";
+import { IV8Profile } from "../../../../platform/profiling/common/profiling.js";
+import { ExtensionHostKind } from "./extensionHostKind.js";
+import { IExtensionDescriptionDelta, IExtensionDescriptionSnapshot } from "./extensionHostProtocol.js";
+import { ExtensionRunningLocation } from "./extensionRunningLocation.js";
+import { IExtensionPoint } from "./extensionsRegistry.js";
+export declare const nullExtensionDescription: Readonly<Readonly<import("../../../../platform/extensions/common/extensions.js").IRelaxedExtensionDescription>>;
 export type WebWorkerExtHostConfigValue = boolean | "auto";
 export declare const webWorkerExtHostConfig = "extensions.webWorker";
-export declare const IExtensionService: any;
+export declare const IExtensionService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionService>;
 export interface IMessage {
     type: Severity;
     message: string;
@@ -326,7 +326,7 @@ export declare class NullExtensionService implements IExtensionService {
     readonly _serviceBrand: undefined;
     onDidRegisterExtensions: Event<void>;
     onDidChangeExtensionsStatus: Event<ExtensionIdentifier[]>;
-    onDidChangeExtensions: any;
+    onDidChangeExtensions: Event<any>;
     onWillActivateByEvent: Event<IWillActivateEvent>;
     onDidChangeResponsiveChange: Event<IResponsiveStateChangeEvent>;
     onWillStop: Event<WillStopExtensionHostsEvent>;

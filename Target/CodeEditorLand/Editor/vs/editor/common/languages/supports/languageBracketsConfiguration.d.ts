@@ -1,5 +1,5 @@
-import { RegExpOptions } from "vs/base/common/strings";
-import { LanguageConfiguration } from "vs/editor/common/languages/languageConfiguration";
+import { RegExpOptions } from "../../../../base/common/strings.js";
+import { LanguageConfiguration } from "../languageConfiguration.js";
 /**
  * Captures all bracket related configurations for a single language.
  * Immutable.

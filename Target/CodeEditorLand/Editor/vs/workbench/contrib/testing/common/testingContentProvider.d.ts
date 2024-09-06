@@ -1,10 +1,10 @@
-import { URI } from "vs/base/common/uri";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { ITextModel } from "vs/editor/common/model";
-import { IModelService } from "vs/editor/common/services/model";
-import { ITextModelContentProvider, ITextModelService } from "vs/editor/common/services/resolverService";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { ITestResultService } from "vs/workbench/contrib/testing/common/testResultService";
+import { URI } from "../../../../base/common/uri.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ITextModelContentProvider, ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { ITestResultService } from "./testResultService.js";
 /**
  * A content provider that returns various outputs for tests. This is used
  * in the inline peek view.

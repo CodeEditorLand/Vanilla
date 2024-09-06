@@ -1,13 +1,20 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ICellViewModel, INotebookEditor, INotebookEditorContribution } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { Event } from "../../../../../../base/common/event.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { ILanguageConfigurationService } from "../../../../../../editor/common/languages/languageConfigurationRegistry.js";
+import { ITextModelService } from "../../../../../../editor/common/services/resolverService.js";
+import { IAccessibilityService } from "../../../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService, RawContextKey } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IUndoRedoService } from "../../../../../../platform/undoRedo/common/undoRedo.js";
+import { ICellViewModel, INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
+declare enum NotebookMultiCursorState {
+    Idle = 0,
+    Selecting = 1,
+    Editing = 2
+}
 export declare const NOTEBOOK_MULTI_SELECTION_CONTEXT: {
-    IsNotebookMultiSelect: any;
+    IsNotebookMultiSelect: RawContextKey<boolean>;
+    NotebookMultiSelectState: RawContextKey<NotebookMultiCursorState>;
 };
 export declare class NotebookMultiCursorController extends Disposable implements INotebookEditorContribution {
     private readonly notebookEditor;
@@ -16,6 +23,7 @@ export declare class NotebookMultiCursorController extends Disposable implements
     private readonly languageConfigurationService;
     private readonly accessibilityService;
     private readonly configurationService;
+    private readonly undoRedoService;
     static readonly id: string;
     private state;
     private word;
@@ -27,13 +35,18 @@ export declare class NotebookMultiCursorController extends Disposable implements
     private readonly cursorsDisposables;
     private cursorsControllers;
     private _nbIsMultiSelectSession;
-    constructor(notebookEditor: INotebookEditor, contextKeyService: IContextKeyService, textModelService: ITextModelService, languageConfigurationService: ILanguageConfigurationService, accessibilityService: IAccessibilityService, configurationService: IConfigurationService);
+    private _nbMultiSelectState;
+    constructor(notebookEditor: INotebookEditor, contextKeyService: IContextKeyService, textModelService: ITextModelService, languageConfigurationService: ILanguageConfigurationService, accessibilityService: IAccessibilityService, configurationService: IConfigurationService, undoRedoService: IUndoRedoService);
     private updateCursorsControllers;
     private constructCoordinatesConverter;
     private constructCursorSimpleModel;
     private updateAnchorListeners;
+    private updateFinalUndoRedo;
     resetToIdleState(): void;
     findAndTrackNextSelection(cell: ICellViewModel): Promise<void>;
+    deleteLeft(): Promise<void>;
+    undo(): Promise<void>;
+    redo(): Promise<void>;
     private constructCellEditorOptions;
     /**
      * Updates the multicursor selection decorations for a specific matched cell
@@ -46,3 +59,4 @@ export declare class NotebookMultiCursorController extends Disposable implements
     private getWord;
     dispose(): void;
 }
+export {};

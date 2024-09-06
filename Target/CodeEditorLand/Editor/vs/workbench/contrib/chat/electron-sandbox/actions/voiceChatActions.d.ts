@@ -1,15 +1,15 @@
-import "vs/css!./media/voiceChatActions";
-import { Disposable } from "vs/base/common/lifecycle";
-import { Action2, IAction2Options } from "vs/platform/actions/common/actions";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IChatExecuteActionContext } from "vs/workbench/contrib/chat/browser/actions/chatExecuteActions";
-import { IChatAgentService } from "vs/workbench/contrib/chat/common/chatAgents";
-import { ISpeechService } from "vs/workbench/contrib/speech/common/speechService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IHostService } from "vs/workbench/services/host/browser/host";
+import "./media/voiceChatActions.css";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { Action2, IAction2Options } from "../../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchContribution } from "../../../../common/contributions.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IHostService } from "../../../../services/host/browser/host.js";
+import { ISpeechService } from "../../../speech/common/speechService.js";
+import { IChatExecuteActionContext } from "../../browser/actions/chatExecuteActions.js";
+import { IChatAgentService } from "../../common/chatAgents.js";
 export declare const VOICE_KEY_HOLD_THRESHOLD = 500;
 declare class VoiceChatWithHoldModeAction extends Action2 {
     private readonly target;

@@ -1,11 +1,11 @@
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IStatusbarEntry } from "vs/workbench/services/statusbar/browser/statusbar";
+import { IHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegate.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IStatusbarEntry } from "../../../services/statusbar/browser/statusbar.js";
 export declare class StatusbarEntryItem extends Disposable {
     private container;
     private readonly hoverDelegate;

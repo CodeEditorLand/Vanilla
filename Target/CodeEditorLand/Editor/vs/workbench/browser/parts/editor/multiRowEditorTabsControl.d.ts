@@ -1,12 +1,12 @@
-import { Dimension } from "vs/base/browser/dom";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IEditorGroupsView, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from "vs/workbench/browser/parts/editor/editor";
-import { IEditorTabsControl } from "vs/workbench/browser/parts/editor/editorTabsControl";
-import { IEditorTitleControlDimensions } from "vs/workbench/browser/parts/editor/editorTitleControl";
-import { IEditorPartOptions } from "vs/workbench/common/editor";
-import { IReadonlyEditorGroupModel } from "vs/workbench/common/editor/editorGroupModel";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorPartOptions } from "../../../common/editor.js";
+import { IReadonlyEditorGroupModel } from "../../../common/editor/editorGroupModel.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditorGroupsView, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from "./editor.js";
+import { IEditorTabsControl } from "./editorTabsControl.js";
+import { IEditorTitleControlDimensions } from "./editorTitleControl.js";
 export declare class MultiRowEditorControl extends Disposable implements IEditorTabsControl {
     private readonly parent;
     private readonly groupsView;

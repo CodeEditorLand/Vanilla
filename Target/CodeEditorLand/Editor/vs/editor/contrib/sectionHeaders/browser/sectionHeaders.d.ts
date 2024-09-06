@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { IEditorWorkerService } from "vs/editor/common/services/editorWorker";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
 export declare class SectionHeaderDetector extends Disposable implements IEditorContribution {
     private readonly editor;
     private readonly languageConfigurationService;

@@ -1,4 +1,4 @@
-import { IKeymapInfo } from "vs/workbench/services/keybinding/common/keymapInfo";
+import { IKeymapInfo } from "../../common/keymapInfo.js";
 export declare class KeyboardLayoutContribution {
     static readonly INSTANCE: KeyboardLayoutContribution;
     private _layoutInfos;

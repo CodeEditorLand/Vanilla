@@ -1,7 +1,7 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ICodeEditorWidgetOptions } from "vs/editor/browser/widget/codeEditor/codeEditorWidget";
-import { IEditorOptions } from "vs/editor/common/config/editorOptions";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditorWidgetOptions } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { IEditorOptions } from "../../../../editor/common/config/editorOptions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 export declare function getSimpleEditorOptions(configurationService: IConfigurationService): IEditorOptions;
 export declare function getSimpleCodeEditorWidgetOptions(): ICodeEditorWidgetOptions;
 /**

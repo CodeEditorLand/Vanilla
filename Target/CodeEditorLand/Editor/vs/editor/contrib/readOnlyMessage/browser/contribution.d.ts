@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
 export declare class ReadOnlyMessageController extends Disposable implements IEditorContribution {
     private readonly editor;
     static readonly ID = "editor.contrib.readOnlyMessageController";

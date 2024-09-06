@@ -1,13 +1,13 @@
-import { Emitter, Event } from "vs/base/common/event";
-import { IExtUri } from "vs/base/common/resources";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IMarkerData } from "vs/platform/markers/common/markers";
-import { ExtHostDocumentsAndEditors } from "vs/workbench/api/common/extHostDocumentsAndEditors";
-import { IExtHostFileSystemInfo } from "vs/workbench/api/common/extHostFileSystemInfo";
 import type * as vscode from "vscode";
-import { ExtHostDiagnosticsShape, IMainContext, MainThreadDiagnosticsShape } from "./extHost.protocol";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { IExtUri } from "../../../base/common/resources.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IMarkerData } from "../../../platform/markers/common/markers.js";
+import { ExtHostDiagnosticsShape, IMainContext, MainThreadDiagnosticsShape } from "./extHost.protocol.js";
+import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { IExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
 export declare class DiagnosticCollection implements vscode.DiagnosticCollection {
     #private;
     private readonly _name;

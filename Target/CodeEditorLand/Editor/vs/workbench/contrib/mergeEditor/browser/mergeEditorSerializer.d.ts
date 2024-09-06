@@ -1,7 +1,7 @@
-import { URI } from "vs/base/common/uri";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IEditorSerializer } from "vs/workbench/common/editor";
-import { MergeEditorInput } from "vs/workbench/contrib/mergeEditor/browser/mergeEditorInput";
+import { URI } from "../../../../base/common/uri.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorSerializer } from "../../../common/editor.js";
+import { MergeEditorInput } from "./mergeEditorInput.js";
 export declare class MergeEditorSerializer implements IEditorSerializer {
     canSerialize(): boolean;
     serialize(editor: MergeEditorInput): string;

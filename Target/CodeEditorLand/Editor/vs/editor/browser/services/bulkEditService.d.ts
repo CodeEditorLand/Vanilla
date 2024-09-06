@@ -1,14 +1,14 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IWorkspaceFileEdit, IWorkspaceTextEdit, TextEdit, WorkspaceEdit, WorkspaceEditMetadata, WorkspaceFileEditOptions } from "vs/editor/common/languages";
-import { IProgress, IProgressStep } from "vs/platform/progress/common/progress";
-import { UndoRedoSource } from "vs/platform/undoRedo/common/undoRedo";
-export declare const IBulkEditService: any;
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IProgress, IProgressStep } from "../../../platform/progress/common/progress.js";
+import { UndoRedoSource } from "../../../platform/undoRedo/common/undoRedo.js";
+import { IWorkspaceFileEdit, IWorkspaceTextEdit, TextEdit, WorkspaceEdit, WorkspaceEditMetadata, WorkspaceFileEditOptions } from "../../common/languages.js";
+import { ICodeEditor } from "../editorBrowser.js";
+export declare const IBulkEditService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IBulkEditService>;
 export declare class ResourceEdit {
-    readonly metadata?: any;
-    protected constructor(metadata?: any);
+    readonly metadata?: WorkspaceEditMetadata | undefined;
+    protected constructor(metadata?: WorkspaceEditMetadata | undefined);
     static convert(edit: WorkspaceEdit): ResourceEdit[];
 }
 export declare class ResourceTextEdit extends ResourceEdit implements IWorkspaceTextEdit {

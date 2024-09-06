@@ -1,16 +1,17 @@
-import "vs/base/browser/ui/codicons/codiconStyles";
-import "vs/editor/contrib/symbolIcons/browser/symbolIcons";
-import { EditorAction } from "vs/editor/browser/editorExtensions";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IOutlineModelService } from "vs/editor/contrib/documentSymbols/browser/outlineModel";
-import { AbstractGotoSymbolQuickAccessProvider } from "vs/editor/contrib/quickAccess/browser/gotoSymbolQuickAccess";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
+import "../../../../base/browser/ui/codicons/codiconStyles.js";
+import "../../../contrib/symbolIcons/browser/symbolIcons.js";
+import { Event } from "../../../../base/common/event.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { EditorAction } from "../../../browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { IOutlineModelService } from "../../../contrib/documentSymbols/browser/outlineModel.js";
+import { AbstractGotoSymbolQuickAccessProvider } from "../../../contrib/quickAccess/browser/gotoSymbolQuickAccess.js";
 export declare class StandaloneGotoSymbolQuickAccessProvider extends AbstractGotoSymbolQuickAccessProvider {
     private readonly editorService;
-    protected readonly onDidActiveTextEditorControlChange: any;
+    protected readonly onDidActiveTextEditorControlChange: Event<any>;
     constructor(editorService: ICodeEditorService, languageFeaturesService: ILanguageFeaturesService, outlineModelService: IOutlineModelService);
-    protected get activeTextEditorControl(): any;
+    protected get activeTextEditorControl(): import("../../../browser/editorBrowser.js").ICodeEditor | undefined;
 }
 export declare class GotoSymbolAction extends EditorAction {
     static readonly ID = "editor.action.quickOutline";

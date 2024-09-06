@@ -1,22 +1,22 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAccessibleViewContentProvider, IAccessibleViewOptions } from "vs/platform/accessibility/browser/accessibleView";
-import { IAccessibleViewImplentation } from "vs/platform/accessibility/browser/accessibleViewRegistry";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { AccessibilityVerbositySettingId } from "vs/workbench/contrib/accessibility/browser/accessibilityConfiguration";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider, IAccessibleViewOptions } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
 export declare namespace CommentAccessibilityHelpNLS {
-    const intro: any;
-    const tabFocus: any;
-    const commentCommands: any;
-    const escape: any;
-    const nextRange: any;
-    const previousRange: any;
-    const nextCommentThread: any;
-    const previousCommentThread: any;
-    const addComment: any;
-    const submitComment: any;
+    const intro: string;
+    const tabFocus: string;
+    const commentCommands: string;
+    const escape: string;
+    const nextRange: string;
+    const previousRange: string;
+    const nextCommentThread: string;
+    const previousCommentThread: string;
+    const addComment: string;
+    const submitComment: string;
 }
 export declare class CommentsAccessibilityHelpProvider extends Disposable implements IAccessibleViewContentProvider {
-    id: any;
+    id: AccessibleViewProviderId;
     verbositySettingKey: AccessibilityVerbositySettingId;
     options: IAccessibleViewOptions;
     private _element;
@@ -26,7 +26,7 @@ export declare class CommentsAccessibilityHelpProvider extends Disposable implem
 export declare class CommentsAccessibilityHelp implements IAccessibleViewImplentation {
     readonly priority = 110;
     readonly name = "comments";
-    readonly type: any;
-    readonly when: any;
-    getProvider(accessor: ServicesAccessor): any;
+    readonly type = AccessibleViewType.Help;
+    readonly when: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression | undefined;
+    getProvider(accessor: ServicesAccessor): CommentsAccessibilityHelpProvider;
 }

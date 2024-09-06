@@ -1,4 +1,4 @@
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 /**
  * An extension storage has following
  * 	- State: Stored using storage service with extension id as key and state as value.

@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IWebviewManagerService, WebviewWebContentsId, WebviewWindowId } from "vs/platform/webview/common/webviewManagerService";
-import { IWindowsMainService } from "vs/platform/windows/electron-main/windows";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { FoundInFrameResult, IWebviewManagerService, WebviewWebContentsId, WebviewWindowId } from "../common/webviewManagerService.js";
 export declare class WebviewMainService extends Disposable implements IWebviewManagerService {
     private readonly windowsMainService;
     readonly _serviceBrand: undefined;
     private readonly _onFoundInFrame;
-    onFoundInFrame: any;
+    onFoundInFrame: import("../../../base/common/event.js").Event<FoundInFrameResult>;
     constructor(windowsMainService: IWindowsMainService);
     setIgnoreMenuShortcuts(id: WebviewWebContentsId | WebviewWindowId, enabled: boolean): Promise<void>;
     findInFrame(windowId: WebviewWindowId, frameName: string, text: string, options: {

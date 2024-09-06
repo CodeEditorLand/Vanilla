@@ -1,4 +1,4 @@
-import { DiffAlgorithmResult, IDiffAlgorithm, ISequence, ITimeout } from "vs/editor/common/diff/defaultLinesDiffComputer/algorithms/diffAlgorithm";
+import { DiffAlgorithmResult, IDiffAlgorithm, ISequence, ITimeout } from "./diffAlgorithm.js";
 /**
  * A O(MN) diffing algorithm that supports a score function.
  * The algorithm can be improved by processing the 2d array diagonally.

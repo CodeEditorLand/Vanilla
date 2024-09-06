@@ -1,10 +1,10 @@
-import { URI } from "vs/base/common/uri";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IExtensionApiFactory, IExtensionRegistries } from "vs/workbench/api/common/extHost.api.impl";
-import { IExtHostConfiguration } from "vs/workbench/api/common/extHostConfiguration";
-import { IExtHostExtensionService } from "vs/workbench/api/common/extHostExtensionService";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
+import { URI } from "../../../base/common/uri.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IExtensionApiFactory, IExtensionRegistries } from "./extHost.api.impl.js";
+import { IExtHostConfiguration } from "./extHostConfiguration.js";
+import { IExtHostExtensionService } from "./extHostExtensionService.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
 interface LoadFunction {
     (request: string): any;
 }

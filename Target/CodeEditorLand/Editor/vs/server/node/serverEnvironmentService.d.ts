@@ -1,7 +1,7 @@
-import { URI } from "vs/base/common/uri";
-import { INativeEnvironmentService } from "vs/platform/environment/common/environment";
-import { OptionDescriptions } from "vs/platform/environment/node/argv";
-import { NativeEnvironmentService } from "vs/platform/environment/node/environmentService";
+import { URI } from "../../base/common/uri.js";
+import { INativeEnvironmentService } from "../../platform/environment/common/environment.js";
+import { OptionDescriptions } from "../../platform/environment/node/argv.js";
+import { NativeEnvironmentService } from "../../platform/environment/node/environmentService.js";
 export declare const serverOptions: OptionDescriptions<Required<ServerParsedArgs>>;
 export interface ServerParsedArgs {
     host?: string;
@@ -88,7 +88,7 @@ export interface ServerParsedArgs {
     compatibility: string;
     _: string[];
 }
-export declare const IServerEnvironmentService: any;
+export declare const IServerEnvironmentService: import("../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IServerEnvironmentService>;
 export interface IServerEnvironmentService extends INativeEnvironmentService {
     readonly args: ServerParsedArgs;
 }

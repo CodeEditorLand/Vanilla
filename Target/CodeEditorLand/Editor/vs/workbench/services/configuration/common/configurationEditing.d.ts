@@ -1,17 +1,17 @@
-import { ErrorNoTelemetry } from "vs/base/common/errors";
-import { URI } from "vs/base/common/uri";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { IConfigurationUpdateOptions, IConfigurationUpdateOverrides } from "vs/platform/configuration/common/configuration";
-import { IFileService } from "vs/platform/files/common/files";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchConfigurationService } from "vs/workbench/services/configuration/common/configuration";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IPreferencesService } from "vs/workbench/services/preferences/common/preferences";
-import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
-import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { ErrorNoTelemetry } from "../../../../base/common/errors.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IConfigurationUpdateOptions, IConfigurationUpdateOverrides } from "../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IPreferencesService } from "../../preferences/common/preferences.js";
+import { ITextFileService } from "../../textfile/common/textfiles.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { IWorkbenchConfigurationService } from "./configuration.js";
 export declare const enum ConfigurationEditingErrorCode {
     /**
      * Error when trying to write a configuration key that is not registered.

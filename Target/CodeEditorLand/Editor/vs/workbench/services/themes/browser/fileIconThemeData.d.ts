@@ -1,8 +1,8 @@
-import { URI } from "vs/base/common/uri";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IExtensionResourceLoaderService } from "vs/platform/extensionResourceLoader/common/extensionResourceLoader";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ExtensionData, IThemeExtensionPoint, IWorkbenchFileIconTheme } from "vs/workbench/services/themes/common/workbenchThemeService";
+import { URI } from "../../../../base/common/uri.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ExtensionData, IThemeExtensionPoint, IWorkbenchFileIconTheme } from "../common/workbenchThemeService.js";
 export declare class FileIconThemeData implements IWorkbenchFileIconTheme {
     static readonly STORAGE_KEY = "iconThemeData";
     id: string;

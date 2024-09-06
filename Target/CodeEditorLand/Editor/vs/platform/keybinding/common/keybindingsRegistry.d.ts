@@ -1,7 +1,7 @@
-import { Keybinding } from "vs/base/common/keybindings";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ICommandHandler, ICommandMetadata } from "vs/platform/commands/common/commands";
-import { ContextKeyExpression } from "vs/platform/contextkey/common/contextkey";
+import { Keybinding } from "../../../base/common/keybindings.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { ICommandHandler, ICommandMetadata } from "../../commands/common/commands.js";
+import { ContextKeyExpression } from "../../contextkey/common/contextkey.js";
 export interface IKeybindingItem {
     keybinding: Keybinding | null;
     command: string | null;

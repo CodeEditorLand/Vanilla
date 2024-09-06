@@ -1,9 +1,9 @@
-import { URI } from "vs/base/common/uri";
-import * as extHostProtocol from "vs/workbench/api/common/extHost.protocol";
-import { ExtHostDocuments } from "vs/workbench/api/common/extHostDocuments";
-import { ExtHostDocumentsAndEditors } from "vs/workbench/api/common/extHostDocumentsAndEditors";
-import * as notebookCommon from "vs/workbench/contrib/notebook/common/notebookCommon";
 import * as vscode from "vscode";
+import { URI } from "../../../base/common/uri.js";
+import * as notebookCommon from "../../contrib/notebook/common/notebookCommon.js";
+import * as extHostProtocol from "./extHost.protocol.js";
+import { ExtHostDocuments } from "./extHostDocuments.js";
+import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
 export declare class ExtHostCell {
     readonly notebook: ExtHostNotebookDocument;
     private readonly _extHostDocument;

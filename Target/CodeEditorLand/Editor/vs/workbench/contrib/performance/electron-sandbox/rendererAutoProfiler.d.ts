@@ -1,10 +1,10 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { IProfileAnalysisWorkerService } from "vs/platform/profiling/electron-sandbox/profileAnalysisWorkerService";
-import { INativeWorkbenchEnvironmentService } from "vs/workbench/services/environment/electron-sandbox/environmentService";
-import { ITimerService } from "vs/workbench/services/timer/browser/timerService";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IProfileAnalysisWorkerService } from "../../../../platform/profiling/electron-sandbox/profileAnalysisWorkerService.js";
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { ITimerService } from "../../../services/timer/browser/timerService.js";
 export declare class RendererProfiling {
     private readonly _environmentService;
     private readonly _fileService;

@@ -1,9 +1,9 @@
-import { URI } from "vs/base/common/uri";
-import { IExtensionResourceLoaderService } from "vs/platform/extensionResourceLoader/common/extensionResourceLoader";
-import { ILogService } from "vs/platform/log/common/log";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IconContribution, IconDefinition } from "vs/platform/theme/common/iconRegistry";
-import { ExtensionData, IThemeExtensionPoint, IWorkbenchProductIconTheme } from "vs/workbench/services/themes/common/workbenchThemeService";
+import { URI } from "../../../../base/common/uri.js";
+import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IconContribution, IconDefinition } from "../../../../platform/theme/common/iconRegistry.js";
+import { ExtensionData, IThemeExtensionPoint, IWorkbenchProductIconTheme } from "../common/workbenchThemeService.js";
 export declare const DEFAULT_PRODUCT_ICON_THEME_ID = "";
 export declare class ProductIconThemeData implements IWorkbenchProductIconTheme {
     static readonly STORAGE_KEY = "productIconThemeData";

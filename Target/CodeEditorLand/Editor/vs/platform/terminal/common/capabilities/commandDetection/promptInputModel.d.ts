@@ -1,8 +1,8 @@
 import type { Terminal } from "@xterm/headless";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILogService } from "vs/platform/log/common/log";
-import type { ITerminalCommand } from "vs/platform/terminal/common/capabilities/capabilities";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ILogService } from "../../../../log/common/log.js";
+import type { ITerminalCommand } from "../capabilities.js";
 /**
  * A model of the prompt input state using shell integration and analyzing the terminal buffer. This
  * may not be 100% accurate but provides a best guess.
@@ -69,13 +69,13 @@ export declare class PromptInputModel extends Disposable implements IPromptInput
     private _ghostTextIndex;
     get ghostTextIndex(): number;
     private readonly _onDidStartInput;
-    readonly onDidStartInput: any;
+    readonly onDidStartInput: Event<IPromptInputModelState>;
     private readonly _onDidChangeInput;
-    readonly onDidChangeInput: any;
+    readonly onDidChangeInput: Event<IPromptInputModelState>;
     private readonly _onDidFinishInput;
-    readonly onDidFinishInput: any;
+    readonly onDidFinishInput: Event<IPromptInputModelState>;
     private readonly _onDidInterrupt;
-    readonly onDidInterrupt: any;
+    readonly onDidInterrupt: Event<IPromptInputModelState>;
     constructor(_xterm: Terminal, onCommandStart: Event<ITerminalCommand>, onCommandExecuted: Event<ITerminalCommand>, _logService: ILogService);
     private _logCombinedStringIfTrace;
     setContinuationPrompt(value: string): void;

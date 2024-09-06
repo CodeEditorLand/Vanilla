@@ -1,4 +1,4 @@
-import { IV8InspectProfilingService, IV8Profile } from "vs/platform/profiling/common/profiling";
+import { IV8InspectProfilingService, IV8Profile } from "../common/profiling.js";
 export declare class InspectProfilingService implements IV8InspectProfilingService {
     _serviceBrand: undefined;
     private readonly _sessions;

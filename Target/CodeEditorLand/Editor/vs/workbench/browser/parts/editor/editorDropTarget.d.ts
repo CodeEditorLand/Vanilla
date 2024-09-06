@@ -1,8 +1,8 @@
-import "vs/css!./media/editordroptarget";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IThemeService, Themable } from "vs/platform/theme/common/themeService";
-import { IEditorDropTargetDelegate, IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
+import "./media/editordroptarget.css";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { IEditorDropTargetDelegate, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
 export declare class EditorDropTarget extends Themable {
     private readonly container;
     private readonly delegate;

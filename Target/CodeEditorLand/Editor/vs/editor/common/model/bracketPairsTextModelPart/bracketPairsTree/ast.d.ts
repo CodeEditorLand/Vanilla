@@ -1,8 +1,8 @@
-import { BracketKind } from "vs/editor/common/languages/supports/languageBracketsConfiguration";
-import { ITextModel } from "vs/editor/common/model";
-import { Length } from "./length";
-import { SmallImmutableSet } from "./smallImmutableSet";
-import { OpeningBracketId } from "./tokenizer";
+import { BracketKind } from "../../../languages/supports/languageBracketsConfiguration.js";
+import { ITextModel } from "../../../model.js";
+import { Length } from "./length.js";
+import { SmallImmutableSet } from "./smallImmutableSet.js";
+import { OpeningBracketId } from "./tokenizer.js";
 export declare const enum AstNodeKind {
     Text = 0,
     Bracket = 1,
@@ -161,8 +161,8 @@ export declare class BracketAstNode extends ImmutableLeafAstNode {
     get kind(): AstNodeKind.Bracket;
     get missingOpeningBracketIds(): SmallImmutableSet<OpeningBracketId>;
     private constructor();
-    get text(): any;
-    get languageId(): any;
+    get text(): string;
+    get languageId(): string;
     canBeReused(_openedBracketIds: SmallImmutableSet<OpeningBracketId>): boolean;
     computeMinIndentation(offset: Length, textModel: ITextModel): number;
 }

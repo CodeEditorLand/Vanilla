@@ -1,8 +1,8 @@
-import { IRange } from "vs/editor/common/core/range";
-import { ILanguageIdCodec } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { ContiguousMultilineTokens } from "vs/editor/common/tokens/contiguousMultilineTokens";
-import { LineTokens } from "vs/editor/common/tokens/lineTokens";
+import { IRange } from "../core/range.js";
+import { ILanguageIdCodec } from "../languages.js";
+import { ITextModel } from "../model.js";
+import { ContiguousMultilineTokens } from "./contiguousMultilineTokens.js";
+import { LineTokens } from "./lineTokens.js";
 /**
  * Represents contiguous tokens in a text model.
  */

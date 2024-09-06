@@ -1,1 +1,1 @@
-import"../../../../../vs/base/common/uri.js";import"../../../../../vs/platform/userDataProfile/common/userDataProfile.js";import"../../../../../vs/workbench/common/editor.js";
+import"../../../../base/common/uri.js";import"../../../../platform/userDataProfile/common/userDataProfile.js";import"../../../common/editor.js";

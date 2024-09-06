@@ -1,15 +1,16 @@
-import { Disposable, IDisposable, IReference } from "vs/base/common/lifecycle";
-import { IResolvedTextEditorModel } from "vs/editor/common/services/resolverService";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IChatListItemRendererOptions } from "vs/workbench/contrib/chat/browser/chat";
-import { IDisposableReference } from "vs/workbench/contrib/chat/browser/chatContentParts/chatCollections";
-import { IChatContentPart, IChatContentPartRenderContext } from "vs/workbench/contrib/chat/browser/chatContentParts/chatContentParts";
-import { IChatRendererDelegate } from "vs/workbench/contrib/chat/browser/chatListRenderer";
-import { ChatEditorOptions } from "vs/workbench/contrib/chat/browser/chatOptions";
-import { CodeCompareBlockPart } from "vs/workbench/contrib/chat/browser/codeBlockPart";
-import { IChatProgressRenderableResponseContent, IChatTextEditGroup } from "vs/workbench/contrib/chat/common/chatModel";
-import { IChatResponseViewModel } from "vs/workbench/contrib/chat/common/chatViewModel";
-declare const ICodeCompareModelService: any;
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable, IDisposable, IReference } from "../../../../../base/common/lifecycle.js";
+import { IResolvedTextEditorModel } from "../../../../../editor/common/services/resolverService.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IChatProgressRenderableResponseContent, IChatTextEditGroup } from "../../common/chatModel.js";
+import { IChatResponseViewModel } from "../../common/chatViewModel.js";
+import { IChatListItemRendererOptions } from "../chat.js";
+import { IChatRendererDelegate } from "../chatListRenderer.js";
+import { ChatEditorOptions } from "../chatOptions.js";
+import { CodeCompareBlockPart } from "../codeBlockPart.js";
+import { IDisposableReference } from "./chatCollections.js";
+import { IChatContentPart, IChatContentPartRenderContext } from "./chatContentParts.js";
+declare const ICodeCompareModelService: import("../../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ICodeCompareModelService>;
 interface ICodeCompareModelService {
     _serviceBrand: undefined;
     createModel(response: IChatResponseViewModel, chatTextEdit: IChatTextEditGroup): Promise<IReference<{
@@ -23,7 +24,7 @@ export declare class ChatTextEditContentPart extends Disposable implements IChat
     readonly domNode: HTMLElement;
     private readonly comparePart;
     private readonly _onDidChangeHeight;
-    readonly onDidChangeHeight: any;
+    readonly onDidChangeHeight: Event<void>;
     constructor(chatTextEdit: IChatTextEditGroup, context: IChatContentPartRenderContext, rendererOptions: IChatListItemRendererOptions, diffEditorPool: DiffEditorPool, currentWidth: number, codeCompareModelService: ICodeCompareModelService);
     layout(width: number): void;
     hasSameContent(other: IChatProgressRenderableResponseContent): boolean;

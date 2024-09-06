@@ -1,6 +1,6 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ICellViewModel, INotebookEditor, INotebookEditorContribution, INotebookViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { Disposable, IDisposable } from "../../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ICellViewModel, INotebookEditor, INotebookEditorContribution, INotebookViewModel } from "../../notebookBrowser.js";
 export declare function formatCellDuration(duration: number, showMilliseconds?: boolean): string;
 export declare class NotebookStatusBarController extends Disposable {
     private readonly _notebookEditor;

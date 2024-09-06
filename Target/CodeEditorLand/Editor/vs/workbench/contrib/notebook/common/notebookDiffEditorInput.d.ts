@@ -1,12 +1,12 @@
-import { URI } from "vs/base/common/uri";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IResourceDiffEditorInput, IResourceSideBySideEditorInput, IUntypedEditorInput } from "vs/workbench/common/editor";
-import { DiffEditorInput } from "vs/workbench/common/editor/diffEditorInput";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { EditorModel } from "vs/workbench/common/editor/editorModel";
-import { INotebookDiffEditorModel, IResolvedNotebookEditorModel } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { NotebookEditorInput } from "vs/workbench/contrib/notebook/common/notebookEditorInput";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { URI } from "../../../../base/common/uri.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IResourceDiffEditorInput, IResourceSideBySideEditorInput, IUntypedEditorInput } from "../../../common/editor.js";
+import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { EditorModel } from "../../../common/editor/editorModel.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { INotebookDiffEditorModel, IResolvedNotebookEditorModel } from "./notebookCommon.js";
+import { NotebookEditorInput } from "./notebookEditorInput.js";
 declare class NotebookDiffEditorModel extends EditorModel implements INotebookDiffEditorModel {
     readonly original: IResolvedNotebookEditorModel;
     readonly modified: IResolvedNotebookEditorModel;
@@ -16,11 +16,11 @@ export declare class NotebookDiffEditorInput extends DiffEditorInput {
     readonly original: NotebookEditorInput;
     readonly modified: NotebookEditorInput;
     readonly viewType: string;
-    static create(instantiationService: IInstantiationService, resource: URI, name: string | undefined, description: string | undefined, originalResource: URI, viewType: string): any;
+    static create(instantiationService: IInstantiationService, resource: URI, name: string | undefined, description: string | undefined, originalResource: URI, viewType: string): NotebookDiffEditorInput;
     static readonly ID: string;
     private _modifiedTextModel;
     private _originalTextModel;
-    get resource(): any;
+    get resource(): URI;
     get editorId(): string;
     private _cachedModel;
     constructor(name: string | undefined, description: string | undefined, original: NotebookEditorInput, modified: NotebookEditorInput, viewType: string, editorService: IEditorService);

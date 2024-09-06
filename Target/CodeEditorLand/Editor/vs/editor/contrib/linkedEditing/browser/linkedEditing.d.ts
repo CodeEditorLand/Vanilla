@@ -1,15 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { IPosition } from "vs/editor/common/core/position";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ILanguageFeatureDebounceService } from "vs/editor/common/services/languageFeatureDebounce";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import "vs/css!./linkedEditing";
-export declare const CONTEXT_ONTYPE_RENAME_INPUT_VISIBLE: any;
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { IPosition } from "../../../common/core/position.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import "./linkedEditing.css";
+export declare const CONTEXT_ONTYPE_RENAME_INPUT_VISIBLE: RawContextKey<boolean>;
 export declare class LinkedEditingContribution extends Disposable implements IEditorContribution {
     private readonly languageConfigurationService;
     static readonly ID = "editor.contrib.linkedEditing";
@@ -47,4 +47,4 @@ export declare class LinkedEditingAction extends EditorAction {
     runCommand(accessor: ServicesAccessor, args: [URI, IPosition]): void | Promise<void>;
     run(_accessor: ServicesAccessor, editor: ICodeEditor): Promise<void>;
 }
-export declare const editorLinkedEditingBackground: any;
+export declare const editorLinkedEditingBackground: string;

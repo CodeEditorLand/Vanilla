@@ -1,4 +1,4 @@
-import { ITextBuffer } from "vs/editor/common/model";
+import { ITextBuffer } from "../model.js";
 /**
  * Result for a guessIndentation
  */

@@ -1,10 +1,11 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IModelDecorationOptions, IModelDecorationsChangeAccessor } from "vs/editor/common/model";
-import { IDecorationProvider } from "vs/editor/contrib/folding/browser/foldingModel";
-export declare const foldingExpandedIcon: any;
-export declare const foldingCollapsedIcon: any;
-export declare const foldingManualCollapsedIcon: any;
-export declare const foldingManualExpandedIcon: any;
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IModelDecorationOptions, IModelDecorationsChangeAccessor } from "../../../common/model.js";
+import { IDecorationProvider } from "./foldingModel.js";
+export declare const foldingExpandedIcon: ThemeIcon;
+export declare const foldingCollapsedIcon: ThemeIcon;
+export declare const foldingManualCollapsedIcon: ThemeIcon;
+export declare const foldingManualExpandedIcon: ThemeIcon;
 export declare class FoldingDecorationProvider implements IDecorationProvider {
     private readonly editor;
     private static readonly COLLAPSED_VISUAL_DECORATION;

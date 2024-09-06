@@ -1,12 +1,12 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { Color } from "vs/base/common/color";
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { ResolvedKeybinding } from "vs/base/common/keybindings";
-import { IDisposable } from "vs/base/common/lifecycle";
-import Severity from "vs/base/common/severity";
-import { ExtensionIdentifier, IExtensionManifest } from "vs/platform/extensions/common/extensions";
-import { SyncDescriptor } from "vs/platform/instantiation/common/descriptors";
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { Color } from "../../../../base/common/color.js";
+import { Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import Severity from "../../../../base/common/severity.js";
+import { ExtensionIdentifier, IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
 export declare namespace Extensions {
     const ExtensionFeaturesRegistry = "workbench.registry.extensionFeatures";
 }
@@ -63,7 +63,7 @@ export interface IExtensionFeatureAccessData {
     };
     readonly totalCount: number;
 }
-export declare const IExtensionFeaturesManagementService: any;
+export declare const IExtensionFeaturesManagementService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionFeaturesManagementService>;
 export interface IExtensionFeaturesManagementService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeEnablement: Event<{

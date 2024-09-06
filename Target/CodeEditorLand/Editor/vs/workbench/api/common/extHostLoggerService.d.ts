@@ -1,8 +1,8 @@
-import { URI, UriComponents } from "vs/base/common/uri";
-import { AbstractLoggerService, ILogger, ILoggerOptions, LogLevel } from "vs/platform/log/common/log";
-import { ExtHostLogLevelServiceShape, MainThreadLoggerShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { AbstractLoggerService, ILogger, ILoggerOptions, LogLevel } from "../../../platform/log/common/log.js";
+import { ExtHostLogLevelServiceShape, MainThreadLoggerShape } from "./extHost.protocol.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export declare class ExtHostLoggerService extends AbstractLoggerService implements ExtHostLogLevelServiceShape {
     readonly _serviceBrand: undefined;
     protected readonly _proxy: MainThreadLoggerShape;

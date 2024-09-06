@@ -1,5 +1,5 @@
-import { Dimension } from "vs/base/browser/dom";
-import { Event } from "vs/base/common/event";
+import { Event } from "../../../common/event.js";
+import { Dimension } from "../../dom.js";
 export interface IResizeEvent {
     dimension: Dimension;
     done: boolean;
@@ -28,7 +28,7 @@ export declare class ResizableHTMLElement {
     enableSashes(north: boolean, east: boolean, south: boolean, west: boolean): void;
     layout(height?: number, width?: number): void;
     clearSashHoverState(): void;
-    get size(): any;
+    get size(): Dimension;
     set maxSize(value: Dimension);
     get maxSize(): Dimension;
     set minSize(value: Dimension);

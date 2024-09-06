@@ -1,8 +1,8 @@
-import { ActionRunner, IAction } from "vs/base/common/actions";
-import { IListService } from "vs/platform/list/browser/listService";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { INotificationViewItem, NotificationsModel } from "vs/workbench/common/notifications";
+import { ActionRunner, IAction } from "../../../../base/common/actions.js";
+import { IListService } from "../../../../platform/list/browser/listService.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { INotificationViewItem, NotificationsModel } from "../../../common/notifications.js";
 export declare const SHOW_NOTIFICATIONS_CENTER = "notifications.showList";
 export declare const HIDE_NOTIFICATIONS_CENTER = "notifications.hideList";
 export declare const HIDE_NOTIFICATION_TOAST = "notifications.hideToasts";

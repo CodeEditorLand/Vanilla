@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICwdDetectionCapability } from "vs/platform/terminal/common/capabilities/capabilities";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICwdDetectionCapability, TerminalCapability } from "./capabilities.js";
 export declare class CwdDetectionCapability extends Disposable implements ICwdDetectionCapability {
-    readonly type: any;
+    readonly type = TerminalCapability.CwdDetection;
     private _cwd;
     private _cwds;
     /**
@@ -9,7 +9,7 @@ export declare class CwdDetectionCapability extends Disposable implements ICwdDe
      */
     get cwds(): string[];
     private readonly _onDidChangeCwd;
-    readonly onDidChangeCwd: any;
+    readonly onDidChangeCwd: import("../../../../base/common/event.js").Event<string>;
     getCwd(): string;
     updateCwd(cwd: string): void;
 }

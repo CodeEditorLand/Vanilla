@@ -1,6 +1,6 @@
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { ITerminalInstanceService } from "vs/workbench/contrib/terminal/browser/terminal";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { ITerminalInstanceService } from "../browser/terminal.js";
 export declare class LocalTerminalBackendContribution implements IWorkbenchContribution {
     static readonly ID = "workbench.contrib.localTerminalBackend";
     constructor(instantiationService: IInstantiationService, terminalInstanceService: ITerminalInstanceService);

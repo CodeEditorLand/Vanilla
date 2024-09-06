@@ -1,9 +1,10 @@
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { ConfirmResult } from "vs/platform/dialogs/common/dialogs";
-import { AbstractEditorInput, EditorInputCapabilities, GroupIdentifier, IEditorDescriptor, IEditorIdentifier, IEditorPane, IMoveResult, IRevertOptions, ISaveOptions, IUntypedEditorInput, Verbosity } from "vs/workbench/common/editor";
+import { Emitter } from "../../../base/common/event.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { URI } from "../../../base/common/uri.js";
+import { ConfirmResult } from "../../../platform/dialogs/common/dialogs.js";
+import { AbstractEditorInput, EditorInputCapabilities, GroupIdentifier, IEditorDescriptor, IEditorIdentifier, IEditorPane, IMoveResult, IRevertOptions, ISaveOptions, IUntypedEditorInput, Verbosity } from "../editor.js";
 export interface IEditorCloseHandler {
     /**
      * If `true`, will call into the `confirm` method to ask for confirmation
@@ -45,26 +46,26 @@ export interface IUntypedEditorOptions {
  * Each editor input is mapped to an editor that is capable of opening it through the Platform facade.
  */
 export declare abstract class EditorInput extends AbstractEditorInput {
-    protected readonly _onDidChangeDirty: any;
-    protected readonly _onDidChangeLabel: any;
-    protected readonly _onDidChangeCapabilities: any;
+    protected readonly _onDidChangeDirty: Emitter<void>;
+    protected readonly _onDidChangeLabel: Emitter<void>;
+    protected readonly _onDidChangeCapabilities: Emitter<void>;
     private readonly _onWillDispose;
     /**
      * Triggered when this input changes its dirty state.
      */
-    readonly onDidChangeDirty: any;
+    readonly onDidChangeDirty: import("../../../base/common/event.js").Event<void>;
     /**
      * Triggered when this input changes its label
      */
-    readonly onDidChangeLabel: any;
+    readonly onDidChangeLabel: import("../../../base/common/event.js").Event<void>;
     /**
      * Triggered when this input changes its capabilities.
      */
-    readonly onDidChangeCapabilities: any;
+    readonly onDidChangeCapabilities: import("../../../base/common/event.js").Event<void>;
     /**
      * Triggered when this input is about to be disposed.
      */
-    readonly onWillDispose: any;
+    readonly onWillDispose: import("../../../base/common/event.js").Event<void>;
     /**
      * Optional: subclasses can override to implement
      * custom confirmation on close behavior.

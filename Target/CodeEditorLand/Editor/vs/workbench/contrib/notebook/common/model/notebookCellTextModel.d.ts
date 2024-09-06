@@ -1,11 +1,12 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import * as model from "vs/editor/common/model";
-import { TextModel } from "vs/editor/common/model/textModel";
-import { CellInternalMetadataChangedEvent, CellKind, ICell, ICellDto2, ICellOutput, IOutputDto, IOutputItemDto, NotebookCellCollapseState, NotebookCellInternalMetadata, NotebookCellMetadata, NotebookCellOutputsSplice, TransientOptions } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { ILanguageDetectionService } from "vs/workbench/services/languageDetection/common/languageDetectionWorkerService";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import * as model from "../../../../../editor/common/model.js";
+import { TextModel } from "../../../../../editor/common/model/textModel.js";
+import { ILanguageDetectionService } from "../../../../services/languageDetection/common/languageDetectionWorkerService.js";
+import { CellInternalMetadataChangedEvent, CellKind, ICell, ICellDto2, ICellOutput, IOutputDto, IOutputItemDto, NotebookCellCollapseState, NotebookCellInternalMetadata, NotebookCellMetadata, NotebookCellOutputsSplice, TransientCellMetadata, TransientOptions } from "../notebookCommon.js";
 export declare class NotebookCellTextModel extends Disposable implements ICell {
     readonly uri: URI;
     readonly handle: number;
@@ -42,7 +43,7 @@ export declare class NotebookCellTextModel extends Disposable implements ICell {
     get mime(): string | undefined;
     set mime(newMime: string | undefined);
     private _textBuffer;
-    get textBuffer(): any;
+    get textBuffer(): model.IReadonlyTextBuffer;
     private _textBufferHash;
     private _hash;
     private _versionId;
@@ -65,11 +66,11 @@ export declare class NotebookCellTextModel extends Disposable implements ICell {
     private _setLanguageInternal;
     resetTextBuffer(textBuffer: model.ITextBuffer): void;
     getValue(): string;
-    getTextBufferHash(): string | null;
+    getTextBufferHash(): string;
     getHashValue(): number;
     private _getPersisentMetadata;
     getTextLength(): number;
-    getFullModelRange(): any;
+    getFullModelRange(): Range;
     spliceNotebookCellOutputs(splice: NotebookCellOutputsSplice): void;
     replaceOutput(outputId: string, newOutputItem: ICellOutput): boolean;
     changeOutputItems(outputId: string, append: boolean, items: IOutputItemDto[]): boolean;
@@ -92,8 +93,9 @@ export declare function cloneNotebookCellTextModel(cell: NotebookCellTextModel):
     mime: string | undefined;
     cellKind: CellKind;
     outputs: {
-        outputs: any;
-        outputId: any;
+        outputs: IOutputItemDto[];
+        outputId: string;
     }[];
     metadata: {};
 };
+export declare function getFormattedMetadataJSON(transientCellMetadata: TransientCellMetadata | undefined, metadata: NotebookCellMetadata, language?: string): string;

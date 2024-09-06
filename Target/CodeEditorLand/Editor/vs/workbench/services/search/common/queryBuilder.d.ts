@@ -1,13 +1,13 @@
-import * as glob from "vs/base/common/glob";
-import { URI, URI as uri } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IWorkspaceContextService, IWorkspaceFolderData } from "vs/platform/workspace/common/workspace";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IPathService } from "vs/workbench/services/path/common/pathService";
-import { IFileQuery, IPatternInfo, ITextQuery, ITextSearchPreviewOptions } from "vs/workbench/services/search/common/search";
-import { GlobPattern } from "vs/workbench/services/search/common/searchExtTypes";
+import * as glob from "../../../../base/common/glob.js";
+import { URI, URI as uri } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService, IWorkspaceFolderData } from "../../../../platform/workspace/common/workspace.js";
+import { IEditorGroupsService } from "../../editor/common/editorGroupsService.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { IFileQuery, IPatternInfo, ITextQuery, ITextSearchPreviewOptions } from "./search.js";
+import { GlobPattern } from "./searchExtTypes.js";
 /**
  * One folder to search and a set of glob expressions that should be applied.
  */
@@ -45,6 +45,7 @@ interface ICommonQueryBuilderOptions {
     disregardSearchExcludeSettings?: boolean;
     ignoreSymlinks?: boolean;
     onlyOpenEditors?: boolean;
+    onlyFileScheme?: boolean;
 }
 export interface IFileQueryBuilderOptions extends ICommonQueryBuilderOptions {
     filePattern?: string;

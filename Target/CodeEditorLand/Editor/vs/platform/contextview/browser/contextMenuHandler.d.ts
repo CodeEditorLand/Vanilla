@@ -1,8 +1,8 @@
-import { IContextMenuDelegate } from "vs/base/browser/contextmenu";
-import { IContextViewService } from "vs/platform/contextview/browser/contextView";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IContextMenuDelegate } from "../../../base/browser/contextmenu.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+import { INotificationService } from "../../notification/common/notification.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IContextViewService } from "./contextView.js";
 export interface IContextMenuHandlerOptions {
     blockMouse: boolean;
 }

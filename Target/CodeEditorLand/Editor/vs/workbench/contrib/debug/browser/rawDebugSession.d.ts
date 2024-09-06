@@ -1,11 +1,11 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IExtensionHostDebugService } from "vs/platform/debug/common/extensionHostDebug";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { AdapterEndEvent, IConfig, IDebugAdapter, IDebugger } from "vs/workbench/contrib/debug/common/debug";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IExtensionHostDebugService } from "../../../../platform/debug/common/extensionHostDebug.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { AdapterEndEvent, IConfig, IDebugAdapter, IDebugger } from "../common/debug.js";
 /**
  * Encapsulates the DebugAdapter lifecycle and some idiosyncrasies of the Debug Adapter Protocol.
  */

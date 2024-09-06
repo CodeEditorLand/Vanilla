@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ITransaction } from "vs/base/common/observable";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IExplorerFileContribution } from "vs/workbench/contrib/files/browser/explorerFileContrib";
-import { AbstractFileCoverage } from "vs/workbench/contrib/testing/common/testCoverage";
-import { ITestCoverageService } from "vs/workbench/contrib/testing/common/testCoverageService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ITransaction } from "../../../../base/common/observable.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IExplorerFileContribution } from "../../files/browser/explorerFileContrib.js";
+import { AbstractFileCoverage } from "../common/testCoverage.js";
+import { ITestCoverageService } from "../common/testCoverageService.js";
 export interface TestCoverageBarsOptions {
     /**
      * Whether the bars should be shown in a more compact way, where only the

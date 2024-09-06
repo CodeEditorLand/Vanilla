@@ -1,8 +1,8 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Range } from "vs/editor/common/core/range";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import { DocumentRangeSemanticTokensProvider, DocumentSemanticTokensProvider, SemanticTokens, SemanticTokensEdits } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Range } from "../../../common/core/range.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import { DocumentRangeSemanticTokensProvider, DocumentSemanticTokensProvider, SemanticTokens, SemanticTokensEdits } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
 export declare function isSemanticTokens(v: SemanticTokens | SemanticTokensEdits): v is SemanticTokens;
 export declare function isSemanticTokensEdits(v: SemanticTokens | SemanticTokensEdits): v is SemanticTokensEdits;
 export declare class DocumentSemanticTokensResult {

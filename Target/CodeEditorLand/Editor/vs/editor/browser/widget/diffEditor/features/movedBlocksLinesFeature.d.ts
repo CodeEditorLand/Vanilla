@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { DiffEditorEditors } from "vs/editor/browser/widget/diffEditor/components/diffEditorEditors";
-import { DiffEditorViewModel } from "vs/editor/browser/widget/diffEditor/diffEditorViewModel";
-import { EditorLayoutInfo } from "vs/editor/common/config/editorOptions";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../../base/common/observable.js";
+import { EditorLayoutInfo } from "../../../../common/config/editorOptions.js";
+import { DiffEditorEditors } from "../components/diffEditorEditors.js";
+import { DiffEditorViewModel } from "../diffEditorViewModel.js";
 export declare class MovedBlocksLinesFeature extends Disposable {
     private readonly _rootElement;
     private readonly _diffModel;
@@ -14,7 +14,7 @@ export declare class MovedBlocksLinesFeature extends Disposable {
     private readonly _originalScrollTop;
     private readonly _modifiedScrollTop;
     private readonly _viewZonesChanged;
-    readonly width: any;
+    readonly width: import("../../../../../base/common/observable.js").ISettableObservable<number, void>;
     constructor(_rootElement: HTMLElement, _diffModel: IObservable<DiffEditorViewModel | undefined>, _originalEditorLayoutInfo: IObservable<EditorLayoutInfo | null>, _modifiedEditorLayoutInfo: IObservable<EditorLayoutInfo | null>, _editors: DiffEditorEditors);
     private readonly _modifiedViewZonesChangedSignal;
     private readonly _originalViewZonesChangedSignal;

@@ -1,8 +1,8 @@
-import { IPosition } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { CursorState, PartialCursorState } from "vs/editor/common/cursorCommon";
-import { IViewModel } from "vs/editor/common/viewModel";
-import { ICommandMetadata } from "vs/platform/commands/common/commands";
+import { ICommandMetadata } from "../../../platform/commands/common/commands.js";
+import { IPosition } from "../core/position.js";
+import { Range } from "../core/range.js";
+import { CursorState, PartialCursorState } from "../cursorCommon.js";
+import { IViewModel } from "../viewModel.js";
 export declare class CursorMoveCommands {
     static addCursorDown(viewModel: IViewModel, cursors: CursorState[], useLogicalLine: boolean): PartialCursorState[];
     static addCursorUp(viewModel: IViewModel, cursors: CursorState[], useLogicalLine: boolean): PartialCursorState[];

@@ -1,4 +1,4 @@
-import { Piece, PieceTreeBase } from "vs/editor/common/model/pieceTreeTextBuffer/pieceTreeBase";
+import { Piece, PieceTreeBase } from "./pieceTreeBase.js";
 export declare class TreeNode {
     parent: TreeNode;
     left: TreeNode;

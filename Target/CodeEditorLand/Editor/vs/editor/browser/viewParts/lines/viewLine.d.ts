@@ -1,11 +1,11 @@
-import { VisibleRanges } from "vs/editor/browser/view/renderingContext";
-import { IVisibleLine } from "vs/editor/browser/view/viewLayer";
-import { DomReadingContext } from "vs/editor/browser/viewParts/lines/domReadingContext";
-import { IEditorConfiguration } from "vs/editor/common/config/editorConfiguration";
-import { StringBuilder } from "vs/editor/common/core/stringBuilder";
-import { CharacterMapping } from "vs/editor/common/viewLayout/viewLineRenderer";
-import { ViewportData } from "vs/editor/common/viewLayout/viewLinesViewportData";
-import { ColorScheme } from "vs/platform/theme/common/theme";
+import { ColorScheme } from "../../../../platform/theme/common/theme.js";
+import { IEditorConfiguration } from "../../../common/config/editorConfiguration.js";
+import { StringBuilder } from "../../../common/core/stringBuilder.js";
+import { CharacterMapping } from "../../../common/viewLayout/viewLineRenderer.js";
+import { ViewportData } from "../../../common/viewLayout/viewLinesViewportData.js";
+import { VisibleRanges } from "../../view/renderingContext.js";
+import { IVisibleLine } from "../../view/viewLayer.js";
+import { DomReadingContext } from "./domReadingContext.js";
 export declare class ViewLineOptions {
     readonly themeType: ColorScheme;
     readonly renderWhitespace: "none" | "boundary" | "selection" | "trailing" | "all";

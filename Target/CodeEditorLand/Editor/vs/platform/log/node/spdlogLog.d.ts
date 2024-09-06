@@ -1,4 +1,4 @@
-import { AbstractMessageLogger, ILogger, LogLevel } from "vs/platform/log/common/log";
+import { AbstractMessageLogger, ILogger, LogLevel } from "../common/log.js";
 export declare class SpdLogLogger extends AbstractMessageLogger implements ILogger {
     private buffer;
     private readonly _loggerCreationPromise;

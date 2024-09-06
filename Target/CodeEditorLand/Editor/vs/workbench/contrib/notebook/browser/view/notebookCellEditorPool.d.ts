@@ -1,9 +1,9 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IScopedContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ICellViewModel, INotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IScopedContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ICellViewModel, INotebookEditorDelegate } from "../notebookBrowser.js";
 export declare class NotebookCellEditorPool extends Disposable {
     readonly notebookEditor: INotebookEditorDelegate;
     private readonly contextKeyServiceProvider;

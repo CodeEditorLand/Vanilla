@@ -1,12 +1,12 @@
-import { Event } from "vs/base/common/event";
-import { IReference } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IResolvedNotebookEditorModel, NotebookEditorModelCreationOptions } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { INotebookEditorModelResolverService, IUntitledNotebookResource } from "vs/workbench/contrib/notebook/common/notebookEditorModelResolverService";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { Event } from "../../../../base/common/event.js";
+import { IReference } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IResolvedNotebookEditorModel, NotebookEditorModelCreationOptions } from "./notebookCommon.js";
+import { INotebookConflictEvent, INotebookEditorModelResolverService, IUntitledNotebookResource } from "./notebookEditorModelResolverService.js";
+import { INotebookService } from "./notebookService.js";
 export declare class NotebookModelResolverServiceImpl implements INotebookEditorModelResolverService {
     private readonly _notebookService;
     private readonly _extensionService;
@@ -16,13 +16,13 @@ export declare class NotebookModelResolverServiceImpl implements INotebookEditor
     readonly onDidSaveNotebook: Event<URI>;
     readonly onDidChangeDirty: Event<IResolvedNotebookEditorModel>;
     private readonly _onWillFailWithConflict;
-    readonly onWillFailWithConflict: any;
+    readonly onWillFailWithConflict: Event<INotebookConflictEvent>;
     constructor(instantiationService: IInstantiationService, _notebookService: INotebookService, _extensionService: IExtensionService, _uriIdentService: IUriIdentityService);
     dispose(): void;
     isDirty(resource: URI): boolean;
     private createUntitledUri;
     private validateResourceViewType;
-    createUntitledNotebookTextModel(viewType: string): Promise<any>;
+    createUntitledNotebookTextModel(viewType: string): Promise<import("./model/notebookTextModel.js").NotebookTextModel>;
     resolve(resource: URI, viewType?: string, options?: NotebookEditorModelCreationOptions): Promise<IReference<IResolvedNotebookEditorModel>>;
     resolve(resource: IUntitledNotebookResource, viewType: string, options: NotebookEditorModelCreationOptions): Promise<IReference<IResolvedNotebookEditorModel>>;
 }

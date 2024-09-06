@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IChatContentPart, IChatContentPartRenderContext } from "vs/workbench/contrib/chat/browser/chatContentParts/chatContentParts";
-import { IChatProgressRenderableResponseContent } from "vs/workbench/contrib/chat/common/chatModel";
-import { IChatCommandButton } from "vs/workbench/contrib/chat/common/chatService";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IChatProgressRenderableResponseContent } from "../../common/chatModel.js";
+import { IChatCommandButton } from "../../common/chatService.js";
+import { IChatContentPart, IChatContentPartRenderContext } from "./chatContentParts.js";
 export declare class ChatCommandButtonContentPart extends Disposable implements IChatContentPart {
     private readonly commandService;
     readonly domNode: HTMLElement;

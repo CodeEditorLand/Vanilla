@@ -1,21 +1,29 @@
 import { BrowserWindowConstructorOptions, HandlerDetails, WebContents } from "electron";
-import { Disposable } from "vs/base/common/lifecycle";
-import { AuxiliaryWindow, IAuxiliaryWindow } from "vs/platform/auxiliaryWindow/electron-main/auxiliaryWindow";
-import { IAuxiliaryWindowsMainService } from "vs/platform/auxiliaryWindow/electron-main/auxiliaryWindows";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { ILogService } from "../../log/common/log.js";
+import { AuxiliaryWindow, IAuxiliaryWindow } from "./auxiliaryWindow.js";
+import { IAuxiliaryWindowsMainService } from "./auxiliaryWindows.js";
 export declare class AuxiliaryWindowsMainService extends Disposable implements IAuxiliaryWindowsMainService {
     private readonly instantiationService;
     private readonly logService;
     readonly _serviceBrand: undefined;
     private readonly _onDidMaximizeWindow;
-    readonly onDidMaximizeWindow: any;
+    readonly onDidMaximizeWindow: Event<IAuxiliaryWindow>;
     private readonly _onDidUnmaximizeWindow;
-    readonly onDidUnmaximizeWindow: any;
+    readonly onDidUnmaximizeWindow: Event<IAuxiliaryWindow>;
     private readonly _onDidChangeFullScreen;
-    readonly onDidChangeFullScreen: any;
+    readonly onDidChangeFullScreen: Event<{
+        window: IAuxiliaryWindow;
+        fullscreen: boolean;
+    }>;
     private readonly _onDidTriggerSystemContextMenu;
-    readonly onDidTriggerSystemContextMenu: any;
+    readonly onDidTriggerSystemContextMenu: Event<{
+        window: IAuxiliaryWindow;
+        x: number;
+        y: number;
+    }>;
     private readonly windows;
     constructor(instantiationService: IInstantiationService, logService: ILogService);
     private registerListeners;

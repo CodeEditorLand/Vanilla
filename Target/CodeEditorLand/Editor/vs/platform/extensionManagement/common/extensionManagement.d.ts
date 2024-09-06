@@ -1,10 +1,10 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IStringDictionary } from "vs/base/common/collections";
-import { Event } from "vs/base/common/event";
-import { IPager } from "vs/base/common/paging";
-import { Platform } from "vs/base/common/platform";
-import { URI } from "vs/base/common/uri";
-import { ExtensionType, IExtension, IExtensionManifest, TargetPlatform } from "vs/platform/extensions/common/extensions";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { Event } from "../../../base/common/event.js";
+import { IPager } from "../../../base/common/paging.js";
+import { Platform } from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
+import { ExtensionType, IExtension, IExtensionManifest, TargetPlatform } from "../../extensions/common/extensions.js";
 export declare const EXTENSION_IDENTIFIER_PATTERN = "^([a-z0-9A-Z][a-z0-9-A-Z]*)\\.([a-z0-9A-Z][a-z0-9-A-Z]*)$";
 export declare const EXTENSION_IDENTIFIER_REGEX: RegExp;
 export declare const WEB_EXTENSION_TAG = "__web_extension";
@@ -20,7 +20,7 @@ export interface IProductVersion {
     readonly version: string;
     readonly date?: string;
 }
-export declare function TargetPlatformToString(targetPlatform: TargetPlatform): any;
+export declare function TargetPlatformToString(targetPlatform: TargetPlatform): "Web" | "Mac" | TargetPlatform.UNIVERSAL | TargetPlatform.UNKNOWN | TargetPlatform.UNDEFINED | "Windows 64 bit" | "Windows ARM" | "Linux 64 bit" | "Linux ARM 64" | "Linux ARM" | "Alpine Linux 64 bit" | "Alpine ARM 64" | "Mac Silicon";
 export declare function toTargetPlatform(targetPlatform: string): TargetPlatform;
 export declare function getTargetPlatform(platform: Platform | "alpine", arch: string | undefined): TargetPlatform;
 export declare function isNotWebExtensionInWebTargetPlatform(allTargetPlatforms: TargetPlatform[], productTargetPlatform: TargetPlatform): boolean;
@@ -205,7 +205,7 @@ export interface IExtensionQueryOptions {
     queryAllVersions?: boolean;
     source?: string;
 }
-export declare const IExtensionGalleryService: any;
+export declare const IExtensionGalleryService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionGalleryService>;
 /**
  * Service to interact with the Visual Studio Code Marketplace to get extensions.
  * @throws Error if the Marketplace is not enabled or not reachable.
@@ -351,7 +351,7 @@ export type UninstallExtensionInfo = {
     readonly extension: ILocalExtension;
     readonly options?: UninstallOptions;
 };
-export declare const IExtensionManagementService: any;
+export declare const IExtensionManagementService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionManagementService>;
 export interface IExtensionManagementService {
     readonly _serviceBrand: undefined;
     onInstallExtension: Event<InstallExtensionEvent>;
@@ -383,7 +383,7 @@ export interface IExtensionManagementService {
 }
 export declare const DISABLED_EXTENSIONS_STORAGE_PATH = "extensionsIdentifiers/disabled";
 export declare const ENABLED_EXTENSIONS_STORAGE_PATH = "extensionsIdentifiers/enabled";
-export declare const IGlobalExtensionEnablementService: any;
+export declare const IGlobalExtensionEnablementService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IGlobalExtensionEnablementService>;
 export interface IGlobalExtensionEnablementService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeEnablement: Event<{
@@ -411,12 +411,12 @@ export type IExecutableBasedExtensionTip = {
     readonly windowsPath?: string;
     readonly whenNotInstalled?: string[];
 };
-export declare const IExtensionTipsService: any;
+export declare const IExtensionTipsService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionTipsService>;
 export interface IExtensionTipsService {
     readonly _serviceBrand: undefined;
     getConfigBasedTips(folder: URI): Promise<IConfigBasedExtensionTip[]>;
     getImportantExecutableBasedTips(): Promise<IExecutableBasedExtensionTip[]>;
     getOtherExecutableBasedTips(): Promise<IExecutableBasedExtensionTip[]>;
 }
-export declare const ExtensionsLocalizedLabel: any;
-export declare const PreferencesLocalizedLabel: any;
+export declare const ExtensionsLocalizedLabel: import("../../../nls.js").ILocalizedString;
+export declare const PreferencesLocalizedLabel: import("../../../nls.js").ILocalizedString;

@@ -1,7 +1,8 @@
-import { ITreeFilter, TreeFilterResult, TreeVisibility } from "vs/base/browser/ui/tree/tree";
-import { IReplElement } from "vs/workbench/contrib/debug/common/debug";
+import { ITreeFilter, TreeFilterResult, TreeVisibility } from "../../../../base/browser/ui/tree/tree.js";
+import { matchesFuzzy } from "../../../../base/common/filters.js";
+import { IReplElement } from "../common/debug.js";
 export declare class ReplFilter implements ITreeFilter<IReplElement> {
-    static matchQuery: any;
+    static matchQuery: typeof matchesFuzzy;
     private _parsedQueries;
     set filterQuery(query: string);
     filter(element: IReplElement, parentVisibility: TreeVisibility): TreeFilterResult<void>;

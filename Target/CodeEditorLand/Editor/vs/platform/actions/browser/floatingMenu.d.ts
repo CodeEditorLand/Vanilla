@@ -1,13 +1,13 @@
-import { Widget } from "vs/base/browser/ui/widget";
-import { IAction } from "vs/base/common/actions";
-import { Disposable, DisposableStore } from "vs/base/common/lifecycle";
-import { IMenuService, MenuId } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { Widget } from "../../../base/browser/ui/widget.js";
+import { IAction } from "../../../base/common/actions.js";
+import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { IMenuService, MenuId } from "../common/actions.js";
 export declare class FloatingClickWidget extends Widget {
     private label;
     private readonly _onClick;
-    readonly onClick: any;
+    readonly onClick: import("../../../base/common/event.js").Event<void>;
     private _domNode;
     constructor(label: string);
     getDomNode(): HTMLElement;
@@ -15,7 +15,7 @@ export declare class FloatingClickWidget extends Widget {
 }
 export declare abstract class AbstractFloatingClickMenu extends Disposable {
     private readonly renderEmitter;
-    protected readonly onDidRender: any;
+    protected readonly onDidRender: import("../../../base/common/event.js").Event<FloatingClickWidget>;
     private readonly menu;
     constructor(menuId: MenuId, menuService: IMenuService, contextKeyService: IContextKeyService);
     /** Should be called in implementation constructors after they initialized */

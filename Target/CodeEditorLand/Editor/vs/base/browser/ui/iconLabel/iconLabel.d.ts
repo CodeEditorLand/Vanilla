@@ -1,9 +1,9 @@
-import "vs/css!./iconlabel";
-import type { IManagedHoverTooltipMarkdownString } from "vs/base/browser/ui/hover/hover";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { IMatch } from "vs/base/common/filters";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
+import "./iconlabel.css";
+import { IMatch } from "../../../common/filters.js";
+import { Disposable } from "../../../common/lifecycle.js";
+import { URI } from "../../../common/uri.js";
+import type { IManagedHoverTooltipMarkdownString } from "../hover/hover.js";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
 export interface IIconLabelCreationOptions {
     readonly supportHighlights?: boolean;
     readonly supportDescriptionHighlights?: boolean;

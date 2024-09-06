@@ -1,7 +1,7 @@
-import { Action } from "vs/base/common/actions";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { AbstractRuntimeExtensionsEditor, IRuntimeExtension } from "vs/workbench/contrib/extensions/browser/abstractRuntimeExtensionsEditor";
-import { IExtensionHostProfile } from "vs/workbench/services/extensions/common/extensions";
+import { Action } from "../../../../base/common/actions.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IExtensionHostProfile } from "../../../services/extensions/common/extensions.js";
+import { AbstractRuntimeExtensionsEditor, IRuntimeExtension } from "./abstractRuntimeExtensionsEditor.js";
 export declare class RuntimeExtensionsEditor extends AbstractRuntimeExtensionsEditor {
     protected _getProfileInfo(): IExtensionHostProfile | null;
     protected _getUnresponsiveProfile(extensionId: ExtensionIdentifier): IExtensionHostProfile | undefined;

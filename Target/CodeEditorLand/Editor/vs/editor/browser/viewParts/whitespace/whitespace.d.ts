@@ -1,8 +1,8 @@
-import "vs/css!./whitespace";
-import { DynamicViewOverlay } from "vs/editor/browser/view/dynamicViewOverlay";
-import { RenderingContext } from "vs/editor/browser/view/renderingContext";
-import * as viewEvents from "vs/editor/common/viewEvents";
-import { ViewContext } from "vs/editor/common/viewModel/viewContext";
+import "./whitespace.css";
+import * as viewEvents from "../../../common/viewEvents.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
+import { RenderingContext } from "../../view/renderingContext.js";
 export declare class WhitespaceOverlay extends DynamicViewOverlay {
     private readonly _context;
     private _options;

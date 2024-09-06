@@ -1,14 +1,14 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEnvironmentMainService } from "vs/platform/environment/electron-main/environmentMainService";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILifecycleMainService, IRelaunchHandler, IRelaunchOptions } from "vs/platform/lifecycle/electron-main/lifecycleMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { INativeHostMainService } from "vs/platform/native/electron-main/nativeHostMainService";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IRequestService } from "vs/platform/request/common/request";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { AvailableForDownload, UpdateType } from "vs/platform/update/common/update";
-import { AbstractUpdateService } from "vs/platform/update/electron-main/abstractUpdateService";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILifecycleMainService, IRelaunchHandler, IRelaunchOptions } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { INativeHostMainService } from "../../native/electron-main/nativeHostMainService.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IRequestService } from "../../request/common/request.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { AvailableForDownload, UpdateType } from "../common/update.js";
+import { AbstractUpdateService } from "./abstractUpdateService.js";
 export declare class Win32UpdateService extends AbstractUpdateService implements IRelaunchHandler {
     private readonly telemetryService;
     private readonly fileService;

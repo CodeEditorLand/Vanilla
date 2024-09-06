@@ -1,8 +1,8 @@
-import { URI } from "vs/base/common/uri";
-import { INativeEnvironmentService } from "vs/platform/environment/common/environment";
-import { IExtensionGalleryService, IExtensionManagementService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { ILanguagePackItem, LanguagePackBaseService } from "vs/platform/languagePacks/common/languagePacks";
-import { ILogService } from "vs/platform/log/common/log";
+import { URI } from "../../../base/common/uri.js";
+import { INativeEnvironmentService } from "../../environment/common/environment.js";
+import { IExtensionGalleryService, IExtensionManagementService } from "../../extensionManagement/common/extensionManagement.js";
+import { ILogService } from "../../log/common/log.js";
+import { ILanguagePackItem, LanguagePackBaseService } from "../common/languagePacks.js";
 export declare class NativeLanguagePackService extends LanguagePackBaseService {
     private readonly extensionManagementService;
     private readonly logService;

@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IAccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { INotebookCellExecution, INotebookExecution, INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { ICellExecutionStateChangedEvent, IExecutionStateChangedEvent, INotebookCellExecution, INotebookExecution, INotebookExecutionStateService, INotebookFailStateChangedEvent } from "../../common/notebookExecutionStateService.js";
+import { INotebookService } from "../../common/notebookService.js";
 export declare class NotebookExecutionStateService extends Disposable implements INotebookExecutionStateService {
     private readonly _instantiationService;
     private readonly _logService;
@@ -17,9 +17,9 @@ export declare class NotebookExecutionStateService extends Disposable implements
     private readonly _cellListeners;
     private readonly _lastFailedCells;
     private readonly _onDidChangeExecution;
-    onDidChangeExecution: any;
+    onDidChangeExecution: import("../../../../../base/common/event.js").Event<ICellExecutionStateChangedEvent | IExecutionStateChangedEvent>;
     private readonly _onDidChangeLastRunFailState;
-    onDidChangeLastRunFailState: any;
+    onDidChangeLastRunFailState: import("../../../../../base/common/event.js").Event<INotebookFailStateChangedEvent>;
     constructor(_instantiationService: IInstantiationService, _logService: ILogService, _notebookService: INotebookService, _accessibilitySignalService: IAccessibilitySignalService);
     getLastFailedCellForNotebook(notebook: URI): number | undefined;
     forceCancelNotebookExecutions(notebookUri: URI): void;

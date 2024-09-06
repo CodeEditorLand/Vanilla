@@ -1,1 +1,1 @@
-import"../../../../vs/base/common/event.js";import"../../../../vs/base/common/lifecycle.js";import"../../../../vs/base/parts/ipc/common/ipc.js";
+import"../../../base/common/event.js";import"../../../base/common/lifecycle.js";import"../../../base/parts/ipc/common/ipc.js";

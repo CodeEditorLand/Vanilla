@@ -1,4 +1,4 @@
-import type { IShellLaunchConfig } from "vs/platform/terminal/common/terminal";
+import type { IShellLaunchConfig } from "./terminal.js";
 /**
  * Aggressively escape non-windows paths to prepare for being sent to a shell. This will do some
  * escaping inaccurately to be careful about possible script injection via the file path. For

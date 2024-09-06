@@ -1,6 +1,6 @@
-import { CursorConfiguration, ICursorSimpleModel } from "vs/editor/common/cursorCommon";
-import { ITextModel } from "vs/editor/common/model";
-import { ICoordinatesConverter } from "vs/editor/common/viewModel";
+import { CursorConfiguration, ICursorSimpleModel } from "../cursorCommon.js";
+import { ITextModel } from "../model.js";
+import { ICoordinatesConverter } from "../viewModel.js";
 export declare class CursorContext {
     _cursorContextBrand: void;
     readonly model: ITextModel;

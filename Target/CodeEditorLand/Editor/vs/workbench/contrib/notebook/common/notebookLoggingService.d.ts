@@ -1,4 +1,4 @@
-export declare const INotebookLoggingService: any;
+export declare const INotebookLoggingService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INotebookLoggingService>;
 export interface INotebookLoggingService {
     readonly _serviceBrand: undefined;
     info(category: string, output: string): void;

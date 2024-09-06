@@ -1,11 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { Iterable } from "vs/base/common/iterator";
-import { ThemeColor } from "vs/base/common/themables";
-import { Command } from "vs/editor/common/languages";
-import { IAccessibilityInformation } from "vs/platform/accessibility/common/accessibility";
-import { IStatusbarEntry, StatusbarAlignment as MainThreadStatusBarAlignment } from "vs/workbench/services/statusbar/browser/statusbar";
-export declare const IExtensionStatusBarItemService: any;
+import { Event } from "../../../base/common/event.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { ThemeColor } from "../../../base/common/themables.js";
+import { Command } from "../../../editor/common/languages.js";
+import { IAccessibilityInformation } from "../../../platform/accessibility/common/accessibility.js";
+import { IStatusbarEntry, StatusbarAlignment as MainThreadStatusBarAlignment } from "../../services/statusbar/browser/statusbar.js";
+export declare const IExtensionStatusBarItemService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionStatusBarItemService>;
 export interface IExtensionStatusBarItemChangeEvent {
     readonly added?: ExtensionStatusBarEntry;
     readonly removed?: string;

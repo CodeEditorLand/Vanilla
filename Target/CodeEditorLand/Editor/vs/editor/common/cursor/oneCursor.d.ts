@@ -1,6 +1,6 @@
-import { Selection } from "vs/editor/common/core/selection";
-import { CursorContext } from "vs/editor/common/cursor/cursorContext";
-import { CursorState, SingleCursorState } from "vs/editor/common/cursorCommon";
+import { Selection } from "../core/selection.js";
+import { CursorState, SingleCursorState } from "../cursorCommon.js";
+import { CursorContext } from "./cursorContext.js";
 /**
  * Represents a single cursor.
  */

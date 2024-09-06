@@ -1,11 +1,11 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction2 } from "vs/editor/browser/editorExtensions";
-import { Action2, IAction2Options } from "vs/platform/actions/common/actions";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { InlineChatController } from "vs/workbench/contrib/inlineChat/browser/inlineChatController";
-import { HunkInformation } from "vs/workbench/contrib/inlineChat/browser/inlineChatSession";
-export declare const LOCALIZED_START_INLINE_CHAT_STRING: any;
-export declare const START_INLINE_CHAT: any;
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { EditorAction2 } from "../../../../editor/browser/editorExtensions.js";
+import { Action2, IAction2Options } from "../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { InlineChatController } from "./inlineChatController.js";
+import { HunkInformation } from "./inlineChatSession.js";
+export declare const LOCALIZED_START_INLINE_CHAT_STRING: import("../../../../nls.js").ILocalizedString;
+export declare const START_INLINE_CHAT: import("../../../../base/common/themables.js").ThemeIcon;
 export interface IHoldForSpeech {
     (accessor: ServicesAccessor, controller: InlineChatController, source: Action2): void;
 }
@@ -19,7 +19,7 @@ export declare class UnstashSessionAction extends EditorAction2 {
     runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor, ..._args: any[]): Promise<void>;
 }
 export declare abstract class AbstractInlineChatAction extends EditorAction2 {
-    static readonly category: any;
+    static readonly category: import("../../../../nls.js").ILocalizedString;
     constructor(desc: IAction2Options);
     runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor, ..._args: any[]): void;
     abstract runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController, editor: ICodeEditor, ...args: any[]): void;
@@ -70,13 +70,9 @@ export declare class MoveToPreviousHunk extends AbstractInlineChatAction {
 }
 export declare class ViewInChatAction extends AbstractInlineChatAction {
     constructor();
-    runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController, _editor: ICodeEditor, ..._args: any[]): any;
+    runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController, _editor: ICodeEditor, ..._args: any[]): Promise<void>;
 }
 export declare class ToggleDiffForChange extends AbstractInlineChatAction {
     constructor();
     runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController, _editor: ICodeEditor, hunkInfo: HunkInformation | any): void;
-}
-export declare class ReportIssueAction extends AbstractInlineChatAction {
-    constructor();
-    runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController): void;
 }

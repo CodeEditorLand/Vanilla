@@ -1,8 +1,8 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { LanguageId } from "vs/editor/common/encodedTokenAttributes";
-import { EncodedTokenizationResult, IBackgroundTokenizationStore, IBackgroundTokenizer, IState, ITokenizationSupport, TokenizationResult } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../../base/common/observable.js";
+import { LanguageId } from "../../../../../editor/common/encodedTokenAttributes.js";
+import { EncodedTokenizationResult, IBackgroundTokenizationStore, IBackgroundTokenizer, IState, ITokenizationSupport, TokenizationResult } from "../../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
 export declare class TokenizationSupportWithLineLimit extends Disposable implements ITokenizationSupport {
     private readonly _encodedLanguageId;
     private readonly _actual;

@@ -1,4 +1,4 @@
-import { OperatingSystem } from "vs/base/common/platform";
+import { OperatingSystem } from "../../../../../base/common/platform.js";
 export interface IParsedLink {
     path: ILinkPartialRange;
     prefix?: ILinkPartialRange;

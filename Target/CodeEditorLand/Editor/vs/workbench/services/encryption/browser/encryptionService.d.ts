@@ -1,4 +1,4 @@
-import { IEncryptionService, KnownStorageProvider } from "vs/platform/encryption/common/encryptionService";
+import { IEncryptionService, KnownStorageProvider } from "../../../../platform/encryption/common/encryptionService.js";
 export declare class EncryptionService implements IEncryptionService {
     readonly _serviceBrand: undefined;
     encrypt(value: string): Promise<string>;

@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { IServerChannel } from "vs/base/parts/ipc/common/ipc";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IExtensionHostStatusService } from "vs/server/node/extensionHostStatusService";
-import { ServerConnectionToken } from "vs/server/node/serverConnectionToken";
-import { IServerEnvironmentService } from "vs/server/node/serverEnvironmentService";
+import { Event } from "../../base/common/event.js";
+import { IServerChannel } from "../../base/parts/ipc/common/ipc.js";
+import { IUserDataProfilesService } from "../../platform/userDataProfile/common/userDataProfile.js";
+import { IExtensionHostStatusService } from "./extensionHostStatusService.js";
+import { ServerConnectionToken } from "./serverConnectionToken.js";
+import { IServerEnvironmentService } from "./serverEnvironmentService.js";
 export declare class RemoteAgentEnvironmentChannel implements IServerChannel {
     private readonly _connectionToken;
     private readonly _environmentService;

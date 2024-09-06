@@ -1,4 +1,4 @@
-import { VSBufferReadableStream } from "vs/base/common/buffer";
+import { VSBufferReadableStream } from "../../../common/buffer.js";
 /**
  * Checks if the given error is offline error
  */

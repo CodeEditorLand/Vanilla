@@ -23,5 +23,5 @@ export interface IGetWordAtTextConfig {
     windowSize: number;
     timeBudget: number;
 }
-export declare function setDefaultGetWordAtTextConfig(value: IGetWordAtTextConfig): any;
+export declare function setDefaultGetWordAtTextConfig(value: IGetWordAtTextConfig): import("../../../base/common/lifecycle.js").IDisposable;
 export declare function getWordAtText(column: number, wordDefinition: RegExp, text: string, textOffset: number, config?: IGetWordAtTextConfig): IWordAtPosition | null;

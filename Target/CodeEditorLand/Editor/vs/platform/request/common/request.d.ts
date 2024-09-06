@@ -1,9 +1,9 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IRequestContext, IRequestOptions } from "vs/base/parts/request/common/request";
-import { ConfigurationScope } from "vs/platform/configuration/common/configurationRegistry";
-import { ILogger, ILoggerService } from "vs/platform/log/common/log";
-export declare const IRequestService: any;
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IRequestContext, IRequestOptions } from "../../../base/parts/request/common/request.js";
+import { ConfigurationScope } from "../../configuration/common/configurationRegistry.js";
+import { ILogger } from "../../log/common/log.js";
+export declare const IRequestService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IRequestService>;
 export interface AuthInfo {
     isProxy: boolean;
     scheme: string;
@@ -25,11 +25,11 @@ export interface IRequestService {
     loadCertificates(): Promise<string[]>;
 }
 export declare abstract class AbstractRequestService extends Disposable implements IRequestService {
-    readonly _serviceBrand: undefined;
     protected readonly logger: ILogger;
+    readonly _serviceBrand: undefined;
     private counter;
-    constructor(loggerService: ILoggerService);
-    protected logAndRequest(stack: string, options: IRequestOptions, request: () => Promise<IRequestContext>): Promise<IRequestContext>;
+    constructor(logger: ILogger);
+    protected logAndRequest(options: IRequestOptions, request: () => Promise<IRequestContext>): Promise<IRequestContext>;
     abstract request(options: IRequestOptions, token: CancellationToken): Promise<IRequestContext>;
     abstract resolveProxy(url: string): Promise<string | undefined>;
     abstract lookupAuthorization(authInfo: AuthInfo): Promise<Credentials | undefined>;

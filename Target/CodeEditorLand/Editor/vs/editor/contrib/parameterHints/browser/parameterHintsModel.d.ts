@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import * as languages from "vs/editor/common/languages";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import * as languages from "../../../common/languages.js";
 export interface TriggerContext {
     readonly triggerKind: languages.SignatureHelpTriggerKind;
     readonly triggerCharacter?: string;
@@ -9,7 +9,7 @@ export interface TriggerContext {
 export declare class ParameterHintsModel extends Disposable {
     private static readonly DEFAULT_DELAY;
     private readonly _onChangedHints;
-    readonly onChangedHints: any;
+    readonly onChangedHints: import("../../../../base/common/event.js").Event<languages.SignatureHelp | undefined>;
     private readonly editor;
     private readonly providers;
     private triggerOnType;

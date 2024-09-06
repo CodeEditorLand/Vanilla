@@ -1,15 +1,15 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Position } from "vs/editor/common/core/position";
-import { ITextModel } from "vs/editor/common/model";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { SnippetEditorAction } from "vs/workbench/contrib/snippets/browser/commands/abstractSnippetsActions";
-import { Snippet } from "vs/workbench/contrib/snippets/browser/snippetsFile";
-import { ISnippetsService } from "../snippets";
+import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { Position } from "../../../../../editor/common/core/position.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ISnippetsService } from "../snippets.js";
+import { Snippet } from "../snippetsFile.js";
+import { SnippetEditorAction } from "./abstractSnippetsActions.js";
 export declare function getSurroundableSnippets(snippetsService: ISnippetsService, model: ITextModel, position: Position, includeDisabledSnippets: boolean): Promise<Snippet[]>;
 export declare class SurroundWithSnippetEditorAction extends SnippetEditorAction {
     static readonly options: {
         id: string;
-        title: any;
+        title: import("../../../../../nls.js").ILocalizedString;
     };
     constructor();
     runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void>;

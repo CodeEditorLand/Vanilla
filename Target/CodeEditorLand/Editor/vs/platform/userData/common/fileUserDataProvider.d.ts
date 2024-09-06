@@ -1,11 +1,11 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ReadableStreamEvents } from "vs/base/common/stream";
-import { URI } from "vs/base/common/uri";
-import { FileType, IFileAtomicOptions, IFileAtomicReadOptions, IFileDeleteOptions, IFileOpenOptions, IFileOverwriteOptions, IFileReadStreamOptions, IFileSystemProviderWithFileAtomicDeleteCapability, IFileSystemProviderWithFileAtomicReadCapability, IFileSystemProviderWithFileAtomicWriteCapability, IFileSystemProviderWithFileCloneCapability, IFileSystemProviderWithFileFolderCopyCapability, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithOpenReadWriteCloseCapability, IFileWriteOptions, IStat, IWatchOptions } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { ReadableStreamEvents } from "../../../base/common/stream.js";
+import { URI } from "../../../base/common/uri.js";
+import { FileSystemProviderCapabilities, FileType, IFileAtomicOptions, IFileAtomicReadOptions, IFileChange, IFileDeleteOptions, IFileOpenOptions, IFileOverwriteOptions, IFileReadStreamOptions, IFileSystemProviderWithFileAtomicDeleteCapability, IFileSystemProviderWithFileAtomicReadCapability, IFileSystemProviderWithFileAtomicWriteCapability, IFileSystemProviderWithFileCloneCapability, IFileSystemProviderWithFileFolderCopyCapability, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithOpenReadWriteCloseCapability, IFileWriteOptions, IStat, IWatchOptions } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
 /**
  * This is a wrapper on top of the local filesystem provider which will
  * 	- Convert the user data resources to file system scheme and vice-versa
@@ -18,10 +18,10 @@ export declare class FileUserDataProvider extends Disposable implements IFileSys
     private readonly userDataProfilesService;
     private readonly uriIdentityService;
     private readonly logService;
-    readonly capabilities: any;
-    readonly onDidChangeCapabilities: any;
+    readonly capabilities: FileSystemProviderCapabilities;
+    readonly onDidChangeCapabilities: import("../../../base/common/event.js").Event<void>;
     private readonly _onDidChangeFile;
-    readonly onDidChangeFile: any;
+    readonly onDidChangeFile: import("../../../base/common/event.js").Event<readonly IFileChange[]>;
     private readonly watchResources;
     private readonly atomicReadWriteResources;
     constructor(fileSystemScheme: string, fileSystemProvider: IFileSystemProviderWithFileReadWriteCapability & IFileSystemProviderWithOpenReadWriteCloseCapability & IFileSystemProviderWithFileReadStreamCapability & IFileSystemProviderWithFileAtomicReadCapability & IFileSystemProviderWithFileAtomicWriteCapability & IFileSystemProviderWithFileAtomicDeleteCapability, userDataScheme: string, userDataProfilesService: IUserDataProfilesService, uriIdentityService: IUriIdentityService, logService: ILogService);

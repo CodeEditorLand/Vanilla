@@ -1,31 +1,31 @@
-import { CodeWindow } from "vs/base/browser/window";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { URI } from "vs/base/common/uri";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorContributionDescription } from "vs/editor/browser/editorExtensions";
-import { IEditorCommentsOptions, IEditorOptions } from "vs/editor/common/config/editorOptions";
-import { FontInfo } from "vs/editor/common/config/fontInfo";
-import { IPosition } from "vs/editor/common/core/position";
-import { IRange, Range } from "vs/editor/common/core/range";
-import { Selection } from "vs/editor/common/core/selection";
-import * as editorCommon from "vs/editor/common/editorCommon";
-import { FindMatch, IModelDeltaDecoration, IReadonlyTextBuffer, ITextModel, TrackedRangeStickiness } from "vs/editor/common/model";
-import { MenuId } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ITextEditorOptions, ITextResourceEditorInput } from "vs/platform/editor/common/editor";
-import { IConstructorSignature } from "vs/platform/instantiation/common/instantiation";
-import { IEditorPane, IEditorPaneWithSelection } from "vs/workbench/common/editor";
-import { NotebookOptions } from "vs/workbench/contrib/notebook/browser/notebookOptions";
-import { CellViewModelStateChangeEvent, NotebookCellStateChangedEvent, NotebookLayoutInfo } from "vs/workbench/contrib/notebook/browser/notebookViewEvents";
-import { NotebookCellTextModel } from "vs/workbench/contrib/notebook/common/model/notebookCellTextModel";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
-import { CellKind, ICellOutput, INotebookCellStatusBarItem, INotebookFindOptions, INotebookRendererInfo, IOrderedMimeType, NotebookCellInternalMetadata, NotebookCellMetadata } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { INotebookKernel } from "vs/workbench/contrib/notebook/common/notebookKernelService";
-import { ICellRange } from "vs/workbench/contrib/notebook/common/notebookRange";
-import { IWebviewElement } from "vs/workbench/contrib/webview/browser/webview";
+import { CodeWindow } from "../../../../base/browser/window.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../base/common/observable.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IEditorContributionDescription } from "../../../../editor/browser/editorExtensions.js";
+import { IEditorCommentsOptions, IEditorOptions } from "../../../../editor/common/config/editorOptions.js";
+import { FontInfo } from "../../../../editor/common/config/fontInfo.js";
+import { IPosition } from "../../../../editor/common/core/position.js";
+import { IRange, Range } from "../../../../editor/common/core/range.js";
+import { Selection } from "../../../../editor/common/core/selection.js";
+import * as editorCommon from "../../../../editor/common/editorCommon.js";
+import { FindMatch, IModelDeltaDecoration, IReadonlyTextBuffer, ITextModel, TrackedRangeStickiness } from "../../../../editor/common/model.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ITextEditorOptions, ITextResourceEditorInput } from "../../../../platform/editor/common/editor.js";
+import { IConstructorSignature } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorPane, IEditorPaneWithSelection } from "../../../common/editor.js";
+import { IWebviewElement } from "../../webview/browser/webview.js";
+import { NotebookCellTextModel } from "../common/model/notebookCellTextModel.js";
+import { NotebookTextModel } from "../common/model/notebookTextModel.js";
+import { CellKind, ICellOutput, INotebookCellStatusBarItem, INotebookFindOptions, INotebookRendererInfo, IOrderedMimeType, NotebookCellInternalMetadata, NotebookCellMetadata } from "../common/notebookCommon.js";
+import { INotebookKernel } from "../common/notebookKernelService.js";
+import { ICellRange } from "../common/notebookRange.js";
+import { NotebookOptions } from "./notebookOptions.js";
+import { CellViewModelStateChangeEvent, NotebookCellStateChangedEvent, NotebookLayoutInfo } from "./notebookViewEvents.js";
 export declare const EXPAND_CELL_INPUT_COMMAND_ID = "notebook.cell.expandCellInput";
 export declare const EXECUTE_CELL_COMMAND_ID = "notebook.cell.execute";
 export declare const DETECT_CELL_LANGUAGE = "notebook.cell.detectLanguage";
@@ -746,7 +746,7 @@ export declare function getNotebookEditorFromEditorPane(editorPane?: IEditorPane
  * ranges: model selections
  * this will convert model selections to view indexes first, and then include the hidden ranges in the list view
  */
-export declare function expandCellRangesWithHiddenCells(editor: INotebookEditor, ranges: ICellRange[]): any;
+export declare function expandCellRangesWithHiddenCells(editor: INotebookEditor, ranges: ICellRange[]): ICellRange[];
 export declare function cellRangeToViewCells(editor: IActiveNotebookEditor, ranges: ICellRange[]): ICellViewModel[];
 export declare const enum CellFoldingState {
     None = 0,

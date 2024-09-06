@@ -1,11 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import * as performance from "vs/base/common/performance";
-import { IProcessEnvironment, OperatingSystem } from "vs/base/common/platform";
-import { URI } from "vs/base/common/uri";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IProcessPropertyMap, IPtyHostLatencyMeasurement, IPtyService, IReconnectConstants, ISerializedTerminalState, IShellLaunchConfig, ITerminalLaunchError, ITerminalProcessOptions, ITerminalsLayoutInfo, ProcessPropertyType, TitleEventSource } from "vs/platform/terminal/common/terminal";
-import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from "vs/platform/terminal/common/terminalProcess";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import * as performance from "../../../base/common/performance.js";
+import { IProcessEnvironment, OperatingSystem } from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
+import { ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IPtyHostProcessReplayEvent } from "../common/capabilities/capabilities.js";
+import { IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IPtyHostLatencyMeasurement, IPtyService, IReconnectConstants, ISerializedTerminalState, IShellLaunchConfig, ITerminalLaunchError, ITerminalProcessOptions, ITerminalsLayoutInfo, ProcessPropertyType, TitleEventSource } from "../common/terminal.js";
+import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from "../common/terminalProcess.js";
 export declare function traceRpc(_target: any, key: string, descriptor: any): void;
 export declare class PtyService extends Disposable implements IPtyService {
     private readonly _logService;
@@ -20,21 +22,42 @@ export declare class PtyService extends Disposable implements IPtyService {
     private readonly _autoReplies;
     private _lastPtyId;
     private readonly _onHeartbeat;
-    readonly onHeartbeat: Event<T>;
+    readonly onHeartbeat: Event<void>;
     private readonly _onProcessData;
-    readonly onProcessData: Event<T>;
+    readonly onProcessData: Event<{
+        id: number;
+        event: IProcessDataEvent | string;
+    }>;
     private readonly _onProcessReplay;
-    readonly onProcessReplay: Event<T>;
+    readonly onProcessReplay: Event<{
+        id: number;
+        event: IPtyHostProcessReplayEvent;
+    }>;
     private readonly _onProcessReady;
-    readonly onProcessReady: Event<T>;
+    readonly onProcessReady: Event<{
+        id: number;
+        event: IProcessReadyEvent;
+    }>;
     private readonly _onProcessExit;
-    readonly onProcessExit: Event<T>;
+    readonly onProcessExit: Event<{
+        id: number;
+        event: number | undefined;
+    }>;
     private readonly _onProcessOrphanQuestion;
-    readonly onProcessOrphanQuestion: Event<T>;
+    readonly onProcessOrphanQuestion: Event<{
+        id: number;
+    }>;
     private readonly _onDidRequestDetach;
-    readonly onDidRequestDetach: Event<T>;
+    readonly onDidRequestDetach: Event<{
+        requestId: number;
+        workspaceId: string;
+        instanceId: number;
+    }>;
     private readonly _onDidChangeProperty;
-    readonly onDidChangeProperty: Event<T>;
+    readonly onDidChangeProperty: Event<{
+        id: number;
+        property: IProcessProperty<any>;
+    }>;
     private _traceEvent;
     get traceRpcArgs(): {
         logService: ILogService;

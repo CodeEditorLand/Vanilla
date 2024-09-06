@@ -1,8 +1,8 @@
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IFileService } from "vs/platform/files/common/files";
-import { IProductService } from "vs/platform/product/common/productService";
-import { INativeWorkbenchEnvironmentService } from "vs/workbench/services/environment/electron-sandbox/environmentService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 export declare class DefaultConfigurationExportHelper {
     private readonly extensionService;
     private readonly commandService;

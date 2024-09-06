@@ -1,5 +1,5 @@
-import { FindMatch, ITextModel } from "vs/editor/common/model";
-import { ITextQuery, ITextSearchMatch, ITextSearchPreviewOptions, ITextSearchResult, TextSearchMatch } from "vs/workbench/services/search/common/search";
+import { FindMatch, ITextModel } from "../../../../editor/common/model.js";
+import { ITextQuery, ITextSearchMatch, ITextSearchPreviewOptions, ITextSearchResult, TextSearchMatch } from "./search.js";
 /**
  * Combine a set of FindMatches into a set of TextSearchResults. They should be grouped by matches that start on the same line that the previous match ends on.
  */

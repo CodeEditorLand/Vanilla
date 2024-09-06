@@ -1,10 +1,10 @@
-import { Emitter, Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IURITransformer } from "vs/base/common/uriIpc";
-import { IChannel, IServerChannel } from "vs/base/parts/ipc/common/ipc";
-import { DidUninstallExtensionEvent, DidUpdateExtensionMetadata, IExtensionIdentifier, IExtensionManagementService, IExtensionsControlManifest, IExtensionTipsService, IGalleryExtension, ILocalExtension, InstallExtensionEvent, InstallExtensionInfo, InstallExtensionResult, InstallOperation, InstallOptions, IProductVersion, Metadata, UninstallExtensionEvent, UninstallExtensionInfo, UninstallOptions } from "vs/platform/extensionManagement/common/extensionManagement";
-import { ExtensionType, IExtensionManifest, TargetPlatform } from "vs/platform/extensions/common/extensions";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IURITransformer } from "../../../base/common/uriIpc.js";
+import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { ExtensionType, IExtensionManifest, TargetPlatform } from "../../extensions/common/extensions.js";
+import { DidUninstallExtensionEvent, DidUpdateExtensionMetadata, IExtensionIdentifier, IExtensionManagementService, IExtensionsControlManifest, IExtensionTipsService, IGalleryExtension, ILocalExtension, InstallExtensionEvent, InstallExtensionInfo, InstallExtensionResult, InstallOperation, InstallOptions, IProductVersion, Metadata, UninstallExtensionEvent, UninstallExtensionInfo, UninstallOptions } from "./extensionManagement.js";
 export declare class ExtensionManagementChannel implements IServerChannel {
     private service;
     private getUriTransformer;
@@ -26,15 +26,15 @@ export declare class ExtensionManagementChannelClient extends Disposable impleme
     private readonly channel;
     readonly _serviceBrand: undefined;
     private readonly _onInstallExtension;
-    get onInstallExtension(): any;
+    get onInstallExtension(): Event<InstallExtensionEvent>;
     private readonly _onDidInstallExtensions;
-    get onDidInstallExtensions(): any;
+    get onDidInstallExtensions(): Event<readonly InstallExtensionResult[]>;
     private readonly _onUninstallExtension;
-    get onUninstallExtension(): any;
+    get onUninstallExtension(): Event<UninstallExtensionEvent>;
     private readonly _onDidUninstallExtension;
-    get onDidUninstallExtension(): any;
+    get onDidUninstallExtension(): Event<DidUninstallExtensionEvent>;
     private readonly _onDidUpdateExtensionMetadata;
-    get onDidUpdateExtensionMetadata(): any;
+    get onDidUpdateExtensionMetadata(): Event<DidUpdateExtensionMetadata>;
     constructor(channel: IChannel);
     protected fireEvent<E extends ExtensionEventResult>(event: Emitter<E>, data: E): void;
     protected fireEvent<E extends ExtensionEventResult>(event: Emitter<readonly E[]>, data: E[]): void;

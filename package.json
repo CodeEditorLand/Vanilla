@@ -1,6 +1,29 @@
 {
 	"name": "@codeeditorland/vanilla",
+	"version": "0.0.1",
 	"private": false,
+	"description": "🌼 Vanilla —",
+	"keywords": [
+		"codeeditorland",
+		"land",
+		"vscode",
+		"editor",
+		"playform"
+	],
+	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/Vanilla#readme",
+	"bugs": {
+		"url": "HTTPS://GitHub.Com/CodeEditorLand/Vanilla/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/CodeEditorLand/Vanilla.git"
+	},
+	"license": "SEE LICENSE IN LICENSE",
+	"author": {
+		"name": "🖋️ Source — 👐🏻 Open —",
+		"email": "Source/Open@Editor.Land",
+		"url": "HTTPS://Editor.Land"
+	},
 	"type": "module",
 	"scripts": {
 		"prepublishOnly": "Build 'CodeEditorLand/Editor/Source/**/*.ts' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.json"

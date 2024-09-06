@@ -1,6 +1,6 @@
-import type { RenderOutputType } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import type { PreloadOptions, RenderOptions } from "vs/workbench/contrib/notebook/browser/view/renderers/webviewPreloads";
-import { NotebookCellMetadata } from "vs/workbench/contrib/notebook/common/notebookCommon";
+import { NotebookCellMetadata } from "../../../common/notebookCommon.js";
+import type { RenderOutputType } from "../../notebookBrowser.js";
+import type { PreloadOptions, RenderOptions } from "./webviewPreloads.js";
 interface BaseToWebviewMessage {
     readonly __vscode_notebook_message: true;
 }

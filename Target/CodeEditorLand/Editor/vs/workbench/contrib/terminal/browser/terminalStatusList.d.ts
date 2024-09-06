@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import Severity from "vs/base/common/severity";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ITerminalStatus } from "vs/workbench/contrib/terminal/common/terminal";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import Severity from "../../../../base/common/severity.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ITerminalStatus } from "../common/terminal.js";
 /**
  * The set of _internal_ terminal statuses, other components building on the terminal should put
  * their statuses within their component.

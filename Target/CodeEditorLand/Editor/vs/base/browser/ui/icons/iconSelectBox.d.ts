@@ -1,8 +1,8 @@
-import "vs/css!./iconSelectBox";
-import * as dom from "vs/base/browser/dom";
-import { IInputBoxStyles, InputBox } from "vs/base/browser/ui/inputbox/inputBox";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
+import "./iconSelectBox.css";
+import { Disposable } from "../../../common/lifecycle.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import * as dom from "../../dom.js";
+import { IInputBoxStyles, InputBox } from "../inputbox/inputBox.js";
 export interface IIconSelectBoxOptions {
     readonly icons: ThemeIcon[];
     readonly inputBoxStyles: IInputBoxStyles;
@@ -14,7 +14,7 @@ export declare class IconSelectBox extends Disposable {
     readonly domId: string;
     readonly domNode: HTMLElement;
     private _onDidSelect;
-    readonly onDidSelect: any;
+    readonly onDidSelect: import("../../../common/event.js").Event<ThemeIcon>;
     private renderedIcons;
     private focusedItemIndex;
     private numberOfElementsPerRow;

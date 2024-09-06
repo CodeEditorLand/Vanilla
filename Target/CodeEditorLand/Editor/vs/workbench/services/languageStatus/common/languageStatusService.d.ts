@@ -1,11 +1,11 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import Severity from "vs/base/common/severity";
-import { Command } from "vs/editor/common/languages";
-import { LanguageSelector } from "vs/editor/common/languageSelector";
-import { ITextModel } from "vs/editor/common/model";
-import { IAccessibilityInformation } from "vs/platform/accessibility/common/accessibility";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import Severity from "../../../../base/common/severity.js";
+import { Command } from "../../../../editor/common/languages.js";
+import { LanguageSelector } from "../../../../editor/common/languageSelector.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { IAccessibilityInformation } from "../../../../platform/accessibility/common/accessibility.js";
 export interface ILanguageStatus {
     readonly id: string;
     readonly name: string;
@@ -24,7 +24,7 @@ export interface ILanguageStatus {
 export interface ILanguageStatusProvider {
     provideLanguageStatus(langId: string, token: CancellationToken): Promise<ILanguageStatus | undefined>;
 }
-export declare const ILanguageStatusService: any;
+export declare const ILanguageStatusService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ILanguageStatusService>;
 export interface ILanguageStatusService {
     _serviceBrand: undefined;
     onDidChange: Event<void>;

@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { CustomEditorInfo } from "vs/workbench/contrib/customEditor/common/customEditor";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { CustomEditorInfo } from "./customEditor.js";
 export declare class ContributedCustomEditors extends Disposable {
     private static readonly CUSTOM_EDITORS_STORAGE_ID;
     private static readonly CUSTOM_EDITORS_ENTRY_ID;
@@ -9,7 +9,7 @@ export declare class ContributedCustomEditors extends Disposable {
     private readonly _memento;
     constructor(storageService: IStorageService);
     private readonly _onChange;
-    readonly onChange: any;
+    readonly onChange: import("../../../../base/common/event.js").Event<void>;
     private update;
     [Symbol.iterator](): Iterator<CustomEditorInfo>;
     get(viewType: string): CustomEditorInfo | undefined;

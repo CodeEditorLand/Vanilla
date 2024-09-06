@@ -1,7 +1,7 @@
-import { ILogService } from "vs/platform/log/common/log";
-import { MainThreadSpeechShape } from "vs/workbench/api/common/extHost.protocol";
-import { IKeywordRecognitionEvent, ISpeechProviderMetadata, ISpeechService, ISpeechToTextEvent, ITextToSpeechEvent } from "vs/workbench/contrib/speech/common/speechService";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IKeywordRecognitionEvent, ISpeechProviderMetadata, ISpeechService, ISpeechToTextEvent, ITextToSpeechEvent } from "../../contrib/speech/common/speechService.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadSpeechShape } from "../common/extHost.protocol.js";
 export declare class MainThreadSpeech implements MainThreadSpeechShape {
     private readonly speechService;
     private readonly logService;

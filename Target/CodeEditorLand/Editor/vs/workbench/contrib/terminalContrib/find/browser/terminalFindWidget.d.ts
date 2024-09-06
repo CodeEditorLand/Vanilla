@@ -1,12 +1,12 @@
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService, IContextViewService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { SimpleFindWidget } from "vs/workbench/contrib/codeEditor/browser/find/simpleFindWidget";
-import { IDetachedTerminalInstance, ITerminalInstance } from "vs/workbench/contrib/terminal/browser/terminal";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService, IContextViewService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { SimpleFindWidget } from "../../../codeEditor/browser/find/simpleFindWidget.js";
+import { IDetachedTerminalInstance, ITerminalInstance } from "../../../terminal/browser/terminal.js";
 export declare class TerminalFindWidget extends SimpleFindWidget {
     private _instance;
     private readonly _contextKeyService;

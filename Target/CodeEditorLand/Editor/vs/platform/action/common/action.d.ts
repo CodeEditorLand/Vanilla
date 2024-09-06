@@ -1,8 +1,8 @@
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI, UriDto } from "vs/base/common/uri";
-import { ICommandMetadata } from "vs/platform/commands/common/commands";
-import { ContextKeyExpression } from "vs/platform/contextkey/common/contextkey";
-import { Categories } from "./actionCommonCategories";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { URI, UriDto } from "../../../base/common/uri.js";
+import { ICommandMetadata } from "../../commands/common/commands.js";
+import { ContextKeyExpression } from "../../contextkey/common/contextkey.js";
+import { Categories } from "./actionCommonCategories.js";
 export interface ILocalizedString {
     /**
      * The localized value of the string.

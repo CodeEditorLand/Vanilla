@@ -1,8 +1,8 @@
-import "vs/css!./marginDecorations";
-import { RenderingContext } from "vs/editor/browser/view/renderingContext";
-import { DecorationToRender, DedupOverlay } from "vs/editor/browser/viewParts/glyphMargin/glyphMargin";
-import * as viewEvents from "vs/editor/common/viewEvents";
-import { ViewContext } from "vs/editor/common/viewModel/viewContext";
+import "./marginDecorations.css";
+import * as viewEvents from "../../../common/viewEvents.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import { RenderingContext } from "../../view/renderingContext.js";
+import { DecorationToRender, DedupOverlay } from "../glyphMargin/glyphMargin.js";
 export declare class MarginViewLineDecorationsOverlay extends DedupOverlay {
     private readonly _context;
     private _renderResult;

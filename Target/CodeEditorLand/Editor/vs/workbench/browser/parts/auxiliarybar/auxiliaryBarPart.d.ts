@@ -1,20 +1,21 @@
-import "vs/css!./media/auxiliaryBarPart";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IPaneCompositeBarOptions } from "vs/workbench/browser/parts/paneCompositeBar";
-import { AbstractPaneCompositePart, CompositeBarPosition } from "vs/workbench/browser/parts/paneCompositePart";
-import { IViewDescriptorService } from "vs/workbench/common/views";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
+import "./media/auxiliaryBarPart.css";
+import { LayoutPriority } from "../../../../base/browser/ui/splitview/splitview.js";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { IPaneCompositeBarOptions } from "../paneCompositeBar.js";
+import { AbstractPaneCompositePart, CompositeBarPosition } from "../paneCompositePart.js";
 export declare class AuxiliaryBarPart extends AbstractPaneCompositePart {
     private commandService;
     private readonly configurationService;
@@ -28,7 +29,7 @@ export declare class AuxiliaryBarPart extends AbstractPaneCompositePart {
     readonly maximumHeight: number;
     get preferredHeight(): number | undefined;
     get preferredWidth(): number | undefined;
-    readonly priority: any;
+    readonly priority = LayoutPriority.Low;
     constructor(notificationService: INotificationService, storageService: IStorageService, contextMenuService: IContextMenuService, layoutService: IWorkbenchLayoutService, keybindingService: IKeybindingService, hoverService: IHoverService, instantiationService: IInstantiationService, themeService: IThemeService, viewDescriptorService: IViewDescriptorService, contextKeyService: IContextKeyService, extensionService: IExtensionService, commandService: ICommandService, menuService: IMenuService, configurationService: IConfigurationService);
     private onDidChangeActivityBarLocation;
     updateStyles(): void;
@@ -36,7 +37,7 @@ export declare class AuxiliaryBarPart extends AbstractPaneCompositePart {
     private fillExtraContextMenuActions;
     protected shouldShowCompositeBar(): boolean;
     protected getCompositeBarPosition(): CompositeBarPosition;
-    protected createHeaderArea(): any;
+    protected createHeaderArea(): HTMLElement;
     private headerActionViewItemProvider;
     toJSON(): object;
 }

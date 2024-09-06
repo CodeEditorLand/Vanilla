@@ -1,7 +1,7 @@
-import { Position } from "vs/editor/common/core/position";
-import { ISelection, Selection } from "vs/editor/common/core/selection";
-import { CursorContext } from "vs/editor/common/cursor/cursorContext";
-import { CursorState, PartialCursorState } from "vs/editor/common/cursorCommon";
+import { Position } from "../core/position.js";
+import { ISelection, Selection } from "../core/selection.js";
+import { CursorState, PartialCursorState } from "../cursorCommon.js";
+import { CursorContext } from "./cursorContext.js";
 export declare class CursorCollection {
     private context;
     /**

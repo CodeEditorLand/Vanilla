@@ -1,10 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ILocalizedString } from "vs/platform/action/common/action";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-export declare const ILogService: any;
-export declare const ILoggerService: any;
+import { Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { ILocalizedString } from "../../action/common/action.js";
+import { RawContextKey } from "../../contextkey/common/contextkey.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+export declare const ILogService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILogService>;
+export declare const ILoggerService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILoggerService>;
 export declare function isLogLevel(thing: unknown): thing is LogLevel;
 export declare enum LogLevel {
     Off = 0,
@@ -226,11 +227,14 @@ export declare abstract class AbstractLoggerService extends Disposable implement
     readonly _serviceBrand: undefined;
     private readonly _loggers;
     private _onDidChangeLoggers;
-    readonly onDidChangeLoggers: any;
+    readonly onDidChangeLoggers: Event<{
+        added: ILoggerResource[];
+        removed: ILoggerResource[];
+    }>;
     private _onDidChangeLogLevel;
-    readonly onDidChangeLogLevel: any;
+    readonly onDidChangeLogLevel: Event<LogLevel | [URI, LogLevel]>;
     private _onDidChangeVisibility;
-    readonly onDidChangeVisibility: any;
+    readonly onDidChangeVisibility: Event<[URI, boolean]>;
     constructor(logLevel: LogLevel, logsHome: URI, loggerResources?: Iterable<ILoggerResource>);
     private getLoggerEntry;
     getLogger(resourceOrId: URI | string): ILogger | undefined;
@@ -267,4 +271,4 @@ export declare function getLogLevel(environmentService: IEnvironmentService): Lo
 export declare function LogLevelToString(logLevel: LogLevel): string;
 export declare function LogLevelToLocalizedString(logLevel: LogLevel): ILocalizedString;
 export declare function parseLogLevel(logLevel: string): LogLevel | undefined;
-export declare const CONTEXT_LOG_LEVEL: any;
+export declare const CONTEXT_LOG_LEVEL: RawContextKey<string>;

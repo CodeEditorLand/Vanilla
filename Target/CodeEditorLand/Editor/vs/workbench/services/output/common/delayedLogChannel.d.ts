@@ -1,5 +1,5 @@
-import { URI } from "vs/base/common/uri";
-import { ILoggerService, LogLevel } from "vs/platform/log/common/log";
+import { URI } from "../../../../base/common/uri.js";
+import { ILoggerService, LogLevel } from "../../../../platform/log/common/log.js";
 export declare class DelayedLogChannel {
     private readonly file;
     private readonly loggerService;

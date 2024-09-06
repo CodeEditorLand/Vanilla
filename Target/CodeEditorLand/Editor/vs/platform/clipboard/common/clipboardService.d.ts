@@ -1,5 +1,5 @@
-import { URI } from "vs/base/common/uri";
-export declare const IClipboardService: any;
+import { URI } from "../../../base/common/uri.js";
+export declare const IClipboardService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IClipboardService>;
 export interface IClipboardService {
     readonly _serviceBrand: undefined;
     /**

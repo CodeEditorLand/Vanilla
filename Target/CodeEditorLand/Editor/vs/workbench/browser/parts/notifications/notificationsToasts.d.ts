@@ -1,14 +1,15 @@
-import "vs/css!./media/notificationsToasts";
-import { Dimension } from "vs/base/browser/dom";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IThemeService, Themable } from "vs/platform/theme/common/themeService";
-import { INotificationsToastController } from "vs/workbench/browser/parts/notifications/notificationsCommands";
-import { INotificationsModel } from "vs/workbench/common/notifications";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
+import "./media/notificationsToasts.css";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { Event } from "../../../../base/common/event.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { INotificationsModel } from "../../../common/notifications.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { INotificationsToastController } from "./notificationsCommands.js";
 export declare class NotificationsToasts extends Themable implements INotificationsToastController {
     private readonly container;
     private readonly model;
@@ -23,7 +24,7 @@ export declare class NotificationsToasts extends Themable implements INotificati
     private static readonly PURGE_TIMEOUT;
     private static readonly SPAM_PROTECTION;
     private readonly _onDidChangeVisibility;
-    readonly onDidChangeVisibility: any;
+    readonly onDidChangeVisibility: Event<void>;
     private _isVisible;
     get isVisible(): boolean;
     private notificationsToastsContainer;

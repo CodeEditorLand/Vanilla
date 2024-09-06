@@ -1,9 +1,9 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { UriComponents, UriDto } from "vs/base/common/uri";
-import { NativeParsedArgs } from "vs/platform/environment/common/argv";
-import { ILoggerResource, LogLevel } from "vs/platform/log/common/log";
-import { PolicyDefinition, PolicyValue } from "vs/platform/policy/common/policy";
-import { IUserDataProfile } from "vs/platform/userDataProfile/common/userDataProfile";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { UriComponents, UriDto } from "../../../base/common/uri.js";
+import { NativeParsedArgs } from "../../environment/common/argv.js";
+import { ILoggerResource, LogLevel } from "../../log/common/log.js";
+import { PolicyDefinition, PolicyValue } from "../../policy/common/policy.js";
+import { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
 export interface ISharedProcessConfiguration {
     readonly machineId: string;
     readonly sqmId: string;

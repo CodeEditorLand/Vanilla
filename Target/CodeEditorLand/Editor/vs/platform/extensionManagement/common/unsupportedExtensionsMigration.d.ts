@@ -1,6 +1,6 @@
-import { IExtensionGalleryService, IExtensionManagementService, IGlobalExtensionEnablementService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IExtensionStorageService } from "vs/platform/extensionManagement/common/extensionStorage";
-import { ILogService } from "vs/platform/log/common/log";
+import { ILogService } from "../../log/common/log.js";
+import { IExtensionGalleryService, IExtensionManagementService, IGlobalExtensionEnablementService } from "./extensionManagement.js";
+import { IExtensionStorageService } from "./extensionStorage.js";
 /**
  * Migrates the installed unsupported nightly extension to a supported pre-release extension. It includes following:
  * 	- Uninstall the Unsupported extension

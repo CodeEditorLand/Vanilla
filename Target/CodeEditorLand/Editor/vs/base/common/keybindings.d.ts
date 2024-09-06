@@ -1,5 +1,5 @@
-import { KeyCode, ScanCode } from "vs/base/common/keyCodes";
-import { OperatingSystem } from "vs/base/common/platform";
+import { KeyCode, ScanCode } from "./keyCodes.js";
+import { OperatingSystem } from "./platform.js";
 export declare function decodeKeybinding(keybinding: number | number[], OS: OperatingSystem): Keybinding | null;
 export declare function createSimpleKeybinding(keybinding: number, OS: OperatingSystem): KeyCodeChord;
 export interface Modifiers {

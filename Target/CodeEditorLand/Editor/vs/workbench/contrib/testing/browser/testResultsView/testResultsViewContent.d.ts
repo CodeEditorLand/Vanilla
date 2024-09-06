@@ -1,13 +1,13 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./testResultsViewContent";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { InspectSubject } from "vs/workbench/contrib/testing/browser/testResultsView/testResultsSubject";
-import { IObservableValue } from "vs/workbench/contrib/testing/common/observableValue";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import "./testResultsViewContent.css";
+import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IObservableValue } from "../../common/observableValue.js";
+import { InspectSubject } from "./testResultsSubject.js";
 /** UI state that can be saved/restored, used to give a nice experience when switching stack frames */
 export interface ITestResultsViewContentUiState {
     splitViewWidths: number[];
@@ -39,7 +39,7 @@ export declare class TestResultsViewContent extends Disposable {
     current?: InspectSubject;
     /** Fired when a tree item is selected. Populated only on .fillBody() */
     onDidRequestReveal: Event<InspectSubject>;
-    readonly onClose: any;
+    readonly onClose: Event<void>;
     get uiState(): ITestResultsViewContentUiState;
     constructor(editor: ICodeEditor | undefined, options: {
         historyVisible: IObservableValue<boolean>;
@@ -54,7 +54,11 @@ export declare class TestResultsViewContent extends Disposable {
     reveal(opts: {
         subject: InspectSubject;
         preserveFocus: boolean;
-    }): any;
+    }): Promise<unknown>;
+    /**
+     * Collapses all displayed stack frames.
+     */
+    collapseStack(): void;
     private getCallFrames;
     private prepareTopFrame;
     private layoutContentWidgets;

@@ -1,5 +1,5 @@
-import { ILogService } from "vs/platform/log/common/log";
-import { IExtHostCommands } from "vs/workbench/api/common/extHostCommands";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IExtHostCommands } from "../common/extHostCommands.js";
 export interface OpenCommandPipeArgs {
     type: "open";
     fileURIs?: string[];

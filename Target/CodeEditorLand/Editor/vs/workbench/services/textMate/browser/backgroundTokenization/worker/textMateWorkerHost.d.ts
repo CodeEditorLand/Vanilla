@@ -1,6 +1,6 @@
-import { UriComponents } from "vs/base/common/uri";
-import { IWorkerClient, IWorkerServer } from "vs/base/common/worker/simpleWorker";
-import { StateDeltas } from "vs/workbench/services/textMate/browser/backgroundTokenization/worker/textMateTokenizationWorker.worker";
+import { UriComponents } from "../../../../../../base/common/uri.js";
+import { IWorkerClient, IWorkerServer } from "../../../../../../base/common/worker/simpleWorker.js";
+import { StateDeltas } from "./textMateTokenizationWorker.worker.js";
 export declare abstract class TextMateWorkerHost {
     static CHANNEL_NAME: string;
     static getChannel(workerServer: IWorkerServer): TextMateWorkerHost;

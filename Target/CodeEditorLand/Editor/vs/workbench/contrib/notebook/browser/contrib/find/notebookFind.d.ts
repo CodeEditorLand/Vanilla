@@ -1,1 +1,1 @@
-import "vs/css!./media/notebookFind";
+import "./media/notebookFind.css";

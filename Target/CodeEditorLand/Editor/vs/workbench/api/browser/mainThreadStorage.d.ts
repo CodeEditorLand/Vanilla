@@ -1,9 +1,9 @@
-import { IExtensionIdWithVersion, IExtensionStorageService } from "vs/platform/extensionManagement/common/extensionStorage";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { MainThreadStorageShape } from "../common/extHost.protocol";
+import { IExtensionIdWithVersion, IExtensionStorageService } from "../../../platform/extensionManagement/common/extensionStorage.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IStorageService } from "../../../platform/storage/common/storage.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadStorageShape } from "../common/extHost.protocol.js";
 export declare class MainThreadStorage implements MainThreadStorageShape {
     private readonly _extensionStorageService;
     private readonly _storageService;

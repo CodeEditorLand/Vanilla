@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ILanguageIdCodec } from "vs/editor/common/languages";
-export declare const ILanguageService: any;
+import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { ILanguageIdCodec } from "../languages.js";
+export declare const ILanguageService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ILanguageService>;
 export interface ILanguageExtensionPoint {
     id: string;
     extensions?: string[];

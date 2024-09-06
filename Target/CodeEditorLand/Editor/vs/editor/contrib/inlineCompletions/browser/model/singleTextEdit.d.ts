@@ -1,8 +1,8 @@
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { SingleTextEdit } from "vs/editor/common/core/textEdit";
-import { ITextModel } from "vs/editor/common/model";
-import { GhostText } from "vs/editor/contrib/inlineCompletions/browser/model/ghostText";
+import { Position } from "../../../../common/core/position.js";
+import { Range } from "../../../../common/core/range.js";
+import { SingleTextEdit } from "../../../../common/core/textEdit.js";
+import { ITextModel } from "../../../../common/model.js";
+import { GhostText } from "./ghostText.js";
 export declare function singleTextRemoveCommonPrefix(edit: SingleTextEdit, model: ITextModel, validModelRange?: Range): SingleTextEdit;
 export declare function singleTextEditAugments(edit: SingleTextEdit, base: SingleTextEdit): boolean;
 /**

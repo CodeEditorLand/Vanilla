@@ -1,7 +1,7 @@
-import { ILogService } from "vs/platform/log/common/log";
-import { IProgressService } from "vs/platform/progress/common/progress";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 export declare class ExtensionActivationProgress implements IWorkbenchContribution {
     private readonly _listener;
     constructor(extensionService: IExtensionService, progressService: IProgressService, logService: ILogService);

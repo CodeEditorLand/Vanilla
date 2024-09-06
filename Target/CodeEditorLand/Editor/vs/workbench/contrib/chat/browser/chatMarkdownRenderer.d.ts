@@ -1,17 +1,22 @@
-import { MarkdownRenderOptions, MarkedOptions } from "vs/base/browser/markdownRenderer";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { IMarkdownRendererOptions, IMarkdownRenderResult, MarkdownRenderer } from "vs/editor/browser/widget/markdownRenderer/browser/markdownRenderer";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { ITrustedDomainService } from "vs/workbench/contrib/url/browser/trustedDomainService";
+import { MarkdownRenderOptions, MarkedOptions } from "../../../../base/browser/markdownRenderer.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { IMarkdownRendererOptions, IMarkdownRenderResult, MarkdownRenderer } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ITrustedDomainService } from "../../url/browser/trustedDomainService.js";
 /**
  * This wraps the MarkdownRenderer and applies sanitizer options needed for Chat.
  */
 export declare class ChatMarkdownRenderer extends MarkdownRenderer {
     private readonly trustedDomainService;
     private readonly hoverService;
-    constructor(options: IMarkdownRendererOptions | undefined, languageService: ILanguageService, openerService: IOpenerService, trustedDomainService: ITrustedDomainService, hoverService: IHoverService);
+    private readonly fileService;
+    private readonly commandService;
+    constructor(options: IMarkdownRendererOptions | undefined, languageService: ILanguageService, openerService: IOpenerService, trustedDomainService: ITrustedDomainService, hoverService: IHoverService, fileService: IFileService, commandService: ICommandService);
     render(markdown: IMarkdownString | undefined, options?: MarkdownRenderOptions, markedOptions?: MarkedOptions): IMarkdownRenderResult;
     private attachCustomHover;
+    protected openMarkdownLink(link: string, markdown: IMarkdownString): Promise<any>;
 }

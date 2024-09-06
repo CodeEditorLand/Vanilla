@@ -1,10 +1,10 @@
-import { IListOptions, IListOptionsUpdate, IListStyles } from "vs/base/browser/ui/list/listWidget";
-import { ITableColumn, ITableContextMenuEvent, ITableEvent, ITableGestureEvent, ITableMouseEvent, ITableRenderer, ITableTouchEvent, ITableVirtualDelegate } from "vs/base/browser/ui/table/table";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ScrollEvent } from "vs/base/common/scrollable";
-import { ISpliceable } from "vs/base/common/sequence";
-import "vs/css!./table";
+import { Event } from "../../../common/event.js";
+import { DisposableStore, IDisposable } from "../../../common/lifecycle.js";
+import { ScrollEvent } from "../../../common/scrollable.js";
+import { ISpliceable } from "../../../common/sequence.js";
+import { IListOptions, IListOptionsUpdate, IListStyles } from "../list/listWidget.js";
+import { ITableColumn, ITableContextMenuEvent, ITableEvent, ITableGestureEvent, ITableMouseEvent, ITableRenderer, ITableTouchEvent, ITableVirtualDelegate } from "./table.js";
+import "./table.css";
 type TCell = any;
 export interface ITableOptions<TRow> extends IListOptions<TRow> {
 }
@@ -21,7 +21,7 @@ export declare class Table<TRow> implements ISpliceable<TRow>, IDisposable {
     private splitview;
     private list;
     private styleElement;
-    protected readonly disposables: any;
+    protected readonly disposables: DisposableStore;
     private cachedWidth;
     private cachedHeight;
     get onDidChangeFocus(): Event<ITableEvent<TRow>>;

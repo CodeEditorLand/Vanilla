@@ -1,12 +1,12 @@
-import "vs/css!./media/part";
-import { Dimension, IDimension, IDomPosition } from "vs/base/browser/dom";
-import { ISerializableView, IViewSize } from "vs/base/browser/ui/grid/grid";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IColorTheme, IThemeService } from "vs/platform/theme/common/themeService";
-import { Component } from "vs/workbench/common/component";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
+import "./media/part.css";
+import { Dimension, IDimension, IDomPosition } from "../../base/browser/dom.js";
+import { ISerializableView, IViewSize } from "../../base/browser/ui/grid/grid.js";
+import { Emitter, Event } from "../../base/common/event.js";
+import { IDisposable } from "../../base/common/lifecycle.js";
+import { IStorageService } from "../../platform/storage/common/storage.js";
+import { IColorTheme, IThemeService } from "../../platform/theme/common/themeService.js";
+import { Component } from "../common/component.js";
+import { IWorkbenchLayoutService } from "../services/layout/browser/layoutService.js";
 export interface IPartOptions {
     readonly hasTitle?: boolean;
     readonly borderWidth?: () => number;
@@ -28,8 +28,8 @@ export declare abstract class Part extends Component implements ISerializableVie
     get dimension(): Dimension | undefined;
     private _contentPosition;
     get contentPosition(): IDomPosition | undefined;
-    protected _onDidVisibilityChange: any;
-    readonly onDidVisibilityChange: any;
+    protected _onDidVisibilityChange: Emitter<boolean>;
+    readonly onDidVisibilityChange: Event<boolean>;
     private parent;
     private headerArea;
     private titleArea;
@@ -86,7 +86,7 @@ export declare abstract class Part extends Component implements ISerializableVie
      * Layout title and content area in the given dimension.
      */
     protected layoutContents(width: number, height: number): ILayoutContentResult;
-    protected _onDidChange: any;
+    protected _onDidChange: Emitter<IViewSize | undefined>;
     get onDidChange(): Event<IViewSize | undefined>;
     element: HTMLElement;
     abstract minimumWidth: number;

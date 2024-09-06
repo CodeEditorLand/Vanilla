@@ -1,7 +1,7 @@
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
 import type * as vscode from "vscode";
-import { ExtHostUrlsShape, IMainContext } from "./extHost.protocol";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostUrlsShape, IMainContext } from "./extHost.protocol.js";
 export declare class ExtHostUrls implements ExtHostUrlsShape {
     private static HandlePool;
     private readonly _proxy;

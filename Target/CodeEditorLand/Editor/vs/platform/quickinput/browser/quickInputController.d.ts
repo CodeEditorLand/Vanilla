@@ -1,12 +1,13 @@
-import * as dom from "vs/base/browser/dom";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILayoutService } from "vs/platform/layout/browser/layoutService";
-import { IQuickInputOptions, IQuickInputStyles } from "vs/platform/quickinput/browser/quickInput";
-import { IInputBox, IInputOptions, IKeyMods, IPickOptions, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, IQuickWidget, QuickInputHideReason, QuickPickInput } from "vs/platform/quickinput/common/quickInput";
-import "vs/platform/quickinput/browser/quickInputActions";
+import * as dom from "../../../base/browser/dom.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { ILayoutService } from "../../layout/browser/layoutService.js";
+import { IInputBox, IInputOptions, IKeyMods, IPickOptions, IQuickInput, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, IQuickWidget, QuickInputHideReason, QuickPickInput } from "../common/quickInput.js";
+import { IQuickInputOptions, IQuickInputStyles } from "./quickInput.js";
+import "./quickInputActions.js";
 export declare class QuickInputController extends Disposable {
     private options;
     private readonly layoutService;
@@ -23,14 +24,14 @@ export declare class QuickInputController extends Disposable {
     private readonly onDidTriggerButtonEmitter;
     private keyMods;
     private controller;
-    get currentQuickInput(): any;
+    get currentQuickInput(): IQuickInput | undefined;
     private _container;
     get container(): HTMLElement;
     private styles;
     private onShowEmitter;
-    readonly onShow: any;
+    readonly onShow: Event<void>;
     private onHideEmitter;
-    readonly onHide: any;
+    readonly onHide: Event<void>;
     private previousFocusElement?;
     private readonly inQuickInputContext;
     private readonly quickInputTypeContext;
@@ -44,7 +45,11 @@ export declare class QuickInputController extends Disposable {
     } ? T[] : T) | undefined>;
     private setValidationOnInput;
     input(options?: IInputOptions, token?: CancellationToken): Promise<string | undefined>;
-    backButton: any;
+    backButton: {
+        iconClass: string;
+        tooltip: string;
+        handle: number;
+    };
     createQuickPick<T extends IQuickPickItem>(options: {
         useSeparators: true;
     }): IQuickPick<T, {

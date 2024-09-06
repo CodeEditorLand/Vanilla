@@ -1,11 +1,12 @@
-import { IAccessibleViewImplentation } from "vs/platform/accessibility/browser/accessibleViewRegistry";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { AccessibleContentProvider, AccessibleViewType } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
 export declare class NotebookAccessibleView implements IAccessibleViewImplentation {
     readonly priority = 100;
     readonly name = "notebook";
-    readonly type: any;
-    readonly when: any;
-    getProvider(accessor: ServicesAccessor): any;
+    readonly type = AccessibleViewType.View;
+    readonly when: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression | undefined;
+    getProvider(accessor: ServicesAccessor): AccessibleContentProvider | undefined;
 }
-export declare function getAccessibleOutputProvider(editorService: IEditorService): any;
+export declare function getAccessibleOutputProvider(editorService: IEditorService): AccessibleContentProvider | undefined;

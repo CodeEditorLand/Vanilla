@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IUserDataSyncEnablementService, IUserDataSyncStoreManagementService, SyncResource } from "vs/platform/userDataSync/common/userDataSync";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IUserDataSyncEnablementService, IUserDataSyncStoreManagementService, SyncResource } from "./userDataSync.js";
 export declare class UserDataSyncEnablementService extends Disposable implements IUserDataSyncEnablementService {
     private readonly storageService;
     private readonly telemetryService;

@@ -1,5 +1,5 @@
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export declare abstract class AbstractExtHostConsoleForwarder {
     private readonly _mainThreadConsole;
     private readonly _includeStack;

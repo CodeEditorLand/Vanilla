@@ -1,18 +1,18 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Selection } from "vs/editor/common/core/selection";
-import { MenuId } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IChatViewState, IChatWidgetContrib } from "vs/workbench/contrib/chat/browser/chatWidget";
-import { ICodeBlockActionContext } from "vs/workbench/contrib/chat/browser/codeBlockPart";
-import { ChatAgentLocation, IChatAgentCommand, IChatAgentData } from "vs/workbench/contrib/chat/common/chatAgents";
-import { IChatRequestVariableEntry, IChatResponseModel } from "vs/workbench/contrib/chat/common/chatModel";
-import { IParsedChatRequest } from "vs/workbench/contrib/chat/common/chatParserTypes";
-import { IChatRequestViewModel, IChatResponseViewModel, IChatViewModel, IChatWelcomeMessageViewModel } from "vs/workbench/contrib/chat/common/chatViewModel";
-import { IViewsService } from "vs/workbench/services/views/common/viewsService";
-export declare const IChatWidgetService: any;
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { Selection } from "../../../../editor/common/core/selection.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { ChatAgentLocation, IChatAgentCommand, IChatAgentData } from "../common/chatAgents.js";
+import { IChatRequestVariableEntry, IChatResponseModel } from "../common/chatModel.js";
+import { IParsedChatRequest } from "../common/chatParserTypes.js";
+import { IChatRequestViewModel, IChatResponseViewModel, IChatViewModel, IChatWelcomeMessageViewModel } from "../common/chatViewModel.js";
+import { IChatViewState, IChatWidgetContrib } from "./chatWidget.js";
+import { ICodeBlockActionContext } from "./codeBlockPart.js";
+export declare const IChatWidgetService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IChatWidgetService>;
 export interface IChatWidgetService {
     readonly _serviceBrand: undefined;
     /**
@@ -23,7 +23,7 @@ export interface IChatWidgetService {
     getWidgetBySessionId(sessionId: string): IChatWidget | undefined;
 }
 export declare function showChatView(viewsService: IViewsService): Promise<IChatWidget | undefined>;
-export declare const IQuickChatService: any;
+export declare const IQuickChatService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IQuickChatService>;
 export interface IQuickChatService {
     readonly _serviceBrand: undefined;
     readonly onDidClose: Event<void>;
@@ -49,7 +49,7 @@ export interface IQuickChatOpenOptions {
      */
     selection?: Selection;
 }
-export declare const IChatAccessibilityService: any;
+export declare const IChatAccessibilityService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IChatAccessibilityService>;
 export interface IChatAccessibilityService {
     readonly _serviceBrand: undefined;
     acceptRequest(): number;
@@ -156,11 +156,11 @@ export interface IChatWidget {
 export interface ICodeBlockActionContextProvider {
     getCodeBlockContext(editor?: ICodeEditor): ICodeBlockActionContext | undefined;
 }
-export declare const IChatCodeBlockContextProviderService: any;
+export declare const IChatCodeBlockContextProviderService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IChatCodeBlockContextProviderService>;
 export interface IChatCodeBlockContextProviderService {
     readonly _serviceBrand: undefined;
     readonly providers: ICodeBlockActionContextProvider[];
     registerProvider(provider: ICodeBlockActionContextProvider, id: string): IDisposable;
 }
-export declare const GeneratingPhrase: any;
-export declare const CHAT_VIEW_ID: string;
+export declare const GeneratingPhrase: string;
+export declare const CHAT_VIEW_ID = "workbench.panel.chat.view.copilot";

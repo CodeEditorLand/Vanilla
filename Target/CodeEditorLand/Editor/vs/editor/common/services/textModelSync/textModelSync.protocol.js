@@ -1,1 +1,1 @@
-import"../../../../../vs/editor/common/model/mirrorTextModel.js";
+import"../../model/mirrorTextModel.js";

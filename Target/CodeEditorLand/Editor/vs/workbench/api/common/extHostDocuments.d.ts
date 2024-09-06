@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IModelChangedEvent } from "vs/editor/common/model/mirrorTextModel";
-import { ExtHostDocumentsShape, IMainContext } from "vs/workbench/api/common/extHost.protocol";
-import { ExtHostDocumentData } from "vs/workbench/api/common/extHostDocumentData";
-import { ExtHostDocumentsAndEditors } from "vs/workbench/api/common/extHostDocumentsAndEditors";
 import type * as vscode from "vscode";
+import { Event } from "../../../base/common/event.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IModelChangedEvent } from "../../../editor/common/model/mirrorTextModel.js";
+import { ExtHostDocumentsShape, IMainContext } from "./extHost.protocol.js";
+import { ExtHostDocumentData } from "./extHostDocumentData.js";
+import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
 export declare class ExtHostDocuments implements ExtHostDocumentsShape {
     private readonly _onDidAddDocument;
     private readonly _onDidRemoveDocument;

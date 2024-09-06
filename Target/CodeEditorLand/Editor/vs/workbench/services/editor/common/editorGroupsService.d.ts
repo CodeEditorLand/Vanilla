@@ -1,18 +1,18 @@
-import { Event } from "vs/base/common/event";
-import { DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { DeepPartial } from "vs/base/common/types";
-import { URI } from "vs/base/common/uri";
-import { IDimension } from "vs/editor/common/core/dimension";
-import { IMenuChangeEvent } from "vs/platform/actions/common/actions";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ContextKeyValue, IContextKeyService, RawContextKey } from "vs/platform/contextkey/common/contextkey";
-import { IEditorOptions } from "vs/platform/editor/common/editor";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IRectangle } from "vs/platform/window/common/window";
-import { CloseDirection, EditorInputWithOptions, EditorsOrder, GroupIdentifier, IActiveEditorChangeEvent, IEditorCloseEvent, IEditorPane, IEditorPartOptions, IEditorPartOptionsChangeEvent, IEditorWillMoveEvent, IFindEditorOptions, IMatchEditorOptions, IToolbarActions, IUntypedEditorInput, IVisibleEditorPane } from "vs/workbench/common/editor";
-import { IGroupModelChangeEvent } from "vs/workbench/common/editor/editorGroupModel";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-export declare const IEditorGroupsService: any;
+import { Event } from "../../../../base/common/event.js";
+import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { DeepPartial } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IDimension } from "../../../../editor/common/core/dimension.js";
+import { IMenuChangeEvent } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyValue, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IRectangle } from "../../../../platform/window/common/window.js";
+import { CloseDirection, EditorInputWithOptions, EditorsOrder, GroupIdentifier, IActiveEditorChangeEvent, IEditorCloseEvent, IEditorPane, IEditorPartOptions, IEditorPartOptionsChangeEvent, IEditorWillMoveEvent, IFindEditorOptions, IMatchEditorOptions, IToolbarActions, IUntypedEditorInput, IVisibleEditorPane } from "../../../common/editor.js";
+import { IGroupModelChangeEvent } from "../../../common/editor/editorGroupModel.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+export declare const IEditorGroupsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditorGroupsService>;
 export declare const enum GroupDirection {
     UP = 0,
     DOWN = 1,

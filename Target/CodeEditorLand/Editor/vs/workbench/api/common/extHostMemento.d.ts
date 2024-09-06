@@ -1,6 +1,6 @@
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ExtHostStorage } from "vs/workbench/api/common/extHostStorage";
 import type * as vscode from "vscode";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostStorage } from "./extHostStorage.js";
 export declare class ExtensionMemento implements vscode.Memento {
     protected readonly _id: string;
     private readonly _shared;

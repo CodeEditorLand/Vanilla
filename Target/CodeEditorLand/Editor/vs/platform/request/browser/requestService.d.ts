@@ -1,8 +1,8 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IRequestContext, IRequestOptions } from "vs/base/parts/request/common/request";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILoggerService } from "vs/platform/log/common/log";
-import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from "vs/platform/request/common/request";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IRequestContext, IRequestOptions } from "../../../base/parts/request/common/request.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { ILoggerService } from "../../log/common/log.js";
+import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from "../common/request.js";
 /**
  * This service exposes the `request` API, while using the global
  * or configured proxy settings.

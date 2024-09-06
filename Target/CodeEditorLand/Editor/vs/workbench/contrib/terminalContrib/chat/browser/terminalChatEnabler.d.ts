@@ -1,5 +1,5 @@
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IChatAgentService } from "vs/workbench/contrib/chat/common/chatAgents";
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IChatAgentService } from '../../../chat/common/chatAgents.js';
 export declare class TerminalChatEnabler {
     static Id: string;
     private readonly _ctxHasProvider;

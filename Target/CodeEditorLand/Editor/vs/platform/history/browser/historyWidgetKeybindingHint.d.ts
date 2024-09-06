@@ -1,2 +1,2 @@
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
 export declare function showHistoryKeybindingHint(keybindingService: IKeybindingService): boolean;

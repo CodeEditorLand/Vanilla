@@ -1,4 +1,4 @@
-import { URI } from "vs/base/common/uri";
+import { URI } from "../../../base/common/uri.js";
 export declare const enum RecommendationSource {
     FILE = 1,
     WORKSPACE = 2,
@@ -18,7 +18,7 @@ export declare const enum RecommendationsNotificationResult {
     IncompatibleWindow = "incompatibleWindow",
     Accepted = "reacted"
 }
-export declare const IExtensionRecommendationNotificationService: any;
+export declare const IExtensionRecommendationNotificationService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionRecommendationNotificationService>;
 export interface IExtensionRecommendationNotificationService {
     readonly _serviceBrand: undefined;
     readonly ignoredRecommendations: string[];

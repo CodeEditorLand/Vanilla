@@ -1,13 +1,13 @@
-import "vs/css!./hover";
-import { AnchorPosition } from "vs/base/browser/ui/contextview/contextview";
-import type { IHoverOptions, IHoverWidget } from "vs/base/browser/ui/hover/hover";
-import { Widget } from "vs/base/browser/ui/widget";
-import { Event } from "vs/base/common/event";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IOpenerService } from "vs/platform/opener/common/opener";
+import "./hover.css";
+import { AnchorPosition } from "../../../../base/browser/ui/contextview/contextview.js";
+import type { IHoverOptions, IHoverWidget } from "../../../../base/browser/ui/hover/hover.js";
+import { Widget } from "../../../../base/browser/ui/widget.js";
+import { Event } from "../../../../base/common/event.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 export declare class HoverWidget extends Widget implements IHoverWidget {
     private readonly _keybindingService;
     private readonly _configurationService;

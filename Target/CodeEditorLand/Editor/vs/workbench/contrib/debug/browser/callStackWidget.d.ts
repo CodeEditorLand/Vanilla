@@ -1,16 +1,17 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { ThemeIcon } from "vs/base/common/themables";
-import "vs/css!./media/callStackWidget";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IObservable, ISettableObservable } from "../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import "./media/callStackWidget.css";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 export declare class CallStackFrame {
     readonly name: string;
-    readonly source?: any;
+    readonly source?: URI | undefined;
     readonly line: number;
     readonly column: number;
-    constructor(name: string, source?: any, line?: number, column?: number);
+    constructor(name: string, source?: URI | undefined, line?: number, column?: number);
 }
 export declare class SkippedCallFrames {
     readonly label: string;
@@ -18,7 +19,7 @@ export declare class SkippedCallFrames {
     constructor(label: string, load: (token: CancellationToken) => Promise<AnyStackFrame[]>);
 }
 export declare abstract class CustomStackFrame {
-    readonly showHeader: any;
+    readonly showHeader: ISettableObservable<boolean, void>;
     abstract readonly height: IObservable<number>;
     abstract readonly label: string;
     icon?: ThemeIcon;
@@ -40,6 +41,7 @@ export declare class CallStackWidget extends Disposable {
     /** Replaces the call frames display in the view. */
     setFrames(frames: AnyStackFrame[]): void;
     layout(height?: number, width?: number): void;
+    collapseAll(): void;
     private loadFrame;
     private mapFrames;
 }

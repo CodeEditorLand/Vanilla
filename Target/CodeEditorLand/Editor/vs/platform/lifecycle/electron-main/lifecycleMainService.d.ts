@@ -1,13 +1,13 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAuxiliaryWindow } from "vs/platform/auxiliaryWindow/electron-main/auxiliaryWindow";
-import { NativeParsedArgs } from "vs/platform/environment/common/argv";
-import { IEnvironmentMainService } from "vs/platform/environment/electron-main/environmentMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { IStateService } from "vs/platform/state/node/state";
-import { ICodeWindow, LoadReason, UnloadReason } from "vs/platform/window/electron-main/window";
-import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
-export declare const ILifecycleMainService: any;
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IAuxiliaryWindow } from "../../auxiliaryWindow/electron-main/auxiliaryWindow.js";
+import { NativeParsedArgs } from "../../environment/common/argv.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IStateService } from "../../state/node/state.js";
+import { ICodeWindow, LoadReason, UnloadReason } from "../../window/electron-main/window.js";
+import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+export declare const ILifecycleMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILifecycleMainService>;
 interface WindowLoadEvent {
     /**
      * The window that is loaded to a new workspace.
@@ -166,13 +166,13 @@ export declare class LifecycleMainService extends Disposable implements ILifecyc
     readonly _serviceBrand: undefined;
     private static readonly QUIT_AND_RESTART_KEY;
     private readonly _onBeforeShutdown;
-    readonly onBeforeShutdown: any;
+    readonly onBeforeShutdown: Event<void>;
     private readonly _onWillShutdown;
-    readonly onWillShutdown: any;
+    readonly onWillShutdown: Event<ShutdownEvent>;
     private readonly _onWillLoadWindow;
-    readonly onWillLoadWindow: any;
+    readonly onWillLoadWindow: Event<WindowLoadEvent>;
     private readonly _onBeforeCloseWindow;
-    readonly onBeforeCloseWindow: any;
+    readonly onBeforeCloseWindow: Event<ICodeWindow>;
     private _quitRequested;
     get quitRequested(): boolean;
     private _wasRestarted;

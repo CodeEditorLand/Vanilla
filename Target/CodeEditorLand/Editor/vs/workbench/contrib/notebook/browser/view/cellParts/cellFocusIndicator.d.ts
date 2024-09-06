@@ -1,7 +1,7 @@
-import { FastDomNode } from "vs/base/browser/fastDomNode";
-import { ICellViewModel, INotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { CellContentPart } from "vs/workbench/contrib/notebook/browser/view/cellPart";
-import { CellTitleToolbarPart } from "vs/workbench/contrib/notebook/browser/view/cellParts/cellToolbars";
+import { FastDomNode } from "../../../../../../base/browser/fastDomNode.js";
+import { ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
+import { CellContentPart } from "../cellPart.js";
+import { CellTitleToolbarPart } from "./cellToolbars.js";
 export declare class CellFocusIndicator extends CellContentPart {
     readonly notebookEditor: INotebookEditorDelegate;
     readonly titleToolbar: CellTitleToolbarPart;

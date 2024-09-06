@@ -1,9 +1,9 @@
-import { IMouseWheelEvent, StandardWheelEvent } from "vs/base/browser/mouseEvent";
-import { ScrollableElementChangeOptions, ScrollableElementCreationOptions, ScrollableElementResolvedOptions } from "vs/base/browser/ui/scrollbar/scrollableElementOptions";
-import { Widget } from "vs/base/browser/ui/widget";
-import { Event } from "vs/base/common/event";
-import { INewScrollDimensions, INewScrollPosition, IScrollDimensions, IScrollPosition, Scrollable, ScrollEvent } from "vs/base/common/scrollable";
-import "vs/css!./media/scrollbars";
+import { Event } from "../../../common/event.js";
+import { INewScrollDimensions, INewScrollPosition, IScrollDimensions, IScrollPosition, Scrollable, ScrollEvent } from "../../../common/scrollable.js";
+import { IMouseWheelEvent, StandardWheelEvent } from "../../mouseEvent.js";
+import { Widget } from "../widget.js";
+import { ScrollableElementChangeOptions, ScrollableElementCreationOptions, ScrollableElementResolvedOptions } from "./scrollableElementOptions.js";
+import "./media/scrollbars.css";
 export interface IOverviewRulerLayoutInfo {
     parent: HTMLElement;
     insertBefore: HTMLElement;

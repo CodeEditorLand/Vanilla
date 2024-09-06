@@ -1,10 +1,10 @@
-import { Color } from "vs/base/common/color";
-import { Event } from "vs/base/common/event";
-import { ConfigurationTarget } from "vs/platform/configuration/common/configuration";
-import { IconContribution, IconDefinition } from "vs/platform/theme/common/iconRegistry";
-import { ColorScheme } from "vs/platform/theme/common/theme";
-import { IColorTheme, IFileIconTheme, IProductIconTheme, IThemeService } from "vs/platform/theme/common/themeService";
-export declare const IWorkbenchThemeService: any;
+import { Color } from "../../../../base/common/color.js";
+import { Event } from "../../../../base/common/event.js";
+import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
+import { IconContribution, IconDefinition } from "../../../../platform/theme/common/iconRegistry.js";
+import { ColorScheme } from "../../../../platform/theme/common/theme.js";
+import { IColorTheme, IFileIconTheme, IProductIconTheme, IThemeService } from "../../../../platform/theme/common/themeService.js";
+export declare const IWorkbenchThemeService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkbenchThemeService>;
 export declare const VS_LIGHT_THEME = "vs";
 export declare const VS_DARK_THEME = "vs-dark";
 export declare const VS_HC_THEME = "hc-black";

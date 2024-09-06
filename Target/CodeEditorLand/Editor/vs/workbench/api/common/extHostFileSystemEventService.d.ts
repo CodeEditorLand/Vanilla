@@ -1,12 +1,12 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { FileOperation } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { ExtHostDocumentsAndEditors } from "vs/workbench/api/common/extHostDocumentsAndEditors";
-import { IExtHostWorkspace } from "vs/workbench/api/common/extHostWorkspace";
 import type * as vscode from "vscode";
-import { ExtHostFileSystemEventServiceShape, FileSystemEvents, IMainContext, IWillRunFileOperationParticipation, SourceTargetPair } from "./extHost.protocol";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { FileOperation } from "../../../platform/files/common/files.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { ExtHostFileSystemEventServiceShape, FileSystemEvents, IMainContext, IWillRunFileOperationParticipation, SourceTargetPair } from "./extHost.protocol.js";
+import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { IExtHostWorkspace } from "./extHostWorkspace.js";
 export interface FileSystemWatcherCreateOptions {
     readonly correlate: boolean;
     readonly ignoreCreateEvents?: boolean;

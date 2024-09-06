@@ -1,8 +1,8 @@
-import { EditorAutoIndentStrategy } from "vs/editor/common/config/editorOptions";
-import { Selection } from "vs/editor/common/core/selection";
-import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "vs/editor/common/editorCommon";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ITextModel } from "vs/editor/common/model";
+import { EditorAutoIndentStrategy } from "../config/editorOptions.js";
+import { Selection } from "../core/selection.js";
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../editorCommon.js";
+import { ILanguageConfigurationService } from "../languages/languageConfigurationRegistry.js";
+import { ITextModel } from "../model.js";
 export interface IShiftCommandOpts {
     isUnshift: boolean;
     tabSize: number;

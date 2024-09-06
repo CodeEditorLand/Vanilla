@@ -1,5 +1,5 @@
-import { URI } from "vs/base/common/uri";
-import { IWorkspace } from "vs/platform/workspace/common/workspace";
+import { URI } from "../../../base/common/uri.js";
+import { IWorkspace } from "./workspace.js";
 export declare function isVirtualResource(resource: URI): boolean;
 export declare function getVirtualWorkspaceLocation(workspace: IWorkspace): {
     scheme: string;

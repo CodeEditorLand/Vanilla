@@ -1,2 +1,2 @@
-import "vs/workbench/contrib/issue/electron-sandbox/issueMainService";
-import "vs/workbench/contrib/issue/browser/issueTroubleshoot";
+import "./issueMainService.js";
+import "../browser/issueTroubleshoot.js";

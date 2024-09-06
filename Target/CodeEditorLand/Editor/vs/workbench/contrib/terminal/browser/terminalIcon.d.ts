@@ -1,9 +1,9 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IExtensionTerminalProfile, ITerminalProfile } from "vs/platform/terminal/common/terminal";
-import { ColorScheme } from "vs/platform/theme/common/theme";
-import { IColorTheme } from "vs/platform/theme/common/themeService";
-import { ITerminalInstance } from "vs/workbench/contrib/terminal/browser/terminal";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IExtensionTerminalProfile, ITerminalProfile } from "../../../../platform/terminal/common/terminal.js";
+import { ColorScheme } from "../../../../platform/theme/common/theme.js";
+import { IColorTheme } from "../../../../platform/theme/common/themeService.js";
+import { ITerminalInstance } from "./terminal.js";
 export declare function getColorClass(colorKey: string): string;
 export declare function getColorClass(profile: ITerminalProfile): string;
 export declare function getColorClass(terminal: ITerminalInstance): string | undefined;

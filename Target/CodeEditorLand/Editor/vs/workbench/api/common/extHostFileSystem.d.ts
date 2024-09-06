@@ -1,10 +1,11 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { UriComponents } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import * as files from "vs/platform/files/common/files";
-import { ExtHostLanguageFeatures } from "vs/workbench/api/common/extHostLanguageFeatures";
 import type * as vscode from "vscode";
-import { ExtHostFileSystemShape, IMainContext } from "./extHost.protocol";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import * as files from "../../../platform/files/common/files.js";
+import { ExtHostFileSystemShape, IMainContext } from "./extHost.protocol.js";
+import { ExtHostLanguageFeatures } from "./extHostLanguageFeatures.js";
 export declare class ExtHostFileSystem implements ExtHostFileSystemShape {
     private _extHostLanguageFeatures;
     private readonly _proxy;
@@ -19,7 +20,7 @@ export declare class ExtHostFileSystem implements ExtHostFileSystemShape {
     registerFileSystemProvider(extension: IExtensionDescription, scheme: string, provider: vscode.FileSystemProvider, options?: {
         isCaseSensitive?: boolean;
         isReadonly?: boolean | vscode.MarkdownString;
-    }): any;
+    }): IDisposable;
     private static _validateFileSystemProvider;
     private static _asIStat;
     $stat(handle: number, resource: UriComponents): Promise<files.IStat>;

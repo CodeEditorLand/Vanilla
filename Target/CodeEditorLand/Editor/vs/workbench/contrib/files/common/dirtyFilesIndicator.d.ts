@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IActivityService } from "vs/workbench/services/activity/common/activity";
-import { IFilesConfigurationService } from "vs/workbench/services/filesConfiguration/common/filesConfigurationService";
-import { IWorkingCopyService } from "vs/workbench/services/workingCopy/common/workingCopyService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IActivityService } from "../../../services/activity/common/activity.js";
+import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
 export declare class DirtyFilesIndicator extends Disposable implements IWorkbenchContribution {
     private readonly activityService;
     private readonly workingCopyService;

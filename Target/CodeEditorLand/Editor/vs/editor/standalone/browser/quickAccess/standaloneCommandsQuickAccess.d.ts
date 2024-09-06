@@ -1,13 +1,13 @@
-import { EditorAction } from "vs/editor/browser/editorExtensions";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { IEditor } from "vs/editor/common/editorCommon";
-import { AbstractEditorCommandsQuickAccessProvider } from "vs/editor/contrib/quickAccess/browser/commandsQuickAccess";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ICommandQuickPick } from "vs/platform/quickinput/browser/commandsQuickAccess";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ICommandQuickPick } from "../../../../platform/quickinput/browser/commandsQuickAccess.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { EditorAction } from "../../../browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { IEditor } from "../../../common/editorCommon.js";
+import { AbstractEditorCommandsQuickAccessProvider } from "../../../contrib/quickAccess/browser/commandsQuickAccess.js";
 export declare class StandaloneCommandsQuickAccessProvider extends AbstractEditorCommandsQuickAccessProvider {
     private readonly codeEditorService;
     protected get activeTextEditorControl(): IEditor | undefined;

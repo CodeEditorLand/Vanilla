@@ -1,12 +1,12 @@
-import { Dimension } from "vs/base/browser/dom";
-import { AsyncIterableObject } from "vs/base/common/async";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ICodeEditor, IEditorMouseEvent } from "vs/editor/browser/editorBrowser";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { IModelDecoration } from "vs/editor/common/model";
-import { BrandedService, IConstructorSignature } from "vs/platform/instantiation/common/instantiation";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { AsyncIterableObject } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { BrandedService, IConstructorSignature } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor, IEditorMouseEvent } from "../../../browser/editorBrowser.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { IModelDecoration } from "../../../common/model.js";
 export interface IHoverPart {
     /**
      * The creator of this hover part.
@@ -41,7 +41,7 @@ export declare class HoverRangeAnchor {
     readonly initialMousePosY: number | undefined;
     readonly type = HoverAnchorType.Range;
     constructor(priority: number, range: Range, initialMousePosX: number | undefined, initialMousePosY: number | undefined);
-    equals(other: HoverAnchor): any;
+    equals(other: HoverAnchor): boolean;
     canAdoptVisibleHover(lastAnchor: HoverAnchor, showAtPosition: Position): boolean;
 }
 export declare class HoverForeignElementAnchor {

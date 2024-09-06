@@ -1,14 +1,14 @@
-import "vs/css!./media/suggest";
-import * as dom from "vs/base/browser/dom";
-import { List } from "vs/base/browser/ui/list/listWidget";
-import { ResizableHTMLElement } from "vs/base/browser/ui/resizable/resizable";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { MenuId } from "vs/platform/actions/common/actions";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { SimpleCompletionItem } from "vs/workbench/services/suggest/browser/simpleCompletionItem";
-import { LineContext, SimpleCompletionModel } from "vs/workbench/services/suggest/browser/simpleCompletionModel";
-import { type ISimpleSuggestWidgetFontInfo } from "vs/workbench/services/suggest/browser/simpleSuggestWidgetRenderer";
+import "./media/suggest.css";
+import * as dom from "../../../../base/browser/dom.js";
+import { List } from "../../../../base/browser/ui/list/listWidget.js";
+import { ResizableHTMLElement } from "../../../../base/browser/ui/resizable/resizable.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { SimpleCompletionItem } from "./simpleCompletionItem.js";
+import { LineContext, SimpleCompletionModel } from "./simpleCompletionModel.js";
+import { type ISimpleSuggestWidgetFontInfo } from "./simpleSuggestWidgetRenderer.js";
 export interface ISimpleSelectedSuggestion {
     item: SimpleCompletionItem;
     index: number;

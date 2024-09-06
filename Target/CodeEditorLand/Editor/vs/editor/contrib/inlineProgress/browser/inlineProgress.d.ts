@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./inlineProgressWidget";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IPosition } from "vs/editor/common/core/position";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import "./inlineProgressWidget.css";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IPosition } from "../../../common/core/position.js";
 interface InlineProgressDelegate {
     cancel(): void;
 }

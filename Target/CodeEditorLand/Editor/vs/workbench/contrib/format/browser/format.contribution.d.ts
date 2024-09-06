@@ -1,3 +1,3 @@
-import "./formatActionsMultiple";
-import "./formatActionsNone";
-import "./formatModified";
+import "./formatActionsMultiple.js";
+import "./formatActionsNone.js";
+import "./formatModified.js";

@@ -1,8 +1,8 @@
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { ITextModel } from "vs/editor/common/model";
-import { LineRangeEdit } from "./editing";
-import { LineRange } from "./lineRange";
+import { Position } from "../../../../../editor/common/core/position.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
+import { LineRangeEdit } from "./editing.js";
+import { LineRange } from "./lineRange.js";
 /**
  * Represents a mapping of an input line range to an output line range.
  */

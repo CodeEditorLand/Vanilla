@@ -1,12 +1,12 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { INativeEnvironmentService } from "vs/platform/environment/common/environment";
-import { ISharedProcessLifecycleService } from "vs/platform/lifecycle/node/sharedProcessLifecycleService";
-import { ILoggerService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { ActiveTunnelMode, IRemoteTunnelService, TunnelMode, TunnelStatus } from "vs/platform/remoteTunnel/common/remoteTunnel";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { INativeEnvironmentService } from "../../environment/common/environment.js";
+import { ISharedProcessLifecycleService } from "../../lifecycle/node/sharedProcessLifecycleService.js";
+import { ILoggerService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { ActiveTunnelMode, IRemoteTunnelService, IRemoteTunnelSession, TunnelMode, TunnelStatus } from "../common/remoteTunnel.js";
 /**
  * This service runs on the shared service. It is running the `code-tunnel` command
  * to make the current machine available for remote access.
@@ -19,11 +19,11 @@ export declare class RemoteTunnelService extends Disposable implements IRemoteTu
     private readonly storageService;
     readonly _serviceBrand: undefined;
     private readonly _onDidTokenFailedEmitter;
-    readonly onDidTokenFailed: any;
+    readonly onDidTokenFailed: import("../../../base/common/event.js").Event<IRemoteTunnelSession | undefined>;
     private readonly _onDidChangeTunnelStatusEmitter;
-    readonly onDidChangeTunnelStatus: any;
+    readonly onDidChangeTunnelStatus: import("../../../base/common/event.js").Event<TunnelStatus>;
     private readonly _onDidChangeModeEmitter;
-    readonly onDidChangeMode: any;
+    readonly onDidChangeMode: import("../../../base/common/event.js").Event<TunnelMode>;
     private readonly _logger;
     /**
      * "Mode" in the terminal state we want to get to -- started, stopped, and

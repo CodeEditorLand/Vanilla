@@ -1,6 +1,6 @@
 import * as http from "http";
 import * as url from "url";
-import { ServerParsedArgs } from "vs/server/node/serverEnvironmentService";
+import { ServerParsedArgs } from "./serverEnvironmentService.js";
 export declare const enum ServerConnectionTokenType {
     None = 0,
     Optional = 1,// TODO: Remove this soon

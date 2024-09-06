@@ -1,11 +1,11 @@
-import { URI } from "vs/base/common/uri";
-import { ITextEditorOptions } from "vs/platform/editor/common/editor";
-import { ExtensionKind, IExtensionHostDebugParams } from "vs/platform/environment/common/environment";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IPath } from "vs/platform/window/common/window";
-import { IWorkbenchConstructionOptions } from "vs/workbench/browser/web.api";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-export declare const IBrowserWorkbenchEnvironmentService: any;
+import { URI } from "../../../../base/common/uri.js";
+import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { ExtensionKind, IExtensionHostDebugParams } from "../../../../platform/environment/common/environment.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IPath } from "../../../../platform/window/common/window.js";
+import { IWorkbenchConstructionOptions } from "../../../browser/web.api.js";
+import { IWorkbenchEnvironmentService } from "../common/environmentService.js";
+export declare const IBrowserWorkbenchEnvironmentService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IBrowserWorkbenchEnvironmentService>;
 /**
  * A subclass of the `IWorkbenchEnvironmentService` to be used only environments
  * where the web API is available (browsers, Electron).
@@ -62,9 +62,9 @@ export declare class BrowserWorkbenchEnvironmentService implements IBrowserWorkb
     get extensionTestsLocationURI(): URI | undefined;
     get extensionEnabledProposedApi(): string[] | undefined;
     get debugRenderer(): boolean;
-    get enableSmokeTestDriver(): any;
+    get enableSmokeTestDriver(): boolean | undefined;
     get disableExtensions(): boolean;
-    get enableExtensions(): any;
+    get enableExtensions(): readonly string[] | undefined;
     get webviewExternalEndpoint(): string;
     get extensionTelemetryLogResource(): URI;
     get disableTelemetry(): boolean;

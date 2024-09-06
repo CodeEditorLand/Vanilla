@@ -1,18 +1,18 @@
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ITextResourceConfigurationService } from "vs/editor/common/services/textResourceConfiguration";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IBaseFileStat, IFilesConfiguration, IFileService } from "vs/platform/files/common/files";
-import { IMarkerService } from "vs/platform/markers/common/markers";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { SaveReason } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-export declare const AutoSaveAfterShortDelayContext: any;
+import { Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IBaseFileStat, IFilesConfiguration, IFileService } from "../../../../platform/files/common/files.js";
+import { IMarkerService } from "../../../../platform/markers/common/markers.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { SaveReason } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+export declare const AutoSaveAfterShortDelayContext: RawContextKey<boolean>;
 export interface IAutoSaveConfiguration {
     autoSave?: "afterDelay" | "onFocusChange" | "onWindowChange";
     autoSaveDelay?: number;
@@ -44,7 +44,7 @@ export interface IDisabledAutoSaveMode {
     readonly mode: AutoSaveMode.OFF;
     readonly reason: AutoSaveDisabledReason;
 }
-export declare const IFilesConfigurationService: any;
+export declare const IFilesConfigurationService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IFilesConfigurationService>;
 export interface IFilesConfigurationService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeAutoSaveConfiguration: Event<void>;
@@ -76,13 +76,13 @@ export declare class FilesConfigurationService extends Disposable implements IFi
     private static readonly DEFAULT_AUTO_SAVE_DELAY;
     private static readonly READONLY_MESSAGES;
     private readonly _onDidChangeAutoSaveConfiguration;
-    readonly onDidChangeAutoSaveConfiguration: any;
+    readonly onDidChangeAutoSaveConfiguration: Event<void>;
     private readonly _onDidChangeAutoSaveDisabled;
-    readonly onDidChangeAutoSaveDisabled: any;
+    readonly onDidChangeAutoSaveDisabled: Event<URI>;
     private readonly _onDidChangeFilesAssociation;
-    readonly onDidChangeFilesAssociation: any;
+    readonly onDidChangeFilesAssociation: Event<void>;
     private readonly _onDidChangeReadonly;
-    readonly onDidChangeReadonly: any;
+    readonly onDidChangeReadonly: Event<void>;
     private currentGlobalAutoSaveConfiguration;
     private currentFilesAssociationConfiguration;
     private currentHotExitConfiguration;

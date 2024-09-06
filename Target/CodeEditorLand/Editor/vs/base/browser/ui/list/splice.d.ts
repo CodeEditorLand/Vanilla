@@ -1,4 +1,4 @@
-import { ISpliceable } from "vs/base/common/sequence";
+import { ISpliceable } from "../../../common/sequence.js";
 export interface ISpreadSpliceable<T> {
     splice(start: number, deleteCount: number, ...elements: T[]): void;
 }

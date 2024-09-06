@@ -1,4 +1,4 @@
-import{escape as o}from"../../../../../../vs/base/common/strings.js";import{localize as e}from"../../../../../../vs/nls.js";const c=n=>encodeURIComponent(JSON.stringify({profile:n})),t=400;var b=()=>`
+import{escape as o}from"../../../../../base/common/strings.js";import{localize as e}from"../../../../../nls.js";const c=n=>encodeURIComponent(JSON.stringify({profile:n})),t=400;var b=()=>`
 <vertically-centered>
 <checklist>
 	<checkbox on-checked="command:notebook.setProfile?${c("default")}" checked-on="config.notebook.cellFocusIndicator == 'border' && config.notebook.insertToolbarLocation == 'both' && config.notebook.globalToolbar == false && config.notebook.compactView == true && config.notebook.showCellStatusBar == 'visible'">

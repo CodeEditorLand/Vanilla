@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IExplorerService } from "vs/workbench/contrib/files/browser/files";
-import { ExplorerItem } from "vs/workbench/contrib/files/common/explorerModel";
-import { IDecorationData, IDecorationsProvider } from "vs/workbench/services/decorations/common/decorations";
+import { Event } from "../../../../../base/common/event.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { IDecorationData, IDecorationsProvider } from "../../../../services/decorations/common/decorations.js";
+import { ExplorerItem } from "../../common/explorerModel.js";
+import { IExplorerService } from "../files.js";
 export declare function provideDecorations(fileStat: ExplorerItem): IDecorationData | undefined;
 export declare class ExplorerDecorationsProvider implements IDecorationsProvider {
     private explorerService;

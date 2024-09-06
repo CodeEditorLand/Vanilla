@@ -1,8 +1,8 @@
-import { SelectActionViewItem } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { ISelectOptionItem } from "vs/base/browser/ui/selectBox/selectBox";
-import { Action, IAction } from "vs/base/common/actions";
-import { IContextViewService } from "vs/platform/contextview/browser/contextView";
-import { IThemeService } from "vs/platform/theme/common/themeService";
+import { SelectActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { ISelectOptionItem } from "../../../../base/browser/ui/selectBox/selectBox.js";
+import { Action, IAction } from "../../../../base/common/actions.js";
+import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 export interface IQuickDiffSelectItem extends ISelectOptionItem {
     provider: string;
 }
@@ -16,7 +16,7 @@ export declare class SwitchQuickDiffViewItem extends SelectActionViewItem<IQuick
 export declare class SwitchQuickDiffBaseAction extends Action {
     private readonly callback;
     static readonly ID = "quickDiff.base.switch";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(callback: (event?: IQuickDiffSelectItem) => void);
     run(event?: IQuickDiffSelectItem): Promise<void>;
 }

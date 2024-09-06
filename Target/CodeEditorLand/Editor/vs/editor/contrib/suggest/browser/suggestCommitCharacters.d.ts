@@ -1,6 +1,6 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { SuggestModel } from "vs/editor/contrib/suggest/browser/suggestModel";
-import { ISelectedSuggestion, SuggestWidget } from "./suggestWidget";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { SuggestModel } from "./suggestModel.js";
+import { ISelectedSuggestion, SuggestWidget } from "./suggestWidget.js";
 export declare class CommitCharacterController {
     private readonly _disposables;
     private _active?;

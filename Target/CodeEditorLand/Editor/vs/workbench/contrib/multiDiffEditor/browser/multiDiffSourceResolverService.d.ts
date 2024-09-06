@@ -1,8 +1,8 @@
-import { IValueWithChangeEvent } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ContextKeyValue } from "vs/platform/contextkey/common/contextkey";
-export declare const IMultiDiffSourceResolverService: any;
+import { IValueWithChangeEvent } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ContextKeyValue } from "../../../../platform/contextkey/common/contextkey.js";
+export declare const IMultiDiffSourceResolverService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IMultiDiffSourceResolverService>;
 export interface IMultiDiffSourceResolverService {
     readonly _serviceBrand: undefined;
     registerResolver(resolver: IMultiDiffSourceResolver): IDisposable;

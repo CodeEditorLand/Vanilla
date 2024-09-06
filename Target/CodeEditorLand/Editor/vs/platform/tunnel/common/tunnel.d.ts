@@ -1,14 +1,14 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { OperatingSystem } from "vs/base/common/platform";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILogService } from "vs/platform/log/common/log";
-import { IAddressProvider } from "vs/platform/remote/common/remoteAgentConnection";
-import { TunnelPrivacy } from "vs/platform/remote/common/remoteAuthorityResolver";
-export declare const ITunnelService: any;
-export declare const ISharedTunnelsService: any;
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { OperatingSystem } from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { ILogService } from "../../log/common/log.js";
+import { IAddressProvider } from "../../remote/common/remoteAgentConnection.js";
+import { TunnelPrivacy } from "../../remote/common/remoteAuthorityResolver.js";
+export declare const ITunnelService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ITunnelService>;
+export declare const ISharedTunnelsService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ISharedTunnelsService>;
 export interface RemoteTunnel {
     readonly tunnelRemotePort: number;
     readonly tunnelRemoteHost: string;

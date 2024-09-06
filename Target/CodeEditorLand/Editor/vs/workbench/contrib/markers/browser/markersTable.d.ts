@@ -1,14 +1,14 @@
-import { ITableContextMenuEvent, ITableEvent } from "vs/base/browser/ui/table/table";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILabelService } from "vs/platform/label/common/label";
-import { IOpenEvent, IWorkbenchTableOptions } from "vs/platform/list/browser/listService";
-import { FilterOptions } from "vs/workbench/contrib/markers/browser/markersFilterOptions";
-import { Marker, MarkerTableItem, ResourceMarkers } from "vs/workbench/contrib/markers/browser/markersModel";
-import { MarkersViewModel } from "vs/workbench/contrib/markers/browser/markersTreeViewer";
-import { IProblemsWidget } from "vs/workbench/contrib/markers/browser/markersView";
+import { ITableContextMenuEvent, ITableEvent } from "../../../../base/browser/ui/table/table.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IOpenEvent, IWorkbenchTableOptions } from "../../../../platform/list/browser/listService.js";
+import { FilterOptions } from "./markersFilterOptions.js";
+import { Marker, MarkerTableItem, ResourceMarkers } from "./markersModel.js";
+import { MarkersViewModel } from "./markersTreeViewer.js";
+import { IProblemsWidget } from "./markersView.js";
 export declare class MarkersTable extends Disposable implements IProblemsWidget {
     private readonly container;
     private readonly markersViewModel;

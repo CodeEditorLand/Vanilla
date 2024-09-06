@@ -1,14 +1,14 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { INativeEnvironmentService } from "vs/platform/environment/common/environment";
-import { ExtensionVerificationStatus } from "vs/platform/extensionManagement/common/abstractExtensionManagementService";
-import { IExtensionGalleryService, IGalleryExtension, InstallOperation } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IExtensionSignatureVerificationService } from "vs/platform/extensionManagement/node/extensionSignatureVerificationService";
-import { TargetPlatform } from "vs/platform/extensions/common/extensions";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { INativeEnvironmentService } from "../../environment/common/environment.js";
+import { TargetPlatform } from "../../extensions/common/extensions.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { ExtensionVerificationStatus } from "../common/abstractExtensionManagementService.js";
+import { IExtensionGalleryService, IGalleryExtension, InstallOperation } from "../common/extensionManagement.js";
+import { IExtensionSignatureVerificationService } from "./extensionSignatureVerificationService.js";
 export declare class ExtensionsDownloader extends Disposable {
     private readonly fileService;
     private readonly extensionGalleryService;

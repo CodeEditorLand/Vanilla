@@ -1,6 +1,6 @@
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { IWorkingCopyFileService } from "vs/workbench/services/workingCopy/common/workingCopyFileService";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IWorkingCopyFileService } from "../../services/workingCopy/common/workingCopyFileService.js";
 export declare class SaveParticipant {
     private readonly workingCopyFileService;
     private _saveParticipantDisposable;

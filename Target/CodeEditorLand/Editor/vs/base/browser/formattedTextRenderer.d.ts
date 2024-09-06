@@ -1,6 +1,6 @@
-import { IKeyboardEvent } from "vs/base/browser/keyboardEvent";
-import { IMouseEvent } from "vs/base/browser/mouseEvent";
-import { DisposableStore } from "vs/base/common/lifecycle";
+import { DisposableStore } from "../common/lifecycle.js";
+import { IKeyboardEvent } from "./keyboardEvent.js";
+import { IMouseEvent } from "./mouseEvent.js";
 export interface IContentActionHandler {
     callback: (content: string, event: IMouseEvent | IKeyboardEvent) => void;
     readonly disposables: DisposableStore;

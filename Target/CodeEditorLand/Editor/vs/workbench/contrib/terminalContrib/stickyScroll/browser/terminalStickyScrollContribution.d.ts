@@ -1,13 +1,13 @@
 import type { Terminal as RawXtermTerminal } from "@xterm/xterm";
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./media/stickyScroll";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ITerminalContribution, ITerminalInstance, IXtermTerminal } from "vs/workbench/contrib/terminal/browser/terminal";
-import { TerminalWidgetManager } from "vs/workbench/contrib/terminal/browser/widgets/widgetManager";
-import { ITerminalProcessInfo, ITerminalProcessManager } from "vs/workbench/contrib/terminal/common/terminal";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import "./media/stickyScroll.css";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { ITerminalContribution, ITerminalInstance, IXtermTerminal } from "../../../terminal/browser/terminal.js";
+import { TerminalWidgetManager } from "../../../terminal/browser/widgets/widgetManager.js";
+import { ITerminalProcessInfo, ITerminalProcessManager } from "../../../terminal/common/terminal.js";
 export declare class TerminalStickyScrollContribution extends Disposable implements ITerminalContribution {
     private readonly _instance;
     private readonly _configurationService;

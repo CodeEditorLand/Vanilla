@@ -1,30 +1,32 @@
-import { Action } from "vs/base/common/actions";
-import { OperatingSystem } from "vs/base/common/platform";
-import { URI } from "vs/base/common/uri";
-import { ILocalizedString } from "vs/platform/action/common/action";
-import { Action2 } from "vs/platform/actions/common/actions";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IFileService } from "vs/platform/files/common/files";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { INotificationService, Severity } from "vs/platform/notification/common/notification";
-import { IExplorerService } from "vs/workbench/contrib/files/browser/files";
-import { ExplorerItem } from "vs/workbench/contrib/files/common/explorerModel";
-import { IPathService } from "vs/workbench/services/path/common/pathService";
-import { IWorkingCopyService } from "vs/workbench/services/workingCopy/common/workingCopyService";
+import { Action } from "../../../../base/common/actions.js";
+import { OperatingSystem } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import * as nls from "../../../../nls.js";
+import { ILocalizedString } from "../../../../platform/action/common/action.js";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
+import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
+import { ExplorerItem } from "../common/explorerModel.js";
+import { IExplorerService } from "./files.js";
 export declare const NEW_FILE_COMMAND_ID = "explorer.newFile";
-export declare const NEW_FILE_LABEL: any;
+export declare const NEW_FILE_LABEL: nls.ILocalizedString;
 export declare const NEW_FOLDER_COMMAND_ID = "explorer.newFolder";
-export declare const NEW_FOLDER_LABEL: any;
-export declare const TRIGGER_RENAME_LABEL: any;
-export declare const MOVE_FILE_TO_TRASH_LABEL: any;
-export declare const COPY_FILE_LABEL: any;
-export declare const PASTE_FILE_LABEL: any;
-export declare const FileCopiedContext: any;
+export declare const NEW_FOLDER_LABEL: nls.ILocalizedString;
+export declare const TRIGGER_RENAME_LABEL: string;
+export declare const MOVE_FILE_TO_TRASH_LABEL: string;
+export declare const COPY_FILE_LABEL: string;
+export declare const PASTE_FILE_LABEL: string;
+export declare const FileCopiedContext: RawContextKey<boolean>;
 export declare const DOWNLOAD_COMMAND_ID = "explorer.download";
-export declare const DOWNLOAD_LABEL: any;
+export declare const DOWNLOAD_LABEL: string;
 export declare const UPLOAD_COMMAND_ID = "explorer.upload";
-export declare const UPLOAD_LABEL: any;
+export declare const UPLOAD_LABEL: string;
 export declare function findValidPasteFileTarget(explorerService: IExplorerService, fileService: IFileService, dialogService: IDialogService, targetFolder: ExplorerItem, fileToPaste: {
     resource: URI | string;
     isDirectory?: boolean;
@@ -33,7 +35,7 @@ export declare function findValidPasteFileTarget(explorerService: IExplorerServi
 export declare function incrementFileName(name: string, isFolder: boolean, incrementalNaming: "simple" | "smart"): string;
 export declare class GlobalCompareResourcesAction extends Action2 {
     static readonly ID = "workbench.files.action.compareFileWith";
-    static readonly LABEL: any;
+    static readonly LABEL: nls.ILocalizedString;
     constructor();
     run(accessor: ServicesAccessor): Promise<void>;
 }
@@ -55,32 +57,32 @@ declare abstract class BaseSaveAllAction extends Action {
 }
 export declare class SaveAllInGroupAction extends BaseSaveAllAction {
     static readonly ID = "workbench.files.action.saveAllInGroup";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     get class(): string;
     protected doRun(context: unknown): Promise<void>;
 }
 export declare class CloseGroupAction extends Action {
     private readonly commandService;
     static readonly ID = "workbench.files.action.closeGroup";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor(id: string, label: string, commandService: ICommandService);
     run(context?: unknown): Promise<void>;
 }
 export declare class FocusFilesExplorer extends Action2 {
     static readonly ID = "workbench.files.action.focusFilesExplorer";
-    static readonly LABEL: any;
+    static readonly LABEL: nls.ILocalizedString;
     constructor();
     run(accessor: ServicesAccessor): Promise<void>;
 }
 export declare class ShowActiveFileInExplorer extends Action2 {
     static readonly ID = "workbench.files.action.showActiveFileInExplorer";
-    static readonly LABEL: any;
+    static readonly LABEL: nls.ILocalizedString;
     constructor();
     run(accessor: ServicesAccessor): Promise<void>;
 }
 export declare class OpenActiveFileInEmptyWorkspace extends Action2 {
     static readonly ID = "workbench.action.files.showOpenedFileInNewWindow";
-    static readonly LABEL: any;
+    static readonly LABEL: nls.ILocalizedString;
     constructor();
     run(accessor: ServicesAccessor): Promise<void>;
 }
@@ -90,13 +92,13 @@ export declare function validateFileName(pathService: IPathService, item: Explor
 } | null;
 export declare class CompareNewUntitledTextFilesAction extends Action2 {
     static readonly ID = "workbench.files.action.compareNewUntitledTextFiles";
-    static readonly LABEL: any;
+    static readonly LABEL: nls.ILocalizedString;
     constructor();
     run(accessor: ServicesAccessor): Promise<void>;
 }
 export declare class CompareWithClipboardAction extends Action2 {
     static readonly ID = "workbench.files.action.compareWithClipboard";
-    static readonly LABEL: any;
+    static readonly LABEL: nls.ILocalizedString;
     private registrationDisposal;
     private static SCHEME_COUNTER;
     constructor();
@@ -117,22 +119,22 @@ declare class BaseSetActiveEditorReadonlyInSession extends Action2 {
 }
 export declare class SetActiveEditorReadonlyInSession extends BaseSetActiveEditorReadonlyInSession {
     static readonly ID = "workbench.action.files.setActiveEditorReadonlyInSession";
-    static readonly LABEL: any;
+    static readonly LABEL: nls.ILocalizedString;
     constructor();
 }
 export declare class SetActiveEditorWriteableInSession extends BaseSetActiveEditorReadonlyInSession {
     static readonly ID = "workbench.action.files.setActiveEditorWriteableInSession";
-    static readonly LABEL: any;
+    static readonly LABEL: nls.ILocalizedString;
     constructor();
 }
 export declare class ToggleActiveEditorReadonlyInSession extends BaseSetActiveEditorReadonlyInSession {
     static readonly ID = "workbench.action.files.toggleActiveEditorReadonlyInSession";
-    static readonly LABEL: any;
+    static readonly LABEL: nls.ILocalizedString;
     constructor();
 }
 export declare class ResetActiveEditorReadonlyInSession extends BaseSetActiveEditorReadonlyInSession {
     static readonly ID = "workbench.action.files.resetActiveEditorReadonlyInSession";
-    static readonly LABEL: any;
+    static readonly LABEL: nls.ILocalizedString;
     constructor();
 }
 export {};

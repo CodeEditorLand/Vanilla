@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { IMatch } from "vs/base/common/filters";
-import { URI } from "vs/base/common/uri";
-import { IRange } from "vs/editor/common/core/range";
-import { IMarker, IRelatedInformation } from "vs/platform/markers/common/markers";
+import { Event } from "../../../../base/common/event.js";
+import { IMatch } from "../../../../base/common/filters.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { IMarker, IRelatedInformation } from "../../../../platform/markers/common/markers.js";
 export type MarkerElement = ResourceMarkers | Marker | RelatedInformation;
-export declare function compareMarkersByUri(a: IMarker, b: IMarker): any;
+export declare function compareMarkersByUri(a: IMarker, b: IMarker): number;
 export declare class ResourceMarkers {
     readonly id: string;
     readonly resource: URI;
@@ -15,7 +15,7 @@ export declare class ResourceMarkers {
     private _total;
     constructor(id: string, resource: URI);
     get markers(): readonly Marker[];
-    has(uri: URI): any;
+    has(uri: URI): boolean;
     set(uri: URI, marker: Marker[]): void;
     delete(uri: URI): void;
     get total(): number;

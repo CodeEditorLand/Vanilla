@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Platform } from "vs/base/common/platform";
-import { TerminateResponse } from "vs/base/common/processes";
-import Severity from "vs/base/common/severity";
-import { URI } from "vs/base/common/uri";
-import { ConfigurationTarget } from "vs/platform/configuration/common/configuration";
-import { IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-import { ITaskEvent, KeyedTaskIdentifier, Task } from "./tasks";
+import { Event } from "../../../../base/common/event.js";
+import { Platform } from "../../../../base/common/platform.js";
+import { TerminateResponse } from "../../../../base/common/processes.js";
+import Severity from "../../../../base/common/severity.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { ITaskEvent, KeyedTaskIdentifier, Task } from "./tasks.js";
 export declare const enum TaskErrors {
     NotConfigured = 0,
     RunningTask = 1,

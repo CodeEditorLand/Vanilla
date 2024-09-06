@@ -1,3 +1,4 @@
+import { IConfigurationPropertySchema } from "../../../../platform/configuration/common/configurationRegistry.js";
 declare enum CodeActionExtensionPointFields {
     languages = "languages",
     actions = "actions",
@@ -16,7 +17,7 @@ export interface CodeActionsExtensionPoint {
 }
 export declare const codeActionsExtensionPointDescriptor: {
     extensionPoint: string;
-    deps: any[];
-    jsonSchema: IConfigurationPropertySchema;
+    deps: import("../../../services/extensions/common/extensionsRegistry.js").IExtensionPoint<import("../../../services/language/common/languageService.js").IRawLanguageExtensionPoint[]>[];
+    jsonSchema: Readonly<IConfigurationPropertySchema>;
 };
 export {};

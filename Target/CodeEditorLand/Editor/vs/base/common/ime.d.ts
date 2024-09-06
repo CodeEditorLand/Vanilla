@@ -1,6 +1,6 @@
 export declare class IMEImpl {
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: import("./event.js").Event<void>;
     private _enabled;
     get enabled(): boolean;
     /**

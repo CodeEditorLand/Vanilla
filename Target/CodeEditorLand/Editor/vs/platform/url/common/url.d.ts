@@ -1,6 +1,6 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI, UriComponents } from "vs/base/common/uri";
-export declare const IURLService: any;
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+export declare const IURLService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IURLService>;
 export interface IOpenURLOptions {
     /**
      * If not provided or `false`, signals that the

@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IExtensionStatus } from "vs/workbench/contrib/extensions/common/extensionsUtils";
-import { INotebookKeymapService } from "vs/workbench/contrib/notebook/common/notebookKeymapService";
-import { IWorkbenchExtensionEnablementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../../platform/notification/common/notification.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { IWorkbenchExtensionEnablementService } from "../../../../services/extensionManagement/common/extensionManagement.js";
+import { ILifecycleService } from "../../../../services/lifecycle/common/lifecycle.js";
+import { IExtensionStatus } from "../../../extensions/common/extensionsUtils.js";
+import { INotebookKeymapService } from "../../common/notebookKeymapService.js";
 export declare class NotebookKeymapService extends Disposable implements INotebookKeymapService {
     private readonly instantiationService;
     private readonly extensionEnablementService;

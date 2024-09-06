@@ -1,12 +1,12 @@
-import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "vs/base/common/buffer";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IExpression, IRelativePattern } from "vs/base/common/glob";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ReadableStreamEvents } from "vs/base/common/stream";
-import { URI } from "vs/base/common/uri";
-export declare const IFileService: any;
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../base/common/buffer.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { IExpression, IRelativePattern } from "../../../base/common/glob.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { ReadableStreamEvents } from "../../../base/common/stream.js";
+import { URI } from "../../../base/common/uri.js";
+export declare const IFileService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IFileService>;
 export interface IFileService {
     readonly _serviceBrand: undefined;
     /**

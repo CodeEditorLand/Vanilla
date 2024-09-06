@@ -1,4 +1,4 @@
-import { URI } from "vs/base/common/uri";
-import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
+import { URI } from "../../../../base/common/uri.js";
+import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
 export declare function getWorkspaceIdentifier(workspaceUri: URI): IWorkspaceIdentifier;
 export declare function getSingleFolderWorkspaceIdentifier(folderUri: URI): ISingleFolderWorkspaceIdentifier;

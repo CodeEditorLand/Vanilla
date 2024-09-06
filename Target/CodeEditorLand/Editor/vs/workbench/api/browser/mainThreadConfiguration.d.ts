@@ -1,8 +1,8 @@
-import { ConfigurationTarget, IConfigurationOverrides, IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { MainThreadConfigurationShape } from "../common/extHost.protocol";
+import { ConfigurationTarget, IConfigurationOverrides, IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
+import { IWorkspaceContextService } from "../../../platform/workspace/common/workspace.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadConfigurationShape } from "../common/extHost.protocol.js";
 export declare class MainThreadConfiguration implements MainThreadConfigurationShape {
     private readonly _workspaceContextService;
     private readonly configurationService;

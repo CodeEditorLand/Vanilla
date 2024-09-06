@@ -1,5 +1,5 @@
-import { Event } from "vs/base/common/event";
-import { IStorageService } from "vs/platform/storage/common/storage";
+import { Event } from "../../../../base/common/event.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
 export interface ISearchHistoryService {
     readonly _serviceBrand: undefined;
     onDidClearHistory: Event<void>;
@@ -7,7 +7,7 @@ export interface ISearchHistoryService {
     load(): ISearchHistoryValues;
     save(history: ISearchHistoryValues): void;
 }
-export declare const ISearchHistoryService: any;
+export declare const ISearchHistoryService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISearchHistoryService>;
 export interface ISearchHistoryValues {
     search?: string[];
     replace?: string[];

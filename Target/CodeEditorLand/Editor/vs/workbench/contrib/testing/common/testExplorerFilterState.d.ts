@@ -1,7 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IObservableValue, MutableObservableValue } from "vs/workbench/contrib/testing/common/observableValue";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IObservableValue, MutableObservableValue } from "./observableValue.js";
 export interface ITestExplorerFilterState {
     _serviceBrand: undefined;
     /** Current filter text */
@@ -46,7 +46,7 @@ export interface ITestExplorerFilterState {
      */
     toggleFilteringFor(term: TestFilterTerm, shouldFilter?: boolean): void;
 }
-export declare const ITestExplorerFilterState: any;
+export declare const ITestExplorerFilterState: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITestExplorerFilterState>;
 export declare class TestExplorerFilterState extends Disposable implements ITestExplorerFilterState {
     private readonly storageService;
     _serviceBrand: undefined;
@@ -65,11 +65,11 @@ export declare class TestExplorerFilterState extends Disposable implements ITest
     /** @inheritdoc */
     excludeTags: Set<string>;
     /** @inheritdoc */
-    readonly text: any;
+    readonly text: MutableObservableValue<string>;
     /** @inheritdoc */
-    readonly fuzzy: any;
-    readonly reveal: any;
-    readonly onDidRequestInputFocus: any;
+    readonly fuzzy: MutableObservableValue<boolean>;
+    readonly reveal: MutableObservableValue<string | undefined>;
+    readonly onDidRequestInputFocus: Event<void>;
     constructor(storageService: IStorageService);
     /** @inheritdoc */
     focusInput(): void;

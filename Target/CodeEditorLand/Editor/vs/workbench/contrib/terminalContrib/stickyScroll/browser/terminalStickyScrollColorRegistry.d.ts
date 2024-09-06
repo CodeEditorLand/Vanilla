@@ -1,2 +1,2 @@
-export declare const terminalStickyScrollBackground: any;
-export declare const terminalStickyScrollHoverBackground: any;
+export declare const terminalStickyScrollBackground: string;
+export declare const terminalStickyScrollHoverBackground: string;

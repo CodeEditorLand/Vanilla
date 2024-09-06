@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ExtensionIdentifier, IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogger, ILoggerService } from "vs/platform/log/common/log";
-import { ICommonProperties, TelemetryLevel } from "vs/platform/telemetry/common/telemetry";
-import { ExtHostTelemetryShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
 import type * as vscode from "vscode";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogger, ILoggerService } from "../../../platform/log/common/log.js";
+import { ICommonProperties, TelemetryLevel } from "../../../platform/telemetry/common/telemetry.js";
+import { ExtHostTelemetryShape } from "./extHost.protocol.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
 export declare class ExtHostTelemetry extends Disposable implements ExtHostTelemetryShape {
     private readonly initData;
     private readonly loggerService;
@@ -62,6 +62,6 @@ export declare class ExtHostTelemetryLogger {
     dispose(): void;
 }
 export declare function isNewAppInstall(firstSessionDate: string): boolean;
-export declare const IExtHostTelemetry: any;
+export declare const IExtHostTelemetry: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostTelemetry>;
 export interface IExtHostTelemetry extends ExtHostTelemetry, ExtHostTelemetryShape {
 }

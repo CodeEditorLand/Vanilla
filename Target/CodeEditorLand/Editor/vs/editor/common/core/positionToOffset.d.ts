@@ -1,7 +1,7 @@
-import { OffsetRange } from "vs/editor/common/core/offsetRange";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { TextLength } from "vs/editor/common/core/textLength";
+import { OffsetRange } from "./offsetRange.js";
+import { Position } from "./position.js";
+import { Range } from "./range.js";
+import { TextLength } from "./textLength.js";
 export declare class PositionOffsetTransformer {
     readonly text: string;
     private readonly lineStartOffsetByLineIdx;

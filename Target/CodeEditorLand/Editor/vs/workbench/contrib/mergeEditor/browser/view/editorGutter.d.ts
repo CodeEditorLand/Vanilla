@@ -1,7 +1,7 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IReader } from "vs/base/common/observable";
-import { CodeEditorWidget } from "vs/editor/browser/widget/codeEditor/codeEditorWidget";
-import { LineRange } from "vs/workbench/contrib/mergeEditor/browser/model/lineRange";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { IReader } from "../../../../../base/common/observable.js";
+import { CodeEditorWidget } from "../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { LineRange } from "../model/lineRange.js";
 export declare class EditorGutter<T extends IGutterItemInfo = IGutterItemInfo> extends Disposable {
     private readonly _editor;
     private readonly _domNode;

@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { type MainThreadTerminalShellIntegrationShape } from "vs/workbench/api/common/extHost.protocol";
-import { ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { type IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ITerminalService } from "../../contrib/terminal/browser/terminal.js";
+import { IWorkbenchEnvironmentService } from "../../services/environment/common/environmentService.js";
+import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { type MainThreadTerminalShellIntegrationShape } from "../common/extHost.protocol.js";
 export declare class MainThreadTerminalShellIntegration extends Disposable implements MainThreadTerminalShellIntegrationShape {
     private readonly _terminalService;
     private readonly _proxy;

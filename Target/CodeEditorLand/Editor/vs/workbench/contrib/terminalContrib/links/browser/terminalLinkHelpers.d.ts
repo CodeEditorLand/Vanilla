@@ -1,9 +1,9 @@
 import type { IBuffer, IBufferLine, IBufferRange, IViewportRange } from "@xterm/xterm";
-import { IPath } from "vs/base/common/path";
-import { OperatingSystem } from "vs/base/common/platform";
-import { IRange } from "vs/editor/common/core/range";
-import { ITerminalCapabilityStore } from "vs/platform/terminal/common/capabilities/capabilities";
-import { ITerminalLogService } from "vs/platform/terminal/common/terminal";
+import { IPath } from "../../../../../base/common/path.js";
+import { OperatingSystem } from "../../../../../base/common/platform.js";
+import { IRange } from "../../../../../editor/common/core/range.js";
+import { ITerminalCapabilityStore } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
 /**
  * Converts a possibly wrapped link's range (comprised of string indices) into a buffer range that plays nicely with xterm.js
  *

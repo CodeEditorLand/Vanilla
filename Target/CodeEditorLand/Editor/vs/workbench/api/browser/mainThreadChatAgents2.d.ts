@@ -1,15 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { UriComponents } from "vs/base/common/uri";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IChatProgressDto, IDynamicChatAgentProps, IExtensionChatAgentMetadata, MainThreadChatAgentsShape2 } from "vs/workbench/api/common/extHost.protocol";
-import { IChatWidgetService } from "vs/workbench/contrib/chat/browser/chat";
-import { IChatAgentService } from "vs/workbench/contrib/chat/common/chatAgents";
-import { IChatService } from "vs/workbench/contrib/chat/common/chatService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { ILanguageFeaturesService } from "../../../editor/common/services/languageFeatures.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IChatWidgetService } from "../../contrib/chat/browser/chat.js";
+import { IChatAgentService } from "../../contrib/chat/common/chatAgents.js";
+import { IChatService } from "../../contrib/chat/common/chatService.js";
+import { IExtensionService } from "../../services/extensions/common/extensions.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IChatProgressDto, IDynamicChatAgentProps, IExtensionChatAgentMetadata, MainThreadChatAgentsShape2 } from "../common/extHost.protocol.js";
 export declare class MainThreadChatAgents2 extends Disposable implements MainThreadChatAgentsShape2 {
     private readonly _chatAgentService;
     private readonly _chatService;

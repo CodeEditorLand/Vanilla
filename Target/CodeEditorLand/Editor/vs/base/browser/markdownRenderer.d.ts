@@ -1,7 +1,7 @@
-import { FormattedTextRenderOptions } from "vs/base/browser/formattedTextRenderer";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import * as marked from "vs/base/common/marked/marked";
-import { URI } from "vs/base/common/uri";
+import { IMarkdownString } from "../common/htmlContent.js";
+import * as marked from "../common/marked/marked.js";
+import { URI } from "../common/uri.js";
+import { FormattedTextRenderOptions } from "./formattedTextRenderer.js";
 export interface MarkedOptions extends marked.MarkedOptions {
     baseUrl?: never;
 }

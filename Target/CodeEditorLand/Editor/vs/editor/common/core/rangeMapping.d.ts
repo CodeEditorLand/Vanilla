@@ -1,5 +1,5 @@
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
+import { Position } from "./position.js";
+import { Range } from "./range.js";
 /**
  * Represents a list of mappings of ranges from one document to another.
  */

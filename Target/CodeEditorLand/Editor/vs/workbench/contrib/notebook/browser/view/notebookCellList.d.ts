@@ -1,23 +1,24 @@
-import { IMouseWheelEvent } from "vs/base/browser/mouseEvent";
-import { IListRenderer, IListVirtualDelegate } from "vs/base/browser/ui/list/list";
-import { IListView, IListViewOptions } from "vs/base/browser/ui/list/listView";
-import { IListStyles, IStyleController } from "vs/base/browser/ui/list/listWidget";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ScrollEvent } from "vs/base/common/scrollable";
-import { Range } from "vs/editor/common/core/range";
-import { Selection } from "vs/editor/common/core/selection";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IListService, IWorkbenchListOptions, WorkbenchList } from "vs/platform/list/browser/listService";
-import { CellRevealRangeType, CellRevealType, ICellViewModel, INotebookViewZoneChangeAccessor } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookOptions } from "vs/workbench/contrib/notebook/browser/notebookOptions";
-import { NotebookCellListView } from "vs/workbench/contrib/notebook/browser/view/notebookCellListView";
-import { BaseCellRenderTemplate, INotebookCellList } from "vs/workbench/contrib/notebook/browser/view/notebookRenderingCommon";
-import { CellViewModel, NotebookViewModel } from "vs/workbench/contrib/notebook/browser/viewModel/notebookViewModelImpl";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
-import { ICellRange } from "vs/workbench/contrib/notebook/common/notebookRange";
+import { FastDomNode } from "../../../../../base/browser/fastDomNode.js";
+import { IMouseWheelEvent } from "../../../../../base/browser/mouseEvent.js";
+import { IListRenderer, IListVirtualDelegate } from "../../../../../base/browser/ui/list/list.js";
+import { IListView, IListViewOptions } from "../../../../../base/browser/ui/list/listView.js";
+import { IListStyles, IStyleController } from "../../../../../base/browser/ui/list/listWidget.js";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { ScrollEvent } from "../../../../../base/common/scrollable.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { Selection } from "../../../../../editor/common/core/selection.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IListService, IWorkbenchListOptions, WorkbenchList } from "../../../../../platform/list/browser/listService.js";
+import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";
+import { ICellRange } from "../../common/notebookRange.js";
+import { CellRevealRangeType, CellRevealType, ICellOutputViewModel, ICellViewModel, INotebookViewZoneChangeAccessor } from "../notebookBrowser.js";
+import { NotebookOptions } from "../notebookOptions.js";
+import { CellViewModel, NotebookViewModel } from "../viewModel/notebookViewModelImpl.js";
+import { NotebookCellListView } from "./notebookCellListView.js";
+import { BaseCellRenderTemplate, INotebookCellList } from "./notebookRenderingCommon.js";
 export declare const NOTEBOOK_WEBVIEW_BOUNDARY = 5000;
 export declare class NotebookCellList extends WorkbenchList<CellViewModel> implements IDisposable, IStyleController, INotebookCellList {
     private listUser;
@@ -33,11 +34,11 @@ export declare class NotebookCellList extends WorkbenchList<CellViewModel> imple
     private styleElement?;
     private _notebookCellAnchor;
     private readonly _onDidRemoveOutputs;
-    readonly onDidRemoveOutputs: any;
+    readonly onDidRemoveOutputs: Event<readonly ICellOutputViewModel[]>;
     private readonly _onDidHideOutputs;
-    readonly onDidHideOutputs: any;
+    readonly onDidHideOutputs: Event<readonly ICellOutputViewModel[]>;
     private readonly _onDidRemoveCellsFromView;
-    readonly onDidRemoveCellsFromView: any;
+    readonly onDidRemoveCellsFromView: Event<readonly ICellViewModel[]>;
     private _viewModel;
     get viewModel(): NotebookViewModel | null;
     private _hiddenRangeIds;
@@ -51,8 +52,8 @@ export declare class NotebookCellList extends WorkbenchList<CellViewModel> imple
     get isDisposed(): boolean;
     private _isInLayout;
     private _webviewElement;
-    get webviewElement(): any;
-    get inRenderingTransaction(): any;
+    get webviewElement(): FastDomNode<HTMLElement> | null;
+    get inRenderingTransaction(): boolean;
     constructor(listUser: string, container: HTMLElement, notebookOptions: NotebookOptions, delegate: IListVirtualDelegate<CellViewModel>, renderers: IListRenderer<CellViewModel, BaseCellRenderTemplate>[], contextKeyService: IContextKeyService, options: IWorkbenchListOptions<CellViewModel>, listService: IListService, configurationService: IConfigurationService, instantiationService: IInstantiationService, notebookExecutionStateService: INotebookExecutionStateService);
     protected createListView(container: HTMLElement, virtualDelegate: IListVirtualDelegate<CellViewModel>, renderers: IListRenderer<any, any>[], viewOptions: IListViewOptions<CellViewModel>): IListView<CellViewModel>;
     /**
@@ -80,19 +81,19 @@ export declare class NotebookCellList extends WorkbenchList<CellViewModel> imple
     convertModelIndexToViewIndex(modelIndex: number): number;
     modelIndexIsVisible(modelIndex: number): boolean;
     private _getVisibleRangesFromIndex;
-    getVisibleRangesPlusViewportAboveAndBelow(): any;
+    getVisibleRangesPlusViewportAboveAndBelow(): ICellRange[];
     private _getViewIndexUpperBound;
     private _getViewIndexUpperBound2;
     focusElement(cell: ICellViewModel): void;
     selectElements(elements: ICellViewModel[]): void;
-    getCellViewScrollTop(cell: ICellViewModel): any;
-    getCellViewScrollBottom(cell: ICellViewModel): any;
+    getCellViewScrollTop(cell: ICellViewModel): number;
+    getCellViewScrollBottom(cell: ICellViewModel): number;
     setFocus(indexes: number[], browserEvent?: UIEvent, ignoreTextModelUpdate?: boolean): void;
     setSelection(indexes: number[], browserEvent?: UIEvent | undefined, ignoreTextModelUpdate?: boolean): void;
     /**
      * The range will be revealed with as little scrolling as possible.
      */
-    revealCells(range: ICellRange): any;
+    revealCells(range: ICellRange): void;
     private _revealInViewWithMinimalScrolling;
     scrollToBottom(): void;
     /**
@@ -123,12 +124,12 @@ export declare class NotebookCellList extends WorkbenchList<CellViewModel> imple
     changeViewZones(callback: (accessor: INotebookViewZoneChangeAccessor) => void): void;
     domFocus(): void;
     focusContainer(clearSelection: boolean): void;
-    getViewScrollTop(): any;
-    getViewScrollBottom(): any;
+    getViewScrollTop(): number;
+    getViewScrollBottom(): number;
     setCellEditorSelection(cell: ICellViewModel, range: Range): void;
     style(styles: IListStyles): void;
-    getRenderHeight(): any;
-    getScrollHeight(): any;
+    getRenderHeight(): number;
+    getScrollHeight(): number;
     layout(height?: number, width?: number): void;
     dispose(): void;
 }

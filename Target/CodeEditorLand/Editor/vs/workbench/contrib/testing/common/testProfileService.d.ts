@@ -1,11 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { Iterable } from "vs/base/common/iterator";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IMainThreadTestController } from "vs/workbench/contrib/testing/common/testService";
-import { InternalTestItem, ITestItem, ITestRunProfile, TestRunProfileBitset } from "vs/workbench/contrib/testing/common/testTypes";
-export declare const ITestProfileService: any;
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IMainThreadTestController } from "./testService.js";
+import { InternalTestItem, ITestItem, ITestRunProfile, TestRunProfileBitset } from "./testTypes.js";
+export declare const ITestProfileService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITestProfileService>;
 export interface ITestProfileService {
     readonly _serviceBrand: undefined;
     /**
@@ -58,7 +57,7 @@ export interface ITestProfileService {
 /**
  * Gets whether the given profile can be used to run the test.
  */
-export declare const canUseProfileWithTest: (profile: ITestRunProfile, test: InternalTestItem) => any;
+export declare const canUseProfileWithTest: (profile: ITestRunProfile, test: InternalTestItem) => boolean;
 interface IExtendedTestRunProfile extends ITestRunProfile {
     wasInitiallyDefault: boolean;
 }
@@ -74,7 +73,7 @@ export declare class TestProfileService extends Disposable implements ITestProfi
     private readonly changeEmitter;
     private readonly controllerProfiles;
     /** @inheritdoc */
-    readonly onDidChange: any;
+    readonly onDidChange: Event<void>;
     constructor(contextKeyService: IContextKeyService, storageService: IStorageService);
     /** @inheritdoc */
     addProfile(controller: IMainThreadTestController, profile: ITestRunProfile): void;
@@ -94,7 +93,7 @@ export declare class TestProfileService extends Disposable implements ITestProfi
     /** @inheritdoc */
     getControllerProfiles(profileId: string): IExtendedTestRunProfile[];
     /** @inheritdoc */
-    getGroupDefaultProfiles(group: TestRunProfileBitset, controllerId?: string): any[];
+    getGroupDefaultProfiles(group: TestRunProfileBitset, controllerId?: string): IExtendedTestRunProfile[];
     /** @inheritdoc */
     setGroupDefaultProfiles(group: TestRunProfileBitset, profiles: ITestRunProfile[]): void;
     private refreshContextKeys;

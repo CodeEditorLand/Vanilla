@@ -1,14 +1,14 @@
-import { IEditorConfiguration } from "vs/editor/common/config/editorConfiguration";
-import { ConfigurationChangedEvent, EditorAutoClosingEditStrategy, EditorAutoClosingStrategy, EditorAutoIndentStrategy, EditorAutoSurroundStrategy } from "vs/editor/common/config/editorOptions";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { ISelection, Selection } from "vs/editor/common/core/selection";
-import { ICommand } from "vs/editor/common/editorCommon";
-import { AutoClosingPairs } from "vs/editor/common/languages/languageConfiguration";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { IElectricAction } from "vs/editor/common/languages/supports/electricCharacter";
-import { PositionAffinity, TextModelResolvedOptions } from "vs/editor/common/model";
-import { LineTokens } from "vs/editor/common/tokens/lineTokens";
+import { IEditorConfiguration } from "./config/editorConfiguration.js";
+import { ConfigurationChangedEvent, EditorAutoClosingEditStrategy, EditorAutoClosingStrategy, EditorAutoIndentStrategy, EditorAutoSurroundStrategy } from "./config/editorOptions.js";
+import { Position } from "./core/position.js";
+import { Range } from "./core/range.js";
+import { ISelection, Selection } from "./core/selection.js";
+import { ICommand } from "./editorCommon.js";
+import { AutoClosingPairs } from "./languages/languageConfiguration.js";
+import { ILanguageConfigurationService } from "./languages/languageConfigurationRegistry.js";
+import { IElectricAction } from "./languages/supports/electricCharacter.js";
+import { PositionAffinity, TextModelResolvedOptions } from "./model.js";
+import { LineTokens } from "./tokens/lineTokens.js";
 export interface IColumnSelectData {
     isReal: boolean;
     fromViewLineNumber: number;
@@ -146,7 +146,7 @@ export declare class SingleCursorState {
     _singleCursorStateBrand: void;
     readonly selection: Selection;
     constructor(selectionStart: Range, selectionStartKind: SelectionStartKind, selectionStartLeftoverVisibleColumns: number, position: Position, leftoverVisibleColumns: number);
-    equals(other: SingleCursorState): any;
+    equals(other: SingleCursorState): boolean;
     hasSelection(): boolean;
     move(inSelectionMode: boolean, lineNumber: number, column: number, leftoverVisibleColumns: number): SingleCursorState;
     private static _computeSelection;

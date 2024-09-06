@@ -1,8 +1,9 @@
-import { ThemeIcon } from "vs/base/common/themables";
-import { IEditorOptions } from "vs/platform/editor/common/editor";
-import { EditorInputCapabilities, IUntypedEditorInput } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { ExtensionEditorTab, IExtension } from "vs/workbench/contrib/extensions/common/extensions";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { EditorInputCapabilities, IUntypedEditorInput } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { ExtensionEditorTab, IExtension } from "./extensions.js";
 export interface IExtensionEditorOptions extends IEditorOptions {
     showPreReleaseVersion?: boolean;
     tab?: ExtensionEditorTab;
@@ -14,7 +15,7 @@ export declare class ExtensionsInput extends EditorInput {
     static readonly ID = "workbench.extensions.input2";
     get typeId(): string;
     get capabilities(): EditorInputCapabilities;
-    get resource(): any;
+    get resource(): URI;
     constructor(_extension: IExtension);
     get extension(): IExtension;
     getName(): string;

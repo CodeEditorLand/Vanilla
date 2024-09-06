@@ -1,6 +1,6 @@
-import { DocumentRangeSemanticTokensProvider, DocumentSemanticTokensProvider } from "vs/editor/common/languages";
-import { SemanticTokensProviderStyling } from "vs/editor/common/services/semanticTokensProviderStyling";
-export declare const ISemanticTokensStylingService: any;
+import { DocumentRangeSemanticTokensProvider, DocumentSemanticTokensProvider } from "../languages.js";
+import { SemanticTokensProviderStyling } from "./semanticTokensProviderStyling.js";
+export declare const ISemanticTokensStylingService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISemanticTokensStylingService>;
 export type DocumentTokensProvider = DocumentSemanticTokensProvider | DocumentRangeSemanticTokensProvider;
 export interface ISemanticTokensStylingService {
     readonly _serviceBrand: undefined;

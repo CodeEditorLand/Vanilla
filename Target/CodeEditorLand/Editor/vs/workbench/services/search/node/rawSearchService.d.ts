@@ -1,6 +1,6 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IFileQuery, IFileSearchStats, IRawFileMatch, IRawFileQuery, IRawSearchService, IRawTextQuery, ISearchEngine, ISerializedSearchComplete, ISerializedSearchProgressItem, ISerializedSearchSuccess } from "vs/workbench/services/search/common/search";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IFileQuery, IFileSearchStats, IRawFileMatch, IRawFileQuery, IRawSearchService, IRawTextQuery, ISearchEngine, ISerializedSearchComplete, ISerializedSearchProgressItem, ISerializedSearchSuccess } from "../common/search.js";
 export type IProgressCallback = (p: ISerializedSearchProgressItem) => void;
 export declare class SearchService implements IRawSearchService {
     private readonly processType;

@@ -1,15 +1,16 @@
-import { HierarchicalKind } from "vs/base/common/hierarchicalKind";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IBulkEditService } from "vs/editor/browser/services/bulkEditService";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IProgressService } from "vs/platform/progress/common/progress";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
+import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IBulkEditService } from "../../../browser/services/bulkEditService.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
 export declare const changePasteTypeCommandId = "editor.changePasteType";
-export declare const pasteWidgetVisibleCtx: any;
+export declare const pasteWidgetVisibleCtx: RawContextKey<boolean>;
 type PastePreference = HierarchicalKind | {
     providerId: string;
 };

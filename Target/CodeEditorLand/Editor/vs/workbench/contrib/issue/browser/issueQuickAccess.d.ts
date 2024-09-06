@@ -1,9 +1,9 @@
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IProductService } from "vs/platform/product/common/productService";
-import { FastAndSlowPicks, IPickerQuickAccessItem, PickerQuickAccessProvider, Picks } from "vs/platform/quickinput/browser/pickerQuickAccess";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { FastAndSlowPicks, IPickerQuickAccessItem, PickerQuickAccessProvider, Picks } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 export declare class IssueQuickAccess extends PickerQuickAccessProvider<IPickerQuickAccessItem> {
     private readonly menuService;
     private readonly contextKeyService;

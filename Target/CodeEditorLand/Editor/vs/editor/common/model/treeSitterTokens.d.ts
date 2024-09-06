@@ -1,11 +1,11 @@
-import { IPosition } from "vs/editor/common/core/position";
-import { StandardTokenType } from "vs/editor/common/encodedTokenAttributes";
-import { ILanguageIdCodec } from "vs/editor/common/languages";
-import { TextModel } from "vs/editor/common/model/textModel";
-import { AbstractTokens } from "vs/editor/common/model/tokens";
-import { ITreeSitterParserService } from "vs/editor/common/services/treeSitterParserService";
-import { IModelContentChangedEvent } from "vs/editor/common/textModelEvents";
-import { LineTokens } from "vs/editor/common/tokens/lineTokens";
+import { StandardTokenType } from "../encodedTokenAttributes.js";
+import { ILanguageIdCodec } from "../languages.js";
+import { ITreeSitterParserService } from "../services/treeSitterParserService.js";
+import { IModelContentChangedEvent } from "../textModelEvents.js";
+import { ITokenizeLineWithEditResult, LineEditWithAdditionalLines } from "../tokenizationTextModelPart.js";
+import { LineTokens } from "../tokens/lineTokens.js";
+import { TextModel } from "./textModel.js";
+import { AbstractTokens } from "./tokens.js";
 export declare class TreeSitterTokens extends AbstractTokens {
     private readonly _treeSitterService;
     private _tokenizationSupport;
@@ -20,6 +20,6 @@ export declare class TreeSitterTokens extends AbstractTokens {
     hasAccurateTokensForLine(lineNumber: number): boolean;
     isCheapToTokenize(lineNumber: number): boolean;
     getTokenTypeIfInsertingCharacter(lineNumber: number, column: number, character: string): StandardTokenType;
-    tokenizeLineWithEdit(position: IPosition, length: number, newText: string): LineTokens | null;
+    tokenizeLineWithEdit(lineNumber: number, edit: LineEditWithAdditionalLines): ITokenizeLineWithEditResult;
     get hasTokens(): boolean;
 }

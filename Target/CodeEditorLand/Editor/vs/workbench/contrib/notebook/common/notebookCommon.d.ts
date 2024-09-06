@@ -1,30 +1,30 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDiffResult } from "vs/base/common/diff/diff";
-import { Event } from "vs/base/common/event";
-import * as glob from "vs/base/common/glob";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { Iterable } from "vs/base/common/iterator";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ISplice } from "vs/base/common/sequence";
-import { ThemeColor } from "vs/base/common/themables";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { Range } from "vs/editor/common/core/range";
-import { ILineChange } from "vs/editor/common/diff/legacyLinesDiffComputer";
-import * as editorCommon from "vs/editor/common/editorCommon";
-import { Command, WorkspaceEditMetadata } from "vs/editor/common/languages";
-import { IReadonlyTextBuffer } from "vs/editor/common/model";
-import { IAccessibilityInformation } from "vs/platform/accessibility/common/accessibility";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { IFileReadLimits } from "vs/platform/files/common/files";
-import { UndoRedoGroup } from "vs/platform/undoRedo/common/undoRedo";
-import { IRevertOptions, ISaveOptions, IUntypedEditorInput } from "vs/workbench/common/editor";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
-import { ICellExecutionError } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
-import { INotebookTextModelLike } from "vs/workbench/contrib/notebook/common/notebookKernelService";
-import { ICellRange } from "vs/workbench/contrib/notebook/common/notebookRange";
-import { RegisteredEditorPriority } from "vs/workbench/services/editor/common/editorResolverService";
-import { IWorkingCopyBackupMeta, IWorkingCopySaveEvent } from "vs/workbench/services/workingCopy/common/workingCopy";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDiffResult } from "../../../../base/common/diff/diff.js";
+import { Event } from "../../../../base/common/event.js";
+import * as glob from "../../../../base/common/glob.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ISplice } from "../../../../base/common/sequence.js";
+import { ThemeColor } from "../../../../base/common/themables.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { ILineChange } from "../../../../editor/common/diff/legacyLinesDiffComputer.js";
+import * as editorCommon from "../../../../editor/common/editorCommon.js";
+import { Command, WorkspaceEditMetadata } from "../../../../editor/common/languages.js";
+import { IReadonlyTextBuffer } from "../../../../editor/common/model.js";
+import { IAccessibilityInformation } from "../../../../platform/accessibility/common/accessibility.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IFileReadLimits } from "../../../../platform/files/common/files.js";
+import { UndoRedoGroup } from "../../../../platform/undoRedo/common/undoRedo.js";
+import { IRevertOptions, ISaveOptions, IUntypedEditorInput } from "../../../common/editor.js";
+import { RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+import { IWorkingCopyBackupMeta, IWorkingCopySaveEvent } from "../../../services/workingCopy/common/workingCopy.js";
+import { NotebookTextModel } from "./model/notebookTextModel.js";
+import { ICellExecutionError } from "./notebookExecutionStateService.js";
+import { INotebookTextModelLike } from "./notebookKernelService.js";
+import { ICellRange } from "./notebookRange.js";
 export declare const NOTEBOOK_EDITOR_ID = "workbench.editor.notebook";
 export declare const NOTEBOOK_DIFF_EDITOR_ID = "workbench.editor.notebookTextDiffEditor";
 export declare const NOTEBOOK_MULTI_DIFF_EDITOR_ID = "workbench.editor.notebookMultiTextDiffEditor";
@@ -231,9 +231,10 @@ export type NotebookCellOutputsSplice = {
 };
 export interface IMainCellDto {
     handle: number;
-    uri: UriComponents;
+    url: string;
     source: string[];
     eol: string;
+    versionId: number;
     language: string;
     cellKind: CellKind;
     outputs: IOutputDto[];
@@ -462,18 +463,18 @@ export interface INotebookContributionData {
     priority?: RegisteredEditorPriority;
 }
 export declare namespace NotebookUri {
-    const scheme: any;
+    const scheme = "vscode-notebook-metadata";
     function generate(notebook: URI): URI;
     function parse(metadata: URI): URI | undefined;
 }
 export declare namespace CellUri {
-    const scheme: any;
+    const scheme = "vscode-notebook-cell";
     function generate(notebook: URI, handle: number): URI;
     function parse(cell: URI): {
         notebook: URI;
         handle: number;
     } | undefined;
-    function generateCellOutputUri(notebook: URI, outputId?: string): any;
+    function generateCellOutputUri(notebook: URI, outputId?: string): URI;
     function parseCellOutputUri(uri: URI): {
         notebook: URI;
         outputId?: string;
@@ -507,8 +508,8 @@ export declare function diff<T>(before: T[], after: T[], contains: (a: T) => boo
 export interface ICellEditorViewState {
     selections: editorCommon.ICursorState[];
 }
-export declare const NOTEBOOK_EDITOR_CURSOR_BOUNDARY: any;
-export declare const NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY: any;
+export declare const NOTEBOOK_EDITOR_CURSOR_BOUNDARY: RawContextKey<"none" | "top" | "bottom" | "both">;
+export declare const NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY: RawContextKey<"start" | "end" | "none" | "both">;
 export interface INotebookLoadOptions {
     /**
      * Go to disk bypassing any cache of the model if any.

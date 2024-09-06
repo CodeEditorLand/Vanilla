@@ -1,9 +1,9 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IEditorConfiguration } from "vs/editor/common/config/editorConfiguration";
-import { Range } from "vs/editor/common/core/range";
-import { IModelDecoration, ITextModel } from "vs/editor/common/model";
-import { ICoordinatesConverter, InlineDecoration, ViewModelDecoration } from "vs/editor/common/viewModel";
-import { IViewModelLines } from "vs/editor/common/viewModel/viewModelLines";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { IEditorConfiguration } from "../config/editorConfiguration.js";
+import { Range } from "../core/range.js";
+import { IModelDecoration, ITextModel } from "../model.js";
+import { ICoordinatesConverter, InlineDecoration, ViewModelDecoration } from "../viewModel.js";
+import { IViewModelLines } from "./viewModelLines.js";
 export interface IDecorationsViewportData {
     /**
      * decorations in the viewport.

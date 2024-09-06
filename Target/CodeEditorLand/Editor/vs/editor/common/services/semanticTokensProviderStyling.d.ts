@@ -1,8 +1,8 @@
-import { SemanticTokens, SemanticTokensLegend } from "vs/editor/common/languages";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { SparseMultilineTokens } from "vs/editor/common/tokens/sparseMultilineTokens";
-import { ILogService } from "vs/platform/log/common/log";
-import { IThemeService } from "vs/platform/theme/common/themeService";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IThemeService } from "../../../platform/theme/common/themeService.js";
+import { SemanticTokens, SemanticTokensLegend } from "../languages.js";
+import { ILanguageService } from "../languages/language.js";
+import { SparseMultilineTokens } from "../tokens/sparseMultilineTokens.js";
 export declare class SemanticTokensProviderStyling {
     private readonly _legend;
     private readonly _themeService;

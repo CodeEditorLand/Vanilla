@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
+import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
+import { IWorkbenchContribution } from "../../common/contributions.js";
+import { IWorkbenchLayoutService } from "../../services/layout/browser/layoutService.js";
 export declare class TextInputActionsProvider extends Disposable implements IWorkbenchContribution {
     private readonly layoutService;
     private readonly contextMenuService;

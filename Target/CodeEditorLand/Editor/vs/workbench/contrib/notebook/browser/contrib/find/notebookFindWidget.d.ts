@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { Range } from "vs/editor/common/core/range";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ICellViewModel, INotebookEditor, INotebookEditorContribution } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { INotebookFindScope } from "vs/workbench/contrib/notebook/common/notebookCommon";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { INotebookFindScope } from "../../../common/notebookCommon.js";
+import { ICellViewModel, INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
 export interface IShowNotebookFindWidgetOptions {
     isRegex?: boolean;
     wholeWord?: boolean;
@@ -23,5 +23,5 @@ export declare class NotebookFindContrib extends Disposable implements INotebook
     constructor(notebookEditor: INotebookEditor, instantiationService: IInstantiationService);
     show(initialInput?: string, options?: IShowNotebookFindWidgetOptions): Promise<void>;
     hide(): void;
-    replace(searchString: string | undefined): any;
+    replace(searchString: string | undefined): void;
 }

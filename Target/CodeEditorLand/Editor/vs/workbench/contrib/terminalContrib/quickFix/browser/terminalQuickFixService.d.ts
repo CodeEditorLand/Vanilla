@@ -1,7 +1,7 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITerminalCommandSelector } from "vs/platform/terminal/common/terminal";
-import { ITerminalQuickFixProvider, ITerminalQuickFixService } from "vs/workbench/contrib/terminalContrib/quickFix/browser/quickFix";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { ITerminalCommandSelector } from "../../../../../platform/terminal/common/terminal.js";
+import { ITerminalQuickFixProvider, ITerminalQuickFixProviderSelector, ITerminalQuickFixService } from "./quickFix.js";
 export declare class TerminalQuickFixService implements ITerminalQuickFixService {
     private readonly _logService;
     _serviceBrand: undefined;
@@ -9,11 +9,11 @@ export declare class TerminalQuickFixService implements ITerminalQuickFixService
     private _providers;
     get providers(): Map<string, ITerminalQuickFixProvider>;
     private readonly _onDidRegisterProvider;
-    readonly onDidRegisterProvider: any;
+    readonly onDidRegisterProvider: import("../../../../../base/common/event.js").Event<ITerminalQuickFixProviderSelector>;
     private readonly _onDidRegisterCommandSelector;
-    readonly onDidRegisterCommandSelector: any;
+    readonly onDidRegisterCommandSelector: import("../../../../../base/common/event.js").Event<ITerminalCommandSelector>;
     private readonly _onDidUnregisterProvider;
-    readonly onDidUnregisterProvider: any;
+    readonly onDidUnregisterProvider: import("../../../../../base/common/event.js").Event<string>;
     readonly extensionQuickFixes: Promise<Array<ITerminalCommandSelector>>;
     constructor(_logService: ILogService);
     registerCommandSelector(selector: ITerminalCommandSelector): void;

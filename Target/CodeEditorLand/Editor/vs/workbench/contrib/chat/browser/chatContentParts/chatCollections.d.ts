@@ -1,4 +1,4 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
 export declare class ResourcePool<T extends IDisposable> extends Disposable {
     private readonly _itemFactory;
     private readonly pool;

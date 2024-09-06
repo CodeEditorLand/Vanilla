@@ -1,7 +1,7 @@
-import { Action2, IAction2Options } from "vs/platform/actions/common/actions";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { MergeEditorViewModel } from "vs/workbench/contrib/mergeEditor/browser/view/viewModel";
-import { MergeEditorContents } from "vs/workbench/contrib/mergeEditor/common/mergeEditor";
+import { Action2, IAction2Options } from "../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { MergeEditorViewModel } from "../browser/view/viewModel.js";
+import { MergeEditorContents } from "../common/mergeEditor.js";
 export declare class MergeEditorOpenContentsFromJSON extends Action2 {
     constructor();
     run(accessor: ServicesAccessor, args?: {

@@ -1,4 +1,4 @@
-import "vs/css!./media/terminal";
-import "vs/css!./media/terminalVoice";
-import "vs/css!./media/widgets";
-import "vs/css!./media/xterm";
+import "./media/terminal.css";
+import "./media/terminalVoice.css";
+import "./media/widgets.css";
+import "./media/xterm.css";

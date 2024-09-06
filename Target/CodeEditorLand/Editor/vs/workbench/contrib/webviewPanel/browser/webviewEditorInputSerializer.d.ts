@@ -1,10 +1,10 @@
-import { UriComponents } from "vs/base/common/uri";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IEditorSerializer } from "vs/workbench/common/editor";
-import { WebviewContentOptions, WebviewExtensionDescription, WebviewOptions } from "vs/workbench/contrib/webview/browser/webview";
-import { WebviewIcons } from "vs/workbench/contrib/webviewPanel/browser/webviewIconManager";
-import { WebviewInput } from "./webviewEditorInput";
-import { IWebviewWorkbenchService } from "./webviewWorkbenchService";
+import { UriComponents } from "../../../../base/common/uri.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorSerializer } from "../../../common/editor.js";
+import { WebviewContentOptions, WebviewExtensionDescription, WebviewOptions } from "../../webview/browser/webview.js";
+import { WebviewInput } from "./webviewEditorInput.js";
+import { WebviewIcons } from "./webviewIconManager.js";
+import { IWebviewWorkbenchService } from "./webviewWorkbenchService.js";
 export type SerializedWebviewOptions = WebviewOptions & WebviewContentOptions;
 interface SerializedIconPath {
     light: string | UriComponents;

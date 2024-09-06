@@ -1,11 +1,11 @@
-import { IAssignmentService } from "vs/platform/assignment/common/assignment";
-import { BaseAssignmentService } from "vs/platform/assignment/common/assignmentService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-export declare const IWorkbenchAssignmentService: any;
+import { IAssignmentService } from "../../../../platform/assignment/common/assignment.js";
+import { BaseAssignmentService } from "../../../../platform/assignment/common/assignmentService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+export declare const IWorkbenchAssignmentService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkbenchAssignmentService>;
 export interface IWorkbenchAssignmentService extends IAssignmentService {
     getCurrentExperiments(): Promise<string[] | undefined>;
 }

@@ -1,22 +1,22 @@
-import "vs/css!./media/multieditortabscontrol";
-import { Dimension } from "vs/base/browser/dom";
-import { ITreeViewsDnDService } from "vs/editor/common/services/treeViewsDndService";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { EditorServiceImpl, IEditorGroupsView, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from "vs/workbench/browser/parts/editor/editor";
-import { EditorTabsControl } from "vs/workbench/browser/parts/editor/editorTabsControl";
-import { IEditorTitleControlDimensions } from "vs/workbench/browser/parts/editor/editorTitleControl";
-import { IEditorPartOptions, IToolbarActions } from "vs/workbench/common/editor";
-import { IReadonlyEditorGroupModel } from "vs/workbench/common/editor/editorGroupModel";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { IEditorResolverService } from "vs/workbench/services/editor/common/editorResolverService";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { IPathService } from "vs/workbench/services/path/common/pathService";
+import "./media/multieditortabscontrol.css";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { ITreeViewsDnDService } from "../../../../editor/common/services/treeViewsDndService.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IEditorPartOptions, IToolbarActions } from "../../../common/editor.js";
+import { IReadonlyEditorGroupModel } from "../../../common/editor/editorGroupModel.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
+import { EditorServiceImpl, IEditorGroupsView, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from "./editor.js";
+import { EditorTabsControl } from "./editorTabsControl.js";
+import { IEditorTitleControlDimensions } from "./editorTitleControl.js";
 interface IMultiEditorTabsControlLayoutOptions {
     /**
      * Whether to force revealing the active tab, even when

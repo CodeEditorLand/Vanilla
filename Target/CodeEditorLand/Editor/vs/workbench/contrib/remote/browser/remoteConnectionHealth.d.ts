@@ -1,13 +1,13 @@
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IBannerService } from "vs/workbench/services/banner/browser/bannerService";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IBannerService } from "../../../services/banner/browser/bannerService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
 export declare class InitialRemoteConnectionHealthContribution implements IWorkbenchContribution {
     private readonly _remoteAgentService;
     private readonly _environmentService;

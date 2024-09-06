@@ -1,9 +1,9 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProgress, IProgressStep } from "vs/platform/progress/common/progress";
-import { IStoredFileWorkingCopy, IStoredFileWorkingCopyModel } from "vs/workbench/services/workingCopy/common/storedFileWorkingCopy";
-import { IStoredFileWorkingCopySaveParticipant, IStoredFileWorkingCopySaveParticipantContext } from "vs/workbench/services/workingCopy/common/workingCopyFileService";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProgress, IProgressStep } from "../../../../platform/progress/common/progress.js";
+import { IStoredFileWorkingCopy, IStoredFileWorkingCopyModel } from "./storedFileWorkingCopy.js";
+import { IStoredFileWorkingCopySaveParticipant, IStoredFileWorkingCopySaveParticipantContext } from "./workingCopyFileService.js";
 export declare class StoredFileWorkingCopySaveParticipant extends Disposable {
     private readonly logService;
     private readonly saveParticipants;

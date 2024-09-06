@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IFileService } from "vs/platform/files/common/files";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IUserDataManifest, IUserDataSyncLogService, IUserDataSyncStoreService } from "vs/platform/userDataSync/common/userDataSync";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { IUserDataManifest, IUserDataSyncLogService, IUserDataSyncStoreService } from "./userDataSync.js";
 export interface IMachineData {
     id: string;
     name: string;
@@ -18,7 +18,7 @@ export interface IMachinesData {
 export type IUserDataSyncMachine = Readonly<IMachineData> & {
     readonly isCurrent: boolean;
 };
-export declare const IUserDataSyncMachinesService: any;
+export declare const IUserDataSyncMachinesService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncMachinesService>;
 export interface IUserDataSyncMachinesService {
     _serviceBrand: any;
     readonly onDidChange: Event<void>;
@@ -38,7 +38,7 @@ export declare class UserDataSyncMachinesService extends Disposable implements I
     private static readonly RESOURCE;
     _serviceBrand: any;
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: Event<void>;
     private readonly currentMachineIdPromise;
     private userData;
     constructor(environmentService: IEnvironmentService, fileService: IFileService, storageService: IStorageService, userDataSyncStoreService: IUserDataSyncStoreService, logService: IUserDataSyncLogService, productService: IProductService);

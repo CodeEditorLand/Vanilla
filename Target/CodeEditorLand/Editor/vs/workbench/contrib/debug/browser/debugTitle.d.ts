@@ -1,7 +1,7 @@
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IDebugService } from "vs/workbench/contrib/debug/common/debug";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { ITitleService } from "vs/workbench/services/title/browser/titleService";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { ITitleService } from "../../../services/title/browser/titleService.js";
+import { IDebugService } from "../common/debug.js";
 export declare class DebugTitleContribution implements IWorkbenchContribution {
     private toDispose;
     constructor(debugService: IDebugService, hostService: IHostService, titleService: ITitleService);

@@ -1,10 +1,11 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Position } from "vs/editor/common/core/position";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import * as languages from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { Position } from "../../../common/core/position.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import * as languages from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
 export declare const Context: {
-    Visible: any;
-    MultipleSignatures: any;
+    Visible: RawContextKey<boolean>;
+    MultipleSignatures: RawContextKey<boolean>;
 };
 export declare function provideSignatureHelp(registry: LanguageFeatureRegistry<languages.SignatureHelpProvider>, model: ITextModel, position: Position, context: languages.SignatureHelpContext, token: CancellationToken): Promise<languages.SignatureHelpResult | undefined>;

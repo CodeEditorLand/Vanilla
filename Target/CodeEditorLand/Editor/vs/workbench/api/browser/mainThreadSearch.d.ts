@@ -1,10 +1,10 @@
-import { UriComponents } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { IRawFileMatch2, ISearchService } from "vs/workbench/services/search/common/search";
-import { MainThreadSearchShape } from "../common/extHost.protocol";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
+import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IRawFileMatch2, ISearchService } from "../../services/search/common/search.js";
+import { MainThreadSearchShape } from "../common/extHost.protocol.js";
 export declare class MainThreadSearch implements MainThreadSearchShape {
     private readonly _searchService;
     private readonly _telemetryService;

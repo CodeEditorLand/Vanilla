@@ -5,21 +5,21 @@ import type { SerializeAddon as SerializeAddonType } from "@xterm/addon-serializ
 import type { Unicode11Addon as Unicode11AddonType } from "@xterm/addon-unicode11";
 import type { WebglAddon as WebglAddonType } from "@xterm/addon-webgl";
 import type { ITheme, Terminal as RawXtermTerminal } from "@xterm/xterm";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILayoutService } from "vs/platform/layout/browser/layoutService";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { ITerminalCapabilityStore, ITerminalCommand } from "vs/platform/terminal/common/capabilities/capabilities";
-import { IShellIntegration, ITerminalLogService } from "vs/platform/terminal/common/terminal";
-import { IColorTheme, IThemeService } from "vs/platform/theme/common/themeService";
-import { IDetachedXtermTerminal, IInternalXtermTerminal, IMarkTracker, ITerminalConfigurationService, IXtermAttachToElementOptions, IXtermColorProvider, IXtermTerminal } from "vs/workbench/contrib/terminal/browser/terminal";
-import { ScrollPosition } from "vs/workbench/contrib/terminal/browser/xterm/markNavigationAddon";
-import { ITerminalFont } from "vs/workbench/contrib/terminal/common/terminal";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILayoutService } from "../../../../../platform/layout/browser/layoutService.js";
+import { INotificationService } from "../../../../../platform/notification/common/notification.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { ITerminalCapabilityStore, ITerminalCommand } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { IShellIntegration, ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
+import { IColorTheme, IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { ITerminalFont } from "../../common/terminal.js";
+import { IDetachedXtermTerminal, IInternalXtermTerminal, IMarkTracker, ITerminalConfigurationService, IXtermAttachToElementOptions, IXtermColorProvider, IXtermTerminal } from "../terminal.js";
+import { ScrollPosition } from "./markNavigationAddon.js";
 /**
  * Wraps the xterm object with additional functionality. Interaction with the backing process is out
  * of the scope of this class.
@@ -63,27 +63,34 @@ export declare class XtermTerminal extends Disposable implements IXtermTerminal,
     get isStdinDisabled(): boolean;
     get isGpuAccelerated(): boolean;
     private readonly _onDidRequestRunCommand;
-    readonly onDidRequestRunCommand: any;
+    readonly onDidRequestRunCommand: import("../../../../../base/common/event.js").Event<{
+        command: ITerminalCommand;
+        copyAsHtml?: boolean;
+        noNewLine?: boolean;
+    }>;
     private readonly _onDidRequestFocus;
-    readonly onDidRequestFocus: any;
+    readonly onDidRequestFocus: import("../../../../../base/common/event.js").Event<void>;
     private readonly _onDidRequestSendText;
-    readonly onDidRequestSendText: any;
+    readonly onDidRequestSendText: import("../../../../../base/common/event.js").Event<string>;
     private readonly _onDidRequestFreePort;
-    readonly onDidRequestFreePort: any;
+    readonly onDidRequestFreePort: import("../../../../../base/common/event.js").Event<string>;
     private readonly _onDidRequestRefreshDimensions;
-    readonly onDidRequestRefreshDimensions: any;
+    readonly onDidRequestRefreshDimensions: import("../../../../../base/common/event.js").Event<void>;
     private readonly _onDidChangeFindResults;
-    readonly onDidChangeFindResults: any;
+    readonly onDidChangeFindResults: import("../../../../../base/common/event.js").Event<{
+        resultIndex: number;
+        resultCount: number;
+    }>;
     private readonly _onDidChangeSelection;
-    readonly onDidChangeSelection: any;
+    readonly onDidChangeSelection: import("../../../../../base/common/event.js").Event<void>;
     private readonly _onDidChangeFocus;
-    readonly onDidChangeFocus: any;
+    readonly onDidChangeFocus: import("../../../../../base/common/event.js").Event<boolean>;
     private readonly _onDidDispose;
-    readonly onDidDispose: any;
+    readonly onDidDispose: import("../../../../../base/common/event.js").Event<void>;
     get markTracker(): IMarkTracker;
     get shellIntegration(): IShellIntegration;
     get textureAtlas(): Promise<ImageBitmap> | undefined;
-    get isFocused(): any;
+    get isFocused(): boolean;
     /**
      * @param xtermCtor The xterm.js constructor, this is passed in so it can be fetched lazily
      * outside of this class such that {@link raw} is not nullable.

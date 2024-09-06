@@ -1,21 +1,22 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { AccessibleViewType, IAccessibleViewContentProvider } from "vs/platform/accessibility/browser/accessibleView";
-import { IAccessibleViewImplentation } from "vs/platform/accessibility/browser/accessibleViewRegistry";
-import { Repl } from "vs/workbench/contrib/debug/browser/repl";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { Repl } from "./repl.js";
 export declare class ReplAccessibilityHelp implements IAccessibleViewImplentation {
     priority: number;
     name: string;
-    when: any;
+    when: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
     type: AccessibleViewType;
     getProvider(accessor: ServicesAccessor): ReplAccessibilityHelpProvider | undefined;
 }
 declare class ReplAccessibilityHelpProvider extends Disposable implements IAccessibleViewContentProvider {
     private readonly _replView;
-    readonly id: any;
-    readonly verbositySettingKey: any;
+    readonly id = AccessibleViewProviderId.ReplHelp;
+    readonly verbositySettingKey = AccessibilityVerbositySettingId.Debug;
     readonly options: {
-        type: any;
+        type: AccessibleViewType;
     };
     private _treeHadFocus;
     constructor(_replView: Repl);

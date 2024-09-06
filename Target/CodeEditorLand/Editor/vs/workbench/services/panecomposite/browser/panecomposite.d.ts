@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { IProgressIndicator } from "vs/platform/progress/common/progress";
-import { PaneCompositeDescriptor } from "vs/workbench/browser/panecomposite";
-import { IPaneComposite } from "vs/workbench/common/panecomposite";
-import { ViewContainerLocation } from "vs/workbench/common/views";
-export declare const IPaneCompositePartService: any;
+import { Event } from "../../../../base/common/event.js";
+import { IProgressIndicator } from "../../../../platform/progress/common/progress.js";
+import { PaneCompositeDescriptor } from "../../../browser/panecomposite.js";
+import { IPaneComposite } from "../../../common/panecomposite.js";
+import { ViewContainerLocation } from "../../../common/views.js";
+export declare const IPaneCompositePartService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IPaneCompositePartService>;
 export interface IPaneCompositePartService {
     readonly _serviceBrand: undefined;
     readonly onDidPaneCompositeOpen: Event<{

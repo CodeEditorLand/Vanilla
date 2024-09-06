@@ -1,17 +1,17 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI as uri } from "vs/base/common/uri";
-import { IRange } from "vs/editor/common/core/range";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IEditorPane } from "vs/workbench/common/editor";
-import { DataBreakpointSource, IBaseBreakpoint, IBreakpoint, IBreakpointData, IBreakpointsChangeEvent, IBreakpointUpdateData, IDataBreakpoint, IDebugEvaluatePosition, IDebugModel, IDebugSession, IDebugVisualizationTreeItem, IEnablement, IExceptionBreakpoint, IExceptionInfo, IExpression, IExpressionContainer, IFunctionBreakpoint, IInstructionBreakpoint, IMemoryRegion, IRawModelUpdate, IRawStoppedDetails, IScope, IStackFrame, IThread, ITreeElement, MemoryRange } from "vs/workbench/contrib/debug/common/debug";
-import { Source } from "vs/workbench/contrib/debug/common/debugSource";
-import { DebugStorage } from "vs/workbench/contrib/debug/common/debugStorage";
-import { IDebugVisualizerService } from "vs/workbench/contrib/debug/common/debugVisualizers";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI, URI as uri } from "../../../../base/common/uri.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IEditorPane } from "../../../common/editor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { DataBreakpointSource, IBaseBreakpoint, IBreakpoint, IBreakpointData, IBreakpointsChangeEvent, IBreakpointUpdateData, IDataBreakpoint, IDebugEvaluatePosition, IDebugModel, IDebugSession, IDebugVisualizationTreeItem, IEnablement, IExceptionBreakpoint, IExceptionInfo, IExpression, IExpressionContainer, IFunctionBreakpoint, IInstructionBreakpoint, IMemoryInvalidationEvent, IMemoryRegion, IRawModelUpdate, IRawStoppedDetails, IScope, IStackFrame, IThread, ITreeElement, MemoryRange } from "./debug.js";
+import { Source } from "./debugSource.js";
+import { DebugStorage } from "./debugStorage.js";
+import { IDebugVisualizerService } from "./debugVisualizers.js";
 export declare class ExpressionContainer implements IExpressionContainer {
     protected session: IDebugSession | undefined;
     protected readonly threadId: number | undefined;
@@ -56,8 +56,8 @@ export declare class VisualizedExpression implements IExpression {
     evaluateLazy(): Promise<void>;
     getChildren(): Promise<IExpression[]>;
     getId(): string;
-    get name(): any;
-    get value(): any;
+    get name(): string;
+    get value(): string;
     get hasChildren(): boolean;
     constructor(visualizer: IDebugVisualizerService, treeId: string, treeItem: IDebugVisualizationTreeItem, original?: Variable | undefined);
     /** Edits the value, sets the {@link errorMessage} and returns false if unsuccessful */
@@ -65,11 +65,11 @@ export declare class VisualizedExpression implements IExpression {
 }
 export declare class Expression extends ExpressionContainer implements IExpression {
     name: string;
-    static readonly DEFAULT_VALUE: any;
+    static readonly DEFAULT_VALUE: string;
     available: boolean;
     private readonly _onDidChangeValue;
     readonly onDidChangeValue: Event<IExpression>;
-    constructor(name: string, id?: any);
+    constructor(name: string, id?: string);
     evaluate(session: IDebugSession | undefined, stackFrame: IStackFrame | undefined, context: string, keepLazyVars?: boolean, location?: IDebugEvaluatePosition): Promise<void>;
     toString(): string;
     setExpression(value: string, stackFrame: IStackFrame): Promise<void>;
@@ -94,8 +94,8 @@ export declare class Scope extends ExpressionContainer implements IScope {
     readonly stackFrame: IStackFrame;
     readonly name: string;
     expensive: boolean;
-    readonly range?: any;
-    constructor(stackFrame: IStackFrame, id: number, name: string, reference: number, expensive: boolean, namedVariables?: number, indexedVariables?: number, range?: any);
+    readonly range?: IRange | undefined;
+    constructor(stackFrame: IStackFrame, id: number, name: string, reference: number, expensive: boolean, namedVariables?: number, indexedVariables?: number, range?: IRange | undefined);
     toString(): string;
     toDebugProtocolObject(): DebugProtocol.Scope;
 }
@@ -170,13 +170,13 @@ export declare class Thread implements IThread {
 export declare const getUriForDebugMemory: (sessionId: string, memoryReference: string, range?: {
     fromOffset: number;
     toOffset: number;
-}, displayName?: string) => any;
+}, displayName?: string) => URI;
 export declare class MemoryRegion extends Disposable implements IMemoryRegion {
     private readonly memoryReference;
     private readonly session;
     private readonly invalidateEmitter;
     /** @inheritdoc */
-    readonly onDidInvalidate: any;
+    readonly onDidInvalidate: Event<IMemoryInvalidationEvent>;
     /** @inheritdoc */
     readonly writable: boolean;
     constructor(memoryReference: string, session: IDebugSession);
@@ -245,9 +245,9 @@ export declare class Breakpoint extends BaseBreakpoint implements IBreakpoint {
     private _lineNumber;
     private _column;
     triggeredBy: string | undefined;
-    constructor(opts: IBreakpointOptions, textFileService: ITextFileService, uriIdentityService: IUriIdentityService, logService: ILogService, id?: any);
+    constructor(opts: IBreakpointOptions, textFileService: ITextFileService, uriIdentityService: IUriIdentityService, logService: ILogService, id?: string);
     toDAP(): DebugProtocol.SourceBreakpoint;
-    get originalUri(): uri;
+    get originalUri(): URI;
     get lineNumber(): number;
     get verified(): boolean;
     get pending(): boolean;
@@ -276,7 +276,7 @@ export interface IFunctionBreakpointOptions extends IBaseBreakpointOptions {
 }
 export declare class FunctionBreakpoint extends BaseBreakpoint implements IFunctionBreakpoint {
     name: string;
-    constructor(opts: IFunctionBreakpointOptions, id?: any);
+    constructor(opts: IFunctionBreakpointOptions, id?: string);
     toDAP(): DebugProtocol.FunctionBreakpoint;
     toJSON(): IFunctionBreakpointOptions & {
         id: string;
@@ -302,7 +302,7 @@ export declare class DataBreakpoint extends BaseBreakpoint implements IDataBreak
     readonly canPersist: boolean;
     readonly accessTypes: DebugProtocol.DataBreakpointAccessType[] | undefined;
     readonly accessType: DebugProtocol.DataBreakpointAccessType;
-    constructor(opts: IDataBreakpointOptions, id?: any);
+    constructor(opts: IDataBreakpointOptions, id?: string);
     toDAP(session: IDebugSession): Promise<DebugProtocol.DataBreakpoint | undefined>;
     toJSON(): IDataBreakpointOptions & {
         id: string;
@@ -326,7 +326,7 @@ export declare class ExceptionBreakpoint extends BaseBreakpoint implements IExce
     readonly description: string | undefined;
     readonly conditionDescription: string | undefined;
     private fallback;
-    constructor(opts: IExceptionBreakpointOptions, id?: any);
+    constructor(opts: IExceptionBreakpointOptions, id?: string);
     toJSON(): IExceptionBreakpointOptions & {
         id: string;
     };
@@ -356,7 +356,7 @@ export declare class InstructionBreakpoint extends BaseBreakpoint implements IIn
     readonly offset: number;
     readonly canPersist: boolean;
     readonly address: bigint;
-    constructor(opts: IInstructionBreakpointOptions, id?: any);
+    constructor(opts: IInstructionBreakpointOptions, id?: string);
     toDAP(): DebugProtocol.InstructionBreakpoint;
     toJSON(): IInstructionBreakpointOptions & {
         id: string;

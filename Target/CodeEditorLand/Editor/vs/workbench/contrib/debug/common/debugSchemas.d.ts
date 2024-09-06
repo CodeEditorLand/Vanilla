@@ -1,5 +1,7 @@
-import { IJSONSchema } from "vs/base/common/jsonSchema";
-export declare const debuggersExtPoint: any;
-export declare const breakpointsExtPoint: any;
+import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
+import * as extensionsRegistry from "../../../services/extensions/common/extensionsRegistry.js";
+import { IBreakpointContribution, IDebuggerContribution } from "./debug.js";
+export declare const debuggersExtPoint: extensionsRegistry.IExtensionPoint<IDebuggerContribution[]>;
+export declare const breakpointsExtPoint: extensionsRegistry.IExtensionPoint<IBreakpointContribution[]>;
 export declare const presentationSchema: IJSONSchema;
 export declare const launchSchema: IJSONSchema;

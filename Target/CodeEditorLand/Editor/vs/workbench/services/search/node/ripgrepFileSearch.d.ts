@@ -1,6 +1,6 @@
 import * as cp from "child_process";
-import * as glob from "vs/base/common/glob";
-import { IFileQuery, IFolderQuery } from "vs/workbench/services/search/common/search";
+import * as glob from "../../../../base/common/glob.js";
+import { IFileQuery, IFolderQuery } from "../common/search.js";
 export declare function spawnRipgrepCmd(config: IFileQuery, folderQuery: IFolderQuery, includePattern?: glob.IExpression, excludePattern?: glob.IExpression, numThreads?: number): {
     cmd: cp.ChildProcessWithoutNullStreams;
     rgDiskPath: any;
@@ -9,7 +9,7 @@ export declare function spawnRipgrepCmd(config: IFileQuery, folderQuery: IFolder
         args: string[];
         siblingClauses: glob.IExpression;
     };
-    cwd: any;
+    cwd: string;
 };
 /**
  * Resolves a glob like "node_modules/**" in "/foo/bar" to "/foo/bar/node_modules/**".

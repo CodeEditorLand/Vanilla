@@ -1,8 +1,8 @@
-import { URI } from "vs/base/common/uri";
-import { IExtensionGalleryService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IExtensionResourceLoaderService } from "vs/platform/extensionResourceLoader/common/extensionResourceLoader";
-import { ILanguagePackItem, LanguagePackBaseService } from "vs/platform/languagePacks/common/languagePacks";
-import { ILogService } from "vs/platform/log/common/log";
+import { URI } from "../../../base/common/uri.js";
+import { IExtensionGalleryService } from "../../extensionManagement/common/extensionManagement.js";
+import { IExtensionResourceLoaderService } from "../../extensionResourceLoader/common/extensionResourceLoader.js";
+import { ILogService } from "../../log/common/log.js";
+import { ILanguagePackItem, LanguagePackBaseService } from "../common/languagePacks.js";
 export declare class WebLanguagePacksService extends LanguagePackBaseService {
     private readonly extensionResourceLoaderService;
     private readonly logService;

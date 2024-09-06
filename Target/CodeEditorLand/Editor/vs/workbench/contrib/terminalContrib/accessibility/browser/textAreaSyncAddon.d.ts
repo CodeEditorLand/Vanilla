@@ -1,9 +1,9 @@
 import type { ITerminalAddon, Terminal } from "@xterm/xterm";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ITerminalCapabilityStore } from "vs/platform/terminal/common/capabilities/capabilities";
-import { ITerminalLogService } from "vs/platform/terminal/common/terminal";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ITerminalCapabilityStore } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
 export declare class TextAreaSyncAddon extends Disposable implements ITerminalAddon {
     private readonly _capabilities;
     private readonly _accessibilityService;

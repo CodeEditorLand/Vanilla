@@ -1,1 +1,1 @@
-import "vs/css!./inPlaceReplace";
+import "./inPlaceReplace.css";

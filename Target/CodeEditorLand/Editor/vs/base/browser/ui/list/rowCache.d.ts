@@ -1,5 +1,5 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IListRenderer } from "./list";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { IListRenderer } from "./list.js";
 export interface IRow {
     domNode: HTMLElement;
     templateId: string;

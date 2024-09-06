@@ -1,6 +1,6 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-export declare const ILifecycleService: any;
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+export declare const ILifecycleService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ILifecycleService>;
 /**
  * An event that is send out when the window is about to close. Clients have a chance to veto
  * the closing by either calling veto with a boolean "true" directly or with a promise that

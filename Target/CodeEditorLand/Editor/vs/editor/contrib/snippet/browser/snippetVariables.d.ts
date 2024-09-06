@@ -1,10 +1,10 @@
-import { Selection } from "vs/editor/common/core/selection";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ITextModel } from "vs/editor/common/model";
-import { Variable, VariableResolver } from "vs/editor/contrib/snippet/browser/snippetParser";
-import { OvertypingCapturer } from "vs/editor/contrib/suggest/browser/suggestOvertypingCapturer";
-import { ILabelService } from "vs/platform/label/common/label";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { Selection } from "../../../common/core/selection.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ITextModel } from "../../../common/model.js";
+import { OvertypingCapturer } from "../../suggest/browser/suggestOvertypingCapturer.js";
+import { Variable, VariableResolver } from "./snippetParser.js";
 export declare const KnownSnippetVariableNames: Readonly<{
     [key: string]: true;
 }>;

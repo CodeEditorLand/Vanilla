@@ -1,8 +1,8 @@
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { WordCharacterClassifier } from "vs/editor/common/core/wordCharacterClassifier";
-import { FindMatch, SearchData } from "vs/editor/common/model";
-import { TextModel } from "vs/editor/common/model/textModel";
+import { Position } from "../core/position.js";
+import { Range } from "../core/range.js";
+import { WordCharacterClassifier } from "../core/wordCharacterClassifier.js";
+import { FindMatch, SearchData } from "../model.js";
+import { TextModel } from "./textModel.js";
 export declare class SearchParams {
     readonly searchString: string;
     readonly isRegex: boolean;

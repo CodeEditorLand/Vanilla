@@ -1,14 +1,15 @@
-import { Event } from "vs/base/common/event";
-import type * as performance from "vs/base/common/performance";
-import { IProcessEnvironment, OperatingSystem } from "vs/base/common/platform";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { ILogService } from "vs/platform/log/common/log";
-import { IPtyHostProcessReplayEvent, ISerializedCommandDetectionCapability, ITerminalCapabilityStore } from "vs/platform/terminal/common/capabilities/capabilities";
-import { ISerializableEnvironmentVariableCollections } from "vs/platform/terminal/common/environmentVariable";
-import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from "vs/platform/terminal/common/terminalProcess";
-import { IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-export declare const terminalTabFocusModeContextKey: any;
+import { Event } from "../../../base/common/event.js";
+import type * as performance from "../../../base/common/performance.js";
+import { IProcessEnvironment, OperatingSystem } from "../../../base/common/platform.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { RawContextKey } from "../../contextkey/common/contextkey.js";
+import { ILogService } from "../../log/common/log.js";
+import { IWorkspaceFolder } from "../../workspace/common/workspace.js";
+import { IPtyHostProcessReplayEvent, ISerializedCommandDetectionCapability, ITerminalCapabilityStore } from "./capabilities/capabilities.js";
+import { ISerializableEnvironmentVariableCollections } from "./environmentVariable.js";
+import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from "./terminalProcess.js";
+export declare const terminalTabFocusModeContextKey: RawContextKey<boolean>;
 export declare const enum TerminalSettingPrefix {
     AutomationProfile = "terminal.integrated.automationProfile.",
     DefaultProfile = "terminal.integrated.defaultProfile.",
@@ -336,7 +337,7 @@ export interface IPtyService {
     updateProperty<T extends ProcessPropertyType>(id: number, property: T, value: IProcessPropertyMap[T]): Promise<void>;
     refreshIgnoreProcessNames?(names: string[]): Promise<void>;
 }
-export declare const IPtyService: any;
+export declare const IPtyService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IPtyService>;
 export interface IPtyHostController {
     readonly onPtyHostExit: Event<number>;
     readonly onPtyHostStart: Event<void>;
@@ -972,7 +973,7 @@ export interface ITerminalBackendRegistry {
      */
     getTerminalBackend(remoteAuthority?: string): ITerminalBackend | undefined;
 }
-export declare const ILocalPtyService: any;
+export declare const ILocalPtyService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILocalPtyService>;
 /**
  * A service responsible for communicating with the pty host process on Electron.
  *
@@ -980,7 +981,7 @@ export declare const ILocalPtyService: any;
  */
 export interface ILocalPtyService extends IPtyHostService {
 }
-export declare const ITerminalLogService: any;
+export declare const ITerminalLogService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ITerminalLogService>;
 export interface ITerminalLogService extends ILogService {
     /**
      * Similar to _serviceBrand but used to differentiate this service at compile time from

@@ -1,7 +1,7 @@
-import { UriComponents } from "vs/base/common/uri";
-import { ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from "vs/platform/terminal/common/environmentVariable";
-import { IShellLaunchConfigDto, ITerminalProcessOptions } from "vs/platform/terminal/common/terminal";
-import { ICompleteTerminalConfiguration } from "vs/workbench/contrib/terminal/common/terminal";
+import { UriComponents } from "../../../../../base/common/uri.js";
+import { ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from "../../../../../platform/terminal/common/environmentVariable.js";
+import { IShellLaunchConfigDto, ITerminalProcessOptions } from "../../../../../platform/terminal/common/terminal.js";
+import { ICompleteTerminalConfiguration } from "../terminal.js";
 export declare const REMOTE_TERMINAL_CHANNEL_NAME = "remoteterminal";
 export type ITerminalEnvironmentVariableCollections = [
     string,

@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { DiffElementCellViewModelBase } from "vs/workbench/contrib/notebook/browser/diff/diffElementViewModel";
-import { DiffNestedCellViewModel } from "vs/workbench/contrib/notebook/browser/diff/diffNestedCellViewModel";
-import { DiffSide, INotebookTextDiffEditor } from "vs/workbench/contrib/notebook/browser/diff/notebookDiffEditorBrowser";
-import { ICellOutputViewModel, IInsetRenderOutput } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { NotebookTextModel } from "../../common/model/notebookTextModel.js";
+import { INotebookService } from "../../common/notebookService.js";
+import { ICellOutputViewModel, IInsetRenderOutput } from "../notebookBrowser.js";
+import { DiffElementCellViewModelBase } from "./diffElementViewModel.js";
+import { DiffNestedCellViewModel } from "./diffNestedCellViewModel.js";
+import { DiffSide, INotebookTextDiffEditor } from "./notebookDiffEditorBrowser.js";
 export declare class OutputElement extends Disposable {
     private _notebookEditor;
     private _notebookTextModel;
@@ -16,7 +16,7 @@ export declare class OutputElement extends Disposable {
     private _nestedCell;
     private _outputContainer;
     readonly output: ICellOutputViewModel;
-    readonly resizeListener: any;
+    readonly resizeListener: DisposableStore;
     domNode: HTMLElement;
     renderResult?: IInsetRenderOutput;
     constructor(_notebookEditor: INotebookTextDiffEditor, _notebookTextModel: NotebookTextModel, _notebookService: INotebookService, _quickInputService: IQuickInputService, _diffElementViewModel: DiffElementCellViewModelBase, _diffSide: DiffSide, _nestedCell: DiffNestedCellViewModel, _outputContainer: HTMLElement, output: ICellOutputViewModel);
@@ -26,10 +26,10 @@ export declare class OutputElement extends Disposable {
     private _renderMessage;
     private pickActiveMimeTypeRenderer;
     private generateRendererInfo;
-    getCellOutputCurrentIndex(): any;
+    getCellOutputCurrentIndex(): number;
     updateHeight(index: number, height: number): void;
-    getOutputOffsetInContainer(index: number): any;
-    getOutputOffsetInCell(index: number): any;
+    getOutputOffsetInContainer(index: number): number;
+    getOutputOffsetInCell(index: number): number;
 }
 export declare class OutputContainer extends Disposable {
     private _editor;

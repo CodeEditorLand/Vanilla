@@ -1,12 +1,14 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { ISCMMenus, ISCMRepository, ISCMRepositorySortKey, ISCMService, ISCMViewService } from "vs/workbench/contrib/scm/common/scm";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { Event } from "../../../../base/common/event.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { ISCMMenus, ISCMRepository, ISCMRepositorySortKey, ISCMService, ISCMViewService, ISCMViewVisibleRepositoryChangeEvent } from "../common/scm.js";
 export declare const RepositoryContextKeys: {
-    RepositorySortKey: any;
+    RepositorySortKey: RawContextKey<ISCMRepositorySortKey>;
 };
 export interface ISCMViewServiceState {
     readonly all: string[];
@@ -14,6 +16,8 @@ export interface ISCMViewServiceState {
     readonly visible: number[];
 }
 export declare class SCMViewService implements ISCMViewService {
+    private readonly scmService;
+    private readonly editorService;
     private readonly configurationService;
     private readonly storageService;
     private readonly workspaceContextService;
@@ -28,15 +32,23 @@ export declare class SCMViewService implements ISCMViewService {
     get visibleRepositories(): ISCMRepository[];
     set visibleRepositories(visibleRepositories: ISCMRepository[]);
     private _onDidChangeRepositories;
-    readonly onDidChangeRepositories: any;
+    readonly onDidChangeRepositories: Event<ISCMViewVisibleRepositoryChangeEvent>;
     private _onDidSetVisibleRepositories;
-    readonly onDidChangeVisibleRepositories: any;
+    readonly onDidChangeVisibleRepositories: Event<ISCMViewVisibleRepositoryChangeEvent>;
     get focusedRepository(): ISCMRepository | undefined;
     private _onDidFocusRepository;
-    readonly onDidFocusRepository: any;
+    readonly onDidFocusRepository: Event<ISCMRepository | undefined>;
+    private readonly _focusedRepository;
+    private readonly _activeEditor;
+    private readonly _activeEditorRepository;
+    /**
+     * The focused repository takes precedence over the active editor repository when the observable
+     * values are updated in the same transaction (or during the initial read of the observable value).
+     */
+    readonly activeRepository: import("../../../../base/common/observable.js").IObservable<ISCMRepository | undefined, unknown>;
     private _repositoriesSortKey;
     private _sortKeyContextKey;
-    constructor(scmService: ISCMService, contextKeyService: IContextKeyService, extensionService: IExtensionService, instantiationService: IInstantiationService, configurationService: IConfigurationService, storageService: IStorageService, workspaceContextService: IWorkspaceContextService);
+    constructor(scmService: ISCMService, contextKeyService: IContextKeyService, editorService: IEditorService, extensionService: IExtensionService, instantiationService: IInstantiationService, configurationService: IConfigurationService, storageService: IStorageService, workspaceContextService: IWorkspaceContextService);
     private onDidAddRepository;
     private onDidRemoveRepository;
     isVisible(repository: ISCMRepository): boolean;

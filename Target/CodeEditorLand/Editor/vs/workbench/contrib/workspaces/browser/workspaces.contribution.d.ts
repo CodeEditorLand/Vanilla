@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IFileService } from "vs/platform/files/common/files";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IHostService } from "vs/workbench/services/host/browser/host";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IHostService } from "../../../services/host/browser/host.js";
 /**
  * A workbench contribution that will look for `.code-workspace` files in the root of the
  * workspace folder and open a notification to suggest to open one of the workspaces.

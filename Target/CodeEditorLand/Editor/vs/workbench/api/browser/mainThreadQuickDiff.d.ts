@@ -1,7 +1,7 @@
-import { UriComponents } from "vs/base/common/uri";
-import { IDocumentFilterDto, MainThreadQuickDiffShape } from "vs/workbench/api/common/extHost.protocol";
-import { IQuickDiffService } from "vs/workbench/contrib/scm/common/quickDiff";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IQuickDiffService } from "../../contrib/scm/common/quickDiff.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IDocumentFilterDto, MainThreadQuickDiffShape } from "../common/extHost.protocol.js";
 export declare class MainThreadQuickDiff implements MainThreadQuickDiffShape {
     private readonly quickDiffService;
     private readonly proxy;

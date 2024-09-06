@@ -1,7 +1,7 @@
-import { IButtonStyles } from "vs/base/browser/ui/button/button";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ChatAgentLocation, IChatAgentService } from "vs/workbench/contrib/chat/common/chatAgents";
-import { IChatFollowup } from "vs/workbench/contrib/chat/common/chatService";
+import { IButtonStyles } from "../../../../base/browser/ui/button/button.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ChatAgentLocation, IChatAgentService } from "../common/chatAgents.js";
+import { IChatFollowup } from "../common/chatService.js";
 export declare class ChatFollowups<T extends IChatFollowup> extends Disposable {
     private readonly location;
     private readonly options;

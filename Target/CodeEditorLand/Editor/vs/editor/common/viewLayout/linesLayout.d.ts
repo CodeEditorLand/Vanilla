@@ -1,4 +1,4 @@
-import { IEditorWhitespace, IPartialViewLinesViewportData, IViewWhitespaceViewportData, IWhitespaceChangeAccessor } from "vs/editor/common/viewModel";
+import { IEditorWhitespace, IPartialViewLinesViewportData, IViewWhitespaceViewportData, IWhitespaceChangeAccessor } from "../viewModel.js";
 interface IPendingChange {
     id: string;
     newAfterLineNumber: number;

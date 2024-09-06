@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IChannel, IServerChannel } from "vs/base/parts/ipc/common/ipc";
-import { IMainProcessService } from "vs/platform/ipc/common/mainProcessService";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { IMainProcessService } from "../common/mainProcessService.js";
 /**
  * An implementation of `IMainProcessService` that leverages Electron's IPC.
  */

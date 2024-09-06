@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IEnvironmentMainService } from "vs/platform/environment/electron-main/environmentMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IURLService } from "vs/platform/url/common/url";
-import { IProtocolUrl } from "vs/platform/url/electron-main/url";
-import { IWindowsMainService } from "vs/platform/windows/electron-main/windows";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { IURLService } from "../common/url.js";
+import { IProtocolUrl } from "./url.js";
 /**
  * A listener for URLs that are opened from the OS and handled by VSCode.
  * Depending on the platform, this works differently:

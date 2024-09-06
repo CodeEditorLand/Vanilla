@@ -1,4 +1,4 @@
-import { ILink } from "vs/editor/common/languages";
+import { ILink } from "../languages.js";
 export interface ILinkComputerTarget {
     getLineCount(): number;
     getLineContent(lineNumber: number): string;

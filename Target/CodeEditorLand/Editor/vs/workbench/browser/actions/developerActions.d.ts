@@ -1,1 +1,1 @@
-import "vs/css!./media/actions";
+import "./media/actions.css";

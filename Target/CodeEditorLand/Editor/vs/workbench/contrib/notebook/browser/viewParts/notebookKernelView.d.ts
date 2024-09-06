@@ -1,10 +1,10 @@
-import { ActionViewItem, IActionViewItemOptions } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { IAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { INotebookEditor } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
-import { INotebookKernelHistoryService, INotebookKernelService } from "vs/workbench/contrib/notebook/common/notebookKernelService";
+import { ActionViewItem, IActionViewItemOptions } from "../../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { IAction } from "../../../../../base/common/actions.js";
+import { Event } from "../../../../../base/common/event.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { NotebookTextModel } from "../../common/model/notebookTextModel.js";
+import { INotebookKernelHistoryService, INotebookKernelService } from "../../common/notebookKernelService.js";
+import { INotebookEditor } from "../notebookBrowser.js";
 export declare class NotebooKernelActionViewItem extends ActionViewItem {
     private readonly _editor;
     private readonly _notebookKernelService;

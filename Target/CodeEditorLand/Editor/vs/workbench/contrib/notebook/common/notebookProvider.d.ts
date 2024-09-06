@@ -1,8 +1,8 @@
-import * as glob from "vs/base/common/glob";
-import { URI } from "vs/base/common/uri";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { INotebookExclusiveDocumentFilter, TransientOptions } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { RegisteredEditorPriority } from "vs/workbench/services/editor/common/editorResolverService";
+import * as glob from "../../../../base/common/glob.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+import { INotebookExclusiveDocumentFilter, TransientOptions } from "./notebookCommon.js";
 type NotebookSelector = string | glob.IRelativePattern | INotebookExclusiveDocumentFilter;
 export interface NotebookEditorDescriptor {
     readonly extension?: ExtensionIdentifier;
@@ -22,7 +22,7 @@ export declare class NotebookProviderInfo {
     readonly priority: RegisteredEditorPriority;
     readonly providerDisplayName: string;
     private _selectors;
-    get selectors(): any[];
+    get selectors(): NotebookSelector[];
     private _options;
     get options(): TransientOptions;
     constructor(descriptor: NotebookEditorDescriptor);

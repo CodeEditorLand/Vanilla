@@ -1,5 +1,6 @@
-import { ActionViewItem } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { Action, IAction } from "vs/base/common/actions";
+import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { Action, IAction } from "../../../../base/common/actions.js";
+import { UriComponents } from "../../../../base/common/uri.js";
 export declare class ToggleReactionsAction extends Action {
     static readonly ID = "toolbar.toggle.pickReactions";
     private _menuActions;
@@ -16,8 +17,8 @@ export declare class ReactionActionViewItem extends ActionViewItem {
 }
 export declare class ReactionAction extends Action {
     readonly reactors?: readonly string[] | undefined;
-    icon?: any;
+    icon?: UriComponents | undefined;
     count?: number | undefined;
     static readonly ID = "toolbar.toggle.reaction";
-    constructor(id: string, label?: string, cssClass?: string, enabled?: boolean, actionCallback?: (event?: any) => Promise<any>, reactors?: readonly string[] | undefined, icon?: any, count?: number | undefined);
+    constructor(id: string, label?: string, cssClass?: string, enabled?: boolean, actionCallback?: (event?: any) => Promise<any>, reactors?: readonly string[] | undefined, icon?: UriComponents | undefined, count?: number | undefined);
 }

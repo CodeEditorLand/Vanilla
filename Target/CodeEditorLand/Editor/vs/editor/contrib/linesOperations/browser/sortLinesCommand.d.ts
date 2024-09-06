@@ -1,6 +1,6 @@
-import { Selection } from "vs/editor/common/core/selection";
-import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "vs/editor/common/editorCommon";
-import { ITextModel } from "vs/editor/common/model";
+import { Selection } from "../../../common/core/selection.js";
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../../../common/editorCommon.js";
+import { ITextModel } from "../../../common/model.js";
 export declare class SortLinesCommand implements ICommand {
     private static _COLLATOR;
     static getCollator(): Intl.Collator;

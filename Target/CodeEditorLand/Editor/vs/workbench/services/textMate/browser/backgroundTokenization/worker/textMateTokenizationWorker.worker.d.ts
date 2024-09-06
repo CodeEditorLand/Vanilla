@@ -1,9 +1,9 @@
-import { UriComponents } from "vs/base/common/uri";
-import { IRequestHandler, IWorkerServer } from "vs/base/common/worker/simpleWorker";
-import { LanguageId } from "vs/editor/common/encodedTokenAttributes";
-import { IModelChangedEvent } from "vs/editor/common/model/mirrorTextModel";
-import { IValidEmbeddedLanguagesMap, IValidTokenTypeMap } from "vs/workbench/services/textMate/common/TMScopeRegistry";
 import type { IRawTheme, StackDiff } from "vscode-textmate";
+import { UriComponents } from "../../../../../../base/common/uri.js";
+import { IRequestHandler, IWorkerServer } from "../../../../../../base/common/worker/simpleWorker.js";
+import { LanguageId } from "../../../../../../editor/common/encodedTokenAttributes.js";
+import { IModelChangedEvent } from "../../../../../../editor/common/model/mirrorTextModel.js";
+import { IValidEmbeddedLanguagesMap, IValidTokenTypeMap } from "../../../common/TMScopeRegistry.js";
 /**
  * Defines the worker entry point. Must be exported and named `create`.
  * @skipMangle

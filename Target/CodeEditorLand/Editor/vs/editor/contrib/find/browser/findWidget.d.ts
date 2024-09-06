@@ -1,30 +1,30 @@
-import { IKeyboardEvent } from "vs/base/browser/keyboardEvent";
-import { IContextViewProvider } from "vs/base/browser/ui/contextview/contextview";
-import { IVerticalSashLayoutProvider, Sash } from "vs/base/browser/ui/sash/sash";
-import { Widget } from "vs/base/browser/ui/widget";
-import "vs/css!./findWidget";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { ThemeIcon } from "vs/base/common/themables";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, IViewZone } from "vs/editor/browser/editorBrowser";
-import { FindReplaceState } from "vs/editor/contrib/find/browser/findState";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-export declare const findSelectionIcon: any;
-export declare const findReplaceIcon: any;
-export declare const findReplaceAllIcon: any;
-export declare const findPreviousMatchIcon: any;
-export declare const findNextMatchIcon: any;
+import { IKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import { IContextViewProvider } from "../../../../base/browser/ui/contextview/contextview.js";
+import { IVerticalSashLayoutProvider, Sash } from "../../../../base/browser/ui/sash/sash.js";
+import { Widget } from "../../../../base/browser/ui/widget.js";
+import "./findWidget.css";
+import { IHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegate.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, IViewZone } from "../../../browser/editorBrowser.js";
+import { FindReplaceState } from "./findState.js";
+export declare const findSelectionIcon: ThemeIcon;
+export declare const findReplaceIcon: ThemeIcon;
+export declare const findReplaceAllIcon: ThemeIcon;
+export declare const findPreviousMatchIcon: ThemeIcon;
+export declare const findNextMatchIcon: ThemeIcon;
 export interface IFindController {
     replace(): void;
     replaceAll(): void;
     getGlobalBufferTerm(): Promise<string>;
 }
-export declare const NLS_MATCHES_LOCATION: any;
-export declare const NLS_NO_RESULTS: any;
+export declare const NLS_MATCHES_LOCATION: string;
+export declare const NLS_NO_RESULTS: string;
 export declare class FindWidgetViewZone implements IViewZone {
     readonly afterLineNumber: number;
     heightInPx: number;
@@ -105,7 +105,7 @@ export declare class FindWidget extends Widget implements IOverlayWidget, IVerti
     private updateAccessibilitySupport;
     getViewState(): {
         widgetViewZoneVisible: boolean;
-        scrollTop: any;
+        scrollTop: number;
     };
     setViewState(state?: {
         widgetViewZoneVisible: boolean;

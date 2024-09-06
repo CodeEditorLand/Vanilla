@@ -1,11 +1,11 @@
-import "vs/css!./media/bannerpart";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { Part } from "vs/workbench/browser/part";
-import { IBannerItem, IBannerService } from "vs/workbench/services/banner/browser/bannerService";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
+import "./media/bannerpart.css";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IBannerItem, IBannerService } from "../../../services/banner/browser/bannerService.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { Part } from "../../part.js";
 export declare class BannerPart extends Part implements IBannerService {
     private readonly contextKeyService;
     private readonly instantiationService;
@@ -16,7 +16,10 @@ export declare class BannerPart extends Part implements IBannerService {
     get minimumHeight(): number;
     get maximumHeight(): number;
     private _onDidChangeSize;
-    get onDidChange(): any;
+    get onDidChange(): import("../../../../base/common/event.js").Event<{
+        width: number;
+        height: number;
+    } | undefined>;
     private item;
     private readonly markdownRenderer;
     private visible;

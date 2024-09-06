@@ -1,16 +1,16 @@
-import { URI } from "vs/base/common/uri";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { ITextResourceConfigurationService } from "vs/editor/common/services/textResourceConfiguration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { MultiDiffEditorInput } from "vs/workbench/contrib/multiDiffEditor/browser/multiDiffEditorInput";
-import { IMultiDiffSourceResolverService, IResolvedMultiDiffSource, type IMultiDiffSourceResolver } from "vs/workbench/contrib/multiDiffEditor/browser/multiDiffSourceResolverService";
-import { NotebookDiffViewModel } from "vs/workbench/contrib/notebook/browser/diff/notebookDiffViewModel";
-import { NotebookDiffEditorInput } from "vs/workbench/contrib/notebook/common/notebookDiffEditorInput";
-import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
+import { URI } from "../../../../../base/common/uri.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ITextFileService } from "../../../../services/textfile/common/textfiles.js";
+import { MultiDiffEditorInput } from "../../../multiDiffEditor/browser/multiDiffEditorInput.js";
+import { IMultiDiffSourceResolverService, IResolvedMultiDiffSource, type IMultiDiffSourceResolver } from "../../../multiDiffEditor/browser/multiDiffSourceResolverService.js";
+import { NotebookDiffEditorInput } from "../../common/notebookDiffEditorInput.js";
+import { NotebookDiffViewModel } from "./notebookDiffViewModel.js";
 export declare const NotebookMultiDiffEditorScheme = "multi-cell-notebook-diff-editor";
 export declare class NotebookMultiDiffEditorInput extends NotebookDiffEditorInput {
     static readonly ID: string;
-    static create(instantiationService: IInstantiationService, resource: URI, name: string | undefined, description: string | undefined, originalResource: URI, viewType: string): any;
+    static create(instantiationService: IInstantiationService, resource: URI, name: string | undefined, description: string | undefined, originalResource: URI, viewType: string): NotebookMultiDiffEditorInput;
 }
 export declare class NotebookMultiDiffEditorWidgetInput extends MultiDiffEditorInput implements IMultiDiffSourceResolver {
     private readonly notebookDiffViewModel;

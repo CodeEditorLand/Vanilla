@@ -1,1 +1,1 @@
-import"../../../../vs/platform/backup/common/backup.js";import"../../../../vs/platform/backup/node/backup.js";import{createDecorator as r}from"../../../../vs/platform/instantiation/common/instantiation.js";const i=r("backupMainService");export{i as IBackupMainService};
+import{createDecorator as r}from"../../instantiation/common/instantiation.js";import"../common/backup.js";import"../node/backup.js";const i=r("backupMainService");export{i as IBackupMainService};

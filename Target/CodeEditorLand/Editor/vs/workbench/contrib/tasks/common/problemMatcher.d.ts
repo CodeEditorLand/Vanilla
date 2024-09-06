@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { IJSONSchema } from "vs/base/common/jsonSchema";
-import { IProblemReporter, Parser, ValidationStatus } from "vs/base/common/parsers";
-import Severity from "vs/base/common/severity";
-import { URI } from "vs/base/common/uri";
-import { IFileService } from "vs/platform/files/common/files";
-import { IMarkerData } from "vs/platform/markers/common/markers";
-import { ExtensionMessageCollector } from "vs/workbench/services/extensions/common/extensionsRegistry";
+import { Event } from "../../../../base/common/event.js";
+import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
+import { IProblemReporter, Parser, ValidationStatus } from "../../../../base/common/parsers.js";
+import Severity from "../../../../base/common/severity.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IMarkerData } from "../../../../platform/markers/common/markers.js";
+import { ExtensionMessageCollector } from "../../../services/extensions/common/extensionsRegistry.js";
 export declare enum FileLocationKind {
     Default = 0,
     Relative = 1,

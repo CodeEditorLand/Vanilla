@@ -1,6 +1,6 @@
-import { AbstractExtHostConsoleForwarder } from "vs/workbench/api/common/extHostConsoleForwarder";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
+import { AbstractExtHostConsoleForwarder } from "../common/extHostConsoleForwarder.js";
+import { IExtHostInitDataService } from "../common/extHostInitDataService.js";
+import { IExtHostRpcService } from "../common/extHostRpcService.js";
 export declare class ExtHostConsoleForwarder extends AbstractExtHostConsoleForwarder {
     private _isMakingConsoleCall;
     constructor(extHostRpc: IExtHostRpcService, initData: IExtHostInitDataService);

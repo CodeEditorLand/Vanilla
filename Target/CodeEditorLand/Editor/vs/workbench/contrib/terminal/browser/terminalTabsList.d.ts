@@ -1,12 +1,12 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IListService, WorkbenchList } from "vs/platform/list/browser/listService";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { ITerminalGroupService, ITerminalInstance, ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { IDecorationsService } from "vs/workbench/services/decorations/common/decorations";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IListService, WorkbenchList } from "../../../../platform/list/browser/listService.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IDecorationsService } from "../../../services/decorations/common/decorations.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { ITerminalGroupService, ITerminalInstance, ITerminalService } from "./terminal.js";
 export declare const enum TerminalTabsListSizes {
     TabHeight = 22,
     NarrowViewWidth = 46,

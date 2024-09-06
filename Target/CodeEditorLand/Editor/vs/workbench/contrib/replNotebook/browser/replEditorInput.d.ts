@@ -1,19 +1,19 @@
-import { URI } from "vs/base/common/uri";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { ITextResourceConfigurationService } from "vs/editor/common/services/textResourceConfiguration";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IFileDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILabelService } from "vs/platform/label/common/label";
-import { IInteractiveHistoryService } from "vs/workbench/contrib/interactive/browser/interactiveHistoryService";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
-import { ICompositeNotebookEditorInput, NotebookEditorInput } from "vs/workbench/contrib/notebook/common/notebookEditorInput";
-import { INotebookEditorModelResolverService } from "vs/workbench/contrib/notebook/common/notebookEditorModelResolverService";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
-import { ICustomEditorLabelService } from "vs/workbench/services/editor/common/customEditorLabelService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IFilesConfigurationService } from "vs/workbench/services/filesConfiguration/common/filesConfigurationService";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ICustomEditorLabelService } from "../../../services/editor/common/customEditorLabelService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { IInteractiveHistoryService } from "../../interactive/browser/interactiveHistoryService.js";
+import { NotebookTextModel } from "../../notebook/common/model/notebookTextModel.js";
+import { ICompositeNotebookEditorInput, NotebookEditorInput } from "../../notebook/common/notebookEditorInput.js";
+import { INotebookEditorModelResolverService } from "../../notebook/common/notebookEditorModelResolverService.js";
+import { INotebookService } from "../../notebook/common/notebookService.js";
 export declare class ReplEditorInput extends NotebookEditorInput implements ICompositeNotebookEditorInput {
     readonly historyService: IInteractiveHistoryService;
     private readonly _textModelService;
@@ -29,8 +29,8 @@ export declare class ReplEditorInput extends NotebookEditorInput implements ICom
     getName(): string;
     get editorInputs(): this[];
     get capabilities(): number;
-    resolve(): Promise<any>;
+    resolve(): Promise<import("../../notebook/common/notebookCommon.js").IResolvedNotebookEditorModel | null>;
     private ensureInputBoxCell;
-    resolveInput(notebook: NotebookTextModel): Promise<any>;
+    resolveInput(notebook: NotebookTextModel): Promise<import("../../../../editor/common/model.js").ITextModel>;
     dispose(): void;
 }

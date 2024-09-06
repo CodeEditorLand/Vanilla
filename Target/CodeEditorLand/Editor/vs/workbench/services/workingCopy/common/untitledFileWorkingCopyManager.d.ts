@@ -1,12 +1,12 @@
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILabelService } from "vs/platform/label/common/label";
-import { ILogService } from "vs/platform/log/common/log";
-import { BaseFileWorkingCopyManager, IBaseFileWorkingCopyManager } from "vs/workbench/services/workingCopy/common/abstractFileWorkingCopyManager";
-import { IUntitledFileWorkingCopy, IUntitledFileWorkingCopyInitialContents, IUntitledFileWorkingCopyModel, IUntitledFileWorkingCopyModelFactory, IUntitledFileWorkingCopySaveDelegate } from "vs/workbench/services/workingCopy/common/untitledFileWorkingCopy";
-import { IWorkingCopyBackupService } from "vs/workbench/services/workingCopy/common/workingCopyBackup";
-import { IWorkingCopyService } from "vs/workbench/services/workingCopy/common/workingCopyService";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { BaseFileWorkingCopyManager, IBaseFileWorkingCopyManager } from "./abstractFileWorkingCopyManager.js";
+import { IUntitledFileWorkingCopy, IUntitledFileWorkingCopyInitialContents, IUntitledFileWorkingCopyModel, IUntitledFileWorkingCopyModelFactory, IUntitledFileWorkingCopySaveDelegate } from "./untitledFileWorkingCopy.js";
+import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
+import { IWorkingCopyService } from "./workingCopyService.js";
 /**
  * The only one that should be dealing with `IUntitledFileWorkingCopy` and
  * handle all operations that are working copy related, such as save/revert,
@@ -89,9 +89,9 @@ export declare class UntitledFileWorkingCopyManager<M extends IUntitledFileWorki
     private readonly labelService;
     private readonly workingCopyService;
     private readonly _onDidChangeDirty;
-    readonly onDidChangeDirty: any;
+    readonly onDidChangeDirty: Event<IUntitledFileWorkingCopy<M>>;
     private readonly _onWillDispose;
-    readonly onWillDispose: any;
+    readonly onWillDispose: Event<IUntitledFileWorkingCopy<M>>;
     private readonly mapResourceToWorkingCopyListeners;
     constructor(workingCopyTypeId: string, modelFactory: IUntitledFileWorkingCopyModelFactory<M>, saveDelegate: IUntitledFileWorkingCopySaveDelegate<M>, fileService: IFileService, labelService: ILabelService, logService: ILogService, workingCopyBackupService: IWorkingCopyBackupService, workingCopyService: IWorkingCopyService);
     resolve(options?: INewUntitledFileWorkingCopyOptions): Promise<IUntitledFileWorkingCopy<M>>;

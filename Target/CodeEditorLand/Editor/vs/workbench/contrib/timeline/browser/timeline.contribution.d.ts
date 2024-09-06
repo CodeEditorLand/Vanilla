@@ -1,17 +1,19 @@
-import { ILocalizedString } from "vs/platform/action/common/action";
-import { IViewDescriptor } from "vs/workbench/common/views";
+import { ILocalizedString } from "../../../../platform/action/common/action.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { IViewDescriptor } from "../../../common/views.js";
+import { TimelinePane } from "./timelinePane.js";
 export declare class TimelinePaneDescriptor implements IViewDescriptor {
-    readonly id: any;
+    readonly id = "timeline";
     readonly name: ILocalizedString;
-    readonly containerIcon: any;
-    readonly ctorDescriptor: any;
+    readonly containerIcon: import("../../../../base/common/themables.js").ThemeIcon;
+    readonly ctorDescriptor: SyncDescriptor<TimelinePane>;
     readonly order = 2;
     readonly weight = 30;
     readonly collapsed = true;
     readonly canToggleVisibility = true;
     readonly hideByDefault = false;
     readonly canMoveView = true;
-    readonly when: any;
+    readonly when: import("../../../../platform/contextkey/common/contextkey.js").RawContextKey<boolean>;
     focusCommand: {
         id: string;
     };

@@ -1,8 +1,8 @@
-import { ILogService } from "vs/platform/log/common/log";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ShutdownReason } from "vs/workbench/services/lifecycle/common/lifecycle";
-import { AbstractLifecycleService } from "vs/workbench/services/lifecycle/common/lifecycleService";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ShutdownReason } from "../common/lifecycle.js";
+import { AbstractLifecycleService } from "../common/lifecycleService.js";
 export declare class NativeLifecycleService extends AbstractLifecycleService {
     private readonly nativeHostService;
     private static readonly BEFORE_SHUTDOWN_WARNING_DELAY;

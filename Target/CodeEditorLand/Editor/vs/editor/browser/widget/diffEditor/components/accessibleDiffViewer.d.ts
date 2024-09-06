@@ -1,13 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable, ITransaction } from "vs/base/common/observable";
-import { IComputedEditorOptions } from "vs/editor/common/config/editorOptions";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { DetailedLineRangeMapping } from "vs/editor/common/diff/rangeMapping";
-import { ITextModel } from "vs/editor/common/model";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import "vs/css!./accessibleDiffViewer";
-import { DiffEditorEditors } from "vs/editor/browser/widget/diffEditor/components/diffEditorEditors";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable, ITransaction } from "../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IComputedEditorOptions } from "../../../../common/config/editorOptions.js";
+import { Position } from "../../../../common/core/position.js";
+import { Range } from "../../../../common/core/range.js";
+import { DetailedLineRangeMapping } from "../../../../common/diff/rangeMapping.js";
+import { ITextModel } from "../../../../common/model.js";
+import "./accessibleDiffViewer.css";
+import { DiffEditorEditors } from "./diffEditorEditors.js";
 export interface IAccessibleDiffViewerModel {
     getOriginalModel(): ITextModel;
     getOriginalOptions(): IComputedEditorOptions;
@@ -35,7 +35,7 @@ export declare class AccessibleDiffViewer extends Disposable {
     private readonly _diffs;
     private readonly _models;
     private readonly _instantiationService;
-    static _ttPolicy: any;
+    static _ttPolicy: Pick<TrustedTypePolicy<Options>, "name" | "createHTML"> | undefined;
     constructor(_parentNode: HTMLElement, _visible: IObservable<boolean>, _setVisible: (visible: boolean, tx: ITransaction | undefined) => void, _canClose: IObservable<boolean>, _width: IObservable<number>, _height: IObservable<number>, _diffs: IObservable<DetailedLineRangeMapping[] | undefined>, _models: IAccessibleDiffViewerModel, _instantiationService: IInstantiationService);
     private readonly _state;
     next(): void;

@@ -1,14 +1,14 @@
-import { URI } from "vs/base/common/uri";
-import { ResourceFileEdit } from "vs/editor/browser/services/bulkEditService";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IListService } from "vs/platform/list/browser/listService";
-import { ProgressLocation } from "vs/platform/progress/common/progress";
-import { IEditorIdentifier } from "vs/workbench/common/editor";
-import { IEditableData } from "vs/workbench/common/views";
-import { ExplorerItem } from "vs/workbench/contrib/files/common/explorerModel";
-import { ISortOrderConfiguration } from "vs/workbench/contrib/files/common/files";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { URI } from "../../../../base/common/uri.js";
+import { ResourceFileEdit } from "../../../../editor/browser/services/bulkEditService.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IListService } from "../../../../platform/list/browser/listService.js";
+import { ProgressLocation } from "../../../../platform/progress/common/progress.js";
+import { IEditorIdentifier } from "../../../common/editor.js";
+import { IEditableData } from "../../../common/views.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ExplorerItem } from "../common/explorerModel.js";
+import { ISortOrderConfiguration } from "../common/files.js";
 export interface IExplorerService {
     readonly _serviceBrand: undefined;
     readonly roots: ExplorerItem[];
@@ -40,7 +40,7 @@ export interface IExplorerService {
     select(resource: URI, reveal?: boolean | string): Promise<void>;
     registerView(contextAndRefreshProvider: IExplorerView): void;
 }
-export declare const IExplorerService: any;
+export declare const IExplorerService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExplorerService>;
 export interface IExplorerView {
     autoReveal: boolean | "force" | "focusNoScroll";
     getContext(respectMultiSelection: boolean): ExplorerItem[];

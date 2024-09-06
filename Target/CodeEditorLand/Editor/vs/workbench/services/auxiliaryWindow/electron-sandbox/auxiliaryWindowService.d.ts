@@ -1,16 +1,16 @@
-import { CodeWindow } from "vs/base/browser/window";
-import { Barrier } from "vs/base/common/async";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { ISandboxGlobals } from "vs/base/parts/sandbox/electron-sandbox/globals";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { AuxiliaryWindow, BrowserAuxiliaryWindowService, IAuxiliaryWindowOpenOptions } from "vs/workbench/services/auxiliaryWindow/browser/auxiliaryWindowService";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
+import { CodeWindow } from "../../../../base/browser/window.js";
+import { Barrier } from "../../../../base/common/async.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { ISandboxGlobals } from "../../../../base/parts/sandbox/electron-sandbox/globals.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IHostService } from "../../host/browser/host.js";
+import { IWorkbenchLayoutService } from "../../layout/browser/layoutService.js";
+import { AuxiliaryWindow, BrowserAuxiliaryWindowService, IAuxiliaryWindowOpenOptions } from "../browser/auxiliaryWindowService.js";
 type NativeCodeWindow = CodeWindow & {
     readonly vscode: ISandboxGlobals;
 };
@@ -33,7 +33,10 @@ export declare class NativeAuxiliaryWindowService extends BrowserAuxiliaryWindow
     private readonly instantiationService;
     constructor(layoutService: IWorkbenchLayoutService, configurationService: IConfigurationService, nativeHostService: INativeHostService, dialogService: IDialogService, instantiationService: IInstantiationService, telemetryService: ITelemetryService, hostService: IHostService, environmentService: IWorkbenchEnvironmentService);
     protected resolveWindowId(auxiliaryWindow: NativeCodeWindow): Promise<number>;
-    protected createContainer(auxiliaryWindow: NativeCodeWindow, disposables: DisposableStore, options?: IAuxiliaryWindowOpenOptions): any;
+    protected createContainer(auxiliaryWindow: NativeCodeWindow, disposables: DisposableStore, options?: IAuxiliaryWindowOpenOptions): {
+        stylesLoaded: Barrier;
+        container: HTMLElement;
+    };
     protected createAuxiliaryWindow(targetWindow: CodeWindow, container: HTMLElement, stylesHaveLoaded: Barrier): AuxiliaryWindow;
 }
 export {};

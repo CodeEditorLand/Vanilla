@@ -1,6 +1,6 @@
 import type { Terminal } from "@xterm/headless";
-import { IMarker, IMarkProperties, ISerializedTerminalCommand, ITerminalCommand, IXtermMarker } from "vs/platform/terminal/common/capabilities/capabilities";
-import { ITerminalOutputMatch, ITerminalOutputMatcher } from "vs/platform/terminal/common/terminal";
+import { ITerminalOutputMatch, ITerminalOutputMatcher } from "../../terminal.js";
+import { IMarker, IMarkProperties, ISerializedTerminalCommand, ITerminalCommand, IXtermMarker } from "../capabilities.js";
 export interface ITerminalCommandProperties {
     command: string;
     commandLineConfidence: "low" | "medium" | "high";
@@ -24,21 +24,21 @@ export declare class TerminalCommand implements ITerminalCommand {
     private readonly _xterm;
     private readonly _properties;
     get command(): string;
-    get commandLineConfidence(): "high" | "low" | "medium";
+    get commandLineConfidence(): "low" | "medium" | "high";
     get isTrusted(): boolean;
     get timestamp(): number;
     get duration(): number;
-    get promptStartMarker(): any;
-    get marker(): any;
+    get promptStartMarker(): IMarker | undefined;
+    get marker(): IXtermMarker | undefined;
     get endMarker(): IXtermMarker | undefined;
     set endMarker(value: IXtermMarker | undefined);
-    get executedMarker(): any;
+    get executedMarker(): IXtermMarker | undefined;
     get aliases(): string[][] | undefined;
     get wasReplayed(): boolean | undefined;
     get cwd(): string | undefined;
     get exitCode(): number | undefined;
     get commandStartLineContent(): string | undefined;
-    get markProperties(): any;
+    get markProperties(): IMarkProperties | undefined;
     get executedX(): number | undefined;
     get startX(): number | undefined;
     constructor(_xterm: Terminal, _properties: ITerminalCommandProperties);

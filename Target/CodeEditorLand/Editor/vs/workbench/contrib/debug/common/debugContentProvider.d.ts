@@ -1,11 +1,11 @@
-import { URI as uri } from "vs/base/common/uri";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { ITextModel } from "vs/editor/common/model";
-import { IEditorWorkerService } from "vs/editor/common/services/editorWorker";
-import { IModelService } from "vs/editor/common/services/model";
-import { ITextModelContentProvider, ITextModelService } from "vs/editor/common/services/resolverService";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IDebugService } from "vs/workbench/contrib/debug/common/debug";
+import { URI as uri } from "../../../../base/common/uri.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ITextModelContentProvider, ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IDebugService } from "./debug.js";
 /**
  * Debug URI format
  *

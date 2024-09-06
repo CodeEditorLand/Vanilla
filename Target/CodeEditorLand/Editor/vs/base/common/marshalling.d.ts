@@ -1,6 +1,6 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { MarshalledId } from "./marshallingIds";
+import { VSBuffer } from "./buffer.js";
+import { MarshalledId } from "./marshallingIds.js";
+import { URI, UriComponents } from "./uri.js";
 export declare function stringify(obj: any): string;
 export declare function parse(text: string): any;
 export interface MarshalledObject {

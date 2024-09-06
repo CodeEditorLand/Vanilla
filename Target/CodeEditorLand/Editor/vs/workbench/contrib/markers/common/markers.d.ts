@@ -1,3 +1,4 @@
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 export declare const enum MarkersViewMode {
     Table = "table",
     Tree = "tree"
@@ -21,14 +22,14 @@ export declare namespace Markers {
     const TOGGLE_MARKERS_VIEW_ACTION_ID = "workbench.actions.view.toggleProblems";
 }
 export declare namespace MarkersContextKeys {
-    const MarkersViewModeContextKey: any;
-    const MarkersTreeVisibilityContextKey: any;
-    const MarkerFocusContextKey: any;
-    const MarkerViewFilterFocusContextKey: any;
-    const RelatedInformationFocusContextKey: any;
-    const ShowErrorsFilterContextKey: any;
-    const ShowWarningsFilterContextKey: any;
-    const ShowInfoFilterContextKey: any;
-    const ShowActiveFileFilterContextKey: any;
-    const ShowExcludedFilesFilterContextKey: any;
+    const MarkersViewModeContextKey: RawContextKey<MarkersViewMode>;
+    const MarkersTreeVisibilityContextKey: RawContextKey<boolean>;
+    const MarkerFocusContextKey: RawContextKey<boolean>;
+    const MarkerViewFilterFocusContextKey: RawContextKey<boolean>;
+    const RelatedInformationFocusContextKey: RawContextKey<boolean>;
+    const ShowErrorsFilterContextKey: RawContextKey<boolean>;
+    const ShowWarningsFilterContextKey: RawContextKey<boolean>;
+    const ShowInfoFilterContextKey: RawContextKey<boolean>;
+    const ShowActiveFileFilterContextKey: RawContextKey<boolean>;
+    const ShowExcludedFilesFilterContextKey: RawContextKey<boolean>;
 }

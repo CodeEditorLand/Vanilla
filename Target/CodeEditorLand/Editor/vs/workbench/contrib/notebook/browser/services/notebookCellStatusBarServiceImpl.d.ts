@@ -1,9 +1,9 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { INotebookCellStatusBarService } from "vs/workbench/contrib/notebook/common/notebookCellStatusBarService";
-import { INotebookCellStatusBarItemList, INotebookCellStatusBarItemProvider } from "vs/workbench/contrib/notebook/common/notebookCommon";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { INotebookCellStatusBarService } from "../../common/notebookCellStatusBarService.js";
+import { INotebookCellStatusBarItemList, INotebookCellStatusBarItemProvider } from "../../common/notebookCommon.js";
 export declare class NotebookCellStatusBarService extends Disposable implements INotebookCellStatusBarService {
     readonly _serviceBrand: undefined;
     private readonly _onDidChangeProviders;

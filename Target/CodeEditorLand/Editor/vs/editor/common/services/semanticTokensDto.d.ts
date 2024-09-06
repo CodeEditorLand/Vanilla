@@ -1,4 +1,4 @@
-import { VSBuffer } from "vs/base/common/buffer";
+import { VSBuffer } from "../../../base/common/buffer.js";
 export interface IFullSemanticTokensDto {
     id: number;
     type: "full";

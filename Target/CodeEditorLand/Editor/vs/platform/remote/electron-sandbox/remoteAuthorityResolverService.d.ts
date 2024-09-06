@@ -1,13 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IRemoteAuthorityResolverService, IRemoteConnectionData, ResolvedAuthority, ResolvedOptions, ResolverResult } from "vs/platform/remote/common/remoteAuthorityResolver";
-import { ElectronRemoteResourceLoader } from "vs/platform/remote/electron-sandbox/electronRemoteResourceLoader";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IRemoteAuthorityResolverService, IRemoteConnectionData, ResolvedAuthority, ResolvedOptions, ResolverResult } from "../common/remoteAuthorityResolver.js";
+import { ElectronRemoteResourceLoader } from "./electronRemoteResourceLoader.js";
 export declare class RemoteAuthorityResolverService extends Disposable implements IRemoteAuthorityResolverService {
     private readonly remoteResourceLoader;
     readonly _serviceBrand: undefined;
     private readonly _onDidChangeConnectionData;
-    readonly onDidChangeConnectionData: any;
+    readonly onDidChangeConnectionData: import("../../../base/common/event.js").Event<void>;
     private readonly _resolveAuthorityRequests;
     private readonly _connectionTokens;
     private readonly _canonicalURIRequests;

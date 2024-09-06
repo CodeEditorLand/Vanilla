@@ -1,10 +1,10 @@
-import { ResourceMap } from "vs/base/common/map";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationChange, IConfigurationModel, IConfigurationOverrides, IConfigurationValue } from "vs/platform/configuration/common/configuration";
-import { Configuration as BaseConfiguration, ConfigurationModel, ConfigurationModelParser, ConfigurationParseOptions } from "vs/platform/configuration/common/configurationModels";
-import { ILogService } from "vs/platform/log/common/log";
-import { Workspace } from "vs/platform/workspace/common/workspace";
-import { IStoredWorkspaceFolder } from "vs/platform/workspaces/common/workspaces";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationChange, IConfigurationModel, IConfigurationOverrides, IConfigurationValue } from "../../../../platform/configuration/common/configuration.js";
+import { Configuration as BaseConfiguration, ConfigurationModel, ConfigurationModelParser, ConfigurationParseOptions } from "../../../../platform/configuration/common/configurationModels.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Workspace } from "../../../../platform/workspace/common/workspace.js";
+import { IStoredWorkspaceFolder } from "../../../../platform/workspaces/common/workspaces.js";
 export declare class WorkspaceConfigurationModelParser extends ConfigurationModelParser {
     private _folders;
     private _transient;

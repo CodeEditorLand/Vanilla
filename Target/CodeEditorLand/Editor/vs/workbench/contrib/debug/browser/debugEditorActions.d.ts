@@ -1,7 +1,7 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction } from "vs/editor/browser/editorExtensions";
-import { ILocalizedString } from "vs/platform/action/common/action";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { EditorAction } from "../../../../editor/browser/editorExtensions.js";
+import { ILocalizedString } from "../../../../platform/action/common/action.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 export declare class RunToCursorAction extends EditorAction {
     static readonly ID = "editor.debug.action.runToCursor";
     static readonly LABEL: ILocalizedString;

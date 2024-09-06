@@ -1,17 +1,17 @@
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI, UriComponents, UriDto } from "vs/base/common/uri";
-import { IOffsetRange } from "vs/editor/common/core/offsetRange";
-import { IRange } from "vs/editor/common/core/range";
-import { TextEdit } from "vs/editor/common/languages";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { ChatAgentLocation, IChatAgentCommand, IChatAgentData, IChatAgentResult, IChatAgentService } from "vs/workbench/contrib/chat/common/chatAgents";
-import { IParsedChatRequest } from "vs/workbench/contrib/chat/common/chatParserTypes";
-import { ChatAgentVoteDirection, IChatAgentMarkdownContentWithVulnerability, IChatCodeCitation, IChatCommandButton, IChatConfirmation, IChatContentInlineReference, IChatContentReference, IChatFollowup, IChatLocationData, IChatMarkdownContent, IChatProgress, IChatProgressMessage, IChatResponseProgressFileTreeData, IChatTask, IChatTextEdit, IChatTreeData, IChatUsedContext, IChatWarningMessage } from "vs/workbench/contrib/chat/common/chatService";
-import { IChatRequestVariableValue } from "vs/workbench/contrib/chat/common/chatVariables";
+import { Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI, UriComponents, UriDto } from "../../../../base/common/uri.js";
+import { IOffsetRange } from "../../../../editor/common/core/offsetRange.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { TextEdit } from "../../../../editor/common/languages.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ChatAgentLocation, IChatAgentCommand, IChatAgentData, IChatAgentResult, IChatAgentService } from "./chatAgents.js";
+import { IParsedChatRequest } from "./chatParserTypes.js";
+import { ChatAgentVoteDirection, ChatAgentVoteDownReason, IChatAgentMarkdownContentWithVulnerability, IChatCodeCitation, IChatCommandButton, IChatConfirmation, IChatContentInlineReference, IChatContentReference, IChatFollowup, IChatLocationData, IChatMarkdownContent, IChatProgress, IChatProgressMessage, IChatResponseProgressFileTreeData, IChatTask, IChatTextEdit, IChatTreeData, IChatUsedContext, IChatWarningMessage } from "./chatService.js";
+import { IChatRequestVariableValue } from "./chatVariables.js";
 export interface IChatRequestVariableEntry {
     id: string;
     fullName?: string;
@@ -78,9 +78,11 @@ export interface IChatResponseModel {
     /** A stale response is one that has been persisted and rehydrated, so e.g. Commands that have their arguments stored in the EH are gone. */
     readonly isStale: boolean;
     readonly vote: ChatAgentVoteDirection | undefined;
+    readonly voteDownReason: ChatAgentVoteDownReason | undefined;
     readonly followups?: IChatFollowup[] | undefined;
     readonly result?: IChatAgentResult;
     setVote(vote: ChatAgentVoteDirection): void;
+    setVoteDownReason(reason: ChatAgentVoteDownReason | undefined): void;
     setEditApplied(edit: IChatTextEditGroup, editCount: number): boolean;
 }
 export declare class ChatRequestModel implements IChatRequestModel {
@@ -103,12 +105,12 @@ export declare class ChatRequestModel implements IChatRequestModel {
     get confirmation(): string | undefined;
     get locationData(): IChatLocationData | undefined;
     get attachedContext(): IChatRequestVariableEntry[] | undefined;
-    constructor(_session: ChatModel, message: IParsedChatRequest, _variableData: IChatRequestVariableData, _attempt?: number, _confirmation?: string | undefined, _locationData?: any, _attachedContext?: IChatRequestVariableEntry[] | undefined);
+    constructor(_session: ChatModel, message: IParsedChatRequest, _variableData: IChatRequestVariableData, _attempt?: number, _confirmation?: string | undefined, _locationData?: IChatLocationData | undefined, _attachedContext?: IChatRequestVariableEntry[] | undefined);
     adoptTo(session: ChatModel): void;
 }
 export declare class Response extends Disposable implements IResponse {
     private _onDidChangeValue;
-    get onDidChangeValue(): any;
+    get onDidChangeValue(): Event<void>;
     private _responseParts;
     /**
      * A stringified representation of response data which might be presented to a screenreader or used when copying a response.
@@ -136,15 +138,17 @@ export declare class ChatResponseModel extends Disposable implements IChatRespon
     private _isComplete;
     private _isCanceled;
     private _vote?;
+    private _voteDownReason?;
     private _result?;
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: Event<void>;
     private static nextId;
     readonly id: string;
     get session(): ChatModel;
     get isComplete(): boolean;
     get isCanceled(): boolean;
     get vote(): ChatAgentVoteDirection | undefined;
+    get voteDownReason(): ChatAgentVoteDownReason | undefined;
     get followups(): IChatFollowup[] | undefined;
     private _response;
     get response(): IResponse;
@@ -166,7 +170,7 @@ export declare class ChatResponseModel extends Disposable implements IChatRespon
     get progressMessages(): ReadonlyArray<IChatProgressMessage>;
     private _isStale;
     get isStale(): boolean;
-    constructor(_response: IMarkdownString | ReadonlyArray<IMarkdownString | IChatResponseProgressFileTreeData | IChatContentInlineReference | IChatAgentMarkdownContentWithVulnerability>, _session: ChatModel, _agent: IChatAgentData | undefined, _slashCommand: IChatAgentCommand | undefined, requestId: string, _isComplete?: boolean, _isCanceled?: boolean, _vote?: any, _result?: any, followups?: ReadonlyArray<IChatFollowup>);
+    constructor(_response: IMarkdownString | ReadonlyArray<IMarkdownString | IChatResponseProgressFileTreeData | IChatContentInlineReference | IChatAgentMarkdownContentWithVulnerability>, _session: ChatModel, _agent: IChatAgentData | undefined, _slashCommand: IChatAgentCommand | undefined, requestId: string, _isComplete?: boolean, _isCanceled?: boolean, _vote?: ChatAgentVoteDirection | undefined, _voteDownReason?: ChatAgentVoteDownReason | undefined, _result?: IChatAgentResult | undefined, followups?: ReadonlyArray<IChatFollowup>);
     /**
      * Apply a progress update to the actual response content.
      */
@@ -182,6 +186,7 @@ export declare class ChatResponseModel extends Disposable implements IChatRespon
     cancel(): void;
     setFollowups(followups: IChatFollowup[] | undefined): void;
     setVote(vote: ChatAgentVoteDirection): void;
+    setVoteDownReason(reason: ChatAgentVoteDownReason | undefined): void;
     setEditApplied(edit: IChatTextEditGroup, editCount: number): boolean;
     adoptTo(session: ChatModel): void;
 }
@@ -214,6 +219,7 @@ export interface ISerializableChatRequestData {
     followups: ReadonlyArray<IChatFollowup> | undefined;
     isCanceled: boolean | undefined;
     vote: ChatAgentVoteDirection | undefined;
+    voteDownReason?: ChatAgentVoteDownReason;
     /** For backward compat: should be optional */
     usedContext?: IChatUsedContext;
     contentReferences?: ReadonlyArray<IChatContentReference>;
@@ -318,9 +324,9 @@ export declare class ChatModel extends Disposable implements IChatModel {
     private readonly instantiationService;
     static getDefaultTitle(requests: (ISerializableChatRequestData | IChatRequestModel)[]): string;
     private readonly _onDidDispose;
-    readonly onDidDispose: any;
+    readonly onDidDispose: Event<void>;
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: Event<IChatChangeEvent>;
     private _requests;
     private _initState;
     private _isInitializedDeferred;

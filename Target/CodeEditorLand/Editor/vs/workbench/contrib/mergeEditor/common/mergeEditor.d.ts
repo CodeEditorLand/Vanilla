@@ -1,12 +1,13 @@
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 export type MergeEditorLayoutKind = "mixed" | "columns";
-export declare const ctxIsMergeEditor: any;
-export declare const ctxIsMergeResultEditor: any;
-export declare const ctxMergeEditorLayout: any;
-export declare const ctxMergeEditorShowBase: any;
-export declare const ctxMergeEditorShowBaseAtTop: any;
-export declare const ctxMergeEditorShowNonConflictingChanges: any;
-export declare const ctxMergeBaseUri: any;
-export declare const ctxMergeResultUri: any;
+export declare const ctxIsMergeEditor: RawContextKey<boolean>;
+export declare const ctxIsMergeResultEditor: RawContextKey<boolean>;
+export declare const ctxMergeEditorLayout: RawContextKey<MergeEditorLayoutKind>;
+export declare const ctxMergeEditorShowBase: RawContextKey<boolean>;
+export declare const ctxMergeEditorShowBaseAtTop: RawContextKey<boolean>;
+export declare const ctxMergeEditorShowNonConflictingChanges: RawContextKey<boolean>;
+export declare const ctxMergeBaseUri: RawContextKey<string>;
+export declare const ctxMergeResultUri: RawContextKey<string>;
 export interface MergeEditorContents {
     languageId: string;
     base: string;

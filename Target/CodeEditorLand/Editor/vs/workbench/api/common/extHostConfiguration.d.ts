@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { IConfigurationChange } from "vs/platform/configuration/common/configuration";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { ExtHostWorkspace, IExtHostWorkspace } from "vs/workbench/api/common/extHostWorkspace";
 import type * as vscode from "vscode";
-import { ExtHostConfigurationShape, IConfigurationInitData, MainThreadConfigurationShape } from "./extHost.protocol";
+import { Event } from "../../../base/common/event.js";
+import { IConfigurationChange } from "../../../platform/configuration/common/configuration.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { ExtHostConfigurationShape, IConfigurationInitData, MainThreadConfigurationShape } from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { ExtHostWorkspace, IExtHostWorkspace } from "./extHostWorkspace.js";
 export declare class ExtHostConfiguration implements ExtHostConfigurationShape {
     readonly _serviceBrand: undefined;
     private readonly _proxy;
@@ -34,6 +34,6 @@ export declare class ExtHostConfigProvider {
     private _toConfigurationChangeEvent;
     private _toMap;
 }
-export declare const IExtHostConfiguration: any;
+export declare const IExtHostConfiguration: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostConfiguration>;
 export interface IExtHostConfiguration extends ExtHostConfiguration {
 }

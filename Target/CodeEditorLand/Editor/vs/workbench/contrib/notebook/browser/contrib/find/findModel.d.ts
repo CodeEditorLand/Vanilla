@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { Range } from "vs/editor/common/core/range";
-import { FindMatch } from "vs/editor/common/model";
-import { PrefixSumComputer } from "vs/editor/common/model/prefixSumComputer";
-import { FindReplaceState } from "vs/editor/contrib/find/browser/findState";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { NotebookFindFilters } from "vs/workbench/contrib/notebook/browser/contrib/find/findFilters";
-import { CellFindMatchWithIndex, CellWebviewFindMatch, ICellViewModel, INotebookEditor } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { FindMatch } from "../../../../../../editor/common/model.js";
+import { PrefixSumComputer } from "../../../../../../editor/common/model/prefixSumComputer.js";
+import { FindReplaceState } from "../../../../../../editor/contrib/find/browser/findState.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { CellFindMatchWithIndex, CellWebviewFindMatch, ICellViewModel, INotebookEditor } from "../../notebookBrowser.js";
+import { NotebookFindFilters } from "./findFilters.js";
 export declare class CellFindMatchModel implements CellFindMatchWithIndex {
     readonly cell: ICellViewModel;
     readonly index: number;
@@ -15,7 +15,7 @@ export declare class CellFindMatchModel implements CellFindMatchWithIndex {
     get contentMatches(): FindMatch[];
     get webviewMatches(): CellWebviewFindMatch[];
     constructor(cell: ICellViewModel, index: number, contentMatches: FindMatch[], webviewMatches: CellWebviewFindMatch[]);
-    getMatch(index: number): any;
+    getMatch(index: number): FindMatch | CellWebviewFindMatch | undefined;
 }
 export declare class FindModel extends Disposable {
     private readonly _notebookEditor;
@@ -34,8 +34,8 @@ export declare class FindModel extends Disposable {
     private _updateCellStates;
     ensureFindMatches(): void;
     getCurrentMatch(): {
-        cell: any;
-        match: any;
+        cell: ICellViewModel;
+        match: FindMatch | CellWebviewFindMatch;
         isModelMatch: boolean;
     };
     refreshCurrentMatch(focus: {
@@ -49,7 +49,7 @@ export declare class FindModel extends Disposable {
     }): void;
     private revealCellRange;
     private _registerModelListener;
-    research(): Promise<any>;
+    research(): Promise<void>;
     _research(): Promise<void>;
     private set;
     private _compute;

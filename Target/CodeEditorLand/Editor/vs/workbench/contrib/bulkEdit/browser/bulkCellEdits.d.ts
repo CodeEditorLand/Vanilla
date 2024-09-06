@@ -1,12 +1,12 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { URI } from "vs/base/common/uri";
-import { ResourceEdit } from "vs/editor/browser/services/bulkEditService";
-import { WorkspaceEditMetadata } from "vs/editor/common/languages";
-import { IProgress } from "vs/platform/progress/common/progress";
-import { UndoRedoGroup, UndoRedoSource } from "vs/platform/undoRedo/common/undoRedo";
-import { ICellPartialMetadataEdit, ICellReplaceEdit, IDocumentMetadataEdit, IWorkspaceNotebookCellEdit } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { INotebookEditorModelResolverService } from "vs/workbench/contrib/notebook/common/notebookEditorModelResolverService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ResourceEdit } from "../../../../editor/browser/services/bulkEditService.js";
+import { WorkspaceEditMetadata } from "../../../../editor/common/languages.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
+import { UndoRedoGroup, UndoRedoSource } from "../../../../platform/undoRedo/common/undoRedo.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ICellPartialMetadataEdit, ICellReplaceEdit, IDocumentMetadataEdit, IWorkspaceNotebookCellEdit } from "../../notebook/common/notebookCommon.js";
+import { INotebookEditorModelResolverService } from "../../notebook/common/notebookEditorModelResolverService.js";
 export declare class ResourceNotebookCellEdit extends ResourceEdit implements IWorkspaceNotebookCellEdit {
     readonly resource: URI;
     readonly cellEdit: ICellPartialMetadataEdit | IDocumentMetadataEdit | ICellReplaceEdit;

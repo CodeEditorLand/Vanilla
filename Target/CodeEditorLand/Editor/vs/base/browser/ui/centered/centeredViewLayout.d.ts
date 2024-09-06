@@ -1,9 +1,9 @@
-import { IView, IViewSize } from "vs/base/browser/ui/grid/grid";
-import { IBoundarySashes } from "vs/base/browser/ui/sash/sash";
-import { ISplitViewStyles } from "vs/base/browser/ui/splitview/splitview";
-import { Color } from "vs/base/common/color";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
+import { Color } from "../../../common/color.js";
+import { Event } from "../../../common/event.js";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { IView, IViewSize } from "../grid/grid.js";
+import { IBoundarySashes } from "../sash/sash.js";
+import { ISplitViewStyles } from "../splitview/splitview.js";
 export interface CenteredViewState {
     targetWidth: number;
     leftMarginRatio: number;

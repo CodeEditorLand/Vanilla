@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILoggerService } from "vs/platform/log/common/log";
-import { INotebookLoggingService } from "vs/workbench/contrib/notebook/common/notebookLoggingService";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ILoggerService } from "../../../../../platform/log/common/log.js";
+import { INotebookLoggingService } from "../../common/notebookLoggingService.js";
 export declare class NotebookLoggingService extends Disposable implements INotebookLoggingService {
     _serviceBrand: undefined;
     static ID: string;

@@ -1,7 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ITerminalExternalLinkProvider } from "vs/workbench/contrib/terminal/browser/terminal";
-import { ITerminalLinkProviderService } from "vs/workbench/contrib/terminalContrib/links/browser/links";
+import { Event } from "../../../../../base/common/event.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { ITerminalExternalLinkProvider } from "../../../terminal/browser/terminal.js";
+import { ITerminalLinkProviderService } from "./links.js";
 export declare class TerminalLinkProviderService implements ITerminalLinkProviderService {
     _serviceBrand: undefined;
     private _linkProviders;

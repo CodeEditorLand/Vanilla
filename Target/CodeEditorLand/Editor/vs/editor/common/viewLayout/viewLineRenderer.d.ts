@@ -1,6 +1,6 @@
-import { StringBuilder } from "vs/editor/common/core/stringBuilder";
-import { IViewLineTokens } from "vs/editor/common/tokens/lineTokens";
-import { LineDecoration } from "vs/editor/common/viewLayout/lineDecorations";
+import { StringBuilder } from "../core/stringBuilder.js";
+import { IViewLineTokens } from "../tokens/lineTokens.js";
+import { LineDecoration } from "./lineDecorations.js";
 export declare const enum RenderWhitespace {
     None = 0,
     Boundary = 1,

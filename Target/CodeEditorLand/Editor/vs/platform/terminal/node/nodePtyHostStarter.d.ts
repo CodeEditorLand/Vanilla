@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { INativeEnvironmentService } from "vs/platform/environment/common/environment";
-import { IReconnectConstants } from "vs/platform/terminal/common/terminal";
-import { IPtyHostConnection, IPtyHostStarter } from "vs/platform/terminal/node/ptyHost";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { INativeEnvironmentService } from "../../environment/common/environment.js";
+import { IReconnectConstants } from "../common/terminal.js";
+import { IPtyHostConnection, IPtyHostStarter } from "./ptyHost.js";
 export declare class NodePtyHostStarter extends Disposable implements IPtyHostStarter {
     private readonly _reconnectConstants;
     private readonly _environmentService;

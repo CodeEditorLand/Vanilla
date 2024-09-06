@@ -1,18 +1,17 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Iterable } from "vs/base/common/iterator";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { URI } from "vs/base/common/uri";
-import { Position } from "vs/editor/common/core/position";
-import { Location } from "vs/editor/common/languages";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { MutableObservableValue } from "vs/workbench/contrib/testing/common/observableValue";
-import { TestExclusions } from "vs/workbench/contrib/testing/common/testExclusions";
-import { TestId } from "vs/workbench/contrib/testing/common/testId";
-import { ITestResult } from "vs/workbench/contrib/testing/common/testResult";
-import { AbstractIncrementalTestCollection, ICallProfileRunHandler, IncrementalTestCollectionItem, InternalTestItem, IStartControllerTests, IStartControllerTestsResult, ResolvedTestRunRequest, TestControllerCapability, TestMessageFollowupRequest, TestMessageFollowupResponse, TestRunProfileBitset, TestsDiff } from "vs/workbench/contrib/testing/common/testTypes";
-export declare const ITestService: any;
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../base/common/observable.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { Location } from "../../../../editor/common/languages.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { MutableObservableValue } from "./observableValue.js";
+import { TestExclusions } from "./testExclusions.js";
+import { TestId } from "./testId.js";
+import { ITestResult } from "./testResult.js";
+import { AbstractIncrementalTestCollection, ICallProfileRunHandler, IncrementalTestCollectionItem, InternalTestItem, IStartControllerTests, IStartControllerTestsResult, ITestItemContext, ResolvedTestRunRequest, TestControllerCapability, TestMessageFollowupRequest, TestMessageFollowupResponse, TestRunProfileBitset, TestsDiff } from "./testTypes.js";
+export declare const ITestService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITestService>;
 export interface IMainThreadTestController {
     readonly id: string;
     readonly label: IObservable<string>;
@@ -71,13 +70,15 @@ export interface IMainThreadTestCollection extends AbstractIncrementalTestCollec
     getReviverDiff(): TestsDiff;
 }
 export declare const testCollectionIsEmpty: (collection: IMainThreadTestCollection) => boolean;
-export declare const getContextForTestItem: (collection: IMainThreadTestCollection, id: string | TestId) => any;
+export declare const getContextForTestItem: (collection: IMainThreadTestCollection, id: string | TestId) => ITestItemContext | {
+    controller: string | undefined;
+};
 /**
  * Ensures the test with the given ID exists in the collection, if possible.
  * If cancellation is requested, or the test cannot be found, it will return
  * undefined.
  */
-export declare const expandAndGetTestById: (collection: IMainThreadTestCollection, id: string, ct?: any) => Promise<any>;
+export declare const expandAndGetTestById: (collection: IMainThreadTestCollection, id: string, ct?: Readonly<CancellationToken>) => Promise<IncrementalTestCollectionItem | undefined>;
 /**
  * Iterator that expands to and iterates through tests in the file. Iterates
  * in strictly descending order.

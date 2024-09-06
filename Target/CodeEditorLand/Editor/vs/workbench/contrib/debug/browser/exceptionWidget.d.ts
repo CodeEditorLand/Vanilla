@@ -1,9 +1,9 @@
-import "vs/css!./media/exceptionWidget";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ZoneWidget } from "vs/editor/contrib/zoneWidget/browser/zoneWidget";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IDebugSession, IExceptionInfo } from "vs/workbench/contrib/debug/common/debug";
+import "./media/exceptionWidget.css";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { ZoneWidget } from "../../../../editor/contrib/zoneWidget/browser/zoneWidget.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IDebugSession, IExceptionInfo } from "../common/debug.js";
 export declare class ExceptionWidget extends ZoneWidget {
     private exceptionInfo;
     private debugSession;

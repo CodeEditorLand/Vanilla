@@ -1,15 +1,15 @@
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { BaseBinaryResourceEditor } from "vs/workbench/browser/parts/editor/binaryEditor";
-import { IEditorGroup } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorResolverService } from "vs/workbench/services/editor/common/editorResolverService";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { BaseBinaryResourceEditor } from "../../../../browser/parts/editor/binaryEditor.js";
+import { IEditorGroup } from "../../../../services/editor/common/editorGroupsService.js";
+import { IEditorResolverService } from "../../../../services/editor/common/editorResolverService.js";
 /**
  * An implementation of editor for binary files that cannot be displayed.
  */
 export declare class BinaryFileEditor extends BaseBinaryResourceEditor {
     private readonly editorResolverService;
-    static readonly ID: any;
+    static readonly ID = "workbench.editors.files.binaryFileEditor";
     constructor(group: IEditorGroup, telemetryService: ITelemetryService, themeService: IThemeService, editorResolverService: IEditorResolverService, storageService: IStorageService);
     private openInternal;
     getTitle(): string;

@@ -1,6 +1,6 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { DefaultEndOfLine, ITextBuffer, ITextBufferBuilder, ITextBufferFactory } from "vs/editor/common/model";
-import { StringBuffer } from "vs/editor/common/model/pieceTreeTextBuffer/pieceTreeBase";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { DefaultEndOfLine, ITextBuffer, ITextBufferBuilder, ITextBufferFactory } from "../../model.js";
+import { StringBuffer } from "./pieceTreeBase.js";
 declare class PieceTreeTextBufferFactory implements ITextBufferFactory {
     private readonly _chunks;
     private readonly _bom;

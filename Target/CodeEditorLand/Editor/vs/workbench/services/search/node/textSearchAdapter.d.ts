@@ -1,5 +1,5 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IProgressMessage, ISerializedFileMatch, ISerializedSearchSuccess, ITextQuery } from "vs/workbench/services/search/common/search";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IProgressMessage, ISerializedFileMatch, ISerializedSearchSuccess, ITextQuery } from "../common/search.js";
 export declare class TextSearchEngineAdapter {
     private query;
     private numThreads?;

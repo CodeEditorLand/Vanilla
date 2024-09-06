@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { IExtUri } from "vs/base/common/resources";
-import { URI } from "vs/base/common/uri";
-import { IFolderBackupInfo, IWorkspaceBackupInfo } from "vs/platform/backup/common/backup";
-import { ILogService } from "vs/platform/log/common/log";
-import { IBaseWorkspace, IRawFileWorkspaceFolder, IRawUriWorkspaceFolder, IWorkspaceIdentifier, WorkspaceFolder } from "vs/platform/workspace/common/workspace";
-export declare const IWorkspacesService: any;
+import { Event } from "../../../base/common/event.js";
+import { IExtUri } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { IFolderBackupInfo, IWorkspaceBackupInfo } from "../../backup/common/backup.js";
+import { ILogService } from "../../log/common/log.js";
+import { IBaseWorkspace, IRawFileWorkspaceFolder, IRawUriWorkspaceFolder, IWorkspaceIdentifier, WorkspaceFolder } from "../../workspace/common/workspace.js";
+export declare const IWorkspacesService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWorkspacesService>;
 export interface IWorkspacesService {
     readonly _serviceBrand: undefined;
     enterWorkspace(workspaceUri: URI): Promise<IEnterWorkspaceResult | undefined>;
@@ -75,7 +75,7 @@ export declare function toWorkspaceFolders(configuredFolders: IStoredWorkspaceFo
  * Rewrites the content of a workspace file to be saved at a new location.
  * Throws an exception if file is not a valid workspace file
  */
-export declare function rewriteWorkspaceFileForNewLocation(rawWorkspaceContents: string, configPathURI: URI, isFromUntitledWorkspace: boolean, targetConfigPathURI: URI, extUri: IExtUri): any;
+export declare function rewriteWorkspaceFileForNewLocation(rawWorkspaceContents: string, configPathURI: URI, isFromUntitledWorkspace: boolean, targetConfigPathURI: URI, extUri: IExtUri): string;
 export type RecentlyOpenedStorageData = object;
 export declare function restoreRecentlyOpened(data: RecentlyOpenedStorageData | undefined, logService: ILogService): IRecentlyOpened;
 export declare function toStoreData(recents: IRecentlyOpened): RecentlyOpenedStorageData;

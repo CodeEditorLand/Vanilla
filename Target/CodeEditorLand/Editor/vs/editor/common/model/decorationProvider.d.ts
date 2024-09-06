@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { Range } from "vs/editor/common/core/range";
-import { IModelDecoration } from "vs/editor/common/model";
+import { Event } from "../../../base/common/event.js";
+import { Range } from "../core/range.js";
+import { IModelDecoration } from "../model.js";
 export interface DecorationProvider {
     /**
      * Gets all the decorations in a range as an array. Only `startLineNumber` and `endLineNumber` from `range` are used for filtering.

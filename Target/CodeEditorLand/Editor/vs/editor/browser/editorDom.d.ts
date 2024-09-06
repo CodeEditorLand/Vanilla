@@ -1,7 +1,7 @@
-import { StandardMouseEvent } from "vs/base/browser/mouseEvent";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ThemeColor } from "vs/base/common/themables";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
+import { StandardMouseEvent } from "../../base/browser/mouseEvent.js";
+import { Disposable, IDisposable } from "../../base/common/lifecycle.js";
+import { ThemeColor } from "../../base/common/themables.js";
+import { ICodeEditor } from "./editorBrowser.js";
 /**
  * Coordinates relative to the whole document (e.g. mouse event's pageX and pageY)
  */

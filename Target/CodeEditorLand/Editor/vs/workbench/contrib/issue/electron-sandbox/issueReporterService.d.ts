@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IIssueMainService, IProcessMainService, OldIssueReporterWindowConfiguration } from "vs/platform/issue/common/issue";
-import { INativeHostService } from "vs/platform/native/common/native";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IIssueMainService, IProcessMainService, OldIssueReporterWindowConfiguration } from "../../../../platform/issue/common/issue.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
 export declare class IssueReporter extends Disposable {
     private readonly configuration;
     private readonly nativeHostService;

@@ -1,6 +1,6 @@
-import { URI } from "vs/base/common/uri";
-import { IRequestHandler, IWorkerServer } from "vs/base/common/worker/simpleWorker";
-import { ILink } from "vs/editor/common/languages";
+import { URI } from "../../../../base/common/uri.js";
+import { IRequestHandler, IWorkerServer } from "../../../../base/common/worker/simpleWorker.js";
+import { ILink } from "../../../../editor/common/languages.js";
 export interface IResourceCreator {
     toResource: (folderRelativePath: string) => URI | null;
 }

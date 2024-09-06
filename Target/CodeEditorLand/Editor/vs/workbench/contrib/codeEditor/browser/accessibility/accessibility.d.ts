@@ -1,1 +1,1 @@
-import "vs/css!./accessibility";
+import "./accessibility.css";

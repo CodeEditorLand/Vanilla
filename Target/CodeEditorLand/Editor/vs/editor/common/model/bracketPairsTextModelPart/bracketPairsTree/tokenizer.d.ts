@@ -1,8 +1,8 @@
-import { IViewLineTokens } from "vs/editor/common/tokens/lineTokens";
-import { BracketAstNode, TextAstNode } from "./ast";
-import { BracketTokens, LanguageAgnosticBracketTokens } from "./brackets";
-import { Length } from "./length";
-import { SmallImmutableSet } from "./smallImmutableSet";
+import { IViewLineTokens } from "../../../tokens/lineTokens.js";
+import { BracketAstNode, TextAstNode } from "./ast.js";
+import { BracketTokens, LanguageAgnosticBracketTokens } from "./brackets.js";
+import { Length } from "./length.js";
+import { SmallImmutableSet } from "./smallImmutableSet.js";
 export interface Tokenizer {
     readonly offset: Length;
     readonly length: Length;

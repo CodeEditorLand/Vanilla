@@ -1,10 +1,10 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IStorage, IStorageDatabase, IUpdateRequest } from "vs/base/parts/storage/common/storage";
-import { ILogService } from "vs/platform/log/common/log";
-import { AbstractStorageService, StorageScope } from "vs/platform/storage/common/storage";
-import { IUserDataProfile } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IAnyWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
-import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IStorage, IStorageDatabase, IStorageItemsChangeEvent, IUpdateRequest } from "../../../../base/parts/storage/common/storage.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { AbstractStorageService, StorageScope } from "../../../../platform/storage/common/storage.js";
+import { IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IAnyWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
 export declare class BrowserStorageService extends AbstractStorageService {
     private readonly workspace;
     private readonly userDataProfileService;
@@ -64,7 +64,7 @@ export declare class IndexedDBStorageDatabase extends Disposable implements IInd
     private static readonly STORAGE_DATABASE_PREFIX;
     private static readonly STORAGE_OBJECT_STORE;
     private readonly _onDidChangeItemsExternal;
-    readonly onDidChangeItemsExternal: any;
+    readonly onDidChangeItemsExternal: import("../../../../base/common/event.js").Event<IStorageItemsChangeEvent>;
     private broadcastChannel;
     private pendingUpdate;
     get hasPendingUpdate(): boolean;

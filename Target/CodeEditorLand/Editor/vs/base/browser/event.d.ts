@@ -1,6 +1,6 @@
-import { GestureEvent } from "vs/base/browser/touch";
-import { Event as BaseEvent } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
+import { Event as BaseEvent } from "../common/event.js";
+import { IDisposable } from "../common/lifecycle.js";
+import { GestureEvent } from "./touch.js";
 export type EventHandler = HTMLElement | HTMLDocument | Window;
 export interface IDomEvent {
     <K extends keyof HTMLElementEventMap>(element: EventHandler, type: K, useCapture?: boolean): BaseEvent<HTMLElementEventMap[K]>;

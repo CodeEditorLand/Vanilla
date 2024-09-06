@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor, IViewZoneChangeAccessor } from "vs/editor/browser/editorBrowser";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ICodeEditor, IViewZoneChangeAccessor } from "../../../../../editor/browser/editorBrowser.js";
 export declare abstract class FixedZoneWidget extends Disposable {
     private readonly editor;
     private static counter;

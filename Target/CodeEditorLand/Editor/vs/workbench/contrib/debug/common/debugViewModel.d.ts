@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IDebugSession, IExpression, IExpressionContainer, IStackFrame, IThread, IViewModel } from "vs/workbench/contrib/debug/common/debug";
+import { Event } from "../../../../base/common/event.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDebugSession, IExpression, IExpressionContainer, IStackFrame, IThread, IViewModel } from "./debug.js";
 export declare class ViewModel implements IViewModel {
     private contextKeyService;
     firstSessionStart: boolean;
@@ -50,7 +50,10 @@ export declare class ViewModel implements IViewModel {
         explicit: boolean;
         session: IDebugSession | undefined;
     }>;
-    get onDidChangeVisualization(): any;
+    get onDidChangeVisualization(): Event<{
+        original: IExpression;
+        replacement: IExpression;
+    }>;
     getSelectedExpression(): {
         expression: IExpression;
         settingWatch: boolean;

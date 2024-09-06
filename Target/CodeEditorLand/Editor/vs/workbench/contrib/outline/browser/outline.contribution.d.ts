@@ -1,1 +1,1 @@
-import "./outlineActions";
+import "./outlineActions.js";

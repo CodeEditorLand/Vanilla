@@ -1,7 +1,7 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { Comment } from "vs/editor/common/languages";
-import { IMenu, IMenuService } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { Comment } from "../../../../editor/common/languages.js";
+import { IMenu, IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 export declare class CommentMenus implements IDisposable {
     private readonly menuService;
     constructor(menuService: IMenuService);

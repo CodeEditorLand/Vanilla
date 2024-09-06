@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { AccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IDebugService } from "vs/workbench/contrib/debug/common/debug";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { AccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IDebugService } from "../../debug/common/debug.js";
 export declare class AccessibilitySignalLineDebuggerContribution extends Disposable implements IWorkbenchContribution {
     private readonly accessibilitySignalService;
     constructor(debugService: IDebugService, accessibilitySignalService: AccessibilitySignalService);

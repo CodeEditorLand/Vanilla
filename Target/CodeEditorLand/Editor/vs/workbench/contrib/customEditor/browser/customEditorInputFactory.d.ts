@@ -1,16 +1,16 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { CustomEditorInput } from "vs/workbench/contrib/customEditor/browser/customEditorInput";
-import { ICustomEditorService } from "vs/workbench/contrib/customEditor/common/customEditor";
-import { IWebviewService } from "vs/workbench/contrib/webview/browser/webview";
-import { DeserializedWebview, SerializedWebview, SerializedWebviewOptions, WebviewEditorInputSerializer } from "vs/workbench/contrib/webviewPanel/browser/webviewEditorInputSerializer";
-import { IWebviewWorkbenchService } from "vs/workbench/contrib/webviewPanel/browser/webviewWorkbenchService";
-import { IWorkingCopyBackupMeta, IWorkingCopyIdentifier } from "vs/workbench/services/workingCopy/common/workingCopy";
-import { IWorkingCopyBackupService } from "vs/workbench/services/workingCopy/common/workingCopyBackup";
-import { IWorkingCopyEditorHandler, IWorkingCopyEditorService } from "vs/workbench/services/workingCopy/common/workingCopyEditorService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IWorkingCopyBackupMeta, IWorkingCopyIdentifier } from "../../../services/workingCopy/common/workingCopy.js";
+import { IWorkingCopyBackupService } from "../../../services/workingCopy/common/workingCopyBackup.js";
+import { IWorkingCopyEditorHandler, IWorkingCopyEditorService } from "../../../services/workingCopy/common/workingCopyEditorService.js";
+import { IWebviewService } from "../../webview/browser/webview.js";
+import { DeserializedWebview, SerializedWebview, SerializedWebviewOptions, WebviewEditorInputSerializer } from "../../webviewPanel/browser/webviewEditorInputSerializer.js";
+import { IWebviewWorkbenchService } from "../../webviewPanel/browser/webviewWorkbenchService.js";
+import { ICustomEditorService } from "../common/customEditor.js";
+import { CustomEditorInput } from "./customEditorInput.js";
 export interface CustomDocumentBackupData extends IWorkingCopyBackupMeta {
     readonly viewType: string;
     readonly editorResource: UriComponents;
@@ -38,7 +38,7 @@ interface DeserializedCustomEditor extends DeserializedWebview {
 export declare class CustomEditorInputSerializer extends WebviewEditorInputSerializer {
     private readonly _instantiationService;
     private readonly _webviewService;
-    static readonly ID: any;
+    static readonly ID = "workbench.editors.webviewEditor";
     constructor(webviewWorkbenchService: IWebviewWorkbenchService, _instantiationService: IInstantiationService, _webviewService: IWebviewService);
     serialize(input: CustomEditorInput): string | undefined;
     protected fromJson(data: SerializedCustomEditor): DeserializedCustomEditor;

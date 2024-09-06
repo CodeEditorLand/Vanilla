@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { ApplyEditsResult, EndOfLinePreference, FindMatch, ISingleEditOperationIdentifier, ITextBuffer, ITextSnapshot, SearchData, ValidAnnotatedEditOperation } from "vs/editor/common/model";
-import { PieceTreeBase, StringBuffer } from "vs/editor/common/model/pieceTreeTextBuffer/pieceTreeBase";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Position } from "../../core/position.js";
+import { Range } from "../../core/range.js";
+import { ApplyEditsResult, EndOfLinePreference, FindMatch, ISingleEditOperationIdentifier, ITextBuffer, ITextSnapshot, SearchData, ValidAnnotatedEditOperation } from "../../model.js";
+import { PieceTreeBase, StringBuffer } from "./pieceTreeBase.js";
 export interface IValidatedEditOperation {
     sortIndex: number;
     identifier: ISingleEditOperationIdentifier | null;

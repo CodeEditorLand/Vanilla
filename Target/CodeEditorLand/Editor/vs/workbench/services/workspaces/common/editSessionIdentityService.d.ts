@@ -1,9 +1,9 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ILogService } from "vs/platform/log/common/log";
-import { EditSessionIdentityMatch, IEditSessionIdentityCreateParticipant, IEditSessionIdentityProvider, IEditSessionIdentityService } from "vs/platform/workspace/common/editSessions";
-import { IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { EditSessionIdentityMatch, IEditSessionIdentityCreateParticipant, IEditSessionIdentityProvider, IEditSessionIdentityService } from "../../../../platform/workspace/common/editSessions.js";
+import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
 export declare class EditSessionIdentityService implements IEditSessionIdentityService {
     private readonly _extensionService;
     private readonly _logService;

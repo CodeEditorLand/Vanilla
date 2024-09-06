@@ -1,18 +1,18 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ConfigurationTarget, IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { ILogService } from "vs/platform/log/common/log";
-import { IRemoteAuthorityResolverService, TunnelDescription } from "vs/platform/remote/common/remoteAuthorityResolver";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITunnelService, PortAttributesProvider, ProvidedOnAutoForward, RemoteTunnel, TunnelPrivacyId, TunnelProtocol } from "vs/platform/tunnel/common/tunnel";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ConfigurationTarget, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IRemoteAuthorityResolverService, TunnelDescription } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITunnelService, PortAttributesProvider, ProvidedOnAutoForward, RemoteTunnel, TunnelPrivacyId, TunnelProtocol } from "../../../../platform/tunnel/common/tunnel.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
 export declare const ACTIVATION_EVENT = "onTunnel";
-export declare const forwardedPortsViewEnabled: any;
+export declare const forwardedPortsViewEnabled: RawContextKey<boolean>;
 export interface RestorableTunnel {
     remoteHost: string;
     remotePort: number;
@@ -60,11 +60,11 @@ export declare enum TunnelSource {
 }
 export declare const UserTunnelSource: {
     source: TunnelSource;
-    description: any;
+    description: string;
 };
 export declare const AutoTunnelSource: {
     source: TunnelSource;
-    description: any;
+    description: string;
 };
 export declare function mapHasAddress<T>(map: Map<string, T>, host: string, port: number): T | undefined;
 export declare function mapHasAddressLocalhostOrAllInterfaces<T>(map: Map<string, T>, host: string, port: number): T | undefined;
@@ -114,7 +114,7 @@ export declare class PortsAttributes extends Disposable {
     private portsAttributes;
     private defaultPortAttributes;
     private _onDidChangeAttributes;
-    readonly onDidChangeAttributes: any;
+    readonly onDidChangeAttributes: Event<void>;
     constructor(configurationService: IConfigurationService);
     private updateAttributes;
     getAttributes(port: number, host: string, commandLine?: string): Attributes | undefined;
@@ -125,7 +125,7 @@ export declare class PortsAttributes extends Disposable {
     private sortAttributes;
     private getOtherAttributes;
     static providedActionToAction(providedAction: ProvidedOnAutoForward | undefined): OnPortForward | undefined;
-    addAttributes(port: number, attributes: Partial<Attributes>, target: ConfigurationTarget): Promise<any>;
+    addAttributes(port: number, attributes: Partial<Attributes>, target: ConfigurationTarget): Promise<void>;
 }
 export declare class TunnelModel extends Disposable {
     private readonly tunnelService;

@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IStorageService, IStorageValueChangeEvent, StorageScope, StorageTarget } from "vs/platform/storage/common/storage";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IStorageService, IStorageValueChangeEvent, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 export interface IStoredValueSerialization<T> {
     deserialize(data: string): T;
     serialize(data: T): string;

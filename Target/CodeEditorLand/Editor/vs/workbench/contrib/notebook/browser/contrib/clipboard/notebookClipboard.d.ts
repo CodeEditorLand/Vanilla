@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { ICellViewModel, INotebookEditor } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookCellTextModel } from "vs/workbench/contrib/notebook/common/model/notebookCellTextModel";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { ServicesAccessor } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { NotebookCellTextModel } from "../../../common/model/notebookCellTextModel.js";
+import { ICellViewModel, INotebookEditor } from "../../notebookBrowser.js";
 export declare function runPasteCells(editor: INotebookEditor, activeCell: ICellViewModel | undefined, pasteCells: {
     items: NotebookCellTextModel[];
     isCopy: boolean;

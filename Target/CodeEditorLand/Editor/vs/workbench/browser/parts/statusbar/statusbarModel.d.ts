@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IStatusbarEntryPriority, StatusbarAlignment } from "vs/workbench/services/statusbar/browser/statusbar";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IStatusbarEntryPriority, StatusbarAlignment } from "../../../services/statusbar/browser/statusbar.js";
 export interface IStatusbarViewModelEntry {
     readonly id: string;
     readonly name: string;
@@ -14,7 +14,10 @@ export declare class StatusbarViewModel extends Disposable {
     private readonly storageService;
     private static readonly HIDDEN_ENTRIES_KEY;
     private readonly _onDidChangeEntryVisibility;
-    readonly onDidChangeEntryVisibility: any;
+    readonly onDidChangeEntryVisibility: import("../../../../base/common/event.js").Event<{
+        id: string;
+        visible: boolean;
+    }>;
     private _entries;
     get entries(): IStatusbarViewModelEntry[];
     private _lastFocusedEntry;

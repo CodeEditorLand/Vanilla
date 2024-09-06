@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { INotebookEditorModelResolverService } from "vs/workbench/contrib/notebook/common/notebookEditorModelResolverService";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
-import { IEditorResolverService } from "vs/workbench/services/editor/common/editorResolverService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
+import { INotebookEditorModelResolverService } from "../../notebook/common/notebookEditorModelResolverService.js";
+import { INotebookService } from "../../notebook/common/notebookService.js";
 export declare class ReplDocumentContribution extends Disposable implements IWorkbenchContribution {
     private readonly notebookEditorModelResolverService;
     private readonly instantiationService;

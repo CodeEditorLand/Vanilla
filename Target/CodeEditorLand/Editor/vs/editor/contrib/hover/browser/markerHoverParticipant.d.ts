@@ -1,11 +1,11 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Range } from "vs/editor/common/core/range";
-import { IModelDecoration } from "vs/editor/common/model";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IMarkerDecorationsService } from "vs/editor/common/services/markerDecorations";
-import { HoverAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts } from "vs/editor/contrib/hover/browser/hoverTypes";
-import { IMarker } from "vs/platform/markers/common/markers";
-import { IOpenerService } from "vs/platform/opener/common/opener";
+import { IMarker } from "../../../../platform/markers/common/markers.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { Range } from "../../../common/core/range.js";
+import { IModelDecoration } from "../../../common/model.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { IMarkerDecorationsService } from "../../../common/services/markerDecorations.js";
+import { HoverAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts } from "./hoverTypes.js";
 export declare class MarkerHover implements IHoverPart {
     readonly owner: IEditorHoverParticipant<MarkerHover>;
     readonly range: Range;

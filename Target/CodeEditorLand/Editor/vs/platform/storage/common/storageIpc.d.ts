@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { UriDto } from "vs/base/common/uri";
-import { IChannel } from "vs/base/parts/ipc/common/ipc";
-import { IStorageDatabase, IStorageItemsChangeEvent, IUpdateRequest } from "vs/base/parts/storage/common/storage";
-import { IUserDataProfile } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IAnyWorkspaceIdentifier, IEmptyWorkspaceIdentifier, ISerializedSingleFolderWorkspaceIdentifier, ISerializedWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { UriDto } from "../../../base/common/uri.js";
+import { IChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { IStorageDatabase, IStorageItemsChangeEvent, IUpdateRequest } from "../../../base/parts/storage/common/storage.js";
+import { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
+import { IAnyWorkspaceIdentifier, IEmptyWorkspaceIdentifier, ISerializedSingleFolderWorkspaceIdentifier, ISerializedWorkspaceIdentifier } from "../../workspace/common/workspace.js";
 export type Key = string;
 export type Value = string;
 export type Item = [Key, Value];
@@ -46,7 +46,7 @@ declare abstract class BaseStorageDatabaseClient extends Disposable implements I
 }
 declare abstract class BaseProfileAwareStorageDatabaseClient extends BaseStorageDatabaseClient {
     private readonly _onDidChangeItemsExternal;
-    readonly onDidChangeItemsExternal: any;
+    readonly onDidChangeItemsExternal: Event<IStorageItemsChangeEvent>;
     constructor(channel: IChannel, profile: UriDto<IUserDataProfile> | undefined);
     private registerListeners;
     private onDidChangeStorage;
@@ -60,7 +60,7 @@ export declare class ProfileStorageDatabaseClient extends BaseProfileAwareStorag
     close(): Promise<void>;
 }
 export declare class WorkspaceStorageDatabaseClient extends BaseStorageDatabaseClient implements IStorageDatabase {
-    readonly onDidChangeItemsExternal: any;
+    readonly onDidChangeItemsExternal: Event<any>;
     constructor(channel: IChannel, workspace: IAnyWorkspaceIdentifier);
     close(): Promise<void>;
 }

@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { MainThreadNotebookRenderersShape } from "vs/workbench/api/common/extHost.protocol";
-import { INotebookRendererMessagingService } from "vs/workbench/contrib/notebook/common/notebookRendererMessagingService";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { INotebookRendererMessagingService } from "../../contrib/notebook/common/notebookRendererMessagingService.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadNotebookRenderersShape } from "../common/extHost.protocol.js";
 export declare class MainThreadNotebookRenderers extends Disposable implements MainThreadNotebookRenderersShape {
     private readonly messaging;
     private readonly proxy;

@@ -1,8 +1,6 @@
-import { IIdentityProvider } from "vs/base/browser/ui/list/list";
-import { ICollapseStateChangeEvent, ITreeElement, ITreeFilter, ITreeFilterDataResult, ITreeModel, ITreeNode, TreeVisibility } from "vs/base/browser/ui/tree/tree";
-import { Event } from "vs/base/common/event";
-import { Iterable } from "vs/base/common/iterator";
-import { ISpliceable } from "vs/base/common/sequence";
+import { Event } from "../../../common/event.js";
+import { IIdentityProvider } from "../list/list.js";
+import { ICollapseStateChangeEvent, ITreeElement, ITreeFilter, ITreeFilterDataResult, ITreeListSpliceData, ITreeModel, ITreeModelSpliceEvent, ITreeNode, TreeVisibility } from "./tree.js";
 export interface IIndexTreeNode<T, TFilterData = void> extends ITreeNode<T, TFilterData> {
     readonly parent: IIndexTreeNode<T, TFilterData> | undefined;
     readonly children: IIndexTreeNode<T, TFilterData>[];
@@ -48,15 +46,15 @@ export interface IIndexTreeModelSpliceOptions<T, TFilterData> {
      */
     onDidDeleteNode?: (node: ITreeNode<T, TFilterData>) => void;
 }
-export interface IList<T> extends ISpliceable<T> {
-    updateElementHeight(index: number, height: number | undefined): void;
-}
 export declare class IndexTreeModel<T extends Exclude<any, undefined>, TFilterData = void> implements ITreeModel<T, TFilterData, number[]> {
     private user;
-    private list;
     readonly rootRef: never[];
     private root;
     private eventBufferer;
+    private readonly _onDidSpliceModel;
+    readonly onDidSpliceModel: Event<ITreeModelSpliceEvent<T, TFilterData>>;
+    private readonly _onDidSpliceRenderedNodes;
+    readonly onDidSpliceRenderedNodes: Event<ITreeListSpliceData<T, TFilterData>>;
     private readonly _onDidChangeCollapseState;
     readonly onDidChangeCollapseState: Event<ICollapseStateChangeEvent<T, TFilterData>>;
     private readonly _onDidChangeRenderNodeCount;
@@ -65,15 +63,12 @@ export declare class IndexTreeModel<T extends Exclude<any, undefined>, TFilterDa
     private allowNonCollapsibleParents;
     private filter?;
     private autoExpandSingleChildren;
-    private readonly _onDidSplice;
-    readonly onDidSplice: any;
     private readonly refilterDelayer;
-    constructor(user: string, list: IList<ITreeNode<T, TFilterData>>, rootElement: T, options?: IIndexTreeModelOptions<T, TFilterData>);
+    constructor(user: string, rootElement: T, options?: IIndexTreeModelOptions<T, TFilterData>);
     splice(location: number[], deleteCount: number, toInsert?: Iterable<ITreeElement<T>>, options?: IIndexTreeModelSpliceOptions<T, TFilterData>): void;
     private spliceSmart;
     private spliceSimple;
     rerender(location: number[]): void;
-    updateElementHeight(location: number[], height: number | undefined): void;
     has(location: number[]): boolean;
     getListIndex(location: number[]): number;
     getListRenderCount(location: number[]): number;

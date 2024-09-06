@@ -1,5 +1,5 @@
-import { ResolvedKeybinding } from "vs/base/common/keybindings";
-import { ContextKeyExpression } from "vs/platform/contextkey/common/contextkey";
+import { ResolvedKeybinding } from "../../../base/common/keybindings.js";
+import { ContextKeyExpression } from "../../contextkey/common/contextkey.js";
 export declare class ResolvedKeybindingItem {
     _resolvedKeybindingItemBrand: void;
     readonly resolvedKeybinding: ResolvedKeybinding | undefined;

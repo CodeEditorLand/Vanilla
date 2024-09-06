@@ -1,12 +1,12 @@
-import { IListStyles } from "vs/base/browser/ui/list/listWidget";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IListService, WorkbenchAsyncDataTree } from "vs/platform/list/browser/listService";
-import { IStyleOverride } from "vs/platform/theme/browser/defaultStyles";
-import { Delegate } from "vs/workbench/contrib/extensions/browser/extensionsList";
-import { IExtension, IExtensionsWorkbenchService } from "vs/workbench/contrib/extensions/common/extensions";
+import { IListStyles } from "../../../../base/browser/ui/list/listWidget.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IListService, WorkbenchAsyncDataTree } from "../../../../platform/list/browser/listService.js";
+import { IStyleOverride } from "../../../../platform/theme/browser/defaultStyles.js";
+import { IExtension, IExtensionsWorkbenchService } from "../common/extensions.js";
+import { Delegate } from "./extensionsList.js";
 export declare class ExtensionsGridView extends Disposable {
     private readonly instantiationService;
     readonly element: HTMLElement;

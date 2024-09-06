@@ -1,13 +1,14 @@
-import { HoverAnchor, IHoverPart } from "vs/editor/contrib/hover/browser/hoverTypes";
-export declare class HoverResult {
-    readonly anchor: HoverAnchor;
+import { ContentHoverComputerOptions } from "./contentHoverComputer.js";
+import { HoverAnchor, IHoverPart } from "./hoverTypes.js";
+export declare class ContentHoverResult {
     readonly hoverParts: IHoverPart[];
     readonly isComplete: boolean;
-    constructor(anchor: HoverAnchor, hoverParts: IHoverPart[], isComplete: boolean);
-    filter(anchor: HoverAnchor): HoverResult;
+    readonly options: ContentHoverComputerOptions;
+    constructor(hoverParts: IHoverPart[], isComplete: boolean, options: ContentHoverComputerOptions);
+    filter(anchor: HoverAnchor): ContentHoverResult;
 }
-export declare class FilteredHoverResult extends HoverResult {
+export declare class FilteredContentHoverResult extends ContentHoverResult {
     private readonly original;
-    constructor(original: HoverResult, anchor: HoverAnchor, messages: IHoverPart[], isComplete: boolean);
-    filter(anchor: HoverAnchor): HoverResult;
+    constructor(original: ContentHoverResult, messages: IHoverPart[], isComplete: boolean, options: ContentHoverComputerOptions);
+    filter(anchor: HoverAnchor): ContentHoverResult;
 }

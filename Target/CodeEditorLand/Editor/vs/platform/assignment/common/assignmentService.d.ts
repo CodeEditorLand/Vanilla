@@ -1,8 +1,8 @@
 import type { IExperimentationTelemetry, ExperimentationService as TASClient } from "tas-client-umd";
-import { IAssignmentService } from "vs/platform/assignment/common/assignment";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IProductService } from "vs/platform/product/common/productService";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IAssignmentService } from "./assignment.js";
 export declare abstract class BaseAssignmentService implements IAssignmentService {
     private readonly machineId;
     protected readonly configurationService: IConfigurationService;

@@ -1,7 +1,7 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { DisposableStore, IDisposable } from "vs/base/common/lifecycle";
+import { VSBuffer } from "../../../common/buffer.js";
+import { CancellationToken } from "../../../common/cancellation.js";
+import { Event } from "../../../common/event.js";
+import { DisposableStore, IDisposable } from "../../../common/lifecycle.js";
 /**
  * An `IChannel` is an abstraction over a collection of commands.
  * You can `call` several commands on a channel, each taking at
@@ -129,7 +129,7 @@ export declare class ChannelClient implements IChannelClient, IDisposable {
     private protocolListener;
     private logger;
     private readonly _onDidInitialize;
-    readonly onDidInitialize: any;
+    readonly onDidInitialize: Event<void>;
     constructor(protocol: IMessagePassingProtocol, logger?: IIPCLogger | null);
     getChannel<T extends IChannel>(channelName: string): T;
     private requestPromise;

@@ -1,10 +1,10 @@
-import { URI } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IExtHostConsumerFileSystem } from "vs/workbench/api/common/extHostFileSystemConsumer";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
-import { IEnvironment } from "vs/workbench/services/extensions/common/extensionHostProtocol";
-export declare const IExtensionStoragePaths: any;
+import { URI } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IEnvironment } from "../../services/extensions/common/extensionHostProtocol.js";
+import { IExtHostConsumerFileSystem } from "./extHostFileSystemConsumer.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+export declare const IExtensionStoragePaths: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionStoragePaths>;
 export interface IExtensionStoragePaths {
     readonly _serviceBrand: undefined;
     whenReady: Promise<any>;

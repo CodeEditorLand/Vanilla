@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INotebookEditor } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { INotebookCellList } from "vs/workbench/contrib/notebook/browser/view/notebookRenderingCommon";
-import { OutlineEntry } from "vs/workbench/contrib/notebook/browser/viewModel/OutlineEntry";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { INotebookEditor } from "../notebookBrowser.js";
+import { INotebookCellList } from "../view/notebookRenderingCommon.js";
+import { OutlineEntry } from "../viewModel/OutlineEntry.js";
 export declare class NotebookStickyLine extends Disposable {
     readonly element: HTMLElement;
     readonly foldingIcon: StickyFoldingIcon;

@@ -1,10 +1,10 @@
-import { EditorAutoIndentStrategy } from "vs/editor/common/config/editorOptions";
-import { Range } from "vs/editor/common/core/range";
-import { CursorConfiguration } from "vs/editor/common/cursorCommon";
-import { IndentAction } from "vs/editor/common/languages/languageConfiguration";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ITextModel } from "vs/editor/common/model";
-import { IViewLineTokens } from "vs/editor/common/tokens/lineTokens";
+import { EditorAutoIndentStrategy } from "../config/editorOptions.js";
+import { Range } from "../core/range.js";
+import { CursorConfiguration } from "../cursorCommon.js";
+import { ITextModel } from "../model.js";
+import { IViewLineTokens } from "../tokens/lineTokens.js";
+import { IndentAction } from "./languageConfiguration.js";
+import { ILanguageConfigurationService } from "./languageConfigurationRegistry.js";
 export interface IVirtualModel {
     tokenization: {
         getLineTokens(lineNumber: number): IViewLineTokens;

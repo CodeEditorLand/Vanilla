@@ -1,8 +1,8 @@
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { ILanguagePackItem } from "vs/platform/languagePacks/common/languagePacks";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { ILocaleService } from "vs/workbench/services/localization/common/locale";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ILanguagePackItem } from "../../../../platform/languagePacks/common/languagePacks.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IHostService } from "../../host/browser/host.js";
+import { ILocaleService } from "../common/locale.js";
 export declare class WebLocaleService implements ILocaleService {
     private readonly dialogService;
     private readonly hostService;

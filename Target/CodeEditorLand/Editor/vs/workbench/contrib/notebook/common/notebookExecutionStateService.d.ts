@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IRange } from "vs/editor/common/core/range";
-import { NotebookCellExecutionState, NotebookExecutionState } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { CellExecutionUpdateType, ICellExecuteOutputEdit, ICellExecuteOutputItemEdit } from "vs/workbench/contrib/notebook/common/notebookExecutionService";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { NotebookCellExecutionState, NotebookExecutionState } from "./notebookCommon.js";
+import { CellExecutionUpdateType, ICellExecuteOutputEdit, ICellExecuteOutputItemEdit } from "./notebookExecutionService.js";
 export type ICellExecuteUpdate = ICellExecuteOutputEdit | ICellExecuteOutputItemEdit | ICellExecutionStateUpdate;
 export interface ICellExecutionStateUpdate {
     editType: CellExecutionUpdateType.ExecutionState;
@@ -50,7 +50,7 @@ export interface IFailedCellInfo {
     disposable: IDisposable;
     visible: boolean;
 }
-export declare const INotebookExecutionStateService: any;
+export declare const INotebookExecutionStateService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INotebookExecutionStateService>;
 export interface INotebookExecutionStateService {
     _serviceBrand: undefined;
     onDidChangeExecution: Event<ICellExecutionStateChangedEvent | IExecutionStateChangedEvent>;

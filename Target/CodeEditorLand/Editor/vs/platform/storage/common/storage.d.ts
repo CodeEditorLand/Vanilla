@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, DisposableStore } from "vs/base/common/lifecycle";
-import { IStorage, IStorageChangeEvent, StorageValue } from "vs/base/parts/storage/common/storage";
-import { IUserDataProfile } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IAnyWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
+import { Event } from "../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
+import { IStorage, IStorageChangeEvent, StorageValue } from "../../../base/parts/storage/common/storage.js";
+import { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
+import { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
 export declare const IS_NEW_KEY = "__$__isNewStorageMarker";
 export declare const TARGET_KEY = "__$__targetStorageMarker";
-export declare const IStorageService: any;
+export declare const IStorageService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IStorageService>;
 export declare enum WillSaveStateReason {
     /**
      * No specific reason to save state.
@@ -251,9 +251,9 @@ export declare abstract class AbstractStorageService extends Disposable implemen
     private static DEFAULT_FLUSH_INTERVAL;
     private readonly _onDidChangeValue;
     private readonly _onDidChangeTarget;
-    readonly onDidChangeTarget: any;
+    readonly onDidChangeTarget: Event<IStorageTargetChangeEvent>;
     private readonly _onWillSaveState;
-    readonly onWillSaveState: any;
+    readonly onWillSaveState: Event<IWillSaveStateEvent>;
     private initializationPromise;
     private readonly flushWhenIdleScheduler;
     private readonly runFlushWhenIdle;

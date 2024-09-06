@@ -1,9 +1,9 @@
-import { Event, IValueWithChangeEvent } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-export declare const IAccessibilitySignalService: any;
+import { Event, IValueWithChangeEvent } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { IAccessibilityService } from "../../accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+export declare const IAccessibilitySignalService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IAccessibilitySignalService>;
 export interface IAccessibilitySignalService {
     readonly _serviceBrand: undefined;
     playSignal(signal: AccessibilitySignal, options?: IAccessbilitySignalOptions): Promise<void>;

@@ -1,15 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
-import { IPaneCompositePartService } from "vs/workbench/services/panecomposite/browser/panecomposite";
-import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
-import { IWorkbenchThemeService } from "vs/workbench/services/themes/common/workbenchThemeService";
-import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { IWorkbenchThemeService } from "../../../services/themes/common/workbenchThemeService.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
 export declare class TelemetryContribution extends Disposable implements IWorkbenchContribution {
     private readonly telemetryService;
     private readonly contextService;

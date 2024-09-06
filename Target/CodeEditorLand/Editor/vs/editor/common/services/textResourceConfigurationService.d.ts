@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IPosition } from "vs/editor/common/core/position";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IModelService } from "vs/editor/common/services/model";
-import { ITextResourceConfigurationChangeEvent, ITextResourceConfigurationService } from "vs/editor/common/services/textResourceConfiguration";
-import { ConfigurationTarget, IConfigurationService, IConfigurationValue } from "vs/platform/configuration/common/configuration";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { ConfigurationTarget, IConfigurationService, IConfigurationValue } from "../../../platform/configuration/common/configuration.js";
+import { IPosition } from "../core/position.js";
+import { ILanguageService } from "../languages/language.js";
+import { IModelService } from "./model.js";
+import { ITextResourceConfigurationChangeEvent, ITextResourceConfigurationService } from "./textResourceConfiguration.js";
 export declare class TextResourceConfigurationService extends Disposable implements ITextResourceConfigurationService {
     private readonly configurationService;
     private readonly modelService;

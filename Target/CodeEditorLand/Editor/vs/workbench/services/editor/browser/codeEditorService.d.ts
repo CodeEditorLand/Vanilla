@@ -1,8 +1,8 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { AbstractCodeEditorService } from "vs/editor/browser/services/abstractCodeEditorService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { AbstractCodeEditorService } from "../../../../editor/browser/services/abstractCodeEditorService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IEditorService } from "../common/editorService.js";
 export declare class CodeEditorService extends AbstractCodeEditorService {
     private readonly editorService;
     private readonly configurationService;

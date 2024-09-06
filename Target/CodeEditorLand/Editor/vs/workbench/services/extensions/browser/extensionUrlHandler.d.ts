@@ -1,6 +1,6 @@
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { IURLHandler } from "vs/platform/url/common/url";
-export declare const IExtensionUrlHandler: any;
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IURLHandler } from "../../../../platform/url/common/url.js";
+export declare const IExtensionUrlHandler: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionUrlHandler>;
 export interface IExtensionContributedURLHandler extends IURLHandler {
     extensionDisplayName: string;
 }

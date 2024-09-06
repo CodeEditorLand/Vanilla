@@ -1,1 +1,1 @@
-export * from "vs/editor/common/services/editorWorkerBootstrap";
+export * from "./common/services/editorWorkerBootstrap.js";

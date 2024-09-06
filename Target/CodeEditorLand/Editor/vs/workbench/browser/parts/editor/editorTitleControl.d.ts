@@ -1,11 +1,11 @@
-import "vs/css!./media/editortitlecontrol";
-import { Dimension } from "vs/base/browser/dom";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IThemeService, Themable } from "vs/platform/theme/common/themeService";
-import { IEditorGroupsView, IEditorGroupTitleHeight, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from "vs/workbench/browser/parts/editor/editor";
-import { IEditorPartOptions } from "vs/workbench/common/editor";
-import { IReadonlyEditorGroupModel } from "vs/workbench/common/editor/editorGroupModel";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
+import "./media/editortitlecontrol.css";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { IEditorPartOptions } from "../../../common/editor.js";
+import { IReadonlyEditorGroupModel } from "../../../common/editor/editorGroupModel.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditorGroupsView, IEditorGroupTitleHeight, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from "./editor.js";
 export interface IEditorTitleControlDimensions {
     /**
      * The size of the parent container the title control is layed out in.

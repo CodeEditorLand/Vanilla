@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { FoldingRegion } from "vs/editor/contrib/folding/browser/foldingRanges";
-import { INotebookViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { ICellRange } from "vs/workbench/contrib/notebook/common/notebookRange";
+import { Event } from "../../../../../base/common/event.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { FoldingRegion, FoldingRegions } from "../../../../../editor/contrib/folding/browser/foldingRanges.js";
+import { ICellRange } from "../../common/notebookRange.js";
+import { INotebookViewModel } from "../notebookBrowser.js";
 type RegionFilter = (r: FoldingRegion) => boolean;
 type RegionFilterWithLevel = (r: FoldingRegion, level: number) => boolean;
 export declare class FoldingModel implements IDisposable {

@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILifecycleMainService } from "vs/platform/lifecycle/electron-main/lifecycleMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IOnDidTerminateUtilityrocessWorkerProcess, IUtilityProcessWorkerConfiguration, IUtilityProcessWorkerCreateConfiguration, IUtilityProcessWorkerService } from "vs/platform/utilityProcess/common/utilityProcessWorkerService";
-import { IWindowsMainService } from "vs/platform/windows/electron-main/windows";
-export declare const IUtilityProcessWorkerMainService: any;
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { IOnDidTerminateUtilityrocessWorkerProcess, IUtilityProcessWorkerConfiguration, IUtilityProcessWorkerCreateConfiguration, IUtilityProcessWorkerService } from "../common/utilityProcessWorkerService.js";
+export declare const IUtilityProcessWorkerMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUtilityProcessWorkerMainService>;
 export interface IUtilityProcessWorkerMainService extends IUtilityProcessWorkerService {
     readonly _serviceBrand: undefined;
 }

@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILifecycleMainService } from "vs/platform/lifecycle/electron-main/lifecycleMainService";
-import { IUserDataProfilesMainService } from "vs/platform/userDataProfile/electron-main/userDataProfile";
-import { IWindowsMainService } from "vs/platform/windows/electron-main/windows";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { IUserDataProfilesMainService } from "./userDataProfile.js";
 export declare class UserDataProfilesHandler extends Disposable {
     private readonly userDataProfilesService;
     private readonly windowsMainService;

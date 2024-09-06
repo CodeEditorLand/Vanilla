@@ -1,2 +1,2 @@
-import "vs/workbench/api/common/extHost.common.services";
-import "vs/workbench/api/node/extHost.node.services";
+import "../common/extHost.common.services.js";
+import "./extHost.node.services.js";

@@ -1,8 +1,8 @@
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import { ITextModel } from "vs/editor/common/model";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { ILogService } from "vs/platform/log/common/log";
-export declare const ILanguageFeatureDebounceService: any;
+import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { LanguageFeatureRegistry } from "../languageFeatureRegistry.js";
+import { ITextModel } from "../model.js";
+export declare const ILanguageFeatureDebounceService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ILanguageFeatureDebounceService>;
 export interface ILanguageFeatureDebounceService {
     readonly _serviceBrand: undefined;
     for(feature: LanguageFeatureRegistry<object>, debugName: string, config?: {

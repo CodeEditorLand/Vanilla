@@ -1,5 +1,5 @@
-import { URI } from "vs/base/common/uri";
-export declare const INotebookDocumentService: any;
+import { URI } from "../../../../base/common/uri.js";
+export declare const INotebookDocumentService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INotebookDocumentService>;
 export interface INotebookDocument {
     readonly uri: URI;
     getCellIndex(cellUri: URI): number | undefined;

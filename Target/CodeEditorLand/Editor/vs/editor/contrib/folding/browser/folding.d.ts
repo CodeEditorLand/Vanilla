@@ -1,20 +1,20 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import "vs/css!./folding";
-import { Event } from "vs/base/common/event";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IPosition } from "vs/editor/common/core/position";
-import { Selection } from "vs/editor/common/core/selection";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { FoldingRangeProvider } from "vs/editor/common/languages";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ITextModel } from "vs/editor/common/model";
-import { ILanguageFeatureDebounceService } from "vs/editor/common/services/languageFeatureDebounce";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { CollapseMemento, FoldingModel } from "vs/editor/contrib/folding/browser/foldingModel";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { FoldingRegions } from "./foldingRanges";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import "./folding.css";
+import { Event } from "../../../../base/common/event.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IPosition } from "../../../common/core/position.js";
+import { Selection } from "../../../common/core/selection.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { FoldingRangeProvider } from "../../../common/languages.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ITextModel } from "../../../common/model.js";
+import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { CollapseMemento, FoldingModel } from "./foldingModel.js";
+import { FoldingRegions } from "./foldingRanges.js";
 export interface RangeProvider {
     readonly id: string;
     compute(cancelationToken: CancellationToken): Promise<FoldingRegions | null>;
@@ -86,7 +86,7 @@ export declare class FoldingController extends Disposable implements IEditorCont
 export declare class RangesLimitReporter implements FoldingLimitReporter {
     private readonly editor;
     constructor(editor: ICodeEditor);
-    get limit(): any;
+    get limit(): number;
     private _onDidChange;
     readonly onDidChange: Event<void>;
     private _computed;

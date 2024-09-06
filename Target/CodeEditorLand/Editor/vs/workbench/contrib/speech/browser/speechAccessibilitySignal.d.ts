@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { ISpeechService } from "vs/workbench/contrib/speech/common/speechService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { ISpeechService } from "../common/speechService.js";
 export declare class SpeechAccessibilitySignalContribution extends Disposable implements IWorkbenchContribution {
     private readonly _accessibilitySignalService;
     private readonly _speechService;

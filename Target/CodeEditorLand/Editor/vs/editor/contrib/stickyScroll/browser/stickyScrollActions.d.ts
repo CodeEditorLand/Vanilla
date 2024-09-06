@@ -1,6 +1,6 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction2, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { Action2 } from "vs/platform/actions/common/actions";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction2, ServicesAccessor } from "../../../browser/editorExtensions.js";
 export declare class ToggleStickyScroll extends Action2 {
     constructor();
     run(accessor: ServicesAccessor): Promise<void>;

@@ -1,7 +1,7 @@
-import { IKeyboardEvent } from "vs/base/browser/keyboardEvent";
-import { IMouseWheelEvent } from "vs/base/browser/mouseEvent";
-import { IEditorMouseEvent, IMouseTarget, IPartialEditorMouseEvent } from "vs/editor/browser/editorBrowser";
-import { ICoordinatesConverter } from "vs/editor/common/viewModel";
+import { IKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
+import { IMouseWheelEvent } from "../../../base/browser/mouseEvent.js";
+import { ICoordinatesConverter } from "../../common/viewModel.js";
+import { IEditorMouseEvent, IMouseTarget, IPartialEditorMouseEvent } from "../editorBrowser.js";
 export interface EventCallback<T> {
     (event: T): void;
 }

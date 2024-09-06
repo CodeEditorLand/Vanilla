@@ -1,4 +1,4 @@
-import { ITextSearchPreviewOptions, ITextSearchResult } from "vs/workbench/services/search/common/search";
+import { ITextSearchPreviewOptions, ITextSearchResult } from "./search.js";
 export declare const getFileResults: (bytes: Uint8Array, pattern: RegExp, options: {
     surroundingContext: number;
     previewOptions: ITextSearchPreviewOptions | undefined;

@@ -1,7 +1,7 @@
-import { UriComponents, UriDto } from "vs/base/common/uri";
-import { ILoggerOptions, ILoggerResource, ILoggerService, LogLevel } from "vs/platform/log/common/log";
-import { MainThreadLoggerShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { UriComponents, UriDto } from "../../../base/common/uri.js";
+import { ILoggerOptions, ILoggerResource, ILoggerService, LogLevel } from "../../../platform/log/common/log.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadLoggerShape } from "../common/extHost.protocol.js";
 export declare class MainThreadLoggerService implements MainThreadLoggerShape {
     private readonly loggerService;
     private readonly disposables;

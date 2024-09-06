@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { ISCMService } from "vs/workbench/contrib/scm/common/scm";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { ISCMService } from "../common/scm.js";
 export declare class SCMWorkingSetController extends Disposable implements IWorkbenchContribution {
     private readonly configurationService;
     private readonly editorGroupsService;

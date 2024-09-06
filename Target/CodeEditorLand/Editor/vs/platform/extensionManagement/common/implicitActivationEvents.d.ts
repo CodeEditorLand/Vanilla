@@ -1,4 +1,4 @@
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
+import { IExtensionDescription } from "../../extensions/common/extensions.js";
 export interface IActivationEventsGenerator<T> {
     (contributions: T[], result: {
         push(item: string): void;

@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IKeyboardLayoutService } from "vs/platform/keyboardLayout/common/keyboardLayout";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IStatusbarService } from "vs/workbench/services/statusbar/browser/statusbar";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IKeyboardLayoutService } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
 export declare class KeyboardLayoutPickerContribution extends Disposable implements IWorkbenchContribution {
     private readonly keyboardLayoutService;
     private readonly statusbarService;

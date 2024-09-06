@@ -1,11 +1,11 @@
 import { BrowserWindowConstructorOptions, WebContents } from "electron";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEnvironmentMainService } from "vs/platform/environment/electron-main/environmentMainService";
-import { ILifecycleMainService } from "vs/platform/lifecycle/electron-main/lifecycleMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { IStateService } from "vs/platform/state/node/state";
-import { IBaseWindow } from "vs/platform/window/electron-main/window";
-import { BaseWindow } from "vs/platform/windows/electron-main/windowImpl";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IStateService } from "../../state/node/state.js";
+import { IBaseWindow } from "../../window/electron-main/window.js";
+import { BaseWindow } from "../../windows/electron-main/windowImpl.js";
 export interface IAuxiliaryWindow extends IBaseWindow {
     readonly parentId: number;
 }

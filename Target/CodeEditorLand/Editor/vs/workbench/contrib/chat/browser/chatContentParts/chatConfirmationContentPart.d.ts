@@ -1,14 +1,14 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IChatContentPart, IChatContentPartRenderContext } from "vs/workbench/contrib/chat/browser/chatContentParts/chatContentParts";
-import { IChatProgressRenderableResponseContent } from "vs/workbench/contrib/chat/common/chatModel";
-import { IChatConfirmation, IChatService } from "vs/workbench/contrib/chat/common/chatService";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IChatProgressRenderableResponseContent } from "../../common/chatModel.js";
+import { IChatConfirmation, IChatService } from "../../common/chatService.js";
+import { IChatContentPart, IChatContentPartRenderContext } from "./chatContentParts.js";
 export declare class ChatConfirmationContentPart extends Disposable implements IChatContentPart {
     private readonly instantiationService;
     private readonly chatService;
     readonly domNode: HTMLElement;
     private readonly _onDidChangeHeight;
-    readonly onDidChangeHeight: any;
+    readonly onDidChangeHeight: import("../../../../../base/common/event.js").Event<void>;
     constructor(confirmation: IChatConfirmation, context: IChatContentPartRenderContext, instantiationService: IInstantiationService, chatService: IChatService);
     hasSameContent(other: IChatProgressRenderableResponseContent): boolean;
     addDisposable(disposable: IDisposable): void;

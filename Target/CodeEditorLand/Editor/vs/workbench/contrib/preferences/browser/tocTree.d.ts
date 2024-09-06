@@ -1,13 +1,12 @@
-import { ITreeElement, ITreeNode, ITreeRenderer } from "vs/base/browser/ui/tree/tree";
-import { Iterable } from "vs/base/common/iterator";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IListService, WorkbenchObjectTree } from "vs/platform/list/browser/listService";
-import { ISettingsEditorViewState, SearchResultModel, SettingsTreeElement, SettingsTreeGroupElement } from "vs/workbench/contrib/preferences/browser/settingsTreeModels";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
+import { ITreeElement, ITreeNode, ITreeRenderer } from "../../../../base/browser/ui/tree/tree.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IListService, WorkbenchObjectTree } from "../../../../platform/list/browser/listService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { ISettingsEditorViewState, SearchResultModel, SettingsTreeElement, SettingsTreeGroupElement } from "./settingsTreeModels.js";
 export declare class TOCTreeModel {
     private _viewState;
     private environmentService;

@@ -1,19 +1,19 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { Command, ProviderResult } from "vs/editor/common/languages";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IRequestService } from "vs/platform/request/common/request";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IChatProgressResponseContent, IChatRequestVariableData, ISerializableChatAgentData } from "vs/workbench/contrib/chat/common/chatModel";
-import { IRawChatCommandContribution, RawChatParticipantLocation } from "vs/workbench/contrib/chat/common/chatParticipantContribTypes";
-import { IChatFollowup, IChatLocationData, IChatProgress, IChatResponseErrorDetails, IChatTaskDto } from "vs/workbench/contrib/chat/common/chatService";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Command, ProviderResult } from "../../../../editor/common/languages.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IRequestService } from "../../../../platform/request/common/request.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IChatProgressResponseContent, IChatRequestVariableData, ISerializableChatAgentData } from "./chatModel.js";
+import { IRawChatCommandContribution, RawChatParticipantLocation } from "./chatParticipantContribTypes.js";
+import { IChatFollowup, IChatLocationData, IChatProgress, IChatResponseErrorDetails, IChatTaskDto } from "./chatService.js";
 export interface IChatAgentHistoryEntry {
     request: IChatAgentRequest;
     response: ReadonlyArray<IChatProgressResponseContent | IChatTaskDto>;
@@ -47,7 +47,7 @@ export interface IChatAgentData {
     slashCommands: IChatAgentCommand[];
     locations: ChatAgentLocation[];
     disambiguation: {
-        categoryName: string;
+        category: string;
         description: string;
         examples: string[];
     }[];
@@ -68,7 +68,7 @@ export interface IChatParticipantMetadata {
     participant: string;
     command?: string;
     disambiguation: {
-        categoryName: string;
+        category: string;
         description: string;
         examples: string[];
     }[];
@@ -138,7 +138,7 @@ export interface IChatAgentResult {
     };
     nextQuestion?: IChatQuestion;
 }
-export declare const IChatAgentService: any;
+export declare const IChatAgentService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IChatAgentService>;
 export interface IChatAgentCompletionItem {
     id: string;
     name?: string;
@@ -194,6 +194,7 @@ export declare class ChatAgentService implements IChatAgentService {
     private readonly _onDidChangeAgents;
     readonly onDidChangeAgents: Event<IChatAgent | undefined>;
     private readonly _hasDefaultAgent;
+    private readonly _defaultAgentRegistered;
     constructor(contextKeyService: IContextKeyService);
     registerAgent(id: string, data: IChatAgentData): IDisposable;
     registerAgentImplementation(id: string, agentImpl: IChatAgentImplementation): IDisposable;
@@ -221,7 +222,7 @@ export declare class ChatAgentService implements IChatAgentService {
     getFollowups(id: string, request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatFollowup[]>;
     getChatTitle(id: string, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<string | undefined>;
     private _chatParticipantDetectionProviders;
-    registerChatParticipantDetectionProvider(handle: number, provider: IChatParticipantDetectionProvider): any;
+    registerChatParticipantDetectionProvider(handle: number, provider: IChatParticipantDetectionProvider): IDisposable;
     hasChatParticipantDetectionProviders(): boolean;
     detectAgentOrCommand(request: IChatAgentRequest, history: IChatAgentHistoryEntry[], options: {
         location: ChatAgentLocation;
@@ -250,7 +251,7 @@ export declare class MergedChatAgent implements IChatAgent {
     get slashCommands(): IChatAgentCommand[];
     get locations(): ChatAgentLocation[];
     get disambiguation(): {
-        categoryName: string;
+        category: string;
         description: string;
         examples: string[];
     }[];
@@ -260,7 +261,7 @@ export declare class MergedChatAgent implements IChatAgent {
     provideSampleQuestions(location: ChatAgentLocation, token: CancellationToken): ProviderResult<IChatFollowup[] | undefined>;
     toJSON(): IChatAgentData;
 }
-export declare const IChatAgentNameService: any;
+export declare const IChatAgentNameService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IChatAgentNameService>;
 export interface IChatAgentNameService {
     _serviceBrand: undefined;
     getAgentNameRestriction(chatAgentData: IChatAgentData): boolean;

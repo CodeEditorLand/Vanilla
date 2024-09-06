@@ -1,8 +1,8 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { IProgressStep, Progress } from "vs/platform/progress/common/progress";
 import { ProgressOptions } from "vscode";
-import { ExtHostProgressShape, MainThreadProgressShape } from "./extHost.protocol";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { IProgressStep, Progress } from "../../../platform/progress/common/progress.js";
+import { ExtHostProgressShape, MainThreadProgressShape } from "./extHost.protocol.js";
 export declare class ExtHostProgress implements ExtHostProgressShape {
     private _proxy;
     private _handles;

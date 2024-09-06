@@ -1,9 +1,9 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IURITransformer } from "vs/base/common/uriIpc";
-import { IMessagePassingProtocol } from "vs/base/parts/ipc/common/ipc";
-import { IRPCProtocol, Proxied, ProxyIdentifier } from "vs/workbench/services/extensions/common/proxyIdentifier";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IURITransformer } from "../../../../base/common/uriIpc.js";
+import { IMessagePassingProtocol } from "../../../../base/parts/ipc/common/ipc.js";
+import { IRPCProtocol, Proxied, ProxyIdentifier } from "./proxyIdentifier.js";
 export interface JSONStringifyReplacer {
     (key: string, value: any): any;
 }

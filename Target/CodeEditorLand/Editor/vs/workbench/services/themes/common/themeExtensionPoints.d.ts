@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IExtensionPoint } from "vs/workbench/services/extensions/common/extensionsRegistry";
-import { ExtensionData, IThemeExtensionPoint } from "vs/workbench/services/themes/common/workbenchThemeService";
-export declare function registerColorThemeExtensionPoint(): any;
-export declare function registerFileIconThemeExtensionPoint(): any;
-export declare function registerProductIconThemeExtensionPoint(): any;
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IExtensionPoint } from "../../extensions/common/extensionsRegistry.js";
+import { ExtensionData, IThemeExtensionPoint } from "./workbenchThemeService.js";
+export declare function registerColorThemeExtensionPoint(): IExtensionPoint<IThemeExtensionPoint[]>;
+export declare function registerFileIconThemeExtensionPoint(): IExtensionPoint<IThemeExtensionPoint[]>;
+export declare function registerProductIconThemeExtensionPoint(): IExtensionPoint<IThemeExtensionPoint[]>;
 export interface ThemeChangeEvent<T> {
     themes: T[];
     added: T[];

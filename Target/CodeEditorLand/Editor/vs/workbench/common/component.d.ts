@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { IStorageService, IStorageValueChangeEvent, StorageScope, StorageTarget } from "vs/platform/storage/common/storage";
-import { IThemeService, Themable } from "vs/platform/theme/common/themeService";
-import { MementoObject } from "vs/workbench/common/memento";
+import { Event } from "../../base/common/event.js";
+import { DisposableStore } from "../../base/common/lifecycle.js";
+import { IStorageService, IStorageValueChangeEvent, StorageScope, StorageTarget } from "../../platform/storage/common/storage.js";
+import { IThemeService, Themable } from "../../platform/theme/common/themeService.js";
+import { MementoObject } from "./memento.js";
 export declare class Component extends Themable {
     private readonly id;
     private readonly memento;

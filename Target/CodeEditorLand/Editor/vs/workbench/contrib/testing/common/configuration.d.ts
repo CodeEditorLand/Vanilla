@@ -1,5 +1,5 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IConfigurationNode } from "vs/platform/configuration/common/configurationRegistry";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IConfigurationNode } from "../../../../platform/configuration/common/configurationRegistry.js";
 export declare const enum TestingConfigKeys {
     AutoRunDelay = "testing.autoRun.delay",
     AutoOpenPeekView = "testing.automaticallyOpenPeekView",
@@ -68,5 +68,5 @@ export interface ITestingConfiguration {
     [TestingConfigKeys.CoverageBarThresholds]: ITestingCoverageBarThresholds;
     [TestingConfigKeys.CoverageToolbarEnabled]: boolean;
 }
-export declare const getTestingConfiguration: <K extends TestingConfigKeys>(config: IConfigurationService, key: K) => any;
-export declare const observeTestingConfiguration: <K extends TestingConfigKeys>(config: IConfigurationService, key: K) => any;
+export declare const getTestingConfiguration: <K extends TestingConfigKeys>(config: IConfigurationService, key: K) => ITestingConfiguration[K];
+export declare const observeTestingConfiguration: <K extends TestingConfigKeys>(config: IConfigurationService, key: K) => import("../../../../base/common/observable.js").IObservable<ITestingConfiguration[K], unknown>;

@@ -1,9 +1,9 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { CharacterPair, CommentRule, ExplicitLanguageConfiguration, IAutoClosingPair, IAutoClosingPairConditional } from "vs/editor/common/languages/languageConfiguration";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { IExtensionResourceLoaderService } from "vs/platform/extensionResourceLoader/common/extensionResourceLoader";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { CharacterPair, CommentRule, ExplicitLanguageConfiguration, IAutoClosingPair, IAutoClosingPairConditional } from "../../../../editor/common/languages/languageConfiguration.js";
+import { ILanguageConfigurationService } from "../../../../editor/common/languages/languageConfigurationRegistry.js";
+import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 interface IRegExp {
     pattern: string;
     flags?: string;

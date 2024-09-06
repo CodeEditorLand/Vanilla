@@ -1,6 +1,6 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IFileMatch, IFileQuery, ISearchCompleteStats } from "vs/workbench/services/search/common/search";
-import { FileSearchProviderNew } from "vs/workbench/services/search/common/searchExtTypes";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IFileMatch, IFileQuery, ISearchCompleteStats } from "./search.js";
+import { FileSearchProviderNew } from "./searchExtTypes.js";
 export declare class FileSearchManager {
     private static readonly BATCH_SIZE;
     private readonly sessions;

@@ -1,7 +1,7 @@
-import { IExtensionIdWithVersion } from "vs/platform/extensionManagement/common/extensionStorage";
-import { ILogService } from "vs/platform/log/common/log";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { ExtHostStorageShape } from "./extHost.protocol";
+import { IExtensionIdWithVersion } from "../../../platform/extensionManagement/common/extensionStorage.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { ExtHostStorageShape } from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export interface IStorageChangeEvent {
     shared: boolean;
     key: string;
@@ -12,7 +12,7 @@ export declare class ExtHostStorage implements ExtHostStorageShape {
     readonly _serviceBrand: undefined;
     private _proxy;
     private readonly _onDidChangeStorage;
-    readonly onDidChangeStorage: any;
+    readonly onDidChangeStorage: import("../../../base/common/event.js").Event<IStorageChangeEvent>;
     constructor(mainContext: IExtHostRpcService, _logService: ILogService);
     registerExtensionStorageKeysToSync(extension: IExtensionIdWithVersion, keys: string[]): void;
     initializeExtensionStorage(shared: boolean, key: string, defaultValue?: object): Promise<object | undefined>;
@@ -22,4 +22,4 @@ export declare class ExtHostStorage implements ExtHostStorageShape {
 }
 export interface IExtHostStorage extends ExtHostStorage {
 }
-export declare const IExtHostStorage: any;
+export declare const IExtHostStorage: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostStorage>;

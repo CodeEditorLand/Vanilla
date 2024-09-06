@@ -1,23 +1,24 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { AccessibleViewType, IAccessibleViewContentProvider } from "vs/platform/accessibility/browser/accessibleView";
-import { IAccessibleViewImplentation } from "vs/platform/accessibility/browser/accessibleViewRegistry";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IViewsService } from "vs/workbench/services/views/common/viewsService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
 export declare class RunAndDebugAccessibilityHelp implements IAccessibleViewImplentation {
     priority: number;
     name: string;
-    when: any;
+    when: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression | undefined;
     type: AccessibleViewType;
     getProvider(accessor: ServicesAccessor): RunAndDebugAccessibilityHelpProvider;
 }
 declare class RunAndDebugAccessibilityHelpProvider extends Disposable implements IAccessibleViewContentProvider {
     private readonly _commandService;
     private readonly _viewsService;
-    readonly id: any;
-    readonly verbositySettingKey: any;
+    readonly id = AccessibleViewProviderId.RunAndDebug;
+    readonly verbositySettingKey = AccessibilityVerbositySettingId.Debug;
     readonly options: {
-        type: any;
+        type: AccessibleViewType;
     };
     private _focusedView;
     constructor(_commandService: ICommandService, _viewsService: IViewsService);

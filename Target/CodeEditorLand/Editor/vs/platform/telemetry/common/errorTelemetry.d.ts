@@ -1,4 +1,5 @@
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { ITelemetryService } from "./telemetry.js";
 export interface ErrorEvent {
     callstack: string;
     msg?: string;
@@ -18,7 +19,7 @@ export default abstract class BaseErrorTelemetry {
     private _flushDelay;
     private _flushHandle;
     private _buffer;
-    protected readonly _disposables: any;
+    protected readonly _disposables: DisposableStore;
     constructor(telemetryService: ITelemetryService, flushDelay?: number);
     dispose(): void;
     protected installErrorListeners(): void;

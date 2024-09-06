@@ -1,12 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Iterable } from "vs/base/common/iterator";
-import { URI } from "vs/base/common/uri";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ILogService } from "vs/platform/log/common/log";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { ISCMProvider, ISCMRepository, ISCMService } from "./scm";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ISCMProvider, ISCMRepository, ISCMService } from "./scm.js";
 export declare class SCMService implements ISCMService {
     private readonly logService;
     private readonly uriIdentityService;

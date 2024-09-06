@@ -1,7 +1,7 @@
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI, URI as uri } from "vs/base/common/uri";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IModelService } from "vs/editor/common/services/model";
-import { FileKind } from "vs/platform/files/common/files";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { URI, URI as uri } from "../../../base/common/uri.js";
+import { FileKind } from "../../../platform/files/common/files.js";
+import { ILanguageService } from "../languages/language.js";
+import { IModelService } from "./model.js";
 export declare function getIconClasses(modelService: IModelService, languageService: ILanguageService, resource: uri | undefined, fileKind?: FileKind, icon?: ThemeIcon | URI): string[];
 export declare function getIconClassesForLanguageId(languageId: string): string[];

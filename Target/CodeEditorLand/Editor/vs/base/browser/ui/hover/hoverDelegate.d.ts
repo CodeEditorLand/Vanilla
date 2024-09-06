@@ -1,7 +1,7 @@
-import type { IHoverWidget, IManagedHoverOptions } from "vs/base/browser/ui/hover/hover";
-import { HoverPosition } from "vs/base/browser/ui/hover/hoverWidget";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { IDisposable } from "vs/base/common/lifecycle";
+import { IMarkdownString } from "../../../common/htmlContent.js";
+import { IDisposable } from "../../../common/lifecycle.js";
+import type { IHoverWidget, IManagedHoverOptions } from "./hover.js";
+import { HoverPosition } from "./hoverWidget.js";
 export interface IHoverDelegateTarget extends IDisposable {
     readonly targetElements: readonly HTMLElement[];
     x?: number;

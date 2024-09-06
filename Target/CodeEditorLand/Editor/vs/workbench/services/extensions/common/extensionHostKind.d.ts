@@ -1,5 +1,5 @@
-import { ExtensionKind } from "vs/platform/environment/common/environment";
-import { ExtensionIdentifier, IExtensionDescription } from "vs/platform/extensions/common/extensions";
+import { ExtensionKind } from "../../../../platform/environment/common/environment.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
 export declare const enum ExtensionHostKind {
     LocalProcess = 1,
     LocalWebWorker = 2,

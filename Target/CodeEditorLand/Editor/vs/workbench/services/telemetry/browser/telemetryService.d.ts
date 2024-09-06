@@ -1,12 +1,12 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILoggerService, ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "vs/platform/telemetry/common/gdprTypings";
-import { ITelemetryData, ITelemetryService, TelemetryLevel } from "vs/platform/telemetry/common/telemetry";
-import { IBrowserWorkbenchEnvironmentService } from "vs/workbench/services/environment/browser/environmentService";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ILoggerService, ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "../../../../platform/telemetry/common/gdprTypings.js";
+import { ITelemetryData, ITelemetryService, TelemetryLevel } from "../../../../platform/telemetry/common/telemetry.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
 export declare class TelemetryService extends Disposable implements ITelemetryService {
     readonly _serviceBrand: undefined;
     private impl;

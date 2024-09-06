@@ -1,7 +1,7 @@
-import { Color } from "vs/base/common/color";
-import { ITokenThemeRule, TokenTheme } from "vs/editor/common/languages/supports/tokenization";
-import { IColorTheme, IThemeService } from "vs/platform/theme/common/themeService";
-export declare const IStandaloneThemeService: any;
+import { Color } from "../../../base/common/color.js";
+import { IColorTheme, IThemeService } from "../../../platform/theme/common/themeService.js";
+import { ITokenThemeRule, TokenTheme } from "../../common/languages/supports/tokenization.js";
+export declare const IStandaloneThemeService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IStandaloneThemeService>;
 export type BuiltinTheme = "vs" | "vs-dark" | "hc-black" | "hc-light";
 export type IColors = {
     [colorId: string]: string;

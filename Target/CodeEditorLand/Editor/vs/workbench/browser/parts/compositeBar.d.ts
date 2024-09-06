@@ -1,16 +1,16 @@
-import { Dimension } from "vs/base/browser/dom";
-import { GestureEvent } from "vs/base/browser/touch";
-import { ActionsOrientation } from "vs/base/browser/ui/actionbar/actionbar";
-import { Widget } from "vs/base/browser/ui/widget";
-import { IAction } from "vs/base/common/actions";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IColorTheme } from "vs/platform/theme/common/themeService";
-import { Before2D, CompositeDragAndDropData, ICompositeDragAndDrop } from "vs/workbench/browser/dnd";
-import { CompositeBarAction, IActivityHoverOptions, ICompositeBar, ICompositeBarColors } from "vs/workbench/browser/parts/compositeBarActions";
-import { IComposite } from "vs/workbench/common/composite";
-import { IPaneComposite } from "vs/workbench/common/panecomposite";
-import { IViewDescriptorService, ViewContainerLocation } from "vs/workbench/common/views";
+import { Dimension } from "../../../base/browser/dom.js";
+import { GestureEvent } from "../../../base/browser/touch.js";
+import { ActionsOrientation } from "../../../base/browser/ui/actionbar/actionbar.js";
+import { Widget } from "../../../base/browser/ui/widget.js";
+import { IAction } from "../../../base/common/actions.js";
+import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { IColorTheme } from "../../../platform/theme/common/themeService.js";
+import { IComposite } from "../../common/composite.js";
+import { IPaneComposite } from "../../common/panecomposite.js";
+import { IViewDescriptorService, ViewContainerLocation } from "../../common/views.js";
+import { Before2D, CompositeDragAndDropData, ICompositeDragAndDrop } from "../dnd.js";
+import { CompositeBarAction, IActivityHoverOptions, ICompositeBar, ICompositeBarColors } from "./compositeBarActions.js";
 export interface ICompositeBarItem {
     readonly id: string;
     name?: string;
@@ -57,7 +57,7 @@ export declare class CompositeBar extends Widget implements ICompositeBar {
     private readonly contextMenuService;
     private readonly viewDescriptorService;
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: import("../../../base/common/event.js").Event<void>;
     private dimension;
     private compositeSwitcherBar;
     private compositeOverflowAction;
@@ -71,8 +71,6 @@ export declare class CompositeBar extends Widget implements ICompositeBar {
     getPinnedComposites(): ICompositeBarItem[];
     getVisibleComposites(): ICompositeBarItem[];
     create(parent: HTMLElement): HTMLElement;
-    private insertAtFront;
-    private updateFromDragging;
     focus(index?: number): void;
     recomputeSizes(): void;
     layout(dimension: Dimension): void;

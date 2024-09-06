@@ -1,9 +1,9 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IStatusbarService } from "vs/workbench/services/statusbar/browser/statusbar";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
 export declare class AccessibilityStatus extends Disposable implements IWorkbenchContribution {
     private readonly configurationService;
     private readonly notificationService;

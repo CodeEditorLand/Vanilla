@@ -1,12 +1,12 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Range } from "vs/editor/common/core/range";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { OvertypingCapturer } from "vs/editor/contrib/suggest/browser/suggestOvertypingCapturer";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ILogService } from "vs/platform/log/common/log";
-import { ISnippetEdit } from "./snippetSession";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { Range } from "../../../common/core/range.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { OvertypingCapturer } from "../../suggest/browser/suggestOvertypingCapturer.js";
+import { ISnippetEdit } from "./snippetSession.js";
 export interface ISnippetInsertOptions {
     overwriteBefore: number;
     overwriteAfter: number;
@@ -23,9 +23,9 @@ export declare class SnippetController2 implements IEditorContribution {
     private readonly _languageConfigurationService;
     static readonly ID = "snippetController2";
     static get(editor: ICodeEditor): SnippetController2 | null;
-    static readonly InSnippetMode: any;
-    static readonly HasNextTabstop: any;
-    static readonly HasPrevTabstop: any;
+    static readonly InSnippetMode: RawContextKey<false>;
+    static readonly HasNextTabstop: RawContextKey<false>;
+    static readonly HasPrevTabstop: RawContextKey<false>;
     private readonly _inSnippet;
     private readonly _hasNextTabstop;
     private readonly _hasPrevTabstop;

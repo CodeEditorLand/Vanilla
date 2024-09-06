@@ -1,14 +1,14 @@
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { ResourceEdit, ResourceFileEdit, ResourceTextEdit } from "vs/editor/browser/services/bulkEditService";
-import { ISingleEditOperation } from "vs/editor/common/core/editOperation";
-import { WorkspaceEditMetadata } from "vs/editor/common/languages";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IModelService } from "vs/editor/common/services/model";
-import { ITextModelContentProvider, ITextModelService } from "vs/editor/common/services/resolverService";
-import { IFileService } from "vs/platform/files/common/files";
-import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { ConflictDetector } from "vs/workbench/contrib/bulkEdit/browser/conflicts";
+import { Event } from "../../../../../base/common/event.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ResourceEdit, ResourceFileEdit, ResourceTextEdit } from "../../../../../editor/browser/services/bulkEditService.js";
+import { ISingleEditOperation } from "../../../../../editor/common/core/editOperation.js";
+import { WorkspaceEditMetadata } from "../../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { ITextModelContentProvider, ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ConflictDetector } from "../conflicts.js";
 export declare class CheckedStates<T extends object> {
     private readonly _states;
     private _checkedCount;
@@ -35,7 +35,7 @@ export declare class BulkFileOperation {
     readonly parent: BulkFileOperations;
     type: number;
     textEdits: BulkTextEdit[];
-    originalEdits: Map<number, any>;
+    originalEdits: Map<number, ResourceTextEdit | ResourceFileEdit>;
     newUri?: URI;
     constructor(uri: URI, parent: BulkFileOperations);
     addEdit(index: number, type: BulkFileOperationType, edit: ResourceTextEdit | ResourceFileEdit): void;
@@ -44,7 +44,7 @@ export declare class BulkFileOperation {
 export declare class BulkCategory {
     readonly metadata: WorkspaceEditMetadata;
     private static readonly _defaultMetadata;
-    static keyOf(metadata?: WorkspaceEditMetadata): any;
+    static keyOf(metadata?: WorkspaceEditMetadata): string;
     readonly operationByResource: Map<string, BulkFileOperation>;
     constructor(metadata?: WorkspaceEditMetadata);
     get fileOperations(): IterableIterator<BulkFileOperation>;
@@ -70,7 +70,7 @@ export declare class BulkEditPreviewProvider implements ITextModelContentProvide
     private readonly _modelService;
     private readonly _textModelResolverService;
     private static readonly Schema;
-    static emptyPreview: any;
+    static emptyPreview: URI;
     static fromPreviewUri(uri: URI): URI;
     private readonly _disposables;
     private readonly _ready;
@@ -82,5 +82,5 @@ export declare class BulkEditPreviewProvider implements ITextModelContentProvide
     private _init;
     private _applyTextEditsToPreviewModel;
     private _getOrCreatePreviewModel;
-    provideTextContent(previewUri: URI): Promise<any>;
+    provideTextContent(previewUri: URI): Promise<import("../../../../../editor/common/model.js").ITextModel | null>;
 }

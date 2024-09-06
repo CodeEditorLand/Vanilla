@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable, IReader, ITransaction } from "vs/base/common/observable";
-import { ITextModel } from "vs/editor/common/model";
-import { UndoRedoGroup } from "vs/platform/undoRedo/common/undoRedo";
-import { LineRangeEdit } from "vs/workbench/contrib/mergeEditor/browser/model/editing";
-import { LineRange } from "vs/workbench/contrib/mergeEditor/browser/model/lineRange";
-import { DetailedLineRangeMapping } from "vs/workbench/contrib/mergeEditor/browser/model/mapping";
-import { IMergeDiffComputer } from "./diffComputer";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable, IReader, ITransaction } from "../../../../../base/common/observable.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
+import { UndoRedoGroup } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { IMergeDiffComputer } from "./diffComputer.js";
+import { LineRangeEdit } from "./editing.js";
+import { LineRange } from "./lineRange.js";
+import { DetailedLineRangeMapping } from "./mapping.js";
 export declare class TextModelDiffs extends Disposable {
     private readonly baseTextModel;
     private readonly textModel;

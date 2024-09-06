@@ -1,11 +1,11 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IChatAgentService } from "vs/workbench/contrib/chat/common/chatAgents";
-import { IChatModel } from "vs/workbench/contrib/chat/common/chatModel";
-import { ISpeechService, ISpeechToTextEvent } from "vs/workbench/contrib/speech/common/speechService";
-export declare const IVoiceChatService: any;
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ISpeechService, ISpeechToTextEvent } from "../../speech/common/speechService.js";
+import { IChatAgentService } from "./chatAgents.js";
+import { IChatModel } from "./chatModel.js";
+export declare const IVoiceChatService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IVoiceChatService>;
 export interface IVoiceChatSessionOptions {
     readonly usesAgents?: boolean;
     readonly model?: IChatModel;
@@ -31,7 +31,7 @@ export interface IVoiceChatTextEvent extends ISpeechToTextEvent {
 export interface IVoiceChatSession {
     readonly onDidChange: Event<IVoiceChatTextEvent>;
 }
-export declare const VoiceChatInProgress: any;
+export declare const VoiceChatInProgress: RawContextKey<boolean>;
 export declare class VoiceChatService extends Disposable implements IVoiceChatService {
     private readonly speechService;
     private readonly chatAgentService;

@@ -1,9 +1,9 @@
-import "vs/css!./media/notificationsList";
-import { IListOptions } from "vs/base/browser/ui/list/listWidget";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INotificationViewItem } from "vs/workbench/common/notifications";
+import "./media/notificationsList.css";
+import { IListOptions } from "../../../../base/browser/ui/list/listWidget.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationViewItem } from "../../../common/notifications.js";
 export interface INotificationsListOptions extends IListOptions<INotificationViewItem> {
     readonly widgetAriaLabel?: string;
 }

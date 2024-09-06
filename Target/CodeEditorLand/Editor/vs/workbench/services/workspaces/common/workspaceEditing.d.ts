@@ -1,7 +1,7 @@
-import { URI } from "vs/base/common/uri";
-import { IWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
-import { IWorkspaceFolderCreationData } from "vs/platform/workspaces/common/workspaces";
-export declare const IWorkspaceEditingService: any;
+import { URI } from "../../../../base/common/uri.js";
+import { IWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceFolderCreationData } from "../../../../platform/workspaces/common/workspaces.js";
+export declare const IWorkspaceEditingService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkspaceEditingService>;
 export interface IWorkspaceEditingService {
     readonly _serviceBrand: undefined;
     /**

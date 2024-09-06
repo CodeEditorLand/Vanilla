@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IValidGrammarDefinition } from "vs/workbench/services/textMate/common/TMScopeRegistry";
 import type { IGrammar, IOnigLib, IRawTheme, StateStack } from "vscode-textmate";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IValidGrammarDefinition } from "./TMScopeRegistry.js";
 interface ITMGrammarFactoryHost {
     logTrace(msg: string): void;
     logError(msg: string, err: any): void;

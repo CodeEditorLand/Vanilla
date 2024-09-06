@@ -1,19 +1,19 @@
-import { WindowIdleValue } from "vs/base/browser/dom";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { CompletionItemProvider } from "vs/editor/common/languages";
-import { ISuggestMemoryService } from "vs/editor/contrib/suggest/browser/suggestMemory";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { CompletionItem, ISuggestItemPreselector } from "./suggest";
-import { SuggestModel } from "./suggestModel";
-import { ISelectedSuggestion, SuggestWidget } from "./suggestWidget";
+import { WindowIdleValue } from "../../../../base/browser/dom.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { CompletionItemProvider } from "../../../common/languages.js";
+import { CompletionItem, ISuggestItemPreselector } from "./suggest.js";
+import { ISuggestMemoryService } from "./suggestMemory.js";
+import { SuggestModel } from "./suggestModel.js";
+import { ISelectedSuggestion, SuggestWidget } from "./suggestWidget.js";
 declare const enum InsertFlags {
     None = 0,
     NoBeforeUndoStop = 1,

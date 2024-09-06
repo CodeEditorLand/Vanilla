@@ -1,5 +1,5 @@
-import { AstNode } from "./ast";
-import { Length } from "./length";
+import { AstNode } from "./ast.js";
+import { Length } from "./length.js";
 /**
  * Allows to efficiently find a longest child at a given offset in a fixed node.
  * The requested offsets must increase monotonously.

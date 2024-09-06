@@ -1,7 +1,7 @@
-import { IProcessPropertyMap, ITerminalChildProcess, ITerminalLaunchError, ITerminalLogService, ProcessPropertyType } from "vs/platform/terminal/common/terminal";
-import { BasePty } from "vs/workbench/contrib/terminal/common/basePty";
-import { RemoteTerminalChannelClient } from "vs/workbench/contrib/terminal/common/remote/remoteTerminalChannel";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { IProcessPropertyMap, ITerminalChildProcess, ITerminalLaunchError, ITerminalLogService, ProcessPropertyType } from "../../../../platform/terminal/common/terminal.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { BasePty } from "../common/basePty.js";
+import { RemoteTerminalChannelClient } from "../common/remote/remoteTerminalChannel.js";
 export declare class RemotePty extends BasePty implements ITerminalChildProcess {
     private readonly _remoteTerminalChannel;
     private readonly _remoteAgentService;

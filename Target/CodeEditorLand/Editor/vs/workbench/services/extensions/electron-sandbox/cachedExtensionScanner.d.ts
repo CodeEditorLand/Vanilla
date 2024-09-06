@@ -1,11 +1,11 @@
-import { IExtensionsScannerService } from "vs/platform/extensionManagement/common/extensionsScannerService";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IWorkbenchExtensionManagementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { IExtensionsScannerService } from "../../../../platform/extensionManagement/common/extensionsScannerService.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IWorkbenchExtensionManagementService } from "../../extensionManagement/common/extensionManagement.js";
+import { IHostService } from "../../host/browser/host.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
 export declare class CachedExtensionScanner {
     private readonly _notificationService;
     private readonly _hostService;

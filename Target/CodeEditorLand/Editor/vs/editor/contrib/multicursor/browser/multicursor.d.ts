@@ -1,12 +1,12 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { Range } from "vs/editor/common/core/range";
-import { Selection } from "vs/editor/common/core/selection";
-import { IEditorContribution, ScrollType } from "vs/editor/common/editorCommon";
-import { FindMatch } from "vs/editor/common/model";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { CommonFindController } from "vs/editor/contrib/find/browser/findController";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { Range } from "../../../common/core/range.js";
+import { Selection } from "../../../common/core/selection.js";
+import { IEditorContribution, ScrollType } from "../../../common/editorCommon.js";
+import { FindMatch } from "../../../common/model.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { CommonFindController } from "../../find/browser/findController.js";
 export declare class InsertCursorAbove extends EditorAction {
     constructor();
     run(accessor: ServicesAccessor, editor: ICodeEditor, args: any): void;

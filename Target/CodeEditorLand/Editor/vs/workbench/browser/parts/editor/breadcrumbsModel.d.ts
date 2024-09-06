@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { FileKind } from "vs/platform/files/common/files";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IEditorPane } from "vs/workbench/common/editor";
-import { IOutline, IOutlineService } from "vs/workbench/services/outline/browser/outline";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { FileKind } from "../../../../platform/files/common/files.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IEditorPane } from "../../../common/editor.js";
+import { IOutline, IOutlineService } from "../../../services/outline/browser/outline.js";
 export declare class FileElement {
     readonly uri: URI;
     readonly kind: FileKind;

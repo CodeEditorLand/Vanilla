@@ -1,12 +1,12 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IFileService } from "vs/platform/files/common/files";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IFileEditorInput, IUntypedEditorInput, IUntypedFileEditorInput } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { IEditorResolverService } from "vs/workbench/services/editor/common/editorResolverService";
-import { IUntitledTextEditorService } from "vs/workbench/services/untitled/common/untitledTextEditorService";
-export declare const ITextEditorService: any;
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IFileEditorInput, IUntypedEditorInput, IUntypedFileEditorInput } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditorResolverService } from "../../editor/common/editorResolverService.js";
+import { IUntitledTextEditorService } from "../../untitled/common/untitledTextEditorService.js";
+export declare const ITextEditorService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITextEditorService>;
 export interface ITextEditorService {
     readonly _serviceBrand: undefined;
     /**

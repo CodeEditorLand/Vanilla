@@ -1,27 +1,27 @@
-import { ToolBar } from "vs/base/browser/ui/toolbar/toolbar";
-import { Disposable, DisposableStore } from "vs/base/common/lifecycle";
-import { CodeEditorWidget, ICodeEditorWidgetOptions } from "vs/editor/browser/widget/codeEditor/codeEditorWidget";
-import { DiffEditorWidget } from "vs/editor/browser/widget/diffEditor/diffEditorWidget";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IModelService } from "vs/editor/common/services/model";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { ITextResourceConfigurationService } from "vs/editor/common/services/textResourceConfiguration";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { WorkbenchToolBar } from "vs/platform/actions/browser/toolbar";
-import { IMenu, IMenuService, MenuId } from "vs/platform/actions/common/actions";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKey, IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { OutputContainer } from "vs/workbench/contrib/notebook/browser/diff/diffElementOutputs";
-import { DiffElementCellViewModelBase, DiffElementPlaceholderViewModel, PropertyFoldingState, SideBySideDiffElementViewModel, SingleSideDiffElementViewModel } from "vs/workbench/contrib/notebook/browser/diff/diffElementViewModel";
-import { DiffNestedCellViewModel } from "vs/workbench/contrib/notebook/browser/diff/diffNestedCellViewModel";
-import { CellDiffPlaceholderRenderTemplate, CellDiffSideBySideRenderTemplate, CellDiffSingleSideRenderTemplate, IDiffCellMarginOverlay, INotebookTextDiffEditor } from "vs/workbench/contrib/notebook/browser/diff/notebookDiffEditorBrowser";
+import { ToolBar } from "../../../../../base/browser/ui/toolbar/toolbar.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { CodeEditorWidget, ICodeEditorWidgetOptions } from "../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { DiffEditorWidget } from "../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+import { WorkbenchToolBar } from "../../../../../platform/actions/browser/toolbar.js";
+import { IMenu, IMenuService, MenuId } from "../../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKey, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../../platform/notification/common/notification.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { OutputContainer } from "./diffElementOutputs.js";
+import { DiffElementCellViewModelBase, DiffElementPlaceholderViewModel, PropertyFoldingState, SideBySideDiffElementViewModel, SingleSideDiffElementViewModel } from "./diffElementViewModel.js";
+import { DiffNestedCellViewModel } from "./diffNestedCellViewModel.js";
+import { CellDiffPlaceholderRenderTemplate, CellDiffSideBySideRenderTemplate, CellDiffSingleSideRenderTemplate, IDiffCellMarginOverlay, INotebookTextDiffEditor } from "./notebookDiffEditorBrowser.js";
 export declare function getOptimizedNestedCodeEditorWidgetOptions(): ICodeEditorWidgetOptions;
 export declare class CellDiffPlaceholderElement extends Disposable {
     constructor(placeholder: DiffElementPlaceholderViewModel, templateData: CellDiffPlaceholderRenderTemplate);
@@ -57,6 +57,7 @@ declare class PropertyHeader extends Disposable {
     protected _toolbar: WorkbenchToolBar;
     protected _menu: IMenu;
     protected _propertyExpanded?: IContextKey<boolean>;
+    protected _propertyChanged?: IContextKey<boolean>;
     constructor(cell: DiffElementCellViewModelBase, propertyHeaderContainer: HTMLElement, notebookEditor: INotebookTextDiffEditor, accessor: {
         updateInfoRendering: (renderOutput: boolean) => void;
         checkIfModified: (cell: DiffElementCellViewModelBase) => false | {
@@ -71,6 +72,7 @@ declare class PropertyHeader extends Disposable {
     }, contextMenuService: IContextMenuService, keybindingService: IKeybindingService, commandService: ICommandService, notificationService: INotificationService, menuService: IMenuService, contextKeyService: IContextKeyService, themeService: IThemeService, telemetryService: ITelemetryService, accessibilityService: IAccessibilityService);
     buildHeader(): void;
     refresh(): void;
+    private updateMenu;
     private _updateFoldingIcon;
 }
 interface IDiffElementLayoutState {
@@ -96,8 +98,8 @@ declare abstract class AbstractElementRenderer extends Disposable {
     protected readonly contextKeyService: IContextKeyService;
     protected readonly configurationService: IConfigurationService;
     protected readonly textConfigurationService: ITextResourceConfigurationService;
-    protected readonly _metadataLocalDisposable: any;
-    protected readonly _outputLocalDisposable: any;
+    protected readonly _metadataLocalDisposable: DisposableStore;
+    protected readonly _outputLocalDisposable: DisposableStore;
     protected _ignoreMetadata: boolean;
     protected _ignoreOutputs: boolean;
     protected _cellHeaderContainer: HTMLElement;
@@ -163,7 +165,7 @@ declare abstract class SingleSideDiffElement extends AbstractElementRenderer {
     init(): void;
     buildBody(): void;
     updateSourceEditor(): void;
-    protected calculateDiagonalFillHeight(): any;
+    protected calculateDiagonalFillHeight(): number;
     private _initializeSourceDiffEditor;
     _disposeMetadata(): void;
     _buildMetadata(): void;
@@ -172,7 +174,7 @@ declare abstract class SingleSideDiffElement extends AbstractElementRenderer {
 }
 export declare class DeletedElement extends SingleSideDiffElement {
     constructor(notebookEditor: INotebookTextDiffEditor, cell: SingleSideDiffElementViewModel, templateData: CellDiffSingleSideRenderTemplate, languageService: ILanguageService, modelService: IModelService, textModelService: ITextModelService, instantiationService: IInstantiationService, contextMenuService: IContextMenuService, keybindingService: IKeybindingService, notificationService: INotificationService, menuService: IMenuService, contextKeyService: IContextKeyService, configurationService: IConfigurationService, textConfigurationService: ITextResourceConfigurationService);
-    get nestedCellViewModel(): any;
+    get nestedCellViewModel(): DiffNestedCellViewModel;
     get readonly(): boolean;
     styleContainer(container: HTMLElement): void;
     layout(state: IDiffElementLayoutState): void;
@@ -184,7 +186,7 @@ export declare class DeletedElement extends SingleSideDiffElement {
 }
 export declare class InsertElement extends SingleSideDiffElement {
     constructor(notebookEditor: INotebookTextDiffEditor, cell: SingleSideDiffElementViewModel, templateData: CellDiffSingleSideRenderTemplate, instantiationService: IInstantiationService, languageService: ILanguageService, modelService: IModelService, textModelService: ITextModelService, contextMenuService: IContextMenuService, keybindingService: IKeybindingService, notificationService: INotificationService, menuService: IMenuService, contextKeyService: IContextKeyService, configurationService: IConfigurationService, textConfigurationService: ITextResourceConfigurationService);
-    get nestedCellViewModel(): any;
+    get nestedCellViewModel(): DiffNestedCellViewModel;
     get readonly(): boolean;
     styleContainer(container: HTMLElement): void;
     _buildOutputRendererContainer(): void;
@@ -223,7 +225,7 @@ export declare class CollapsedCellOverlayWidget extends Disposable implements ID
     private readonly container;
     private readonly _nodes;
     private readonly _action;
-    readonly onAction: any;
+    readonly onAction: import("../../../../../base/common/event.js").Event<void>;
     constructor(container: HTMLElement);
     show(): void;
     hide(): void;
@@ -233,7 +235,7 @@ export declare class UnchangedCellOverlayWidget extends Disposable implements ID
     private readonly container;
     private readonly _nodes;
     private readonly _action;
-    readonly onAction: any;
+    readonly onAction: import("../../../../../base/common/event.js").Event<void>;
     constructor(container: HTMLElement);
     show(): void;
     hide(): void;

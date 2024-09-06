@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { INotebookEditor, INotebookEditorContribution } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
 export declare class TroubleshootController extends Disposable implements INotebookEditorContribution {
     private readonly _notebookEditor;
     static id: string;

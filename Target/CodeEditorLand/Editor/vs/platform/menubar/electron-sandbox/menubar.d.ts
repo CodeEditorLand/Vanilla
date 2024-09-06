@@ -1,5 +1,5 @@
-import { ICommonMenubarService } from "vs/platform/menubar/common/menubar";
-export declare const IMenubarService: any;
+import { ICommonMenubarService } from "../common/menubar.js";
+export declare const IMenubarService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IMenubarService>;
 export interface IMenubarService extends ICommonMenubarService {
     readonly _serviceBrand: undefined;
 }

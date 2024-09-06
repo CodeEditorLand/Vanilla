@@ -1,20 +1,20 @@
-import { Event } from "vs/base/common/event";
-import type * as performance from "vs/base/common/performance";
-import { IProcessEnvironment, OperatingSystem } from "vs/base/common/platform";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IChannel } from "vs/base/parts/ipc/common/ipc";
-import { ILabelService } from "vs/platform/label/common/label";
-import { IRemoteAuthorityResolverService } from "vs/platform/remote/common/remoteAuthorityResolver";
-import { IPtyHostProcessReplayEvent } from "vs/platform/terminal/common/capabilities/capabilities";
-import { ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from "vs/platform/terminal/common/environmentVariable";
-import { IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IPtyHostController, IPtyHostLatencyMeasurement, IRequestResolveVariablesEvent, ISerializedTerminalState, IShellLaunchConfigDto, ITerminalLaunchError, ITerminalLogService, ITerminalProcessOptions, ITerminalProfile, ITerminalsLayoutInfo, ITerminalsLayoutInfoById, ProcessPropertyType, TerminalIcon, TitleEventSource } from "vs/platform/terminal/common/terminal";
-import { IProcessDetails } from "vs/platform/terminal/common/terminalProcess";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IEnvironmentVariableService } from "vs/workbench/contrib/terminal/common/environmentVariable";
-import { ICompleteTerminalConfiguration } from "vs/workbench/contrib/terminal/common/terminal";
-import { IWorkbenchConfigurationService } from "vs/workbench/services/configuration/common/configuration";
-import { IConfigurationResolverService } from "vs/workbench/services/configurationResolver/common/configurationResolver";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { Event } from "../../../../../base/common/event.js";
+import type * as performance from "../../../../../base/common/performance.js";
+import { IProcessEnvironment, OperatingSystem } from "../../../../../base/common/platform.js";
+import { URI, UriComponents } from "../../../../../base/common/uri.js";
+import { IChannel } from "../../../../../base/parts/ipc/common/ipc.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { IRemoteAuthorityResolverService } from "../../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { IPtyHostProcessReplayEvent } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from "../../../../../platform/terminal/common/environmentVariable.js";
+import { IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IPtyHostController, IPtyHostLatencyMeasurement, IRequestResolveVariablesEvent, ISerializedTerminalState, IShellLaunchConfigDto, ITerminalLaunchError, ITerminalLogService, ITerminalProcessOptions, ITerminalProfile, ITerminalsLayoutInfo, ITerminalsLayoutInfoById, ProcessPropertyType, TerminalIcon, TitleEventSource } from "../../../../../platform/terminal/common/terminal.js";
+import { IProcessDetails } from "../../../../../platform/terminal/common/terminalProcess.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchConfigurationService } from "../../../../services/configuration/common/configuration.js";
+import { IConfigurationResolverService } from "../../../../services/configurationResolver/common/configurationResolver.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IEnvironmentVariableService } from "../environmentVariable.js";
+import { ICompleteTerminalConfiguration } from "../terminal.js";
 export declare const REMOTE_TERMINAL_CHANNEL_NAME = "remoteterminal";
 export type ITerminalEnvironmentVariableCollections = [
     string,

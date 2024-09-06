@@ -1,4 +1,4 @@
-import { ActionRunner, IAction } from "vs/base/common/actions";
+import { ActionRunner, IAction } from "../../../../base/common/actions.js";
 export declare class ActionRunnerWithContext extends ActionRunner {
     private readonly _getContext;
     constructor(_getContext: () => unknown);

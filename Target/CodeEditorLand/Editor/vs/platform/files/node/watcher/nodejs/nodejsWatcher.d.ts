@@ -1,6 +1,7 @@
-import { INonRecursiveWatcher, INonRecursiveWatchRequest, IRecursiveWatcherWithSubscribe } from "vs/platform/files/common/watcher";
-import { BaseWatcher } from "vs/platform/files/node/watcher/baseWatcher";
-import { NodeJSFileWatcherLibrary } from "vs/platform/files/node/watcher/nodejs/nodejsWatcherLib";
+import { Event } from "../../../../../base/common/event.js";
+import { INonRecursiveWatcher, INonRecursiveWatchRequest, IRecursiveWatcherWithSubscribe } from "../../../common/watcher.js";
+import { BaseWatcher } from "../baseWatcher.js";
+import { NodeJSFileWatcherLibrary } from "./nodejsWatcherLib.js";
 export interface INodeJSWatcherInstance {
     /**
      * The watcher instance.
@@ -13,7 +14,7 @@ export interface INodeJSWatcherInstance {
 }
 export declare class NodeJSWatcher extends BaseWatcher implements INonRecursiveWatcher {
     protected readonly recursiveWatcher: IRecursiveWatcherWithSubscribe | undefined;
-    readonly onDidError: any;
+    readonly onDidError: Event<any>;
     readonly watchers: Set<INodeJSWatcherInstance>;
     constructor(recursiveWatcher: IRecursiveWatcherWithSubscribe | undefined);
     protected doWatch(requests: INonRecursiveWatchRequest[]): Promise<void>;

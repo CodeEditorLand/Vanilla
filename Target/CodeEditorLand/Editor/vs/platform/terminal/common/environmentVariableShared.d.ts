@@ -1,4 +1,4 @@
-import { IEnvironmentVariableCollection, IEnvironmentVariableCollectionDescription, IEnvironmentVariableMutator, ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection, ISerializableEnvironmentVariableCollections } from "vs/platform/terminal/common/environmentVariable";
+import { IEnvironmentVariableCollection, IEnvironmentVariableCollectionDescription, IEnvironmentVariableMutator, ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection, ISerializableEnvironmentVariableCollections } from "./environmentVariable.js";
 export declare function serializeEnvironmentVariableCollection(collection: ReadonlyMap<string, IEnvironmentVariableMutator>): ISerializableEnvironmentVariableCollection;
 export declare function serializeEnvironmentDescriptionMap(descriptionMap: ReadonlyMap<string, IEnvironmentVariableCollectionDescription> | undefined): ISerializableEnvironmentDescriptionMap;
 export declare function deserializeEnvironmentVariableCollection(serializedCollection: ISerializableEnvironmentVariableCollection): Map<string, IEnvironmentVariableMutator>;

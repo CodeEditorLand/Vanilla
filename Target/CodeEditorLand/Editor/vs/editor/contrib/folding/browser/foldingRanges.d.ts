@@ -1,4 +1,4 @@
-import { SelectedLines } from "vs/editor/contrib/folding/browser/folding";
+import { SelectedLines } from "./folding.js";
 export interface ILineRange {
     startLineNumber: number;
     endLineNumber: number;

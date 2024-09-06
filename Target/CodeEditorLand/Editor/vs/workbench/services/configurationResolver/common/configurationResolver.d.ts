@@ -1,9 +1,9 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { ErrorNoTelemetry } from "vs/base/common/errors";
-import { IProcessEnvironment } from "vs/base/common/platform";
-import { ConfigurationTarget } from "vs/platform/configuration/common/configuration";
-import { IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-export declare const IConfigurationResolverService: any;
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { ErrorNoTelemetry } from "../../../../base/common/errors.js";
+import { IProcessEnvironment } from "../../../../base/common/platform.js";
+import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+export declare const IConfigurationResolverService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IConfigurationResolverService>;
 export interface IConfigurationResolverService {
     readonly _serviceBrand: undefined;
     resolveWithEnvironment(environment: IProcessEnvironment, folder: IWorkspaceFolder | undefined, value: string): Promise<string>;

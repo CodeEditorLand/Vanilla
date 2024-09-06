@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IUserDataProfile } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { DidChangeUserDataProfileEvent, IUserDataProfileService } from "./userDataProfile.js";
 export declare class UserDataProfileService extends Disposable implements IUserDataProfileService {
     readonly _serviceBrand: undefined;
     private readonly _onDidChangeCurrentProfile;
-    readonly onDidChangeCurrentProfile: any;
+    readonly onDidChangeCurrentProfile: import("../../../../base/common/event.js").Event<DidChangeUserDataProfileEvent>;
     private _currentProfile;
     get currentProfile(): IUserDataProfile;
     constructor(currentProfile: IUserDataProfile);

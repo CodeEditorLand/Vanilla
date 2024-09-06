@@ -1,11 +1,11 @@
-import { INaiveCwdDetectionCapability } from "vs/platform/terminal/common/capabilities/capabilities";
-import { ITerminalChildProcess } from "vs/platform/terminal/common/terminal";
+import { ITerminalChildProcess } from "../terminal.js";
+import { INaiveCwdDetectionCapability, TerminalCapability } from "./capabilities.js";
 export declare class NaiveCwdDetectionCapability implements INaiveCwdDetectionCapability {
     private readonly _process;
     constructor(_process: ITerminalChildProcess);
-    readonly type: any;
+    readonly type = TerminalCapability.NaiveCwdDetection;
     private _cwd;
     private readonly _onDidChangeCwd;
-    readonly onDidChangeCwd: any;
+    readonly onDidChangeCwd: import("../../../../base/common/event.js").Event<string>;
     getCwd(): Promise<string>;
 }

@@ -1,7 +1,7 @@
-import { URI } from "vs/base/common/uri";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IFileService } from "vs/platform/files/common/files";
-import { ConfigurationKey, IConfigurationCache } from "vs/workbench/services/configuration/common/configuration";
+import { URI } from "../../../../base/common/uri.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ConfigurationKey, IConfigurationCache } from "./configuration.js";
 export declare class ConfigurationCache implements IConfigurationCache {
     private readonly donotCacheResourcesWithSchemes;
     private readonly fileService;

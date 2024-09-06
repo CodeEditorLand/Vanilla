@@ -1,9 +1,9 @@
-import { Event, IWaitUntil } from "vs/base/common/event";
-import { IReference } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
-import { IResolvedNotebookEditorModel, NotebookEditorModelCreationOptions } from "vs/workbench/contrib/notebook/common/notebookCommon";
-export declare const INotebookEditorModelResolverService: any;
+import { Event, IWaitUntil } from "../../../../base/common/event.js";
+import { IReference } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { NotebookTextModel } from "./model/notebookTextModel.js";
+import { IResolvedNotebookEditorModel, NotebookEditorModelCreationOptions } from "./notebookCommon.js";
+export declare const INotebookEditorModelResolverService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INotebookEditorModelResolverService>;
 /**
  * A notebook file can only be opened ONCE per notebook type.
  * This event fires when a file is already open as type A

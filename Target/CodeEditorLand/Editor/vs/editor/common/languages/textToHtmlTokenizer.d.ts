@@ -1,6 +1,6 @@
-import { ILanguageIdCodec, ITokenizationSupport } from "vs/editor/common/languages";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IViewLineTokens } from "vs/editor/common/tokens/lineTokens";
+import { ILanguageIdCodec, ITokenizationSupport } from "../languages.js";
+import { IViewLineTokens } from "../tokens/lineTokens.js";
+import { ILanguageService } from "./language.js";
 export type IReducedTokenizationSupport = Omit<ITokenizationSupport, "tokenize">;
 export declare function tokenizeToStringSync(languageService: ILanguageService, text: string, languageId: string): string;
 export declare function tokenizeToString(languageService: ILanguageService, text: string, languageId: string | null): Promise<string>;

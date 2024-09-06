@@ -1,8 +1,8 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 export interface IExtensionActivationHost {
     readonly logService: ILogService;
     readonly folders: readonly UriComponents[];

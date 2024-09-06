@@ -1,4 +1,4 @@
-import { IndentationRule } from "vs/editor/common/languages/languageConfiguration";
+import { IndentationRule } from "../languageConfiguration.js";
 export declare const enum IndentConsts {
     INCREASE_MASK = 1,
     DECREASE_MASK = 2,

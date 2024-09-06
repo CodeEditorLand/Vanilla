@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IUserDataAutoSyncService, IUserDataSyncEnablementService, IUserDataSyncLogService, IUserDataSyncService, IUserDataSyncStoreManagementService, IUserDataSyncStoreService, UserDataSyncError } from "vs/platform/userDataSync/common/userDataSync";
-import { IUserDataSyncAccountService } from "vs/platform/userDataSync/common/userDataSyncAccount";
-import { IUserDataSyncMachinesService } from "vs/platform/userDataSync/common/userDataSyncMachines";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IUserDataAutoSyncService, IUserDataSyncEnablementService, IUserDataSyncLogService, IUserDataSyncService, IUserDataSyncStoreManagementService, IUserDataSyncStoreService, UserDataSyncError } from "./userDataSync.js";
+import { IUserDataSyncAccountService } from "./userDataSyncAccount.js";
+import { IUserDataSyncMachinesService } from "./userDataSyncMachines.js";
 export declare class UserDataAutoSyncService extends Disposable implements IUserDataAutoSyncService {
     private readonly userDataSyncStoreManagementService;
     private readonly userDataSyncStoreService;

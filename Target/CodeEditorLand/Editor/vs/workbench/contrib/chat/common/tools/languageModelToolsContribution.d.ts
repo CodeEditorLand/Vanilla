@@ -1,6 +1,6 @@
-import { ILogService } from "vs/platform/log/common/log";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { ILanguageModelToolsService } from "vs/workbench/contrib/chat/common/languageModelToolsService";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { IWorkbenchContribution } from "../../../../common/contributions.js";
+import { ILanguageModelToolsService } from "../languageModelToolsService.js";
 export declare class LanguageModelToolsExtensionPointHandler implements IWorkbenchContribution {
     static readonly ID = "workbench.contrib.toolsExtensionPointHandler";
     private _registrationDisposables;

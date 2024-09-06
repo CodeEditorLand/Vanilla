@@ -1,5 +1,5 @@
-import { CancellationToken, CancellationTokenSource } from "vs/base/common/cancellation";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
 export declare class EditorKeybindingCancellationTokenSource extends CancellationTokenSource {
     readonly editor: ICodeEditor;
     private readonly _unregister;

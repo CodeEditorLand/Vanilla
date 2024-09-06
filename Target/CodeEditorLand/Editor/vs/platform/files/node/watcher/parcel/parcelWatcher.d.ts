@@ -1,9 +1,10 @@
-import { RunOnceWorker } from "vs/base/common/async";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IFileChange } from "vs/platform/files/common/files";
-import { IRecursiveWatcherWithSubscribe, IRecursiveWatchRequest } from "vs/platform/files/common/watcher";
-import { BaseWatcher } from "vs/platform/files/node/watcher/baseWatcher";
+import { RunOnceWorker } from "../../../../../base/common/async.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { IFileChange } from "../../../common/files.js";
+import { IRecursiveWatcherWithSubscribe, IRecursiveWatchRequest, IWatcherErrorEvent } from "../../../common/watcher.js";
+import { BaseWatcher } from "../baseWatcher.js";
 export declare class ParcelWatcherInstance extends Disposable {
     /**
      * Signals when the watcher is ready to watch.
@@ -25,9 +26,11 @@ export declare class ParcelWatcherInstance extends Disposable {
     readonly worker: RunOnceWorker<IFileChange>;
     private readonly stopFn;
     private readonly _onDidStop;
-    readonly onDidStop: any;
+    readonly onDidStop: Event<{
+        joinRestart?: Promise<void>;
+    }>;
     private readonly _onDidFail;
-    readonly onDidFail: any;
+    readonly onDidFail: Event<void>;
     private didFail;
     get failed(): boolean;
     private didStop;
@@ -63,9 +66,10 @@ export declare class ParcelWatcherInstance extends Disposable {
 }
 export declare class ParcelWatcher extends BaseWatcher implements IRecursiveWatcherWithSubscribe {
     private static readonly MAP_PARCEL_WATCHER_ACTION_TO_FILE_CHANGE;
+    private static readonly PREDEFINED_EXCLUDES;
     private static readonly PARCEL_WATCHER_BACKEND;
     private readonly _onDidError;
-    readonly onDidError: any;
+    readonly onDidError: Event<IWatcherErrorEvent>;
     readonly watchers: Set<ParcelWatcherInstance>;
     private static readonly FILE_CHANGES_HANDLER_DELAY;
     private readonly throttledFileChangesEmitter;
@@ -76,6 +80,7 @@ export declare class ParcelWatcher extends BaseWatcher implements IRecursiveWatc
     private findWatcher;
     private startPolling;
     private startWatching;
+    private addPredefinedExcludes;
     private onParcelEvents;
     private handleIncludes;
     private handleParcelEvents;

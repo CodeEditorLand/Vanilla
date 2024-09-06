@@ -1,7 +1,7 @@
-import "vs/workbench/contrib/search/browser/searchActionsCopy";
-import "vs/workbench/contrib/search/browser/searchActionsFind";
-import "vs/workbench/contrib/search/browser/searchActionsNav";
-import "vs/workbench/contrib/search/browser/searchActionsRemoveReplace";
-import "vs/workbench/contrib/search/browser/searchActionsSymbol";
-import "vs/workbench/contrib/search/browser/searchActionsTopBar";
-import "vs/workbench/contrib/search/browser/searchActionsTextQuickAccess";
+import "./searchActionsCopy.js";
+import "./searchActionsFind.js";
+import "./searchActionsNav.js";
+import "./searchActionsRemoveReplace.js";
+import "./searchActionsSymbol.js";
+import "./searchActionsTopBar.js";
+import "./searchActionsTextQuickAccess.js";

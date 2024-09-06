@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { IRange } from "vs/editor/common/core/range";
-import { Selection } from "vs/editor/common/core/selection";
-import { IModelContentChangedEvent } from "vs/editor/common/textModelEvents";
-import { FoldingModel } from "vs/editor/contrib/folding/browser/foldingModel";
+import { Event } from "../../../../base/common/event.js";
+import { IRange } from "../../../common/core/range.js";
+import { Selection } from "../../../common/core/selection.js";
+import { IModelContentChangedEvent } from "../../../common/textModelEvents.js";
+import { FoldingModel } from "./foldingModel.js";
 export declare class HiddenRangeModel {
     private readonly _foldingModel;
     private _hiddenRanges;

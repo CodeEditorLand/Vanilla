@@ -1,9 +1,9 @@
-import { ICodeEditor, IDiffEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction2, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { Action2 } from "vs/platform/actions/common/actions";
-import "./registrations.contribution";
-import { URI } from "vs/base/common/uri";
-import { DiffEditorSelectionHunkToolbarContext } from "vs/editor/browser/widget/diffEditor/features/gutterFeature";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { ICodeEditor, IDiffEditor } from "../../editorBrowser.js";
+import { EditorAction2, ServicesAccessor } from "../../editorExtensions.js";
+import "./registrations.contribution.js";
+import { URI } from "../../../../base/common/uri.js";
+import { DiffEditorSelectionHunkToolbarContext } from "./features/gutterFeature.js";
 export declare class ToggleCollapseUnchangedRegions extends Action2 {
     constructor();
     run(accessor: ServicesAccessor, ...args: unknown[]): void;

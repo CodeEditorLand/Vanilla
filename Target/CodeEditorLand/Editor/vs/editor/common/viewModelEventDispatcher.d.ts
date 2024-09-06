@@ -1,13 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { Selection } from "vs/editor/common/core/selection";
-import { CursorChangeReason } from "vs/editor/common/cursorEvents";
-import { IContentSizeChangedEvent } from "vs/editor/common/editorCommon";
-import { IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelLanguageChangedEvent, IModelLanguageConfigurationChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from "vs/editor/common/textModelEvents";
-import { ViewEventHandler } from "vs/editor/common/viewEventHandler";
-import { ViewEvent } from "vs/editor/common/viewEvents";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { Selection } from "./core/selection.js";
+import { CursorChangeReason } from "./cursorEvents.js";
+import { IContentSizeChangedEvent } from "./editorCommon.js";
+import { IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelLanguageChangedEvent, IModelLanguageConfigurationChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from "./textModelEvents.js";
+import { ViewEventHandler } from "./viewEventHandler.js";
+import { ViewEvent } from "./viewEvents.js";
 export declare class ViewModelEventDispatcher extends Disposable {
     private readonly _onEvent;
-    readonly onEvent: any;
+    readonly onEvent: import("../../base/common/event.js").Event<OutgoingViewModelEvent>;
     private readonly _eventHandlers;
     private _viewEventQueue;
     private _isConsumingViewEventQueue;

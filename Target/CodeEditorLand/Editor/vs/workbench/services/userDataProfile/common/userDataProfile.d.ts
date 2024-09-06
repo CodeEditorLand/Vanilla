@@ -1,16 +1,17 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IUserDataProfile, IUserDataProfileOptions, IUserDataProfileUpdateOptions, ProfileResourceType, ProfileResourceTypeFlags } from "vs/platform/userDataProfile/common/userDataProfile";
-import { ITreeItem, ITreeItemLabel } from "vs/workbench/common/views";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IUserDataProfile, IUserDataProfileOptions, IUserDataProfileUpdateOptions, ProfileResourceType, ProfileResourceTypeFlags } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { ITreeItem, ITreeItemLabel } from "../../../common/views.js";
 export interface DidChangeUserDataProfileEvent {
     readonly previous: IUserDataProfile;
     readonly profile: IUserDataProfile;
     join(promise: Promise<void>): void;
 }
-export declare const IUserDataProfileService: any;
+export declare const IUserDataProfileService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IUserDataProfileService>;
 export interface IUserDataProfileService {
     readonly _serviceBrand: undefined;
     readonly currentProfile: IUserDataProfile;
@@ -22,7 +23,7 @@ export interface IProfileTemplateInfo {
     readonly name: string;
     readonly url: string;
 }
-export declare const IUserDataProfileManagementService: any;
+export declare const IUserDataProfileManagementService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IUserDataProfileManagementService>;
 export interface IUserDataProfileManagementService {
     readonly _serviceBrand: undefined;
     createProfile(name: string, options?: IUserDataProfileOptions): Promise<IUserDataProfile>;
@@ -57,13 +58,13 @@ export interface IProfileImportOptions extends IUserDataProfileCreateOptions {
     readonly icon?: string;
     readonly mode?: "apply";
 }
-export declare const IUserDataProfileImportExportService: any;
+export declare const IUserDataProfileImportExportService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IUserDataProfileImportExportService>;
 export interface IUserDataProfileImportExportService {
     readonly _serviceBrand: undefined;
     registerProfileContentHandler(id: string, profileContentHandler: IUserDataProfileContentHandler): IDisposable;
     unregisterProfileContentHandler(id: string): void;
     resolveProfileTemplate(uri: URI): Promise<IUserDataProfileTemplate | null>;
-    exportProfile(profile: IUserDataProfile): Promise<void>;
+    exportProfile(profile: IUserDataProfile, exportFlags?: ProfileResourceTypeFlags): Promise<void>;
     createFromProfile(from: IUserDataProfile, options: IUserDataProfileCreateOptions, token: CancellationToken): Promise<IUserDataProfile | undefined>;
     createProfileFromTemplate(profileTemplate: IUserDataProfileTemplate, options: IUserDataProfileCreateOptions, token: CancellationToken): Promise<IUserDataProfile | undefined>;
     createTroubleshootProfile(): Promise<void>;
@@ -96,15 +97,18 @@ export interface IUserDataProfileContentHandler {
     saveProfile(name: string, content: string, token: CancellationToken): Promise<ISaveProfileResult | null>;
     readProfile(idOrUri: string | URI, token: CancellationToken): Promise<string | null>;
 }
-export declare const defaultUserDataProfileIcon: any;
-export declare const PROFILES_TITLE: any;
-export declare const PROFILES_CATEGORY: any;
+export declare const defaultUserDataProfileIcon: import("../../../../base/common/themables.js").ThemeIcon;
+export declare const PROFILES_TITLE: import("../../../../nls.js").ILocalizedString;
+export declare const PROFILES_CATEGORY: {
+    original: string;
+    value: string;
+};
 export declare const PROFILE_EXTENSION = "code-profile";
 export declare const PROFILE_FILTER: {
-    name: any;
+    name: string;
     extensions: string[];
 }[];
-export declare const PROFILES_ENABLEMENT_CONTEXT: any;
-export declare const CURRENT_PROFILE_CONTEXT: any;
-export declare const IS_CURRENT_PROFILE_TRANSIENT_CONTEXT: any;
-export declare const HAS_PROFILES_CONTEXT: any;
+export declare const PROFILES_ENABLEMENT_CONTEXT: RawContextKey<boolean>;
+export declare const CURRENT_PROFILE_CONTEXT: RawContextKey<string>;
+export declare const IS_CURRENT_PROFILE_TRANSIENT_CONTEXT: RawContextKey<boolean>;
+export declare const HAS_PROFILES_CONTEXT: RawContextKey<boolean>;

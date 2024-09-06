@@ -1,6 +1,6 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
 export declare const enum ExtensionRecommendationReason {
     Workspace = 0,
     File = 1,
@@ -14,7 +14,7 @@ export interface IExtensionRecommendationReason {
     reasonId: ExtensionRecommendationReason;
     reasonText: string;
 }
-export declare const IExtensionRecommendationsService: any;
+export declare const IExtensionRecommendationsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionRecommendationsService>;
 export interface IExtensionRecommendationsService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeRecommendations: Event<void>;
@@ -39,7 +39,7 @@ export type IgnoredRecommendationChangeNotification = {
     extensionId: string;
     isRecommended: boolean;
 };
-export declare const IExtensionIgnoredRecommendationsService: any;
+export declare const IExtensionIgnoredRecommendationsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionIgnoredRecommendationsService>;
 export interface IExtensionIgnoredRecommendationsService {
     readonly _serviceBrand: undefined;
     onDidChangeIgnoredRecommendations: Event<void>;

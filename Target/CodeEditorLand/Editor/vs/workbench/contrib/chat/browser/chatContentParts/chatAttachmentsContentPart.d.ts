@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IChatRequestVariableEntry } from "vs/workbench/contrib/chat/common/chatModel";
-import { IChatContentReference } from "vs/workbench/contrib/chat/common/chatService";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { IChatRequestVariableEntry } from "../../common/chatModel.js";
+import { IChatContentReference } from "../../common/chatService.js";
 export declare class ChatAttachmentsContentPart extends Disposable {
     private readonly variables;
     private readonly contentReferences;

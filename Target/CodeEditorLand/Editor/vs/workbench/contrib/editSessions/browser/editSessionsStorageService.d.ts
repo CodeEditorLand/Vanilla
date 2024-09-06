@@ -1,17 +1,17 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IFileService } from "vs/platform/files/common/files";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { ISecretStorageService } from "vs/platform/secrets/common/secrets";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IResourceRefHandle } from "vs/platform/userDataSync/common/userDataSync";
-import { EditSession, IEditSessionsLogService, IEditSessionsStorageService, SyncResource } from "vs/workbench/contrib/editSessions/common/editSessions";
-import { EditSessionsStoreClient } from "vs/workbench/contrib/editSessions/common/editSessionsStorageClient";
-import { IAuthenticationService } from "vs/workbench/services/authentication/common/authentication";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { ISecretStorageService } from "../../../../platform/secrets/common/secrets.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IResourceRefHandle } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { EditSession, IEditSessionsLogService, IEditSessionsStorageService, SyncResource } from "../common/editSessions.js";
+import { EditSessionsStoreClient } from "../common/editSessionsStorageClient.js";
 export declare class EditSessionsWorkbenchService extends Disposable implements IEditSessionsStorageService {
     private readonly fileService;
     private readonly storageService;
@@ -34,9 +34,9 @@ export declare class EditSessionsWorkbenchService extends Disposable implements 
     private readonly signedInContext;
     get isSignedIn(): boolean;
     private _didSignIn;
-    get onDidSignIn(): any;
+    get onDidSignIn(): import("../../../../base/common/event.js").Event<void>;
     private _didSignOut;
-    get onDidSignOut(): any;
+    get onDidSignOut(): import("../../../../base/common/event.js").Event<void>;
     private _lastWrittenResources;
     get lastWrittenResources(): Map<SyncResource, {
         ref: string;

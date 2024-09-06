@@ -1,9 +1,9 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ISelectedSuggestion } from "./suggestWidget";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { ISelectedSuggestion } from "./suggestWidget.js";
 export declare class SuggestAlternatives {
     private readonly _editor;
-    static readonly OtherSuggestions: any;
+    static readonly OtherSuggestions: RawContextKey<boolean>;
     private readonly _ckOtherSuggestions;
     private _index;
     private _model;

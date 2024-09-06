@@ -1,20 +1,20 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { HierarchicalKind } from "vs/base/common/hierarchicalKind";
-import { Position } from "vs/editor/common/core/position";
-import * as languages from "vs/editor/common/languages";
-import { ActionSet } from "vs/platform/actionWidget/common/actionWidget";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
+import { ActionSet } from "../../../../platform/actionWidget/common/actionWidget.js";
+import { Position } from "../../../common/core/position.js";
+import * as languages from "../../../common/languages.js";
 export declare const CodeActionKind: {
-    readonly QuickFix: any;
-    readonly Refactor: any;
-    readonly RefactorExtract: any;
-    readonly RefactorInline: any;
-    readonly RefactorMove: any;
-    readonly RefactorRewrite: any;
-    readonly Notebook: any;
-    readonly Source: any;
-    readonly SourceOrganizeImports: any;
-    readonly SourceFixAll: any;
-    readonly SurroundWith: any;
+    readonly QuickFix: HierarchicalKind;
+    readonly Refactor: HierarchicalKind;
+    readonly RefactorExtract: HierarchicalKind;
+    readonly RefactorInline: HierarchicalKind;
+    readonly RefactorMove: HierarchicalKind;
+    readonly RefactorRewrite: HierarchicalKind;
+    readonly Notebook: HierarchicalKind;
+    readonly Source: HierarchicalKind;
+    readonly SourceOrganizeImports: HierarchicalKind;
+    readonly SourceFixAll: HierarchicalKind;
+    readonly SurroundWith: HierarchicalKind;
 };
 export declare const enum CodeActionAutoApply {
     IfSingle = "ifSingle",

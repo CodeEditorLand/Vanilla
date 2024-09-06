@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IMainProcessService } from "vs/platform/ipc/common/mainProcessService";
-import { IKeyboardLayoutInfo, IKeyboardMapping } from "vs/platform/keyboardLayout/common/keyboardLayout";
-export declare const INativeKeyboardLayoutService: any;
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { IKeyboardLayoutInfo, IKeyboardMapping } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
+export declare const INativeKeyboardLayoutService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INativeKeyboardLayoutService>;
 export interface INativeKeyboardLayoutService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeKeyboardLayout: Event<void>;
@@ -12,7 +12,7 @@ export interface INativeKeyboardLayoutService {
 export declare class NativeKeyboardLayoutService extends Disposable implements INativeKeyboardLayoutService {
     readonly _serviceBrand: undefined;
     private readonly _onDidChangeKeyboardLayout;
-    readonly onDidChangeKeyboardLayout: any;
+    readonly onDidChangeKeyboardLayout: Event<void>;
     private readonly _keyboardLayoutService;
     private _initPromise;
     private _keyboardMapping;

@@ -1,7 +1,7 @@
-import { URI } from "vs/base/common/uri";
-import { NativeParsedArgs } from "vs/platform/environment/common/argv";
-import { ExtensionKind, IExtensionHostDebugParams, INativeEnvironmentService } from "vs/platform/environment/common/environment";
-import { IProductService } from "vs/platform/product/common/productService";
+import { URI } from "../../../base/common/uri.js";
+import { IProductService } from "../../product/common/productService.js";
+import { NativeParsedArgs } from "./argv.js";
+import { ExtensionKind, IExtensionHostDebugParams, INativeEnvironmentService } from "./environment.js";
 export declare const EXTENSION_IDENTIFIER_WITH_LOG_REGEX: RegExp;
 export interface INativeEnvironmentPaths {
     /**

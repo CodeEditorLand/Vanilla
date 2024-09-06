@@ -1,16 +1,16 @@
 import type { ILink, Terminal } from "@xterm/xterm";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { ITerminalCapabilityStore } from "vs/platform/terminal/common/capabilities/capabilities";
-import { ITerminalLogService } from "vs/platform/terminal/common/terminal";
-import { ITunnelService } from "vs/platform/tunnel/common/tunnel";
-import { ITerminalConfigurationService, ITerminalExternalLinkProvider } from "vs/workbench/contrib/terminal/browser/terminal";
-import { TerminalWidgetManager } from "vs/workbench/contrib/terminal/browser/widgets/widgetManager";
-import { ITerminalProcessInfo } from "vs/workbench/contrib/terminal/common/terminal";
-import { ITerminalLinkResolver, OmitFirstArg } from "vs/workbench/contrib/terminalContrib/links/browser/links";
-import { TerminalLink } from "vs/workbench/contrib/terminalContrib/links/browser/terminalLink";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../../platform/notification/common/notification.js";
+import { ITerminalCapabilityStore } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
+import { ITunnelService } from "../../../../../platform/tunnel/common/tunnel.js";
+import { ITerminalConfigurationService, ITerminalExternalLinkProvider } from "../../../terminal/browser/terminal.js";
+import { TerminalWidgetManager } from "../../../terminal/browser/widgets/widgetManager.js";
+import { ITerminalProcessInfo } from "../../../terminal/common/terminal.js";
+import { ITerminalLinkResolver, OmitFirstArg } from "./links.js";
+import { TerminalLink } from "./terminalLink.js";
 export type XtermLinkMatcherHandler = (event: MouseEvent | undefined, link: string) => Promise<void>;
 /**
  * An object responsible for managing registration of link matchers and link providers.

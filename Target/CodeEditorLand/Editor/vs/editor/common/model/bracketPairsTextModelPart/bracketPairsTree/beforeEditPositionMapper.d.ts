@@ -1,5 +1,5 @@
-import { IModelContentChange } from "vs/editor/common/textModelEvents";
-import { Length } from "./length";
+import { IModelContentChange } from "../../../textModelEvents.js";
+import { Length } from "./length.js";
 export declare class TextEditInfo {
     readonly startOffset: Length;
     readonly endOffset: Length;

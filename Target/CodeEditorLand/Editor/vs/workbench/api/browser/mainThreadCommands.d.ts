@@ -1,8 +1,8 @@
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { SerializableObjectWithBuffers } from "vs/workbench/services/extensions/common/proxyIdentifier";
-import { MainThreadCommandsShape } from "../common/extHost.protocol";
+import { ICommandService } from "../../../platform/commands/common/commands.js";
+import { IExtensionService } from "../../services/extensions/common/extensions.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
+import { MainThreadCommandsShape } from "../common/extHost.protocol.js";
 export declare class MainThreadCommands implements MainThreadCommandsShape {
     private readonly _commandService;
     private readonly _extensionService;

@@ -1,7 +1,7 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ILogService } from "vs/platform/log/common/log";
-import { IAiRelatedInformationProvider, IAiRelatedInformationService, RelatedInformationResult, RelatedInformationType } from "vs/workbench/services/aiRelatedInformation/common/aiRelatedInformation";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IAiRelatedInformationProvider, IAiRelatedInformationService, RelatedInformationResult, RelatedInformationType } from "./aiRelatedInformation.js";
 export declare class AiRelatedInformationService implements IAiRelatedInformationService {
     private readonly logService;
     readonly _serviceBrand: undefined;

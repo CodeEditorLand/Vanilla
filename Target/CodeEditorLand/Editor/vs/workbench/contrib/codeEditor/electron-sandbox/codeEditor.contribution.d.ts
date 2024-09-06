@@ -1,5 +1,5 @@
-import "./displayChangeRemeasureFonts";
-import "./inputClipboardActions";
-import "./selectionClipboard";
-import "./sleepResumeRepaintMinimap";
-import "./startDebugTextMate";
+import "./displayChangeRemeasureFonts.js";
+import "./inputClipboardActions.js";
+import "./selectionClipboard.js";
+import "./sleepResumeRepaintMinimap.js";
+import "./startDebugTextMate.js";

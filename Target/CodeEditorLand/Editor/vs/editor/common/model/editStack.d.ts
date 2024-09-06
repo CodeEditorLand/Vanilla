@@ -1,11 +1,11 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ISingleEditOperation } from "vs/editor/common/core/editOperation";
-import { Selection } from "vs/editor/common/core/selection";
-import { TextChange } from "vs/editor/common/core/textChange";
-import { EndOfLineSequence, ICursorStateComputer, ITextModel } from "vs/editor/common/model";
-import { TextModel } from "vs/editor/common/model/textModel";
-import { IResourceUndoRedoElement, IUndoRedoService, IWorkspaceUndoRedoElement, UndoRedoElementType, UndoRedoGroup } from "vs/platform/undoRedo/common/undoRedo";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IResourceUndoRedoElement, IUndoRedoService, IWorkspaceUndoRedoElement, UndoRedoElementType, UndoRedoGroup } from "../../../platform/undoRedo/common/undoRedo.js";
+import { ISingleEditOperation } from "../core/editOperation.js";
+import { Selection } from "../core/selection.js";
+import { TextChange } from "../core/textChange.js";
+import { EndOfLineSequence, ICursorStateComputer, ITextModel } from "../model.js";
+import { TextModel } from "./textModel.js";
 export declare class SingleModelEditStackData {
     readonly beforeVersionId: number;
     afterVersionId: number;
@@ -48,7 +48,7 @@ export declare class SingleModelEditStackElement implements IResourceUndoRedoEle
 export declare class MultiModelEditStackElement implements IWorkspaceUndoRedoElement {
     readonly label: string;
     readonly code: string;
-    readonly type: any;
+    readonly type = UndoRedoElementType.Workspace;
     private _isOpen;
     private readonly _editStackElementsArr;
     private readonly _editStackElementsMap;

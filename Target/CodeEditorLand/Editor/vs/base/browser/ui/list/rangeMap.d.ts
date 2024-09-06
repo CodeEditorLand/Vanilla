@@ -1,4 +1,4 @@
-import { IRange } from "vs/base/common/range";
+import { IRange } from "../../../common/range.js";
 export interface IItem {
     size: number;
 }

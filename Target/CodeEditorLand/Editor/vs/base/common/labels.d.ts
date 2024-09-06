@@ -1,5 +1,5 @@
-import { OperatingSystem } from "vs/base/common/platform";
-import { URI } from "vs/base/common/uri";
+import { OperatingSystem } from "./platform.js";
+import { URI } from "./uri.js";
 export interface IPathLabelFormatting {
     /**
      * The OS the path label is from to produce a label
@@ -41,7 +41,7 @@ export interface IUserHomeProvider {
 }
 export declare function getPathLabel(resource: URI, formatting: IPathLabelFormatting): string;
 export declare function normalizeDriveLetter(path: string, isWindowsOS?: boolean): string;
-export declare function tildify(path: string, userHome: string, os?: any): string;
+export declare function tildify(path: string, userHome: string, os?: OperatingSystem): string;
 export declare function untildify(path: string, userHome: string): string;
 export declare function shorten(paths: string[], pathSeparator?: string): string[];
 export interface ISeparator {

@@ -1,14 +1,14 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IExtensionHostProfileService } from "vs/workbench/contrib/extensions/electron-sandbox/runtimeExtensionsEditor";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IExtensionHostProfile, IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IStatusbarService } from "vs/workbench/services/statusbar/browser/statusbar";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionHostProfile, IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { IExtensionHostProfileService, ProfileSessionState } from "./runtimeExtensionsEditor.js";
 export declare class ExtensionHostProfileService extends Disposable implements IExtensionHostProfileService {
     private readonly _extensionService;
     private readonly _editorService;
@@ -29,7 +29,7 @@ export declare class ExtensionHostProfileService extends Disposable implements I
     private profilingStatusBarIndicator;
     private readonly profilingStatusBarIndicatorLabelUpdater;
     get state(): ProfileSessionState;
-    get lastProfile(): any;
+    get lastProfile(): IExtensionHostProfile | null;
     constructor(_extensionService: IExtensionService, _editorService: IEditorService, _instantiationService: IInstantiationService, _nativeHostService: INativeHostService, _dialogService: IDialogService, _statusbarService: IStatusbarService, _productService: IProductService);
     private _setState;
     private updateProfilingStatusBarIndicator;

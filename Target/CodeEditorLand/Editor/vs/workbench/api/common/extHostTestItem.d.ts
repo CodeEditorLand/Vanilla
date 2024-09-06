@@ -1,7 +1,7 @@
-import { ExtHostDocumentsAndEditors } from "vs/workbench/api/common/extHostDocumentsAndEditors";
-import { ITestItemChildren, TestItemCollection } from "vs/workbench/contrib/testing/common/testItemCollection";
-import { ITestItemContext } from "vs/workbench/contrib/testing/common/testTypes";
 import type * as vscode from "vscode";
+import { ITestItemChildren, TestItemCollection } from "../../contrib/testing/common/testItemCollection.js";
+import { ITestItemContext } from "../../contrib/testing/common/testTypes.js";
+import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
 export declare const toItemFromContext: (context: ITestItemContext) => TestItemImpl;
 export declare class TestItemImpl implements vscode.TestItem {
     readonly id: string;

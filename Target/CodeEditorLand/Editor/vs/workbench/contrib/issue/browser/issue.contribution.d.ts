@@ -1,1 +1,1 @@
-import "vs/workbench/contrib/issue/browser/issueTroubleshoot";
+import "./issueTroubleshoot.js";

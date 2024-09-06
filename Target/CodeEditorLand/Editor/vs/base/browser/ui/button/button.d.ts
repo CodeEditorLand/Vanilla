@@ -1,12 +1,12 @@
-import { IContextMenuProvider } from "vs/base/browser/contextmenu";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { IAction, IActionRunner } from "vs/base/common/actions";
-import { Event as BaseEvent } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import "vs/css!./button";
-import { IActionProvider } from "vs/base/browser/ui/dropdown/dropdown";
+import { IAction, IActionRunner } from "../../../common/actions.js";
+import { Event as BaseEvent } from "../../../common/event.js";
+import { IMarkdownString } from "../../../common/htmlContent.js";
+import { Disposable, IDisposable } from "../../../common/lifecycle.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import { IContextMenuProvider } from "../../contextmenu.js";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
+import "./button.css";
+import { IActionProvider } from "../dropdown/dropdown.js";
 export interface IButtonOptions extends Partial<IButtonStyles> {
     readonly title?: boolean | string;
     readonly ariaLabel?: boolean | string;
@@ -82,7 +82,7 @@ export declare class ButtonWithDropdown extends Disposable implements IButton {
     private readonly separator;
     readonly element: HTMLElement;
     private readonly _onDidClick;
-    readonly onDidClick: any;
+    readonly onDidClick: BaseEvent<Event | undefined>;
     constructor(container: HTMLElement, options: IButtonWithDropdownOptions);
     dispose(): void;
     set label(value: string);

@@ -1,9 +1,9 @@
-import { IBoundarySashes, Orientation } from "vs/base/browser/ui/sash/sash";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ScrollEvent } from "vs/base/common/scrollable";
-import "vs/css!./paneview";
-import { IView } from "./splitview";
+import { Event } from "../../../common/event.js";
+import { Disposable } from "../../../common/lifecycle.js";
+import { ScrollEvent } from "../../../common/scrollable.js";
+import { IBoundarySashes, Orientation } from "../sash/sash.js";
+import "./paneview.css";
+import { IView } from "./splitview.js";
 export interface IPaneOptions {
     minimumBodySize?: number;
     maximumBodySize?: number;

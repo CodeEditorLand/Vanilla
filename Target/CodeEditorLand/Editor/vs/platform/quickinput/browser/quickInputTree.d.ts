@@ -1,11 +1,11 @@
-import { StandardKeyboardEvent } from "vs/base/browser/keyboardEvent";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { IListStyles } from "vs/base/browser/ui/list/listWidget";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IQuickPickItem, QuickPickFocus, QuickPickItem } from "vs/platform/quickinput/common/quickInput";
+import { StandardKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
+import { IHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegate.js";
+import { IListStyles } from "../../../base/browser/ui/list/listWidget.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IAccessibilityService } from "../../accessibility/common/accessibility.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { IQuickPickItem, IQuickPickItemButtonEvent, IQuickPickSeparatorButtonEvent, QuickPickFocus, QuickPickItem } from "../common/quickInput.js";
 export declare class QuickInputTree extends Disposable {
     private parent;
     private hoverDelegate;
@@ -30,9 +30,9 @@ export declare class QuickInputTree extends Disposable {
     private readonly _checkedElementsObservable;
     onChangedCheckedElements: Event<IQuickPickItem[]>;
     private readonly _onButtonTriggered;
-    onButtonTriggered: any;
+    onButtonTriggered: Event<IQuickPickItemButtonEvent<IQuickPickItem>>;
     private readonly _onSeparatorButtonTriggered;
-    onSeparatorButtonTriggered: any;
+    onSeparatorButtonTriggered: Event<IQuickPickSeparatorButtonEvent>;
     private readonly _elementChecked;
     private readonly _elementCheckedEventBufferer;
     private _hasCheckboxes;
@@ -47,8 +47,11 @@ export declare class QuickInputTree extends Disposable {
     private _lastHover;
     private _lastQueryString;
     constructor(parent: HTMLElement, hoverDelegate: IHoverDelegate, linkOpenerDelegate: (content: string) => void, id: string, instantiationService: IInstantiationService, accessibilityService: IAccessibilityService);
-    get onDidChangeFocus(): any;
-    get onDidChangeSelection(): any;
+    get onDidChangeFocus(): Event<(IQuickPickItem | undefined)[]>;
+    get onDidChangeSelection(): Event<{
+        items: (IQuickPickItem | undefined)[];
+        event: any;
+    }>;
     get displayed(): boolean;
     set displayed(value: boolean);
     get scrollTop(): number;

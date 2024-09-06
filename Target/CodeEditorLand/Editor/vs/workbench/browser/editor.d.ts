@@ -1,11 +1,11 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { SyncDescriptor } from "vs/platform/instantiation/common/descriptors";
-import { BrandedService, IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { EditorPane } from "vs/workbench/browser/parts/editor/editorPane";
-import { IEditorDescriptor as ICommonEditorDescriptor } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { IEditorGroup } from "vs/workbench/services/editor/common/editorGroupsService";
+import { IDisposable } from "../../base/common/lifecycle.js";
+import { URI } from "../../base/common/uri.js";
+import { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
+import { BrandedService, IInstantiationService, ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
+import { IEditorDescriptor as ICommonEditorDescriptor, IWillInstantiateEditorPaneEvent } from "../common/editor.js";
+import { EditorInput } from "../common/editor/editorInput.js";
+import { IEditorGroup } from "../services/editor/common/editorGroupsService.js";
+import { EditorPane } from "./parts/editor/editorPane.js";
 export interface IEditorPaneDescriptor extends ICommonEditorDescriptor<EditorPane> {
 }
 export interface IEditorPaneRegistry {
@@ -35,7 +35,7 @@ export declare class EditorPaneDescriptor implements IEditorPaneDescriptor {
     private static readonly instantiatedEditorPanes;
     static didInstantiateEditorPane(typeId: string): boolean;
     private static readonly _onWillInstantiateEditorPane;
-    static readonly onWillInstantiateEditorPane: any;
+    static readonly onWillInstantiateEditorPane: import("../../base/common/event.js").Event<IWillInstantiateEditorPaneEvent>;
     static create<Services extends BrandedService[]>(ctor: {
         new (group: IEditorGroup, ...services: Services): EditorPane;
     }, typeId: string, name: string): EditorPaneDescriptor;

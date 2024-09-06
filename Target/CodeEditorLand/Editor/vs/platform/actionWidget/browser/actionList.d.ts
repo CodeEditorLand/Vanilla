@@ -1,10 +1,10 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { ResolvedKeybinding } from "vs/base/common/keybindings";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import "vs/css!./actionWidget";
-import { IContextViewService } from "vs/platform/contextview/browser/contextView";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { ResolvedKeybinding } from "../../../base/common/keybindings.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import "./actionWidget.css";
+import { IContextViewService } from "../../contextview/browser/contextView.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
 export declare const acceptSelectedActionCommand = "acceptSelectedCodeAction";
 export declare const previewSelectedActionCommand = "previewSelectedCodeAction";
 export interface IActionListDelegate<T> {

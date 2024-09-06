@@ -1,11 +1,11 @@
-import { ICodeEditor, IDiffEditorConstructionOptions } from "vs/editor/browser/editorBrowser";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { DiffEditorWidget, IDiffCodeEditorWidgetOptions } from "vs/editor/browser/widget/diffEditor/diffEditorWidget";
-import { IEditorOptions } from "vs/editor/common/config/editorOptions";
-import { IAccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IEditorProgressService } from "vs/platform/progress/common/progress";
+import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
+import { IEditorOptions } from "../../../common/config/editorOptions.js";
+import { ICodeEditor, IDiffEditorConstructionOptions } from "../../editorBrowser.js";
+import { ICodeEditorService } from "../../services/codeEditorService.js";
+import { DiffEditorWidget, IDiffCodeEditorWidgetOptions } from "./diffEditorWidget.js";
 export declare class EmbeddedDiffEditorWidget extends DiffEditorWidget {
     private readonly _parentEditor;
     private readonly _overwriteOptions;

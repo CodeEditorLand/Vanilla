@@ -1,13 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { MainThreadUriOpenersShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExternalOpenerProvider, IExternalUriOpener, IExternalUriOpenerService } from "vs/workbench/contrib/externalUriOpener/common/externalUriOpenerService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { INotificationService } from "../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../platform/opener/common/opener.js";
+import { IStorageService } from "../../../platform/storage/common/storage.js";
+import { IExternalOpenerProvider, IExternalUriOpener, IExternalUriOpenerService } from "../../contrib/externalUriOpener/common/externalUriOpenerService.js";
+import { IExtensionService } from "../../services/extensions/common/extensions.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadUriOpenersShape } from "../common/extHost.protocol.js";
 export declare class MainThreadUriOpeners extends Disposable implements MainThreadUriOpenersShape, IExternalOpenerProvider {
     private readonly extensionService;
     private readonly openerService;

@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IUserDataSyncLogService, IUserDataSyncStoreService } from "vs/platform/userDataSync/common/userDataSync";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IUserDataSyncLogService, IUserDataSyncStoreService } from "./userDataSync.js";
 export interface IUserDataSyncAccount {
     readonly authenticationProviderId: string;
     readonly token: string;
 }
-export declare const IUserDataSyncAccountService: any;
+export declare const IUserDataSyncAccountService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncAccountService>;
 export interface IUserDataSyncAccountService {
     readonly _serviceBrand: undefined;
     readonly onTokenFailed: Event<boolean>;
@@ -20,7 +20,7 @@ export declare class UserDataSyncAccountService extends Disposable implements IU
     private _account;
     get account(): IUserDataSyncAccount | undefined;
     private _onDidChangeAccount;
-    readonly onDidChangeAccount: any;
+    readonly onDidChangeAccount: Event<IUserDataSyncAccount | undefined>;
     private _onTokenFailed;
     readonly onTokenFailed: Event<boolean>;
     private wasTokenFailed;

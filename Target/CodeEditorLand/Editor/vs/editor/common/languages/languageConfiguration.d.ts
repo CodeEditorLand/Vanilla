@@ -1,5 +1,5 @@
-import { StandardTokenType } from "vs/editor/common/encodedTokenAttributes";
-import { ScopedLineTokens } from "vs/editor/common/languages/supports";
+import { StandardTokenType } from "../encodedTokenAttributes.js";
+import { ScopedLineTokens } from "./supports.js";
 /**
  * Describes how comments for a language work.
  */

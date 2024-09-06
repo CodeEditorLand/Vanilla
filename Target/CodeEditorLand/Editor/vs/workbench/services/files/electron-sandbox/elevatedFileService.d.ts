@@ -1,9 +1,9 @@
-import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "vs/base/common/buffer";
-import { URI } from "vs/base/common/uri";
-import { IFileService, IFileStatWithMetadata, IWriteFileOptions } from "vs/platform/files/common/files";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { INativeWorkbenchEnvironmentService } from "vs/workbench/services/environment/electron-sandbox/environmentService";
-import { IElevatedFileService } from "vs/workbench/services/files/common/elevatedFileService";
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileService, IFileStatWithMetadata, IWriteFileOptions } from "../../../../platform/files/common/files.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { IElevatedFileService } from "../common/elevatedFileService.js";
 export declare class NativeElevatedFileService implements IElevatedFileService {
     private readonly nativeHostService;
     private readonly fileService;

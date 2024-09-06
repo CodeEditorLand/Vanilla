@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { IChannelClient } from "vs/base/parts/ipc/common/ipc";
+import { Event } from "../../../base/common/event.js";
+import { DisposableStore, IDisposable } from "../../../base/common/lifecycle.js";
+import { IChannelClient } from "../../../base/parts/ipc/common/ipc.js";
 export interface IPtyHostConnection {
     readonly client: IChannelClient;
     readonly store: DisposableStore;

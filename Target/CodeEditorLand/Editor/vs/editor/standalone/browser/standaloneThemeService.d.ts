@@ -1,7 +1,7 @@
-import { Color } from "vs/base/common/color";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IStandaloneTheme, IStandaloneThemeData, IStandaloneThemeService } from "vs/editor/standalone/common/standaloneTheme";
-import { IFileIconTheme, IProductIconTheme } from "vs/platform/theme/common/themeService";
+import { Color } from "../../../base/common/color.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { IFileIconTheme, IProductIconTheme } from "../../../platform/theme/common/themeService.js";
+import { IStandaloneTheme, IStandaloneThemeData, IStandaloneThemeService } from "../common/standaloneTheme.js";
 export declare const VS_LIGHT_THEME_NAME = "vs";
 export declare const VS_DARK_THEME_NAME = "vs-dark";
 export declare const HC_BLACK_THEME_NAME = "hc-black";
@@ -9,11 +9,11 @@ export declare const HC_LIGHT_THEME_NAME = "hc-light";
 export declare class StandaloneThemeService extends Disposable implements IStandaloneThemeService {
     readonly _serviceBrand: undefined;
     private readonly _onColorThemeChange;
-    readonly onDidColorThemeChange: any;
+    readonly onDidColorThemeChange: import("../../../base/common/event.js").Event<IStandaloneTheme>;
     private readonly _onFileIconThemeChange;
-    readonly onDidFileIconThemeChange: any;
+    readonly onDidFileIconThemeChange: import("../../../base/common/event.js").Event<IFileIconTheme>;
     private readonly _onProductIconThemeChange;
-    readonly onDidProductIconThemeChange: any;
+    readonly onDidProductIconThemeChange: import("../../../base/common/event.js").Event<IProductIconTheme>;
     private readonly _environment;
     private readonly _knownThemes;
     private _autoDetectHighContrast;

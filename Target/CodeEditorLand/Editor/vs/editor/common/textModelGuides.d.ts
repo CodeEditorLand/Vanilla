@@ -1,4 +1,4 @@
-import { IPosition } from "vs/editor/common/core/position";
+import { IPosition } from "./core/position.js";
 export interface IGuidesTextModelPart {
     /**
      * @internal

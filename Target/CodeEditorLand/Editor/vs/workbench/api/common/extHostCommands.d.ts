@@ -1,13 +1,18 @@
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { ICommandMetadata } from "vs/platform/commands/common/commands";
-import { ExtensionIdentifier, IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { IExtHostTelemetry } from "vs/workbench/api/common/extHostTelemetry";
-import * as extHostTypeConverter from "vs/workbench/api/common/extHostTypeConverters";
-import * as extHostTypes from "vs/workbench/api/common/extHostTypes";
 import type * as vscode from "vscode";
-import { ExtHostCommandsShape, ICommandDto, ICommandMetadataDto } from "./extHost.protocol";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IPosition } from "../../../editor/common/core/position.js";
+import { IRange } from "../../../editor/common/core/range.js";
+import { ISelection } from "../../../editor/common/core/selection.js";
+import * as languages from "../../../editor/common/languages.js";
+import { ICommandMetadata } from "../../../platform/commands/common/commands.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { ExtHostCommandsShape, ICommandDto, ICommandMetadataDto } from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { IExtHostTelemetry } from "./extHostTelemetry.js";
+import * as extHostTypeConverter from "./extHostTypeConverters.js";
+import * as extHostTypes from "./extHostTypes.js";
 export interface ArgumentProcessor {
     processArgument(arg: any, extensionId: ExtensionIdentifier | undefined): any;
 }
@@ -35,7 +40,7 @@ export declare class ExtHostCommands implements ExtHostCommandsShape {
 }
 export interface IExtHostCommands extends ExtHostCommands {
 }
-export declare const IExtHostCommands: any;
+export declare const IExtHostCommands: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostCommands>;
 export declare class CommandsConverter implements extHostTypeConverter.Command.ICommandsConverter {
     private readonly _commands;
     private readonly _lookupApiCommand;
@@ -63,9 +68,49 @@ export declare class ApiCommandArgument<V, O = V> {
     static readonly String: ApiCommandArgument<string, string>;
     static readonly StringArray: ApiCommandArgument<string[], string[]>;
     static Arr<T, K = T>(element: ApiCommandArgument<T, K>): ApiCommandArgument<T[], K[]>;
-    static readonly CallHierarchyItem: ApiCommandArgument<unknown, unknown>;
-    static readonly TypeHierarchyItem: ApiCommandArgument<unknown, unknown>;
-    static readonly TestItem: ApiCommandArgument<unknown, unknown>;
+    static readonly CallHierarchyItem: ApiCommandArgument<vscode.CallHierarchyItem, {
+        _sessionId: string;
+        _itemId: string;
+        kind: languages.SymbolKind;
+        name: string;
+        detail?: string;
+        uri: import("../../../base/common/uri.js").UriComponents;
+        range: {
+            readonly startLineNumber: number;
+            readonly startColumn: number;
+            readonly endLineNumber: number;
+            readonly endColumn: number;
+        };
+        selectionRange: {
+            readonly startLineNumber: number;
+            readonly startColumn: number;
+            readonly endLineNumber: number;
+            readonly endColumn: number;
+        };
+        tags?: languages.SymbolTag[];
+    }>;
+    static readonly TypeHierarchyItem: ApiCommandArgument<vscode.TypeHierarchyItem, {
+        _sessionId: string;
+        _itemId: string;
+        kind: languages.SymbolKind;
+        name: string;
+        detail?: string;
+        uri: import("../../../base/common/uri.js").UriComponents;
+        range: {
+            readonly startLineNumber: number;
+            readonly startColumn: number;
+            readonly endLineNumber: number;
+            readonly endColumn: number;
+        };
+        selectionRange: {
+            readonly startLineNumber: number;
+            readonly startColumn: number;
+            readonly endLineNumber: number;
+            readonly endColumn: number;
+        };
+        tags?: languages.SymbolTag[];
+    }>;
+    static readonly TestItem: ApiCommandArgument<vscode.TestItem, import("../../contrib/testing/common/testTypes.js").ITestItem>;
     constructor(name: string, description: string, validate: (v: V) => boolean, convert: (v: V) => O);
     optional(): ApiCommandArgument<V | undefined | null, O | undefined | null>;
     with(name: string | undefined, description: string | undefined): ApiCommandArgument<V, O>;

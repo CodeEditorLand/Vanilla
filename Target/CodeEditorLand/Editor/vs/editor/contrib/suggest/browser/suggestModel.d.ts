@@ -1,20 +1,20 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IPosition, Position } from "vs/editor/common/core/position";
-import { IWordAtPosition } from "vs/editor/common/core/wordHelper";
-import { CompletionItemKind, CompletionTriggerKind } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { IEditorWorkerService } from "vs/editor/common/services/editorWorker";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { CompletionModel } from "./completionModel";
-import { CompletionOptions } from "./suggest";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IPosition, Position } from "../../../common/core/position.js";
+import { IWordAtPosition } from "../../../common/core/wordHelper.js";
+import { CompletionItemKind, CompletionTriggerKind } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
+import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { CompletionModel } from "./completionModel.js";
+import { CompletionOptions } from "./suggest.js";
 export interface ICancelEvent {
     readonly retrigger: boolean;
 }

@@ -1,6 +1,6 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILocalExtension } from "vs/platform/extensionManagement/common/extensionManagement";
-export declare const IIgnoredExtensionsManagementService: any;
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { ILocalExtension } from "../../extensionManagement/common/extensionManagement.js";
+export declare const IIgnoredExtensionsManagementService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IIgnoredExtensionsManagementService>;
 export interface IIgnoredExtensionsManagementService {
     readonly _serviceBrand: any;
     getIgnoredExtensions(installed: ILocalExtension[]): string[];

@@ -1,12 +1,12 @@
-import { IAction, SubmenuAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ICommandAction, ICommandActionTitle, Icon, ILocalizedString } from "vs/platform/action/common/action";
-import { Categories } from "vs/platform/action/common/actionCommonCategories";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { ContextKeyExpression, IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingRule } from "vs/platform/keybinding/common/keybindingsRegistry";
+import { IAction, SubmenuAction } from "../../../base/common/actions.js";
+import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { ICommandAction, ICommandActionTitle, Icon, ILocalizedString } from "../../action/common/action.js";
+import { Categories } from "../../action/common/actionCommonCategories.js";
+import { ICommandService } from "../../commands/common/commands.js";
+import { ContextKeyExpression, IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { ServicesAccessor } from "../../instantiation/common/instantiation.js";
+import { IKeybindingRule } from "../../keybinding/common/keybindingsRegistry.js";
 export interface IMenuItem {
     command: ICommandAction;
     alt?: ICommandAction;
@@ -95,18 +95,7 @@ export declare class MenuId {
     static readonly OpenEditorsContextShare: MenuId;
     static readonly ProblemsPanelContext: MenuId;
     static readonly SCMInputBox: MenuId;
-    static readonly SCMChangesSeparator: MenuId;
     static readonly SCMChangesContext: MenuId;
-    static readonly SCMIncomingChanges: MenuId;
-    static readonly SCMIncomingChangesContext: MenuId;
-    static readonly SCMIncomingChangesSetting: MenuId;
-    static readonly SCMOutgoingChanges: MenuId;
-    static readonly SCMOutgoingChangesContext: MenuId;
-    static readonly SCMOutgoingChangesSetting: MenuId;
-    static readonly SCMIncomingChangesAllChangesContext: MenuId;
-    static readonly SCMIncomingChangesHistoryItemContext: MenuId;
-    static readonly SCMOutgoingChangesAllChangesContext: MenuId;
-    static readonly SCMOutgoingChangesHistoryItemContext: MenuId;
     static readonly SCMChangeContext: MenuId;
     static readonly SCMResourceContext: MenuId;
     static readonly SCMResourceContextShare: MenuId;
@@ -250,7 +239,7 @@ export interface IMenuData {
     contexts: ReadonlySet<string>;
     actions: [string, Array<MenuItemAction | SubmenuItemAction>][];
 }
-export declare const IMenuService: any;
+export declare const IMenuService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IMenuService>;
 export interface IMenuCreateOptions {
     emitEventsForSubmenuChanges?: boolean;
     eventDebounceDelay?: number;

@@ -1,4 +1,4 @@
-import { Event } from "vs/base/common/event";
+import { Event } from "../../../base/common/event.js";
 export interface IEditorZoom {
     onDidChangeZoomLevel: Event<number>;
     getZoomLevel(): number;

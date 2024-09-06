@@ -1,5 +1,5 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IPCClient } from "vs/base/parts/ipc/common/ipc";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { IPCClient } from "../common/ipc.js";
 /**
  * An implementation of `IPCClient` on top of Electron `ipcRenderer` IPC communication
  * provided from sandbox globals (via preload script).

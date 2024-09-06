@@ -1,14 +1,14 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IMarkerService } from "vs/platform/markers/common/markers";
-import { IProgressService } from "vs/platform/progress/common/progress";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IWorkspace, IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-import { ITaskIdentifier } from "vs/workbench/contrib/tasks/common/tasks";
-import { ITaskService, ITaskSummary } from "vs/workbench/contrib/tasks/common/taskService";
-import { IViewsService } from "vs/workbench/services/views/common/viewsService";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IMarkerService } from "../../../../platform/markers/common/markers.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWorkspace, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { ITaskIdentifier } from "../../tasks/common/tasks.js";
+import { ITaskService, ITaskSummary } from "../../tasks/common/taskService.js";
 export declare const enum TaskRunResult {
     Failure = 0,
     Success = 1
@@ -30,6 +30,6 @@ export declare class DebugTaskRunner implements IDisposable {
     cancel(): void;
     dispose(): void;
     runTaskAndCheckErrors(root: IWorkspaceFolder | IWorkspace | undefined, taskId: string | ITaskIdentifier | undefined): Promise<TaskRunResult>;
-    runTask(root: IWorkspace | IWorkspaceFolder | undefined, taskId: string | ITaskIdentifier | undefined, token?: any): Promise<IRunnerTaskSummary | null>;
+    runTask(root: IWorkspace | IWorkspaceFolder | undefined, taskId: string | ITaskIdentifier | undefined, token?: import("../../../../base/common/cancellation.js").CancellationToken): Promise<IRunnerTaskSummary | null>;
 }
 export {};

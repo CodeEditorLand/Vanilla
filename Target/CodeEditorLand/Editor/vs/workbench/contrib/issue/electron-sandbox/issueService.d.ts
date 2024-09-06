@@ -1,15 +1,15 @@
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IExtensionManagementService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IIssueMainService, OldIssueReporterStyles } from "vs/platform/issue/common/issue";
-import { IColorTheme, IThemeService } from "vs/platform/theme/common/themeService";
-import { IWorkspaceTrustManagementService } from "vs/platform/workspace/common/workspaceTrust";
-import { IIssueFormService, IssueReporterData, IssueReporterStyles, IWorkbenchIssueService } from "vs/workbench/contrib/issue/common/issue";
-import { IWorkbenchAssignmentService } from "vs/workbench/services/assignment/common/assignmentService";
-import { IAuthenticationService } from "vs/workbench/services/authentication/common/authentication";
-import { IWorkbenchExtensionEnablementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-import { IIntegrityService } from "vs/workbench/services/integrity/common/integrity";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IIssueMainService, OldIssueReporterStyles } from "../../../../platform/issue/common/issue.js";
+import { IColorTheme, IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IWorkbenchAssignmentService } from "../../../services/assignment/common/assignmentService.js";
+import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
+import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IIntegrityService } from "../../../services/integrity/common/integrity.js";
+import { IIssueFormService, IssueReporterData, IssueReporterStyles, IWorkbenchIssueService } from "../common/issue.js";
 export declare class NativeIssueService implements IWorkbenchIssueService {
     private readonly issueMainService;
     private readonly issueFormService;

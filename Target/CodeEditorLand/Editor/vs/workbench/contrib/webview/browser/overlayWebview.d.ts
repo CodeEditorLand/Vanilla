@@ -1,10 +1,12 @@
-import { Dimension } from "vs/base/browser/dom";
-import { CodeWindow } from "vs/base/browser/window";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IOverlayWebview, IWebviewService, WebviewContentOptions, WebviewExtensionDescription, WebviewInitInfo, WebviewOptions } from "vs/workbench/contrib/webview/browser/webview";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { IMouseWheelEvent } from "../../../../base/browser/mouseEvent.js";
+import { CodeWindow } from "../../../../base/browser/window.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { IOverlayWebview, IWebviewService, WebviewContentOptions, WebviewExtensionDescription, WebviewInitInfo, WebviewMessageReceivedEvent, WebviewOptions } from "./webview.js";
 /**
  * Webview that is absolutely positioned over another element and that can creates and destroys an underlying webview as needed.
  */
@@ -37,7 +39,7 @@ export declare class OverlayWebview extends Disposable implements IOverlayWebvie
     get isFocused(): boolean;
     private _isDisposed;
     private readonly _onDidDispose;
-    onDidDispose: any;
+    onDidDispose: import("../../../../base/common/event.js").Event<void>;
     dispose(): void;
     get container(): HTMLElement;
     claim(owner: any, targetWindow: CodeWindow, scopedContextKeyService: IContextKeyService | undefined): void;
@@ -59,25 +61,29 @@ export declare class OverlayWebview extends Disposable implements IOverlayWebvie
     set contentOptions(value: WebviewContentOptions);
     set localResourcesRoot(resources: URI[]);
     private readonly _onDidFocus;
-    readonly onDidFocus: any;
+    readonly onDidFocus: import("../../../../base/common/event.js").Event<void>;
     private readonly _onDidBlur;
-    readonly onDidBlur: any;
+    readonly onDidBlur: import("../../../../base/common/event.js").Event<void>;
     private readonly _onDidClickLink;
-    readonly onDidClickLink: any;
+    readonly onDidClickLink: import("../../../../base/common/event.js").Event<string>;
     private readonly _onDidReload;
-    readonly onDidReload: any;
+    readonly onDidReload: import("../../../../base/common/event.js").Event<void>;
     private readonly _onDidScroll;
-    readonly onDidScroll: any;
+    readonly onDidScroll: import("../../../../base/common/event.js").Event<{
+        readonly scrollYPercentage: number;
+    }>;
     private readonly _onDidUpdateState;
-    readonly onDidUpdateState: any;
+    readonly onDidUpdateState: import("../../../../base/common/event.js").Event<string | undefined>;
     private readonly _onMessage;
-    readonly onMessage: any;
+    readonly onMessage: import("../../../../base/common/event.js").Event<WebviewMessageReceivedEvent>;
     private readonly _onMissingCsp;
-    readonly onMissingCsp: any;
+    readonly onMissingCsp: import("../../../../base/common/event.js").Event<ExtensionIdentifier>;
     private readonly _onDidWheel;
-    readonly onDidWheel: any;
+    readonly onDidWheel: import("../../../../base/common/event.js").Event<IMouseWheelEvent>;
     private readonly _onFatalError;
-    onFatalError: any;
+    onFatalError: import("../../../../base/common/event.js").Event<{
+        readonly message: string;
+    }>;
     postMessage(message: any, transfer?: readonly ArrayBuffer[]): Promise<boolean>;
     focus(): void;
     reload(): void;

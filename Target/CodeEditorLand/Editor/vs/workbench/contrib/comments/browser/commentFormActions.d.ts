@@ -1,8 +1,8 @@
-import { IAction } from "vs/base/common/actions";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IMenu } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import { IAction } from "../../../../base/common/actions.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IMenu } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 export declare class CommentFormActions implements IDisposable {
     private readonly keybindingService;
     private readonly contextKeyService;

@@ -1,3 +1,4 @@
+import { IConfigurationPropertySchema } from "../../../../platform/configuration/common/configurationRegistry.js";
 export declare enum ViewsWelcomeExtensionPointFields {
     view = "view",
     contents = "contents",
@@ -18,5 +19,5 @@ export declare const ViewIdentifierMap: {
 };
 export declare const viewsWelcomeExtensionPointDescriptor: {
     extensionPoint: string;
-    jsonSchema: IConfigurationPropertySchema;
+    jsonSchema: Readonly<IConfigurationPropertySchema>;
 };

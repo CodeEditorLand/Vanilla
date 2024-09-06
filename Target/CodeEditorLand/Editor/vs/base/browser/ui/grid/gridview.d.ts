@@ -1,10 +1,10 @@
-import { IBoundarySashes, Orientation, Sash } from "vs/base/browser/ui/sash/sash";
-import { AutoSizing, DistributeSizing, IView as ISplitView, ISplitViewStyles, LayoutPriority, Sizing } from "vs/base/browser/ui/splitview/splitview";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import "vs/css!./gridview";
-export { Orientation } from "vs/base/browser/ui/sash/sash";
-export { LayoutPriority, Sizing } from "vs/base/browser/ui/splitview/splitview";
+import { Event } from "../../../common/event.js";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { IBoundarySashes, Orientation, Sash } from "../sash/sash.js";
+import { AutoSizing, DistributeSizing, IView as ISplitView, ISplitViewStyles, LayoutPriority, Sizing } from "../splitview/splitview.js";
+import "./gridview.css";
+export { Orientation } from "../sash/sash.js";
+export { LayoutPriority, Sizing } from "../splitview/splitview.js";
 export interface IGridViewStyles extends ISplitViewStyles {
 }
 export interface IViewSize {
@@ -385,16 +385,16 @@ export declare class GridView implements IDisposable {
     /**
      * Fires whenever the user double clicks a {@link Sash sash}.
      */
-    readonly onDidSashReset: any;
+    readonly onDidSashReset: Event<GridLocation>;
     /**
      * Fires whenever the user scrolls a {@link SplitView} within
      * the grid.
      */
-    readonly onDidScroll: any;
+    readonly onDidScroll: Event<void>;
     /**
      * Fires whenever a view within the grid changes its size constraints.
      */
-    readonly onDidChange: any;
+    readonly onDidChange: Event<IViewSize | undefined>;
     /**
      * The width of the grid.
      */
@@ -437,7 +437,7 @@ export declare class GridView implements IDisposable {
     set edgeSnapping(edgeSnapping: boolean);
     private maximizedNode;
     private readonly _onDidChangeViewMaximized;
-    readonly onDidChangeViewMaximized: any;
+    readonly onDidChangeViewMaximized: Event<boolean>;
     /**
      * Create a new {@link GridView} instance.
      *

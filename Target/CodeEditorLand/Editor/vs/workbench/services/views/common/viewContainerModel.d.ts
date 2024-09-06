@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILoggerService } from "vs/platform/log/common/log";
-import { IAddedViewDescriptorRef, IAddedViewDescriptorState, IViewContainerModel, IViewDescriptor, IViewDescriptorRef, ViewContainer } from "vs/workbench/common/views";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILoggerService } from "../../../../platform/log/common/log.js";
+import { IAddedViewDescriptorRef, IAddedViewDescriptorState, IViewContainerModel, IViewDescriptor, IViewDescriptorRef, ViewContainer } from "../../../common/views.js";
 export declare function getViewsStateStorageId(viewContainerStorageId: string): string;
 export declare class ViewContainerModel extends Disposable implements IViewContainerModel {
     readonly viewContainer: ViewContainer;
@@ -20,13 +20,23 @@ export declare class ViewContainerModel extends Disposable implements IViewConta
     private _keybindingId;
     get keybindingId(): string | undefined;
     private _onDidChangeContainerInfo;
-    readonly onDidChangeContainerInfo: any;
+    readonly onDidChangeContainerInfo: Event<{
+        title?: boolean;
+        icon?: boolean;
+        keybindingId?: boolean;
+    }>;
     get allViewDescriptors(): ReadonlyArray<IViewDescriptor>;
     private _onDidChangeAllViewDescriptors;
-    readonly onDidChangeAllViewDescriptors: any;
+    readonly onDidChangeAllViewDescriptors: Event<{
+        added: ReadonlyArray<IViewDescriptor>;
+        removed: ReadonlyArray<IViewDescriptor>;
+    }>;
     get activeViewDescriptors(): ReadonlyArray<IViewDescriptor>;
     private _onDidChangeActiveViewDescriptors;
-    readonly onDidChangeActiveViewDescriptors: any;
+    readonly onDidChangeActiveViewDescriptors: Event<{
+        added: ReadonlyArray<IViewDescriptor>;
+        removed: ReadonlyArray<IViewDescriptor>;
+    }>;
     get visibleViewDescriptors(): ReadonlyArray<IViewDescriptor>;
     private _onDidAddVisibleViewDescriptors;
     readonly onDidAddVisibleViewDescriptors: Event<IAddedViewDescriptorRef[]>;

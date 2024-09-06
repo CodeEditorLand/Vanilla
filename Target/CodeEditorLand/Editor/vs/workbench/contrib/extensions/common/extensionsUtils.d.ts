@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IExtensionIdentifier, ILocalExtension } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IWorkbenchExtensionEnablementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-import { IExtensionRecommendationsService } from "vs/workbench/services/extensionRecommendations/common/extensionRecommendations";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IExtensionIdentifier, ILocalExtension } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IExtensionRecommendationsService } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
 export interface IExtensionStatus {
     identifier: IExtensionIdentifier;
     local: ILocalExtension;

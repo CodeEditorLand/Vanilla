@@ -1,7 +1,7 @@
-import { Action } from "vs/base/common/actions";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IExtensionHostProfile } from "vs/workbench/services/extensions/common/extensions";
+import { Action } from "../../../../base/common/actions.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IExtensionHostProfile } from "../../../services/extensions/common/extensions.js";
 export declare class SlowExtensionAction extends Action {
     readonly extension: IExtensionDescription;
     readonly profile: IExtensionHostProfile;

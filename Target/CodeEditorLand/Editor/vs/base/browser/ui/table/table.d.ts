@@ -1,5 +1,5 @@
-import { IListContextMenuEvent, IListEvent, IListGestureEvent, IListMouseEvent, IListRenderer, IListTouchEvent } from "vs/base/browser/ui/list/list";
-import { Event } from "vs/base/common/event";
+import { Event } from "../../../common/event.js";
+import { IListContextMenuEvent, IListEvent, IListGestureEvent, IListMouseEvent, IListRenderer, IListTouchEvent } from "../list/list.js";
 export interface ITableColumn<TRow, TCell> {
     readonly label: string;
     readonly tooltip?: string;

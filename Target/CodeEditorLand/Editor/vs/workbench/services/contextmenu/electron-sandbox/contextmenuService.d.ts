@@ -1,12 +1,12 @@
-import { IContextMenuDelegate } from "vs/base/browser/contextmenu";
-import { Event } from "vs/base/common/event";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuMenuDelegate, IContextMenuService, IContextViewService } from "vs/platform/contextview/browser/contextView";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IContextMenuDelegate } from "../../../../base/browser/contextmenu.js";
+import { Event } from "../../../../base/common/event.js";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuMenuDelegate, IContextMenuService, IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 export declare class ContextMenuService implements IContextMenuService {
     readonly _serviceBrand: undefined;
     private impl;

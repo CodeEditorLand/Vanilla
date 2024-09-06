@@ -1,9 +1,9 @@
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { EnvironmentVariableScope, IMergedEnvironmentVariableCollection, IMergedEnvironmentVariableCollectionDiff } from "vs/platform/terminal/common/environmentVariable";
-import { ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { IEnvironmentVariableInfo } from "vs/workbench/contrib/terminal/common/environmentVariable";
-import { ITerminalStatus } from "vs/workbench/contrib/terminal/common/terminal";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { EnvironmentVariableScope, IMergedEnvironmentVariableCollection, IMergedEnvironmentVariableCollectionDiff } from "../../../../platform/terminal/common/environmentVariable.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IEnvironmentVariableInfo } from "../common/environmentVariable.js";
+import { ITerminalStatus } from "../common/terminal.js";
+import { ITerminalService } from "./terminal.js";
 export declare class EnvironmentVariableInfoStale implements IEnvironmentVariableInfo {
     private readonly _diff;
     private readonly _terminalId;

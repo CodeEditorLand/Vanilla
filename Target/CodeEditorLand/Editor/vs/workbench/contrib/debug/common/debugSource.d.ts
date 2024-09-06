@@ -1,10 +1,10 @@
-import { URI } from "vs/base/common/uri";
-import { IRange } from "vs/editor/common/core/range";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IEditorPane } from "vs/workbench/common/editor";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-export declare const UNKNOWN_SOURCE_LABEL: any;
+import { URI } from "../../../../base/common/uri.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IEditorPane } from "../../../common/editor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+export declare const UNKNOWN_SOURCE_LABEL: string;
 /**
  * Debug URI format
  *
@@ -22,9 +22,9 @@ export declare class Source {
     available: boolean;
     raw: DebugProtocol.Source;
     constructor(raw_: DebugProtocol.Source | undefined, sessionId: string, uriIdentityService: IUriIdentityService, logService: ILogService);
-    get name(): any;
+    get name(): string;
     get origin(): string | undefined;
-    get presentationHint(): "normal" | "deemphasize" | "emphasize" | undefined;
+    get presentationHint(): "normal" | "emphasize" | "deemphasize" | undefined;
     get reference(): number | undefined;
     get inMemory(): boolean;
     openInEditor(editorService: IEditorService, selection: IRange, preserveFocus?: boolean, sideBySide?: boolean, pinned?: boolean): Promise<IEditorPane | undefined>;

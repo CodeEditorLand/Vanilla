@@ -1,9 +1,10 @@
-import { URI } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ExtensionActivationTimesBuilder } from "vs/workbench/api/common/extHostExtensionActivator";
-import { AbstractExtHostExtensionService } from "vs/workbench/api/common/extHostExtensionService";
+import { URI } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtensionActivationTimesBuilder } from "../common/extHostExtensionActivator.js";
+import { AbstractExtHostExtensionService } from "../common/extHostExtensionService.js";
+import { ExtensionRuntime } from "../common/extHostTypes.js";
 export declare class ExtHostExtensionService extends AbstractExtHostExtensionService {
-    readonly extensionRuntime: any;
+    readonly extensionRuntime = ExtensionRuntime.Webworker;
     private _fakeModules?;
     protected _beforeAlmostReadyToRunExtensions(): Promise<void>;
     protected _getEntryPoint(extensionDescription: IExtensionDescription): string | undefined;

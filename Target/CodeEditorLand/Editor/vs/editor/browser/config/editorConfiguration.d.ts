@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IEditorConfiguration } from "vs/editor/common/config/editorConfiguration";
-import { ConfigurationChangedEvent, EditorOption, FindComputedEditorOptionValueById, IComputedEditorOptions, IEditorOptions } from "vs/editor/common/config/editorOptions";
-import { BareFontInfo, FontInfo } from "vs/editor/common/config/fontInfo";
-import { IDimension } from "vs/editor/common/core/dimension";
-import { AccessibilitySupport, IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { MenuId } from "vs/platform/actions/common/actions";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { AccessibilitySupport, IAccessibilityService } from "../../../platform/accessibility/common/accessibility.js";
+import { MenuId } from "../../../platform/actions/common/actions.js";
+import { IEditorConfiguration } from "../../common/config/editorConfiguration.js";
+import { ConfigurationChangedEvent, EditorOption, FindComputedEditorOptionValueById, IComputedEditorOptions, IEditorOptions } from "../../common/config/editorOptions.js";
+import { BareFontInfo, FontInfo } from "../../common/config/fontInfo.js";
+import { IDimension } from "../../common/core/dimension.js";
 export interface IEditorConstructionOptions extends IEditorOptions {
     /**
      * The initial editor dimension (to avoid measuring the container).

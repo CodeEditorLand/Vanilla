@@ -1,6 +1,6 @@
-import { Position } from "vs/editor/common/core/position";
-import { SelectionRange, SelectionRangeProvider } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
+import { Position } from "../../../common/core/position.js";
+import { SelectionRange, SelectionRangeProvider } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
 export declare class WordSelectionRangeProvider implements SelectionRangeProvider {
     private readonly selectSubwords;
     constructor(selectSubwords?: boolean);

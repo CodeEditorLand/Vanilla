@@ -1,1 +1,1 @@
-import "vs/workbench/contrib/snippets/browser/tabCompletion";
+import "./tabCompletion.js";

@@ -1,22 +1,22 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { VSDataTransfer } from "vs/base/common/dataTransfer";
-import { Event } from "vs/base/common/event";
-import { IMarkdownString, MarkdownString } from "vs/base/common/htmlContent";
-import { IDisposable } from "vs/base/common/lifecycle";
-import Severity from "vs/base/common/severity";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { Command } from "vs/editor/common/languages";
-import { IAccessibilityInformation } from "vs/platform/accessibility/common/accessibility";
-import { ILocalizedString } from "vs/platform/action/common/action";
-import { ContextKeyExpression } from "vs/platform/contextkey/common/contextkey";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { SyncDescriptor } from "vs/platform/instantiation/common/descriptors";
-import { IKeybindings } from "vs/platform/keybinding/common/keybindingsRegistry";
-import { IProgressIndicator } from "vs/platform/progress/common/progress";
+import { CancellationToken } from "../../base/common/cancellation.js";
+import { VSDataTransfer } from "../../base/common/dataTransfer.js";
+import { Event } from "../../base/common/event.js";
+import { IMarkdownString, MarkdownString } from "../../base/common/htmlContent.js";
+import { IDisposable } from "../../base/common/lifecycle.js";
+import Severity from "../../base/common/severity.js";
+import { ThemeIcon } from "../../base/common/themables.js";
+import { URI, UriComponents } from "../../base/common/uri.js";
+import { Command } from "../../editor/common/languages.js";
+import { IAccessibilityInformation } from "../../platform/accessibility/common/accessibility.js";
+import { ILocalizedString } from "../../platform/action/common/action.js";
+import { ContextKeyExpression } from "../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../platform/extensions/common/extensions.js";
+import { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
+import { IKeybindings } from "../../platform/keybinding/common/keybindingsRegistry.js";
+import { IProgressIndicator } from "../../platform/progress/common/progress.js";
 export declare const VIEWS_LOG_ID = "views";
-export declare const VIEWS_LOG_NAME: any;
-export declare const defaultViewIcon: any;
+export declare const VIEWS_LOG_NAME: string;
+export declare const defaultViewIcon: ThemeIcon;
 export declare namespace Extensions {
     const ViewContainersRegistry = "workbench.registry.view.containers";
     const ViewsRegistry = "workbench.registry.view";
@@ -280,7 +280,7 @@ export interface IView {
     setExpanded(expanded: boolean): boolean;
     getProgressIndicator(): IProgressIndicator | undefined;
 }
-export declare const IViewDescriptorService: any;
+export declare const IViewDescriptorService: import("../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IViewDescriptorService>;
 export declare enum ViewVisibilityState {
     Default = 0,
     Expand = 1

@@ -1,6 +1,8 @@
-import { ThemeIcon } from "vs/base/common/themables";
-import { IMarkerService, MarkerSeverity } from "vs/platform/markers/common/markers";
-import { ICellViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { IRange } from "../../../../../editor/common/core/range.js";
+import { SymbolKind } from "../../../../../editor/common/languages.js";
+import { IMarkerService, MarkerSeverity } from "../../../../../platform/markers/common/markers.js";
+import { ICellViewModel } from "../notebookBrowser.js";
 export interface IOutlineMarkerInfo {
     readonly count: number;
     readonly topSev: MarkerSeverity;
@@ -12,20 +14,20 @@ export declare class OutlineEntry {
     readonly label: string;
     readonly isExecuting: boolean;
     readonly isPaused: boolean;
-    readonly range?: any;
-    readonly symbolKind?: any;
+    readonly range?: IRange | undefined;
+    readonly symbolKind?: SymbolKind | undefined;
     private _children;
     private _parent;
     private _markerInfo;
     get icon(): ThemeIcon;
-    constructor(index: number, level: number, cell: ICellViewModel, label: string, isExecuting: boolean, isPaused: boolean, range?: any, symbolKind?: any);
+    constructor(index: number, level: number, cell: ICellViewModel, label: string, isExecuting: boolean, isPaused: boolean, range?: IRange | undefined, symbolKind?: SymbolKind | undefined);
     addChild(entry: OutlineEntry): void;
     get parent(): OutlineEntry | undefined;
     get children(): Iterable<OutlineEntry>;
     get markerInfo(): IOutlineMarkerInfo | undefined;
     get position(): {
-        startLineNumber: any;
-        startColumn: any;
+        startLineNumber: number;
+        startColumn: number;
     } | undefined;
     updateMarkers(markerService: IMarkerService): void;
     clearMarkers(): void;

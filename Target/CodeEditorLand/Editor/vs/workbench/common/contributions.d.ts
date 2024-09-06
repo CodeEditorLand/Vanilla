@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { BrandedService, IConstructorSignature, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { LifecyclePhase } from "vs/workbench/services/lifecycle/common/lifecycle";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { BrandedService, IConstructorSignature, ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
+import { LifecyclePhase } from "../services/lifecycle/common/lifecycle.js";
 /**
  * A workbench contribution that will be loaded when the workbench starts and disposed when the workbench shuts down.
  */
@@ -20,7 +20,7 @@ export declare const enum WorkbenchPhase {
      * the user, so please rather consider to use the other types, preferable
      * `Lazy` to only instantiate the contribution when really needed.
      */
-    BlockStartup,
+    BlockStartup = 1,
     /**
      * Services are ready and the window is about to restore its UI state.
      *
@@ -28,17 +28,17 @@ export declare const enum WorkbenchPhase {
      * the user, so please rather consider to use the other types, preferable
      * `Lazy` to only instantiate the contribution when really needed.
      */
-    BlockRestore,
+    BlockRestore = 2,
     /**
      * Views, panels and editors have restored. Editors are given a bit of
      * time to restore their contents.
      */
-    AfterRestored,
+    AfterRestored = 3,
     /**
      * The last phase after views, panels and editors have restored and
      * some time has passed (2-5 seconds).
      */
-    Eventually
+    Eventually = 4
 }
 /**
  * A workbenchch contribution that will only be instantiated
@@ -93,7 +93,7 @@ export declare class WorkbenchContributionsRegistry extends Disposable implement
     private readonly timingsByPhase;
     get timings(): Map<LifecyclePhase, [string, number][]>;
     private readonly pendingRestoredContributions;
-    readonly whenRestored: any;
+    readonly whenRestored: Promise<void>;
     registerWorkbenchContribution2(id: string, ctor: IConstructorSignature<IWorkbenchContribution>, phase: WorkbenchPhase.BlockStartup | WorkbenchPhase.BlockRestore): void;
     registerWorkbenchContribution2(id: string | undefined, ctor: IConstructorSignature<IWorkbenchContribution>, phase: WorkbenchPhase.AfterRestored | WorkbenchPhase.Eventually): void;
     registerWorkbenchContribution2(id: string, ctor: IConstructorSignature<IWorkbenchContribution>, lazy: ILazyWorkbenchContributionInstantiation): void;

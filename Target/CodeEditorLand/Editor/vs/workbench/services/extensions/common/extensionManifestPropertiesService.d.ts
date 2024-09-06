@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ExtensionKind } from "vs/platform/environment/common/environment";
-import { ExtensionUntrustedWorkspaceSupportType, ExtensionVirtualWorkspaceSupportType, IExtensionIdentifier, IExtensionManifest } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IWorkspaceTrustEnablementService } from "vs/platform/workspace/common/workspaceTrust";
-export declare const IExtensionManifestPropertiesService: any;
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ExtensionKind } from "../../../../platform/environment/common/environment.js";
+import { ExtensionUntrustedWorkspaceSupportType, ExtensionVirtualWorkspaceSupportType, IExtensionIdentifier, IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IWorkspaceTrustEnablementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+export declare const IExtensionManifestPropertiesService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionManifestPropertiesService>;
 export interface IExtensionManifestPropertiesService {
     readonly _serviceBrand: undefined;
     prefersExecuteOnUI(manifest: IExtensionManifest): boolean;

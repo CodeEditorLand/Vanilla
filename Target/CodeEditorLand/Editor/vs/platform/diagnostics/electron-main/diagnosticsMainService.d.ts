@@ -1,9 +1,9 @@
-import { IMainProcessDiagnostics, IRemoteDiagnosticError, IRemoteDiagnosticInfo } from "vs/platform/diagnostics/common/diagnostics";
-import { ILogService } from "vs/platform/log/common/log";
-import { IWindowsMainService } from "vs/platform/windows/electron-main/windows";
-import { IWorkspacesManagementMainService } from "vs/platform/workspaces/electron-main/workspacesManagementMainService";
+import { ILogService } from "../../log/common/log.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { IWorkspacesManagementMainService } from "../../workspaces/electron-main/workspacesManagementMainService.js";
+import { IMainProcessDiagnostics, IRemoteDiagnosticError, IRemoteDiagnosticInfo } from "../common/diagnostics.js";
 export declare const ID = "diagnosticsMainService";
-export declare const IDiagnosticsMainService: any;
+export declare const IDiagnosticsMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IDiagnosticsMainService>;
 export interface IRemoteDiagnosticOptions {
     includeProcesses?: boolean;
     includeWorkspaceMetadata?: boolean;

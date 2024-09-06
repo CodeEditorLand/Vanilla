@@ -1,12 +1,12 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import { ViewContainer } from "vs/workbench/common/views";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { ViewContainer } from "../../../common/views.js";
 export interface IActivity {
     readonly badge: IBadge;
     readonly priority?: number;
 }
-export declare const IActivityService: any;
+export declare const IActivityService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IActivityService>;
 export interface IActivityService {
     readonly _serviceBrand: undefined;
     /**

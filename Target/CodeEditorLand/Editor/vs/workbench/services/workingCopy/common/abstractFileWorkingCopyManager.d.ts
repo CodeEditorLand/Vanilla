@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { IFileWorkingCopy, IFileWorkingCopyModel } from "vs/workbench/services/workingCopy/common/fileWorkingCopy";
-import { IWorkingCopyBackupService } from "vs/workbench/services/workingCopy/common/workingCopyBackup";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IFileWorkingCopy, IFileWorkingCopyModel } from "./fileWorkingCopy.js";
+import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
 export interface IBaseFileWorkingCopyManager<M extends IFileWorkingCopyModel, W extends IFileWorkingCopy<M>> extends IDisposable {
     /**
      * An event for when a file working copy was created.
@@ -36,7 +36,7 @@ export declare abstract class BaseFileWorkingCopyManager<M extends IFileWorkingC
     protected readonly logService: ILogService;
     protected readonly workingCopyBackupService: IWorkingCopyBackupService;
     private readonly _onDidCreate;
-    readonly onDidCreate: any;
+    readonly onDidCreate: Event<W>;
     private readonly mapResourceToWorkingCopy;
     private readonly mapResourceToDisposeListener;
     constructor(fileService: IFileService, logService: ILogService, workingCopyBackupService: IWorkingCopyBackupService);

@@ -1,7 +1,8 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { MicrotaskDelay } from "vs/base/common/symbols";
+import { CancellationToken } from "./cancellation.js";
+import { DisposableStore, IDisposable } from "./lifecycle.js";
+import { LinkedList } from "./linkedList.js";
+import { IObservable } from "./observable.js";
+import { MicrotaskDelay } from "./symbols.js";
 /**
  * An event with zero or one parameters that can be subscribed to. The event is a function itself.
  */
@@ -430,7 +431,7 @@ export declare class AsyncEmitter<T extends IWaitUntil> extends Emitter<T> {
 }
 export declare class PauseableEmitter<T> extends Emitter<T> {
     private _isPaused;
-    protected _eventQueue: any;
+    protected _eventQueue: LinkedList<T>;
     private _mergeFn?;
     get isPaused(): boolean;
     constructor(options?: EmitterOptions & {

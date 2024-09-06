@@ -1,6 +1,6 @@
-import { ResolvedLanguageConfiguration } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { DenseKeyProvider, SmallImmutableSet } from "./smallImmutableSet";
-import { OpeningBracketId, Token } from "./tokenizer";
+import { ResolvedLanguageConfiguration } from "../../../languages/languageConfigurationRegistry.js";
+import { DenseKeyProvider, SmallImmutableSet } from "./smallImmutableSet.js";
+import { OpeningBracketId, Token } from "./tokenizer.js";
 export declare class BracketTokens {
     private readonly map;
     static createFromLanguage(configuration: ResolvedLanguageConfiguration, denseKeyProvider: DenseKeyProvider<string>): BracketTokens;

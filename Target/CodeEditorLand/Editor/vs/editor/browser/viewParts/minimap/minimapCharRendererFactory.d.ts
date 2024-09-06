@@ -1,4 +1,4 @@
-import { MinimapCharRenderer } from "vs/editor/browser/viewParts/minimap/minimapCharRenderer";
+import { MinimapCharRenderer } from "./minimapCharRenderer.js";
 /**
  * Creates character renderers. It takes a 'scale' that determines how large
  * characters should be drawn. Using this, it draws data into a canvas and
@@ -12,7 +12,7 @@ export declare class MinimapCharRendererFactory {
     /**
      * Creates a new character renderer factory with the given scale.
      */
-    static create(scale: number, fontFamily: string): any;
+    static create(scale: number, fontFamily: string): MinimapCharRenderer;
     /**
      * Creates the font sample data, writing to a canvas.
      */

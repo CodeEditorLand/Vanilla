@@ -1,13 +1,13 @@
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IAddressProvider } from "vs/platform/remote/common/remoteAgentConnection";
-import { ISharedProcessTunnelService } from "vs/platform/remote/common/sharedProcessTunnelService";
-import { AbstractTunnelService, ITunnelProvider, RemoteTunnel } from "vs/platform/tunnel/common/tunnel";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { INativeWorkbenchEnvironmentService } from "vs/workbench/services/environment/electron-sandbox/environmentService";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IAddressProvider } from "../../../../platform/remote/common/remoteAgentConnection.js";
+import { ISharedProcessTunnelService } from "../../../../platform/remote/common/sharedProcessTunnelService.js";
+import { AbstractTunnelService, ITunnelProvider, RemoteTunnel } from "../../../../platform/tunnel/common/tunnel.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
 export declare class TunnelService extends AbstractTunnelService {
     private readonly _environmentService;
     private readonly _sharedProcessTunnelService;

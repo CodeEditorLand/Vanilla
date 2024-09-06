@@ -2,30 +2,38 @@
  * An object holding strings shared by multiple parts of the terminal
  */
 export declare const terminalStrings: {
-    terminal: any;
-    new: any;
-    doNotShowAgain: any;
-    currentSessionCategory: any;
-    previousSessionCategory: any;
-    typeTask: any;
-    typeLocal: any;
-    actionCategory: any;
-    focus: any;
-    focusAndHideAccessibleBuffer: any;
-    kill: any;
-    moveToEditor: any;
-    moveIntoNewWindow: any;
-    moveToTerminalPanel: any;
-    changeIcon: any;
-    changeColor: any;
-    split: any;
-    unsplit: any;
-    rename: any;
-    toggleSizeToContentWidth: any;
-    focusHover: any;
-    sendSequence: any;
-    newWithCwd: any;
-    renameWithArgs: any;
-    scrollToPreviousCommand: any;
-    scrollToNextCommand: any;
+    terminal: string;
+    new: string;
+    doNotShowAgain: string;
+    currentSessionCategory: string;
+    previousSessionCategory: string;
+    typeTask: string;
+    typeLocal: string;
+    actionCategory: import("../../../../nls.js").ILocalizedString;
+    focus: import("../../../../nls.js").ILocalizedString;
+    focusAndHideAccessibleBuffer: import("../../../../nls.js").ILocalizedString;
+    kill: {
+        short: string;
+        original: string;
+        value: string;
+    };
+    moveToEditor: import("../../../../nls.js").ILocalizedString;
+    moveIntoNewWindow: import("../../../../nls.js").ILocalizedString;
+    moveToTerminalPanel: import("../../../../nls.js").ILocalizedString;
+    changeIcon: import("../../../../nls.js").ILocalizedString;
+    changeColor: import("../../../../nls.js").ILocalizedString;
+    split: {
+        short: string;
+        original: string;
+        value: string;
+    };
+    unsplit: import("../../../../nls.js").ILocalizedString;
+    rename: import("../../../../nls.js").ILocalizedString;
+    toggleSizeToContentWidth: import("../../../../nls.js").ILocalizedString;
+    focusHover: import("../../../../nls.js").ILocalizedString;
+    sendSequence: import("../../../../nls.js").ILocalizedString;
+    newWithCwd: import("../../../../nls.js").ILocalizedString;
+    renameWithArgs: import("../../../../nls.js").ILocalizedString;
+    scrollToPreviousCommand: import("../../../../nls.js").ILocalizedString;
+    scrollToNextCommand: import("../../../../nls.js").ILocalizedString;
 };

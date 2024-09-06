@@ -1,11 +1,11 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IExtensionGalleryService, IExtensionIdentifier, IExtensionManagementService, IGlobalExtensionEnablementService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUserDataProfile } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IUserDataProfileStorageService } from "vs/platform/userDataProfile/common/userDataProfileStorageService";
-import { ITreeItemCheckboxState } from "vs/workbench/common/views";
-import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem, IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IExtensionGalleryService, IExtensionIdentifier, IExtensionManagementService, IGlobalExtensionEnablementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IUserDataProfile, ProfileResourceType } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IUserDataProfileStorageService } from "../../../../platform/userDataProfile/common/userDataProfileStorageService.js";
+import { ITreeItemCheckboxState, TreeItemCollapsibleState } from "../../../common/views.js";
+import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem, IUserDataProfileService } from "../common/userDataProfile.js";
 interface IProfileExtension {
     identifier: IExtensionIdentifier;
     displayName?: string;
@@ -38,13 +38,13 @@ export declare class ExtensionsResource implements IProfileResource {
     private withProfileScopedServices;
 }
 export declare abstract class ExtensionsResourceTreeItem implements IProfileResourceTreeItem {
-    readonly type: any;
-    readonly handle: any;
+    readonly type = ProfileResourceType.Extensions;
+    readonly handle = ProfileResourceType.Extensions;
     readonly label: {
-        label: any;
+        label: string;
     };
-    readonly collapsibleState: any;
-    contextValue: any;
+    readonly collapsibleState = TreeItemCollapsibleState.Expanded;
+    contextValue: ProfileResourceType;
     checkbox: ITreeItemCheckboxState | undefined;
     protected readonly excludedExtensions: Set<string>;
     getChildren(): Promise<IProfileResourceChildTreeItem[]>;

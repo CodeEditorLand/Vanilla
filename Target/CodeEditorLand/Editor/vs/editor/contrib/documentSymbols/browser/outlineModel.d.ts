@@ -1,13 +1,13 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { URI } from "vs/base/common/uri";
-import { IPosition } from "vs/editor/common/core/position";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import { DocumentSymbol, DocumentSymbolProvider } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { ILanguageFeatureDebounceService } from "vs/editor/common/services/languageFeatureDebounce";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IModelService } from "vs/editor/common/services/model";
-import { MarkerSeverity } from "vs/platform/markers/common/markers";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { IPosition } from "../../../common/core/position.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import { DocumentSymbol, DocumentSymbolProvider } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
+import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { IModelService } from "../../../common/services/model.js";
 export declare abstract class TreeElement {
     abstract id: string;
     abstract children: Map<string, TreeElement>;
@@ -67,7 +67,7 @@ export declare class OutlineModel extends TreeElement {
     asListOfDocumentSymbols(): DocumentSymbol[];
     private static _flattenDocumentSymbols;
 }
-export declare const IOutlineModelService: any;
+export declare const IOutlineModelService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IOutlineModelService>;
 export interface IOutlineModelService {
     _serviceBrand: undefined;
     getOrCreate(model: ITextModel, token: CancellationToken): Promise<OutlineModel>;

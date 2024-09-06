@@ -1,11 +1,11 @@
-import { AccessibilityService } from "vs/platform/accessibility/browser/accessibilityService";
-import { AccessibilitySupport, IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ILayoutService } from "vs/platform/layout/browser/layoutService";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { INativeWorkbenchEnvironmentService } from "vs/workbench/services/environment/electron-sandbox/environmentService";
+import { AccessibilityService } from "../../../../platform/accessibility/browser/accessibilityService.js";
+import { AccessibilitySupport, IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
 export declare class NativeAccessibilityService extends AccessibilityService implements IAccessibilityService {
     private readonly _telemetryService;
     private readonly nativeHostService;

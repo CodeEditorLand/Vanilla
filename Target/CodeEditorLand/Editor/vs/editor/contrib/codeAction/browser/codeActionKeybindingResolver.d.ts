@@ -1,6 +1,6 @@
-import { ResolvedKeybinding } from "vs/base/common/keybindings";
-import { CodeAction } from "vs/editor/common/languages";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { CodeAction } from "../../../common/languages.js";
 export declare class CodeActionKeybindingResolver {
     private readonly keybindingService;
     private static readonly codeActionCommands;

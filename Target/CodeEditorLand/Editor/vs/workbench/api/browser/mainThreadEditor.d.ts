@@ -1,15 +1,15 @@
-import { Event } from "vs/base/common/event";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ISingleEditOperation } from "vs/editor/common/core/editOperation";
-import { IRange, Range } from "vs/editor/common/core/range";
-import { ISelection, Selection } from "vs/editor/common/core/selection";
-import { IDecorationOptions } from "vs/editor/common/editorCommon";
-import { ITextModel } from "vs/editor/common/model";
-import { IModelService } from "vs/editor/common/services/model";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { MainThreadDocuments } from "vs/workbench/api/browser/mainThreadDocuments";
-import { IApplyEditsOptions, IEditorPropertiesChangeData, IResolvedTextEditorConfiguration, ITextEditorConfigurationUpdate, IUndoStopOptions, TextEditorRevealType } from "vs/workbench/api/common/extHost.protocol";
-import { IEditorPane } from "vs/workbench/common/editor";
+import { Event } from "../../../base/common/event.js";
+import { ICodeEditor } from "../../../editor/browser/editorBrowser.js";
+import { ISingleEditOperation } from "../../../editor/common/core/editOperation.js";
+import { IRange, Range } from "../../../editor/common/core/range.js";
+import { ISelection, Selection } from "../../../editor/common/core/selection.js";
+import { IDecorationOptions } from "../../../editor/common/editorCommon.js";
+import { ITextModel } from "../../../editor/common/model.js";
+import { IModelService } from "../../../editor/common/services/model.js";
+import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
+import { IEditorPane } from "../../common/editor.js";
+import { IApplyEditsOptions, IEditorPropertiesChangeData, IResolvedTextEditorConfiguration, ITextEditorConfigurationUpdate, IUndoStopOptions, TextEditorRevealType } from "../common/extHost.protocol.js";
+import { MainThreadDocuments } from "./mainThreadDocuments.js";
 export interface IFocusTracker {
     onGainedFocus(): void;
     onLostFocus(): void;

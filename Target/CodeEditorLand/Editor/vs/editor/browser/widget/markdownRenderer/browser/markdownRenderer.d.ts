@@ -1,10 +1,10 @@
-import { MarkdownRenderOptions, MarkedOptions } from "vs/base/browser/markdownRenderer";
-import { IMarkdownString, MarkdownStringTrustedOptions } from "vs/base/common/htmlContent";
-import { DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import "vs/css!./renderedMarkdown";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IOpenerService } from "vs/platform/opener/common/opener";
+import { MarkdownRenderOptions, MarkedOptions } from "../../../../../base/browser/markdownRenderer.js";
+import { IMarkdownString, MarkdownStringTrustedOptions } from "../../../../../base/common/htmlContent.js";
+import { DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
+import "./renderedMarkdown.css";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { ILanguageService } from "../../../../common/languages/language.js";
+import { ICodeEditor } from "../../../editorBrowser.js";
 export interface IMarkdownRenderResult extends IDisposable {
     readonly element: HTMLElement;
 }
@@ -23,10 +23,11 @@ export declare class MarkdownRenderer {
     private readonly _openerService;
     private static _ttpTokenizer;
     private readonly _onDidRenderAsync;
-    readonly onDidRenderAsync: any;
+    readonly onDidRenderAsync: import("../../../../../base/common/event.js").Event<void>;
     constructor(_options: IMarkdownRendererOptions, _languageService: ILanguageService, _openerService: IOpenerService);
     dispose(): void;
     render(markdown: IMarkdownString | undefined, options?: MarkdownRenderOptions, markedOptions?: MarkedOptions): IMarkdownRenderResult;
     protected _getRenderOptions(markdown: IMarkdownString, disposables: DisposableStore): MarkdownRenderOptions;
+    protected openMarkdownLink(link: string, markdown: IMarkdownString): Promise<void>;
 }
 export declare function openLinkFromMarkdown(openerService: IOpenerService, link: string, isTrusted: boolean | MarkdownStringTrustedOptions | undefined): Promise<boolean>;

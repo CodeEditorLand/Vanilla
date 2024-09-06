@@ -1,7 +1,7 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IAddress } from "vs/platform/remote/common/remoteAgentConnection";
-import { ITunnelService } from "vs/platform/tunnel/common/tunnel";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IAddress } from "../../remote/common/remoteAgentConnection.js";
+import { ITunnelService } from "../../tunnel/common/tunnel.js";
 export interface IWebviewPortMapping {
     readonly webviewPort: number;
     readonly extensionHostPort: number;

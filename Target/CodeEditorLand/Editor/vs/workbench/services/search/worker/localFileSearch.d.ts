@@ -1,8 +1,8 @@
-import { CancellationTokenSource } from "vs/base/common/cancellation";
-import { UriComponents } from "vs/base/common/uri";
-import { IRequestHandler, IWorkerServer } from "vs/base/common/worker/simpleWorker";
-import { ILocalFileSearchSimpleWorker, IWorkerFileSearchComplete, IWorkerFileSystemDirectoryHandle, IWorkerTextSearchComplete } from "vs/workbench/services/search/common/localFileSearchWorkerTypes";
-import { IFileQueryProps, IFolderQuery, ITextQueryProps } from "vs/workbench/services/search/common/search";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { UriComponents } from "../../../../base/common/uri.js";
+import { IRequestHandler, IWorkerServer } from "../../../../base/common/worker/simpleWorker.js";
+import { ILocalFileSearchSimpleWorker, IWorkerFileSearchComplete, IWorkerFileSystemDirectoryHandle, IWorkerTextSearchComplete } from "../common/localFileSearchWorkerTypes.js";
+import { IFileQueryProps, IFolderQuery, ITextQueryProps } from "../common/search.js";
 /**
  * Defines the worker entry point. Must be exported and named `create`.
  * @skipMangle

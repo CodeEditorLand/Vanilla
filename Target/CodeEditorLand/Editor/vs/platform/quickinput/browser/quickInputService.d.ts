@@ -1,13 +1,13 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILayoutService } from "vs/platform/layout/browser/layoutService";
-import { IQuickInputControllerHost, QuickInputController } from "vs/platform/quickinput/browser/quickInputController";
-import { IQuickAccessController } from "vs/platform/quickinput/common/quickAccess";
-import { IInputBox, IInputOptions, IKeyMods, IPickOptions, IQuickInputButton, IQuickInputService, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, IQuickWidget, QuickPickInput } from "vs/platform/quickinput/common/quickInput";
-import { IThemeService, Themable } from "vs/platform/theme/common/themeService";
-import { IQuickInputOptions } from "./quickInput";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { ILayoutService } from "../../layout/browser/layoutService.js";
+import { IThemeService, Themable } from "../../theme/common/themeService.js";
+import { IQuickAccessController } from "../common/quickAccess.js";
+import { IInputBox, IInputOptions, IKeyMods, IPickOptions, IQuickInputButton, IQuickInputService, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, IQuickWidget, QuickPickInput } from "../common/quickInput.js";
+import { IQuickInputOptions } from "./quickInput.js";
+import { IQuickInputControllerHost, QuickInputController } from "./quickInputController.js";
 export declare class QuickInputService extends Themable implements IQuickInputService {
     private readonly instantiationService;
     protected readonly contextKeyService: IContextKeyService;
@@ -16,13 +16,13 @@ export declare class QuickInputService extends Themable implements IQuickInputSe
     readonly _serviceBrand: undefined;
     get backButton(): IQuickInputButton;
     private readonly _onShow;
-    readonly onShow: any;
+    readonly onShow: import("../../../base/common/event.js").Event<void>;
     private readonly _onHide;
-    readonly onHide: any;
+    readonly onHide: import("../../../base/common/event.js").Event<void>;
     private _controller;
     private get controller();
     private get hasController();
-    get currentQuickInput(): any;
+    get currentQuickInput(): import("../common/quickInput.js").IQuickInput | undefined;
     private _quickAccess;
     get quickAccess(): IQuickAccessController;
     private readonly contexts;
@@ -49,9 +49,9 @@ export declare class QuickInputService extends Themable implements IQuickInputSe
     focus(): void;
     toggle(): void;
     navigate(next: boolean, quickNavigate?: IQuickNavigateConfiguration): void;
-    accept(keyMods?: IKeyMods): any;
-    back(): any;
-    cancel(): any;
+    accept(keyMods?: IKeyMods): Promise<void>;
+    back(): Promise<void>;
+    cancel(): Promise<void>;
     updateStyles(): void;
     private computeStyles;
 }

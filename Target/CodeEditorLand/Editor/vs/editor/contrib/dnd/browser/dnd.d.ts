@@ -1,8 +1,9 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./dnd";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Position } from "vs/editor/common/core/position";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import "./dnd.css";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { Position } from "../../../common/core/position.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
 export declare class DragAndDropController extends Disposable implements IEditorContribution {
     static readonly ID = "editor.contrib.dragAndDrop";
     private readonly _editor;
@@ -10,7 +11,7 @@ export declare class DragAndDropController extends Disposable implements IEditor
     private readonly _dndDecorationIds;
     private _mouseDown;
     private _modifierPressed;
-    static readonly TRIGGER_KEY_VALUE: any;
+    static readonly TRIGGER_KEY_VALUE: KeyCode;
     static get(editor: ICodeEditor): DragAndDropController | null;
     constructor(editor: ICodeEditor);
     private onEditorBlur;

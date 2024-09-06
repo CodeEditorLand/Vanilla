@@ -1,14 +1,15 @@
-import { UriComponents } from "vs/base/common/uri";
-import * as extHostProtocol from "vs/workbench/api/common/extHost.protocol";
-import { ExtHostNotebookController } from "vs/workbench/api/common/extHostNotebook";
-import { NotebookDocumentMetadata } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { SerializableObjectWithBuffers } from "vs/workbench/services/extensions/common/proxyIdentifier";
+import type * as vscode from "vscode";
+import { UriComponents } from "../../../base/common/uri.js";
+import { NotebookDocumentMetadata } from "../../contrib/notebook/common/notebookCommon.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
+import * as extHostProtocol from "./extHost.protocol.js";
+import { ExtHostNotebookController } from "./extHostNotebook.js";
 export declare class ExtHostNotebookDocuments implements extHostProtocol.ExtHostNotebookDocumentsShape {
     private readonly _notebooksAndEditors;
     private readonly _onDidSaveNotebookDocument;
-    readonly onDidSaveNotebookDocument: any;
+    readonly onDidSaveNotebookDocument: import("../../../base/common/event.js").Event<vscode.NotebookDocument>;
     private readonly _onDidChangeNotebookDocument;
-    readonly onDidChangeNotebookDocument: any;
+    readonly onDidChangeNotebookDocument: import("../../../base/common/event.js").Event<vscode.NotebookDocumentChangeEvent>;
     constructor(_notebooksAndEditors: ExtHostNotebookController);
     $acceptModelChanged(uri: UriComponents, event: SerializableObjectWithBuffers<extHostProtocol.NotebookCellsChangedEventDto>, isDirty: boolean, newMetadata?: NotebookDocumentMetadata): void;
     $acceptDirtyStateChanged(uri: UriComponents, isDirty: boolean): void;

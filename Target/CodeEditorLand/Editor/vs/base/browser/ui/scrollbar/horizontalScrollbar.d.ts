@@ -1,6 +1,6 @@
-import { AbstractScrollbar, ISimplifiedPointerEvent, ScrollbarHost } from "vs/base/browser/ui/scrollbar/abstractScrollbar";
-import { ScrollableElementResolvedOptions } from "vs/base/browser/ui/scrollbar/scrollableElementOptions";
-import { INewScrollPosition, Scrollable, ScrollEvent } from "vs/base/common/scrollable";
+import { INewScrollPosition, Scrollable, ScrollEvent } from "../../../common/scrollable.js";
+import { AbstractScrollbar, ISimplifiedPointerEvent, ScrollbarHost } from "./abstractScrollbar.js";
+import { ScrollableElementResolvedOptions } from "./scrollableElementOptions.js";
 export declare class HorizontalScrollbar extends AbstractScrollbar {
     constructor(scrollable: Scrollable, options: ScrollableElementResolvedOptions, host: ScrollbarHost);
     protected _updateSlider(sliderSize: number, sliderPosition: number): void;

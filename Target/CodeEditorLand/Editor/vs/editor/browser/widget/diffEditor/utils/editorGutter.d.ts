@@ -1,8 +1,8 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IObservable, IReader } from "vs/base/common/observable";
-import { CodeEditorWidget } from "vs/editor/browser/widget/codeEditor/codeEditorWidget";
-import { LineRange } from "vs/editor/common/core/lineRange";
-import { OffsetRange } from "vs/editor/common/core/offsetRange";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable, IReader } from "../../../../../base/common/observable.js";
+import { LineRange } from "../../../../common/core/lineRange.js";
+import { OffsetRange } from "../../../../common/core/offsetRange.js";
+import { CodeEditorWidget } from "../../codeEditor/codeEditorWidget.js";
 export declare class EditorGutter<T extends IGutterItemInfo = IGutterItemInfo> extends Disposable {
     private readonly _editor;
     private readonly _domNode;

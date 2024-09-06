@@ -1,4 +1,4 @@
-import { IFilter } from "vs/base/common/filters";
+import { IFilter } from "../../../../base/common/filters.js";
 export declare class FilterOptions {
     readonly filter: string;
     static readonly _filter: IFilter;

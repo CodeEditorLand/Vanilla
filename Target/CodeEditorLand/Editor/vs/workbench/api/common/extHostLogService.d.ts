@@ -1,6 +1,6 @@
-import { ILoggerService } from "vs/platform/log/common/log";
-import { LogService } from "vs/platform/log/common/logService";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
+import { ILoggerService } from "../../../platform/log/common/log.js";
+import { LogService } from "../../../platform/log/common/logService.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
 export declare class ExtHostLogService extends LogService {
     readonly _serviceBrand: undefined;
     constructor(isWorker: boolean, loggerService: ILoggerService, initData: IExtHostInitDataService);

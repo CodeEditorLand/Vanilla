@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { DocumentTokensProvider } from "vs/editor/common/services/model";
-import { SemanticTokensProviderStyling } from "vs/editor/common/services/semanticTokensProviderStyling";
-import { ISemanticTokensStylingService } from "vs/editor/common/services/semanticTokensStyling";
-import { ILogService } from "vs/platform/log/common/log";
-import { IThemeService } from "vs/platform/theme/common/themeService";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IThemeService } from "../../../platform/theme/common/themeService.js";
+import { ILanguageService } from "../languages/language.js";
+import { DocumentTokensProvider } from "./model.js";
+import { SemanticTokensProviderStyling } from "./semanticTokensProviderStyling.js";
+import { ISemanticTokensStylingService } from "./semanticTokensStyling.js";
 export declare class SemanticTokensStylingService extends Disposable implements ISemanticTokensStylingService {
     private readonly _themeService;
     private readonly _logService;

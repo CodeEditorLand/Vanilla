@@ -1,9 +1,9 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { Emitter, Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ISocket, SocketCloseEvent, SocketDiagnosticsEventType } from "vs/base/parts/ipc/common/ipc.net";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ISocket, SocketCloseEvent, SocketDiagnosticsEventType } from "../../../base/parts/ipc/common/ipc.net.js";
 export declare const makeRawSocketHeaders: (path: string, query: string, deubgLabel: string) => string;
-export declare const socketRawEndHeaderSequence: any;
+export declare const socketRawEndHeaderSequence: VSBuffer;
 export interface RemoteSocketHalf {
     onData: Emitter<VSBuffer>;
     onClose: Emitter<SocketCloseEvent>;
@@ -18,7 +18,7 @@ export declare abstract class ManagedSocket extends Disposable implements ISocke
     onClose: Event<SocketCloseEvent>;
     onEnd: Event<void>;
     private readonly didDisposeEmitter;
-    onDidDispose: any;
+    onDidDispose: Event<void>;
     private ended;
     protected constructor(debugLabel: string, half: RemoteSocketHalf);
     /** Pauses data events until a new listener comes in onData() */

@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { UriComponents } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { ExtHostDocumentSaveParticipantShape, MainThreadBulkEditsShape } from "vs/workbench/api/common/extHost.protocol";
-import { ExtHostDocuments } from "vs/workbench/api/common/extHostDocuments";
-import { SaveReason } from "vs/workbench/common/editor";
 import type * as vscode from "vscode";
+import { Event } from "../../../base/common/event.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { SaveReason } from "../../common/editor.js";
+import { ExtHostDocumentSaveParticipantShape, MainThreadBulkEditsShape } from "./extHost.protocol.js";
+import { ExtHostDocuments } from "./extHostDocuments.js";
 export declare class ExtHostDocumentSaveParticipant implements ExtHostDocumentSaveParticipantShape {
     private readonly _logService;
     private readonly _documents;

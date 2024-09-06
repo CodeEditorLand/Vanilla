@@ -1,10 +1,10 @@
-import { IFolderBackupInfo, IWorkspaceBackupInfo } from "vs/platform/backup/common/backup";
-import { IBackupMainService } from "vs/platform/backup/electron-main/backup";
-import { IEmptyWindowBackupInfo } from "vs/platform/backup/node/backup";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEnvironmentMainService } from "vs/platform/environment/electron-main/environmentMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { IStateService } from "vs/platform/state/node/state";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IStateService } from "../../state/node/state.js";
+import { IFolderBackupInfo, IWorkspaceBackupInfo } from "../common/backup.js";
+import { IEmptyWindowBackupInfo } from "../node/backup.js";
+import { IBackupMainService } from "./backup.js";
 export declare class BackupMainService implements IBackupMainService {
     private readonly environmentMainService;
     private readonly configurationService;
@@ -12,7 +12,7 @@ export declare class BackupMainService implements IBackupMainService {
     private readonly stateService;
     readonly _serviceBrand: undefined;
     private static readonly backupWorkspacesMetadataStorageKey;
-    protected backupHome: any;
+    protected backupHome: string;
     private workspaces;
     private folders;
     private emptyWindows;

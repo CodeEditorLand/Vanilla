@@ -1,14 +1,14 @@
-import { VSBufferReadableStream } from "vs/base/common/buffer";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ILogService } from "vs/platform/log/common/log";
-import { ISaveOptions } from "vs/workbench/common/editor";
-import { IFileWorkingCopy, IFileWorkingCopyModel, IFileWorkingCopyModelFactory } from "vs/workbench/services/workingCopy/common/fileWorkingCopy";
-import { IWorkingCopyBackup } from "vs/workbench/services/workingCopy/common/workingCopy";
-import { IWorkingCopyBackupService } from "vs/workbench/services/workingCopy/common/workingCopyBackup";
-import { IWorkingCopyService } from "vs/workbench/services/workingCopy/common/workingCopyService";
+import { VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ISaveOptions } from "../../../common/editor.js";
+import { IFileWorkingCopy, IFileWorkingCopyModel, IFileWorkingCopyModelFactory } from "./fileWorkingCopy.js";
+import { IWorkingCopyBackup, IWorkingCopySaveEvent } from "./workingCopy.js";
+import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
+import { IWorkingCopyService } from "./workingCopyService.js";
 /**
  * Untitled file specific working copy model factory.
  */
@@ -79,19 +79,19 @@ export declare class UntitledFileWorkingCopy<M extends IUntitledFileWorkingCopyM
     private readonly saveDelegate;
     private readonly workingCopyBackupService;
     private readonly logService;
-    readonly capabilities: any;
+    readonly capabilities: number;
     private _model;
     get model(): M | undefined;
     private readonly _onDidChangeContent;
-    readonly onDidChangeContent: any;
+    readonly onDidChangeContent: Event<void>;
     private readonly _onDidChangeDirty;
-    readonly onDidChangeDirty: any;
+    readonly onDidChangeDirty: Event<void>;
     private readonly _onDidSave;
-    readonly onDidSave: any;
+    readonly onDidSave: Event<IWorkingCopySaveEvent>;
     private readonly _onDidRevert;
-    readonly onDidRevert: any;
+    readonly onDidRevert: Event<void>;
     private readonly _onWillDispose;
-    readonly onWillDispose: any;
+    readonly onWillDispose: Event<void>;
     constructor(typeId: string, resource: URI, name: string, hasAssociatedFilePath: boolean, isScratchpad: boolean, initialContents: IUntitledFileWorkingCopyInitialContents | undefined, modelFactory: IUntitledFileWorkingCopyModelFactory<M>, saveDelegate: IUntitledFileWorkingCopySaveDelegate<M>, workingCopyService: IWorkingCopyService, workingCopyBackupService: IWorkingCopyBackupService, logService: ILogService);
     private modified;
     isDirty(): boolean;

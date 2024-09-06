@@ -1,15 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IRequestService } from "vs/platform/request/common/request";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IUserDataProfile, IUserDataProfileOptions, IUserDataProfilesService, IUserDataProfileUpdateOptions } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { IProfileTemplateInfo, IUserDataProfileManagementService, IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IRequestService } from "../../../../platform/request/common/request.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IUserDataProfile, IUserDataProfileOptions, IUserDataProfilesService, IUserDataProfileUpdateOptions } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IHostService } from "../../host/browser/host.js";
+import { IProfileTemplateInfo, IUserDataProfileManagementService, IUserDataProfileService } from "../common/userDataProfile.js";
 export type ProfileManagementActionExecutedClassification = {
     owner: "sandy081";
     comment: "Logged when profile management action is excuted";

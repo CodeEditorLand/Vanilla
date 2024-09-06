@@ -1,3 +1,4 @@
-export declare const CutAction: any;
-export declare const CopyAction: any;
-export declare const PasteAction: any;
+import { MultiCommand } from "../../../browser/editorExtensions.js";
+export declare const CutAction: MultiCommand | undefined;
+export declare const CopyAction: MultiCommand | undefined;
+export declare const PasteAction: MultiCommand | undefined;

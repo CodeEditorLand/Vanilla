@@ -1,14 +1,15 @@
-import { Disposable, DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IQuickInputService, IQuickPick, IQuickPickItem, QuickPickInput } from "vs/platform/quickinput/common/quickInput";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IWorkspace, IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-import { TaskQuickPickEntryType } from "vs/workbench/contrib/tasks/browser/abstractTaskService";
-import { ConfiguringTask, Task } from "vs/workbench/contrib/tasks/common/tasks";
-import { ITaskService } from "vs/workbench/contrib/tasks/common/taskService";
+import { Disposable, DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IQuickInputService, IQuickPick, IQuickPickItem, QuickPickInput } from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IWorkspace, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { ConfiguringTask, Task } from "../common/tasks.js";
+import { ITaskService } from "../common/taskService.js";
+import { TaskQuickPickEntryType } from "./abstractTaskService.js";
 export declare const QUICKOPEN_DETAIL_CONFIG = "task.quickOpen.detail";
 export declare const QUICKOPEN_SKIP_CONFIG = "task.quickOpen.skip";
 export declare function isWorkspaceFolder(folder: IWorkspace | IWorkspaceFolder): folder is IWorkspaceFolder;
@@ -19,7 +20,7 @@ export interface ITaskTwoLevelQuickPickEntry extends IQuickPickItem {
     task: Task | ConfiguringTask | string | undefined | null;
     settingType?: string;
 }
-export declare const configureTaskIcon: any;
+export declare const configureTaskIcon: ThemeIcon;
 export declare class TaskQuickPick extends Disposable {
     private _taskService;
     private _configurationService;
@@ -44,7 +45,7 @@ export declare class TaskQuickPick extends Disposable {
         entries: QuickPickInput<ITaskTwoLevelQuickPickEntry>[];
         isSingleConfigured?: Task | ConfiguringTask;
     }>;
-    handleSettingOption(selectedType: string): Promise<any>;
+    handleSettingOption(selectedType: string): Promise<Task | null | undefined>;
     show(placeHolder: string, defaultEntry?: ITaskQuickPickEntry, startAtType?: string, name?: string): Promise<Task | undefined | null>;
     private _doPickerFirstLevel;
     doPickerSecondLevel(picker: IQuickPick<ITaskTwoLevelQuickPickEntry, {

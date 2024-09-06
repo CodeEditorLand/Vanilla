@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
+import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
 export declare enum WorkspaceTrustScope {
     Local = 0,
     Remote = 1
@@ -13,12 +13,12 @@ export interface WorkspaceTrustRequestOptions {
     readonly buttons?: WorkspaceTrustRequestButton[];
     readonly message?: string;
 }
-export declare const IWorkspaceTrustEnablementService: any;
+export declare const IWorkspaceTrustEnablementService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWorkspaceTrustEnablementService>;
 export interface IWorkspaceTrustEnablementService {
     readonly _serviceBrand: undefined;
     isWorkspaceTrustEnabled(): boolean;
 }
-export declare const IWorkspaceTrustManagementService: any;
+export declare const IWorkspaceTrustManagementService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWorkspaceTrustManagementService>;
 export interface IWorkspaceTrustManagementService {
     readonly _serviceBrand: undefined;
     onDidChangeTrust: Event<boolean>;
@@ -43,7 +43,7 @@ export declare const enum WorkspaceTrustUriResponse {
     OpenInNewWindow = 2,
     Cancel = 3
 }
-export declare const IWorkspaceTrustRequestService: any;
+export declare const IWorkspaceTrustRequestService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWorkspaceTrustRequestService>;
 export interface IWorkspaceTrustRequestService {
     readonly _serviceBrand: undefined;
     readonly onDidInitiateOpenFilesTrustRequest: Event<void>;

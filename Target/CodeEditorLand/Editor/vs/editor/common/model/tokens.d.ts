@@ -1,20 +1,22 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { LineRange } from "vs/editor/common/core/lineRange";
-import { IPosition } from "vs/editor/common/core/position";
-import { StandardTokenType } from "vs/editor/common/encodedTokenAttributes";
-import { ILanguageIdCodec } from "vs/editor/common/languages";
-import { IAttachedView } from "vs/editor/common/model";
-import { TextModel } from "vs/editor/common/model/textModel";
-import { IModelContentChangedEvent, IModelTokensChangedEvent } from "vs/editor/common/textModelEvents";
-import { BackgroundTokenizationState } from "vs/editor/common/tokenizationTextModelPart";
-import { LineTokens } from "vs/editor/common/tokens/lineTokens";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { LineRange } from "../core/lineRange.js";
+import { StandardTokenType } from "../encodedTokenAttributes.js";
+import { ILanguageIdCodec } from "../languages.js";
+import { IAttachedView } from "../model.js";
+import { IModelContentChangedEvent, IModelTokensChangedEvent } from "../textModelEvents.js";
+import { BackgroundTokenizationState, ITokenizeLineWithEditResult, LineEditWithAdditionalLines } from "../tokenizationTextModelPart.js";
+import { LineTokens } from "../tokens/lineTokens.js";
+import { TextModel } from "./textModel.js";
 /**
  * @internal
  */
 export declare class AttachedViews {
     private readonly _onDidChangeVisibleRanges;
-    readonly onDidChangeVisibleRanges: any;
+    readonly onDidChangeVisibleRanges: Event<{
+        view: IAttachedView;
+        state: IAttachedViewState | undefined;
+    }>;
     private readonly _views;
     attachView(): IAttachedView;
     detachView(view: IAttachedView): void;
@@ -40,12 +42,12 @@ export declare abstract class AbstractTokens extends Disposable {
     protected readonly _languageIdCodec: ILanguageIdCodec;
     protected readonly _textModel: TextModel;
     protected getLanguageId: () => string;
-    protected _backgroundTokenizationState: any;
+    protected _backgroundTokenizationState: BackgroundTokenizationState;
     get backgroundTokenizationState(): BackgroundTokenizationState;
-    protected readonly _onDidChangeBackgroundTokenizationState: any;
+    protected readonly _onDidChangeBackgroundTokenizationState: Emitter<void>;
     /** @internal, should not be exposed by the text model! */
     readonly onDidChangeBackgroundTokenizationState: Event<void>;
-    protected readonly _onDidChangeTokens: any;
+    protected readonly _onDidChangeTokens: Emitter<IModelTokensChangedEvent>;
     /** @internal, should not be exposed by the text model! */
     readonly onDidChangeTokens: Event<IModelTokensChangedEvent>;
     constructor(_languageIdCodec: ILanguageIdCodec, _textModel: TextModel, getLanguageId: () => string);
@@ -58,6 +60,6 @@ export declare abstract class AbstractTokens extends Disposable {
     tokenizeIfCheap(lineNumber: number): void;
     abstract getLineTokens(lineNumber: number): LineTokens;
     abstract getTokenTypeIfInsertingCharacter(lineNumber: number, column: number, character: string): StandardTokenType;
-    abstract tokenizeLineWithEdit(position: IPosition, length: number, newText: string): LineTokens | null;
+    abstract tokenizeLineWithEdit(lineNumber: number, edit: LineEditWithAdditionalLines): ITokenizeLineWithEditResult;
     abstract get hasTokens(): boolean;
 }

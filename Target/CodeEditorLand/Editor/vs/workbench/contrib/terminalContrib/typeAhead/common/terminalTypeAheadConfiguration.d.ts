@@ -1,5 +1,5 @@
-import type { IStringDictionary } from "vs/base/common/collections";
-import type { IConfigurationPropertySchema } from "vs/platform/configuration/common/configurationRegistry";
+import type { IStringDictionary } from "../../../../../base/common/collections.js";
+import type { IConfigurationPropertySchema } from "../../../../../platform/configuration/common/configurationRegistry.js";
 export declare const DEFAULT_LOCAL_ECHO_EXCLUDE: ReadonlyArray<string>;
 export declare const enum TerminalTypeAheadSettingId {
     LocalEchoLatencyThreshold = "terminal.integrated.localEchoLatencyThreshold",

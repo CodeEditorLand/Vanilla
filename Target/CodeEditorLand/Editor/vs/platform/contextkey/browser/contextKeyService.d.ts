@@ -1,8 +1,8 @@
-import { Iterable } from "vs/base/common/iterator";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ContextKeyExpression, ContextKeyValue, IContext, IContextKey, IContextKeyService, IContextKeyServiceTarget, IScopedContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
+import { Event, PauseableEmitter } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { ServicesAccessor } from "../../instantiation/common/instantiation.js";
+import { ContextKeyExpression, ContextKeyValue, IContext, IContextKey, IContextKeyChangeEvent, IContextKeyService, IContextKeyServiceTarget, IScopedContextKeyService } from "../common/contextkey.js";
 export declare class Context implements IContext {
     protected _parent: Context | null;
     protected _value: Record<string, any>;
@@ -19,8 +19,8 @@ export declare abstract class AbstractContextKeyService extends Disposable imple
     _serviceBrand: undefined;
     protected _isDisposed: boolean;
     protected _myContextId: number;
-    protected _onDidChangeContext: any;
-    readonly onDidChangeContext: any;
+    protected _onDidChangeContext: PauseableEmitter<IContextKeyChangeEvent>;
+    readonly onDidChangeContext: Event<IContextKeyChangeEvent>;
     constructor(myContextId: number);
     get contextId(): number;
     createKey<T extends ContextKeyValue>(key: string, defaultValue: T | undefined): IContextKey<T>;

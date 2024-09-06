@@ -1,9 +1,9 @@
-import { IManagedHoverOptions } from "vs/base/browser/ui/hover/hover";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IChatAgentData, IChatAgentNameService, IChatAgentService } from "vs/workbench/contrib/chat/common/chatAgents";
-import { IExtensionsWorkbenchService } from "vs/workbench/contrib/extensions/common/extensions";
+import { IManagedHoverOptions } from "../../../../base/browser/ui/hover/hover.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
+import { IChatAgentData, IChatAgentNameService, IChatAgentService } from "../common/chatAgents.js";
 export declare class ChatAgentHover extends Disposable {
     private readonly chatAgentService;
     private readonly extensionService;

@@ -1,9 +1,9 @@
-import { ActionRunner, IAction } from "vs/base/common/actions";
-import { SingleOrMany } from "vs/base/common/types";
-import { IMenu } from "vs/platform/actions/common/actions";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { ITerminalInstance } from "vs/workbench/contrib/terminal/browser/terminal";
-import { ISerializedTerminalInstanceContext } from "vs/workbench/contrib/terminal/common/terminal";
+import { ActionRunner, IAction } from "../../../../base/common/actions.js";
+import { SingleOrMany } from "../../../../base/common/types.js";
+import { IMenu } from "../../../../platform/actions/common/actions.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { ISerializedTerminalInstanceContext } from "../common/terminal.js";
+import { ITerminalInstance } from "./terminal.js";
 /**
  * A context that is passed to actions as arguments to represent the terminal instance(s) being
  * acted upon.

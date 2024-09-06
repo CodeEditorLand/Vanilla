@@ -1,1 +1,1 @@
-export declare const embeddedEditorBackground: any;
+export declare const embeddedEditorBackground: string;

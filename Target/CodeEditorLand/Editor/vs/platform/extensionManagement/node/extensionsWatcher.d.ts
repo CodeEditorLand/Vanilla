@@ -1,13 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IExtensionsProfileScannerService } from "vs/platform/extensionManagement/common/extensionsProfileScannerService";
-import { IExtensionsScannerService } from "vs/platform/extensionManagement/common/extensionsScannerService";
-import { INativeServerExtensionManagementService } from "vs/platform/extensionManagement/node/extensionManagementService";
-import { IExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IExtensionIdentifier } from "../../extensions/common/extensions.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { IExtensionsProfileScannerService } from "../common/extensionsProfileScannerService.js";
+import { IExtensionsScannerService } from "../common/extensionsScannerService.js";
+import { INativeServerExtensionManagementService } from "./extensionManagementService.js";
 export interface DidChangeProfileExtensionsEvent {
     readonly added?: {
         readonly extensions: readonly IExtensionIdentifier[];
@@ -27,7 +27,7 @@ export declare class ExtensionsWatcher extends Disposable {
     private readonly fileService;
     private readonly logService;
     private readonly _onDidChangeExtensionsByAnotherSource;
-    readonly onDidChangeExtensionsByAnotherSource: any;
+    readonly onDidChangeExtensionsByAnotherSource: import("../../../base/common/event.js").Event<DidChangeProfileExtensionsEvent>;
     private readonly allExtensions;
     private readonly extensionsProfileWatchDisposables;
     constructor(extensionManagementService: INativeServerExtensionManagementService, extensionsScannerService: IExtensionsScannerService, userDataProfilesService: IUserDataProfilesService, extensionsProfileScannerService: IExtensionsProfileScannerService, uriIdentityService: IUriIdentityService, fileService: IFileService, logService: ILogService);

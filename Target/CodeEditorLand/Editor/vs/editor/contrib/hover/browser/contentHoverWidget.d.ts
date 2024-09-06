@@ -1,11 +1,11 @@
-import * as dom from "vs/base/browser/dom";
-import { ICodeEditor, IContentWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { RenderedContentHover } from "vs/editor/contrib/hover/browser/contentHoverRendered";
-import { ResizableContentWidget } from "vs/editor/contrib/hover/browser/resizableContentWidget";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import * as dom from "../../../../base/browser/dom.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ICodeEditor, IContentWidgetPosition } from "../../../browser/editorBrowser.js";
+import { RenderedContentHover } from "./contentHoverRendered.js";
+import { ResizableContentWidget } from "./resizableContentWidget.js";
 export declare class ContentHoverWidget extends ResizableContentWidget {
     private readonly _configurationService;
     private readonly _accessibilityService;
@@ -20,7 +20,7 @@ export declare class ContentHoverWidget extends ResizableContentWidget {
     private readonly _hoverVisibleKey;
     private readonly _hoverFocusedKey;
     private readonly _onDidResize;
-    readonly onDidResize: any;
+    readonly onDidResize: import("../../../../base/common/event.js").Event<void>;
     get isVisibleFromKeyboard(): boolean;
     get isVisible(): boolean;
     get isFocused(): boolean;

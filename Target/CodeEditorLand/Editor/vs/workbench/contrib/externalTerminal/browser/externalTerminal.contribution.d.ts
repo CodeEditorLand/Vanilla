@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 export declare class ExternalTerminalContribution extends Disposable implements IWorkbenchContribution {
     private readonly _configurationService;
     private _openInIntegratedTerminalMenuItem;

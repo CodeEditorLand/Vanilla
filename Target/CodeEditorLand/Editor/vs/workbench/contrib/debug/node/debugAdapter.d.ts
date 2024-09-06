@@ -1,8 +1,8 @@
 import * as net from "net";
 import * as stream from "stream";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { IDebugAdapterExecutable, IDebugAdapterNamedPipeServer, IDebugAdapterServer } from "vs/workbench/contrib/debug/common/debug";
-import { AbstractDebugAdapter } from "../common/abstractDebugAdapter";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { AbstractDebugAdapter } from "../common/abstractDebugAdapter.js";
+import { IDebugAdapterExecutable, IDebugAdapterNamedPipeServer, IDebugAdapterServer } from "../common/debug.js";
 /**
  * An implementation that communicates via two streams with the debug adapter.
  */

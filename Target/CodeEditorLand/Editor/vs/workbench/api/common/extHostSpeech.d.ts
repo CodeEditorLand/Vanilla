@@ -1,7 +1,7 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { ExtHostSpeechShape, IMainContext } from "vs/workbench/api/common/extHost.protocol";
 import type * as vscode from "vscode";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostSpeechShape, IMainContext } from "./extHost.protocol.js";
 export declare class ExtHostSpeech implements ExtHostSpeechShape {
     private static ID_POOL;
     private readonly proxy;

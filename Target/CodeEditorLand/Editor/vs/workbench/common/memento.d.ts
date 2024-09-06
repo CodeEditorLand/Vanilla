@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { IStorageService, IStorageValueChangeEvent, StorageScope, StorageTarget } from "vs/platform/storage/common/storage";
+import { Event } from "../../base/common/event.js";
+import { DisposableStore } from "../../base/common/lifecycle.js";
+import { IStorageService, IStorageValueChangeEvent, StorageScope, StorageTarget } from "../../platform/storage/common/storage.js";
 export type MementoObject = {
     [key: string]: any;
 };

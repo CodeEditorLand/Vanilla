@@ -1,5 +1,5 @@
-import { ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { Action2 } from "vs/platform/actions/common/actions";
+import { ServicesAccessor } from "../../../../../editor/browser/editorExtensions.js";
+import { Action2 } from "../../../../../platform/actions/common/actions.js";
 export declare class NotebookIndentUsingTabs extends Action2 {
     static readonly ID = "notebook.action.indentUsingTabs";
     constructor();

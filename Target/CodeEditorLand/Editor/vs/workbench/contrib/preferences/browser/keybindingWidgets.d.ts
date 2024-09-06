@@ -1,15 +1,15 @@
-import "vs/css!./media/keybindings";
-import * as dom from "vs/base/browser/dom";
-import { Widget } from "vs/base/browser/ui/widget";
-import { Event } from "vs/base/common/event";
-import { ResolvedKeybinding } from "vs/base/common/keybindings";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextViewService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { SearchOptions, SearchWidget } from "vs/workbench/contrib/preferences/browser/preferencesWidgets";
+import "./media/keybindings.css";
+import * as dom from "../../../../base/browser/dom.js";
+import { Widget } from "../../../../base/browser/ui/widget.js";
+import { Event } from "../../../../base/common/event.js";
+import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "../../../../editor/browser/editorBrowser.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { SearchOptions, SearchWidget } from "./preferencesWidgets.js";
 export interface KeybindingsSearchOptions extends SearchOptions {
     recordEnter?: boolean;
     quoteRecordedKeys?: boolean;

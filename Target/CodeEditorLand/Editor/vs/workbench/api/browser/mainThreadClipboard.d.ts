@@ -1,5 +1,5 @@
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { MainThreadClipboardShape } from "../common/extHost.protocol";
+import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
+import { MainThreadClipboardShape } from "../common/extHost.protocol.js";
 export declare class MainThreadClipboard implements MainThreadClipboardShape {
     private readonly _clipboardService;
     constructor(_context: any, _clipboardService: IClipboardService);

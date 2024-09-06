@@ -1,1 +1,1 @@
-import "vs/css!./hover";
+import "./hover.css";

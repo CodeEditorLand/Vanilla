@@ -1,10 +1,10 @@
-import { IContentActionHandler } from "vs/base/browser/formattedTextRenderer";
-import { IContextViewProvider } from "vs/base/browser/ui/contextview/contextview";
-import { IListStyles } from "vs/base/browser/ui/list/listWidget";
-import { Widget } from "vs/base/browser/ui/widget";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import "vs/css!./selectBox";
+import { Event } from "../../../common/event.js";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { IContentActionHandler } from "../../formattedTextRenderer.js";
+import { IContextViewProvider } from "../contextview/contextview.js";
+import { IListStyles } from "../list/listWidget.js";
+import { Widget } from "../widget.js";
+import "./selectBox.css";
 export interface ISelectBoxDelegate extends IDisposable {
     readonly onDidSelect: Event<ISelectData>;
     setOptions(options: ISelectOptionItem[], selected?: number): void;

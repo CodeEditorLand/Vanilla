@@ -1,4 +1,4 @@
-import { ISecretStorageProvider } from "vs/platform/secrets/common/secrets";
+import { ISecretStorageProvider } from "../../../platform/secrets/common/secrets.js";
 interface ISecretStorageCrypto {
     seal(data: string): Promise<string>;
     unseal(data: string): Promise<string>;

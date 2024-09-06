@@ -1,9 +1,9 @@
-import { LanguageService } from "vs/editor/common/services/languageService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { ILogService } from "vs/platform/log/common/log";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IExtensionPoint } from "vs/workbench/services/extensions/common/extensionsRegistry";
+import { LanguageService } from "../../../../editor/common/services/languageService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IExtensionPoint } from "../../extensions/common/extensionsRegistry.js";
 export interface IRawLanguageExtensionPoint {
     id: string;
     extensions: string[];

@@ -1,15 +1,15 @@
-import { URI } from "vs/base/common/uri";
-import { IChannel } from "vs/base/parts/ipc/common/ipc";
-import { IDownloadService } from "vs/platform/download/common/download";
-import { ILocalExtension, InstallOptions } from "vs/platform/extensionManagement/common/extensionManagement";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { INativeWorkbenchEnvironmentService } from "vs/workbench/services/environment/electron-sandbox/environmentService";
-import { DidChangeProfileEvent, IProfileAwareExtensionManagementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-import { ProfileAwareExtensionManagementChannelClient } from "vs/workbench/services/extensionManagement/common/extensionManagementChannelClient";
-import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { URI } from "../../../../base/common/uri.js";
+import { IChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { IDownloadService } from "../../../../platform/download/common/download.js";
+import { ILocalExtension, InstallOptions } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { DidChangeProfileEvent, IProfileAwareExtensionManagementService } from "../common/extensionManagement.js";
+import { ProfileAwareExtensionManagementChannelClient } from "../common/extensionManagementChannelClient.js";
 export declare class NativeExtensionManagementService extends ProfileAwareExtensionManagementChannelClient implements IProfileAwareExtensionManagementService {
     private readonly fileService;
     private readonly downloadService;

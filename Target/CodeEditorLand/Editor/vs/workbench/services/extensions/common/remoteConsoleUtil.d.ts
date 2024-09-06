@@ -1,4 +1,4 @@
-import { IRemoteConsoleLog } from "vs/base/common/console";
-import { ILogService } from "vs/platform/log/common/log";
+import { IRemoteConsoleLog } from "../../../../base/common/console.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 export declare function logRemoteEntry(logService: ILogService, entry: IRemoteConsoleLog, label?: string | null): void;
 export declare function logRemoteEntryIfError(logService: ILogService, entry: IRemoteConsoleLog, label: string): void;

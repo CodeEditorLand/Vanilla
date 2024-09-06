@@ -1,17 +1,17 @@
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { ITextResourceConfigurationService } from "vs/editor/common/services/textResourceConfiguration";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILabelService } from "vs/platform/label/common/label";
-import { IUntitledTextResourceEditorInput, IUntypedEditorInput, Verbosity } from "vs/workbench/common/editor";
-import { EditorInput, IUntypedEditorOptions } from "vs/workbench/common/editor/editorInput";
-import { AbstractTextResourceEditorInput } from "vs/workbench/common/editor/textResourceEditorInput";
-import { ICustomEditorLabelService } from "vs/workbench/services/editor/common/customEditorLabelService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IFilesConfigurationService } from "vs/workbench/services/filesConfiguration/common/filesConfigurationService";
-import { IPathService } from "vs/workbench/services/path/common/pathService";
-import { EncodingMode, IEncodingSupport, ILanguageSupport, ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
-import { IUntitledTextEditorModel } from "vs/workbench/services/untitled/common/untitledTextEditorModel";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IUntitledTextResourceEditorInput, IUntypedEditorInput, Verbosity } from "../../../common/editor.js";
+import { EditorInput, IUntypedEditorOptions } from "../../../common/editor/editorInput.js";
+import { AbstractTextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
+import { ICustomEditorLabelService } from "../../editor/common/customEditorLabelService.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { EncodingMode, IEncodingSupport, ILanguageSupport, ITextFileService } from "../../textfile/common/textfiles.js";
+import { IUntitledTextEditorModel } from "./untitledTextEditorModel.js";
 /**
  * An editor input to be used for untitled text buffers.
  */
@@ -30,13 +30,13 @@ export declare class UntitledTextEditorInput extends AbstractTextResourceEditorI
     private registerModelListeners;
     private onDidCreateUntitledModel;
     getName(): string;
-    getDescription(verbosity?: any): string | undefined;
+    getDescription(verbosity?: Verbosity): string | undefined;
     getTitle(verbosity: Verbosity): string;
     isDirty(): boolean;
     getEncoding(): string | undefined;
     setEncoding(encoding: string, mode: EncodingMode): Promise<void>;
-    get hasLanguageSetExplicitly(): any;
-    get hasAssociatedFilePath(): any;
+    get hasLanguageSetExplicitly(): boolean;
+    get hasAssociatedFilePath(): boolean;
     setLanguageId(languageId: string, source?: string): void;
     getLanguageId(): string | undefined;
     resolve(): Promise<IUntitledTextEditorModel>;

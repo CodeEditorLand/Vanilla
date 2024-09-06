@@ -1,33 +1,33 @@
-import { IAction } from "vs/base/common/actions";
-import { IErrorWithActions } from "vs/base/common/errorMessage";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IExtUri } from "vs/base/common/resources";
-import Severity from "vs/base/common/severity";
-import { DeepRequiredNonNullable } from "vs/base/common/types";
-import { URI } from "vs/base/common/uri";
-import { IDiffEditor, IEditor, IEditorViewState } from "vs/editor/common/editorCommon";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IBaseTextResourceEditorInput, IBaseUntypedEditorInput, IEditorOptions, IResourceEditorInput, ITextEditorOptions, ITextResourceEditorInput } from "vs/platform/editor/common/editor";
-import { IFileReadLimits, IFileService } from "vs/platform/files/common/files";
-import { BrandedService, IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IPathData } from "vs/platform/window/common/window";
-import { IComposite, ICompositeControl } from "vs/workbench/common/composite";
-import { IReadonlyEditorGroupModel } from "vs/workbench/common/editor/editorGroupModel";
-import type { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { IEditorGroup } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IPreferencesService } from "vs/workbench/services/preferences/common/preferences";
-import { IEncodingSupport, ILanguageSupport } from "vs/workbench/services/textfile/common/textfiles";
+import { IAction } from "../../base/common/actions.js";
+import { IErrorWithActions } from "../../base/common/errorMessage.js";
+import { Event } from "../../base/common/event.js";
+import { Disposable, IDisposable } from "../../base/common/lifecycle.js";
+import { IExtUri } from "../../base/common/resources.js";
+import Severity from "../../base/common/severity.js";
+import { DeepRequiredNonNullable } from "../../base/common/types.js";
+import { URI } from "../../base/common/uri.js";
+import { IDiffEditor, IEditor, IEditorViewState } from "../../editor/common/editorCommon.js";
+import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
+import { IBaseTextResourceEditorInput, IBaseUntypedEditorInput, IEditorOptions, IResourceEditorInput, ITextEditorOptions, ITextResourceEditorInput } from "../../platform/editor/common/editor.js";
+import { IFileReadLimits, IFileService } from "../../platform/files/common/files.js";
+import { BrandedService, IInstantiationService, ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../platform/log/common/log.js";
+import { IPathData } from "../../platform/window/common/window.js";
+import { IEditorGroup } from "../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../services/editor/common/editorService.js";
+import { IPreferencesService } from "../services/preferences/common/preferences.js";
+import { IEncodingSupport, ILanguageSupport } from "../services/textfile/common/textfiles.js";
+import { IComposite, ICompositeControl } from "./composite.js";
+import { IReadonlyEditorGroupModel } from "./editor/editorGroupModel.js";
+import type { EditorInput } from "./editor/editorInput.js";
 export declare const EditorExtensions: {
     EditorPane: string;
     EditorFactory: string;
 };
 export declare const DEFAULT_EDITOR_ASSOCIATION: {
     id: string;
-    displayName: any;
-    providerDisplayName: any;
+    displayName: string;
+    providerDisplayName: string;
 };
 /**
  * Side by side editor id.

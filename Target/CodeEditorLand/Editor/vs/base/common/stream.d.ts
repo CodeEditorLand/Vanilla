@@ -1,4 +1,4 @@
-import { CancellationToken } from "vs/base/common/cancellation";
+import { CancellationToken } from "./cancellation.js";
 /**
  * The payload that flows in readable stream events.
  */

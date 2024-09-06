@@ -1,16 +1,17 @@
-import { Dimension } from "vs/base/browser/dom";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IDocumentDiffItem, IMultiDiffEditorModel } from "vs/editor/browser/widget/multiDiffEditor/model";
-import { IMultiDiffEditorViewState, IMultiDiffResourceId } from "vs/editor/browser/widget/multiDiffEditor/multiDiffEditorWidgetImpl";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { MultiDiffEditorViewModel } from "./multiDiffEditorViewModel";
-import "./colors";
-import { URI } from "vs/base/common/uri";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { DiffEditorWidget } from "vs/editor/browser/widget/diffEditor/diffEditorWidget";
-import { IWorkbenchUIElementFactory } from "vs/editor/browser/widget/multiDiffEditor/workbenchUIElementFactory";
-import { Range } from "vs/editor/common/core/range";
-import { IDiffEditor } from "vs/editor/common/editorCommon";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IDocumentDiffItem, IMultiDiffEditorModel } from "./model.js";
+import { MultiDiffEditorViewModel } from "./multiDiffEditorViewModel.js";
+import { IMultiDiffEditorViewState, IMultiDiffResourceId } from "./multiDiffEditorWidgetImpl.js";
+import "./colors.js";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Range } from "../../../common/core/range.js";
+import { IDiffEditor } from "../../../common/editorCommon.js";
+import { ICodeEditor } from "../../editorBrowser.js";
+import { DiffEditorWidget } from "../diffEditor/diffEditorWidget.js";
+import { IWorkbenchUIElementFactory } from "./workbenchUIElementFactory.js";
 export declare class MultiDiffEditorWidget extends Disposable {
     private readonly _element;
     private readonly _workbenchUIElementFactory;
@@ -25,7 +26,7 @@ export declare class MultiDiffEditorWidget extends Disposable {
     layout(dimension: Dimension): void;
     private readonly _activeControl;
     getActiveControl(): DiffEditorWidget | undefined;
-    readonly onDidChangeActiveControl: any;
+    readonly onDidChangeActiveControl: Event<void>;
     getViewState(): IMultiDiffEditorViewState;
     setViewState(viewState: IMultiDiffEditorViewState): void;
     tryGetCodeEditor(resource: URI): {

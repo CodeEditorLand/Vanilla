@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
+import { Event } from "../../../base/common/event.js";
 export interface IRemoteTunnelSession {
     readonly providerId: string;
     readonly sessionId: string;
     readonly accountLabel: string;
     readonly token?: string;
 }
-export declare const IRemoteTunnelService: any;
+export declare const IRemoteTunnelService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IRemoteTunnelService>;
 export interface IRemoteTunnelService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeTunnelStatus: Event<TunnelStatus>;
@@ -62,4 +62,4 @@ export declare const CONFIGURATION_KEY_PREFIX = "remote.tunnels.access";
 export declare const CONFIGURATION_KEY_HOST_NAME: string;
 export declare const CONFIGURATION_KEY_PREVENT_SLEEP: string;
 export declare const LOG_ID = "remoteTunnelService";
-export declare const LOGGER_NAME: any;
+export declare const LOGGER_NAME: string;

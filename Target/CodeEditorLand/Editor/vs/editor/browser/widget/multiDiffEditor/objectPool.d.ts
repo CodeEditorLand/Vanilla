@@ -1,4 +1,4 @@
-import { IDisposable, IReference } from "vs/base/common/lifecycle";
+import { IDisposable, IReference } from "../../../../base/common/lifecycle.js";
 export declare class ObjectPool<TData extends IObjectData, T extends IPooledObject<TData>> implements IDisposable {
     private readonly _create;
     private readonly _unused;

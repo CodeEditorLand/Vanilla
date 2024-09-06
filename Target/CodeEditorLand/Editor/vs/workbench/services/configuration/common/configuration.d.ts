@@ -1,8 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { ResourceMap } from "vs/base/common/map";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IAnyWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
+import { Event } from "../../../../base/common/event.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ConfigurationScope } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IAnyWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
 export declare const FOLDER_CONFIG_FOLDER_NAME = ".vscode";
 export declare const FOLDER_SETTINGS_NAME = "settings";
 export declare const FOLDER_SETTINGS_PATH = ".vscode/settings.json";
@@ -14,13 +15,13 @@ export declare const workspaceSettingsSchemaId = "vscode://schemas/settings/work
 export declare const folderSettingsSchemaId = "vscode://schemas/settings/folder";
 export declare const launchSchemaId = "vscode://schemas/launch";
 export declare const tasksSchemaId = "vscode://schemas/tasks";
-export declare const APPLICATION_SCOPES: any[];
-export declare const PROFILE_SCOPES: any[];
-export declare const LOCAL_MACHINE_PROFILE_SCOPES: any[];
-export declare const LOCAL_MACHINE_SCOPES: any[];
-export declare const REMOTE_MACHINE_SCOPES: any[];
-export declare const WORKSPACE_SCOPES: any[];
-export declare const FOLDER_SCOPES: any[];
+export declare const APPLICATION_SCOPES: ConfigurationScope[];
+export declare const PROFILE_SCOPES: ConfigurationScope[];
+export declare const LOCAL_MACHINE_PROFILE_SCOPES: ConfigurationScope[];
+export declare const LOCAL_MACHINE_SCOPES: ConfigurationScope[];
+export declare const REMOTE_MACHINE_SCOPES: ConfigurationScope[];
+export declare const WORKSPACE_SCOPES: ConfigurationScope[];
+export declare const FOLDER_SCOPES: ConfigurationScope[];
 export declare const TASKS_CONFIGURATION_KEY = "tasks";
 export declare const LAUNCH_CONFIGURATION_KEY = "launch";
 export declare const WORKSPACE_STANDALONE_CONFIGURATIONS: any;
@@ -43,7 +44,7 @@ export type RestrictedSettings = {
     workspace?: ReadonlyArray<string>;
     workspaceFolder?: ResourceMap<ReadonlyArray<string>>;
 };
-export declare const IWorkbenchConfigurationService: any;
+export declare const IWorkbenchConfigurationService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkbenchConfigurationService>;
 export interface IWorkbenchConfigurationService extends IConfigurationService {
     /**
      * Restricted settings defined in each configuration target

@@ -1,7 +1,7 @@
-import { IListService } from "vs/platform/list/browser/listService";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { IEditorGroup, IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { IListService } from "../../../../platform/list/browser/listService.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
 export interface IResolvedEditorCommandsContext {
     readonly groupedEditors: {
         readonly group: IEditorGroup;

@@ -1,18 +1,18 @@
-import { Emitter, Event } from "vs/base/common/event";
-import { UriComponents } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { ExtHostTaskShape, MainThreadTaskShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostApiDeprecationService } from "vs/workbench/api/common/extHostApiDeprecationService";
-import { IExtHostConfiguration } from "vs/workbench/api/common/extHostConfiguration";
-import { IExtHostDocumentsAndEditors } from "vs/workbench/api/common/extHostDocumentsAndEditors";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { IExtHostTerminalService } from "vs/workbench/api/common/extHostTerminalService";
-import * as types from "vs/workbench/api/common/extHostTypes";
-import { IExtHostWorkspace, IExtHostWorkspaceProvider } from "vs/workbench/api/common/extHostWorkspace";
 import type * as vscode from "vscode";
-import * as tasks from "../common/shared/tasks";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { ExtHostTaskShape, MainThreadTaskShape } from "./extHost.protocol.js";
+import { IExtHostApiDeprecationService } from "./extHostApiDeprecationService.js";
+import { IExtHostConfiguration } from "./extHostConfiguration.js";
+import { IExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { IExtHostTerminalService } from "./extHostTerminalService.js";
+import * as types from "./extHostTypes.js";
+import { IExtHostWorkspace, IExtHostWorkspaceProvider } from "./extHostWorkspace.js";
+import * as tasks from "./shared/tasks.js";
 export interface IExtHostTask extends ExtHostTaskShape {
     readonly _serviceBrand: undefined;
     taskExecutions: vscode.TaskExecution[];
@@ -148,5 +148,5 @@ export declare class WorkerExtHostTask extends ExtHostTaskBase {
     $jsonTasksSupported(): Promise<boolean>;
     $findExecutable(command: string, cwd?: string | undefined, paths?: string[] | undefined): Promise<string | undefined>;
 }
-export declare const IExtHostTask: any;
+export declare const IExtHostTask: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostTask>;
 export {};

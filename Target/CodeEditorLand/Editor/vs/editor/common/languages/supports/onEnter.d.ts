@@ -1,5 +1,5 @@
-import { EditorAutoIndentStrategy } from "vs/editor/common/config/editorOptions";
-import { CharacterPair, EnterAction, OnEnterRule } from "vs/editor/common/languages/languageConfiguration";
+import { EditorAutoIndentStrategy } from "../../config/editorOptions.js";
+import { CharacterPair, EnterAction, OnEnterRule } from "../languageConfiguration.js";
 export interface IOnEnterSupportOptions {
     brackets?: CharacterPair[];
     onEnterRules?: OnEnterRule[];

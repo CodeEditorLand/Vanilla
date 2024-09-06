@@ -1,5 +1,4 @@
-import { Iterable } from "vs/base/common/iterator";
-import { URI } from "vs/base/common/uri";
+import { URI } from "./uri.js";
 export interface IDataTransferFile {
     readonly id: string;
     readonly name: string;

@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { Position } from "vs/editor/common/core/position";
-import { ITextModel } from "vs/editor/common/model";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IMarker, IMarkerService } from "vs/platform/markers/common/markers";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IMarker, IMarkerService } from "../../../../platform/markers/common/markers.js";
+import { Position } from "../../../common/core/position.js";
+import { ITextModel } from "../../../common/model.js";
 export declare class MarkerCoordinate {
     readonly marker: IMarker;
     readonly index: number;
@@ -29,7 +29,7 @@ export declare class MarkerList {
     move(fwd: boolean, model: ITextModel, position: Position): boolean;
     find(uri: URI, position: Position): MarkerCoordinate | undefined;
 }
-export declare const IMarkerNavigationService: any;
+export declare const IMarkerNavigationService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IMarkerNavigationService>;
 export interface IMarkerNavigationService {
     readonly _serviceBrand: undefined;
     registerProvider(provider: IMarkerListProvider): IDisposable;

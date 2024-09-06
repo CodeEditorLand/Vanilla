@@ -1,5 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 /**
  * Mime type used by the output editor.
  */
@@ -20,13 +21,13 @@ export declare const LOG_MODE_ID = "log";
  * Output view id
  */
 export declare const OUTPUT_VIEW_ID = "workbench.panel.output";
-export declare const CONTEXT_IN_OUTPUT: any;
-export declare const CONTEXT_ACTIVE_FILE_OUTPUT: any;
-export declare const CONTEXT_ACTIVE_OUTPUT_LEVEL_SETTABLE: any;
-export declare const CONTEXT_ACTIVE_OUTPUT_LEVEL: any;
-export declare const CONTEXT_ACTIVE_OUTPUT_LEVEL_IS_DEFAULT: any;
-export declare const CONTEXT_OUTPUT_SCROLL_LOCK: any;
-export declare const IOutputService: any;
+export declare const CONTEXT_IN_OUTPUT: RawContextKey<boolean>;
+export declare const CONTEXT_ACTIVE_FILE_OUTPUT: RawContextKey<boolean>;
+export declare const CONTEXT_ACTIVE_OUTPUT_LEVEL_SETTABLE: RawContextKey<boolean>;
+export declare const CONTEXT_ACTIVE_OUTPUT_LEVEL: RawContextKey<string>;
+export declare const CONTEXT_ACTIVE_OUTPUT_LEVEL_IS_DEFAULT: RawContextKey<boolean>;
+export declare const CONTEXT_OUTPUT_SCROLL_LOCK: RawContextKey<boolean>;
+export declare const IOutputService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IOutputService>;
 /**
  * The output service to manage output from the various processes running.
  */
@@ -133,4 +134,4 @@ export interface IOutputChannelRegistry {
      */
     removeChannel(id: string): void;
 }
-export declare const ACTIVE_OUTPUT_CHANNEL_CONTEXT: any;
+export declare const ACTIVE_OUTPUT_CHANNEL_CONTEXT: RawContextKey<string>;

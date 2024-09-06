@@ -1,5 +1,5 @@
-import { IProductConfiguration } from "vs/base/common/product";
-export declare const IProductService: any;
+import { IProductConfiguration } from "../../../base/common/product.js";
+export declare const IProductService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IProductService>;
 export interface IProductService extends Readonly<IProductConfiguration> {
     readonly _serviceBrand: undefined;
 }

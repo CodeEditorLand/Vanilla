@@ -1,12 +1,12 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { ProvidedPortAttributes, RemoteTunnel, TunnelCreationOptions, TunnelOptions } from "vs/platform/tunnel/common/tunnel";
-import { ExtHostTunnelServiceShape, MainThreadTunnelServiceShape, PortAttributesSelector, TunnelDto } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { CandidatePort } from "vs/workbench/services/remote/common/tunnelModel";
 import * as vscode from "vscode";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { ProvidedPortAttributes, RemoteTunnel, TunnelCreationOptions, TunnelOptions } from "../../../platform/tunnel/common/tunnel.js";
+import { CandidatePort } from "../../services/remote/common/tunnelModel.js";
+import { ExtHostTunnelServiceShape, MainThreadTunnelServiceShape, PortAttributesSelector, TunnelDto } from "./extHost.protocol.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export declare namespace TunnelDtoConverter {
     function fromApiTunnel(tunnel: vscode.Tunnel): TunnelDto;
     function fromServiceTunnel(tunnel: RemoteTunnel): TunnelDto;
@@ -27,7 +27,7 @@ export interface IExtHostTunnelService extends ExtHostTunnelServiceShape {
     registerPortsAttributesProvider(portSelector: PortAttributesSelector, provider: vscode.PortAttributesProvider): IDisposable;
     registerTunnelProvider(provider: vscode.TunnelProvider, information: vscode.TunnelInformation): Promise<IDisposable>;
 }
-export declare const IExtHostTunnelService: any;
+export declare const IExtHostTunnelService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostTunnelService>;
 export declare class ExtHostTunnelService extends Disposable implements IExtHostTunnelService {
     protected readonly logService: ILogService;
     readonly _serviceBrand: undefined;

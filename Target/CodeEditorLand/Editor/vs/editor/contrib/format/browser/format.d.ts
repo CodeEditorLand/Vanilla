@@ -1,15 +1,15 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IActiveCodeEditor } from "vs/editor/browser/editorBrowser";
-import { ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import { DocumentFormattingEditProvider, DocumentRangeFormattingEditProvider, FormattingOptions, TextEdit } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { IEditorWorkerService } from "vs/editor/common/services/editorWorker";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IProgress } from "vs/platform/progress/common/progress";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
+import { IActiveCodeEditor } from "../../../browser/editorBrowser.js";
+import { ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import { DocumentFormattingEditProvider, DocumentRangeFormattingEditProvider, FormattingOptions, TextEdit } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
+import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
 export declare function getRealAndSyntheticDocumentFormattersOrdered(documentFormattingEditProvider: LanguageFeatureRegistry<DocumentFormattingEditProvider>, documentRangeFormattingEditProvider: LanguageFeatureRegistry<DocumentRangeFormattingEditProvider>, model: ITextModel): DocumentFormattingEditProvider[];
 export declare const enum FormattingKind {
     File = 1,

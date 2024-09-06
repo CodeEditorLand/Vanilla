@@ -1,14 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
-export declare const applicationConfigurationNodeBase: IConfigurationNode;
-export declare const workbenchConfigurationNodeBase: IConfigurationNode;
-export declare const securityConfigurationNodeBase: IConfigurationNode;
-export declare const problemsConfigurationNodeBase: IConfigurationNode;
-export declare const windowConfigurationNodeBase: IConfigurationNode;
+import { Disposable } from "../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
+import { IConfigurationNode } from "../../platform/configuration/common/configurationRegistry.js";
+import { IUserDataProfilesService } from "../../platform/userDataProfile/common/userDataProfile.js";
+import { IWorkspaceContextService } from "../../platform/workspace/common/workspace.js";
+import { IRemoteAgentService } from "../services/remote/common/remoteAgentService.js";
+import { IWorkbenchContribution } from "./contributions.js";
+export declare const applicationConfigurationNodeBase: Readonly<IConfigurationNode>;
+export declare const workbenchConfigurationNodeBase: Readonly<IConfigurationNode>;
+export declare const securityConfigurationNodeBase: Readonly<IConfigurationNode>;
+export declare const problemsConfigurationNodeBase: Readonly<IConfigurationNode>;
+export declare const windowConfigurationNodeBase: Readonly<IConfigurationNode>;
 export declare const Extensions: {
     ConfigurationMigration: string;
 };
@@ -38,7 +39,7 @@ export declare class DynamicWorkbenchSecurityConfiguration extends Disposable im
     private readonly remoteAgentService;
     static readonly ID = "workbench.contrib.dynamicWorkbenchSecurityConfiguration";
     private readonly _ready;
-    readonly ready: any;
+    readonly ready: Promise<void>;
     constructor(remoteAgentService: IRemoteAgentService);
     private create;
     private doCreate;

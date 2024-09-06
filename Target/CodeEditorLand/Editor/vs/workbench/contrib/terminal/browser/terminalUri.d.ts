@@ -1,5 +1,5 @@
-import { URI } from "vs/base/common/uri";
-import { ITerminalInstance } from "vs/workbench/contrib/terminal/browser/terminal";
+import { URI } from "../../../../base/common/uri.js";
+import { ITerminalInstance } from "./terminal.js";
 export declare function parseTerminalUri(resource: URI): ITerminalIdentifier;
 export declare function getTerminalUri(workspaceId: string, instanceId: number, title?: string): URI;
 export interface ITerminalIdentifier {

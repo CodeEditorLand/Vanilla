@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IDialogArgs, IDialogResult } from "vs/platform/dialogs/common/dialogs";
+import { Event } from "../../base/common/event.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { IDialogArgs, IDialogResult } from "../../platform/dialogs/common/dialogs.js";
 export interface IDialogViewItem {
     readonly args: IDialogArgs;
     close(result?: IDialogResult | Error): void;
@@ -18,8 +18,8 @@ export interface IDialogsModel {
 export declare class DialogsModel extends Disposable implements IDialogsModel {
     readonly dialogs: IDialogViewItem[];
     private readonly _onWillShowDialog;
-    readonly onWillShowDialog: any;
+    readonly onWillShowDialog: Event<void>;
     private readonly _onDidShowDialog;
-    readonly onDidShowDialog: any;
+    readonly onDidShowDialog: Event<void>;
     show(dialog: IDialogArgs): IDialogHandle;
 }

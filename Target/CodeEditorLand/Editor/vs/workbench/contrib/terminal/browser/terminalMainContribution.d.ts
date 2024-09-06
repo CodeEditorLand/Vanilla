@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILabelService } from "vs/platform/label/common/label";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { ITerminalEditorService, ITerminalGroupService, ITerminalInstanceService, ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { IEditorResolverService } from "vs/workbench/services/editor/common/editorResolverService";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
-import { IEmbedderTerminalService } from "vs/workbench/services/terminal/common/embedderTerminalService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IEmbedderTerminalService } from "../../../services/terminal/common/embedderTerminalService.js";
+import { ITerminalEditorService, ITerminalGroupService, ITerminalInstanceService, ITerminalService } from "./terminal.js";
 /**
  * The main contribution for the terminal contrib. This contains calls to other components necessary
  * to set up the terminal but don't need to be tracked in the long term (where TerminalService would

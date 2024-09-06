@@ -1,14 +1,14 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "vs/platform/quickinput/browser/pickerQuickAccess";
-import { IQuickInputService, IQuickPickSeparator } from "vs/platform/quickinput/common/quickInput";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { ITaskService } from "vs/workbench/contrib/tasks/common/taskService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { IQuickInputService, IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { ITaskService } from "../common/taskService.js";
 export declare class TasksQuickAccessProvider extends PickerQuickAccessProvider<IPickerQuickAccessItem> {
     private _taskService;
     private _configurationService;

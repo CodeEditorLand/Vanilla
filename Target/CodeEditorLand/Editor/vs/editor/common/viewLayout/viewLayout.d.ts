@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { INewScrollPosition, IScrollPosition, Scrollable, ScrollEvent } from "vs/base/common/scrollable";
-import { IEditorConfiguration } from "vs/editor/common/config/editorConfiguration";
-import { ConfigurationChangedEvent } from "vs/editor/common/config/editorOptions";
-import { ScrollType } from "vs/editor/common/editorCommon";
-import { IEditorWhitespace, IPartialViewLinesViewportData, IViewLayout, IViewWhitespaceViewportData, IWhitespaceChangeAccessor, Viewport } from "vs/editor/common/viewModel";
-import { ContentSizeChangedEvent } from "vs/editor/common/viewModelEventDispatcher";
+import { Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { INewScrollPosition, IScrollPosition, Scrollable, ScrollEvent } from "../../../base/common/scrollable.js";
+import { IEditorConfiguration } from "../config/editorConfiguration.js";
+import { ConfigurationChangedEvent } from "../config/editorOptions.js";
+import { ScrollType } from "../editorCommon.js";
+import { IEditorWhitespace, IPartialViewLinesViewportData, IViewLayout, IViewWhitespaceViewportData, IWhitespaceChangeAccessor, Viewport } from "../viewModel.js";
+import { ContentSizeChangedEvent } from "../viewModelEventDispatcher.js";
 export declare class ViewLayout extends Disposable implements IViewLayout {
     private readonly _configuration;
     private readonly _linesLayout;

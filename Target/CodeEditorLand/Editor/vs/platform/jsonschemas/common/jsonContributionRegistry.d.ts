@@ -1,5 +1,5 @@
-import { Event } from "vs/base/common/event";
-import { IJSONSchema } from "vs/base/common/jsonSchema";
+import { Event } from "../../../base/common/event.js";
+import { IJSONSchema } from "../../../base/common/jsonSchema.js";
 export declare const Extensions: {
     JSONContribution: string;
 };

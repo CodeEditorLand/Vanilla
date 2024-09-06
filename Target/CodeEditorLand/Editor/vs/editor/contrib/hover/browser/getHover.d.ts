@@ -1,9 +1,9 @@
-import { AsyncIterableObject } from "vs/base/common/async";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Position } from "vs/editor/common/core/position";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import { Hover, HoverProvider } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
+import { AsyncIterableObject } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Position } from "../../../common/core/position.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import { Hover, HoverProvider } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
 export declare class HoverProviderResult {
     readonly provider: HoverProvider;
     readonly hover: Hover;

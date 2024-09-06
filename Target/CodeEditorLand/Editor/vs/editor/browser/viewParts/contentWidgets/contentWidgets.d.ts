@@ -1,12 +1,12 @@
-import { FastDomNode } from "vs/base/browser/fastDomNode";
-import { ContentWidgetPositionPreference, IContentWidget } from "vs/editor/browser/editorBrowser";
-import { RenderingContext, RestrictedRenderingContext } from "vs/editor/browser/view/renderingContext";
-import { ViewPart } from "vs/editor/browser/view/viewPart";
-import { IPosition } from "vs/editor/common/core/position";
-import { PositionAffinity } from "vs/editor/common/model";
-import * as viewEvents from "vs/editor/common/viewEvents";
-import { ViewportData } from "vs/editor/common/viewLayout/viewLinesViewportData";
-import { ViewContext } from "vs/editor/common/viewModel/viewContext";
+import { FastDomNode } from "../../../../base/browser/fastDomNode.js";
+import { IPosition } from "../../../common/core/position.js";
+import { PositionAffinity } from "../../../common/model.js";
+import * as viewEvents from "../../../common/viewEvents.js";
+import { ViewportData } from "../../../common/viewLayout/viewLinesViewportData.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import { ContentWidgetPositionPreference, IContentWidget } from "../../editorBrowser.js";
+import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
+import { ViewPart } from "../../view/viewPart.js";
 export declare class ViewContentWidgets extends ViewPart {
     private readonly _viewDomNode;
     private _widgets;

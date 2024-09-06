@@ -1,12 +1,12 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IDocumentDiff, IDocumentDiffProvider, IDocumentDiffProviderOptions } from "vs/editor/common/diff/documentDiffProvider";
-import { ITextModel } from "vs/editor/common/model";
-import { IEditorWorkerService } from "vs/editor/common/services/editorWorker";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-export declare const IDiffProviderFactoryService: any;
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IDocumentDiff, IDocumentDiffProvider, IDocumentDiffProviderOptions } from "../../../common/diff/documentDiffProvider.js";
+import { ITextModel } from "../../../common/model.js";
+import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
+export declare const IDiffProviderFactoryService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IDiffProviderFactoryService>;
 export interface IDocumentDiffFactoryOptions {
     readonly diffAlgorithm?: "legacy" | "advanced";
 }

@@ -1,5 +1,5 @@
-import { IPCServer } from "vs/base/parts/ipc/common/ipc";
-import { MessageEvent } from "vs/base/parts/sandbox/node/electronTypes";
+import { MessageEvent } from "../../sandbox/node/electronTypes.js";
+import { IPCServer } from "../common/ipc.js";
 export interface IClientConnectionFilter {
     /**
      * Allows to filter incoming messages to the

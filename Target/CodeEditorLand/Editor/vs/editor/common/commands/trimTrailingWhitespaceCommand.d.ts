@@ -1,8 +1,8 @@
-import { ISingleEditOperation } from "vs/editor/common/core/editOperation";
-import { Position } from "vs/editor/common/core/position";
-import { Selection } from "vs/editor/common/core/selection";
-import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "vs/editor/common/editorCommon";
-import { ITextModel } from "vs/editor/common/model";
+import { ISingleEditOperation } from "../core/editOperation.js";
+import { Position } from "../core/position.js";
+import { Selection } from "../core/selection.js";
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../editorCommon.js";
+import { ITextModel } from "../model.js";
 export declare class TrimTrailingWhitespaceCommand implements ICommand {
     private readonly _selection;
     private _selectionId;

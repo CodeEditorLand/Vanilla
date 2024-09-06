@@ -1,10 +1,10 @@
-import "vs/css!./media/welcomeWidget";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import "./media/welcomeWidget.css";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "../../../../editor/browser/editorBrowser.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 export declare class WelcomeWidget extends Disposable implements IOverlayWidget {
     private readonly _editor;
     private readonly instantiationService;

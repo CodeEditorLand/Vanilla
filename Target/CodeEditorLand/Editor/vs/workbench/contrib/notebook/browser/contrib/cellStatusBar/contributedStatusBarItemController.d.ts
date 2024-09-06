@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { INotebookEditor, INotebookEditorContribution } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { INotebookCellStatusBarService } from "vs/workbench/contrib/notebook/common/notebookCellStatusBarService";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { INotebookCellStatusBarService } from "../../../common/notebookCellStatusBarService.js";
+import { INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
 export declare class ContributedStatusBarItemController extends Disposable implements INotebookEditorContribution {
     private readonly _notebookEditor;
     private readonly _notebookCellStatusBarService;

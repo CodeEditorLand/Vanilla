@@ -1,12 +1,12 @@
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { Disposable, IReference } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IResolvedTextEditorModel } from "vs/editor/common/services/resolverService";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IRevertOptions, ISaveOptions } from "vs/workbench/common/editor";
-import { ICustomEditorModel } from "vs/workbench/contrib/customEditor/common/customEditor";
-import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
+import { Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable, IReference } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IResolvedTextEditorModel } from "../../../../editor/common/services/resolverService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IRevertOptions, ISaveOptions } from "../../../common/editor.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { ICustomEditorModel } from "./customEditor.js";
 export declare class CustomTextEditorModel extends Disposable implements ICustomEditorModel {
     readonly viewType: string;
     private readonly _resource;
@@ -15,9 +15,9 @@ export declare class CustomTextEditorModel extends Disposable implements ICustom
     static create(instantiationService: IInstantiationService, viewType: string, resource: URI): Promise<CustomTextEditorModel>;
     private readonly _textFileModel;
     private readonly _onDidChangeOrphaned;
-    readonly onDidChangeOrphaned: any;
+    readonly onDidChangeOrphaned: Event<void>;
     private readonly _onDidChangeReadonly;
-    readonly onDidChangeReadonly: any;
+    readonly onDidChangeReadonly: Event<void>;
     constructor(viewType: string, _resource: URI, _model: IReference<IResolvedTextEditorModel>, textFileService: ITextFileService);
     get resource(): URI;
     isReadonly(): boolean | IMarkdownString;
@@ -29,7 +29,7 @@ export declare class CustomTextEditorModel extends Disposable implements ICustom
     readonly onDidChangeDirty: Event<void>;
     private readonly _onDidChangeContent;
     readonly onDidChangeContent: Event<void>;
-    revert(options?: IRevertOptions): Promise<any>;
+    revert(options?: IRevertOptions): Promise<void>;
     saveCustomEditor(options?: ISaveOptions): Promise<URI | undefined>;
     saveCustomEditorAs(resource: URI, targetResource: URI, options?: ISaveOptions): Promise<boolean>;
 }

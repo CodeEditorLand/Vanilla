@@ -1,1 +1,1 @@
-import "./registrations.contribution";
+import "./registrations.contribution.js";

@@ -1,1 +1,2 @@
-export declare const manageExtensionIcon: any;
+import { ThemeIcon } from "../../../../base/common/themables.js";
+export declare const manageExtensionIcon: ThemeIcon;

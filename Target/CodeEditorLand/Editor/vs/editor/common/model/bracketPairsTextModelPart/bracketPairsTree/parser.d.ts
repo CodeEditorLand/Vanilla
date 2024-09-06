@@ -1,6 +1,6 @@
-import { AstNode } from "./ast";
-import { TextEditInfo } from "./beforeEditPositionMapper";
-import { Tokenizer } from "./tokenizer";
+import { AstNode } from "./ast.js";
+import { TextEditInfo } from "./beforeEditPositionMapper.js";
+import { Tokenizer } from "./tokenizer.js";
 /**
  * Non incrementally built ASTs are immutable.
  */

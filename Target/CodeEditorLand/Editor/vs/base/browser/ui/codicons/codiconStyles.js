@@ -1,1 +1,1 @@
-import"vs/css!./codicon/codicon";import"vs/css!./codicon/codicon-modifiers";
+import"./codicon/codicon.css";import"./codicon/codicon-modifiers.css";

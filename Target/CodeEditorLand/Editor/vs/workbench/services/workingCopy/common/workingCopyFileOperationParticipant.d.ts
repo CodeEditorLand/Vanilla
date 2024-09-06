@@ -1,9 +1,9 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { FileOperation } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { IFileOperationUndoRedoInfo, IWorkingCopyFileOperationParticipant, SourceTargetPair } from "vs/workbench/services/workingCopy/common/workingCopyFileService";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { FileOperation } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IFileOperationUndoRedoInfo, IWorkingCopyFileOperationParticipant, SourceTargetPair } from "./workingCopyFileService.js";
 export declare class WorkingCopyFileOperationParticipant extends Disposable {
     private readonly logService;
     private readonly configurationService;

@@ -1,5 +1,5 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { BrandedService, GetLeadingNonServiceArgs } from "vs/platform/instantiation/common/instantiation";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { BrandedService, GetLeadingNonServiceArgs } from "../../instantiation/common/instantiation.js";
 /**
  * Wrap a class in a reloadable wrapper.
  * When the wrapper is created, the original class is created.

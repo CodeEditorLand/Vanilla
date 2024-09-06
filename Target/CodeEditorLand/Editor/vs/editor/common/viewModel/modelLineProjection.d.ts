@@ -1,9 +1,9 @@
-import { Position } from "vs/editor/common/core/position";
-import { IRange } from "vs/editor/common/core/range";
-import { EndOfLinePreference, PositionAffinity } from "vs/editor/common/model";
-import { InjectedText, ModelLineProjectionData } from "vs/editor/common/modelLineProjectionData";
-import { LineTokens } from "vs/editor/common/tokens/lineTokens";
-import { ViewLineData } from "vs/editor/common/viewModel";
+import { Position } from "../core/position.js";
+import { IRange } from "../core/range.js";
+import { EndOfLinePreference, PositionAffinity } from "../model.js";
+import { InjectedText, ModelLineProjectionData } from "../modelLineProjectionData.js";
+import { LineTokens } from "../tokens/lineTokens.js";
+import { ViewLineData } from "../viewModel.js";
 export interface IModelLineProjection {
     isVisible(): boolean;
     /**

@@ -1,13 +1,13 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { IAccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
+import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 export declare class InlayHintsAccessibility implements IEditorContribution {
     private readonly _editor;
     private readonly _accessibilitySignalService;
     private readonly _instaService;
-    static readonly IsReading: any;
+    static readonly IsReading: RawContextKey<boolean>;
     static readonly ID: string;
     static get(editor: ICodeEditor): InlayHintsAccessibility | undefined;
     private readonly _ariaElement;

@@ -1,5 +1,5 @@
-import { ContextKeyExpression, IContext, IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ResolvedKeybindingItem } from "vs/platform/keybinding/common/resolvedKeybindingItem";
+import { ContextKeyExpression, IContext, IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { ResolvedKeybindingItem } from "./resolvedKeybindingItem.js";
 export declare const enum ResultKind {
     /** No keybinding found this sequence of chords */
     NoMatchingKb = 0,

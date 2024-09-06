@@ -1,8 +1,8 @@
-import { EqualityComparer } from "vs/base/common/equals";
-import { Event, IValueWithChangeEvent } from "vs/base/common/event";
-import { DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { BaseObservable, IObservable, IObserver, IReader, ITransaction } from "vs/base/common/observableInternal/base";
-import { DebugNameData, DebugOwner, IDebugNameData } from "vs/base/common/observableInternal/debugName";
+import { EqualityComparer } from "../equals.js";
+import { Event, IValueWithChangeEvent } from "../event.js";
+import { DisposableStore, IDisposable } from "../lifecycle.js";
+import { BaseObservable, IObservable, IObserver, IReader, ITransaction } from "./base.js";
+import { DebugNameData, DebugOwner, IDebugNameData } from "./debugName.js";
 /**
  * Represents an efficient observable whose value never changes.
  */
@@ -104,3 +104,7 @@ export declare function latestChangedValue<T extends IObservable<any>[]>(owner: 
  * In that case, the derived will unsubscribe from its dependencies.
  */
 export declare function derivedConstOnceDefined<T>(owner: DebugOwner, fn: (reader: IReader) => T): IObservable<T | undefined>;
+type RemoveUndefined<T> = T extends undefined ? never : T;
+export declare function runOnChange<T, TChange>(observable: IObservable<T, TChange>, cb: (value: T, deltas: RemoveUndefined<TChange>[]) => void): IDisposable;
+export declare function runOnChangeWithStore<T, TChange>(observable: IObservable<T, TChange>, cb: (value: T, deltas: RemoveUndefined<TChange>[], store: DisposableStore) => void): IDisposable;
+export {};

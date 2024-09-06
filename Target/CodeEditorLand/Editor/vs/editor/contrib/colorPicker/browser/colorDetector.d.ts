@@ -1,13 +1,13 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Position } from "vs/editor/common/core/position";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { IModelDecoration } from "vs/editor/common/model";
-import { ILanguageFeatureDebounceService } from "vs/editor/common/services/languageFeatureDebounce";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IColorData } from "vs/editor/contrib/colorPicker/browser/color";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { Position } from "../../../common/core/position.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { IModelDecoration } from "../../../common/model.js";
+import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { IColorData } from "./color.js";
 export declare const ColorDecorationInjectedTextMarker: any;
 export declare class ColorDetector extends Disposable implements IEditorContribution {
     private readonly _editor;

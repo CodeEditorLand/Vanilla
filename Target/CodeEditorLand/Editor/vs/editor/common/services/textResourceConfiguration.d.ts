@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { IPosition } from "vs/editor/common/core/position";
-import { ConfigurationTarget, IConfigurationValue } from "vs/platform/configuration/common/configuration";
-export declare const ITextResourceConfigurationService: any;
+import { Event } from "../../../base/common/event.js";
+import { URI } from "../../../base/common/uri.js";
+import { ConfigurationTarget, IConfigurationValue } from "../../../platform/configuration/common/configuration.js";
+import { IPosition } from "../core/position.js";
+export declare const ITextResourceConfigurationService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITextResourceConfigurationService>;
 export interface ITextResourceConfigurationChangeEvent {
     /**
      * All affected keys. Also includes language overrides and keys changed under language overrides.
@@ -58,7 +58,7 @@ export interface ITextResourceConfigurationService {
      */
     updateValue(resource: URI, key: string, value: any, configurationTarget?: ConfigurationTarget): Promise<void>;
 }
-export declare const ITextResourcePropertiesService: any;
+export declare const ITextResourcePropertiesService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITextResourcePropertiesService>;
 export interface ITextResourcePropertiesService {
     readonly _serviceBrand: undefined;
     /**

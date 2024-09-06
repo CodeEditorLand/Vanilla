@@ -1,12 +1,12 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import * as languages from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import * as languages from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
 export declare class SmartSelectController implements IEditorContribution {
     private readonly _editor;
     private readonly _languageFeaturesService;

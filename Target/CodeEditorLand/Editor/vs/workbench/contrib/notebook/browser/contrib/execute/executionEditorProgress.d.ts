@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { INotebookEditor, INotebookEditorContribution } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
-import { IUserActivityService } from "vs/workbench/services/userActivity/common/userActivityService";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { IUserActivityService } from "../../../../../services/userActivity/common/userActivityService.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
 export declare class ExecutionEditorProgressController extends Disposable implements INotebookEditorContribution {
     private readonly _notebookEditor;
     private readonly _notebookExecutionStateService;

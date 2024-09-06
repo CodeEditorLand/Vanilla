@@ -1,7 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { IKeyboardEvent } from "vs/platform/keybinding/common/keybinding";
-import { IKeyboardMapper } from "vs/platform/keyboardLayout/common/keyboardMapper";
-export declare const IKeyboardLayoutService: any;
+import { Event } from "../../../base/common/event.js";
+import { IKeyboardEvent } from "../../keybinding/common/keybinding.js";
+import { IKeyboardMapper } from "./keyboardMapper.js";
+export declare const IKeyboardLayoutService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IKeyboardLayoutService>;
 export interface IWindowsKeyMapping {
     vkey: string;
     value: string;

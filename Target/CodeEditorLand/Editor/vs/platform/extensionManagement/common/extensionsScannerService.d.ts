@@ -1,17 +1,17 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import Severity from "vs/base/common/severity";
-import { URI } from "vs/base/common/uri";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IProductVersion, Metadata } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IExtensionsProfileScannerService, IProfileExtensionsScanOptions } from "vs/platform/extensionManagement/common/extensionsProfileScannerService";
-import { ExtensionType, IExtensionDescription, IExtensionIdentifier, IExtensionManifest, IRelaxedExtensionManifest, TargetPlatform } from "vs/platform/extensions/common/extensions";
-import { IFileService } from "vs/platform/files/common/files";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IUserDataProfile, IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import Severity from "../../../base/common/severity.js";
+import { URI } from "../../../base/common/uri.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { ExtensionType, IExtensionDescription, IExtensionIdentifier, IExtensionManifest, IRelaxedExtensionManifest, TargetPlatform } from "../../extensions/common/extensions.js";
+import { IFileService } from "../../files/common/files.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { IProductVersion, Metadata } from "./extensionManagement.js";
+import { IExtensionsProfileScannerService, IProfileExtensionsScanOptions } from "./extensionsProfileScannerService.js";
 export type IScannedExtensionManifest = IRelaxedExtensionManifest & {
     __metadata?: Metadata;
 };
@@ -46,7 +46,7 @@ export type ScanOptions = {
     readonly useCache?: boolean;
     readonly productVersion?: IProductVersion;
 };
-export declare const IExtensionsScannerService: any;
+export declare const IExtensionsScannerService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionsScannerService>;
 export interface IExtensionsScannerService {
     readonly _serviceBrand: undefined;
     readonly systemExtensionsLocation: URI;
@@ -80,7 +80,7 @@ export declare abstract class AbstractExtensionsScannerService extends Disposabl
     readonly _serviceBrand: undefined;
     protected abstract getTranslations(language: string): Promise<Translations>;
     private readonly _onDidChangeCache;
-    readonly onDidChangeCache: any;
+    readonly onDidChangeCache: Event<ExtensionType>;
     private readonly obsoleteFile;
     private readonly systemExtensionsCachedScanner;
     private readonly userExtensionsCachedScanner;

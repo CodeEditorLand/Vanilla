@@ -1,12 +1,12 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import * as glob from "vs/base/common/glob";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ResourceSet } from "vs/base/common/map";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IFilesConfiguration } from "vs/platform/files/common/files";
-import { ITelemetryData } from "vs/platform/telemetry/common/telemetry";
-import { GlobPattern, TextSearchCompleteMessageType } from "vs/workbench/services/search/common/searchExtTypes";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import * as glob from "../../../../base/common/glob.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ResourceSet } from "../../../../base/common/map.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { IFilesConfiguration } from "../../../../platform/files/common/files.js";
+import { ITelemetryData } from "../../../../platform/telemetry/common/telemetry.js";
+import { GlobPattern, TextSearchCompleteMessageType } from "./searchExtTypes.js";
 export { TextSearchCompleteMessageType };
 export declare const VIEWLET_ID = "workbench.view.search";
 export declare const PANEL_ID = "workbench.panel.search";
@@ -14,7 +14,7 @@ export declare const VIEW_ID = "workbench.view.search";
 export declare const SEARCH_RESULT_LANGUAGE_ID = "search-result";
 export declare const SEARCH_EXCLUDE_CONFIG = "search.exclude";
 export declare const DEFAULT_MAX_SEARCH_RESULTS = 20000;
-export declare const ISearchService: any;
+export declare const ISearchService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISearchService>;
 /**
  * A service that enables to search for files or with in files.
  */
@@ -68,6 +68,7 @@ export interface ICommonQueryProps<U extends UriComponents> {
     onlyOpenEditors?: boolean;
     maxResults?: number;
     usingSearchPaths?: boolean;
+    onlyFileScheme?: boolean;
 }
 export interface IFileQueryProps<U extends UriComponents> extends ICommonQueryProps<U> {
     type: QueryType.File;

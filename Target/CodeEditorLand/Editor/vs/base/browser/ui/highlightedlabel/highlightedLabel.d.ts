@@ -1,5 +1,5 @@
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { Disposable } from "vs/base/common/lifecycle";
+import { Disposable } from "../../../common/lifecycle.js";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
 /**
  * A range to be highlighted.
  */

@@ -1,9 +1,9 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 export declare const enum ChatMessageRole {
     System = 0,
     User = 1,
@@ -75,7 +75,7 @@ export interface ILanguageModelChatSelector {
     readonly tokens?: number;
     readonly extension?: ExtensionIdentifier;
 }
-export declare const ILanguageModelsService: any;
+export declare const ILanguageModelsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ILanguageModelsService>;
 export interface ILanguageModelsChangeEvent {
     added?: {
         identifier: string;
@@ -95,7 +95,10 @@ export interface ILanguageModelsService {
     }, token: CancellationToken): Promise<ILanguageModelChatResponse>;
     computeTokenLength(identifier: string, message: string | IChatMessage, token: CancellationToken): Promise<number>;
 }
-export declare const languageModelExtensionPoint: any;
+interface IUserFriendlyLanguageModel {
+    vendor: string;
+}
+export declare const languageModelExtensionPoint: import("../../../services/extensions/common/extensionsRegistry.js").IExtensionPoint<IUserFriendlyLanguageModel | IUserFriendlyLanguageModel[]>;
 export declare class LanguageModelsService implements ILanguageModelsService {
     private readonly _extensionService;
     private readonly _logService;
@@ -116,3 +119,4 @@ export declare class LanguageModelsService implements ILanguageModelsService {
     }, token: CancellationToken): Promise<ILanguageModelChatResponse>;
     computeTokenLength(identifier: string, message: string | IChatMessage, token: CancellationToken): Promise<number>;
 }
+export {};

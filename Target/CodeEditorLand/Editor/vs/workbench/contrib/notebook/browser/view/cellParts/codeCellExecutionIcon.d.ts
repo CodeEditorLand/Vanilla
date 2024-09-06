@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICellViewModel, INotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
 export declare class CollapsedCodeCellExecutionIcon extends Disposable {
     private readonly _cell;
     private readonly _element;

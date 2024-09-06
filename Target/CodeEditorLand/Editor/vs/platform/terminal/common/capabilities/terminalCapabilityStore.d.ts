@@ -1,15 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ITerminalCapabilityImplMap, ITerminalCapabilityStore, TerminalCapability } from "vs/platform/terminal/common/capabilities/capabilities";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ITerminalCapabilityImplMap, ITerminalCapabilityStore, TerminalCapability, TerminalCapabilityChangeEvent } from "./capabilities.js";
 export declare class TerminalCapabilityStore extends Disposable implements ITerminalCapabilityStore {
     private _map;
     private readonly _onDidRemoveCapabilityType;
-    readonly onDidRemoveCapabilityType: any;
+    readonly onDidRemoveCapabilityType: import("../../../../base/common/event.js").Event<TerminalCapability>;
     private readonly _onDidAddCapabilityType;
-    readonly onDidAddCapabilityType: any;
+    readonly onDidAddCapabilityType: import("../../../../base/common/event.js").Event<TerminalCapability>;
     private readonly _onDidRemoveCapability;
-    readonly onDidRemoveCapability: any;
+    readonly onDidRemoveCapability: import("../../../../base/common/event.js").Event<TerminalCapabilityChangeEvent<any>>;
     private readonly _onDidAddCapability;
-    readonly onDidAddCapability: any;
+    readonly onDidAddCapability: import("../../../../base/common/event.js").Event<TerminalCapabilityChangeEvent<any>>;
     get items(): IterableIterator<TerminalCapability>;
     add<T extends TerminalCapability>(capability: T, impl: ITerminalCapabilityImplMap[T]): void;
     get<T extends TerminalCapability>(capability: T): ITerminalCapabilityImplMap[T] | undefined;
@@ -19,13 +19,13 @@ export declare class TerminalCapabilityStore extends Disposable implements ITerm
 export declare class TerminalCapabilityStoreMultiplexer extends Disposable implements ITerminalCapabilityStore {
     readonly _stores: ITerminalCapabilityStore[];
     private readonly _onDidRemoveCapabilityType;
-    readonly onDidRemoveCapabilityType: any;
+    readonly onDidRemoveCapabilityType: import("../../../../base/common/event.js").Event<TerminalCapability>;
     private readonly _onDidAddCapabilityType;
-    readonly onDidAddCapabilityType: any;
+    readonly onDidAddCapabilityType: import("../../../../base/common/event.js").Event<TerminalCapability>;
     private readonly _onDidRemoveCapability;
-    readonly onDidRemoveCapability: any;
+    readonly onDidRemoveCapability: import("../../../../base/common/event.js").Event<TerminalCapabilityChangeEvent<any>>;
     private readonly _onDidAddCapability;
-    readonly onDidAddCapability: any;
+    readonly onDidAddCapability: import("../../../../base/common/event.js").Event<TerminalCapabilityChangeEvent<any>>;
     get items(): IterableIterator<TerminalCapability>;
     private _items;
     has(capability: TerminalCapability): boolean;

@@ -1,9 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IResourceEditorInputIdentifier } from "vs/platform/editor/common/editor";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IEditorIdentifier } from "vs/workbench/common/editor";
-import { IEditorGroupsContainer, IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IResourceEditorInputIdentifier } from "../../../../platform/editor/common/editor.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IEditorIdentifier } from "../../../common/editor.js";
+import { IEditorGroupsContainer, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
 /**
  * A observer of opened editors across all editor groups by most recently used.
  * Rules:
@@ -21,7 +22,7 @@ export declare class EditorsObserver extends Disposable {
     private readonly mostRecentEditorsMap;
     private readonly editorsPerResourceCounter;
     private readonly _onDidMostRecentlyActiveEditorsChange;
-    readonly onDidMostRecentlyActiveEditorsChange: any;
+    readonly onDidMostRecentlyActiveEditorsChange: Event<void>;
     get count(): number;
     get editors(): IEditorIdentifier[];
     hasEditor(editor: IResourceEditorInputIdentifier): boolean;

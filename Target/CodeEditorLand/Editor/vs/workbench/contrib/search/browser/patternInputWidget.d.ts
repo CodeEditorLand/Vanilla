@@ -1,11 +1,11 @@
-import * as dom from "vs/base/browser/dom";
-import { IContextViewProvider } from "vs/base/browser/ui/contextview/contextview";
-import { HistoryInputBox, IInputBoxStyles } from "vs/base/browser/ui/inputbox/inputBox";
-import { Widget } from "vs/base/browser/ui/widget";
-import { Event as CommonEvent } from "vs/base/common/event";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import * as dom from "../../../../base/browser/dom.js";
+import { IContextViewProvider } from "../../../../base/browser/ui/contextview/contextview.js";
+import { HistoryInputBox, IInputBoxStyles } from "../../../../base/browser/ui/inputbox/inputBox.js";
+import { Widget } from "../../../../base/browser/ui/widget.js";
+import { Event as CommonEvent } from "../../../../base/common/event.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 export interface IOptions {
     placeholder?: string;
     showPlaceholderOnFocus?: boolean;
@@ -52,7 +52,7 @@ export declare class PatternInputWidget extends Widget {
 }
 export declare class IncludePatternInputWidget extends PatternInputWidget {
     private _onChangeSearchInEditorsBoxEmitter;
-    onChangeSearchInEditorsBox: any;
+    onChangeSearchInEditorsBox: CommonEvent<void>;
     constructor(parent: HTMLElement, contextViewProvider: IContextViewProvider, options: IOptions, contextKeyService: IContextKeyService, configurationService: IConfigurationService, keybindingService: IKeybindingService);
     private useSearchInEditorsBox;
     dispose(): void;
@@ -63,7 +63,7 @@ export declare class IncludePatternInputWidget extends PatternInputWidget {
 }
 export declare class ExcludePatternInputWidget extends PatternInputWidget {
     private _onChangeIgnoreBoxEmitter;
-    onChangeIgnoreBox: any;
+    onChangeIgnoreBox: CommonEvent<void>;
     constructor(parent: HTMLElement, contextViewProvider: IContextViewProvider, options: IOptions, contextKeyService: IContextKeyService, configurationService: IConfigurationService, keybindingService: IKeybindingService);
     private useExcludesAndIgnoreFilesBox;
     dispose(): void;

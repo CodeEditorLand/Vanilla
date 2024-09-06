@@ -1,8 +1,8 @@
-import { IconLabel } from "vs/base/browser/ui/iconLabel/iconLabel";
-import { IListRenderer } from "vs/base/browser/ui/list/list";
-import { Event } from "vs/base/common/event";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { SimpleCompletionItem } from "vs/workbench/services/suggest/browser/simpleCompletionItem";
+import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { IListRenderer } from "../../../../base/browser/ui/list/list.js";
+import { Event } from "../../../../base/common/event.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { SimpleCompletionItem } from "./simpleCompletionItem.js";
 export declare function getAriaId(index: number): string;
 export interface ISimpleSuggestionTemplateData {
     readonly root: HTMLElement;

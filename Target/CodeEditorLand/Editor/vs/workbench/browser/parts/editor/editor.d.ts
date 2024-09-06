@@ -1,20 +1,21 @@
-import { ISerializableView } from "vs/base/browser/ui/grid/grid";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IConfigurationChangeEvent, IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ContextKeyValue, IContextKey, RawContextKey } from "vs/platform/contextkey/common/contextkey";
-import { IEditorOptions } from "vs/platform/editor/common/editor";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { EditorCloseContext, GroupIdentifier, IEditorCloseEvent, IEditorIdentifier, IEditorPane, IEditorPartOptions, IEditorPartOptionsChangeEvent, IEditorWillOpenEvent, SideBySideEditor } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { IAuxiliaryWindowOpenOptions } from "vs/workbench/services/auxiliaryWindow/browser/auxiliaryWindowService";
-import { GroupDirection, GroupsArrangement, GroupsOrder, IAuxiliaryEditorPart, IEditorGroup, IEditorPart, IMergeGroupOptions } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { ISerializableView } from "../../../../base/browser/ui/grid/grid.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationChangeEvent, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyValue, IContextKey, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { EditorCloseContext, GroupIdentifier, IEditorCloseEvent, IEditorIdentifier, IEditorPane, IEditorPartOptions, IEditorPartOptionsChangeEvent, IEditorWillOpenEvent, SideBySideEditor } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IAuxiliaryWindowOpenOptions } from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
+import { GroupDirection, GroupsArrangement, GroupsOrder, IAuxiliaryEditorPart, IEditorGroup, IEditorPart, IMergeGroupOptions } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
 export interface IEditorPartCreationOptions {
     readonly restorePreviousState: boolean;
 }
-export declare const DEFAULT_EDITOR_MIN_DIMENSIONS: any;
-export declare const DEFAULT_EDITOR_MAX_DIMENSIONS: any;
+export declare const DEFAULT_EDITOR_MIN_DIMENSIONS: Dimension;
+export declare const DEFAULT_EDITOR_MAX_DIMENSIONS: Dimension;
 export declare const DEFAULT_EDITOR_PART_OPTIONS: IEditorPartOptions;
 export declare function impactsEditorPartOptions(event: IConfigurationChangeEvent): boolean;
 export declare function getEditorPartOptions(configurationService: IConfigurationService, themeService: IThemeService): IEditorPartOptions;

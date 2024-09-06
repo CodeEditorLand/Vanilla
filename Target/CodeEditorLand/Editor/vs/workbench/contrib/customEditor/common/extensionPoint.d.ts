@@ -1,4 +1,4 @@
-import { CustomEditorSelector } from "vs/workbench/contrib/customEditor/common/customEditor";
+import { CustomEditorSelector } from "./customEditor.js";
 declare const Fields: Readonly<{
     viewType: "viewType";
     displayName: "displayName";
@@ -11,5 +11,5 @@ export interface ICustomEditorsExtensionPoint {
     readonly [Fields.selector]?: readonly CustomEditorSelector[];
     readonly [Fields.priority]?: string;
 }
-export declare const customEditorsExtensionPoint: any;
+export declare const customEditorsExtensionPoint: import("../../../services/extensions/common/extensionsRegistry.js").IExtensionPoint<ICustomEditorsExtensionPoint[]>;
 export {};

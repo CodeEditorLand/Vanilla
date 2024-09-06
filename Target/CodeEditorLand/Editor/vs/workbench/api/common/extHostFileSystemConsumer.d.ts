@@ -1,8 +1,9 @@
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IExtHostFileSystemInfo } from "vs/workbench/api/common/extHostFileSystemInfo";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
 import type * as vscode from "vscode";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { IExtUri } from "../../../base/common/resources.js";
+import { IExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export declare class ExtHostConsumerFileSystem {
     readonly _serviceBrand: undefined;
     readonly value: vscode.FileSystem;
@@ -16,8 +17,8 @@ export declare class ExtHostConsumerFileSystem {
         isCaseSensitive?: boolean;
         isReadonly?: boolean | IMarkdownString;
     }): IDisposable;
-    getFileSystemProviderExtUri(scheme: string): any;
+    getFileSystemProviderExtUri(scheme: string): IExtUri;
 }
 export interface IExtHostConsumerFileSystem extends ExtHostConsumerFileSystem {
 }
-export declare const IExtHostConsumerFileSystem: any;
+export declare const IExtHostConsumerFileSystem: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostConsumerFileSystem>;

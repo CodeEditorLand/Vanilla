@@ -1,8 +1,8 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IWorkspaceStateFolder } from "vs/platform/userDataSync/common/userDataSync";
-import { IEditSessionIdentityService } from "vs/platform/workspace/common/editSessions";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-export declare const IWorkspaceIdentityService: any;
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IWorkspaceStateFolder } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IEditSessionIdentityService } from "../../../../platform/workspace/common/editSessions.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+export declare const IWorkspaceIdentityService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkspaceIdentityService>;
 export interface IWorkspaceIdentityService {
     _serviceBrand: undefined;
     matches(folders: IWorkspaceStateFolder[], cancellationToken: CancellationToken): Promise<((obj: any) => any) | false>;

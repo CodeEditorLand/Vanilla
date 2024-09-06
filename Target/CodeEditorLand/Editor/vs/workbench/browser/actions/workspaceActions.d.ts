@@ -1,7 +1,7 @@
-import { ILocalizedString } from "vs/platform/action/common/action";
-import { Action2 } from "vs/platform/actions/common/actions";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { ITelemetryData } from "vs/platform/telemetry/common/telemetry";
+import { ILocalizedString } from "../../../platform/action/common/action.js";
+import { Action2 } from "../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
+import { ITelemetryData } from "../../../platform/telemetry/common/telemetry.js";
 export declare class OpenFileAction extends Action2 {
     static readonly ID = "workbench.action.files.openFile";
     constructor();

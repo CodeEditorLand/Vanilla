@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ConfigurationChangedEvent, IComputedEditorOptions, IEditorOptions } from "vs/editor/common/config/editorOptions";
-import { IDimension } from "vs/editor/common/core/dimension";
-import { MenuId } from "vs/platform/actions/common/actions";
+import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { MenuId } from "../../../platform/actions/common/actions.js";
+import { IDimension } from "../core/dimension.js";
+import { ConfigurationChangedEvent, IComputedEditorOptions, IEditorOptions } from "./editorOptions.js";
 export interface IEditorConfiguration extends IDisposable {
     /**
      * Is this a simple widget (not a real code editor)?

@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { INotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { INotebookEditorDelegate } from "../notebookBrowser.js";
 export declare class NotebookHorizontalTracker extends Disposable {
     private readonly _notebookEditor;
     private readonly _listViewScrollablement;

@@ -1,5 +1,5 @@
-import { IExtUri } from "vs/base/common/resources";
-import { URI } from "vs/base/common/uri";
+import { IExtUri } from "./resources.js";
+import { URI } from "./uri.js";
 export interface IResourceNode<T, C = void> {
     readonly uri: URI;
     readonly relativePath: string;

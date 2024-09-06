@@ -1,29 +1,30 @@
-import { MessageBoxOptions, MessageBoxReturnValue, OpenDevToolsOptions, OpenDialogOptions, OpenDialogReturnValue, SaveDialogOptions, SaveDialogReturnValue } from "electron";
-import { VSBuffer } from "vs/base/common/buffer";
-import { Disposable } from "vs/base/common/lifecycle";
-import { AddFirstParameterToFunctions } from "vs/base/common/types";
-import { URI } from "vs/base/common/uri";
-import { ISerializableCommandAction } from "vs/platform/action/common/action";
-import { IAuxiliaryWindowsMainService } from "vs/platform/auxiliaryWindow/electron-main/auxiliaryWindows";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { INativeOpenDialogOptions } from "vs/platform/dialogs/common/dialogs";
-import { IDialogMainService } from "vs/platform/dialogs/electron-main/dialogMainService";
-import { IEnvironmentMainService } from "vs/platform/environment/electron-main/environmentMainService";
-import { ILifecycleMainService, IRelaunchOptions } from "vs/platform/lifecycle/electron-main/lifecycleMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { ICommonNativeHostService, INativeHostOptions, IOSProperties, IOSStatistics } from "vs/platform/native/common/native";
-import { IProxyAuthService } from "vs/platform/native/electron-main/auth";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IV8Profile } from "vs/platform/profiling/common/profiling";
-import { AuthInfo, Credentials, IRequestService } from "vs/platform/request/common/request";
-import { IPartsSplash } from "vs/platform/theme/common/themeService";
-import { IThemeMainService } from "vs/platform/theme/electron-main/themeMainService";
-import { IColorScheme, IOpenedAuxiliaryWindow, IOpenedMainWindow, IOpenEmptyWindowOptions, IOpenWindowOptions, IPoint, IRectangle, IWindowOpenable } from "vs/platform/window/common/window";
-import { IWindowsMainService } from "vs/platform/windows/electron-main/windows";
-import { IWorkspacesManagementMainService } from "vs/platform/workspaces/electron-main/workspacesManagementMainService";
+import { MessageBoxOptions, MessageBoxReturnValue, OpenDialogOptions, OpenDialogReturnValue, SaveDialogOptions, SaveDialogReturnValue } from "electron";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { AddFirstParameterToFunctions } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { ISerializableCommandAction } from "../../action/common/action.js";
+import { IAuxiliaryWindowsMainService } from "../../auxiliaryWindow/electron-main/auxiliaryWindows.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { INativeOpenDialogOptions } from "../../dialogs/common/dialogs.js";
+import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILifecycleMainService, IRelaunchOptions } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IV8Profile } from "../../profiling/common/profiling.js";
+import { AuthInfo, Credentials, IRequestService } from "../../request/common/request.js";
+import { IPartsSplash } from "../../theme/common/themeService.js";
+import { IThemeMainService } from "../../theme/electron-main/themeMainService.js";
+import { IColorScheme, IOpenedAuxiliaryWindow, IOpenedMainWindow, IOpenEmptyWindowOptions, IOpenWindowOptions, IPoint, IRectangle, IWindowOpenable } from "../../window/common/window.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { IWorkspacesManagementMainService } from "../../workspaces/electron-main/workspacesManagementMainService.js";
+import { ICommonNativeHostService, INativeHostOptions, IOSProperties, IOSStatistics } from "../common/native.js";
+import { IProxyAuthService } from "./auth.js";
 export interface INativeHostMainService extends AddFirstParameterToFunctions<ICommonNativeHostService, Promise<unknown>, number | undefined> {
 }
-export declare const INativeHostMainService: any;
+export declare const INativeHostMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<INativeHostMainService>;
 export declare class NativeHostMainService extends Disposable implements INativeHostMainService {
     private readonly windowsMainService;
     private readonly auxiliaryWindowsMainService;
@@ -40,20 +41,30 @@ export declare class NativeHostMainService extends Disposable implements INative
     readonly _serviceBrand: undefined;
     constructor(windowsMainService: IWindowsMainService, auxiliaryWindowsMainService: IAuxiliaryWindowsMainService, dialogMainService: IDialogMainService, lifecycleMainService: ILifecycleMainService, environmentMainService: IEnvironmentMainService, logService: ILogService, productService: IProductService, themeMainService: IThemeMainService, workspacesManagementMainService: IWorkspacesManagementMainService, configurationService: IConfigurationService, requestService: IRequestService, proxyAuthService: IProxyAuthService);
     get windowId(): never;
-    readonly onDidOpenMainWindow: any;
-    readonly onDidTriggerWindowSystemContextMenu: any;
-    readonly onDidMaximizeWindow: any;
-    readonly onDidUnmaximizeWindow: any;
-    readonly onDidChangeWindowFullScreen: any;
-    readonly onDidBlurMainWindow: any;
-    readonly onDidFocusMainWindow: any;
-    readonly onDidBlurMainOrAuxiliaryWindow: any;
-    readonly onDidFocusMainOrAuxiliaryWindow: any;
-    readonly onDidResumeOS: any;
-    readonly onDidChangeColorScheme: any;
+    readonly onDidOpenMainWindow: Event<number>;
+    readonly onDidTriggerWindowSystemContextMenu: Event<{
+        windowId: number;
+        x: number;
+        y: number;
+    }>;
+    readonly onDidMaximizeWindow: Event<number>;
+    readonly onDidUnmaximizeWindow: Event<number>;
+    readonly onDidChangeWindowFullScreen: Event<{
+        windowId: number;
+        fullscreen: boolean;
+    }>;
+    readonly onDidBlurMainWindow: Event<any>;
+    readonly onDidFocusMainWindow: Event<any>;
+    readonly onDidBlurMainOrAuxiliaryWindow: Event<any>;
+    readonly onDidFocusMainOrAuxiliaryWindow: Event<any>;
+    readonly onDidResumeOS: Event<unknown>;
+    readonly onDidChangeColorScheme: Event<IColorScheme>;
     private readonly _onDidChangePassword;
-    readonly onDidChangePassword: any;
-    readonly onDidChangeDisplay: any;
+    readonly onDidChangePassword: Event<{
+        account: string;
+        service: string;
+    }>;
+    readonly onDidChangeDisplay: Event<void>;
     getWindows(windowId: number | undefined, options: {
         includeAuxiliaryWindows: true;
     }): Promise<Array<IOpenedMainWindow | IOpenedAuxiliaryWindow>>;
@@ -147,7 +158,7 @@ export declare class NativeHostMainService extends Disposable implements INative
     lookupKerberosAuthorization(_windowId: number | undefined, url: string): Promise<string | undefined>;
     loadCertificates(_windowId: number | undefined): Promise<string[]>;
     findFreePort(windowId: number | undefined, startPort: number, giveUpAfter: number, timeout: number, stride?: number): Promise<number>;
-    openDevTools(windowId: number | undefined, options?: Partial<OpenDevToolsOptions> & INativeHostOptions): Promise<void>;
+    openDevTools(windowId: number | undefined, options?: INativeHostOptions): Promise<void>;
     toggleDevTools(windowId: number | undefined, options?: INativeHostOptions): Promise<void>;
     profileRenderer(windowId: number | undefined, session: string, duration: number): Promise<IV8Profile>;
     windowsGetStringRegKey(windowId: number | undefined, hive: "HKEY_CURRENT_USER" | "HKEY_LOCAL_MACHINE" | "HKEY_CLASSES_ROOT" | "HKEY_USERS" | "HKEY_CURRENT_CONFIG", path: string, name: string): Promise<string | undefined>;

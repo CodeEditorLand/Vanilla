@@ -1,12 +1,12 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./parameterHints";
-import { ICodeEditor, IContentWidget, IContentWidgetPosition } from "vs/editor/browser/editorBrowser";
-import * as languages from "vs/editor/common/languages";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { ParameterHintsModel } from "vs/editor/contrib/parameterHints/browser/parameterHintsModel";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import "./parameterHints.css";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../browser/editorBrowser.js";
+import * as languages from "../../../common/languages.js";
+import { ILanguageService } from "../../../common/languages/language.js";
+import { ParameterHintsModel } from "./parameterHintsModel.js";
 export declare class ParameterHintsWidget extends Disposable implements IContentWidget {
     private readonly editor;
     private readonly model;

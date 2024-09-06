@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILogService } from "vs/platform/log/common/log";
-import { IAddress } from "vs/platform/remote/common/remoteAgentConnection";
-import { ISharedProcessTunnel, ISharedProcessTunnelService } from "vs/platform/remote/common/sharedProcessTunnelService";
-import { ISharedTunnelsService } from "vs/platform/tunnel/common/tunnel";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ILogService } from "../../log/common/log.js";
+import { IAddress } from "../../remote/common/remoteAgentConnection.js";
+import { ISharedProcessTunnel, ISharedProcessTunnelService } from "../../remote/common/sharedProcessTunnelService.js";
+import { ISharedTunnelsService } from "../common/tunnel.js";
 export declare class SharedProcessTunnelService extends Disposable implements ISharedProcessTunnelService {
     private readonly _tunnelService;
     private readonly _logService;

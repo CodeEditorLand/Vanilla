@@ -1,11 +1,11 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IRange } from "vs/editor/common/core/range";
-import { IDiffEditor, IEditor } from "vs/editor/common/editorCommon";
-import { ITextModel } from "vs/editor/common/model";
-import { IQuickAccessProvider, IQuickAccessProviderRunOptions } from "vs/platform/quickinput/common/quickAccess";
-import { IKeyMods, IQuickPick, IQuickPickItem } from "vs/platform/quickinput/common/quickInput";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IQuickAccessProvider, IQuickAccessProviderRunOptions } from "../../../../platform/quickinput/common/quickAccess.js";
+import { IKeyMods, IQuickPick, IQuickPickItem } from "../../../../platform/quickinput/common/quickInput.js";
+import { IRange } from "../../../common/core/range.js";
+import { IDiffEditor, IEditor } from "../../../common/editorCommon.js";
+import { ITextModel } from "../../../common/model.js";
 export interface IEditorNavigationQuickAccessOptions {
     canAcceptInBackground?: boolean;
 }

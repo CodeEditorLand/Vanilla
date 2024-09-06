@@ -1,6 +1,7 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileService, IFileSystemProvider, IFileSystemProviderWithFileReadWriteCapability, IFileWriteOptions, IStat, IWatchOptions } from "vs/platform/files/common/files";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileService, IFileSystemProvider, IFileSystemProviderWithFileReadWriteCapability, IFileWriteOptions, IStat, IWatchOptions } from "../../../../platform/files/common/files.js";
 interface ILocalHistoryResource {
     /**
      * The location of the local history entry to read from.
@@ -28,8 +29,8 @@ export declare class LocalHistoryFileSystemProvider implements IFileSystemProvid
     private withProvider;
     stat(resource: URI): Promise<IStat>;
     readFile(resource: URI): Promise<Uint8Array>;
-    readonly onDidChangeCapabilities: any;
-    readonly onDidChangeFile: any;
+    readonly onDidChangeCapabilities: Event<any>;
+    readonly onDidChangeFile: Event<any>;
     writeFile(resource: URI, content: Uint8Array, opts: IFileWriteOptions): Promise<void>;
     mkdir(resource: URI): Promise<void>;
     readdir(resource: URI): Promise<[string, FileType][]>;

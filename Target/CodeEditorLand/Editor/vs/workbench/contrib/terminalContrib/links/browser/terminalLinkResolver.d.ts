@@ -1,9 +1,9 @@
-import { OperatingSystem } from "vs/base/common/platform";
-import { URI } from "vs/base/common/uri";
-import { IFileService } from "vs/platform/files/common/files";
-import { ITerminalBackend } from "vs/platform/terminal/common/terminal";
-import { ITerminalProcessManager } from "vs/workbench/contrib/terminal/common/terminal";
-import { ITerminalLinkResolver, ResolvedLink } from "vs/workbench/contrib/terminalContrib/links/browser/links";
+import { OperatingSystem } from "../../../../../base/common/platform.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { ITerminalBackend } from "../../../../../platform/terminal/common/terminal.js";
+import { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
+import { ITerminalLinkResolver, ResolvedLink } from "./links.js";
 export declare class TerminalLinkResolver implements ITerminalLinkResolver {
     private readonly _fileService;
     private readonly _resolvedLinkCaches;

@@ -1,6 +1,6 @@
-import { URI } from "vs/base/common/uri";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { INativeHostService } from "vs/platform/native/common/native";
+import { URI } from "../../../../base/common/uri.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
 export declare class NativeClipboardService implements IClipboardService {
     private readonly nativeHostService;
     private static readonly FILE_FORMAT;

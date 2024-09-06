@@ -1,12 +1,12 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable, IReference } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IDebugVisualization, IDebugVisualizationContext, IDebugVisualizationTreeItem, IExpression, MainThreadDebugVisualization } from "vs/workbench/contrib/debug/common/debug";
-import { VisualizedExpression } from "vs/workbench/contrib/debug/common/debugModel";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-export declare const IDebugVisualizerService: any;
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable, IReference } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IDebugVisualization, IDebugVisualizationContext, IDebugVisualizationTreeItem, IExpression, MainThreadDebugVisualization } from "./debug.js";
+import { VisualizedExpression } from "./debugModel.js";
+export declare const IDebugVisualizerService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IDebugVisualizerService>;
 interface VisualizerHandle {
     id: string;
     extensionId: ExtensionIdentifier;
@@ -24,11 +24,14 @@ interface VisualizerTreeHandle {
 export declare class DebugVisualizer {
     private readonly handle;
     private readonly viz;
-    get name(): any;
-    get iconPath(): any;
-    get iconClass(): any;
+    get name(): string;
+    get iconPath(): {
+        light?: import("../../../workbench.web.main.internal.js").URI;
+        dark: import("../../../workbench.web.main.internal.js").URI;
+    } | undefined;
+    get iconClass(): string | undefined;
     constructor(handle: VisualizerHandle, viz: IDebugVisualization);
-    resolve(token: CancellationToken): Promise<any>;
+    resolve(token: CancellationToken): Promise<MainThreadDebugVisualization>;
     execute(): Promise<void>;
 }
 export interface IDebugVisualizerService {

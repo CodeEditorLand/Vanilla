@@ -1,13 +1,13 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IMatch } from "vs/base/common/filters";
-import { IItemAccessor } from "vs/base/common/fuzzyScorer";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { ResolvedKeybinding } from "vs/base/common/keybindings";
-import { IDisposable } from "vs/base/common/lifecycle";
-import Severity from "vs/base/common/severity";
-import { URI } from "vs/base/common/uri";
-import { IQuickAccessController } from "vs/platform/quickinput/common/quickAccess";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { IMatch } from "../../../base/common/filters.js";
+import { IItemAccessor } from "../../../base/common/fuzzyScorer.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { ResolvedKeybinding } from "../../../base/common/keybindings.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import Severity from "../../../base/common/severity.js";
+import { URI } from "../../../base/common/uri.js";
+import { IQuickAccessController } from "./quickAccess.js";
 export interface IQuickPickItemHighlights {
     label?: IMatch[];
     description?: IMatch[];
@@ -688,7 +688,7 @@ export declare class QuickPickItemScorerAccessor implements IItemAccessor<IQuick
     getItemPath(entry: IQuickPickItemWithResource): string | undefined;
 }
 export declare const quickPickItemScorerAccessor: QuickPickItemScorerAccessor;
-export declare const IQuickInputService: any;
+export declare const IQuickInputService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IQuickInputService>;
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export interface IQuickInputService {
     readonly _serviceBrand: undefined;

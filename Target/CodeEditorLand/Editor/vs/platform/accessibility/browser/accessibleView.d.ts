@@ -1,10 +1,10 @@
-import { IAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IKeyboardEvent } from "vs/platform/keybinding/common/keybinding";
-import { IPickerQuickAccessItem } from "vs/platform/quickinput/browser/pickerQuickAccess";
-import { IQuickPickItem } from "vs/platform/quickinput/common/quickInput";
-export declare const IAccessibleViewService: any;
+import { IAction } from "../../../base/common/actions.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { IKeyboardEvent } from "../../keybinding/common/keybinding.js";
+import { IPickerQuickAccessItem } from "../../quickinput/browser/pickerQuickAccess.js";
+import { IQuickPickItem } from "../../quickinput/common/quickInput.js";
+export declare const IAccessibleViewService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IAccessibleViewService>;
 export declare const enum AccessibleViewProviderId {
     Terminal = "terminal",
     TerminalChat = "terminal-chat",
@@ -129,11 +129,11 @@ export declare class AccessibleContentProvider extends Disposable implements IAc
     actions?: IAction[] | undefined;
     provideNextContent?: (() => string | undefined) | undefined;
     providePreviousContent?: (() => string | undefined) | undefined;
-    onDidChangeContent?: any;
+    onDidChangeContent?: Event<void> | undefined;
     onKeyDown?: ((e: IKeyboardEvent) => void) | undefined;
     getSymbols?: (() => IAccessibleViewSymbol[]) | undefined;
-    onDidRequestClearLastProvider?: any;
-    constructor(id: AccessibleViewProviderId, options: IAccessibleViewOptions, provideContent: () => string, onClose: () => void, verbositySettingKey: string, onOpen?: (() => void) | undefined, actions?: IAction[] | undefined, provideNextContent?: (() => string | undefined) | undefined, providePreviousContent?: (() => string | undefined) | undefined, onDidChangeContent?: any, onKeyDown?: ((e: IKeyboardEvent) => void) | undefined, getSymbols?: (() => IAccessibleViewSymbol[]) | undefined, onDidRequestClearLastProvider?: any);
+    onDidRequestClearLastProvider?: Event<AccessibleViewProviderId> | undefined;
+    constructor(id: AccessibleViewProviderId, options: IAccessibleViewOptions, provideContent: () => string, onClose: () => void, verbositySettingKey: string, onOpen?: (() => void) | undefined, actions?: IAction[] | undefined, provideNextContent?: (() => string | undefined) | undefined, providePreviousContent?: (() => string | undefined) | undefined, onDidChangeContent?: Event<void> | undefined, onKeyDown?: ((e: IKeyboardEvent) => void) | undefined, getSymbols?: (() => IAccessibleViewSymbol[]) | undefined, onDidRequestClearLastProvider?: Event<AccessibleViewProviderId> | undefined);
 }
 export declare class ExtensionContentProvider extends Disposable implements IBasicContentProvider {
     readonly id: string;
@@ -144,8 +144,8 @@ export declare class ExtensionContentProvider extends Disposable implements IBas
     provideNextContent?: (() => string | undefined) | undefined;
     providePreviousContent?: (() => string | undefined) | undefined;
     actions?: IAction[] | undefined;
-    onDidChangeContent?: any;
-    constructor(id: string, options: IAccessibleViewOptions, provideContent: () => string, onClose: () => void, onOpen?: (() => void) | undefined, provideNextContent?: (() => string | undefined) | undefined, providePreviousContent?: (() => string | undefined) | undefined, actions?: IAction[] | undefined, onDidChangeContent?: any);
+    onDidChangeContent?: Event<void> | undefined;
+    constructor(id: string, options: IAccessibleViewOptions, provideContent: () => string, onClose: () => void, onOpen?: (() => void) | undefined, provideNextContent?: (() => string | undefined) | undefined, providePreviousContent?: (() => string | undefined) | undefined, actions?: IAction[] | undefined, onDidChangeContent?: Event<void> | undefined);
 }
 export interface IBasicContentProvider extends IDisposable {
     id: string;

@@ -1,17 +1,17 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable, RefCountedDisposable } from "vs/base/common/lifecycle";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { ISingleEditOperation } from "vs/editor/common/core/editOperation";
-import { Position } from "vs/editor/common/core/position";
-import { IRange } from "vs/editor/common/core/range";
-import { IWordAtPosition } from "vs/editor/common/core/wordHelper";
-import { Command, InlineCompletion, InlineCompletionContext, InlineCompletions, InlineCompletionsProvider } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { CompletionModel } from "vs/editor/contrib/suggest/browser/completionModel";
-import { CompletionItem, CompletionItemModel } from "vs/editor/contrib/suggest/browser/suggest";
-import { ISuggestMemoryService } from "vs/editor/contrib/suggest/browser/suggestMemory";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable, RefCountedDisposable } from "../../../../base/common/lifecycle.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { ISingleEditOperation } from "../../../common/core/editOperation.js";
+import { Position } from "../../../common/core/position.js";
+import { IRange } from "../../../common/core/range.js";
+import { IWordAtPosition } from "../../../common/core/wordHelper.js";
+import { Command, InlineCompletion, InlineCompletionContext, InlineCompletions, InlineCompletionsProvider } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { CompletionModel } from "./completionModel.js";
+import { CompletionItem, CompletionItemModel } from "./suggest.js";
+import { ISuggestMemoryService } from "./suggestMemory.js";
 declare class SuggestInlineCompletion implements InlineCompletion {
     readonly range: IRange;
     readonly insertText: string | {

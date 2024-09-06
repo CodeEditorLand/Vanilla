@@ -1,2 +1,2 @@
-declare const _exports: any;
-export = _exports;
+export const mark: any;
+export const getMarks: any;

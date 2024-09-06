@@ -1,10 +1,10 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IProductService } from "vs/platform/product/common/productService";
-import * as extHostProtocol from "vs/workbench/api/common/extHost.protocol";
-import { IOverlayWebview, WebviewContentOptions, WebviewExtensionDescription } from "vs/workbench/contrib/webview/browser/webview";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IOpenerService } from "../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../platform/product/common/productService.js";
+import { IOverlayWebview, WebviewContentOptions, WebviewExtensionDescription } from "../../contrib/webview/browser/webview.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import * as extHostProtocol from "../common/extHost.protocol.js";
 export declare class MainThreadWebviews extends Disposable implements extHostProtocol.MainThreadWebviewsShape {
     private readonly _openerService;
     private readonly _productService;

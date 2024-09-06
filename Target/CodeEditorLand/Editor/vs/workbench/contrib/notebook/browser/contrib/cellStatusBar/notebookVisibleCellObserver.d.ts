@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICellViewModel, INotebookEditor } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { ICellViewModel, INotebookEditor } from "../../notebookBrowser.js";
 export interface ICellVisibilityChangeEvent {
     added: ICellViewModel[];
     removed: ICellViewModel[];
@@ -7,7 +7,7 @@ export interface ICellVisibilityChangeEvent {
 export declare class NotebookVisibleCellObserver extends Disposable {
     private readonly _notebookEditor;
     private readonly _onDidChangeVisibleCells;
-    readonly onDidChangeVisibleCells: any;
+    readonly onDidChangeVisibleCells: import("../../../../../../base/common/event.js").Event<ICellVisibilityChangeEvent>;
     private readonly _viewModelDisposables;
     private _visibleCells;
     get visibleCells(): ICellViewModel[];

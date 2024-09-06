@@ -1,26 +1,26 @@
-import { Dimension } from "vs/base/browser/dom";
-import { IMouseWheelEvent } from "vs/base/browser/mouseEvent";
-import { CodeWindow } from "vs/base/browser/window";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IWebviewPortMapping } from "vs/platform/webview/common/webviewPortMapping";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { IMouseWheelEvent } from "../../../../base/browser/mouseEvent.js";
+import { CodeWindow } from "../../../../base/browser/window.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWebviewPortMapping } from "../../../../platform/webview/common/webviewPortMapping.js";
 /**
  * Set when the find widget in a webview in a webview is visible.
  */
-export declare const KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_VISIBLE: any;
+export declare const KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_VISIBLE: RawContextKey<boolean>;
 /**
  * Set when the find widget in a webview is focused.
  */
-export declare const KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED: any;
+export declare const KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED: RawContextKey<boolean>;
 /**
  * Set when the find widget in a webview is enabled in a webview
  */
-export declare const KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_ENABLED: any;
-export declare const IWebviewService: any;
+export declare const KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_ENABLED: RawContextKey<boolean>;
+export declare const IWebviewService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWebviewService>;
 export interface IWebviewService {
     readonly _serviceBrand: undefined;
     /**

@@ -1,5 +1,5 @@
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IChatUserActionEvent } from "vs/workbench/contrib/chat/common/chatService";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IChatUserActionEvent } from "./chatService.js";
 export declare class ChatServiceTelemetry {
     private readonly telemetryService;
     constructor(telemetryService: ITelemetryService);

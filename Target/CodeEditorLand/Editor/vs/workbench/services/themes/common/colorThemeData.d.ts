@@ -1,13 +1,13 @@
-import { Color } from "vs/base/common/color";
-import { URI } from "vs/base/common/uri";
-import { IExtensionResourceLoaderService } from "vs/platform/extensionResourceLoader/common/extensionResourceLoader";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ColorIdentifier } from "vs/platform/theme/common/colorRegistry";
-import { ColorScheme } from "vs/platform/theme/common/theme";
-import { ITokenStyle } from "vs/platform/theme/common/themeService";
-import { ProbeScope, SemanticTokenRule, TokenStyle, TokenStyleData, TokenStyleValue } from "vs/platform/theme/common/tokenClassificationRegistry";
-import { ThemeConfiguration } from "vs/workbench/services/themes/common/themeConfiguration";
-import { ExtensionData, IColorCustomizations, ISemanticTokenColorCustomizations, ITextMateThemingRule, IThemeExtensionPoint, IThemeScopableCustomizations, IThemeScopedCustomizations, ITokenColorCustomizations, IWorkbenchColorTheme } from "vs/workbench/services/themes/common/workbenchThemeService";
+import { Color } from "../../../../base/common/color.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ColorIdentifier } from "../../../../platform/theme/common/colorRegistry.js";
+import { ColorScheme } from "../../../../platform/theme/common/theme.js";
+import { ITokenStyle } from "../../../../platform/theme/common/themeService.js";
+import { ProbeScope, SemanticTokenRule, TokenStyle, TokenStyleData, TokenStyleValue } from "../../../../platform/theme/common/tokenClassificationRegistry.js";
+import { ThemeConfiguration } from "./themeConfiguration.js";
+import { ExtensionData, IColorCustomizations, ISemanticTokenColorCustomizations, ITextMateThemingRule, IThemeExtensionPoint, IThemeScopableCustomizations, IThemeScopedCustomizations, ITokenColorCustomizations, IWorkbenchColorTheme } from "./workbenchThemeService.js";
 export type TokenStyleDefinition = SemanticTokenRule | ProbeScope[] | TokenStyleValue;
 export type TokenStyleDefinitions = {
     [P in keyof TokenStyleData]?: TokenStyleDefinition | undefined;

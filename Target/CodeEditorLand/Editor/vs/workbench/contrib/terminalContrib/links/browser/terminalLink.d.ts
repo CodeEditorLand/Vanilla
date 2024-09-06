@@ -1,11 +1,11 @@
 import type { IBufferRange, ILink, ILinkDecorations, IViewportRange, Terminal } from "@xterm/xterm";
-import type { IHoverAction } from "vs/base/browser/ui/hover/hover";
-import { Event } from "vs/base/common/event";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import type { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { TerminalLinkType } from "vs/workbench/contrib/terminalContrib/links/browser/links";
-import type { IParsedLink } from "vs/workbench/contrib/terminalContrib/links/browser/terminalLinkParsing";
+import type { IHoverAction } from "../../../../../base/browser/ui/hover/hover.js";
+import { Event } from "../../../../../base/common/event.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import type { URI } from "../../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { TerminalLinkType } from "./links.js";
+import type { IParsedLink } from "./terminalLinkParsing.js";
 export declare class TerminalLink extends DisposableStore implements ILink {
     private readonly _xterm;
     readonly range: IBufferRange;

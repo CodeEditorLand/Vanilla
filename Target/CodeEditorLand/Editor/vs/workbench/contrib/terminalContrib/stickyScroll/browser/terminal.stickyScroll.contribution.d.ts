@@ -1,2 +1,2 @@
-import "vs/css!./media/stickyScroll";
-import "./terminalStickyScrollColorRegistry";
+import "./media/stickyScroll.css";
+import "./terminalStickyScrollColorRegistry.js";

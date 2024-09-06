@@ -1,13 +1,13 @@
-import { Emitter, Event } from "vs/base/common/event";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { INotebookCellActionContext } from "vs/workbench/contrib/notebook/browser/controller/coreActions";
-import { ICellViewModel, INotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { CellContentPart } from "vs/workbench/contrib/notebook/browser/view/cellPart";
-import { IClickTarget } from "vs/workbench/contrib/notebook/browser/view/cellParts/cellWidgets";
+import { Emitter, Event } from "../../../../../../base/common/event.js";
+import { ICodeEditor } from "../../../../../../editor/browser/editorBrowser.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
+import { INotebookCellActionContext } from "../../controller/coreActions.js";
+import { ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
+import { CellContentPart } from "../cellPart.js";
+import { IClickTarget } from "./cellWidgets.js";
 export declare class CellEditorStatusBar extends CellContentPart {
     private readonly _notebookEditor;
     private readonly _cellContainer;

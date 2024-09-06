@@ -1,7 +1,7 @@
-import { IExtUri } from "vs/base/common/resources";
-import { URI } from "vs/base/common/uri";
-import { IFileService } from "vs/platform/files/common/files";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
+import { IExtUri } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { IFileService } from "../../files/common/files.js";
+import { IUriIdentityService } from "./uriIdentity.js";
 export declare class UriIdentityService implements IUriIdentityService {
     private readonly _fileService;
     readonly _serviceBrand: undefined;

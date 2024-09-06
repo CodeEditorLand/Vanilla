@@ -1,1 +1,1 @@
-import"../../../vs/base/common/marshallingIds.js";import"../../../vs/editor/common/languages.js";
+import"../../base/common/marshallingIds.js";import"../../editor/common/languages.js";

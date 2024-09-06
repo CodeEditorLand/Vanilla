@@ -1,7 +1,7 @@
-import { IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-import { AbstractTaskService, IWorkspaceFolderConfigurationResult } from "vs/workbench/contrib/tasks/browser/abstractTaskService";
-import { ITaskFilter } from "vs/workbench/contrib/tasks/common/taskService";
-import { ITaskSystem } from "vs/workbench/contrib/tasks/common/taskSystem";
+import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { ITaskFilter } from "../common/taskService.js";
+import { ITaskSystem } from "../common/taskSystem.js";
+import { AbstractTaskService, IWorkspaceFolderConfigurationResult } from "./abstractTaskService.js";
 export declare class TaskService extends AbstractTaskService {
     private static readonly ProcessTaskSystemSupportMessage;
     protected _getTaskSystem(): ITaskSystem;

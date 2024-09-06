@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { IShellLaunchConfig } from "vs/platform/terminal/common/terminal";
-export declare const IEmbedderTerminalService: any;
+import { Event } from "../../../../base/common/event.js";
+import { IShellLaunchConfig } from "../../../../platform/terminal/common/terminal.js";
+export declare const IEmbedderTerminalService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEmbedderTerminalService>;
 /**
  * Manages terminals that the embedder can create before the terminal contrib is available.
  */

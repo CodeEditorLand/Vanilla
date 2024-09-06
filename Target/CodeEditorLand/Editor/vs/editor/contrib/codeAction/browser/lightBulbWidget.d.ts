@@ -1,9 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./lightBulbWidget";
-import { ICodeEditor, IContentWidget, IContentWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { IPosition } from "vs/editor/common/core/position";
-import { CodeActionSet, CodeActionTrigger } from "vs/editor/contrib/codeAction/common/types";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import "./lightBulbWidget.css";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../browser/editorBrowser.js";
+import { IPosition } from "../../../common/core/position.js";
+import { CodeActionSet, CodeActionTrigger } from "../common/types.js";
 export declare class LightBulbWidget extends Disposable implements IContentWidget {
     private readonly _editor;
     private readonly _keybindingService;
@@ -13,10 +14,16 @@ export declare class LightBulbWidget extends Disposable implements IContentWidge
     private static readonly _posPref;
     private readonly _domNode;
     private readonly _onClick;
-    readonly onClick: any;
+    readonly onClick: Event<{
+        readonly x: number;
+        readonly y: number;
+        readonly actions: CodeActionSet;
+        readonly trigger: CodeActionTrigger;
+    }>;
     private _state;
     private _gutterState;
     private _iconClasses;
+    private readonly lightbulbClasses;
     private _preferredKbLabel?;
     private _quickFixKbLabel?;
     private gutterDecoration;

@@ -1,12 +1,12 @@
-import { IKeyboardEvent } from "vs/base/browser/keyboardEvent";
-import { IMouseWheelEvent } from "vs/base/browser/mouseEvent";
-import { NavigationCommandRevealType } from "vs/editor/browser/coreCommands";
-import { IEditorMouseEvent, IPartialEditorMouseEvent } from "vs/editor/browser/editorBrowser";
-import { ViewUserInputEvents } from "vs/editor/browser/view/viewUserInputEvents";
-import { IEditorConfiguration } from "vs/editor/common/config/editorConfiguration";
-import { Position } from "vs/editor/common/core/position";
-import { Selection } from "vs/editor/common/core/selection";
-import { IViewModel } from "vs/editor/common/viewModel";
+import { IKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
+import { IMouseWheelEvent } from "../../../base/browser/mouseEvent.js";
+import { IEditorConfiguration } from "../../common/config/editorConfiguration.js";
+import { Position } from "../../common/core/position.js";
+import { Selection } from "../../common/core/selection.js";
+import { IViewModel } from "../../common/viewModel.js";
+import { NavigationCommandRevealType } from "../coreCommands.js";
+import { IEditorMouseEvent, IPartialEditorMouseEvent } from "../editorBrowser.js";
+import { ViewUserInputEvents } from "./viewUserInputEvents.js";
 export interface IMouseDispatchData {
     position: Position;
     /**

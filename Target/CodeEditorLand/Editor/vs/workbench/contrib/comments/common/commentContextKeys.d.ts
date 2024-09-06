@@ -1,38 +1,39 @@
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 export declare namespace CommentContextKeys {
     /**
      * A context key that is set when the active cursor is in a commenting range.
      */
-    const activeCursorHasCommentingRange: any;
+    const activeCursorHasCommentingRange: RawContextKey<boolean>;
     /**
      * A context key that is set when the active editor has commenting ranges.
      */
-    const activeEditorHasCommentingRange: any;
+    const activeEditorHasCommentingRange: RawContextKey<boolean>;
     /**
      * A context key that is set when the workspace has either comments or commenting ranges.
      */
-    const WorkspaceHasCommenting: any;
+    const WorkspaceHasCommenting: RawContextKey<boolean>;
     /**
      * A context key that is set when the comment thread has no comments.
      */
-    const commentThreadIsEmpty: any;
+    const commentThreadIsEmpty: RawContextKey<boolean>;
     /**
      * A context key that is set when the comment has no input.
      */
-    const commentIsEmpty: any;
+    const commentIsEmpty: RawContextKey<boolean>;
     /**
      * The context value of the comment.
      */
-    const commentContext: any;
+    const commentContext: RawContextKey<string>;
     /**
      * The context value of the comment thread.
      */
-    const commentThreadContext: any;
+    const commentThreadContext: RawContextKey<string>;
     /**
      * The comment controller id associated with a comment thread.
      */
-    const commentControllerContext: any;
+    const commentControllerContext: RawContextKey<string>;
     /**
      * The comment widget is focused.
      */
-    const commentFocused: any;
+    const commentFocused: RawContextKey<boolean>;
 }

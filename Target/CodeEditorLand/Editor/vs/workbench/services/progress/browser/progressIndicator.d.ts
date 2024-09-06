@@ -1,8 +1,8 @@
-import { ProgressBar } from "vs/base/browser/ui/progressbar/progressbar";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IProgressIndicator, IProgressRunner } from "vs/platform/progress/common/progress";
-import { IEditorGroupView } from "vs/workbench/browser/parts/editor/editor";
+import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IProgressIndicator, IProgressRunner } from "../../../../platform/progress/common/progress.js";
+import { IEditorGroupView } from "../../../browser/parts/editor/editor.js";
 export declare class EditorProgressIndicator extends Disposable implements IProgressIndicator {
     private readonly progressBar;
     private readonly group;
@@ -41,7 +41,7 @@ export declare abstract class AbstractProgressScope extends Disposable implement
     private scopeId;
     private _isActive;
     private readonly _onDidChangeActive;
-    readonly onDidChangeActive: any;
+    readonly onDidChangeActive: Event<void>;
     get isActive(): boolean;
     constructor(scopeId: string, _isActive: boolean);
     protected onScopeOpened(scopeId: string): void;

@@ -1,6 +1,6 @@
-import { ISelectBoxDelegate, ISelectBoxOptions, ISelectBoxStyles, ISelectData, ISelectOptionItem } from "vs/base/browser/ui/selectBox/selectBox";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
+import { Event } from "../../../common/event.js";
+import { Disposable } from "../../../common/lifecycle.js";
+import { ISelectBoxDelegate, ISelectBoxOptions, ISelectBoxStyles, ISelectData, ISelectOptionItem } from "./selectBox.js";
 export declare class SelectBoxNative extends Disposable implements ISelectBoxDelegate {
     private selectElement;
     private selectBoxOptions;

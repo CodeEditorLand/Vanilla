@@ -1,12 +1,12 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IRange } from "vs/editor/common/core/range";
-import { Command } from "vs/editor/common/languages";
-import { Action2 } from "vs/platform/actions/common/actions";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { ILabelService } from "vs/platform/label/common/label";
-import { IChatWidget } from "vs/workbench/contrib/chat/browser/chat";
-import { IChatWidgetContrib } from "vs/workbench/contrib/chat/browser/chatWidget";
-import { IChatRequestVariableValue, IDynamicVariable } from "vs/workbench/contrib/chat/common/chatVariables";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IRange } from "../../../../../editor/common/core/range.js";
+import { Command } from "../../../../../editor/common/languages.js";
+import { Action2 } from "../../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { IChatRequestVariableValue, IDynamicVariable } from "../../common/chatVariables.js";
+import { IChatWidget } from "../chat.js";
+import { IChatWidgetContrib } from "../chatWidget.js";
 export declare const dynamicVariableDecorationType = "chat-dynamic-variable";
 export declare class ChatDynamicVariableModel extends Disposable implements IChatWidgetContrib {
     private readonly widget;
@@ -25,8 +25,8 @@ export declare class ChatDynamicVariableModel extends Disposable implements ICha
 export declare class SelectAndInsertFileAction extends Action2 {
     static readonly Name = "files";
     static readonly Item: {
-        label: any;
-        description: any;
+        label: string;
+        description: string;
     };
     static readonly ID = "workbench.action.chat.selectAndInsertFile";
     constructor();

@@ -1,9 +1,9 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { FastAndSlowPicks, IPickerQuickAccessItem, PickerQuickAccessProvider, Picks } from "vs/platform/quickinput/browser/pickerQuickAccess";
-import { IDebugService } from "vs/workbench/contrib/debug/common/debug";
-import { IViewsService } from "vs/workbench/services/views/common/viewsService";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { FastAndSlowPicks, IPickerQuickAccessItem, PickerQuickAccessProvider, Picks } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IDebugService } from "../common/debug.js";
 export declare class DebugConsoleQuickAccess extends PickerQuickAccessProvider<IPickerQuickAccessItem> {
     private readonly _debugService;
     private readonly _viewsService;

@@ -1,6 +1,6 @@
 import * as childProcess from "child_process";
-import { URI } from "vs/base/common/uri";
-import { IFileQuery, IFolderQuery, IProgressMessage, IRawFileMatch, ISearchEngine, ISearchEngineStats, ISearchEngineSuccess } from "vs/workbench/services/search/common/search";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileQuery, IFolderQuery, IProgressMessage, IRawFileMatch, ISearchEngine, ISearchEngineStats, ISearchEngineSuccess } from "../common/search.js";
 export declare class FileWalker {
     private config;
     private filePattern;

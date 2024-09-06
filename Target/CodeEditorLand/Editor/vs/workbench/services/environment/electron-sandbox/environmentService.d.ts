@@ -1,11 +1,11 @@
-import { PerformanceMark } from "vs/base/common/performance";
-import { URI } from "vs/base/common/uri";
-import { INativeEnvironmentService } from "vs/platform/environment/common/environment";
-import { AbstractNativeEnvironmentService } from "vs/platform/environment/common/environmentService";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IColorScheme, INativeWindowConfiguration, IOSConfiguration, IPath, IPathsToWaitFor } from "vs/platform/window/common/window";
-import { IBrowserWorkbenchEnvironmentService } from "vs/workbench/services/environment/browser/environmentService";
-export declare const INativeWorkbenchEnvironmentService: any;
+import { PerformanceMark } from "../../../../base/common/performance.js";
+import { URI } from "../../../../base/common/uri.js";
+import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { AbstractNativeEnvironmentService } from "../../../../platform/environment/common/environmentService.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IColorScheme, INativeWindowConfiguration, IOSConfiguration, IPath, IPathsToWaitFor } from "../../../../platform/window/common/window.js";
+import { IBrowserWorkbenchEnvironmentService } from "../browser/environmentService.js";
+export declare const INativeWorkbenchEnvironmentService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INativeWorkbenchEnvironmentService>;
 /**
  * A subclass of the `IWorkbenchEnvironmentService` to be used only in native
  * environments (Windows, Linux, macOS) but not e.g. web.
@@ -33,21 +33,21 @@ export interface INativeWorkbenchEnvironmentService extends IBrowserWorkbenchEnv
 }
 export declare class NativeWorkbenchEnvironmentService extends AbstractNativeEnvironmentService implements INativeWorkbenchEnvironmentService {
     private readonly configuration;
-    get mainPid(): any;
-    get machineId(): any;
-    get sqmId(): any;
-    get devDeviceId(): any;
-    get remoteAuthority(): any;
+    get mainPid(): number;
+    get machineId(): string;
+    get sqmId(): string;
+    get devDeviceId(): string;
+    get remoteAuthority(): string | undefined;
     get expectsResolverExtension(): boolean;
-    get execPath(): any;
-    get backupPath(): any;
+    get execPath(): string;
+    get backupPath(): string | undefined;
     get window(): {
-        id: any;
-        colorScheme: any;
-        maximized: any;
-        accessibilitySupport: any;
-        perfMarks: any;
-        isInitialStartup: any;
+        id: number;
+        colorScheme: IColorScheme;
+        maximized: boolean | undefined;
+        accessibilitySupport: boolean | undefined;
+        perfMarks: PerformanceMark[];
+        isInitialStartup: boolean | undefined;
         isCodeCaching: boolean;
     };
     get windowLogsPath(): URI;

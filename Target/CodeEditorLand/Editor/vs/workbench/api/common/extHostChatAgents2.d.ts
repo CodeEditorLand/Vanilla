@@ -1,15 +1,15 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { ExtHostChatAgentsShape2, IChatAgentCompletionItem, IChatAgentHistoryEntryDto, IMainContext } from "vs/workbench/api/common/extHost.protocol";
-import { ExtHostCommands } from "vs/workbench/api/common/extHostCommands";
-import { ExtHostDocuments } from "vs/workbench/api/common/extHostDocuments";
-import { ChatAgentLocation, IChatAgentRequest, IChatAgentResult } from "vs/workbench/contrib/chat/common/chatAgents";
-import { ChatAgentVoteDirection, IChatFollowup, IChatUserActionEvent } from "vs/workbench/contrib/chat/common/chatService";
-import { Dto } from "vs/workbench/services/extensions/common/proxyIdentifier";
 import type * as vscode from "vscode";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { ChatAgentLocation, IChatAgentRequest, IChatAgentResult } from "../../contrib/chat/common/chatAgents.js";
+import { IChatFollowup, IChatUserActionEvent, IChatVoteAction } from "../../contrib/chat/common/chatService.js";
+import { Dto } from "../../services/extensions/common/proxyIdentifier.js";
+import { ExtHostChatAgentsShape2, IChatAgentCompletionItem, IChatAgentHistoryEntryDto, IMainContext } from "./extHost.protocol.js";
+import { ExtHostCommands } from "./extHostCommands.js";
+import { ExtHostDocuments } from "./extHostDocuments.js";
 export declare class ExtHostChatAgents2 extends Disposable implements ExtHostChatAgentsShape2 {
     private readonly _logService;
     private readonly _commands;
@@ -41,7 +41,7 @@ export declare class ExtHostChatAgents2 extends Disposable implements ExtHostCha
     $provideFollowups(requestDto: Dto<IChatAgentRequest>, handle: number, result: IChatAgentResult, context: {
         history: IChatAgentHistoryEntryDto[];
     }, token: CancellationToken): Promise<IChatFollowup[]>;
-    $acceptFeedback(handle: number, result: IChatAgentResult, vote: ChatAgentVoteDirection, reportIssue?: boolean): void;
+    $acceptFeedback(handle: number, result: IChatAgentResult, voteAction: IChatVoteAction): void;
     $acceptAction(handle: number, result: IChatAgentResult, event: IChatUserActionEvent): void;
     $invokeCompletionProvider(handle: number, query: string, token: CancellationToken): Promise<IChatAgentCompletionItem[]>;
     $provideWelcomeMessage(handle: number, location: ChatAgentLocation, token: CancellationToken): Promise<(string | IMarkdownString)[] | undefined>;

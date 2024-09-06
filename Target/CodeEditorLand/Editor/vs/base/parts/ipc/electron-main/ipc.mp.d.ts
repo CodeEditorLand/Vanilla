@@ -1,6 +1,6 @@
 import { BrowserWindow, MessagePortMain } from "electron";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { Client as MessagePortClient } from "vs/base/parts/ipc/common/ipc.mp";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { Client as MessagePortClient } from "../common/ipc.mp.js";
 /**
  * An implementation of a `IPCClient` on top of Electron `MessagePortMain`.
  */

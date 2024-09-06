@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILogService } from "vs/platform/log/common/log";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ILogService } from "../../log/common/log.js";
 export declare const ignoreProcessNames: string[];
 /**
  * Monitors a process for child processes, checking at differing times depending on input and output
@@ -18,7 +18,7 @@ export declare class ChildProcessMonitor extends Disposable {
     /**
      * An event that fires when whether the process has child processes changes.
      */
-    readonly onDidChangeHasChildProcesses: any;
+    readonly onDidChangeHasChildProcesses: import("../../../base/common/event.js").Event<boolean>;
     constructor(_pid: number, _logService: ILogService);
     /**
      * Input was triggered on the process.

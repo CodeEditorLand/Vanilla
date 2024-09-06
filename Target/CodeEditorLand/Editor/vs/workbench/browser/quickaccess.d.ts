@@ -1,14 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICommandHandler } from "vs/platform/commands/common/commands";
-import { IResourceEditorInput, ITextResourceEditorInput } from "vs/platform/editor/common/editor";
-import { GroupIdentifier, IEditorPane, IUntitledTextResourceEditorInput, IUntypedEditorInput } from "vs/workbench/common/editor";
-import { IEditorGroup, IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { ACTIVE_GROUP_TYPE, AUX_WINDOW_GROUP_TYPE, IEditorService, SIDE_GROUP_TYPE } from "vs/workbench/services/editor/common/editorService";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { ICommandHandler } from "../../platform/commands/common/commands.js";
+import { RawContextKey } from "../../platform/contextkey/common/contextkey.js";
+import { IResourceEditorInput, ITextResourceEditorInput } from "../../platform/editor/common/editor.js";
+import { GroupIdentifier, IEditorPane, IUntitledTextResourceEditorInput, IUntypedEditorInput } from "../common/editor.js";
+import { IEditorGroup, IEditorGroupsService } from "../services/editor/common/editorGroupsService.js";
+import { ACTIVE_GROUP_TYPE, AUX_WINDOW_GROUP_TYPE, IEditorService, SIDE_GROUP_TYPE } from "../services/editor/common/editorService.js";
 export declare const inQuickPickContextKeyValue = "inQuickOpen";
-export declare const InQuickPickContextKey: any;
-export declare const inQuickPickContext: any;
+export declare const InQuickPickContextKey: RawContextKey<boolean>;
+export declare const inQuickPickContext: import("../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
 export declare const defaultQuickAccessContextKeyValue = "inFilesPicker";
-export declare const defaultQuickAccessContext: any;
+export declare const defaultQuickAccessContext: import("../../platform/contextkey/common/contextkey.js").ContextKeyExpression | undefined;
 export interface IWorkbenchQuickAccessConfiguration {
     readonly workbench: {
         readonly commandPalette: {

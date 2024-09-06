@@ -1,7 +1,7 @@
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { IReader } from "vs/base/common/observable";
-import { ICodeEditor, IViewZoneChangeAccessor } from "vs/editor/browser/editorBrowser";
-import { MergeEditorViewModel } from "vs/workbench/contrib/mergeEditor/browser/view/viewModel";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { IReader } from "../../../../../base/common/observable.js";
+import { ICodeEditor, IViewZoneChangeAccessor } from "../../../../../editor/browser/editorBrowser.js";
+import { MergeEditorViewModel } from "./viewModel.js";
 export declare class ViewZoneComputer {
     private readonly input1Editor;
     private readonly input2Editor;

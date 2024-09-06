@@ -1,14 +1,14 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { ResourceSet } from "vs/base/common/map";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { INotebookEditorService } from "vs/workbench/contrib/notebook/browser/services/notebookEditorService";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
-import { INotebookSearchService } from "vs/workbench/contrib/search/common/notebookSearch";
-import { IEditorResolverService } from "vs/workbench/services/editor/common/editorResolverService";
-import { ISearchComplete, ISearchProgressItem, ISearchService, ITextQuery } from "vs/workbench/services/search/common/search";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { ResourceSet } from "../../../../../base/common/map.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IEditorResolverService } from "../../../../services/editor/common/editorResolverService.js";
+import { ISearchComplete, ISearchProgressItem, ISearchService, ITextQuery } from "../../../../services/search/common/search.js";
+import { INotebookEditorService } from "../../../notebook/browser/services/notebookEditorService.js";
+import { INotebookService } from "../../../notebook/common/notebookService.js";
+import { INotebookSearchService } from "../../common/notebookSearch.js";
 export declare class NotebookSearchService implements INotebookSearchService {
     private readonly uriIdentityService;
     private readonly notebookEditorService;

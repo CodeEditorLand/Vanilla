@@ -1,10 +1,10 @@
-import { IPath } from "vs/base/common/path";
-import { OperatingSystem } from "vs/base/common/platform";
-import { URI } from "vs/base/common/uri";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
-export declare const IPathService: any;
+import { IPath } from "../../../../base/common/path.js";
+import { OperatingSystem } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+export declare const IPathService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IPathService>;
 /**
  * Provides access to path related properties that will match the
  * environment. If the environment is connected to a remote, the

@@ -1,8 +1,8 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable } from "vs/base/common/lifecycle";
-import { MainThreadLanguageModelToolsShape } from "vs/workbench/api/common/extHost.protocol";
-import { ILanguageModelToolsService, IToolData, IToolInvocation, IToolResult } from "vs/workbench/contrib/chat/common/languageModelToolsService";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ILanguageModelToolsService, IToolData, IToolInvocation, IToolResult } from "../../contrib/chat/common/languageModelToolsService.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadLanguageModelToolsShape } from "../common/extHost.protocol.js";
 export declare class MainThreadLanguageModelTools extends Disposable implements MainThreadLanguageModelToolsShape {
     private readonly _languageModelToolsService;
     private readonly _proxy;

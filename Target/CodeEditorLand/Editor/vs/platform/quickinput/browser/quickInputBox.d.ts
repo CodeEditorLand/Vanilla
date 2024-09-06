@@ -1,10 +1,10 @@
-import { StandardKeyboardEvent } from "vs/base/browser/keyboardEvent";
-import { StandardMouseEvent } from "vs/base/browser/mouseEvent";
-import { IInputBoxStyles, IRange } from "vs/base/browser/ui/inputbox/inputBox";
-import { IToggleStyles, Toggle } from "vs/base/browser/ui/toggle/toggle";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import Severity from "vs/base/common/severity";
-import "vs/css!./media/quickInput";
+import { StandardKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
+import { StandardMouseEvent } from "../../../base/browser/mouseEvent.js";
+import { IInputBoxStyles, IRange } from "../../../base/browser/ui/inputbox/inputBox.js";
+import { IToggleStyles, Toggle } from "../../../base/browser/ui/toggle/toggle.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import Severity from "../../../base/common/severity.js";
+import "./media/quickInput.css";
 export declare class QuickInputBox extends Disposable {
     private parent;
     private container;
@@ -29,7 +29,11 @@ export declare class QuickInputBox extends Disposable {
     setAttribute(name: string, value: string): void;
     removeAttribute(name: string): void;
     showDecoration(decoration: Severity): void;
-    stylesForType(decoration: Severity): any;
+    stylesForType(decoration: Severity): {
+        border: string | undefined;
+        background: string | undefined;
+        foreground: string | undefined;
+    };
     setFocus(): void;
     layout(): void;
 }

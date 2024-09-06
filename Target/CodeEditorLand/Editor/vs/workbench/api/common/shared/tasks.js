@@ -1,1 +1,1 @@
-import"../../../../../vs/base/common/uri.js";import"../../../../../vs/platform/extensions/common/extensions.js";
+import"../../../../base/common/uri.js";import"../../../../platform/extensions/common/extensions.js";

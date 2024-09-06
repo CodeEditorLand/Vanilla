@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./sash";
+import { Event } from "../../../common/event.js";
+import { Disposable } from "../../../common/lifecycle.js";
+import "./sash.css";
 /**
  * A vertical sash layout provider provides position and height for a sash.
  */

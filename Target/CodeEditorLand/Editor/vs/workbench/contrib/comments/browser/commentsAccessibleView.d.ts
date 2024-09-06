@@ -1,14 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { IAccessibleViewContentProvider } from "vs/platform/accessibility/browser/accessibleView";
-import { IAccessibleViewImplentation } from "vs/platform/accessibility/browser/accessibleViewRegistry";
-import { CommentsMenus } from "vs/workbench/contrib/comments/browser/commentsTreeViewer";
-import { CommentsPanel } from "vs/workbench/contrib/comments/browser/commentsView";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { CommentsMenus } from "./commentsTreeViewer.js";
+import { CommentsPanel } from "./commentsView.js";
 export declare class CommentsAccessibleView extends Disposable implements IAccessibleViewImplentation {
     readonly priority = 90;
     readonly name = "comment";
-    readonly when: any;
-    readonly type: any;
+    readonly when: import("../../../../platform/contextkey/common/contextkey.js").RawContextKey<boolean>;
+    readonly type = AccessibleViewType.View;
     getProvider(accessor: ServicesAccessor): CommentsAccessibleContentProvider | undefined;
     constructor();
 }
@@ -17,12 +18,20 @@ declare class CommentsAccessibleContentProvider extends Disposable implements IA
     private readonly _focusedCommentNode;
     private readonly _menus;
     constructor(_commentsView: CommentsPanel, _focusedCommentNode: any, _menus: CommentsMenus);
-    readonly id: any;
-    readonly verbositySettingKey: any;
+    readonly id = AccessibleViewProviderId.Comments;
+    readonly verbositySettingKey = AccessibilityVerbositySettingId.Comments;
     readonly options: {
-        type: any;
+        type: AccessibleViewType;
     };
-    actions: any[];
+    actions: {
+        run: () => void;
+        id: string;
+        label: string;
+        tooltip: string;
+        class: string | undefined;
+        enabled: boolean;
+        checked?: boolean;
+    }[];
     provideContent(): string;
     onClose(): void;
     provideNextContent(): string | undefined;

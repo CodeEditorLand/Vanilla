@@ -1,13 +1,13 @@
-import { Event as CommonEvent } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IDialogMainService } from "vs/platform/dialogs/electron-main/dialogMainService";
-import { ILifecycleMainService } from "vs/platform/lifecycle/electron-main/lifecycleMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { IApplicationStorageMainService } from "vs/platform/storage/electron-main/storageMainService";
-import { IRecent, IRecentlyOpened } from "vs/platform/workspaces/common/workspaces";
-import { IWorkspacesManagementMainService } from "vs/platform/workspaces/electron-main/workspacesManagementMainService";
-export declare const IWorkspacesHistoryMainService: any;
+import { Event as CommonEvent } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IApplicationStorageMainService } from "../../storage/electron-main/storageMainService.js";
+import { IRecent, IRecentlyOpened } from "../common/workspaces.js";
+import { IWorkspacesManagementMainService } from "./workspacesManagementMainService.js";
+export declare const IWorkspacesHistoryMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWorkspacesHistoryMainService>;
 export interface IWorkspacesHistoryMainService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeRecentlyOpened: CommonEvent<void>;
@@ -28,7 +28,7 @@ export declare class WorkspacesHistoryMainService extends Disposable implements 
     private static readonly RECENTLY_OPENED_STORAGE_KEY;
     readonly _serviceBrand: undefined;
     private readonly _onDidChangeRecentlyOpened;
-    readonly onDidChangeRecentlyOpened: any;
+    readonly onDidChangeRecentlyOpened: CommonEvent<void>;
     constructor(logService: ILogService, workspacesManagementMainService: IWorkspacesManagementMainService, lifecycleMainService: ILifecycleMainService, applicationStorageMainService: IApplicationStorageMainService, dialogMainService: IDialogMainService);
     private registerListeners;
     addRecentlyOpened(recentToAdd: IRecent[]): Promise<void>;

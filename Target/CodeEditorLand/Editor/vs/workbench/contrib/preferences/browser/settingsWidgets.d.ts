@@ -1,12 +1,12 @@
-import { SelectBox } from "vs/base/browser/ui/selectBox/selectBox";
-import { IAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./media/settingsWidgets";
-import { IContextViewService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { SettingValueType } from "vs/workbench/services/preferences/common/preferences";
+import { SelectBox } from "../../../../base/browser/ui/selectBox/selectBox.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import "./media/settingsWidgets.css";
+import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { SettingValueType } from "../../../services/preferences/common/preferences.js";
 type EditKey = "none" | "create" | number;
 type RowElementGroup = {
     rowElement: HTMLElement;
@@ -66,9 +66,9 @@ export declare abstract class AbstractListSettingWidget<TDataItem extends object
     protected readonly contextViewService: IContextViewService;
     private listElement;
     private rowElements;
-    protected readonly _onDidChangeList: any;
+    protected readonly _onDidChangeList: Emitter<SettingListEvent<TDataItem>>;
     protected readonly model: ListSettingListModel<TDataItem>;
-    protected readonly listDisposables: any;
+    protected readonly listDisposables: DisposableStore;
     readonly onDidChangeList: Event<SettingListEvent<TDataItem>>;
     get domNode(): HTMLElement;
     get items(): TDataItem[];
@@ -130,11 +130,11 @@ export declare class ListSettingWidget<TListDataItem extends IListDataItem> exte
     isItemNew(item: TListDataItem): boolean;
     protected addTooltipsToRow(rowElementGroup: RowElementGroup, { value, sibling }: TListDataItem): void;
     protected getLocalizedStrings(): {
-        deleteActionTooltip: any;
-        editActionTooltip: any;
-        addButtonLabel: any;
-        inputPlaceholder: any;
-        siblingInputPlaceholder: any;
+        deleteActionTooltip: string;
+        editActionTooltip: string;
+        addButtonLabel: string;
+        inputPlaceholder: string;
+        siblingInputPlaceholder: string;
     };
     private renderInputBox;
     private renderDropdown;
@@ -144,11 +144,11 @@ export declare class ExcludeSettingWidget extends ListSettingWidget<IIncludeExcl
     protected addDragAndDrop(rowElement: HTMLElement, item: IIncludeExcludeDataItem, idx: number): void;
     protected addTooltipsToRow(rowElementGroup: RowElementGroup, item: IIncludeExcludeDataItem): void;
     protected getLocalizedStrings(): {
-        deleteActionTooltip: any;
-        editActionTooltip: any;
-        addButtonLabel: any;
-        inputPlaceholder: any;
-        siblingInputPlaceholder: any;
+        deleteActionTooltip: string;
+        editActionTooltip: string;
+        addButtonLabel: string;
+        inputPlaceholder: string;
+        siblingInputPlaceholder: string;
     };
 }
 export declare class IncludeSettingWidget extends ListSettingWidget<IIncludeExcludeDataItem> {
@@ -156,11 +156,11 @@ export declare class IncludeSettingWidget extends ListSettingWidget<IIncludeExcl
     protected addDragAndDrop(rowElement: HTMLElement, item: IIncludeExcludeDataItem, idx: number): void;
     protected addTooltipsToRow(rowElementGroup: RowElementGroup, item: IIncludeExcludeDataItem): void;
     protected getLocalizedStrings(): {
-        deleteActionTooltip: any;
-        editActionTooltip: any;
-        addButtonLabel: any;
-        inputPlaceholder: any;
-        siblingInputPlaceholder: any;
+        deleteActionTooltip: string;
+        editActionTooltip: string;
+        addButtonLabel: string;
+        inputPlaceholder: string;
+        siblingInputPlaceholder: string;
     };
 }
 interface IObjectStringData {
@@ -221,7 +221,7 @@ export declare class ObjectSettingDropdownWidget extends AbstractListSettingWidg
     protected getEmptyItem(): IObjectDataItem;
     protected getContainerClasses(): string[];
     protected getActionsForItem(item: IObjectDataItem, idx: number): IAction[];
-    protected renderHeader(): any;
+    protected renderHeader(): HTMLElement;
     protected renderItem(item: IObjectDataItem, idx: number): RowElementGroup;
     protected renderEdit(item: IObjectDataItem, idx: number): HTMLElement;
     private renderEditWidget;
@@ -231,12 +231,12 @@ export declare class ObjectSettingDropdownWidget extends AbstractListSettingWidg
     protected addTooltipsToRow(rowElementGroup: RowElementGroup, item: IObjectDataItem): void;
     private getEnumDescription;
     protected getLocalizedStrings(): {
-        deleteActionTooltip: any;
-        resetActionTooltip: any;
-        editActionTooltip: any;
-        addButtonLabel: any;
-        keyHeaderText: any;
-        valueHeaderText: any;
+        deleteActionTooltip: string;
+        resetActionTooltip: string;
+        editActionTooltip: string;
+        addButtonLabel: string;
+        keyHeaderText: string;
+        valueHeaderText: string;
     };
 }
 interface IBoolObjectSetValueOptions {
@@ -267,12 +267,12 @@ export declare class ObjectSettingCheckboxWidget extends AbstractListSettingWidg
     private renderEditWidget;
     protected addTooltipsToRow(rowElementGroup: RowElementGroup, item: IBoolObjectDataItem): void;
     protected getLocalizedStrings(): {
-        deleteActionTooltip: any;
-        resetActionTooltip: any;
-        editActionTooltip: any;
-        addButtonLabel: any;
-        keyHeaderText: any;
-        valueHeaderText: any;
+        deleteActionTooltip: string;
+        resetActionTooltip: string;
+        editActionTooltip: string;
+        addButtonLabel: string;
+        keyHeaderText: string;
+        valueHeaderText: string;
     };
 }
 export {};

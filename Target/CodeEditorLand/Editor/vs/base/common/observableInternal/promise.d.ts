@@ -1,5 +1,5 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IObservable, IReader } from "./base";
+import { CancellationToken } from "../cancellation.js";
+import { IObservable, IReader } from "./base.js";
 export declare class ObservableLazy<T> {
     private readonly _computeValue;
     private readonly _value;
@@ -69,7 +69,7 @@ export declare class ObservableLazyPromise<T> {
      * Does not enforce evaluation of the promise compute function.
      * Is undefined if the promise has not been computed yet.
      */
-    readonly cachedPromiseResult: any;
+    readonly cachedPromiseResult: IObservable<PromiseResult<T> | undefined, unknown>;
     constructor(_computePromise: () => Promise<T>);
     getPromise(): Promise<T>;
 }

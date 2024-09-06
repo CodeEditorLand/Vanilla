@@ -1,18 +1,18 @@
-import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "vs/base/common/buffer";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ReadableStream } from "vs/base/common/stream";
-import { URI } from "vs/base/common/uri";
-import { ITextBufferFactory, ITextModel, ITextSnapshot } from "vs/editor/common/model";
-import { ITextEditorModel } from "vs/editor/common/services/resolverService";
-import { FileOperationError, IBaseFileStatWithMetadata, IFileReadLimits, IFileStatWithMetadata, IReadFileStreamOptions, IWriteFileOptions } from "vs/platform/files/common/files";
-import { IProgress, IProgressStep } from "vs/platform/progress/common/progress";
-import { IRevertOptions, ISaveOptions, SaveReason } from "vs/workbench/common/editor";
-import { IUntitledTextEditorModelManager } from "vs/workbench/services/untitled/common/untitledTextEditorService";
-import { IWorkingCopy, IWorkingCopySaveEvent } from "vs/workbench/services/workingCopy/common/workingCopy";
-import { IFileOperationUndoRedoInfo } from "vs/workbench/services/workingCopy/common/workingCopyFileService";
-export declare const ITextFileService: any;
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ReadableStream } from "../../../../base/common/stream.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextBufferFactory, ITextModel, ITextSnapshot } from "../../../../editor/common/model.js";
+import { ITextEditorModel } from "../../../../editor/common/services/resolverService.js";
+import { FileOperationError, IBaseFileStatWithMetadata, IFileReadLimits, IFileStatWithMetadata, IReadFileStreamOptions, IWriteFileOptions } from "../../../../platform/files/common/files.js";
+import { IProgress, IProgressStep } from "../../../../platform/progress/common/progress.js";
+import { IRevertOptions, ISaveOptions, SaveReason } from "../../../common/editor.js";
+import { IUntitledTextEditorModelManager } from "../../untitled/common/untitledTextEditorService.js";
+import { IWorkingCopy, IWorkingCopySaveEvent } from "../../workingCopy/common/workingCopy.js";
+import { IFileOperationUndoRedoInfo } from "../../workingCopy/common/workingCopyFileService.js";
+export declare const ITextFileService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITextFileService>;
 export interface ITextFileService extends IDisposable {
     readonly _serviceBrand: undefined;
     /**

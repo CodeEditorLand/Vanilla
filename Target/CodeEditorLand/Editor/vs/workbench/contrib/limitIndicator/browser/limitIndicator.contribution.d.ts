@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { ILanguageStatusService } from "vs/workbench/services/languageStatus/common/languageStatusService";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ILanguageStatusService } from "../../../services/languageStatus/common/languageStatusService.js";
 /**
  * Uses that language status indicator to show information which language features have been limited for performance reasons.
  * Currently this is used for folding ranges and for color decorators.

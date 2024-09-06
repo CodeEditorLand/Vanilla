@@ -1,7 +1,7 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { ResourceSet } from "vs/base/common/map";
-import { ISearchComplete, ISearchProgressItem, ITextQuery } from "vs/workbench/services/search/common/search";
-export declare const INotebookSearchService: any;
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { ResourceSet } from "../../../../base/common/map.js";
+import { ISearchComplete, ISearchProgressItem, ITextQuery } from "../../../services/search/common/search.js";
+export declare const INotebookSearchService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INotebookSearchService>;
 export interface INotebookSearchService {
     readonly _serviceBrand: undefined;
     notebookSearch(query: ITextQuery, token: CancellationToken | undefined, searchInstanceID: string, onProgress?: (result: ISearchProgressItem) => void): {

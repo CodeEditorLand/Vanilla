@@ -1,5 +1,5 @@
-import { LineRange } from "vs/editor/common/core/lineRange";
-import { IRange } from "vs/editor/common/core/range";
+import { LineRange } from "../core/lineRange.js";
+import { IRange } from "../core/range.js";
 /**
  * Represents contiguous tokens over a contiguous range of lines.
  */

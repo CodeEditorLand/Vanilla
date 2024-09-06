@@ -1,8 +1,8 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { INativeEnvironmentService } from "vs/platform/environment/common/environment";
-import { ILogService } from "vs/platform/log/common/log";
-import { IIPCObjectUrl, IProtocolMainService } from "vs/platform/protocol/electron-main/protocol";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { INativeEnvironmentService } from "../../environment/common/environment.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { IIPCObjectUrl, IProtocolMainService } from "./protocol.js";
 export declare class ProtocolMainService extends Disposable implements IProtocolMainService {
     private readonly environmentService;
     private readonly logService;

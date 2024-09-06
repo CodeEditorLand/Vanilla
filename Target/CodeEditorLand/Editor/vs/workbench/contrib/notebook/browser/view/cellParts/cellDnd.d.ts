@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICellViewModel, INotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { CellViewModelStateChangeEvent } from "vs/workbench/contrib/notebook/browser/notebookViewEvents";
-import { CellContentPart } from "vs/workbench/contrib/notebook/browser/view/cellPart";
-import { BaseCellRenderTemplate, INotebookCellList } from "vs/workbench/contrib/notebook/browser/view/notebookRenderingCommon";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
+import { CellViewModelStateChangeEvent } from "../../notebookViewEvents.js";
+import { CellContentPart } from "../cellPart.js";
+import { BaseCellRenderTemplate, INotebookCellList } from "../notebookRenderingCommon.js";
 type DragImageProvider = () => HTMLElement;
 export declare class CellDragAndDropPart extends CellContentPart {
     private readonly container;

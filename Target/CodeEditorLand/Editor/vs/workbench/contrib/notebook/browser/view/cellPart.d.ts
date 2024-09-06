@@ -1,14 +1,14 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICellViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { CellViewModelStateChangeEvent } from "vs/workbench/contrib/notebook/browser/notebookViewEvents";
-import { ICellExecutionStateChangedEvent } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { ICellExecutionStateChangedEvent } from "../../common/notebookExecutionStateService.js";
+import { ICellViewModel } from "../notebookBrowser.js";
+import { CellViewModelStateChangeEvent } from "../notebookViewEvents.js";
 /**
  * A content part is a non-floating element that is rendered inside a cell.
  * The rendering of the content part is synchronous to avoid flickering.
  */
 export declare abstract class CellContentPart extends Disposable {
     protected currentCell: ICellViewModel | undefined;
-    protected readonly cellDisposables: any;
+    protected readonly cellDisposables: DisposableStore;
     constructor();
     /**
      * Prepare model for cell part rendering
@@ -49,7 +49,7 @@ export declare abstract class CellContentPart extends Disposable {
  */
 export declare abstract class CellOverlayPart extends Disposable {
     protected currentCell: ICellViewModel | undefined;
-    protected readonly cellDisposables: any;
+    protected readonly cellDisposables: DisposableStore;
     constructor();
     /**
      * Prepare model for cell part rendering

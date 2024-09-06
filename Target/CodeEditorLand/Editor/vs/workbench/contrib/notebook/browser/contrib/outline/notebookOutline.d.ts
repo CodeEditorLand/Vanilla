@@ -1,21 +1,23 @@
-import { IDataSource } from "vs/base/browser/ui/tree/tree";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable, type IReference } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEditorOptions } from "vs/platform/editor/common/editor";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IEditorPane } from "vs/workbench/common/editor";
-import { INotebookEditorPane } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookEditor } from "vs/workbench/contrib/notebook/browser/notebookEditor";
-import { INotebookCellOutlineDataSource } from "vs/workbench/contrib/notebook/browser/viewModel/notebookOutlineDataSource";
-import { OutlineEntry } from "vs/workbench/contrib/notebook/browser/viewModel/OutlineEntry";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IBreadcrumbsDataSource, IOutline, IOutlineCreator, IOutlineListConfig, IOutlineService, IQuickPickDataSource, IQuickPickOutlineElement, OutlineChangeEvent, OutlineTarget } from "vs/workbench/services/outline/browser/outline";
+import { IDataSource } from "../../../../../../base/browser/ui/tree/tree.js";
+import { CancellationToken } from "../../../../../../base/common/cancellation.js";
+import { Event } from "../../../../../../base/common/event.js";
+import { IDisposable, type IReference } from "../../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { ILanguageFeaturesService } from "../../../../../../editor/common/services/languageFeatures.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { RawContextKey } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IEditorOptions } from "../../../../../../platform/editor/common/editor.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
+import { IEditorPane } from "../../../../../common/editor.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { IBreadcrumbsDataSource, IOutline, IOutlineCreator, IOutlineListConfig, IOutlineService, IQuickPickDataSource, IQuickPickOutlineElement, OutlineChangeEvent, OutlineTarget } from "../../../../../services/outline/browser/outline.js";
+import { CellKind } from "../../../common/notebookCommon.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { CellFoldingState, INotebookEditorPane } from "../../notebookBrowser.js";
+import { NotebookEditor } from "../../notebookEditor.js";
+import { INotebookCellOutlineDataSource } from "../../viewModel/notebookOutlineDataSource.js";
+import { OutlineEntry } from "../../viewModel/OutlineEntry.js";
 export declare class NotebookQuickPickProvider implements IQuickPickDataSource<OutlineEntry> {
     private readonly notebookCellOutlineDataSourceRef;
     private readonly _configurationService;
@@ -113,9 +115,9 @@ export declare class NotebookOutlineCreator implements IOutlineCreator<NotebookE
     createOutline(editor: NotebookEditor, target: OutlineTarget, cancelToken: CancellationToken): Promise<IOutline<OutlineEntry> | undefined>;
 }
 export declare const NotebookOutlineContext: {
-    CellKind: any;
-    CellHasChildren: any;
-    CellHasHeader: any;
-    CellFoldingState: any;
-    OutlineElementTarget: any;
+    CellKind: RawContextKey<CellKind>;
+    CellHasChildren: RawContextKey<boolean>;
+    CellHasHeader: RawContextKey<boolean>;
+    CellFoldingState: RawContextKey<CellFoldingState>;
+    OutlineElementTarget: RawContextKey<OutlineTarget>;
 };

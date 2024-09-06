@@ -194,23 +194,6 @@ export interface FileFilter {
     extensions: string[];
     name: string;
 }
-export interface OpenDevToolsOptions {
-    /**
-     * Opens the devtools with specified dock state, can be `left`, `right`, `bottom`,
-     * `undocked`, `detach`. Defaults to last used dock state. In `undocked` mode it's
-     * possible to dock back. In `detach` mode it's not.
-     */
-    mode: "left" | "right" | "bottom" | "undocked" | "detach";
-    /**
-     * Whether to bring the opened devtools window to the foreground. The default is
-     * `true`.
-     */
-    activate?: boolean;
-    /**
-     * A title for the DevTools window (only in `undocked` or `detach` mode).
-     */
-    title?: string;
-}
 interface InputEvent {
     /**
      * An array of modifiers of the event, can be `shift`, `control`, `ctrl`, `alt`,

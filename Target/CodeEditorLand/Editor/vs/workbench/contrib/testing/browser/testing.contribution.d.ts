@@ -1,1 +1,1 @@
-import "./testingConfigurationUi";
+import "./testingConfigurationUi.js";

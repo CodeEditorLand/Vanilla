@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { AllowedExtension } from "vs/workbench/services/authentication/common/authentication";
-export declare const IAuthenticationAccessService: any;
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { AllowedExtension } from "../common/authentication.js";
+export declare const IAuthenticationAccessService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IAuthenticationAccessService>;
 export interface IAuthenticationAccessService {
     readonly _serviceBrand: undefined;
     readonly onDidChangeExtensionSessionAccess: Event<{

@@ -1,4 +1,4 @@
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IWindowOpenable } from "vs/platform/window/common/window";
-export declare const openWindowCommand: (accessor: ServicesAccessor, toOpen: IWindowOpenable[], options?: any) => void;
-export declare const newWindowCommand: (accessor: ServicesAccessor, options?: any) => void;
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IOpenEmptyWindowOptions, IOpenWindowOptions, IWindowOpenable } from "../../../../platform/window/common/window.js";
+export declare const openWindowCommand: (accessor: ServicesAccessor, toOpen: IWindowOpenable[], options?: IOpenWindowOptions) => void;
+export declare const newWindowCommand: (accessor: ServicesAccessor, options?: IOpenEmptyWindowOptions) => void;

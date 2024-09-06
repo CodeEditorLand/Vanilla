@@ -1,20 +1,20 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./unicodeHighlighter";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { Range } from "vs/editor/common/core/range";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IModelDecoration } from "vs/editor/common/model";
-import { IEditorWorkerService } from "vs/editor/common/services/editorWorker";
-import { UnicodeHighlighterReason } from "vs/editor/common/services/unicodeTextModelHighlighter";
-import { HoverAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts } from "vs/editor/contrib/hover/browser/hoverTypes";
-import { MarkdownHover } from "vs/editor/contrib/hover/browser/markdownHoverParticipant";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IWorkspaceTrustManagementService } from "vs/platform/workspace/common/workspaceTrust";
-export declare const warningIcon: any;
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import "./unicodeHighlighter.css";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { Range } from "../../../common/core/range.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { ILanguageService } from "../../../common/languages/language.js";
+import { IModelDecoration } from "../../../common/model.js";
+import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
+import { UnicodeHighlighterReason } from "../../../common/services/unicodeTextModelHighlighter.js";
+import { HoverAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts } from "../../hover/browser/hoverTypes.js";
+import { MarkdownHover } from "../../hover/browser/markdownHoverParticipant.js";
+export declare const warningIcon: import("../../../../base/common/themables.js").ThemeIcon;
 export declare class UnicodeHighlighter extends Disposable implements IEditorContribution {
     private readonly _editor;
     private readonly _editorWorkerService;
@@ -57,35 +57,35 @@ interface IDisableUnicodeHighlightAction {
 }
 export declare class DisableHighlightingInCommentsAction extends EditorAction implements IDisableUnicodeHighlightAction {
     static ID: string;
-    readonly shortLabel: any;
+    readonly shortLabel: string;
     constructor();
     run(accessor: ServicesAccessor | undefined, editor: ICodeEditor, args: any): Promise<void>;
     runAction(configurationService: IConfigurationService): Promise<void>;
 }
 export declare class DisableHighlightingInStringsAction extends EditorAction implements IDisableUnicodeHighlightAction {
     static ID: string;
-    readonly shortLabel: any;
+    readonly shortLabel: string;
     constructor();
     run(accessor: ServicesAccessor | undefined, editor: ICodeEditor, args: any): Promise<void>;
     runAction(configurationService: IConfigurationService): Promise<void>;
 }
 export declare class DisableHighlightingOfAmbiguousCharactersAction extends EditorAction implements IDisableUnicodeHighlightAction {
     static ID: string;
-    readonly shortLabel: any;
+    readonly shortLabel: string;
     constructor();
     run(accessor: ServicesAccessor | undefined, editor: ICodeEditor, args: any): Promise<void>;
     runAction(configurationService: IConfigurationService): Promise<void>;
 }
 export declare class DisableHighlightingOfInvisibleCharactersAction extends EditorAction implements IDisableUnicodeHighlightAction {
     static ID: string;
-    readonly shortLabel: any;
+    readonly shortLabel: string;
     constructor();
     run(accessor: ServicesAccessor | undefined, editor: ICodeEditor, args: any): Promise<void>;
     runAction(configurationService: IConfigurationService): Promise<void>;
 }
 export declare class DisableHighlightingOfNonBasicAsciiCharactersAction extends EditorAction implements IDisableUnicodeHighlightAction {
     static ID: string;
-    readonly shortLabel: any;
+    readonly shortLabel: string;
     constructor();
     run(accessor: ServicesAccessor | undefined, editor: ICodeEditor, args: any): Promise<void>;
     runAction(configurationService: IConfigurationService): Promise<void>;

@@ -1,5 +1,5 @@
-import "vs/css!./media/severityIcon";
-import Severity from "vs/base/common/severity";
+import "./media/severityIcon.css";
+import Severity from "../../../base/common/severity.js";
 export declare namespace SeverityIcon {
     function className(severity: Severity): string;
 }

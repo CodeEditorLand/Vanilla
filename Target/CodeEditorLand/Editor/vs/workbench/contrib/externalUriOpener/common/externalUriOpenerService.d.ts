@@ -1,13 +1,13 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import * as languages from "vs/editor/common/languages";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILogService } from "vs/platform/log/common/log";
-import { IExternalOpener, IOpenerService } from "vs/platform/opener/common/opener";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { IPreferencesService } from "vs/workbench/services/preferences/common/preferences";
-export declare const IExternalUriOpenerService: any;
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import * as languages from "../../../../editor/common/languages.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IExternalOpener, IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+export declare const IExternalUriOpenerService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExternalUriOpenerService>;
 export interface IExternalOpenerProvider {
     getOpeners(targetUri: URI): AsyncIterable<IExternalUriOpener>;
 }

@@ -1,7 +1,7 @@
-import { IProcessEnvironment } from "vs/base/common/platform";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { NativeParsedArgs } from "vs/platform/environment/common/argv";
-import { ILogService } from "vs/platform/log/common/log";
+import { IProcessEnvironment } from "../../../base/common/platform.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { NativeParsedArgs } from "../../environment/common/argv.js";
+import { ILogService } from "../../log/common/log.js";
 /**
  * Resolves the shell environment by spawning a shell. This call will cache
  * the shell spawning so that subsequent invocations use that cached result.

@@ -1,1 +1,1 @@
-import"../../../../../vs/base/common/scrollable.js";
+import"../../../common/scrollable.js";

@@ -1,13 +1,13 @@
-import { CancelablePromise } from "vs/base/common/async";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IIPCLogger } from "vs/base/parts/ipc/common/ipc";
-import { Client, PersistentProtocol } from "vs/base/parts/ipc/common/ipc.net";
-import { ILogService } from "vs/platform/log/common/log";
-import { RemoteAgentConnectionContext } from "vs/platform/remote/common/remoteAgentEnvironment";
-import { RemoteConnection } from "vs/platform/remote/common/remoteAuthorityResolver";
-import { IRemoteSocketFactoryService } from "vs/platform/remote/common/remoteSocketFactoryService";
-import { ISignService } from "vs/platform/sign/common/sign";
+import { CancelablePromise } from "../../../base/common/async.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IIPCLogger } from "../../../base/parts/ipc/common/ipc.js";
+import { Client, PersistentProtocol } from "../../../base/parts/ipc/common/ipc.net.js";
+import { ILogService } from "../../log/common/log.js";
+import { ISignService } from "../../sign/common/sign.js";
+import { RemoteAgentConnectionContext } from "./remoteAgentEnvironment.js";
+import { RemoteConnection } from "./remoteAuthorityResolver.js";
+import { IRemoteSocketFactoryService } from "./remoteSocketFactoryService.js";
 export declare const enum ConnectionType {
     Management = 1,
     ExtensionHost = 2,
@@ -141,7 +141,7 @@ export declare abstract class PersistentConnection extends Disposable {
     private static _permanentFailureHandled;
     private static _instances;
     private readonly _onDidStateChange;
-    readonly onDidStateChange: any;
+    readonly onDidStateChange: import("../../../base/common/event.js").Event<PersistentConnectionEvent>;
     private _permanentFailure;
     private get _isPermanentFailure();
     private _isReconnecting;

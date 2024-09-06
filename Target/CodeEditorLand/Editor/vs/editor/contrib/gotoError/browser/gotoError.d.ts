@@ -1,11 +1,11 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, IActionOptions, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { IMarkerNavigationService } from "vs/editor/contrib/gotoError/browser/markerNavigationService";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IMarker } from "vs/platform/markers/common/markers";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IMarker } from "../../../../platform/markers/common/markers.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, IActionOptions, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { IMarkerNavigationService } from "./markerNavigationService.js";
 export declare class MarkerController implements IEditorContribution {
     private readonly _markerNavigationService;
     private readonly _contextKeyService;

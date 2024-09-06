@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import Severity from "vs/base/common/severity";
-import { URI } from "vs/base/common/uri";
+import { Event } from "../../../base/common/event.js";
+import Severity from "../../../base/common/severity.js";
+import { URI } from "../../../base/common/uri.js";
 export interface IMarkerService {
     readonly _serviceBrand: undefined;
     getStatistics(): MarkerStatistics;
@@ -93,4 +93,4 @@ export declare namespace IMarkerData {
     function makeKey(markerData: IMarkerData): string;
     function makeKeyOptionalMessage(markerData: IMarkerData, useMessage: boolean): string;
 }
-export declare const IMarkerService: any;
+export declare const IMarkerService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IMarkerService>;

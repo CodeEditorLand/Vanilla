@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 export declare class CustomEditorLabelService extends Disposable implements ICustomEditorLabelService {
     private readonly configurationService;
     private readonly workspaceContextService;
@@ -10,7 +10,7 @@ export declare class CustomEditorLabelService extends Disposable implements ICus
     static readonly SETTING_ID_PATTERNS = "workbench.editor.customLabels.patterns";
     static readonly SETTING_ID_ENABLED = "workbench.editor.customLabels.enabled";
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: Event<void>;
     private patterns;
     private enabled;
     private cache;
@@ -31,7 +31,7 @@ export declare class CustomEditorLabelService extends Disposable implements ICus
     private getNthExtname;
     private getNthFragment;
 }
-export declare const ICustomEditorLabelService: any;
+export declare const ICustomEditorLabelService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ICustomEditorLabelService>;
 export interface ICustomEditorLabelService {
     readonly _serviceBrand: undefined;
     readonly onDidChange: Event<void>;

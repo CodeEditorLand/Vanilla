@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IUserDataSyncEnablementService, IUserDataSyncService } from "vs/platform/userDataSync/common/userDataSync";
-import { IUserDataSyncMachinesService } from "vs/platform/userDataSync/common/userDataSyncMachines";
-import { ViewContainer } from "vs/workbench/common/views";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IUserDataSyncEnablementService, IUserDataSyncService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IUserDataSyncMachinesService } from "../../../../platform/userDataSync/common/userDataSyncMachines.js";
+import { ViewContainer } from "../../../common/views.js";
 export declare class UserDataSyncDataViews extends Disposable {
     private readonly instantiationService;
     private readonly userDataSyncEnablementService;

@@ -1,16 +1,16 @@
-import * as dom from "vs/base/browser/dom";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IEditorOptions } from "vs/platform/editor/common/editor";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { EditorPane } from "vs/workbench/browser/parts/editor/editorPane";
-import { IEditorOpenContext } from "vs/workbench/common/editor";
-import { ChatEditorInput } from "vs/workbench/contrib/chat/browser/chatEditorInput";
-import { IExportableChatData, ISerializableChatData } from "vs/workbench/contrib/chat/common/chatModel";
-import { IEditorGroup } from "vs/workbench/services/editor/common/editorGroupsService";
+import * as dom from "../../../../base/browser/dom.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IContextKeyService, IScopedContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { IEditorOpenContext } from "../../../common/editor.js";
+import { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
+import { IExportableChatData, ISerializableChatData } from "../common/chatModel.js";
+import { ChatEditorInput } from "./chatEditorInput.js";
 export interface IChatEditorOptions extends IEditorOptions {
     target?: {
         sessionId: string;

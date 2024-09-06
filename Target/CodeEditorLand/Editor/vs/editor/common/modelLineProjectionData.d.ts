@@ -1,8 +1,8 @@
-import { WrappingIndent } from "vs/editor/common/config/editorOptions";
-import { FontInfo } from "vs/editor/common/config/fontInfo";
-import { Position } from "vs/editor/common/core/position";
-import { InjectedTextOptions, PositionAffinity } from "vs/editor/common/model";
-import { LineInjectedText } from "vs/editor/common/textModelEvents";
+import { WrappingIndent } from "./config/editorOptions.js";
+import { FontInfo } from "./config/fontInfo.js";
+import { Position } from "./core/position.js";
+import { InjectedTextOptions, PositionAffinity } from "./model.js";
+import { LineInjectedText } from "./textModelEvents.js";
 /**
  * *input*:
  * ```

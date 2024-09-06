@@ -1,4 +1,4 @@
-import { IRequestHandler, IWorkerServer } from "vs/base/common/worker/simpleWorker";
+import { IRequestHandler, IWorkerServer } from "../../../base/common/worker/simpleWorker.js";
 /**
  * Defines the worker entry point. Must be exported and named `create`.
  * @skipMangle

@@ -1,14 +1,14 @@
-import { IDragAndDropData } from "vs/base/browser/dnd";
-import { Dimension } from "vs/base/browser/dom";
-import { IMouseWheelEvent } from "vs/base/browser/mouseEvent";
-import { AriaRole } from "vs/base/browser/ui/aria/aria";
-import { IListDragAndDrop, IListGestureEvent, IListMouseEvent, IListRenderer, IListTouchEvent, IListVirtualDelegate } from "vs/base/browser/ui/list/list";
-import { IRangeMap } from "vs/base/browser/ui/list/rangeMap";
-import { Event, IValueWithChangeEvent } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IRange } from "vs/base/common/range";
-import { ScrollbarVisibility, ScrollEvent } from "vs/base/common/scrollable";
-import { ISpliceable } from "vs/base/common/sequence";
+import { Event, IValueWithChangeEvent } from "../../../common/event.js";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { IRange } from "../../../common/range.js";
+import { ScrollbarVisibility, ScrollEvent } from "../../../common/scrollable.js";
+import { ISpliceable } from "../../../common/sequence.js";
+import { IDragAndDropData } from "../../dnd.js";
+import { Dimension } from "../../dom.js";
+import { IMouseWheelEvent } from "../../mouseEvent.js";
+import { AriaRole } from "../aria/aria.js";
+import { IListDragAndDrop, IListGestureEvent, IListMouseEvent, IListRenderer, IListTouchEvent, IListVirtualDelegate } from "./list.js";
+import { IRangeMap } from "./rangeMap.js";
 export interface IListViewDragAndDrop<T> extends IListDragAndDrop<T> {
     getDragElements(element: T): T[];
 }

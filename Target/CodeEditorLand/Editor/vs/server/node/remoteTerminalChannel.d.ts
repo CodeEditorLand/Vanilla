@@ -1,14 +1,14 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IServerChannel } from "vs/base/parts/ipc/common/ipc";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IExtensionManagementService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { RemoteAgentConnectionContext } from "vs/platform/remote/common/remoteAgentEnvironment";
-import { IPtyHostService } from "vs/platform/terminal/common/terminal";
-import { IServerEnvironmentService } from "vs/server/node/serverEnvironmentService";
-import { RemoteTerminalChannelEvent, RemoteTerminalChannelRequest } from "vs/workbench/contrib/terminal/common/remote/terminal";
+import { Event } from "../../base/common/event.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { IServerChannel } from "../../base/parts/ipc/common/ipc.js";
+import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
+import { IExtensionManagementService } from "../../platform/extensionManagement/common/extensionManagement.js";
+import { ILogService } from "../../platform/log/common/log.js";
+import { IProductService } from "../../platform/product/common/productService.js";
+import { RemoteAgentConnectionContext } from "../../platform/remote/common/remoteAgentEnvironment.js";
+import { IPtyHostService } from "../../platform/terminal/common/terminal.js";
+import { RemoteTerminalChannelEvent, RemoteTerminalChannelRequest } from "../../workbench/contrib/terminal/common/remote/terminal.js";
+import { IServerEnvironmentService } from "./serverEnvironmentService.js";
 export declare class RemoteTerminalChannel extends Disposable implements IServerChannel<RemoteAgentConnectionContext> {
     private readonly _environmentService;
     private readonly _logService;
@@ -19,7 +19,12 @@ export declare class RemoteTerminalChannel extends Disposable implements IServer
     private _lastReqId;
     private readonly _pendingCommands;
     private readonly _onExecuteCommand;
-    readonly onExecuteCommand: any;
+    readonly onExecuteCommand: Event<{
+        reqId: number;
+        persistentProcessId: number;
+        commandId: string;
+        commandArgs: any[];
+    }>;
     constructor(_environmentService: IServerEnvironmentService, _logService: ILogService, _ptyHostService: IPtyHostService, _productService: IProductService, _extensionManagementService: IExtensionManagementService, _configurationService: IConfigurationService);
     call(ctx: RemoteAgentConnectionContext, command: RemoteTerminalChannelRequest, args?: any): Promise<any>;
     listen(_: any, event: RemoteTerminalChannelEvent, arg: any): Event<any>;

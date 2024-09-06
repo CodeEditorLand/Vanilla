@@ -1,4 +1,4 @@
-import { IProductConfiguration } from "vs/base/common/product";
+import { IProductConfiguration } from "../../../base/common/product.js";
 /**
  * @deprecated You MUST use `IProductService` if possible.
  */

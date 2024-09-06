@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IWorkingCopySaveEvent as IBaseWorkingCopySaveEvent, IWorkingCopy, IWorkingCopyIdentifier } from "vs/workbench/services/workingCopy/common/workingCopy";
-export declare const IWorkingCopyService: any;
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IWorkingCopySaveEvent as IBaseWorkingCopySaveEvent, IWorkingCopy, IWorkingCopyIdentifier } from "./workingCopy.js";
+export declare const IWorkingCopyService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkingCopyService>;
 export interface IWorkingCopySaveEvent extends IBaseWorkingCopySaveEvent {
     /**
      * The working copy that was saved.
@@ -95,15 +95,15 @@ export interface IWorkingCopyService {
 export declare class WorkingCopyService extends Disposable implements IWorkingCopyService {
     readonly _serviceBrand: undefined;
     private readonly _onDidRegister;
-    readonly onDidRegister: any;
+    readonly onDidRegister: Event<IWorkingCopy>;
     private readonly _onDidUnregister;
-    readonly onDidUnregister: any;
+    readonly onDidUnregister: Event<IWorkingCopy>;
     private readonly _onDidChangeDirty;
-    readonly onDidChangeDirty: any;
+    readonly onDidChangeDirty: Event<IWorkingCopy>;
     private readonly _onDidChangeContent;
-    readonly onDidChangeContent: any;
+    readonly onDidChangeContent: Event<IWorkingCopy>;
     private readonly _onDidSave;
-    readonly onDidSave: any;
+    readonly onDidSave: Event<IWorkingCopySaveEvent>;
     get workingCopies(): IWorkingCopy[];
     private _workingCopies;
     private readonly mapResourceToWorkingCopies;

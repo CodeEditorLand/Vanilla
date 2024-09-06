@@ -1,6 +1,6 @@
 import { BrowserWindow } from "electron";
-import { ILogService } from "vs/platform/log/common/log";
-import { IV8Profile } from "vs/platform/profiling/common/profiling";
+import { ILogService } from "../../log/common/log.js";
+import { IV8Profile } from "../common/profiling.js";
 export declare class WindowProfiler {
     private readonly _window;
     private readonly _sessionId;

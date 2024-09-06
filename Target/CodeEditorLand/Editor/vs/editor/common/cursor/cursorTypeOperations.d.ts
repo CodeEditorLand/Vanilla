@@ -1,8 +1,8 @@
-import { Range } from "vs/editor/common/core/range";
-import { Selection } from "vs/editor/common/core/selection";
-import { CursorConfiguration, EditOperationResult, EditOperationType, ICursorSimpleModel } from "vs/editor/common/cursorCommon";
-import { ICommand } from "vs/editor/common/editorCommon";
-import { ITextModel } from "vs/editor/common/model";
+import { Range } from "../core/range.js";
+import { Selection } from "../core/selection.js";
+import { CursorConfiguration, EditOperationResult, EditOperationType, ICursorSimpleModel } from "../cursorCommon.js";
+import { ICommand } from "../editorCommon.js";
+import { ITextModel } from "../model.js";
 export declare class TypeOperations {
     static indent(config: CursorConfiguration, model: ICursorSimpleModel | null, selections: Selection[] | null): ICommand[];
     static outdent(config: CursorConfiguration, model: ICursorSimpleModel, selections: Selection[]): ICommand[];

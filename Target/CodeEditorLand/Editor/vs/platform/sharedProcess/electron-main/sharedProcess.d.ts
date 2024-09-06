@@ -1,11 +1,11 @@
 import { MessagePortMain } from "electron";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IEnvironmentMainService } from "vs/platform/environment/electron-main/environmentMainService";
-import { ILifecycleMainService } from "vs/platform/lifecycle/electron-main/lifecycleMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { ILoggerMainService } from "vs/platform/log/electron-main/loggerService";
-import { IPolicyService } from "vs/platform/policy/common/policy";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { ILoggerMainService } from "../../log/electron-main/loggerService.js";
+import { IPolicyService } from "../../policy/common/policy.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
 export declare class SharedProcess extends Disposable {
     private readonly machineId;
     private readonly sqmId;
@@ -20,7 +20,7 @@ export declare class SharedProcess extends Disposable {
     private utilityProcess;
     private utilityProcessLogListener;
     private readonly _onDidCrash;
-    readonly onDidCrash: any;
+    readonly onDidCrash: import("../../../base/common/event.js").Event<void>;
     constructor(machineId: string, sqmId: string, devDeviceId: string, environmentMainService: IEnvironmentMainService, userDataProfilesService: IUserDataProfilesService, lifecycleMainService: ILifecycleMainService, logService: ILogService, loggerMainService: ILoggerMainService, policyService: IPolicyService);
     private registerListeners;
     private onWindowConnection;

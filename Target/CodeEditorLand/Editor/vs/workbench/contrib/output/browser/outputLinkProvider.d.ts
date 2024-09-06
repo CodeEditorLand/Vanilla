@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IModelService } from "vs/editor/common/services/model";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 export declare class OutputLinkProvider extends Disposable {
     private readonly contextService;
     private readonly modelService;

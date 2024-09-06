@@ -1,5 +1,5 @@
-import { Event } from "vs/base/common/event";
-export declare const IExtensionHostDebugService: any;
+import { Event } from "../../../base/common/event.js";
+export declare const IExtensionHostDebugService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionHostDebugService>;
 export interface IAttachSessionEvent {
     sessionId: string;
     subId?: string;

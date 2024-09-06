@@ -1,6 +1,6 @@
-import { CodeWindow } from "vs/base/browser/window";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IWebview } from "vs/workbench/contrib/webview/browser/webview";
+import { CodeWindow } from "../../../../base/browser/window.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWebview } from "./webview.js";
 /**
  * Allows webviews to monitor when an element in the VS Code editor is being dragged/dropped.
  *

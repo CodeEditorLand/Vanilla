@@ -1,9 +1,9 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorOption, FindComputedEditorOptionValueById } from "vs/editor/common/config/editorOptions";
-import { FontInfo } from "vs/editor/common/config/fontInfo";
-import { ModelLineProjectionData } from "vs/editor/common/modelLineProjectionData";
-import { LineTokens } from "vs/editor/common/tokens/lineTokens";
-import { InlineDecoration } from "vs/editor/common/viewModel";
+import { EditorOption, FindComputedEditorOptionValueById } from "../../../../../common/config/editorOptions.js";
+import { FontInfo } from "../../../../../common/config/fontInfo.js";
+import { ModelLineProjectionData } from "../../../../../common/modelLineProjectionData.js";
+import { LineTokens } from "../../../../../common/tokens/lineTokens.js";
+import { InlineDecoration } from "../../../../../common/viewModel.js";
+import { ICodeEditor } from "../../../../editorBrowser.js";
 export declare function renderLines(source: LineSource, options: RenderOptions, decorations: InlineDecoration[], domNode: HTMLElement): RenderLinesResult;
 export declare class LineSource {
     readonly lineTokens: LineTokens[];

@@ -1,7 +1,7 @@
-import { IAction } from "vs/base/common/actions";
-import { IMenu } from "vs/platform/actions/common/actions";
-import { IExtensionTerminalProfile, ITerminalProfile } from "vs/platform/terminal/common/terminal";
-import { ITerminalLocationOptions, ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
+import { IAction } from "../../../../base/common/actions.js";
+import { IMenu } from "../../../../platform/actions/common/actions.js";
+import { IExtensionTerminalProfile, ITerminalProfile } from "../../../../platform/terminal/common/terminal.js";
+import { ITerminalLocationOptions, ITerminalService } from "./terminal.js";
 export declare const enum TerminalMenuBarGroup {
     Create = "1_create",
     Run = "3_run",

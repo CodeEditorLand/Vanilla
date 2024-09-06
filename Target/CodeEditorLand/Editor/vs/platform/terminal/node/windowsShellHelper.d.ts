@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { TerminalShellType } from "vs/platform/terminal/common/terminal";
+import { Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { TerminalShellType } from "../common/terminal.js";
 export interface IWindowsShellHelper extends IDisposable {
     readonly onShellNameChanged: Event<string>;
     readonly onShellTypeChanged: Event<TerminalShellType | undefined>;

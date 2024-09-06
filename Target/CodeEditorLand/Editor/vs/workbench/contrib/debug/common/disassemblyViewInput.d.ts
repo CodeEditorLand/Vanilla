@@ -1,5 +1,5 @@
-import { ThemeIcon } from "vs/base/common/themables";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
 export declare class DisassemblyViewInput extends EditorInput {
     static readonly ID = "debug.disassemblyView.input";
     get typeId(): string;

@@ -1,7 +1,7 @@
-import { AriaRole } from "vs/base/browser/ui/aria/aria";
-import { IListAccessibilityProvider } from "vs/base/browser/ui/list/listWidget";
-import { IAccessibleViewService } from "vs/platform/accessibility/browser/accessibleView";
-import { ChatTreeItem } from "vs/workbench/contrib/chat/browser/chat";
+import { AriaRole } from "../../../../base/browser/ui/aria/aria.js";
+import { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
+import { IAccessibleViewService } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { ChatTreeItem } from "./chat.js";
 export declare class ChatAccessibilityProvider implements IListAccessibilityProvider<ChatTreeItem> {
     private readonly _accessibleViewService;
     constructor(_accessibleViewService: IAccessibleViewService);

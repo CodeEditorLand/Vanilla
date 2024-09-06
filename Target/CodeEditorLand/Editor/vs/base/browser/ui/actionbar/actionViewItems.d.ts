@@ -1,12 +1,12 @@
-import { EventLike } from "vs/base/browser/dom";
-import { IActionViewItem } from "vs/base/browser/ui/actionbar/actionbar";
-import { IContextViewProvider } from "vs/base/browser/ui/contextview/contextview";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { ISelectBoxOptions, ISelectBoxStyles, ISelectOptionItem, SelectBox } from "vs/base/browser/ui/selectBox/selectBox";
-import { IToggleStyles } from "vs/base/browser/ui/toggle/toggle";
-import { IAction, IActionRunner } from "vs/base/common/actions";
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./actionbar";
+import { IAction, IActionRunner } from "../../../common/actions.js";
+import { Disposable } from "../../../common/lifecycle.js";
+import { EventLike } from "../../dom.js";
+import { IContextViewProvider } from "../contextview/contextview.js";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
+import { ISelectBoxOptions, ISelectBoxStyles, ISelectOptionItem, SelectBox } from "../selectBox/selectBox.js";
+import { IToggleStyles } from "../toggle/toggle.js";
+import { IActionViewItem } from "./actionbar.js";
+import "./actionbar.css";
 export interface IBaseActionViewItemOptions {
     draggable?: boolean;
     isMenu?: boolean;

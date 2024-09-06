@@ -1,12 +1,12 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IChannel, IServerChannel } from "vs/base/parts/ipc/common/ipc";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IUserDataSyncStore, IUserDataSyncStoreManagementService, UserDataSyncStoreType } from "vs/platform/userDataSync/common/userDataSync";
-import { IUserDataSyncAccount, IUserDataSyncAccountService } from "vs/platform/userDataSync/common/userDataSyncAccount";
-import { AbstractUserDataSyncStoreManagementService } from "vs/platform/userDataSync/common/userDataSyncStoreService";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { IUserDataSyncStore, IUserDataSyncStoreManagementService, UserDataSyncStoreType } from "./userDataSync.js";
+import { IUserDataSyncAccount, IUserDataSyncAccountService } from "./userDataSyncAccount.js";
+import { AbstractUserDataSyncStoreManagementService } from "./userDataSyncStoreService.js";
 export declare class UserDataSyncAccountServiceChannel implements IServerChannel {
     private readonly service;
     constructor(service: IUserDataSyncAccountService);
@@ -20,7 +20,7 @@ export declare class UserDataSyncAccountServiceChannelClient extends Disposable 
     get account(): IUserDataSyncAccount | undefined;
     get onTokenFailed(): Event<boolean>;
     private _onDidChangeAccount;
-    readonly onDidChangeAccount: any;
+    readonly onDidChangeAccount: Event<IUserDataSyncAccount | undefined>;
     constructor(channel: IChannel);
     updateAccount(account: IUserDataSyncAccount | undefined): Promise<undefined>;
 }

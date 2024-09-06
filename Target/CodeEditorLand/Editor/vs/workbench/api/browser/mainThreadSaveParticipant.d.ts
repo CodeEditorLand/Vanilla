@@ -1,6 +1,6 @@
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { ITextFileService } from "../../services/textfile/common/textfiles.js";
 export declare class SaveParticipant {
     private readonly _textFileService;
     private _saveParticipantDisposable;

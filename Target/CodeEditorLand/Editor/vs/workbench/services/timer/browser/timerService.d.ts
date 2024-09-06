@@ -1,13 +1,13 @@
-import * as perf from "vs/base/common/performance";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IUpdateService } from "vs/platform/update/common/update";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
-import { IPaneCompositePartService } from "vs/workbench/services/panecomposite/browser/panecomposite";
+import * as perf from "../../../../base/common/performance.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IWorkbenchLayoutService } from "../../layout/browser/layoutService.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { IPaneCompositePartService } from "../../panecomposite/browser/panecomposite.js";
 export interface IMemoryInfo {
     readonly workingSetSize: number;
     readonly privateBytes: number;
@@ -340,7 +340,7 @@ export interface ITimerService {
      */
     getStartTime(mark: string): number;
 }
-export declare const ITimerService: any;
+export declare const ITimerService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITimerService>;
 export type Writeable<T> = {
     -readonly [P in keyof T]: Writeable<T[P]>;
 };

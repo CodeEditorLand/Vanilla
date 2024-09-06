@@ -1,20 +1,21 @@
-import "vs/css!./media/review";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IMarkdownRendererOptions } from "vs/editor/browser/widget/markdownRenderer/browser/markdownRenderer";
-import { FontInfo } from "vs/editor/common/config/fontInfo";
-import { IRange } from "vs/editor/common/core/range";
-import * as languages from "vs/editor/common/languages";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IColorTheme } from "vs/platform/theme/common/themeService";
-import { ICommentService } from "vs/workbench/contrib/comments/browser/commentService";
-import { LayoutableEditor } from "vs/workbench/contrib/comments/browser/simpleCommentEditor";
-import { ICommentThreadWidget } from "vs/workbench/contrib/comments/common/commentThreadWidget";
-import { ICellRange } from "vs/workbench/contrib/notebook/common/notebookRange";
+import "./media/review.css";
+import * as dom from "../../../../base/browser/dom.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IMarkdownRendererOptions } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import { FontInfo } from "../../../../editor/common/config/fontInfo.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import * as languages from "../../../../editor/common/languages.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IColorTheme } from "../../../../platform/theme/common/themeService.js";
+import { ICellRange } from "../../notebook/common/notebookRange.js";
+import { ICommentThreadWidget } from "../common/commentThreadWidget.js";
+import { ICommentService } from "./commentService.js";
+import { LayoutableEditor } from "./simpleCommentEditor.js";
 export declare const COMMENTEDITOR_DECORATION_KEY = "commenteditordecoration";
 export declare class CommentThreadWidget<T extends IRange | ICellRange = IRange> extends Disposable implements ICommentThreadWidget {
     readonly container: HTMLElement;
@@ -43,7 +44,7 @@ export declare class CommentThreadWidget<T extends IRange | ICellRange = IRange>
     private _commentThreadContextValue;
     private _focusedContextKey;
     private _onDidResize;
-    onDidResize: any;
+    onDidResize: import("../../../../base/common/event.js").Event<dom.Dimension>;
     private _commentThreadState;
     get commentThread(): languages.CommentThread<T>;
     constructor(container: HTMLElement, _parentEditor: LayoutableEditor, _owner: string, _parentResourceUri: URI, _contextKeyService: IContextKeyService, _scopedInstantiationService: IInstantiationService, _commentThread: languages.CommentThread<T>, _pendingComment: string | undefined, _pendingEdits: {
@@ -62,18 +63,21 @@ export declare class CommentThreadWidget<T extends IRange | ICellRange = IRange>
     private _bindCommentThreadListeners;
     private _createCommentForm;
     private _createAdditionalActions;
-    getCommentCoords(commentUniqueId: number): any;
+    getCommentCoords(commentUniqueId: number): {
+        thread: dom.IDomNodePagePosition;
+        comment: dom.IDomNodePagePosition;
+    } | undefined;
     getPendingEdits(): {
         [key: number]: string;
     };
     getPendingComment(): string | undefined;
     setPendingComment(comment: string): void;
-    getDimensions(): any;
+    getDimensions(): dom.Dimension;
     layout(widthInPixel?: number): void;
     ensureFocusIntoNewEditingComment(): void;
     focusCommentEditor(): void;
     focus(): void;
-    submitComment(): Promise<any>;
+    submitComment(): Promise<void>;
     collapse(): void;
     applyTheme(theme: IColorTheme, fontInfo: FontInfo): void;
 }

@@ -1,11 +1,11 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IProgress } from "vs/platform/progress/common/progress";
-import { ChatAgentLocation } from "vs/workbench/contrib/chat/common/chatAgents";
-import { IChatFollowup, IChatProgress, IChatResponseProgressFileTreeData } from "vs/workbench/contrib/chat/common/chatService";
-import { IChatMessage } from "vs/workbench/contrib/chat/common/languageModels";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { ChatAgentLocation } from "./chatAgents.js";
+import { IChatFollowup, IChatProgress, IChatResponseProgressFileTreeData } from "./chatService.js";
+import { IChatMessage } from "./languageModels.js";
 export interface IChatSlashData {
     command: string;
     detail: string;
@@ -27,7 +27,7 @@ export type IChatSlashCallback = {
         followUp: IChatFollowup[];
     } | void>;
 };
-export declare const IChatSlashCommandService: any;
+export declare const IChatSlashCommandService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IChatSlashCommandService>;
 /**
  * This currently only exists to drive /clear and /help
  */

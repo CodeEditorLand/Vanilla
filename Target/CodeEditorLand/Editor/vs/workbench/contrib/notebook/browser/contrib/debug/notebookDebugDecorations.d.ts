@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IDebugService } from "vs/workbench/contrib/debug/common/debug";
-import { INotebookEditor, INotebookEditorContribution } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IDebugService } from "../../../../debug/common/debug.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
 export declare class PausedCellDecorationContribution extends Disposable implements INotebookEditorContribution {
     private readonly _notebookEditor;
     private readonly _debugService;

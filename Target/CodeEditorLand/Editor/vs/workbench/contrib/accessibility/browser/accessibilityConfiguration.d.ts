@@ -1,19 +1,20 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationPropertySchema } from "vs/platform/configuration/common/configurationRegistry";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { AccessibilityVoiceSettingId, ISpeechService } from "vs/workbench/contrib/speech/common/speechService";
-export declare const accessibilityHelpIsShown: any;
-export declare const accessibleViewIsShown: any;
-export declare const accessibleViewSupportsNavigation: any;
-export declare const accessibleViewVerbosityEnabled: any;
-export declare const accessibleViewGoToSymbolSupported: any;
-export declare const accessibleViewOnLastLine: any;
-export declare const accessibleViewCurrentProviderId: any;
-export declare const accessibleViewInCodeBlock: any;
-export declare const accessibleViewContainsCodeBlocks: any;
-export declare const accessibleViewHasUnassignedKeybindings: any;
-export declare const accessibleViewHasAssignedKeybindings: any;
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationNode, IConfigurationPropertySchema } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { AccessibilityVoiceSettingId, ISpeechService } from "../../speech/common/speechService.js";
+export declare const accessibilityHelpIsShown: RawContextKey<boolean>;
+export declare const accessibleViewIsShown: RawContextKey<boolean>;
+export declare const accessibleViewSupportsNavigation: RawContextKey<boolean>;
+export declare const accessibleViewVerbosityEnabled: RawContextKey<boolean>;
+export declare const accessibleViewGoToSymbolSupported: RawContextKey<boolean>;
+export declare const accessibleViewOnLastLine: RawContextKey<boolean>;
+export declare const accessibleViewCurrentProviderId: RawContextKey<string>;
+export declare const accessibleViewInCodeBlock: RawContextKey<boolean>;
+export declare const accessibleViewContainsCodeBlocks: RawContextKey<boolean>;
+export declare const accessibleViewHasUnassignedKeybindings: RawContextKey<boolean>;
+export declare const accessibleViewHasAssignedKeybindings: RawContextKey<boolean>;
 /**
  * Miscellaneous settings tagged with accessibility and implemented in the accessibility contrib but
  * were better to live under workbench for discoverability.
@@ -47,7 +48,7 @@ export declare const enum AccessibilityVerbositySettingId {
     DiffEditorActive = "accessibility.verbosity.diffEditorActive",
     Debug = "accessibility.verbosity.debug"
 }
-export declare const accessibilityConfigurationNodeBase: IConfigurationNode;
+export declare const accessibilityConfigurationNodeBase: Readonly<IConfigurationNode>;
 export declare const soundFeatureBase: IConfigurationPropertySchema;
 export declare const announcementFeatureBase: IConfigurationPropertySchema;
 export declare function registerAccessibilityConfiguration(): void;

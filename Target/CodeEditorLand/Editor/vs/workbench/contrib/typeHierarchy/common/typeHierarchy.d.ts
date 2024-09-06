@@ -1,10 +1,11 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { RefCountedDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IPosition } from "vs/editor/common/core/position";
-import { IRange } from "vs/editor/common/core/range";
-import { ProviderResult, SymbolKind, SymbolTag } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { RefCountedDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IPosition } from "../../../../editor/common/core/position.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { LanguageFeatureRegistry } from "../../../../editor/common/languageFeatureRegistry.js";
+import { ProviderResult, SymbolKind, SymbolTag } from "../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../editor/common/model.js";
 export declare const enum TypeHierarchyDirection {
     Subtypes = "subtypes",
     Supertypes = "supertypes"
@@ -29,7 +30,7 @@ export interface TypeHierarchyProvider {
     provideSupertypes(item: TypeHierarchyItem, token: CancellationToken): ProviderResult<TypeHierarchyItem[]>;
     provideSubtypes(item: TypeHierarchyItem, token: CancellationToken): ProviderResult<TypeHierarchyItem[]>;
 }
-export declare const TypeHierarchyProviderRegistry: any;
+export declare const TypeHierarchyProviderRegistry: LanguageFeatureRegistry<TypeHierarchyProvider>;
 export declare class TypeHierarchyModel {
     readonly id: string;
     readonly provider: TypeHierarchyProvider;

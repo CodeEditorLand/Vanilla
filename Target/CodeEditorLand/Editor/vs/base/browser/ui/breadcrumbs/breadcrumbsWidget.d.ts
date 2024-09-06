@@ -1,7 +1,7 @@
-import * as dom from "vs/base/browser/dom";
-import { Event } from "vs/base/common/event";
-import { ThemeIcon } from "vs/base/common/themables";
-import "vs/css!./breadcrumbsWidget";
+import { Event } from "../../../common/event.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import * as dom from "../../dom.js";
+import "./breadcrumbsWidget.css";
 export declare abstract class BreadcrumbsItem {
     abstract dispose(): void;
     abstract equals(other: BreadcrumbsItem): boolean;

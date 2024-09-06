@@ -1,5 +1,5 @@
-import { Position } from "vs/editor/common/core/position";
-import { Selection } from "vs/editor/common/core/selection";
+import { Position } from "./core/position.js";
+import { Selection } from "./core/selection.js";
 /**
  * Describes the reason the cursor has changed its position.
  */

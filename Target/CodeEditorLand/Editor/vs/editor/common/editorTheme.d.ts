@@ -1,7 +1,7 @@
-import { Color } from "vs/base/common/color";
-import { ColorIdentifier } from "vs/platform/theme/common/colorRegistry";
-import { ColorScheme } from "vs/platform/theme/common/theme";
-import { IColorTheme } from "vs/platform/theme/common/themeService";
+import { Color } from "../../base/common/color.js";
+import { ColorIdentifier } from "../../platform/theme/common/colorRegistry.js";
+import { ColorScheme } from "../../platform/theme/common/theme.js";
+import { IColorTheme } from "../../platform/theme/common/themeService.js";
 export declare class EditorTheme {
     private _theme;
     get type(): ColorScheme;

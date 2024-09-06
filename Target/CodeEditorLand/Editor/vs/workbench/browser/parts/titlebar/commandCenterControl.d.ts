@@ -1,8 +1,8 @@
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { Event } from "vs/base/common/event";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { WindowTitle } from "vs/workbench/browser/parts/titlebar/windowTitle";
+import { IHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegate.js";
+import { Event } from "../../../../base/common/event.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { WindowTitle } from "./windowTitle.js";
 export declare class CommandCenterControl {
     private readonly _disposables;
     private readonly _onDidChangeVisibility;

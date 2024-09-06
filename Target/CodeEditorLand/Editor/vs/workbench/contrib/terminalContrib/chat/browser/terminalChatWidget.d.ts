@@ -1,11 +1,12 @@
 import type { Terminal as RawXtermTerminal } from "@xterm/xterm";
-import { IFocusTracker } from "vs/base/browser/dom";
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./media/terminalChatWidget";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { InlineChatWidget } from "vs/workbench/contrib/inlineChat/browser/inlineChatWidget";
-import { ITerminalInstance, type IXtermTerminal } from "vs/workbench/contrib/terminal/browser/terminal";
+import { IFocusTracker } from "../../../../../base/browser/dom.js";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import "./media/terminalChatWidget.css";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { InlineChatWidget } from "../../../inlineChat/browser/inlineChatWidget.js";
+import { ITerminalInstance, type IXtermTerminal } from "../../../terminal/browser/terminal.js";
 export declare class TerminalChatWidget extends Disposable {
     private readonly _terminalElement;
     private readonly _instance;
@@ -14,7 +15,7 @@ export declare class TerminalChatWidget extends Disposable {
     private readonly _contextKeyService;
     private readonly _container;
     private readonly _onDidHide;
-    readonly onDidHide: any;
+    readonly onDidHide: Event<void>;
     private readonly _inlineChatWidget;
     get inlineChatWidget(): InlineChatWidget;
     private readonly _focusTracker;

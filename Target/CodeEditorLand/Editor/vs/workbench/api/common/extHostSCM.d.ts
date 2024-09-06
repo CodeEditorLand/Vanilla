@@ -1,13 +1,13 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { ExtHostCommands } from "vs/workbench/api/common/extHostCommands";
-import { ExtHostDocuments } from "vs/workbench/api/common/extHostDocuments";
 import type * as vscode from "vscode";
-import { ExtHostSCMShape, IMainContext, MainThreadSCMShape, SCMHistoryItemChangeDto, SCMHistoryItemDto } from "./extHost.protocol";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { ExtHostSCMShape, IMainContext, MainThreadSCMShape, SCMHistoryItemChangeDto, SCMHistoryItemDto } from "./extHost.protocol.js";
+import { ExtHostCommands } from "./extHostCommands.js";
+import { ExtHostDocuments } from "./extHostDocuments.js";
 export interface IValidateInput {
     (value: string, cursorPosition: number): vscode.ProviderResult<vscode.SourceControlInputBoxValidation | undefined | null>;
 }
@@ -59,14 +59,7 @@ export declare class ExtHostSCM implements ExtHostSCMShape {
     $executeResourceCommand(sourceControlHandle: number, groupHandle: number, handle: number, preserveFocus: boolean): Promise<void>;
     $validateInput(sourceControlHandle: number, value: string, cursorPosition: number): Promise<[string | IMarkdownString, number] | undefined>;
     $setSelectedSourceControl(selectedSourceControlHandle: number | undefined): Promise<void>;
-    $resolveHistoryItemGroupCommonAncestor(sourceControlHandle: number, historyItemGroupId1: string, historyItemGroupId2: string | undefined, token: CancellationToken): Promise<{
-        id: string;
-        ahead: number;
-        behind: number;
-    } | undefined>;
-    $resolveHistoryItemGroupCommonAncestor2(sourceControlHandle: number, historyItemGroupIds: string[], token: CancellationToken): Promise<string | undefined>;
-    $provideHistoryItems(sourceControlHandle: number, historyItemGroupId: string, options: any, token: CancellationToken): Promise<SCMHistoryItemDto[] | undefined>;
-    $provideHistoryItems2(sourceControlHandle: number, options: any, token: CancellationToken): Promise<SCMHistoryItemDto[] | undefined>;
-    $provideHistoryItemSummary(sourceControlHandle: number, historyItemId: string, historyItemParentId: string | undefined, token: CancellationToken): Promise<SCMHistoryItemDto | undefined>;
+    $resolveHistoryItemGroupCommonAncestor(sourceControlHandle: number, historyItemGroupIds: string[], token: CancellationToken): Promise<string | undefined>;
+    $provideHistoryItems(sourceControlHandle: number, options: any, token: CancellationToken): Promise<SCMHistoryItemDto[] | undefined>;
     $provideHistoryItemChanges(sourceControlHandle: number, historyItemId: string, historyItemParentId: string | undefined, token: CancellationToken): Promise<SCMHistoryItemChangeDto[] | undefined>;
 }

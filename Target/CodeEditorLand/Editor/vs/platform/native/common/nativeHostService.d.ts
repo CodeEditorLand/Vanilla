@@ -1,5 +1,5 @@
-import { IMainProcessService } from "vs/platform/ipc/common/mainProcessService";
-import { INativeHostService } from "vs/platform/native/common/native";
+import { IMainProcessService } from "../../ipc/common/mainProcessService.js";
+import { INativeHostService } from "./native.js";
 export declare class NativeHostService implements INativeHostService {
     readonly windowId: number;
     readonly _serviceBrand: undefined;

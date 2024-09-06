@@ -1,18 +1,18 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { GroupIdentifier } from "vs/workbench/common/editor";
-import { IOverlayWebview, IWebviewService, WebviewInitInfo } from "vs/workbench/contrib/webview/browser/webview";
-import { WebviewIconManager, WebviewIcons } from "vs/workbench/contrib/webviewPanel/browser/webviewIconManager";
-import { IEditorGroup, IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { ACTIVE_GROUP_TYPE, IEditorService, SIDE_GROUP_TYPE } from "vs/workbench/services/editor/common/editorService";
-import { WebviewInput, WebviewInputInitInfo } from "./webviewEditorInput";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { GroupIdentifier } from "../../../common/editor.js";
+import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { ACTIVE_GROUP_TYPE, IEditorService, SIDE_GROUP_TYPE } from "../../../services/editor/common/editorService.js";
+import { IOverlayWebview, IWebviewService, WebviewInitInfo } from "../../webview/browser/webview.js";
+import { WebviewInput, WebviewInputInitInfo } from "./webviewEditorInput.js";
+import { WebviewIconManager, WebviewIcons } from "./webviewIconManager.js";
 export interface IWebViewShowOptions {
     readonly group?: IEditorGroup | GroupIdentifier | ACTIVE_GROUP_TYPE | SIDE_GROUP_TYPE;
     readonly preserveFocus?: boolean;
 }
-export declare const IWebviewWorkbenchService: any;
+export declare const IWebviewWorkbenchService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWebviewWorkbenchService>;
 /**
  * Service responsible for showing and managing webview editors in the workbench.
  */
@@ -81,7 +81,7 @@ export declare class LazilyResolvedWebviewEditorInput extends WebviewInput {
     private _resolvePromise?;
     constructor(init: WebviewInputInitInfo, webview: IOverlayWebview, _webviewWorkbenchService: IWebviewWorkbenchService);
     dispose(): void;
-    resolve(): Promise<any>;
+    resolve(): Promise<IDisposable | null>;
     protected transfer(other: LazilyResolvedWebviewEditorInput): WebviewInput | undefined;
 }
 export declare class WebviewEditorService extends Disposable implements IWebviewWorkbenchService {
@@ -96,7 +96,7 @@ export declare class WebviewEditorService extends Disposable implements IWebview
     get iconManager(): WebviewIconManager;
     private _activeWebview;
     private readonly _onDidChangeActiveWebviewEditor;
-    readonly onDidChangeActiveWebviewEditor: any;
+    readonly onDidChangeActiveWebviewEditor: Event<WebviewInput | undefined>;
     private getWebviewId;
     private updateActiveWebview;
     openWebview(webviewInitInfo: WebviewInitInfo, viewType: string, title: string, showOptions: IWebViewShowOptions): WebviewInput;

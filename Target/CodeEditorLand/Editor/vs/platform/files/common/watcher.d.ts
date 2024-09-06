@@ -1,7 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { IRelativePattern, ParsedPattern } from "vs/base/common/glob";
-import { Disposable, DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { FileChangeFilter, IFileChange } from "vs/platform/files/common/files";
+import { Event } from "../../../base/common/event.js";
+import { IRelativePattern, ParsedPattern } from "../../../base/common/glob.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../base/common/lifecycle.js";
+import { FileChangeFilter, IFileChange } from "./files.js";
 interface IWatchRequest {
     /**
      * The path to watch.

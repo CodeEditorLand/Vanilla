@@ -1,6 +1,6 @@
-import type { IHoverAction } from "vs/base/browser/ui/hover/hover";
-import { MarkdownString } from "vs/base/common/htmlContent";
-import { ITerminalInstance } from "vs/workbench/contrib/terminal/browser/terminal";
+import type { IHoverAction } from "../../../../base/browser/ui/hover/hover.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { ITerminalInstance } from "./terminal.js";
 export declare function getInstanceHoverInfo(instance: ITerminalInstance): {
     content: MarkdownString;
     actions: IHoverAction[];

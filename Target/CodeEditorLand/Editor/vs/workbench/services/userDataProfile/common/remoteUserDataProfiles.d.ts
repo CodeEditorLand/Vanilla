@@ -1,5 +1,5 @@
-import { IUserDataProfile } from "vs/platform/userDataProfile/common/userDataProfile";
-export declare const IRemoteUserDataProfilesService: any;
+import { IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+export declare const IRemoteUserDataProfilesService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IRemoteUserDataProfilesService>;
 export interface IRemoteUserDataProfilesService {
     readonly _serviceBrand: undefined;
     getRemoteProfiles(): Promise<readonly IUserDataProfile[]>;

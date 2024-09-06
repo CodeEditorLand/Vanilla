@@ -1,4 +1,4 @@
-import { Comparator } from "./arrays";
+import { Comparator } from "./arrays.js";
 export declare function findLast<T>(array: readonly T[], predicate: (item: T) => boolean): T | undefined;
 export declare function findLastIdx<T>(array: readonly T[], predicate: (item: T) => boolean, fromIndex?: number): number;
 /**

@@ -1,12 +1,13 @@
 import type { ILink } from "@xterm/xterm";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { IAccessibleViewService } from "vs/platform/accessibility/browser/accessibleView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILabelService } from "vs/platform/label/common/label";
-import { IQuickInputService, IQuickPickItem } from "vs/platform/quickinput/common/quickInput";
-import { type IDetachedTerminalInstance, type ITerminalInstance } from "vs/workbench/contrib/terminal/browser/terminal";
-import type { TerminalLink } from "vs/workbench/contrib/terminalContrib/links/browser/terminalLink";
-import { IDetectedLinks } from "vs/workbench/contrib/terminalContrib/links/browser/terminalLinkManager";
+import { Event } from "../../../../../base/common/event.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { IAccessibleViewService } from "../../../../../platform/accessibility/browser/accessibleView.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { IQuickInputService, IQuickPickItem } from "../../../../../platform/quickinput/common/quickInput.js";
+import { type IDetachedTerminalInstance, type ITerminalInstance } from "../../../terminal/browser/terminal.js";
+import type { TerminalLink } from "./terminalLink.js";
+import { IDetectedLinks } from "./terminalLinkManager.js";
 export declare class TerminalLinkQuickpick extends DisposableStore {
     private readonly _labelService;
     private readonly _quickInputService;
@@ -15,7 +16,7 @@ export declare class TerminalLinkQuickpick extends DisposableStore {
     private readonly _editorViewState;
     private _instance;
     private readonly _onDidRequestMoreLinks;
-    readonly onDidRequestMoreLinks: any;
+    readonly onDidRequestMoreLinks: Event<void>;
     constructor(_labelService: ILabelService, _quickInputService: IQuickInputService, _accessibleViewService: IAccessibleViewService, instantiationService: IInstantiationService);
     show(instance: ITerminalInstance | IDetachedTerminalInstance, links: {
         viewport: IDetectedLinks;

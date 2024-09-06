@@ -1,4 +1,4 @@
-import { IProcessEnvironment } from "vs/base/common/platform";
+import { IProcessEnvironment } from "./platform.js";
 /**
  * Options to be passed to the external program or shell.
  */

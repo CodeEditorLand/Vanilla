@@ -1,1 +1,1 @@
-import"../../../../vs/editor/common/languageFeatureRegistry.js";import"../../../../vs/editor/common/languages.js";import{createDecorator as e}from"../../../../vs/platform/instantiation/common/instantiation.js";const B=e("ILanguageFeaturesService");export{B as ILanguageFeaturesService};
+import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";import"../languageFeatureRegistry.js";import"../languages.js";const B=e("ILanguageFeaturesService");export{B as ILanguageFeaturesService};

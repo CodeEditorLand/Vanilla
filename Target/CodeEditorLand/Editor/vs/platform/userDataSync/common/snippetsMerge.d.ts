@@ -1,4 +1,4 @@
-import { IStringDictionary } from "vs/base/common/collections";
+import { IStringDictionary } from "../../../base/common/collections.js";
 export interface IMergeResult {
     local: {
         added: IStringDictionary<string>;

@@ -1,9 +1,9 @@
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { IUntypedEditorInput } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { IPreferencesService } from "vs/workbench/services/preferences/common/preferences";
-import { Settings2EditorModel } from "vs/workbench/services/preferences/common/preferencesModels";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IUntypedEditorInput } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IPreferencesService } from "./preferences.js";
+import { Settings2EditorModel } from "./preferencesModels.js";
 export declare class SettingsEditor2Input extends EditorInput {
     static readonly ID: string;
     private readonly _settingsModel;

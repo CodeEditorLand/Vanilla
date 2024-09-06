@@ -1,8 +1,8 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IViewBadge } from "vs/workbench/common/views";
-import { IOverlayWebview } from "vs/workbench/contrib/webview/browser/webview";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IViewBadge } from "../../../common/views.js";
+import { IOverlayWebview } from "../../webview/browser/webview.js";
 /**
  * A webview shown in a view pane.
  */
@@ -52,7 +52,7 @@ interface IWebviewViewResolver {
      */
     resolve(webviewView: WebviewView, cancellation: CancellationToken): Promise<void>;
 }
-export declare const IWebviewViewService: any;
+export declare const IWebviewViewService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWebviewViewService>;
 export interface IWebviewViewService {
     readonly _serviceBrand: undefined;
     /**
@@ -76,7 +76,9 @@ export declare class WebviewViewService extends Disposable implements IWebviewVi
     private readonly _resolvers;
     private readonly _awaitingRevival;
     private readonly _onNewResolverRegistered;
-    readonly onNewResolverRegistered: any;
+    readonly onNewResolverRegistered: Event<{
+        readonly viewType: string;
+    }>;
     register(viewType: string, resolver: IWebviewViewResolver): IDisposable;
     resolve(viewType: string, webview: WebviewView, cancellation: CancellationToken): Promise<void>;
 }

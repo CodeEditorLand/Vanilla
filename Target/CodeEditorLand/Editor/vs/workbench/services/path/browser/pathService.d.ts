@@ -1,7 +1,7 @@
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { AbstractPathService } from "vs/workbench/services/path/common/pathService";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { AbstractPathService } from "../common/pathService.js";
 export declare class BrowserPathService extends AbstractPathService {
     constructor(remoteAgentService: IRemoteAgentService, environmentService: IWorkbenchEnvironmentService, contextService: IWorkspaceContextService);
 }

@@ -1,16 +1,27 @@
 import type { Terminal as RawXtermTerminal } from "@xterm/xterm";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IChatCodeBlockContextProviderService } from "vs/workbench/contrib/chat/browser/chat";
-import { IChatResponseModel } from "vs/workbench/contrib/chat/common/chatModel";
-import { IChatService } from "vs/workbench/contrib/chat/common/chatService";
-import { ITerminalContribution, ITerminalInstance, ITerminalService, IXtermTerminal } from "vs/workbench/contrib/terminal/browser/terminal";
-import { TerminalWidgetManager } from "vs/workbench/contrib/terminal/browser/widgets/widgetManager";
-import { ITerminalProcessManager } from "vs/workbench/contrib/terminal/common/terminal";
-import { TerminalChatWidget } from "vs/workbench/contrib/terminalContrib/chat/browser/terminalChatWidget";
-import { IViewsService } from "vs/workbench/services/views/common/viewsService";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { IChatCodeBlockContextProviderService } from "../../../chat/browser/chat.js";
+import { IChatResponseModel } from "../../../chat/common/chatModel.js";
+import { IChatService } from "../../../chat/common/chatService.js";
+import { ITerminalContribution, ITerminalInstance, ITerminalService, IXtermTerminal } from "../../../terminal/browser/terminal.js";
+import { TerminalWidgetManager } from "../../../terminal/browser/widgets/widgetManager.js";
+import { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
+import { TerminalChatWidget } from "./terminalChatWidget.js";
+declare const enum Message {
+    NONE = 0,
+    ACCEPT_SESSION = 1,
+    CANCEL_SESSION = 2,
+    PAUSE_SESSION = 4,
+    CANCEL_REQUEST = 8,
+    CANCEL_INPUT = 16,
+    ACCEPT_INPUT = 32,
+    RERUN_INPUT = 64
+}
 export declare class TerminalChatController extends Disposable implements ITerminalContribution {
     private readonly _instance;
     private readonly _terminalService;
@@ -45,8 +56,8 @@ export declare class TerminalChatController extends Disposable implements ITermi
     private _messages;
     private _lastResponseContent;
     get lastResponseContent(): string | undefined;
-    readonly onDidAcceptInput: any;
-    get onDidHide(): any;
+    readonly onDidAcceptInput: Event<Message>;
+    get onDidHide(): Event<any>;
     private _terminalAgentName;
     private readonly _model;
     get scopedContextKeyService(): IContextKeyService;
@@ -78,3 +89,4 @@ export declare class TerminalChatController extends Disposable implements ITermi
     reveal(): Promise<void>;
     viewInChat(): Promise<void>;
 }
+export {};

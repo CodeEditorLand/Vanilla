@@ -1,7 +1,7 @@
-import { ILogService } from "vs/platform/log/common/log";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ShutdownReason, StartupKind } from "vs/workbench/services/lifecycle/common/lifecycle";
-import { AbstractLifecycleService } from "vs/workbench/services/lifecycle/common/lifecycleService";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ShutdownReason, StartupKind } from "../common/lifecycle.js";
+import { AbstractLifecycleService } from "../common/lifecycleService.js";
 export declare class BrowserLifecycleService extends AbstractLifecycleService {
     private beforeUnloadListener;
     private unloadListener;

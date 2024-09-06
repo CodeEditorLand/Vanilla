@@ -1,8 +1,9 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IFileChange, IFileSystemProvider, IWatchOptions } from "vs/platform/files/common/files";
-import { AbstractNonRecursiveWatcherClient, AbstractUniversalWatcherClient, ILogMessage, IRecursiveWatcherOptions } from "vs/platform/files/common/watcher";
-import { ILogService } from "vs/platform/log/common/log";
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { ILogService } from "../../log/common/log.js";
+import { IFileChange, IFileSystemProvider, IWatchOptions } from "./files.js";
+import { AbstractNonRecursiveWatcherClient, AbstractUniversalWatcherClient, ILogMessage, IRecursiveWatcherOptions } from "./watcher.js";
 export interface IDiskFileSystemProviderOptions {
     watcher?: {
         /**
@@ -26,10 +27,10 @@ export declare abstract class AbstractDiskFileSystemProvider extends Disposable 
     protected readonly logService: ILogService;
     private readonly options?;
     constructor(logService: ILogService, options?: IDiskFileSystemProviderOptions | undefined);
-    protected readonly _onDidChangeFile: any;
-    readonly onDidChangeFile: any;
-    protected readonly _onDidWatchError: any;
-    readonly onDidWatchError: any;
+    protected readonly _onDidChangeFile: Emitter<readonly IFileChange[]>;
+    readonly onDidChangeFile: import("../../../base/common/event.js").Event<readonly IFileChange[]>;
+    protected readonly _onDidWatchError: Emitter<string>;
+    readonly onDidWatchError: import("../../../base/common/event.js").Event<string>;
     watch(resource: URI, opts: IWatchOptions): IDisposable;
     private universalWatcher;
     private readonly universalWatchRequests;

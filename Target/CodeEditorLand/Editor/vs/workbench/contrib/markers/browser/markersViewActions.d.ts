@@ -1,12 +1,12 @@
-import * as DOM from "vs/base/browser/dom";
-import { ActionViewItem, IActionViewItemOptions } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { Action, IAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { Marker } from "vs/workbench/contrib/markers/browser/markersModel";
-import "vs/css!./markersViewActions";
+import * as DOM from "../../../../base/browser/dom.js";
+import { ActionViewItem, IActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { Action, IAction } from "../../../../base/common/actions.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { Marker } from "./markersModel.js";
+import "./markersViewActions.css";
 export interface IMarkersFiltersChangeEvent {
     excludedFiles?: boolean;
     showWarnings?: boolean;

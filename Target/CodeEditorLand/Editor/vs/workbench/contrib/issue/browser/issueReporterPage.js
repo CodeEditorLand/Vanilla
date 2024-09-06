@@ -1,4 +1,4 @@
-import{escape as i}from"../../../../../vs/base/common/strings.js";import{localize as e}from"../../../../../vs/nls.js";const s=i(e("sendSystemInfo","Include my system information")),l=i(e("sendProcessInfo","Include my currently running processes")),n=i(e("sendWorkspaceInfo","Include my workspace metadata")),a=i(e("sendExtensions","Include my enabled extensions")),o=i(e("sendExperiments","Include A/B experiment info")),t=i(e("sendExtensionData","Include additional extension info")),d=e({key:"reviewGuidanceLabel",comment:['{Locked="<a href="https://github.com/microsoft/vscode/wiki/Submitting-Bugs-and-Suggestions" target="_blank">"}','{Locked="</a>"}']},'Before you report an issue here please <a href="https://github.com/microsoft/vscode/wiki/Submitting-Bugs-and-Suggestions" target="_blank">review the guidance we provide</a>.');var p=()=>`
+import{escape as i}from"../../../../base/common/strings.js";import{localize as e}from"../../../../nls.js";const s=i(e("sendSystemInfo","Include my system information")),l=i(e("sendProcessInfo","Include my currently running processes")),n=i(e("sendWorkspaceInfo","Include my workspace metadata")),a=i(e("sendExtensions","Include my enabled extensions")),o=i(e("sendExperiments","Include A/B experiment info")),t=i(e("sendExtensionData","Include additional extension info")),d=e({key:"reviewGuidanceLabel",comment:['{Locked="<a href="https://github.com/microsoft/vscode/wiki/Submitting-Bugs-and-Suggestions" target="_blank">"}','{Locked="</a>"}']},'Before you report an issue here please <a href="https://github.com/microsoft/vscode/wiki/Submitting-Bugs-and-Suggestions" target="_blank">review the guidance we provide</a>.');var p=()=>`
 <div class="issue-reporter" id="issue-reporter">
 	<div id="english" class="input-group hidden">${i(e("completeInEnglish","Please complete the form in English."))}</div>
 
@@ -67,7 +67,7 @@ import{escape as i}from"../../../../../vs/base/common/strings.js";import{localiz
 				<span id="ext-loading" hidden></span>
 				<span class="ext-parens" hidden>(</span><a href="#" class="showInfo" id="extension-id">${i(e("show","show"))}</a><span class="ext-parens" hidden>)</span>
 			</label>
-			<pre class="block-info" id="extension-data" placeholder="${i(e("extensionData","Extension does not have additional data to include."))}" style="white-space: pre-wrap;">
+			<pre class="block-info" id="extension-data" placeholder="${i(e("extensionData","Extension does not have additional data to include."))}" style="white-space: pre-wrap; user-select: text;">
 				<!-- To be dynamically filled -->
 			</pre>
 		</div>

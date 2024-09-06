@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { INotebookExecutionService } from "vs/workbench/contrib/notebook/common/notebookExecutionService";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchContribution } from "../../../../../common/contributions.js";
+import { INotebookExecutionService } from "../../../common/notebookExecutionService.js";
 export declare class CellExecutionParticipantsContribution extends Disposable implements IWorkbenchContribution {
     private readonly instantiationService;
     private readonly notebookExecutionService;

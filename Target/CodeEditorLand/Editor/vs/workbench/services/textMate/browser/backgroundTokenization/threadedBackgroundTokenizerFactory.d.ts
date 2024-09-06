@@ -1,15 +1,15 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { IBackgroundTokenizationStore, IBackgroundTokenizer } from "vs/editor/common/languages";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { ITextModel } from "vs/editor/common/model";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IExtensionResourceLoaderService } from "vs/platform/extensionResourceLoader/common/extensionResourceLoader";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IValidGrammarDefinition } from "vs/workbench/services/textMate/common/TMScopeRegistry";
 import type { IRawTheme } from "vscode-textmate";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../../base/common/observable.js";
+import { IBackgroundTokenizationStore, IBackgroundTokenizer } from "../../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IEnvironmentService } from "../../../../../platform/environment/common/environment.js";
+import { IExtensionResourceLoaderService } from "../../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
+import { INotificationService } from "../../../../../platform/notification/common/notification.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IValidGrammarDefinition } from "../../common/TMScopeRegistry.js";
 export declare class ThreadedBackgroundTokenizerFactory implements IDisposable {
     private readonly _reportTokenizationTime;
     private readonly _shouldTokenizeAsync;

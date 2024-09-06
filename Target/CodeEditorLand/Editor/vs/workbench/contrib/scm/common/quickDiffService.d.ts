@@ -1,13 +1,13 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IQuickDiffService, QuickDiff, QuickDiffProvider } from "vs/workbench/contrib/scm/common/quickDiff";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IQuickDiffService, QuickDiff, QuickDiffProvider } from "./quickDiff.js";
 export declare class QuickDiffService extends Disposable implements IQuickDiffService {
     private readonly uriIdentityService;
     readonly _serviceBrand: undefined;
     private quickDiffProviders;
     private readonly _onDidChangeQuickDiffProviders;
-    readonly onDidChangeQuickDiffProviders: any;
+    readonly onDidChangeQuickDiffProviders: import("../../../../base/common/event.js").Event<void>;
     constructor(uriIdentityService: IUriIdentityService);
     addQuickDiffProvider(quickDiff: QuickDiffProvider): IDisposable;
     private isQuickDiff;

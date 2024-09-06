@@ -1,18 +1,18 @@
-import { VSBuffer, VSBufferReadableStream } from "vs/base/common/buffer";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ConfigurationTarget } from "vs/platform/configuration/common/configuration";
-import { IFileStatWithMetadata, IWriteFileOptions } from "vs/platform/files/common/files";
-import { NotebookCellTextModel } from "vs/workbench/contrib/notebook/common/model/notebookCellTextModel";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
-import { INotebookContributionData, INotebookRendererInfo, INotebookStaticPreloadInfo, IOrderedMimeType, IOutputDto, NotebookData, NotebookExtensionDescription, TransientOptions } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { NotebookProviderInfo } from "vs/workbench/contrib/notebook/common/notebookProvider";
-import { NotebookPriorityInfo } from "vs/workbench/contrib/search/common/search";
-import { INotebookFileMatchNoModel } from "vs/workbench/contrib/search/common/searchNotebookHelpers";
-import { ITextQuery } from "vs/workbench/services/search/common/search";
-export declare const INotebookService: any;
+import { VSBuffer, VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
+import { IFileStatWithMetadata, IWriteFileOptions } from "../../../../platform/files/common/files.js";
+import { ITextQuery } from "../../../services/search/common/search.js";
+import { NotebookPriorityInfo } from "../../search/common/search.js";
+import { INotebookFileMatchNoModel } from "../../search/common/searchNotebookHelpers.js";
+import { NotebookCellTextModel } from "./model/notebookCellTextModel.js";
+import { NotebookTextModel } from "./model/notebookTextModel.js";
+import { INotebookContributionData, INotebookRendererInfo, INotebookStaticPreloadInfo, IOrderedMimeType, IOutputDto, NotebookData, NotebookExtensionDescription, TransientOptions } from "./notebookCommon.js";
+import { NotebookProviderInfo } from "./notebookProvider.js";
+export declare const INotebookService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INotebookService>;
 export interface INotebookContentProvider {
     options: TransientOptions;
     open(uri: URI, backupId: string | VSBuffer | undefined, untitledDocumentData: VSBuffer | undefined, token: CancellationToken): Promise<{

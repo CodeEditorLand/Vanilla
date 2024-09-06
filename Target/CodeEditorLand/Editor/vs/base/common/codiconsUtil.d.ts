@@ -1,4 +1,4 @@
-import { ThemeIcon } from "vs/base/common/themables";
+import { ThemeIcon } from "./themables.js";
 export declare function register(id: string, fontCharacter: number | string): ThemeIcon;
 /**
  * Only to be used by the iconRegistry.

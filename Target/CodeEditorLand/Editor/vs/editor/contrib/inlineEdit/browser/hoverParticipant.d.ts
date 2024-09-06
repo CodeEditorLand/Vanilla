@@ -1,10 +1,10 @@
-import { ICodeEditor, IEditorMouseEvent } from "vs/editor/browser/editorBrowser";
-import { Range } from "vs/editor/common/core/range";
-import { IModelDecoration } from "vs/editor/common/model";
-import { HoverAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts } from "vs/editor/contrib/hover/browser/hoverTypes";
-import { InlineEditController } from "vs/editor/contrib/inlineEdit/browser/inlineEditController";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ICodeEditor, IEditorMouseEvent } from "../../../browser/editorBrowser.js";
+import { Range } from "../../../common/core/range.js";
+import { IModelDecoration } from "../../../common/model.js";
+import { HoverAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts } from "../../hover/browser/hoverTypes.js";
+import { InlineEditController } from "./inlineEditController.js";
 export declare class InlineEditHover implements IHoverPart {
     readonly owner: IEditorHoverParticipant<InlineEditHover>;
     readonly range: Range;

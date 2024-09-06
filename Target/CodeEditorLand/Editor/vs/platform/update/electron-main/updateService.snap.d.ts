@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { IEnvironmentMainService } from "vs/platform/environment/electron-main/environmentMainService";
-import { ILifecycleMainService } from "vs/platform/lifecycle/electron-main/lifecycleMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { AvailableForDownload, IUpdateService, State, UpdateType } from "vs/platform/update/common/update";
+import { Event } from "../../../base/common/event.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { AvailableForDownload, IUpdateService, State, UpdateType } from "../common/update.js";
 declare abstract class AbstractUpdateService implements IUpdateService {
     private readonly lifecycleMainService;
     protected logService: ILogService;

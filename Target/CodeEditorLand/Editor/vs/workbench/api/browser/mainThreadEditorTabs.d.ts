@@ -1,10 +1,10 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILogService } from "vs/platform/log/common/log";
-import { MainThreadEditorTabsShape } from "vs/workbench/api/common/extHost.protocol";
-import { EditorGroupColumn } from "vs/workbench/services/editor/common/editorGroupColumn";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
+import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../services/editor/common/editorService.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadEditorTabsShape } from "../common/extHost.protocol.js";
 export declare class MainThreadEditorTabs implements MainThreadEditorTabsShape {
     private readonly _editorGroupsService;
     private readonly _configurationService;

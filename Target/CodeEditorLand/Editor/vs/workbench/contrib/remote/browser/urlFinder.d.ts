@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IDebugService } from "vs/workbench/contrib/debug/common/debug";
-import { ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IDebugService } from "../../debug/common/debug.js";
+import { ITerminalService } from "../../terminal/browser/terminal.js";
 export declare class UrlFinder extends Disposable {
     /**
      * Local server url pattern matching following urls:
@@ -17,7 +17,10 @@ export declare class UrlFinder extends Disposable {
     private static readonly localPythonServerRegex;
     private static readonly excludeTerminals;
     private _onDidMatchLocalUrl;
-    readonly onDidMatchLocalUrl: any;
+    readonly onDidMatchLocalUrl: import("../../../../base/common/event.js").Event<{
+        host: string;
+        port: number;
+    }>;
     private listeners;
     constructor(terminalService: ITerminalService, debugService: IDebugService);
     private registerTerminalInstance;

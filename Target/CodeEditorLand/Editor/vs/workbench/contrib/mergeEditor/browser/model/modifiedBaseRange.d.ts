@@ -1,7 +1,7 @@
-import { ITextModel } from "vs/editor/common/model";
-import { LineRangeEdit } from "vs/workbench/contrib/mergeEditor/browser/model/editing";
-import { LineRange } from "vs/workbench/contrib/mergeEditor/browser/model/lineRange";
-import { DetailedLineRangeMapping } from "vs/workbench/contrib/mergeEditor/browser/model/mapping";
+import { ITextModel } from "../../../../../editor/common/model.js";
+import { LineRangeEdit } from "./editing.js";
+import { LineRange } from "./lineRange.js";
+import { DetailedLineRangeMapping } from "./mapping.js";
 /**
  * Describes modifications in input 1 and input 2 for a specific range in base.
  *
@@ -25,9 +25,9 @@ export declare class ModifiedBaseRange {
      */
     readonly input2Diffs: readonly DetailedLineRangeMapping[];
     static fromDiffs(diffs1: readonly DetailedLineRangeMapping[], diffs2: readonly DetailedLineRangeMapping[], baseTextModel: ITextModel, input1TextModel: ITextModel, input2TextModel: ITextModel): ModifiedBaseRange[];
-    readonly input1CombinedDiff: any;
-    readonly input2CombinedDiff: any;
-    readonly isEqualChange: any;
+    readonly input1CombinedDiff: DetailedLineRangeMapping | undefined;
+    readonly input2CombinedDiff: DetailedLineRangeMapping | undefined;
+    readonly isEqualChange: boolean;
     constructor(baseRange: LineRange, baseTextModel: ITextModel, input1Range: LineRange, input1TextModel: ITextModel, 
     /**
      * From base to input1

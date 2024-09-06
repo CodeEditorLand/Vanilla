@@ -1,5 +1,5 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
 export declare class ActiveWindowManager extends Disposable {
     private readonly disposables;
     private firstActiveWindowIdPromise;

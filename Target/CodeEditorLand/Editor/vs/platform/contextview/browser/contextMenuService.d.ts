@@ -1,12 +1,12 @@
-import { IContextMenuDelegate } from "vs/base/browser/contextmenu";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IContextMenuHandlerOptions } from "./contextMenuHandler";
-import { IContextMenuMenuDelegate, IContextMenuService, IContextViewService } from "./contextView";
+import { IContextMenuDelegate } from "../../../base/browser/contextmenu.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IMenuService } from "../../actions/common/actions.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+import { INotificationService } from "../../notification/common/notification.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IContextMenuHandlerOptions } from "./contextMenuHandler.js";
+import { IContextMenuMenuDelegate, IContextMenuService, IContextViewService } from "./contextView.js";
 export declare class ContextMenuService extends Disposable implements IContextMenuService {
     private readonly telemetryService;
     private readonly notificationService;
@@ -18,9 +18,9 @@ export declare class ContextMenuService extends Disposable implements IContextMe
     private _contextMenuHandler;
     private get contextMenuHandler();
     private readonly _onDidShowContextMenu;
-    readonly onDidShowContextMenu: any;
+    readonly onDidShowContextMenu: import("../../../base/common/event.js").Event<void>;
     private readonly _onDidHideContextMenu;
-    readonly onDidHideContextMenu: any;
+    readonly onDidHideContextMenu: import("../../../base/common/event.js").Event<void>;
     constructor(telemetryService: ITelemetryService, notificationService: INotificationService, contextViewService: IContextViewService, keybindingService: IKeybindingService, menuService: IMenuService, contextKeyService: IContextKeyService);
     configure(options: IContextMenuHandlerOptions): void;
     showContextMenu(delegate: IContextMenuDelegate | IContextMenuMenuDelegate): void;

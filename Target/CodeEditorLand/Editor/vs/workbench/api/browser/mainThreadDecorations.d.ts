@@ -1,7 +1,7 @@
-import { UriComponents } from "vs/base/common/uri";
-import { IDecorationsService } from "vs/workbench/services/decorations/common/decorations";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { MainThreadDecorationsShape } from "../common/extHost.protocol";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IDecorationsService } from "../../services/decorations/common/decorations.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadDecorationsShape } from "../common/extHost.protocol.js";
 export declare class MainThreadDecorations implements MainThreadDecorationsShape {
     private readonly _decorationsService;
     private readonly _provider;

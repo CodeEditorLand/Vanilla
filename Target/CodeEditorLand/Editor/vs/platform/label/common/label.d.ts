@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ISingleFolderWorkspaceIdentifier, IWorkspace, IWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
-export declare const ILabelService: any;
+import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { ISingleFolderWorkspaceIdentifier, IWorkspace, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+export declare const ILabelService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILabelService>;
 export interface ILabelService {
     readonly _serviceBrand: undefined;
     /**

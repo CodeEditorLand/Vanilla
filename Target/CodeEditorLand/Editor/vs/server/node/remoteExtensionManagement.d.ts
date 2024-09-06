@@ -1,7 +1,7 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { Event } from "vs/base/common/event";
-import { ISocket, PersistentProtocol } from "vs/base/parts/ipc/common/ipc.net";
-import { ILogService } from "vs/platform/log/common/log";
+import { VSBuffer } from "../../base/common/buffer.js";
+import { Event } from "../../base/common/event.js";
+import { ISocket, PersistentProtocol } from "../../base/parts/ipc/common/ipc.net.js";
+import { ILogService } from "../../platform/log/common/log.js";
 export declare class ManagementConnection {
     private readonly _logService;
     private readonly _reconnectionToken;

@@ -1,5 +1,5 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { IConfigurationPropertySchema } from "vs/platform/configuration/common/configurationRegistry";
+import { IStringDictionary } from "../../../../../base/common/collections.js";
+import { IConfigurationPropertySchema } from "../../../../../platform/configuration/common/configurationRegistry.js";
 export declare const enum TerminalInitialHintSettingId {
     Enabled = "terminal.integrated.initialHint"
 }

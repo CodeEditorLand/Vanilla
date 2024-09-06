@@ -1,9 +1,9 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { URI } from "vs/base/common/uri";
-import { IRange } from "vs/editor/common/core/range";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import { ILink, ILinksList, LinkProvider } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IRange } from "../../../common/core/range.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import { ILink, ILinksList, LinkProvider } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
 export declare class Link implements ILink {
     private _link;
     private readonly _provider;

@@ -1,1 +1,1 @@
-import"../../../../../vs/base/common/platform.js";import"../../../../../vs/base/common/product.js";
+import"../../../common/platform.js";import"../../../common/product.js";

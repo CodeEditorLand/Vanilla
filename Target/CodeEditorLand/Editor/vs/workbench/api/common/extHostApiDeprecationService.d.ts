@@ -1,11 +1,11 @@
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export interface IExtHostApiDeprecationService {
     readonly _serviceBrand: undefined;
     report(apiId: string, extension: IExtensionDescription, migrationSuggestion: string): void;
 }
-export declare const IExtHostApiDeprecationService: any;
+export declare const IExtHostApiDeprecationService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostApiDeprecationService>;
 export declare class ExtHostApiDeprecationService implements IExtHostApiDeprecationService {
     private readonly _extHostLogService;
     readonly _serviceBrand: undefined;

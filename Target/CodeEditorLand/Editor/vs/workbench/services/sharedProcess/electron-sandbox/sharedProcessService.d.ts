@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IChannel, IServerChannel } from "vs/base/parts/ipc/common/ipc";
-import { ISharedProcessService } from "vs/platform/ipc/electron-sandbox/services";
-import { ILogService } from "vs/platform/log/common/log";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IChannel, IServerChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { ISharedProcessService } from "../../../../platform/ipc/electron-sandbox/services.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 export declare class SharedProcessService extends Disposable implements ISharedProcessService {
     readonly windowId: number;
     private readonly logService;

@@ -1,7 +1,7 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IIPCLogger, IMessagePassingProtocol, IPCClient } from "vs/base/parts/ipc/common/ipc";
+import { VSBuffer } from "../../../common/buffer.js";
+import { Event } from "../../../common/event.js";
+import { Disposable, IDisposable } from "../../../common/lifecycle.js";
+import { IIPCLogger, IMessagePassingProtocol, IPCClient } from "./ipc.js";
 export declare const enum SocketDiagnosticsEventType {
     Created = "created",
     Read = "read",

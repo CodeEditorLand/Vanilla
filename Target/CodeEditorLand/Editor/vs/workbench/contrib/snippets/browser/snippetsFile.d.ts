@@ -1,7 +1,7 @@
-import { URI } from "vs/base/common/uri";
-import { IExtensionResourceLoaderService } from "vs/platform/extensionResourceLoader/common/extensionResourceLoader";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { IFileService } from "vs/platform/files/common/files";
+import { URI } from "../../../../base/common/uri.js";
+import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
 export declare class Snippet {
     readonly isFileTemplate: boolean;
     readonly scopes: string[];
@@ -12,10 +12,10 @@ export declare class Snippet {
     readonly source: string;
     readonly snippetSource: SnippetSource;
     readonly snippetIdentifier: string;
-    readonly extensionId?: any;
+    readonly extensionId?: ExtensionIdentifier | undefined;
     private readonly _bodyInsights;
     readonly prefixLow: string;
-    constructor(isFileTemplate: boolean, scopes: string[], name: string, prefix: string, description: string, body: string, source: string, snippetSource: SnippetSource, snippetIdentifier: string, extensionId?: any);
+    constructor(isFileTemplate: boolean, scopes: string[], name: string, prefix: string, description: string, body: string, source: string, snippetSource: SnippetSource, snippetIdentifier: string, extensionId?: ExtensionIdentifier | undefined);
     get codeSnippet(): string;
     get isBogous(): boolean;
     get isTrivial(): boolean;

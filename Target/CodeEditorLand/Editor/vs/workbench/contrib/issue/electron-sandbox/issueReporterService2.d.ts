@@ -1,9 +1,9 @@
-import { IProductConfiguration } from "vs/base/common/product";
-import { IProcessMainService } from "vs/platform/issue/common/issue";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { BaseIssueReporterService } from "vs/workbench/contrib/issue/browser/baseIssueReporterService";
-import { IIssueFormService, IssueReporterData } from "vs/workbench/contrib/issue/common/issue";
+import { IProductConfiguration } from "../../../../base/common/product.js";
+import { IProcessMainService } from "../../../../platform/issue/common/issue.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { BaseIssueReporterService } from "../browser/baseIssueReporterService.js";
+import { IIssueFormService, IssueReporterData } from "../common/issue.js";
 export declare class IssueReporter2 extends BaseIssueReporterService {
     private readonly nativeHostService;
     private readonly processMainService;

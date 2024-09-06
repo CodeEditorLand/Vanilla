@@ -1,19 +1,20 @@
-import { URI } from "vs/base/common/uri";
-import { IFileOpenOptions, IFileSystemProvider, IStat, IWatchOptions } from "vs/platform/files/common/files";
-import { IDebugService } from "vs/workbench/contrib/debug/common/debug";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileChange, IFileOpenOptions, IFileSystemProvider, IStat, IWatchOptions } from "../../../../platform/files/common/files.js";
+import { IDebugService, IDebugSession } from "../common/debug.js";
 export declare class DebugMemoryFileSystemProvider implements IFileSystemProvider {
     private readonly debugService;
     private memoryFdCounter;
     private readonly fdMemory;
     private readonly changeEmitter;
     /** @inheritdoc */
-    readonly onDidChangeCapabilities: any;
+    readonly onDidChangeCapabilities: Event<any>;
     /** @inheritdoc */
-    readonly onDidChangeFile: any;
+    readonly onDidChangeFile: Event<readonly IFileChange[]>;
     /** @inheritdoc */
     readonly capabilities: number;
     constructor(debugService: IDebugService);
-    watch(resource: URI, opts: IWatchOptions): any;
+    watch(resource: URI, opts: IWatchOptions): import("../../../../base/common/lifecycle.js").IDisposable;
     /** @inheritdoc */
     stat(file: URI): Promise<IStat>;
     /** @inheritdoc */
@@ -37,13 +38,13 @@ export declare class DebugMemoryFileSystemProvider implements IFileSystemProvide
     /** @inheritdoc */
     write(fd: number, pos: number, data: Uint8Array, offset: number, length: number): Promise<number>;
     protected parseUri(uri: URI): {
-        session: any;
+        session: IDebugSession;
         offset: {
             fromOffset: number;
             toOffset: number;
         } | undefined;
         readOnly: boolean;
-        sessionId: any;
+        sessionId: string;
         memoryReference: string;
     };
 }

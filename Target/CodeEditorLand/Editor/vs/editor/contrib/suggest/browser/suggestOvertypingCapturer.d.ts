@@ -1,6 +1,6 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { SuggestModel } from "vs/editor/contrib/suggest/browser/suggestModel";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { SuggestModel } from "./suggestModel.js";
 export declare class OvertypingCapturer implements IDisposable {
     private static readonly _maxSelectionLength;
     private readonly _disposables;

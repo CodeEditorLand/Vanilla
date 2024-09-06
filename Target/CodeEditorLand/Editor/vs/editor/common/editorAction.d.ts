@@ -1,6 +1,6 @@
-import { IEditorAction } from "vs/editor/common/editorCommon";
-import { ICommandMetadata } from "vs/platform/commands/common/commands";
-import { ContextKeyExpression, IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { ICommandMetadata } from "../../platform/commands/common/commands.js";
+import { ContextKeyExpression, IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
+import { IEditorAction } from "./editorCommon.js";
 export declare class InternalEditorAction implements IEditorAction {
     readonly id: string;
     readonly label: string;

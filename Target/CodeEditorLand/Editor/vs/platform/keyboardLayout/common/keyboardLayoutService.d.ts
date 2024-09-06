@@ -1,5 +1,5 @@
-import { Event } from "vs/base/common/event";
-import { IKeyboardLayoutInfo, IKeyboardMapping } from "vs/platform/keyboardLayout/common/keyboardLayout";
+import { Event } from "../../../base/common/event.js";
+import { IKeyboardLayoutInfo, IKeyboardMapping } from "./keyboardLayout.js";
 export interface IKeyboardLayoutData {
     keyboardLayoutInfo: IKeyboardLayoutInfo;
     keyboardMapping: IKeyboardMapping;

@@ -1,9 +1,9 @@
-import { CancellationToken, CancellationTokenSource } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Disposable, DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { IExtUri } from "vs/base/common/resources";
-import { URI } from "vs/base/common/uri";
-import { MicrotaskDelay } from "./symbols";
+import { CancellationToken, CancellationTokenSource } from "./cancellation.js";
+import { Event } from "./event.js";
+import { Disposable, DisposableStore, IDisposable } from "./lifecycle.js";
+import { IExtUri } from "./resources.js";
+import { MicrotaskDelay } from "./symbols.js";
+import { URI } from "./uri.js";
 export declare function isThenable<T>(obj: unknown): obj is Promise<T>;
 export interface CancelablePromise<T> extends Promise<T> {
     cancel(): void;

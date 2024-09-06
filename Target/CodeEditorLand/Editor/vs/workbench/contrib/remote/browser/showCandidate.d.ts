@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IBrowserWorkbenchEnvironmentService } from "vs/workbench/services/environment/browser/environmentService";
-import { IRemoteExplorerService } from "vs/workbench/services/remote/common/remoteExplorerService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { IRemoteExplorerService } from "../../../services/remote/common/remoteExplorerService.js";
 export declare class ShowCandidateContribution extends Disposable implements IWorkbenchContribution {
     static readonly ID = "workbench.contrib.showPortCandidate";
     constructor(remoteExplorerService: IRemoteExplorerService, environmentService: IBrowserWorkbenchEnvironmentService);

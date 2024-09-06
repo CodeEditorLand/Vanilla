@@ -1,9 +1,9 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { ExtensionDescriptionRegistry } from "vs/workbench/services/extensions/common/extensionDescriptionRegistry";
-import { ExtensionActivationReason, MissingExtensionDependency } from "vs/workbench/services/extensions/common/extensions";
 import type * as vscode from "vscode";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { ExtensionDescriptionRegistry } from "../../services/extensions/common/extensionDescriptionRegistry.js";
+import { ExtensionActivationReason, MissingExtensionDependency } from "../../services/extensions/common/extensions.js";
 /**
  * Represents the source code (module) of an extension.
  */

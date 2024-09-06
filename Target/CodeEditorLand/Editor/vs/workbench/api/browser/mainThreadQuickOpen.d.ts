@@ -1,7 +1,7 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IPickOptions, IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { IInputBoxOptions, MainThreadQuickOpenShape, TransferQuickInput, TransferQuickPickItem, TransferQuickPickItemOrSeparator } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IPickOptions, IQuickInputService } from "../../../platform/quickinput/common/quickInput.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IInputBoxOptions, MainThreadQuickOpenShape, TransferQuickInput, TransferQuickPickItem, TransferQuickPickItemOrSeparator } from "../common/extHost.protocol.js";
 export declare class MainThreadQuickOpen implements MainThreadQuickOpenShape {
     private readonly _proxy;
     private readonly _quickInputService;

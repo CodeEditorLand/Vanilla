@@ -1,7 +1,7 @@
-import "vs/base/browser/ui/codicons/codiconStyles";
-import { ResolvedKeybinding } from "vs/base/common/keybindings";
-import { CodeAction } from "vs/editor/common/languages";
-import { CodeActionItem } from "vs/editor/contrib/codeAction/common/types";
-import "vs/editor/contrib/symbolIcons/browser/symbolIcons";
-import { IActionListItem } from "vs/platform/actionWidget/browser/actionList";
+import "../../../../base/browser/ui/codicons/codiconStyles.js";
+import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
+import { CodeAction } from "../../../common/languages.js";
+import { CodeActionItem } from "../common/types.js";
+import "../../symbolIcons/browser/symbolIcons.js";
+import { IActionListItem } from "../../../../platform/actionWidget/browser/actionList.js";
 export declare function toMenuItems(inputCodeActions: readonly CodeActionItem[], showHeaders: boolean, keybindingResolver: (action: CodeAction) => ResolvedKeybinding | undefined): IActionListItem<CodeActionItem>[];

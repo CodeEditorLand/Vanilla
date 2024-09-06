@@ -1,13 +1,13 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILogService } from "vs/platform/log/common/log";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { MainThreadTreeViewsShape } from "vs/workbench/api/common/extHost.protocol";
-import { IRevealOptions, ITreeItem, IViewBadge } from "vs/workbench/common/views";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { IViewsService } from "vs/workbench/services/views/common/viewsService";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { INotificationService } from "../../../platform/notification/common/notification.js";
+import { IRevealOptions, ITreeItem, IViewBadge } from "../../common/views.js";
+import { IExtensionService } from "../../services/extensions/common/extensions.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IViewsService } from "../../services/views/common/viewsService.js";
+import { MainThreadTreeViewsShape } from "../common/extHost.protocol.js";
 export declare class MainThreadTreeViews extends Disposable implements MainThreadTreeViewsShape {
     private readonly viewsService;
     private readonly notificationService;

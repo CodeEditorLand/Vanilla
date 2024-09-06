@@ -1,6 +1,6 @@
-import * as strings from "vs/base/common/strings";
-import { Range } from "vs/editor/common/core/range";
-import { CharacterPair } from "vs/editor/common/languages/languageConfiguration";
+import * as strings from "../../../../base/common/strings.js";
+import { Range } from "../../core/range.js";
+import { CharacterPair } from "../languageConfiguration.js";
 /**
  * Represents a grouping of colliding bracket pairs.
  *

@@ -1,9 +1,9 @@
-import { IURITransformer } from "vs/base/common/uriIpc";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { CommandsConverter } from "vs/workbench/api/common/extHostCommands";
-import { ExtHostDocuments } from "vs/workbench/api/common/extHostDocuments";
 import type * as vscode from "vscode";
-import { ExtHostLanguagesShape, IMainContext } from "./extHost.protocol";
+import { IURITransformer } from "../../../base/common/uriIpc.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostLanguagesShape, IMainContext } from "./extHost.protocol.js";
+import { CommandsConverter } from "./extHostCommands.js";
+import { ExtHostDocuments } from "./extHostDocuments.js";
 export declare class ExtHostLanguages implements ExtHostLanguagesShape {
     private readonly _documents;
     private readonly _commands;

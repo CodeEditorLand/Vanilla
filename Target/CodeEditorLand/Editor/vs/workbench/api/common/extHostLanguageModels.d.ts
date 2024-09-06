@@ -1,16 +1,17 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { SerializedError } from "vs/base/common/errors";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ExtensionIdentifier, IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { ExtHostLanguageModelsShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostAuthentication } from "vs/workbench/api/common/extHostAuthentication";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { IChatMessage, IChatResponseFragment, ILanguageModelChatMetadata } from "vs/workbench/contrib/chat/common/languageModels";
 import type * as vscode from "vscode";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { SerializedError } from "../../../base/common/errors.js";
+import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IChatMessage, IChatResponseFragment, ILanguageModelChatMetadata } from "../../contrib/chat/common/languageModels.js";
+import { ExtHostLanguageModelsShape } from "./extHost.protocol.js";
+import { IExtHostAuthentication } from "./extHostAuthentication.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export interface IExtHostLanguageModels extends ExtHostLanguageModels {
 }
-export declare const IExtHostLanguageModels: any;
+export declare const IExtHostLanguageModels: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostLanguageModels>;
 export declare class ExtHostLanguageModels implements ExtHostLanguageModelsShape {
     private readonly _logService;
     private readonly _extHostAuthentication;
@@ -19,7 +20,7 @@ export declare class ExtHostLanguageModels implements ExtHostLanguageModelsShape
     private readonly _proxy;
     private readonly _onDidChangeModelAccess;
     private readonly _onDidChangeProviders;
-    readonly onDidChangeProviders: any;
+    readonly onDidChangeProviders: Event<void>;
     private readonly _languageModels;
     private readonly _allLanguageModelData;
     private readonly _modelAccessList;

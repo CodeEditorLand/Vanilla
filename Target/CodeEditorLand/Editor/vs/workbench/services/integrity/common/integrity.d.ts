@@ -1,5 +1,5 @@
-import { URI } from "vs/base/common/uri";
-export declare const IIntegrityService: any;
+import { URI } from "../../../../base/common/uri.js";
+export declare const IIntegrityService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IIntegrityService>;
 export interface ChecksumPair {
     uri: URI;
     actual: string;

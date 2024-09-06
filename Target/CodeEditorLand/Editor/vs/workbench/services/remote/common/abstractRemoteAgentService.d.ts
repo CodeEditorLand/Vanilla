@@ -1,15 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IDiagnosticInfo, IDiagnosticInfoOptions } from "vs/platform/diagnostics/common/diagnostics";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IRemoteAgentEnvironment } from "vs/platform/remote/common/remoteAgentEnvironment";
-import { IRemoteAuthorityResolverService } from "vs/platform/remote/common/remoteAuthorityResolver";
-import { IRemoteSocketFactoryService } from "vs/platform/remote/common/remoteSocketFactoryService";
-import { ISignService } from "vs/platform/sign/common/sign";
-import { ITelemetryData, TelemetryLevel } from "vs/platform/telemetry/common/telemetry";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IExtensionHostExitInfo, IRemoteAgentConnection, IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
-import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IDiagnosticInfo, IDiagnosticInfoOptions } from "../../../../platform/diagnostics/common/diagnostics.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IRemoteAgentEnvironment } from "../../../../platform/remote/common/remoteAgentEnvironment.js";
+import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { IRemoteSocketFactoryService } from "../../../../platform/remote/common/remoteSocketFactoryService.js";
+import { ISignService } from "../../../../platform/sign/common/sign.js";
+import { ITelemetryData, TelemetryLevel } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { IExtensionHostExitInfo, IRemoteAgentConnection, IRemoteAgentService } from "./remoteAgentService.js";
 export declare abstract class AbstractRemoteAgentService extends Disposable implements IRemoteAgentService {
     private readonly remoteSocketFactoryService;
     private readonly userDataProfileService;

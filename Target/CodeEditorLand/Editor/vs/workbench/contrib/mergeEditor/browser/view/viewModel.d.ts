@@ -1,12 +1,14 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable, ITransaction } from "vs/base/common/observable";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { MergeEditorModel } from "vs/workbench/contrib/mergeEditor/browser/model/mergeEditorModel";
-import { InputNumber, ModifiedBaseRange, ModifiedBaseRangeState } from "vs/workbench/contrib/mergeEditor/browser/model/modifiedBaseRange";
-import { BaseCodeEditorView } from "vs/workbench/contrib/mergeEditor/browser/view/editors/baseCodeEditorView";
-import { InputCodeEditorView } from "vs/workbench/contrib/mergeEditor/browser/view/editors/inputCodeEditorView";
-import { ResultCodeEditorView } from "vs/workbench/contrib/mergeEditor/browser/view/editors/resultCodeEditorView";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable, ITransaction } from "../../../../../base/common/observable.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { INotificationService } from "../../../../../platform/notification/common/notification.js";
+import { MergeEditorModel } from "../model/mergeEditorModel.js";
+import { InputNumber, ModifiedBaseRange, ModifiedBaseRangeState } from "../model/modifiedBaseRange.js";
+import { BaseCodeEditorView } from "./editors/baseCodeEditorView.js";
+import { CodeEditorView } from "./editors/codeEditorView.js";
+import { InputCodeEditorView } from "./editors/inputCodeEditorView.js";
+import { ResultCodeEditorView } from "./editors/resultCodeEditorView.js";
 export declare class MergeEditorViewModel extends Disposable {
     readonly model: MergeEditorModel;
     readonly inputCodeEditorView1: InputCodeEditorView;
@@ -19,13 +21,16 @@ export declare class MergeEditorViewModel extends Disposable {
     private readonly manuallySetActiveModifiedBaseRange;
     private readonly attachedHistory;
     constructor(model: MergeEditorModel, inputCodeEditorView1: InputCodeEditorView, inputCodeEditorView2: InputCodeEditorView, resultCodeEditorView: ResultCodeEditorView, baseCodeEditorView: IObservable<BaseCodeEditorView | undefined>, showNonConflictingChanges: IObservable<boolean>, configurationService: IConfigurationService, notificationService: INotificationService);
-    readonly shouldUseAppendInsteadOfAccept: any;
+    readonly shouldUseAppendInsteadOfAccept: IObservable<boolean, unknown>;
     private counter;
     private readonly lastFocusedEditor;
-    readonly baseShowDiffAgainst: any;
-    readonly selectionInBase: any;
+    readonly baseShowDiffAgainst: IObservable<2 | 1 | undefined, unknown>;
+    readonly selectionInBase: IObservable<{
+        rangesInBase: Range[];
+        sourceEditor: CodeEditorView;
+    } | undefined, unknown>;
     private getRangeOfModifiedBaseRange;
-    readonly activeModifiedBaseRange: any;
+    readonly activeModifiedBaseRange: IObservable<ModifiedBaseRange | undefined, unknown>;
     setActiveModifiedBaseRange(range: ModifiedBaseRange | undefined, tx: ITransaction): void;
     setState(baseRange: ModifiedBaseRange, state: ModifiedBaseRangeState, tx: ITransaction, inputNumber: InputNumber): void;
     private goToConflict;

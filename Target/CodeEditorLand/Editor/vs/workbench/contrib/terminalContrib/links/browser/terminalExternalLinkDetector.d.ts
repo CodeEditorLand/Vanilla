@@ -1,6 +1,6 @@
 import type { IBufferLine, Terminal } from "@xterm/xterm";
-import { ITerminalExternalLinkProvider } from "vs/workbench/contrib/terminal/browser/terminal";
-import { ITerminalLinkDetector, ITerminalSimpleLink, OmitFirstArg } from "vs/workbench/contrib/terminalContrib/links/browser/links";
+import { ITerminalExternalLinkProvider } from "../../../terminal/browser/terminal.js";
+import { ITerminalLinkDetector, ITerminalSimpleLink, OmitFirstArg } from "./links.js";
 export declare class TerminalExternalLinkDetector implements ITerminalLinkDetector {
     readonly id: string;
     readonly xterm: Terminal;

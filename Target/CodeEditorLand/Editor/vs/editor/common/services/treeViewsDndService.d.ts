@@ -1,5 +1,5 @@
-import { VSDataTransfer } from "vs/base/common/dataTransfer";
-import { ITreeViewsDnDService as ITreeViewsDnDServiceCommon } from "vs/editor/common/services/treeViewsDnd";
+import { VSDataTransfer } from "../../../base/common/dataTransfer.js";
+import { ITreeViewsDnDService as ITreeViewsDnDServiceCommon } from "./treeViewsDnd.js";
 export interface ITreeViewsDnDService extends ITreeViewsDnDServiceCommon<VSDataTransfer> {
 }
-export declare const ITreeViewsDnDService: any;
+export declare const ITreeViewsDnDService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITreeViewsDnDService>;

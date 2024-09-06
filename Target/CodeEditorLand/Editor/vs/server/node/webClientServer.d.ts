@@ -1,11 +1,11 @@
 import * as http from "http";
 import * as url from "url";
-import { ICSSDevelopmentService } from "vs/platform/cssDev/node/cssDevService";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IRequestService } from "vs/platform/request/common/request";
-import { ServerConnectionToken } from "vs/server/node/serverConnectionToken";
-import { IServerEnvironmentService } from "vs/server/node/serverEnvironmentService";
+import { ICSSDevelopmentService } from "../../platform/cssDev/node/cssDevService.js";
+import { ILogService } from "../../platform/log/common/log.js";
+import { IProductService } from "../../platform/product/common/productService.js";
+import { IRequestService } from "../../platform/request/common/request.js";
+import { ServerConnectionToken } from "./serverConnectionToken.js";
+import { IServerEnvironmentService } from "./serverEnvironmentService.js";
 /**
  * Return an error to the client.
  */

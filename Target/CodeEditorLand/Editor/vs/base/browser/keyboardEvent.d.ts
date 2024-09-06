@@ -1,5 +1,5 @@
-import { KeyCodeChord } from "vs/base/common/keybindings";
-import { KeyCode } from "vs/base/common/keyCodes";
+import { KeyCodeChord } from "../common/keybindings.js";
+import { KeyCode } from "../common/keyCodes.js";
 export interface IKeyboardEvent {
     readonly _standardKeyboardEventBrand: true;
     readonly browserEvent: KeyboardEvent;

@@ -1,4 +1,3 @@
-import { Iterable } from "vs/base/common/iterator";
 export interface IDisposableTracker {
     /**
      * Is called on construction of a disposable.

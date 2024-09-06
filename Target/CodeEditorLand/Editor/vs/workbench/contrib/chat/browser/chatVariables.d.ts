@@ -1,15 +1,14 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Iterable } from "vs/base/common/iterator";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { Location } from "vs/editor/common/languages";
-import { IChatWidgetService } from "vs/workbench/contrib/chat/browser/chat";
-import { ChatAgentLocation } from "vs/workbench/contrib/chat/common/chatAgents";
-import { IChatModel, IChatRequestVariableData, IChatRequestVariableEntry } from "vs/workbench/contrib/chat/common/chatModel";
-import { IParsedChatRequest } from "vs/workbench/contrib/chat/common/chatParserTypes";
-import { IChatRequestVariableValue, IChatVariableData, IChatVariableResolver, IChatVariableResolverProgress, IChatVariablesService, IDynamicVariable } from "vs/workbench/contrib/chat/common/chatVariables";
-import { ILanguageModelToolsService } from "vs/workbench/contrib/chat/common/languageModelToolsService";
-import { IViewsService } from "vs/workbench/services/views/common/viewsService";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Location } from "../../../../editor/common/languages.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { ChatAgentLocation } from "../common/chatAgents.js";
+import { IChatModel, IChatRequestVariableData, IChatRequestVariableEntry } from "../common/chatModel.js";
+import { IParsedChatRequest } from "../common/chatParserTypes.js";
+import { IChatRequestVariableValue, IChatVariableData, IChatVariableResolver, IChatVariableResolverProgress, IChatVariablesService, IDynamicVariable } from "../common/chatVariables.js";
+import { ILanguageModelToolsService } from "../common/languageModelToolsService.js";
+import { IChatWidgetService } from "./chat.js";
 export declare class ChatVariablesService implements IChatVariablesService {
     private readonly chatWidgetService;
     private readonly viewsService;

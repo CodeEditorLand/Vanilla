@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IStorageDatabase } from "vs/base/parts/storage/common/storage";
-import { IRemoteService } from "vs/platform/ipc/common/services";
-import { ILogService } from "vs/platform/log/common/log";
-import { IStorageService, IStorageValueChangeEvent, StorageTarget } from "vs/platform/storage/common/storage";
-import { IUserDataProfile, IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IStorageDatabase } from "../../../base/parts/storage/common/storage.js";
+import { IRemoteService } from "../../ipc/common/services.js";
+import { ILogService } from "../../log/common/log.js";
+import { IStorageService, IStorageValueChangeEvent, StorageTarget } from "../../storage/common/storage.js";
+import { IUserDataProfile, IUserDataProfilesService } from "./userDataProfile.js";
 export interface IProfileStorageValueChanges {
     readonly profile: IUserDataProfile;
     readonly changes: IStorageValueChangeEvent[];
@@ -17,7 +17,7 @@ export interface IStorageValue {
     readonly value: string | undefined;
     readonly target: StorageTarget;
 }
-export declare const IUserDataProfileStorageService: any;
+export declare const IUserDataProfileStorageService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataProfileStorageService>;
 export interface IUserDataProfileStorageService {
     readonly _serviceBrand: undefined;
     /**

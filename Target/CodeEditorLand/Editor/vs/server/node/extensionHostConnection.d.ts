@@ -1,13 +1,13 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IProcessEnvironment } from "vs/base/common/platform";
-import { NodeSocket, WebSocketNodeSocket } from "vs/base/parts/ipc/node/ipc.net";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILogService } from "vs/platform/log/common/log";
-import { IRemoteExtensionHostStartParams } from "vs/platform/remote/common/remoteAgentConnection";
-import { IExtensionHostStatusService } from "vs/server/node/extensionHostStatusService";
-import { IServerEnvironmentService } from "vs/server/node/serverEnvironmentService";
+import { VSBuffer } from "../../base/common/buffer.js";
+import { Event } from "../../base/common/event.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { IProcessEnvironment } from "../../base/common/platform.js";
+import { NodeSocket, WebSocketNodeSocket } from "../../base/parts/ipc/node/ipc.net.js";
+import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
+import { ILogService } from "../../platform/log/common/log.js";
+import { IRemoteExtensionHostStartParams } from "../../platform/remote/common/remoteAgentConnection.js";
+import { IExtensionHostStatusService } from "./extensionHostStatusService.js";
+import { IServerEnvironmentService } from "./serverEnvironmentService.js";
 export declare function buildUserEnvironment(startParamsEnv: {
     [key: string]: string | null;
 } | undefined, withUserShellEnvironment: boolean, language: string, environmentService: IServerEnvironmentService, logService: ILogService, configurationService: IConfigurationService): Promise<IProcessEnvironment>;

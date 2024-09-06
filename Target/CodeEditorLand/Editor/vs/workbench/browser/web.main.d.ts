@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IWorkbench, IWorkbenchConstructionOptions } from "vs/workbench/browser/web.api";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { IWorkbench, IWorkbenchConstructionOptions } from "./web.api.js";
 export declare class BrowserMain extends Disposable {
     private readonly domElement;
     private readonly configuration;

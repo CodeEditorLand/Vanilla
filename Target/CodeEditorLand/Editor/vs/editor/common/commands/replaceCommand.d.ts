@@ -1,7 +1,7 @@
-import { Range } from "vs/editor/common/core/range";
-import { Selection } from "vs/editor/common/core/selection";
-import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "vs/editor/common/editorCommon";
-import { ITextModel } from "vs/editor/common/model";
+import { Range } from "../core/range.js";
+import { Selection } from "../core/selection.js";
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../editorCommon.js";
+import { ITextModel } from "../model.js";
 export declare class ReplaceCommand implements ICommand {
     private readonly _range;
     private readonly _text;

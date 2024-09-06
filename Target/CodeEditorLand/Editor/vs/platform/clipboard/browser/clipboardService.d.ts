@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { ILayoutService } from "vs/platform/layout/browser/layoutService";
-import { ILogService } from "vs/platform/log/common/log";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { ILayoutService } from "../../layout/browser/layoutService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IClipboardService } from "../common/clipboardService.js";
 export declare class BrowserClipboardService extends Disposable implements IClipboardService {
     private readonly layoutService;
     private readonly logService;

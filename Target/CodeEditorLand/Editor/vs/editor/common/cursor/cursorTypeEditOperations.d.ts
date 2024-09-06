@@ -1,9 +1,9 @@
-import { ReplaceCommandWithOffsetCursorState } from "vs/editor/common/commands/replaceCommand";
-import { Range } from "vs/editor/common/core/range";
-import { Selection } from "vs/editor/common/core/selection";
-import { CursorConfiguration, EditOperationResult, EditOperationType, ICursorSimpleModel } from "vs/editor/common/cursorCommon";
-import { ICommand, ICursorStateComputerData } from "vs/editor/common/editorCommon";
-import { ITextModel } from "vs/editor/common/model";
+import { ReplaceCommandWithOffsetCursorState } from "../commands/replaceCommand.js";
+import { Range } from "../core/range.js";
+import { Selection } from "../core/selection.js";
+import { CursorConfiguration, EditOperationResult, EditOperationType, ICursorSimpleModel } from "../cursorCommon.js";
+import { ICommand, ICursorStateComputerData } from "../editorCommon.js";
+import { ITextModel } from "../model.js";
 export declare class AutoIndentOperation {
     static getEdits(config: CursorConfiguration, model: ITextModel, selections: Selection[], ch: string, isDoingComposition: boolean): EditOperationResult | undefined;
     private static _isAutoIndentType;
@@ -67,7 +67,7 @@ export declare class PasteOperation {
     private static _simplePaste;
 }
 export declare class CompositionOperation {
-    static getEdits(prevEditOperationType: EditOperationType, config: CursorConfiguration, model: ITextModel, selections: Selection[], text: string, replacePrevCharCnt: number, replaceNextCharCnt: number, positionDelta: number): any;
+    static getEdits(prevEditOperationType: EditOperationType, config: CursorConfiguration, model: ITextModel, selections: Selection[], text: string, replacePrevCharCnt: number, replaceNextCharCnt: number, positionDelta: number): EditOperationResult;
     private static _compositionType;
 }
 export declare class TypeWithoutInterceptorsOperation {

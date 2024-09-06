@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
 export declare class CursorUndoRedoController extends Disposable implements IEditorContribution {
     static readonly ID = "editor.contrib.cursorUndoRedoController";
     static get(editor: ICodeEditor): CursorUndoRedoController | null;

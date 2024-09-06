@@ -1,8 +1,8 @@
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { ScrollbarVisibility } from "vs/base/common/scrollable";
-import { FontInfo } from "vs/editor/common/config/fontInfo";
-import { AccessibilitySupport } from "vs/platform/accessibility/common/accessibility";
-import { IConfigurationPropertySchema } from "vs/platform/configuration/common/configurationRegistry";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { ScrollbarVisibility } from "../../../base/common/scrollable.js";
+import { AccessibilitySupport } from "../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationPropertySchema } from "../../../platform/configuration/common/configurationRegistry.js";
+import { FontInfo } from "./fontInfo.js";
 /**
  * Configuration options for auto closing quotes and brackets
  */
@@ -716,6 +716,10 @@ export interface IEditorOptions {
      * When enabled, this shows a preview of the drop location and triggers an `onDropIntoEditor` event.
      */
     dropIntoEditor?: IDropIntoEditorOptions;
+    /**
+     * Sets whether the new experimental edit context should be used instead of the text area.
+     */
+    experimentalEditContextEnabled?: boolean;
     /**
      * Controls support for changing how content is pasted into the editor.
      */
@@ -1439,6 +1443,11 @@ export interface IEditorInlayHintsOptions {
      * Defaults to false.
      */
     padding?: boolean;
+    /**
+     * Maximum length for inlay hints per line
+     * Set to 0 to have an unlimited length.
+     */
+    maximumLength?: number;
 }
 /**
  * @internal
@@ -1743,6 +1752,7 @@ export interface IInlineSuggestOptions {
      */
     mode?: "prefix" | "subword" | "subwordSmart";
     showToolbar?: "always" | "onHover" | "never";
+    syntaxHighlightingEnabled?: boolean;
     suppressSuggestions?: boolean;
     /**
      * Does not clear active inline suggestions when the editor loses focus.
@@ -2115,137 +2125,138 @@ export declare const enum EditorOption {
     domReadOnly = 34,
     dragAndDrop = 35,
     dropIntoEditor = 36,
-    emptySelectionClipboard = 37,
-    experimentalWhitespaceRendering = 38,
-    extraEditorClassName = 39,
-    fastScrollSensitivity = 40,
-    find = 41,
-    fixedOverflowWidgets = 42,
-    folding = 43,
-    foldingStrategy = 44,
-    foldingHighlight = 45,
-    foldingImportsByDefault = 46,
-    foldingMaximumRegions = 47,
-    unfoldOnClickAfterEndOfLine = 48,
-    fontFamily = 49,
-    fontInfo = 50,
-    fontLigatures = 51,
-    fontSize = 52,
-    fontWeight = 53,
-    fontVariations = 54,
-    formatOnPaste = 55,
-    formatOnType = 56,
-    glyphMargin = 57,
-    gotoLocation = 58,
-    hideCursorInOverviewRuler = 59,
-    hover = 60,
-    inDiffEditor = 61,
-    inlineSuggest = 62,
-    inlineEdit = 63,
-    letterSpacing = 64,
-    lightbulb = 65,
-    lineDecorationsWidth = 66,
-    lineHeight = 67,
-    lineNumbers = 68,
-    lineNumbersMinChars = 69,
-    linkedEditing = 70,
-    links = 71,
-    matchBrackets = 72,
-    minimap = 73,
-    mouseStyle = 74,
-    mouseWheelScrollSensitivity = 75,
-    mouseWheelZoom = 76,
-    multiCursorMergeOverlapping = 77,
-    multiCursorModifier = 78,
-    multiCursorPaste = 79,
-    multiCursorLimit = 80,
-    occurrencesHighlight = 81,
-    overviewRulerBorder = 82,
-    overviewRulerLanes = 83,
-    padding = 84,
-    pasteAs = 85,
-    parameterHints = 86,
-    peekWidgetDefaultFocus = 87,
-    placeholder = 88,
-    definitionLinkOpensInPeek = 89,
-    quickSuggestions = 90,
-    quickSuggestionsDelay = 91,
-    readOnly = 92,
-    readOnlyMessage = 93,
-    renameOnType = 94,
-    renderControlCharacters = 95,
-    renderFinalNewline = 96,
-    renderLineHighlight = 97,
-    renderLineHighlightOnlyWhenFocus = 98,
-    renderValidationDecorations = 99,
-    renderWhitespace = 100,
-    revealHorizontalRightPadding = 101,
-    roundedSelection = 102,
-    rulers = 103,
-    scrollbar = 104,
-    scrollBeyondLastColumn = 105,
-    scrollBeyondLastLine = 106,
-    scrollPredominantAxis = 107,
-    selectionClipboard = 108,
-    selectionHighlight = 109,
-    selectOnLineNumbers = 110,
-    showFoldingControls = 111,
-    showUnused = 112,
-    snippetSuggestions = 113,
-    smartSelect = 114,
-    smoothScrolling = 115,
-    stickyScroll = 116,
-    stickyTabStops = 117,
-    stopRenderingLineAfter = 118,
-    suggest = 119,
-    suggestFontSize = 120,
-    suggestLineHeight = 121,
-    suggestOnTriggerCharacters = 122,
-    suggestSelection = 123,
-    tabCompletion = 124,
-    tabIndex = 125,
-    unicodeHighlighting = 126,
-    unusualLineTerminators = 127,
-    useShadowDOM = 128,
-    useTabStops = 129,
-    wordBreak = 130,
-    wordSegmenterLocales = 131,
-    wordSeparators = 132,
-    wordWrap = 133,
-    wordWrapBreakAfterCharacters = 134,
-    wordWrapBreakBeforeCharacters = 135,
-    wordWrapColumn = 136,
-    wordWrapOverride1 = 137,
-    wordWrapOverride2 = 138,
-    wrappingIndent = 139,
-    wrappingStrategy = 140,
-    showDeprecated = 141,
-    inlayHints = 142,
-    editorClassName = 143,
-    pixelRatio = 144,
-    tabFocusMode = 145,
-    layoutInfo = 146,
-    wrappingInfo = 147,
-    defaultColorDecorators = 148,
-    colorDecoratorsActivatedOn = 149,
-    inlineCompletionsAccessibilityVerbose = 150
+    experimentalEditContextEnabled = 37,
+    emptySelectionClipboard = 38,
+    experimentalWhitespaceRendering = 39,
+    extraEditorClassName = 40,
+    fastScrollSensitivity = 41,
+    find = 42,
+    fixedOverflowWidgets = 43,
+    folding = 44,
+    foldingStrategy = 45,
+    foldingHighlight = 46,
+    foldingImportsByDefault = 47,
+    foldingMaximumRegions = 48,
+    unfoldOnClickAfterEndOfLine = 49,
+    fontFamily = 50,
+    fontInfo = 51,
+    fontLigatures = 52,
+    fontSize = 53,
+    fontWeight = 54,
+    fontVariations = 55,
+    formatOnPaste = 56,
+    formatOnType = 57,
+    glyphMargin = 58,
+    gotoLocation = 59,
+    hideCursorInOverviewRuler = 60,
+    hover = 61,
+    inDiffEditor = 62,
+    inlineSuggest = 63,
+    inlineEdit = 64,
+    letterSpacing = 65,
+    lightbulb = 66,
+    lineDecorationsWidth = 67,
+    lineHeight = 68,
+    lineNumbers = 69,
+    lineNumbersMinChars = 70,
+    linkedEditing = 71,
+    links = 72,
+    matchBrackets = 73,
+    minimap = 74,
+    mouseStyle = 75,
+    mouseWheelScrollSensitivity = 76,
+    mouseWheelZoom = 77,
+    multiCursorMergeOverlapping = 78,
+    multiCursorModifier = 79,
+    multiCursorPaste = 80,
+    multiCursorLimit = 81,
+    occurrencesHighlight = 82,
+    overviewRulerBorder = 83,
+    overviewRulerLanes = 84,
+    padding = 85,
+    pasteAs = 86,
+    parameterHints = 87,
+    peekWidgetDefaultFocus = 88,
+    placeholder = 89,
+    definitionLinkOpensInPeek = 90,
+    quickSuggestions = 91,
+    quickSuggestionsDelay = 92,
+    readOnly = 93,
+    readOnlyMessage = 94,
+    renameOnType = 95,
+    renderControlCharacters = 96,
+    renderFinalNewline = 97,
+    renderLineHighlight = 98,
+    renderLineHighlightOnlyWhenFocus = 99,
+    renderValidationDecorations = 100,
+    renderWhitespace = 101,
+    revealHorizontalRightPadding = 102,
+    roundedSelection = 103,
+    rulers = 104,
+    scrollbar = 105,
+    scrollBeyondLastColumn = 106,
+    scrollBeyondLastLine = 107,
+    scrollPredominantAxis = 108,
+    selectionClipboard = 109,
+    selectionHighlight = 110,
+    selectOnLineNumbers = 111,
+    showFoldingControls = 112,
+    showUnused = 113,
+    snippetSuggestions = 114,
+    smartSelect = 115,
+    smoothScrolling = 116,
+    stickyScroll = 117,
+    stickyTabStops = 118,
+    stopRenderingLineAfter = 119,
+    suggest = 120,
+    suggestFontSize = 121,
+    suggestLineHeight = 122,
+    suggestOnTriggerCharacters = 123,
+    suggestSelection = 124,
+    tabCompletion = 125,
+    tabIndex = 126,
+    unicodeHighlighting = 127,
+    unusualLineTerminators = 128,
+    useShadowDOM = 129,
+    useTabStops = 130,
+    wordBreak = 131,
+    wordSegmenterLocales = 132,
+    wordSeparators = 133,
+    wordWrap = 134,
+    wordWrapBreakAfterCharacters = 135,
+    wordWrapBreakBeforeCharacters = 136,
+    wordWrapColumn = 137,
+    wordWrapOverride1 = 138,
+    wordWrapOverride2 = 139,
+    wrappingIndent = 140,
+    wrappingStrategy = 141,
+    showDeprecated = 142,
+    inlayHints = 143,
+    editorClassName = 144,
+    pixelRatio = 145,
+    tabFocusMode = 146,
+    layoutInfo = 147,
+    wrappingInfo = 148,
+    defaultColorDecorators = 149,
+    colorDecoratorsActivatedOn = 150,
+    inlineCompletionsAccessibilityVerbose = 151
 }
 export declare const EditorOptions: {
     acceptSuggestionOnCommitCharacter: IEditorOption<EditorOption.acceptSuggestionOnCommitCharacter, boolean>;
     acceptSuggestionOnEnter: IEditorOption<EditorOption.acceptSuggestionOnEnter, "on" | "off" | "smart">;
-    accessibilitySupport: IEditorOption<EditorOption.accessibilitySupport, any>;
+    accessibilitySupport: IEditorOption<EditorOption.accessibilitySupport, AccessibilitySupport>;
     accessibilityPageSize: IEditorOption<EditorOption.accessibilityPageSize, number>;
     ariaLabel: IEditorOption<EditorOption.ariaLabel, string>;
     ariaRequired: IEditorOption<EditorOption.ariaRequired, boolean>;
     screenReaderAnnounceInlineSuggestion: IEditorOption<EditorOption.screenReaderAnnounceInlineSuggestion, boolean>;
-    autoClosingBrackets: IEditorOption<EditorOption.autoClosingBrackets, "always" | "never" | "beforeWhitespace" | "languageDefined">;
-    autoClosingComments: IEditorOption<EditorOption.autoClosingComments, "always" | "never" | "beforeWhitespace" | "languageDefined">;
-    autoClosingDelete: IEditorOption<EditorOption.autoClosingDelete, "auto" | "always" | "never">;
-    autoClosingOvertype: IEditorOption<EditorOption.autoClosingOvertype, "auto" | "always" | "never">;
-    autoClosingQuotes: IEditorOption<EditorOption.autoClosingQuotes, "always" | "never" | "beforeWhitespace" | "languageDefined">;
+    autoClosingBrackets: IEditorOption<EditorOption.autoClosingBrackets, "always" | "languageDefined" | "beforeWhitespace" | "never">;
+    autoClosingComments: IEditorOption<EditorOption.autoClosingComments, "always" | "languageDefined" | "beforeWhitespace" | "never">;
+    autoClosingDelete: IEditorOption<EditorOption.autoClosingDelete, "always" | "auto" | "never">;
+    autoClosingOvertype: IEditorOption<EditorOption.autoClosingOvertype, "always" | "auto" | "never">;
+    autoClosingQuotes: IEditorOption<EditorOption.autoClosingQuotes, "always" | "languageDefined" | "beforeWhitespace" | "never">;
     autoIndent: IEditorOption<EditorOption.autoIndent, EditorAutoIndentStrategy>;
     automaticLayout: IEditorOption<EditorOption.automaticLayout, boolean>;
-    autoSurround: IEditorOption<EditorOption.autoSurround, "never" | "languageDefined" | "quotes" | "brackets">;
+    autoSurround: IEditorOption<EditorOption.autoSurround, "languageDefined" | "never" | "quotes" | "brackets">;
     bracketPairColorization: IEditorOption<EditorOption.bracketPairColorization, Readonly<Required<IBracketPairColorizationOptions>>>;
     bracketPairGuides: IEditorOption<EditorOption.guides, Readonly<Required<IGuidesOptions>>>;
     stickyTabStops: IEditorOption<EditorOption.stickyTabStops, boolean>;
@@ -2253,7 +2264,7 @@ export declare const EditorOptions: {
     codeLensFontFamily: IEditorOption<EditorOption.codeLensFontFamily, string>;
     codeLensFontSize: IEditorOption<EditorOption.codeLensFontSize, number>;
     colorDecorators: IEditorOption<EditorOption.colorDecorators, boolean>;
-    colorDecoratorActivatedOn: IEditorOption<EditorOption.colorDecoratorsActivatedOn, "click" | "hover" | "clickAndHover">;
+    colorDecoratorActivatedOn: IEditorOption<EditorOption.colorDecoratorsActivatedOn, "hover" | "clickAndHover" | "click">;
     colorDecoratorsLimit: IEditorOption<EditorOption.colorDecoratorsLimit, number>;
     columnSelection: IEditorOption<EditorOption.columnSelection, boolean>;
     comments: IEditorOption<EditorOption.comments, Readonly<Required<IEditorCommentsOptions>>>;
@@ -2271,6 +2282,7 @@ export declare const EditorOptions: {
     dragAndDrop: IEditorOption<EditorOption.dragAndDrop, boolean>;
     emptySelectionClipboard: IEditorOption<EditorOption.emptySelectionClipboard, boolean>;
     dropIntoEditor: IEditorOption<EditorOption.dropIntoEditor, Readonly<Required<IDropIntoEditorOptions>>>;
+    experimentalEditContextEnabled: IEditorOption<EditorOption.experimentalEditContextEnabled, boolean>;
     stickyScroll: IEditorOption<EditorOption.stickyScroll, Readonly<Required<IEditorStickyScrollOptions>>>;
     experimentalWhitespaceRendering: IEditorOption<EditorOption.experimentalWhitespaceRendering, "svg" | "off" | "font">;
     extraEditorClassName: IEditorOption<EditorOption.extraEditorClassName, string>;
@@ -2284,7 +2296,7 @@ export declare const EditorOptions: {
     foldingMaximumRegions: IEditorOption<EditorOption.foldingMaximumRegions, number>;
     unfoldOnClickAfterEndOfLine: IEditorOption<EditorOption.unfoldOnClickAfterEndOfLine, boolean>;
     fontFamily: IEditorOption<EditorOption.fontFamily, string>;
-    fontInfo: IEditorOption<EditorOption.fontInfo, any>;
+    fontInfo: IEditorOption<EditorOption.fontInfo, FontInfo>;
     fontLigatures2: IEditorOption<EditorOption.fontLigatures, string>;
     fontSize: IEditorOption<EditorOption.fontSize, number>;
     fontWeight: IEditorOption<EditorOption.fontWeight, string>;
@@ -2306,12 +2318,12 @@ export declare const EditorOptions: {
     links: IEditorOption<EditorOption.links, boolean>;
     matchBrackets: IEditorOption<EditorOption.matchBrackets, "always" | "never" | "near">;
     minimap: IEditorOption<EditorOption.minimap, Readonly<Required<IEditorMinimapOptions>>>;
-    mouseStyle: IEditorOption<EditorOption.mouseStyle, "default" | "copy" | "text">;
+    mouseStyle: IEditorOption<EditorOption.mouseStyle, "default" | "text" | "copy">;
     mouseWheelScrollSensitivity: IEditorOption<EditorOption.mouseWheelScrollSensitivity, number>;
     mouseWheelZoom: IEditorOption<EditorOption.mouseWheelZoom, boolean>;
     multiCursorMergeOverlapping: IEditorOption<EditorOption.multiCursorMergeOverlapping, boolean>;
     multiCursorModifier: IEditorOption<EditorOption.multiCursorModifier, "ctrlKey" | "altKey" | "metaKey">;
-    multiCursorPaste: IEditorOption<EditorOption.multiCursorPaste, "full" | "spread">;
+    multiCursorPaste: IEditorOption<EditorOption.multiCursorPaste, "spread" | "full">;
     multiCursorLimit: IEditorOption<EditorOption.multiCursorLimit, number>;
     occurrencesHighlight: IEditorOption<EditorOption.occurrencesHighlight, "off" | "singleFile" | "multiFile">;
     overviewRulerBorder: IEditorOption<EditorOption.overviewRulerBorder, boolean>;
@@ -2319,20 +2331,20 @@ export declare const EditorOptions: {
     padding: IEditorOption<EditorOption.padding, Readonly<Required<IEditorPaddingOptions>>>;
     pasteAs: IEditorOption<EditorOption.pasteAs, Readonly<Required<IPasteAsOptions>>>;
     parameterHints: IEditorOption<EditorOption.parameterHints, Readonly<Required<IEditorParameterHintOptions>>>;
-    peekWidgetDefaultFocus: IEditorOption<EditorOption.peekWidgetDefaultFocus, "tree" | "editor">;
+    peekWidgetDefaultFocus: IEditorOption<EditorOption.peekWidgetDefaultFocus, "editor" | "tree">;
     placeholder: IEditorOption<EditorOption.placeholder, string | undefined>;
     definitionLinkOpensInPeek: IEditorOption<EditorOption.definitionLinkOpensInPeek, boolean>;
     quickSuggestions: IEditorOption<EditorOption.quickSuggestions, InternalQuickSuggestionsOptions>;
     quickSuggestionsDelay: IEditorOption<EditorOption.quickSuggestionsDelay, number>;
     readOnly: IEditorOption<EditorOption.readOnly, boolean>;
-    readOnlyMessage: IEditorOption<EditorOption.readOnlyMessage, any>;
+    readOnlyMessage: IEditorOption<EditorOption.readOnlyMessage, IMarkdownString | undefined>;
     renameOnType: IEditorOption<EditorOption.renameOnType, boolean>;
     renderControlCharacters: IEditorOption<EditorOption.renderControlCharacters, boolean>;
     renderFinalNewline: IEditorOption<EditorOption.renderFinalNewline, "on" | "off" | "dimmed">;
-    renderLineHighlight: IEditorOption<EditorOption.renderLineHighlight, "none" | "line" | "all" | "gutter">;
+    renderLineHighlight: IEditorOption<EditorOption.renderLineHighlight, "line" | "all" | "none" | "gutter">;
     renderLineHighlightOnlyWhenFocus: IEditorOption<EditorOption.renderLineHighlightOnlyWhenFocus, boolean>;
     renderValidationDecorations: IEditorOption<EditorOption.renderValidationDecorations, "on" | "off" | "editable">;
-    renderWhitespace: IEditorOption<EditorOption.renderWhitespace, "none" | "selection" | "all" | "boundary" | "trailing">;
+    renderWhitespace: IEditorOption<EditorOption.renderWhitespace, "selection" | "all" | "none" | "boundary" | "trailing">;
     revealHorizontalRightPadding: IEditorOption<EditorOption.revealHorizontalRightPadding, number>;
     roundedSelection: IEditorOption<EditorOption.roundedSelection, boolean>;
     rulers: IEditorOption<EditorOption.rulers, IRulerOption[]>;
@@ -2343,7 +2355,7 @@ export declare const EditorOptions: {
     selectionClipboard: IEditorOption<EditorOption.selectionClipboard, boolean>;
     selectionHighlight: IEditorOption<EditorOption.selectionHighlight, boolean>;
     selectOnLineNumbers: IEditorOption<EditorOption.selectOnLineNumbers, boolean>;
-    showFoldingControls: IEditorOption<EditorOption.showFoldingControls, "mouseover" | "always" | "never">;
+    showFoldingControls: IEditorOption<EditorOption.showFoldingControls, "always" | "never" | "mouseover">;
     showUnused: IEditorOption<EditorOption.showUnused, boolean>;
     showDeprecated: IEditorOption<EditorOption.showDeprecated, boolean>;
     inlayHints: IEditorOption<EditorOption.inlayHints, Readonly<Required<IEditorInlayHintsOptions>>>;
@@ -2381,7 +2393,7 @@ export declare const EditorOptions: {
     layoutInfo: IEditorOption<EditorOption.layoutInfo, EditorLayoutInfo>;
     wrappingInfo: IEditorOption<EditorOption.wrappingInfo, EditorWrappingInfo>;
     wrappingIndent: IEditorOption<EditorOption.wrappingIndent, WrappingIndent>;
-    wrappingStrategy: IEditorOption<EditorOption.wrappingStrategy, "advanced" | "simple">;
+    wrappingStrategy: IEditorOption<EditorOption.wrappingStrategy, "simple" | "advanced">;
 };
 type EditorOptionsType = typeof EditorOptions;
 type FindEditorOptionsKeyById<T extends EditorOption> = {

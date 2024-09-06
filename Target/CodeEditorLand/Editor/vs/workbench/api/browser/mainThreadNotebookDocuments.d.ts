@@ -1,9 +1,9 @@
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
-import { INotebookEditorModelResolverService } from "vs/workbench/contrib/notebook/common/notebookEditorModelResolverService";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { MainThreadNotebookDocumentsShape, NotebookDataDto } from "../common/extHost.protocol";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
+import { NotebookTextModel } from "../../contrib/notebook/common/model/notebookTextModel.js";
+import { INotebookEditorModelResolverService } from "../../contrib/notebook/common/notebookEditorModelResolverService.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadNotebookDocumentsShape, NotebookDataDto } from "../common/extHost.protocol.js";
 export declare class MainThreadNotebookDocuments implements MainThreadNotebookDocumentsShape {
     private readonly _notebookEditorModelResolverService;
     private readonly _uriIdentityService;
@@ -20,5 +20,5 @@ export declare class MainThreadNotebookDocuments implements MainThreadNotebookDo
         content?: NotebookDataDto;
     }): Promise<UriComponents>;
     $tryOpenNotebook(uriComponents: UriComponents): Promise<URI>;
-    $trySaveNotebook(uriComponents: UriComponents): Promise<any>;
+    $trySaveNotebook(uriComponents: UriComponents): Promise<boolean>;
 }

@@ -1,14 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { AnyStackFrame } from "vs/workbench/contrib/debug/browser/callStackWidget";
-import { ITestMessageStackFrame } from "vs/workbench/contrib/testing/common/testTypes";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { AnyStackFrame } from "../../../debug/browser/callStackWidget.js";
+import { ITestMessageStackFrame } from "../../common/testTypes.js";
 export declare class TestResultStackWidget extends Disposable {
     private readonly container;
     private readonly widget;
     private readonly changeStackFrameEmitter;
-    readonly onDidChangeStackFrame: any;
+    readonly onDidChangeStackFrame: import("../../../../../base/common/event.js").Event<ITestMessageStackFrame>;
     constructor(container: HTMLElement, containingEditor: ICodeEditor | undefined, instantiationService: IInstantiationService);
+    collapseAll(): void;
     update(messageFrame: AnyStackFrame, stack: ITestMessageStackFrame[]): void;
     layout(height?: number, width?: number): void;
 }

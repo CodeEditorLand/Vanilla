@@ -1,12 +1,12 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable, IReader, ISettableObservable, ITransaction } from "vs/base/common/observable";
-import { IDiffProviderFactoryService } from "vs/editor/browser/widget/diffEditor/diffProviderFactoryService";
-import { ISerializedLineRange, LineRange } from "vs/editor/common/core/lineRange";
-import { IDocumentDiff } from "vs/editor/common/diff/documentDiffProvider";
-import { MovedText } from "vs/editor/common/diff/linesDiffComputer";
-import { DetailedLineRangeMapping, LineRangeMapping } from "vs/editor/common/diff/rangeMapping";
-import { IDiffEditorModel, IDiffEditorViewModel } from "vs/editor/common/editorCommon";
-import { DiffEditorOptions } from "./diffEditorOptions";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IObservable, IReader, ISettableObservable, ITransaction } from "../../../../base/common/observable.js";
+import { ISerializedLineRange, LineRange } from "../../../common/core/lineRange.js";
+import { IDocumentDiff } from "../../../common/diff/documentDiffProvider.js";
+import { MovedText } from "../../../common/diff/linesDiffComputer.js";
+import { DetailedLineRangeMapping, LineRangeMapping } from "../../../common/diff/rangeMapping.js";
+import { IDiffEditorModel, IDiffEditorViewModel } from "../../../common/editorCommon.js";
+import { DiffEditorOptions } from "./diffEditorOptions.js";
+import { IDiffProviderFactoryService } from "./diffProviderFactoryService.js";
 export declare class DiffEditorViewModel extends Disposable implements IDiffEditorViewModel {
     readonly model: IDiffEditorModel;
     private readonly _options;
@@ -18,10 +18,10 @@ export declare class DiffEditorViewModel extends Disposable implements IDiffEdit
     readonly diff: IObservable<DiffState | undefined>;
     private readonly _unchangedRegions;
     readonly unchangedRegions: IObservable<UnchangedRegion[]>;
-    readonly movedTextToCompare: any;
+    readonly movedTextToCompare: ISettableObservable<MovedText | undefined, void>;
     private readonly _activeMovedText;
     private readonly _hoveredMovedText;
-    readonly activeMovedText: any;
+    readonly activeMovedText: IObservable<MovedText | undefined, unknown>;
     setActiveMovedText(movedText: MovedText | undefined): void;
     setHoveredMovedText(movedText: MovedText | undefined): void;
     private readonly _cancellationTokenSource;
@@ -62,7 +62,7 @@ export declare class UnchangedRegion {
     private readonly _visibleLineCountBottom;
     readonly visibleLineCountBottom: ISettableObservable<number>;
     private readonly _shouldHideControls;
-    readonly isDragged: any;
+    readonly isDragged: ISettableObservable<"top" | "bottom" | undefined, void>;
     constructor(originalLineNumber: number, modifiedLineNumber: number, lineCount: number, visibleLineCountTop: number, visibleLineCountBottom: number);
     setVisibleRanges(visibleRanges: LineRangeMapping[], tx: ITransaction): UnchangedRegion[];
     shouldHideControls(reader: IReader | undefined): boolean;

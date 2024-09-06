@@ -1,15 +1,15 @@
-import { IBoundarySashes } from "vs/base/browser/ui/sash/sash";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { URI } from "vs/base/common/uri";
-import { DiffEditorEditors } from "vs/editor/browser/widget/diffEditor/components/diffEditorEditors";
-import { SashLayout } from "vs/editor/browser/widget/diffEditor/components/diffEditorSash";
-import { DiffEditorOptions } from "vs/editor/browser/widget/diffEditor/diffEditorOptions";
-import { DiffEditorViewModel } from "vs/editor/browser/widget/diffEditor/diffEditorViewModel";
-import { DetailedLineRangeMapping } from "vs/editor/common/diff/rangeMapping";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { IBoundarySashes } from "../../../../../base/browser/ui/sash/sash.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../../base/common/observable.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IMenuService } from "../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { DetailedLineRangeMapping } from "../../../../common/diff/rangeMapping.js";
+import { DiffEditorEditors } from "../components/diffEditorEditors.js";
+import { SashLayout } from "../components/diffEditorSash.js";
+import { DiffEditorOptions } from "../diffEditorOptions.js";
+import { DiffEditorViewModel } from "../diffEditorViewModel.js";
 export declare class DiffEditorGutter extends Disposable {
     private readonly _diffModel;
     private readonly _editors;
@@ -23,7 +23,7 @@ export declare class DiffEditorGutter extends Disposable {
     private readonly _actions;
     private readonly _hasActions;
     private readonly _showSash;
-    readonly width: any;
+    readonly width: IObservable<0 | 35, unknown>;
     private readonly elements;
     constructor(diffEditorRoot: HTMLDivElement, _diffModel: IObservable<DiffEditorViewModel | undefined>, _editors: DiffEditorEditors, _options: DiffEditorOptions, _sashLayout: SashLayout, _boundarySashes: IObservable<IBoundarySashes | undefined, void>, _instantiationService: IInstantiationService, _contextKeyService: IContextKeyService, _menuService: IMenuService);
     computeStagedValue(mapping: DetailedLineRangeMapping): string;

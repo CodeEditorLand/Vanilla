@@ -1,8 +1,8 @@
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { FindMatch, ITextSnapshot, SearchData } from "vs/editor/common/model";
-import { TreeNode } from "vs/editor/common/model/pieceTreeTextBuffer/rbTreeBase";
-import { Searcher } from "vs/editor/common/model/textModelSearch";
+import { Position } from "../../core/position.js";
+import { Range } from "../../core/range.js";
+import { FindMatch, ITextSnapshot, SearchData } from "../../model.js";
+import { Searcher } from "../textModelSearch.js";
+import { TreeNode } from "./rbTreeBase.js";
 declare class LineStarts {
     readonly lineStarts: Uint32Array | Uint16Array | number[];
     readonly cr: number;

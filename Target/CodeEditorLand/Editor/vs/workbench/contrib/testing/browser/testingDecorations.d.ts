@@ -1,24 +1,26 @@
-import { IAction } from "vs/base/common/actions";
-import { Disposable, IReference } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ICodeEditor, IEditorMouseEvent } from "vs/editor/browser/editorBrowser";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { IModelDecorationOptions, IModelDeltaDecoration, ITextModel } from "vs/editor/common/model";
-import { IModelService } from "vs/editor/common/services/model";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { ITestDecoration as IPublicTestDecoration, ITestingDecorationsService } from "vs/workbench/contrib/testing/common/testingDecorations";
-import { ITestingPeekOpener } from "vs/workbench/contrib/testing/common/testingPeekOpener";
-import { ITestProfileService } from "vs/workbench/contrib/testing/common/testProfileService";
-import { ITestResultService } from "vs/workbench/contrib/testing/common/testResultService";
-import { ITestService } from "vs/workbench/contrib/testing/common/testService";
-import { IncrementalTestCollectionItem, InternalTestItem, IRichLocation, ITestMessage, TestResultItem, TestResultState, TestRunProfileBitset } from "vs/workbench/contrib/testing/common/testTypes";
+import { IAction } from "../../../../base/common/actions.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IReference } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditor, IEditorMouseEvent } from "../../../../editor/browser/editorBrowser.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
+import { IModelDecorationOptions, IModelDeltaDecoration, ITextModel } from "../../../../editor/common/model.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ITestDecoration as IPublicTestDecoration, ITestingDecorationsService } from "../common/testingDecorations.js";
+import { ITestingPeekOpener } from "../common/testingPeekOpener.js";
+import { ITestProfileService } from "../common/testProfileService.js";
+import { ITestResult } from "../common/testResult.js";
+import { ITestResultService } from "../common/testResultService.js";
+import { ITestService } from "../common/testService.js";
+import { IncrementalTestCollectionItem, InternalTestItem, IRichLocation, ITestMessage, TestResultItem, TestResultState, TestRunProfileBitset } from "../common/testTypes.js";
 interface ITestDecoration extends IPublicTestDecoration {
     id: string;
     click(e: IEditorMouseEvent): boolean;
@@ -63,14 +65,14 @@ export declare class TestingDecorationService extends Disposable implements ITes
      */
     private readonly invalidatedMessages;
     /** @inheritdoc */
-    readonly onDidChange: any;
+    readonly onDidChange: Event<void>;
     constructor(codeEditorService: ICodeEditorService, configurationService: IConfigurationService, testService: ITestService, results: ITestResultService, instantiationService: IInstantiationService, modelService: IModelService);
     /** @inheritdoc */
     invalidateResultMessage(message: ITestMessage): void;
     /** @inheritdoc */
     syncDecorations(resource: URI): CachedDecorations;
     /** @inheritdoc */
-    getDecoratedTestPosition(resource: URI, testId: string): any;
+    getDecoratedTestPosition(resource: URI, testId: string): import("../../../../editor/common/core/position.js").Position | undefined;
     private invalidate;
     /**
      * Sets whether alternate actions are shown for the model.
@@ -92,7 +94,7 @@ export declare class TestingDecorations extends Disposable implements IEditorCon
      * Gets the decorations associated with the given code editor.
      */
     static get(editor: ICodeEditor): TestingDecorations | null;
-    get currentUri(): any;
+    get currentUri(): URI | undefined;
     private _currentUri?;
     private readonly expectedWidget;
     private readonly actualWidget;
@@ -116,8 +118,8 @@ declare abstract class RunTestDecoration {
     protected readonly menuService: IMenuService;
     /** @inheritdoc */
     id: string;
-    get line(): any;
-    get testIds(): any[];
+    get line(): number;
+    get testIds(): string[];
     editorDecoration: IModelDeltaDecoration & {
         alternate?: IModelDecorationOptions;
     };
@@ -144,7 +146,7 @@ declare abstract class RunTestDecoration {
      * Called when the decoration is clicked on.
      */
     abstract getContextMenuActions(): IReference<IAction[]>;
-    protected runWith(profile: TestRunProfileBitset): any;
+    protected runWith(profile: TestRunProfileBitset): Promise<ITestResult>;
     private showContextMenu;
     private getGutterLabel;
     /**

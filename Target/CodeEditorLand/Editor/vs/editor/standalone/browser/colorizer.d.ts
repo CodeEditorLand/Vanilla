@@ -1,7 +1,7 @@
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { ITextModel } from "vs/editor/common/model";
-import { IViewLineTokens } from "vs/editor/common/tokens/lineTokens";
-import { IStandaloneThemeService } from "vs/editor/standalone/common/standaloneTheme";
+import { ILanguageService } from "../../common/languages/language.js";
+import { ITextModel } from "../../common/model.js";
+import { IViewLineTokens } from "../../common/tokens/lineTokens.js";
+import { IStandaloneThemeService } from "../common/standaloneTheme.js";
 export interface IColorizerOptions {
     tabSize?: number;
 }

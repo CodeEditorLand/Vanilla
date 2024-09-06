@@ -1,16 +1,17 @@
-import { IndexedDB } from "vs/base/browser/indexedDB";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ReadableStreamEvents } from "vs/base/common/stream";
-import { URI } from "vs/base/common/uri";
-import { FileSystemProviderCapabilities, FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileReadStreamOptions, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileReadWriteCapability, IFileWriteOptions, IStat, IWatchOptions } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
+import { IndexedDB } from "../../../base/browser/indexedDB.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { ReadableStreamEvents } from "../../../base/common/stream.js";
+import { URI } from "../../../base/common/uri.js";
+import { ILogService } from "../../log/common/log.js";
+import { FileSystemProviderCapabilities, FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileReadStreamOptions, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileReadWriteCapability, IFileWriteOptions, IStat, IWatchOptions } from "../common/files.js";
 export declare class HTMLFileSystemProvider implements IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithFileReadStreamCapability {
     private indexedDB;
     private readonly store;
     private logService;
-    readonly onDidChangeCapabilities: any;
-    readonly onDidChangeFile: any;
+    readonly onDidChangeCapabilities: Event<any>;
+    readonly onDidChangeFile: Event<any>;
     private extUri;
     private _capabilities;
     get capabilities(): FileSystemProviderCapabilities;

@@ -1,6 +1,6 @@
-import { LineRange } from "vs/editor/common/core/lineRange";
-import { Range } from "vs/editor/common/core/range";
-import { AbstractText, SingleTextEdit } from "vs/editor/common/core/textEdit";
+import { LineRange } from "../core/lineRange.js";
+import { Range } from "../core/range.js";
+import { AbstractText, SingleTextEdit } from "../core/textEdit.js";
 /**
  * Maps a line range in the original text model to a line range in the modified text model.
  */

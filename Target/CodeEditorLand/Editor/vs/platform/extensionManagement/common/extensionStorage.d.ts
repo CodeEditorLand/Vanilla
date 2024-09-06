@@ -1,16 +1,16 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IExtensionManagementService, IGalleryExtension } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IExtension } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IStorageService } from "vs/platform/storage/common/storage";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IExtension } from "../../extensions/common/extensions.js";
+import { ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { IExtensionManagementService, IGalleryExtension } from "./extensionManagement.js";
 export interface IExtensionIdWithVersion {
     id: string;
     version: string;
 }
-export declare const IExtensionStorageService: any;
+export declare const IExtensionStorageService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionStorageService>;
 export interface IExtensionStorageService {
     readonly _serviceBrand: undefined;
     getExtensionState(extension: IExtension | IGalleryExtension | string, global: boolean): IStringDictionary<any> | undefined;
@@ -33,7 +33,7 @@ export declare class ExtensionStorageService extends Disposable implements IExte
     static removeOutdatedExtensionVersions(extensionManagementService: IExtensionManagementService, storageService: IStorageService): Promise<void>;
     private static readAllExtensionsWithKeysForSync;
     private readonly _onDidChangeExtensionStorageToSync;
-    readonly onDidChangeExtensionStorageToSync: any;
+    readonly onDidChangeExtensionStorageToSync: Event<void>;
     private readonly extensionsWithKeysForSync;
     constructor(storageService: IStorageService, productService: IProductService, logService: ILogService);
     private onDidChangeStorageValue;

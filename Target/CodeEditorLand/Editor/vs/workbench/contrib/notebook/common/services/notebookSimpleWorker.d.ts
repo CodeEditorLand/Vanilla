@@ -1,25 +1,24 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IRequestHandler, IWorkerServer } from "vs/base/common/worker/simpleWorker";
-import { CellKind, IMainCellDto, INotebookDiffResult, IOutputDto, NotebookCellsChangedEventDto, NotebookCellTextModelSplice, NotebookData, NotebookDocumentMetadata } from "vs/workbench/contrib/notebook/common/notebookCommon";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IRequestHandler, IWorkerServer } from "../../../../../base/common/worker/simpleWorker.js";
+import { DefaultEndOfLine } from "../../../../../editor/common/model.js";
+import { IModelChangedEvent } from "../../../../../editor/common/model/mirrorTextModel.js";
+import { CellKind, IMainCellDto, INotebookDiffResult, IOutputDto, NotebookCellInternalMetadata, NotebookCellMetadata, NotebookCellsChangedEventDto, NotebookCellTextModelSplice, NotebookDocumentMetadata } from "../notebookCommon.js";
 declare class MirrorCell {
     readonly handle: number;
-    private _source;
+    private readonly _eol;
     language: string;
     cellKind: CellKind;
     outputs: IOutputDto[];
-    metadata?: any;
-    internalMetadata?: any;
-    private _textBuffer;
-    get textBuffer(): any;
-    private _primaryKey?;
-    primaryKey(): number | null;
+    metadata?: NotebookCellMetadata | undefined;
+    internalMetadata?: NotebookCellInternalMetadata | undefined;
+    private readonly textModel;
     private _hash;
-    constructor(handle: number, _source: string | string[], language: string, cellKind: CellKind, outputs: IOutputDto[], metadata?: any, internalMetadata?: any);
-    getFullModelRange(): any;
+    get eol(): DefaultEndOfLine;
+    constructor(handle: number, uri: URI, source: string[], _eol: string, versionId: number, language: string, cellKind: CellKind, outputs: IOutputDto[], metadata?: NotebookCellMetadata | undefined, internalMetadata?: NotebookCellInternalMetadata | undefined);
+    onEvents(e: IModelChangedEvent): void;
     getValue(): string;
     getComparisonValue(): number;
-    getHashValue(): number | null;
 }
 declare class MirrorNotebookDocument {
     readonly uri: URI;
@@ -35,8 +34,9 @@ export declare class NotebookEditorSimpleWorker implements IRequestHandler, IDis
     private _models;
     constructor();
     dispose(): void;
-    $acceptNewModel(uri: string, data: NotebookData): void;
+    $acceptNewModel(uri: string, metadata: NotebookDocumentMetadata, cells: IMainCellDto[]): void;
     $acceptModelChanged(strURL: string, event: NotebookCellsChangedEventDto): void;
+    $acceptCellModelChanged(strURL: string, handle: number, event: IModelChangedEvent): void;
     $acceptRemovedModel(strURL: string): void;
     $computeDiff(originalUrl: string, modifiedUrl: string): INotebookDiffResult;
     $canPromptRecommendation(modelUrl: string): boolean;

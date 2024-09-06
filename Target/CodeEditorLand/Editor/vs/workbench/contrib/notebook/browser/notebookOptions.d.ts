@@ -1,10 +1,11 @@
-import { CodeWindow } from "vs/base/browser/window";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { InteractiveWindowCollapseCodeCells, NotebookCellDefaultCollapseConfig, NotebookCellInternalMetadata, ShowCellStatusBarType } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
+import { CodeWindow } from "../../../../base/browser/window.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { InteractiveWindowCollapseCodeCells, NotebookCellDefaultCollapseConfig, NotebookCellInternalMetadata, ShowCellStatusBarType } from "../common/notebookCommon.js";
+import { INotebookExecutionStateService } from "../common/notebookExecutionStateService.js";
 export declare const OutputInnerContainerTopPadding = 4;
 export interface NotebookDisplayOptions {
     showCellStatusBar: ShowCellStatusBarType;
@@ -101,8 +102,8 @@ export declare class NotebookOptions extends Disposable {
     private readonly notebookExecutionStateService;
     private readonly codeEditorService;
     private _layoutConfiguration;
-    protected readonly _onDidChangeOptions: any;
-    readonly onDidChangeOptions: any;
+    protected readonly _onDidChangeOptions: Emitter<NotebookOptionsChangeEvent>;
+    readonly onDidChangeOptions: import("../../../../base/common/event.js").Event<NotebookOptionsChangeEvent>;
     private _editorTopPadding;
     constructor(targetWindow: CodeWindow, isReadonly: boolean, overrides: {
         cellToolbarInteraction: string;

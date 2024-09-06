@@ -1,10 +1,11 @@
-import { Button } from "vs/base/browser/ui/button/button";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IProductConfiguration } from "vs/base/common/product";
-import { OldIssueReporterData } from "vs/platform/issue/common/issue";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IssueReporterModel } from "vs/workbench/contrib/issue/browser/issueReporterModel";
-import { IIssueFormService, IssueReporterData, IssueReporterExtensionData } from "vs/workbench/contrib/issue/common/issue";
+import { Button } from "../../../../base/browser/ui/button/button.js";
+import { Delayer } from "../../../../base/common/async.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IProductConfiguration } from "../../../../base/common/product.js";
+import { OldIssueReporterData } from "../../../../platform/issue/common/issue.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IIssueFormService, IssueReporterData, IssueReporterExtensionData } from "../common/issue.js";
+import { IssueReporterModel } from "./issueReporterModel.js";
 export declare class BaseIssueReporterService extends Disposable {
     disableExtensions: boolean;
     data: IssueReporterData | OldIssueReporterData;
@@ -27,7 +28,7 @@ export declare class BaseIssueReporterService extends Disposable {
     openReporter: boolean;
     loadingExtensionData: boolean;
     selectedExtension: string;
-    delayedSubmit: any;
+    delayedSubmit: Delayer<void>;
     previewButton: Button;
     nonGitHubIssueUrl: boolean;
     constructor(disableExtensions: boolean, data: IssueReporterData | OldIssueReporterData, os: {

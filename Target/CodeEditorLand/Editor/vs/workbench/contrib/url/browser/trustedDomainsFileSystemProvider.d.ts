@@ -1,17 +1,18 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileService, IFileSystemProviderWithFileReadWriteCapability, IFileWriteOptions, IStat, IWatchOptions } from "vs/platform/files/common/files";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { FileSystemProviderCapabilities, FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileService, IFileSystemProviderWithFileReadWriteCapability, IFileWriteOptions, IStat, IWatchOptions } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 export declare class TrustedDomainsFileSystemProvider implements IFileSystemProviderWithFileReadWriteCapability, IWorkbenchContribution {
     private readonly fileService;
     private readonly storageService;
     private readonly instantiationService;
     static readonly ID = "workbench.contrib.trustedDomainsFileSystemProvider";
-    readonly capabilities: any;
-    readonly onDidChangeCapabilities: any;
-    readonly onDidChangeFile: any;
+    readonly capabilities = FileSystemProviderCapabilities.FileReadWrite;
+    readonly onDidChangeCapabilities: Event<any>;
+    readonly onDidChangeFile: Event<any>;
     constructor(fileService: IFileService, storageService: IStorageService, instantiationService: IInstantiationService);
     stat(resource: URI): Promise<IStat>;
     readFile(resource: URI): Promise<Uint8Array>;

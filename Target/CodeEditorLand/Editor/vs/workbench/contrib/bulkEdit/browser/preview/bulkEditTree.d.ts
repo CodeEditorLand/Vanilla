@@ -1,15 +1,15 @@
-import { AriaRole } from "vs/base/browser/ui/aria/aria";
-import { IconLabel } from "vs/base/browser/ui/iconLabel/iconLabel";
-import { IIdentityProvider, IKeyboardNavigationLabelProvider, IListVirtualDelegate } from "vs/base/browser/ui/list/list";
-import type { IListAccessibilityProvider } from "vs/base/browser/ui/list/listWidget";
-import { IAsyncDataSource, ITreeNode, ITreeRenderer, ITreeSorter } from "vs/base/browser/ui/tree/tree";
-import { FuzzyScore } from "vs/base/common/filters";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILabelService } from "vs/platform/label/common/label";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { ResourceLabels } from "vs/workbench/browser/labels";
-import { BulkCategory, BulkFileOperation, BulkFileOperations, BulkTextEdit } from "vs/workbench/contrib/bulkEdit/browser/preview/bulkEditPreview";
+import { AriaRole } from "../../../../../base/browser/ui/aria/aria.js";
+import { IconLabel } from "../../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { IIdentityProvider, IKeyboardNavigationLabelProvider, IListVirtualDelegate } from "../../../../../base/browser/ui/list/list.js";
+import type { IListAccessibilityProvider } from "../../../../../base/browser/ui/list/listWidget.js";
+import { IAsyncDataSource, ITreeNode, ITreeRenderer, ITreeSorter } from "../../../../../base/browser/ui/tree/tree.js";
+import { FuzzyScore } from "../../../../../base/common/filters.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { ResourceLabels } from "../../../../browser/labels.js";
+import { BulkCategory, BulkFileOperation, BulkFileOperations, BulkTextEdit } from "./bulkEditPreview.js";
 export interface ICheckable {
     isChecked(): boolean;
     setChecked(value: boolean): void;
@@ -127,6 +127,6 @@ export declare class BulkEditDelegate implements IListVirtualDelegate<BulkEditEl
     getTemplateId(element: BulkEditElement): string;
 }
 export declare class BulkEditNaviLabelProvider implements IKeyboardNavigationLabelProvider<BulkEditElement> {
-    getKeyboardNavigationLabel(element: BulkEditElement): any;
+    getKeyboardNavigationLabel(element: BulkEditElement): string | undefined;
 }
 export {};

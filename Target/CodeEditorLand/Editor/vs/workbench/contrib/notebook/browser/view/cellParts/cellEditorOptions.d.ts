@@ -1,13 +1,13 @@
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { IEditorOptions } from "vs/editor/common/config/editorOptions";
-import { ITextModelUpdateOptions } from "vs/editor/common/model";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IBaseCellEditorOptions, ICellViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookOptions } from "vs/workbench/contrib/notebook/browser/notebookOptions";
-import { CellViewModelStateChangeEvent } from "vs/workbench/contrib/notebook/browser/notebookViewEvents";
-import { CellContentPart } from "vs/workbench/contrib/notebook/browser/view/cellPart";
-import { NotebookCellInternalMetadata } from "vs/workbench/contrib/notebook/common/notebookCommon";
+import { Event } from "../../../../../../base/common/event.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { IEditorOptions } from "../../../../../../editor/common/config/editorOptions.js";
+import { ITextModelUpdateOptions } from "../../../../../../editor/common/model.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { NotebookCellInternalMetadata } from "../../../common/notebookCommon.js";
+import { IBaseCellEditorOptions, ICellViewModel } from "../../notebookBrowser.js";
+import { NotebookOptions } from "../../notebookOptions.js";
+import { CellViewModelStateChangeEvent } from "../../notebookViewEvents.js";
+import { CellContentPart } from "../cellPart.js";
 export declare class CellEditorOptions extends CellContentPart implements ITextModelUpdateOptions {
     private readonly base;
     readonly notebookOptions: NotebookOptions;

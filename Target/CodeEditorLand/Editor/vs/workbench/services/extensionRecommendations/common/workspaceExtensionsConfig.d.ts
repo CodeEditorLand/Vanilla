@@ -1,17 +1,17 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IModelService } from "vs/editor/common/services/model";
-import { IFileService } from "vs/platform/files/common/files";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IJSONEditingService } from "vs/workbench/services/configuration/common/jsonEditing";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IJSONEditingService } from "../../configuration/common/jsonEditing.js";
 export declare const EXTENSIONS_CONFIG = ".vscode/extensions.json";
 export interface IExtensionsConfigContent {
     recommendations?: string[];
     unwantedRecommendations?: string[];
 }
-export declare const IWorkspaceExtensionsConfigService: any;
+export declare const IWorkspaceExtensionsConfigService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkspaceExtensionsConfigService>;
 export interface IWorkspaceExtensionsConfigService {
     readonly _serviceBrand: undefined;
     onDidChangeExtensionsConfigs: Event<void>;
@@ -30,7 +30,7 @@ export declare class WorkspaceExtensionsConfigService extends Disposable impleme
     private readonly jsonEditingService;
     readonly _serviceBrand: undefined;
     private readonly _onDidChangeExtensionsConfigs;
-    readonly onDidChangeExtensionsConfigs: any;
+    readonly onDidChangeExtensionsConfigs: Event<void>;
     constructor(workspaceContextService: IWorkspaceContextService, fileService: IFileService, quickInputService: IQuickInputService, modelService: IModelService, languageService: ILanguageService, jsonEditingService: IJSONEditingService);
     getExtensionsConfigs(): Promise<IExtensionsConfigContent[]>;
     getRecommendations(): Promise<string[]>;

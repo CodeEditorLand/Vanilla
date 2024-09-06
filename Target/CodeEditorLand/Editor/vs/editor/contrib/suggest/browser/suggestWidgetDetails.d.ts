@@ -1,8 +1,8 @@
-import * as dom from "vs/base/browser/dom";
-import { Event } from "vs/base/common/event";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { CompletionItem } from "./suggest";
+import * as dom from "../../../../base/browser/dom.js";
+import { Event } from "../../../../base/common/event.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "../../../browser/editorBrowser.js";
+import { CompletionItem } from "./suggest.js";
 export declare function canExpandCompletionItem(item: CompletionItem | undefined): boolean;
 export declare class SuggestDetailsWidget {
     private readonly _editor;
@@ -26,7 +26,7 @@ export declare class SuggestDetailsWidget {
     dispose(): void;
     private _configureFont;
     getLayoutInfo(): {
-        lineHeight: any;
+        lineHeight: number;
         borderWidth: number;
         borderHeight: number;
         verticalPadding: number;
@@ -36,7 +36,7 @@ export declare class SuggestDetailsWidget {
     renderItem(item: CompletionItem, explainMode: boolean): void;
     clearContents(): void;
     get isEmpty(): boolean;
-    get size(): any;
+    get size(): dom.Dimension;
     layout(width: number, height: number): void;
     scrollDown(much?: number): void;
     scrollUp(much?: number): void;

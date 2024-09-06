@@ -1,15 +1,16 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { IQuickChatOpenOptions, IQuickChatService } from "vs/workbench/contrib/chat/browser/chat";
-import { IChatService } from "vs/workbench/contrib/chat/common/chatService";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IChatService } from "../common/chatService.js";
+import { IQuickChatOpenOptions, IQuickChatService } from "./chat.js";
 export declare class QuickChatService extends Disposable implements IQuickChatService {
     private readonly quickInputService;
     private readonly chatService;
     private readonly instantiationService;
     readonly _serviceBrand: undefined;
     private readonly _onDidClose;
-    readonly onDidClose: any;
+    readonly onDidClose: Event<void>;
     private _input;
     private _currentChat;
     private _container;

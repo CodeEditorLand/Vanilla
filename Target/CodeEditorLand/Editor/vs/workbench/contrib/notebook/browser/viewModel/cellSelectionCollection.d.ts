@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICellRange } from "vs/workbench/contrib/notebook/common/notebookRange";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ICellRange } from "../../common/notebookRange.js";
 export declare class NotebookCellSelectionCollection extends Disposable {
     private readonly _onDidChangeSelection;
     get onDidChangeSelection(): Event<string>;

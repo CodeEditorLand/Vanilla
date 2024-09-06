@@ -1,8 +1,8 @@
-import { IPosition } from "vs/editor/common/core/position";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import type { TextModel } from "vs/editor/common/model/textModel";
-import { TextModelPart } from "vs/editor/common/model/textModelPart";
-import { BracketGuideOptions, IActiveIndentGuideInfo, IGuidesTextModelPart, IndentGuide } from "vs/editor/common/textModelGuides";
+import { IPosition } from "../core/position.js";
+import { ILanguageConfigurationService } from "../languages/languageConfigurationRegistry.js";
+import { BracketGuideOptions, IActiveIndentGuideInfo, IGuidesTextModelPart, IndentGuide } from "../textModelGuides.js";
+import type { TextModel } from "./textModel.js";
+import { TextModelPart } from "./textModelPart.js";
 export declare class GuidesTextModelPart extends TextModelPart implements IGuidesTextModelPart {
     private readonly textModel;
     private readonly languageConfigurationService;

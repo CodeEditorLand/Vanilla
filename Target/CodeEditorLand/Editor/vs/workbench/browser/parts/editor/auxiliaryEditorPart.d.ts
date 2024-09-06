@@ -1,19 +1,20 @@
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IEditorGroupView, IEditorPartsView } from "vs/workbench/browser/parts/editor/editor";
-import { EditorPart, IEditorPartUIState } from "vs/workbench/browser/parts/editor/editorPart";
-import { IAuxiliaryWindowOpenOptions, IAuxiliaryWindowService } from "vs/workbench/services/auxiliaryWindow/browser/auxiliaryWindowService";
-import { IAuxiliaryEditorPart } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
-import { IStatusbarService } from "vs/workbench/services/statusbar/browser/statusbar";
-import { ITitleService } from "vs/workbench/services/title/browser/titleService";
+import { Event } from "../../../../base/common/event.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IAuxiliaryWindowOpenOptions, IAuxiliaryWindowService } from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
+import { IAuxiliaryEditorPart } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { ITitleService } from "../../../services/title/browser/titleService.js";
+import { IEditorGroupView, IEditorPartsView } from "./editor.js";
+import { EditorPart, IEditorPartUIState } from "./editorPart.js";
 export interface IAuxiliaryEditorPartOpenOptions extends IAuxiliaryWindowOpenOptions {
     readonly state?: IEditorPartUIState;
 }
@@ -40,7 +41,7 @@ declare class AuxiliaryEditorPartImpl extends EditorPart implements IAuxiliaryEd
     private readonly state;
     private static COUNTER;
     private readonly _onWillClose;
-    readonly onWillClose: any;
+    readonly onWillClose: Event<void>;
     constructor(windowId: number, editorPartsView: IEditorPartsView, state: IEditorPartUIState | undefined, groupsLabel: string, instantiationService: IInstantiationService, themeService: IThemeService, configurationService: IConfigurationService, storageService: IStorageService, layoutService: IWorkbenchLayoutService, hostService: IHostService, contextKeyService: IContextKeyService);
     removeGroup(group: number | IEditorGroupView, preserveFocus?: boolean): void;
     private doRemoveLastGroup;

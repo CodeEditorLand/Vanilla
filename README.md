@@ -2,7 +2,7 @@
 
 # 🌼 [Vanilla] —
 
-Vanilla is the ESM build of all of `VSCode`. It includes two builds.
+Vanilla is the `ESM` build of all of `VSCode`. It includes two builds:
 
 🎁 [VSCode (CodeEditorLand/Editor)][CodeEditorLand] —
 
@@ -14,4 +14,4 @@ Vanilla is the ESM build of all of `VSCode`. It includes two builds.
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for a history of changes to this integration.
+See [CHANGELOG.md](CHANGELOG.md) for a history of changes to this component.

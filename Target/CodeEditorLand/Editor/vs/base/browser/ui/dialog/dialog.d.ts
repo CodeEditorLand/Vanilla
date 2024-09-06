@@ -1,10 +1,10 @@
-import { StandardKeyboardEvent } from "vs/base/browser/keyboardEvent";
-import { IButtonStyles } from "vs/base/browser/ui/button/button";
-import { IInputBoxStyles } from "vs/base/browser/ui/inputbox/inputBox";
-import { ICheckboxStyles } from "vs/base/browser/ui/toggle/toggle";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import "vs/css!./dialog";
+import { Disposable } from "../../../common/lifecycle.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import { StandardKeyboardEvent } from "../../keyboardEvent.js";
+import { IButtonStyles } from "../button/button.js";
+import { IInputBoxStyles } from "../inputbox/inputBox.js";
+import { ICheckboxStyles } from "../toggle/toggle.js";
+import "./dialog.css";
 export interface IDialogInputOptions {
     readonly placeholder?: string;
     readonly type?: "text" | "password";

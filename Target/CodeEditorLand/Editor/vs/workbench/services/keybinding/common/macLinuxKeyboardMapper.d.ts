@@ -1,9 +1,9 @@
-import { Keybinding, KeyCodeChord, ResolvedKeybinding, ScanCodeChord, SingleModifierChord } from "vs/base/common/keybindings";
-import { OperatingSystem } from "vs/base/common/platform";
-import { BaseResolvedKeybinding } from "vs/platform/keybinding/common/baseResolvedKeybinding";
-import { IKeyboardEvent } from "vs/platform/keybinding/common/keybinding";
-import { IMacLinuxKeyboardMapping } from "vs/platform/keyboardLayout/common/keyboardLayout";
-import { IKeyboardMapper } from "vs/platform/keyboardLayout/common/keyboardMapper";
+import { Keybinding, KeyCodeChord, ResolvedKeybinding, ScanCodeChord, SingleModifierChord } from "../../../../base/common/keybindings.js";
+import { OperatingSystem } from "../../../../base/common/platform.js";
+import { BaseResolvedKeybinding } from "../../../../platform/keybinding/common/baseResolvedKeybinding.js";
+import { IKeyboardEvent } from "../../../../platform/keybinding/common/keybinding.js";
+import { IMacLinuxKeyboardMapping } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
+import { IKeyboardMapper } from "../../../../platform/keyboardLayout/common/keyboardMapper.js";
 export declare class NativeResolvedKeybinding extends BaseResolvedKeybinding<ScanCodeChord> {
     private readonly _mapper;
     constructor(mapper: MacLinuxKeyboardMapper, os: OperatingSystem, chords: ScanCodeChord[]);

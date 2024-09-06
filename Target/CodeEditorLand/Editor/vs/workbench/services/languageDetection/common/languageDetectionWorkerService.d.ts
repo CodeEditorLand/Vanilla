@@ -1,5 +1,5 @@
-import { URI } from "vs/base/common/uri";
-export declare const ILanguageDetectionService: any;
+import { URI } from "../../../../base/common/uri.js";
+export declare const ILanguageDetectionService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ILanguageDetectionService>;
 export declare const LanguageDetectionLanguageEventSource = "languageDetection";
 export interface ILanguageDetectionService {
     readonly _serviceBrand: undefined;

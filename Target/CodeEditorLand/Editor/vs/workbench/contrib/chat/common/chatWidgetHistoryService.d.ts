@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ChatAgentLocation } from "vs/workbench/contrib/chat/common/chatAgents";
+import { Event } from "../../../../base/common/event.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ChatAgentLocation } from "./chatAgents.js";
 export interface IChatHistoryEntry {
     text: string;
     state?: any;
 }
-export declare const IChatWidgetHistoryService: any;
+export declare const IChatWidgetHistoryService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IChatWidgetHistoryService>;
 export interface IChatWidgetHistoryService {
     _serviceBrand: undefined;
     readonly onDidClearHistory: Event<void>;

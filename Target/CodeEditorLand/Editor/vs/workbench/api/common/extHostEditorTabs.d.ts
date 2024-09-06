@@ -1,11 +1,11 @@
-import { IEditorTabGroupDto, IExtHostEditorTabsShape, TabOperation } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
 import type * as vscode from "vscode";
+import { IEditorTabGroupDto, IExtHostEditorTabsShape, TabOperation } from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export interface IExtHostEditorTabs extends IExtHostEditorTabsShape {
     readonly _serviceBrand: undefined;
     tabGroups: vscode.TabGroups;
 }
-export declare const IExtHostEditorTabs: any;
+export declare const IExtHostEditorTabs: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostEditorTabs>;
 export declare class ExtHostEditorTabs implements IExtHostEditorTabs {
     readonly _serviceBrand: undefined;
     private readonly _proxy;

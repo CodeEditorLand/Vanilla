@@ -1,1 +1,1 @@
-import "vs/workbench/contrib/markers/browser/markersFileDecorations";
+import "./markersFileDecorations.js";

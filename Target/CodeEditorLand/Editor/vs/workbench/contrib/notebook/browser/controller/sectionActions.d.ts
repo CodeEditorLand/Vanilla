@@ -1,7 +1,7 @@
-import { Action2 } from "vs/platform/actions/common/actions";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { INotebookEditor } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { OutlineEntry } from "vs/workbench/contrib/notebook/browser/viewModel/OutlineEntry";
+import { Action2 } from "../../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { INotebookEditor } from "../notebookBrowser.js";
+import { OutlineEntry } from "../viewModel/OutlineEntry.js";
 export type NotebookSectionArgs = {
     notebookEditor: INotebookEditor | undefined;
     outlineEntry: OutlineEntry;

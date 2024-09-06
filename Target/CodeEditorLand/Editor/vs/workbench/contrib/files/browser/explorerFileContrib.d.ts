@@ -1,6 +1,6 @@
-import { DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 export declare const enum ExplorerExtensions {
     FileContributionRegistry = "workbench.registry.explorer.fileContributions"
 }
@@ -26,7 +26,7 @@ export interface IExplorerFileContributionRegistry {
 }
 declare class ExplorerFileContributionRegistry implements IExplorerFileContributionRegistry {
     private readonly _onDidRegisterDescriptor;
-    readonly onDidRegisterDescriptor: any;
+    readonly onDidRegisterDescriptor: import("../../../../base/common/event.js").Event<IExplorerFileContributionDescriptor>;
     private readonly descriptors;
     /** @inheritdoc */
     register(descriptor: IExplorerFileContributionDescriptor): void;

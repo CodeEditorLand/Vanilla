@@ -1,17 +1,17 @@
 import type { IDecoration, ITerminalAddon, Terminal } from "@xterm/xterm";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { IMarkProperties, ITerminalCapabilityStore, ITerminalCommand } from "vs/platform/terminal/common/capabilities/capabilities";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { IMarkProperties, ITerminalCapabilityStore, ITerminalCommand } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { ILifecycleService } from "../../../../services/lifecycle/common/lifecycle.js";
 export declare class DecorationAddon extends Disposable implements ITerminalAddon {
     private readonly _capabilities;
     private readonly _clipboardService;
@@ -31,7 +31,10 @@ export declare class DecorationAddon extends Disposable implements ITerminalAddo
     private _showOverviewRulerDecorations?;
     private _terminalDecorationHoverManager;
     private readonly _onDidRequestRunCommand;
-    readonly onDidRequestRunCommand: any;
+    readonly onDidRequestRunCommand: import("../../../../../base/common/event.js").Event<{
+        command: ITerminalCommand;
+        copyAsHtml?: boolean;
+    }>;
     constructor(_capabilities: ITerminalCapabilityStore, _clipboardService: IClipboardService, _contextMenuService: IContextMenuService, _configurationService: IConfigurationService, _themeService: IThemeService, _openerService: IOpenerService, _quickInputService: IQuickInputService, lifecycleService: ILifecycleService, _commandService: ICommandService, instantiationService: IInstantiationService, _accessibilitySignalService: IAccessibilitySignalService, _notificationService: INotificationService);
     private _removeCapabilityDisposables;
     private _createCapabilityDisposables;

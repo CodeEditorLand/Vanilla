@@ -1,6 +1,6 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-export declare const IProtocolMainService: any;
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+export declare const IProtocolMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IProtocolMainService>;
 export interface IIPCObjectUrl<T> extends IDisposable {
     /**
      * A `URI` that a renderer can use to retrieve the

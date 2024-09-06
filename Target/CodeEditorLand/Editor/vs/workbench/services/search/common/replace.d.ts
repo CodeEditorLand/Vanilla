@@ -1,4 +1,4 @@
-import { IPatternInfo } from "vs/workbench/services/search/common/search";
+import { IPatternInfo } from "./search.js";
 export declare class ReplacePattern {
     private _replacePattern;
     private _hasParameters;

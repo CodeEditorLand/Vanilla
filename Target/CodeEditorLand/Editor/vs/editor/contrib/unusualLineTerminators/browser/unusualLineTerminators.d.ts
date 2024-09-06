@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
 export declare class UnusualLineTerminatorsDetector extends Disposable implements IEditorContribution {
     private readonly _editor;
     private readonly _dialogService;

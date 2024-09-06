@@ -1,21 +1,21 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Iterable } from "vs/base/common/iterator";
-import { IActiveCodeEditor, ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { GoToLocationValues } from "vs/editor/common/config/editorOptions";
-import { Position } from "vs/editor/common/core/position";
-import { ITextModel } from "vs/editor/common/model";
-import { SymbolNavigationAction } from "vs/editor/contrib/gotoSymbol/browser/goToCommands";
-import { ReferencesModel } from "vs/editor/contrib/gotoSymbol/browser/referencesModel";
-import { Action2, IAction2Options } from "vs/platform/actions/common/actions";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IProgressService } from "vs/platform/progress/common/progress";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { ViewAction } from "vs/workbench/browser/parts/views/viewPane";
-import { TestExplorerTreeElement, TestItemTreeElement } from "vs/workbench/contrib/testing/browser/explorerProjections/index";
-import { TestingExplorerView } from "vs/workbench/contrib/testing/browser/testingExplorerView";
-import { ITestResult } from "vs/workbench/contrib/testing/common/testResult";
-import { IMainThreadTestCollection, ITestService } from "vs/workbench/contrib/testing/common/testService";
-import { InternalTestItem, TestRunProfileBitset } from "vs/workbench/contrib/testing/common/testTypes";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IActiveCodeEditor, ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { GoToLocationValues } from "../../../../editor/common/config/editorOptions.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { SymbolNavigationAction } from "../../../../editor/contrib/gotoSymbol/browser/goToCommands.js";
+import { ReferencesModel } from "../../../../editor/contrib/gotoSymbol/browser/referencesModel.js";
+import { Action2, IAction2Options } from "../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ViewAction } from "../../../browser/parts/views/viewPane.js";
+import { ITestResult } from "../common/testResult.js";
+import { IMainThreadTestCollection, ITestService } from "../common/testService.js";
+import { ExtTestRunProfileKind, InternalTestItem, TestRunProfileBitset } from "../common/testTypes.js";
+import { TestExplorerTreeElement, TestItemTreeElement } from "./explorerProjections/index.js";
+import { TestingExplorerView } from "./testingExplorerView.js";
 export declare class HideTestAction extends Action2 {
     constructor();
     run(accessor: ServicesAccessor, ...elements: TestItemTreeElement[]): Promise<void>;
@@ -83,9 +83,9 @@ export declare class GetSelectedProfiles extends Action2 {
      * @override
      */
     run(accessor: ServicesAccessor): {
-        controllerId: any;
-        label: any;
-        kind: any;
+        controllerId: string;
+        label: string;
+        kind: ExtTestRunProfileKind;
     }[];
 }
 export declare class GetExplorerSelection extends ViewAction<TestingExplorerView> {
@@ -94,8 +94,8 @@ export declare class GetExplorerSelection extends ViewAction<TestingExplorerView
      * @override
      */
     runInView(_accessor: ServicesAccessor, view: TestingExplorerView): {
-        include: any;
-        exclude: any;
+        include: string[];
+        exclude: string[];
     };
 }
 export declare class RunSelectedAction extends ExecuteSelectedAction {
@@ -203,13 +203,21 @@ export declare class DebugAtCursor extends ExecuteTestAtCursor {
 export declare class CoverageAtCursor extends ExecuteTestAtCursor {
     constructor();
 }
+declare abstract class ExecuteTestsUnderUriAction extends Action2 {
+    protected readonly group: TestRunProfileBitset;
+    constructor(options: IAction2Options, group: TestRunProfileBitset);
+    run(accessor: ServicesAccessor, uri: URI): Promise<unknown>;
+}
+declare class RunTestsUnderUri extends ExecuteTestsUnderUriAction {
+    constructor();
+}
 declare abstract class ExecuteTestsInCurrentFile extends Action2 {
     protected readonly group: TestRunProfileBitset;
     constructor(options: IAction2Options, group: TestRunProfileBitset);
     /**
      * @override
      */
-    run(accessor: ServicesAccessor): any;
+    run(accessor: ServicesAccessor): Promise<ITestResult> | undefined;
 }
 export declare class RunCurrentFile extends ExecuteTestsInCurrentFile {
     constructor();
@@ -239,7 +247,7 @@ declare abstract class RunOrDebugFailedTests extends RunOrDebugExtsByPath {
 declare abstract class RunOrDebugLastRun extends Action2 {
     constructor(options: IAction2Options);
     protected abstract getGroup(): TestRunProfileBitset;
-    protected getLastTestRunRequest(accessor: ServicesAccessor, runId?: string): any;
+    protected getLastTestRunRequest(accessor: ServicesAccessor, runId?: string): import("../common/testTypes.js").ResolvedTestRunRequest | undefined;
     /** @inheritdoc */
     run(accessor: ServicesAccessor, runId?: string): Promise<void>;
 }
@@ -277,7 +285,7 @@ export declare class ToggleInlineTestOutput extends Action2 {
 }
 export declare class RefreshTestsAction extends Action2 {
     constructor();
-    run(accessor: ServicesAccessor, ...elements: TestItemTreeElement[]): Promise<any>;
+    run(accessor: ServicesAccessor, ...elements: TestItemTreeElement[]): Promise<void>;
 }
 export declare class CancelTestRefreshAction extends Action2 {
     constructor();
@@ -294,7 +302,7 @@ export declare class OpenCoverage extends Action2 {
 declare abstract class TestNavigationAction extends SymbolNavigationAction {
     protected testService: ITestService;
     protected uriIdentityService: IUriIdentityService;
-    runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor, ...args: any[]): any;
+    runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor, ...args: any[]): Promise<void>;
     protected _getAlternativeCommand(editor: IActiveCodeEditor): string;
     protected _getGoToPreference(editor: IActiveCodeEditor): GoToLocationValues;
 }
@@ -312,5 +320,5 @@ declare abstract class GoToRelatedCodeAction extends TestNavigationAction {
 declare class GoToRelatedCode extends GoToRelatedCodeAction {
     constructor();
 }
-export declare const allTestActions: (typeof DebugAction | typeof RunUsingProfileAction | typeof StopContinuousRunAction | typeof TestingViewAsListAction | typeof GoToRelatedTest | typeof GoToRelatedCode)[];
+export declare const allTestActions: (typeof ReRunLastRun | typeof DebugLastRun | typeof UnhideTestAction | typeof DebugAction | typeof RunUsingProfileAction | typeof SelectDefaultTestProfiles | typeof StopContinuousRunAction | typeof TestingViewAsListAction | typeof RunTestsUnderUri | typeof GoToRelatedTest | typeof GoToRelatedCode)[];
 export {};

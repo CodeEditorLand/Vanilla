@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 export interface IMarkActiveOptions {
     whenHeldFor?: number;
 }
@@ -24,7 +24,7 @@ export interface IUserActivityService {
      */
     markActive(opts?: IMarkActiveOptions): IDisposable;
 }
-export declare const IUserActivityService: any;
+export declare const IUserActivityService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IUserActivityService>;
 export declare class UserActivityService extends Disposable implements IUserActivityService {
     readonly _serviceBrand: undefined;
     private readonly markInactive;

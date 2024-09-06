@@ -1,13 +1,13 @@
-import { IProcessEnvironment } from "vs/base/common/platform";
-import { ICSSDevelopmentService } from "vs/platform/cssDev/node/cssDevService";
-import { IDialogMainService } from "vs/platform/dialogs/electron-main/dialogMainService";
-import { IEnvironmentMainService } from "vs/platform/environment/electron-main/environmentMainService";
-import { IIssueMainService, OldIssueReporterData } from "vs/platform/issue/common/issue";
-import { ILogService } from "vs/platform/log/common/log";
-import { INativeHostMainService } from "vs/platform/native/electron-main/nativeHostMainService";
-import { IProtocolMainService } from "vs/platform/protocol/electron-main/protocol";
-import { ICodeWindow } from "vs/platform/window/electron-main/window";
-import { IWindowsMainService } from "vs/platform/windows/electron-main/windows";
+import { IProcessEnvironment } from "../../../base/common/platform.js";
+import { ICSSDevelopmentService } from "../../cssDev/node/cssDevService.js";
+import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { INativeHostMainService } from "../../native/electron-main/nativeHostMainService.js";
+import { IProtocolMainService } from "../../protocol/electron-main/protocol.js";
+import { ICodeWindow } from "../../window/electron-main/window.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { IIssueMainService, OldIssueReporterData } from "../common/issue.js";
 export declare class IssueMainService implements IIssueMainService {
     private userEnv;
     private readonly environmentMainService;

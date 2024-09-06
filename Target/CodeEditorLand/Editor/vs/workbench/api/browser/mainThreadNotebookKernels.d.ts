@@ -1,12 +1,12 @@
-import { UriComponents } from "vs/base/common/uri";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { INotebookEditorService } from "vs/workbench/contrib/notebook/browser/services/notebookEditorService";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
-import { INotebookKernelService, VariablesResult } from "vs/workbench/contrib/notebook/common/notebookKernelService";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { SerializableObjectWithBuffers } from "vs/workbench/services/extensions/common/proxyIdentifier";
-import { ICellExecuteUpdateDto, ICellExecutionCompleteDto, INotebookKernelDto2, MainThreadNotebookKernelsShape } from "../common/extHost.protocol";
+import { UriComponents } from "../../../base/common/uri.js";
+import { ILanguageService } from "../../../editor/common/languages/language.js";
+import { INotebookEditorService } from "../../contrib/notebook/browser/services/notebookEditorService.js";
+import { INotebookExecutionStateService } from "../../contrib/notebook/common/notebookExecutionStateService.js";
+import { INotebookKernelService, VariablesResult } from "../../contrib/notebook/common/notebookKernelService.js";
+import { INotebookService } from "../../contrib/notebook/common/notebookService.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
+import { ICellExecuteUpdateDto, ICellExecutionCompleteDto, INotebookKernelDto2, MainThreadNotebookKernelsShape } from "../common/extHost.protocol.js";
 export declare class MainThreadNotebookKernels implements MainThreadNotebookKernelsShape {
     private readonly _languageService;
     private readonly _notebookKernelService;

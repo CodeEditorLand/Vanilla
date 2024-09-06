@@ -1,10 +1,10 @@
-import { FastDomNode } from "vs/base/browser/fastDomNode";
-import { StandardWheelEvent } from "vs/base/browser/mouseEvent";
-import { ScrollbarArrowOptions } from "vs/base/browser/ui/scrollbar/scrollbarArrow";
-import { ScrollbarState } from "vs/base/browser/ui/scrollbar/scrollbarState";
-import { ScrollbarVisibilityController } from "vs/base/browser/ui/scrollbar/scrollbarVisibilityController";
-import { Widget } from "vs/base/browser/ui/widget";
-import { INewScrollPosition, Scrollable, ScrollbarVisibility } from "vs/base/common/scrollable";
+import { INewScrollPosition, Scrollable, ScrollbarVisibility } from "../../../common/scrollable.js";
+import { FastDomNode } from "../../fastDomNode.js";
+import { StandardWheelEvent } from "../../mouseEvent.js";
+import { Widget } from "../widget.js";
+import { ScrollbarArrowOptions } from "./scrollbarArrow.js";
+import { ScrollbarState } from "./scrollbarState.js";
+import { ScrollbarVisibilityController } from "./scrollbarVisibilityController.js";
 export interface ISimplifiedPointerEvent {
     buttons: number;
     pageX: number;

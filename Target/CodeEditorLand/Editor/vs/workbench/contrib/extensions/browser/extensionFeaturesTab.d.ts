@@ -1,6 +1,6 @@
-import { IExtensionManifest } from "vs/platform/extensions/common/extensions";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IThemeService, Themable } from "vs/platform/theme/common/themeService";
+import { IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
 export declare class ExtensionFeaturesTab extends Themable {
     private readonly manifest;
     private readonly feature;

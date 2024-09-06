@@ -1,7 +1,7 @@
-import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "vs/base/common/buffer";
-import { URI } from "vs/base/common/uri";
-import { IFileStatWithMetadata, IWriteFileOptions } from "vs/platform/files/common/files";
-export declare const IElevatedFileService: any;
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileStatWithMetadata, IWriteFileOptions } from "../../../../platform/files/common/files.js";
+export declare const IElevatedFileService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IElevatedFileService>;
 export interface IElevatedFileService {
     readonly _serviceBrand: undefined;
     /**

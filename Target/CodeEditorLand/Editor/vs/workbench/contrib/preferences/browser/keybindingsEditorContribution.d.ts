@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 export declare class KeybindingEditorDecorationsRenderer extends Disposable {
     private _editor;
     private readonly _keybindingService;

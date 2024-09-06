@@ -1,9 +1,9 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ManagedSocket, RemoteSocketHalf } from "vs/platform/remote/common/managedSocket";
-import { IRemoteSocketFactoryService } from "vs/platform/remote/common/remoteSocketFactoryService";
-import { ExtHostManagedSocketsShape, MainThreadManagedSocketsShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ManagedSocket, RemoteSocketHalf } from "../../../platform/remote/common/managedSocket.js";
+import { IRemoteSocketFactoryService } from "../../../platform/remote/common/remoteSocketFactoryService.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostManagedSocketsShape, MainThreadManagedSocketsShape } from "../common/extHost.protocol.js";
 export declare class MainThreadManagedSockets extends Disposable implements MainThreadManagedSocketsShape {
     private readonly _remoteSocketFactoryService;
     private readonly _proxy;

@@ -1,5 +1,5 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IChatCodeBlockContextProviderService, ICodeBlockActionContextProvider } from "vs/workbench/contrib/chat/browser/chat";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IChatCodeBlockContextProviderService, ICodeBlockActionContextProvider } from "./chat.js";
 export declare class ChatCodeBlockContextProviderService implements IChatCodeBlockContextProviderService {
     _serviceBrand: undefined;
     private readonly _providers;

@@ -1,7 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { IJSONSchema } from "vs/base/common/jsonSchema";
-import { IconIdentifier, ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
+import { Event } from "../../../base/common/event.js";
+import { IJSONSchema } from "../../../base/common/jsonSchema.js";
+import { IconIdentifier, ThemeIcon } from "../../../base/common/themables.js";
+import { URI } from "../../../base/common/uri.js";
 export declare const Extensions: {
     IconContribution: string;
 };
@@ -86,5 +86,5 @@ export declare const iconsSchemaId = "vscode://schemas/icons";
 export declare const widgetClose: ThemeIcon;
 export declare const gotoPreviousLocation: ThemeIcon;
 export declare const gotoNextLocation: ThemeIcon;
-export declare const syncing: any;
-export declare const spinningLoading: any;
+export declare const syncing: ThemeIcon;
+export declare const spinningLoading: ThemeIcon;

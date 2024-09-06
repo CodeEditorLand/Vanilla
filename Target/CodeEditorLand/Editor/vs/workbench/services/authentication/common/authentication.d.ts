@@ -1,4 +1,4 @@
-import { Event } from "vs/base/common/event";
+import { Event } from "../../../../base/common/event.js";
 /**
  * Use this if you don't want the onDidChangeSessions event to fire in the extension host
  */
@@ -43,7 +43,7 @@ export interface AllowedExtension {
     lastUsed?: number;
     trusted?: boolean;
 }
-export declare const IAuthenticationService: any;
+export declare const IAuthenticationService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IAuthenticationService>;
 export interface IAuthenticationService {
     readonly _serviceBrand: undefined;
     /**
@@ -133,7 +133,7 @@ export interface IAuthenticationService {
      */
     removeSession(providerId: string, sessionId: string): Promise<void>;
 }
-export declare const IAuthenticationExtensionsService: any;
+export declare const IAuthenticationExtensionsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IAuthenticationExtensionsService>;
 export interface IAuthenticationExtensionsService {
     readonly _serviceBrand: undefined;
     updateSessionPreference(providerId: string, extensionId: string, session: AuthenticationSession): void;

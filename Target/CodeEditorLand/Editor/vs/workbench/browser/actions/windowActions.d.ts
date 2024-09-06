@@ -1,5 +1,5 @@
-import { Action2, IAction2Options } from "vs/platform/actions/common/actions";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
+import { Action2, IAction2Options } from "../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
 export declare const inRecentFilesPickerContextKey = "inRecentFilesPicker";
 declare abstract class BaseOpenRecentAction extends Action2 {
     private readonly removeFromRecentlyOpened;

@@ -1,12 +1,12 @@
-import { FastDomNode } from "vs/base/browser/fastDomNode";
-import "vs/css!./viewLines";
-import { HorizontalPosition, IViewLines, LineVisibleRanges } from "vs/editor/browser/view/renderingContext";
-import { ViewPart } from "vs/editor/browser/view/viewPart";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import * as viewEvents from "vs/editor/common/viewEvents";
-import { ViewportData } from "vs/editor/common/viewLayout/viewLinesViewportData";
-import { ViewContext } from "vs/editor/common/viewModel/viewContext";
+import { FastDomNode } from "../../../../base/browser/fastDomNode.js";
+import "./viewLines.css";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import * as viewEvents from "../../../common/viewEvents.js";
+import { ViewportData } from "../../../common/viewLayout/viewLinesViewportData.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import { HorizontalPosition, IViewLines, LineVisibleRanges } from "../../view/renderingContext.js";
+import { ViewPart } from "../../view/viewPart.js";
 export declare class ViewLines extends ViewPart implements IViewLines {
     /**
      * Adds this amount of pixels to the right of lines (no-one wants to type near the edge of the viewport)

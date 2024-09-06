@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { IDisposable, IReference } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ITextModel, ITextSnapshot } from "vs/editor/common/model";
-import { IResolvableEditorModel } from "vs/platform/editor/common/editor";
-export declare const ITextModelService: any;
+import { Event } from "../../../base/common/event.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { IDisposable, IReference } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IResolvableEditorModel } from "../../../platform/editor/common/editor.js";
+import { ITextModel, ITextSnapshot } from "../model.js";
+export declare const ITextModelService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITextModelService>;
 export interface ITextModelService {
     readonly _serviceBrand: undefined;
     /**

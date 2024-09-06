@@ -1,11 +1,11 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Range } from "vs/editor/common/core/range";
-import { IModelDecoration } from "vs/editor/common/model";
-import { HoverAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts } from "vs/editor/contrib/hover/browser/hoverTypes";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IChatWidgetService } from "vs/workbench/contrib/chat/browser/chat";
-import { IChatAgentData } from "vs/workbench/contrib/chat/common/chatAgents";
+import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { IModelDecoration } from "../../../../../editor/common/model.js";
+import { HoverAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts } from "../../../../../editor/contrib/hover/browser/hoverTypes.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IChatAgentData } from "../../common/chatAgents.js";
+import { IChatWidgetService } from "../chat.js";
 export declare class ChatAgentHoverParticipant implements IEditorHoverParticipant<ChatAgentHoverPart> {
     private readonly editor;
     private readonly instantiationService;

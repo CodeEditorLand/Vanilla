@@ -1,23 +1,25 @@
-import { CodeWindow } from "vs/base/browser/window";
-import { VSBufferReadableStream } from "vs/base/common/buffer";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IFileService } from "vs/platform/files/common/files";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IRemoteAuthorityResolverService } from "vs/platform/remote/common/remoteAuthorityResolver";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { ITunnelService } from "vs/platform/tunnel/common/tunnel";
-import { WebviewThemeDataProvider } from "vs/workbench/contrib/webview/browser/themeing";
-import { IWebview, WebviewContentOptions, WebviewExtensionDescription, WebviewInitInfo } from "vs/workbench/contrib/webview/browser/webview";
-import { WebviewFindDelegate, WebviewFindWidget } from "vs/workbench/contrib/webview/browser/webviewFindWidget";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
+import { IMouseWheelEvent } from "../../../../base/browser/mouseEvent.js";
+import { CodeWindow } from "../../../../base/browser/window.js";
+import { VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ITunnelService } from "../../../../platform/tunnel/common/tunnel.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { WebviewThemeDataProvider } from "./themeing.js";
+import { IWebview, WebviewContentOptions, WebviewExtensionDescription, WebviewInitInfo, WebviewMessageReceivedEvent } from "./webview.js";
+import { WebviewFindDelegate, WebviewFindWidget } from "./webviewFindWidget.js";
 export declare class WebviewElement extends Disposable implements IWebview, WebviewFindDelegate {
     protected readonly webviewThemeDataProvider: WebviewThemeDataProvider;
     private readonly _environmentService;
@@ -27,7 +29,7 @@ export declare class WebviewElement extends Disposable implements IWebview, Webv
     private readonly _telemetryService;
     private readonly _tunnelService;
     private readonly _accessibilityService;
-    protected readonly id: any;
+    protected readonly id: string;
     /**
      * The provided identifier of this webview.
      */
@@ -54,7 +56,7 @@ export declare class WebviewElement extends Disposable implements IWebview, Webv
     private _confirmBeforeClose;
     private readonly _focusDelayer;
     private readonly _onDidHtmlChange;
-    protected readonly onDidHtmlChange: any;
+    protected readonly onDidHtmlChange: Event<string>;
     private _messagePort?;
     private readonly _messageHandlers;
     protected readonly _webviewFindWidget: WebviewFindWidget | undefined;
@@ -66,27 +68,31 @@ export declare class WebviewElement extends Disposable implements IWebview, Webv
     dispose(): void;
     setContextKeyService(contextKeyService: IContextKeyService): void;
     private readonly _onMissingCsp;
-    readonly onMissingCsp: any;
+    readonly onMissingCsp: Event<ExtensionIdentifier>;
     private readonly _onDidClickLink;
-    readonly onDidClickLink: any;
+    readonly onDidClickLink: Event<string>;
     private readonly _onDidReload;
-    readonly onDidReload: any;
+    readonly onDidReload: Event<void>;
     private readonly _onMessage;
-    readonly onMessage: any;
+    readonly onMessage: Event<WebviewMessageReceivedEvent>;
     private readonly _onDidScroll;
-    readonly onDidScroll: any;
+    readonly onDidScroll: Event<{
+        readonly scrollYPercentage: number;
+    }>;
     private readonly _onDidWheel;
-    readonly onDidWheel: any;
+    readonly onDidWheel: Event<IMouseWheelEvent>;
     private readonly _onDidUpdateState;
-    readonly onDidUpdateState: any;
+    readonly onDidUpdateState: Event<string | undefined>;
     private readonly _onDidFocus;
-    readonly onDidFocus: any;
+    readonly onDidFocus: Event<void>;
     private readonly _onDidBlur;
-    readonly onDidBlur: any;
+    readonly onDidBlur: Event<void>;
     private readonly _onFatalError;
-    readonly onFatalError: any;
+    readonly onFatalError: Event<{
+        readonly message: string;
+    }>;
     private readonly _onDidDispose;
-    readonly onDidDispose: any;
+    readonly onDidDispose: Event<void>;
     postMessage(message: any, transfer?: ArrayBuffer[]): Promise<boolean>;
     private _send;
     private _createElement;
@@ -127,9 +133,9 @@ export declare class WebviewElement extends Disposable implements IWebview, Webv
     private localLocalhost;
     focus(): void;
     private _doFocus;
-    protected readonly _hasFindResult: any;
+    protected readonly _hasFindResult: Emitter<boolean>;
     readonly hasFindResult: Event<boolean>;
-    protected readonly _onDidStopFind: any;
+    protected readonly _onDidStopFind: Emitter<void>;
     readonly onDidStopFind: Event<void>;
     /**
      * Webviews expose a stateful find API.

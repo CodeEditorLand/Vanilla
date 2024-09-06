@@ -1,46 +1,46 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IModelService } from "vs/editor/common/services/model";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { ICommandHandler } from "vs/platform/commands/common/commands";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IFileDialogService, IOpenDialogOptions, ISaveDialogOptions } from "vs/platform/dialogs/common/dialogs";
-import { IFileService } from "vs/platform/files/common/files";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ILabelService } from "vs/platform/label/common/label";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IPathService } from "vs/workbench/services/path/common/pathService";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { ICommandHandler } from "../../../../platform/commands/common/commands.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IFileDialogService, IOpenDialogOptions, ISaveDialogOptions } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
 export declare namespace OpenLocalFileCommand {
     const ID = "workbench.action.files.openLocalFile";
-    const LABEL: any;
+    const LABEL: string;
     function handler(): ICommandHandler;
 }
 export declare namespace SaveLocalFileCommand {
     const ID = "workbench.action.files.saveLocalFile";
-    const LABEL: any;
+    const LABEL: string;
     function handler(): ICommandHandler;
 }
 export declare namespace OpenLocalFolderCommand {
     const ID = "workbench.action.files.openLocalFolder";
-    const LABEL: any;
+    const LABEL: string;
     function handler(): ICommandHandler;
 }
 export declare namespace OpenLocalFileFolderCommand {
     const ID = "workbench.action.files.openLocalFileFolder";
-    const LABEL: any;
+    const LABEL: string;
     function handler(): ICommandHandler;
 }
-export declare const RemoteFileDialogContext: any;
-export interface ISimpleFileDialog {
+export declare const RemoteFileDialogContext: RawContextKey<boolean>;
+export interface ISimpleFileDialog extends IDisposable {
     showOpenDialog(options: IOpenDialogOptions): Promise<URI | undefined>;
     showSaveDialog(options: ISaveDialogOptions): Promise<URI | undefined>;
 }
-export declare class SimpleFileDialog implements ISimpleFileDialog {
+export declare class SimpleFileDialog extends Disposable implements ISimpleFileDialog {
     private readonly fileService;
     private readonly quickInputService;
     private readonly labelService;
@@ -76,7 +76,6 @@ export declare class SimpleFileDialog implements ISimpleFileDialog {
     private separator;
     private readonly onBusyChangeEmitter;
     private updatingPromise;
-    protected disposables: IDisposable[];
     constructor(fileService: IFileService, quickInputService: IQuickInputService, labelService: ILabelService, workspaceContextService: IWorkspaceContextService, notificationService: INotificationService, fileDialogService: IFileDialogService, modelService: IModelService, languageService: ILanguageService, environmentService: IWorkbenchEnvironmentService, remoteAgentService: IRemoteAgentService, pathService: IPathService, keybindingService: IKeybindingService, contextKeyService: IContextKeyService, accessibilityService: IAccessibilityService);
     set busy(busy: boolean);
     get busy(): boolean;
@@ -88,6 +87,7 @@ export declare class SimpleFileDialog implements ISimpleFileDialog {
     private getRemoteAgentEnvironment;
     protected getUserHome(trueHome?: boolean): Promise<URI>;
     private pickResource;
+    dispose(): void;
     private handleValueChange;
     private isBadSubpath;
     private isValueChangeFromUser;

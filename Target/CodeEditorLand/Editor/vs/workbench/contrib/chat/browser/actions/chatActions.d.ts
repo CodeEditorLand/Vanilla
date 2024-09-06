@@ -1,10 +1,10 @@
-import { ChatViewPane } from "vs/workbench/contrib/chat/browser/chatViewPane";
-import { IChatRequestViewModel, IChatResponseViewModel } from "vs/workbench/contrib/chat/common/chatViewModel";
+import { IChatRequestViewModel, IChatResponseViewModel } from "../../common/chatViewModel.js";
+import { ChatViewPane } from "../chatViewPane.js";
 export interface IChatViewTitleActionContext {
     chatView: ChatViewPane;
 }
 export declare function isChatViewTitleActionContext(obj: unknown): obj is IChatViewTitleActionContext;
-export declare const CHAT_CATEGORY: any;
+export declare const CHAT_CATEGORY: import("../../../../../nls.js").ILocalizedString;
 export declare const CHAT_OPEN_ACTION_ID = "workbench.action.chat.open";
 export interface IChatViewOpenOptions {
     /**

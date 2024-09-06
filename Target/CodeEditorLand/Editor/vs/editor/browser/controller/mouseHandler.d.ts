@@ -1,14 +1,14 @@
-import { IMouseWheelEvent } from "vs/base/browser/mouseEvent";
-import { Disposable } from "vs/base/common/lifecycle";
-import { MouseTargetFactory, PointerHandlerLastRenderData } from "vs/editor/browser/controller/mouseTarget";
-import { IMouseTarget, MouseTargetType } from "vs/editor/browser/editorBrowser";
-import { EditorMouseEvent } from "vs/editor/browser/editorDom";
-import { HorizontalPosition } from "vs/editor/browser/view/renderingContext";
-import { ViewController } from "vs/editor/browser/view/viewController";
-import { Position } from "vs/editor/common/core/position";
-import { ViewEventHandler } from "vs/editor/common/viewEventHandler";
-import * as viewEvents from "vs/editor/common/viewEvents";
-import { ViewContext } from "vs/editor/common/viewModel/viewContext";
+import { IMouseWheelEvent } from "../../../base/browser/mouseEvent.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { Position } from "../../common/core/position.js";
+import { ViewEventHandler } from "../../common/viewEventHandler.js";
+import * as viewEvents from "../../common/viewEvents.js";
+import { ViewContext } from "../../common/viewModel/viewContext.js";
+import { IMouseTarget, MouseTargetType } from "../editorBrowser.js";
+import { EditorMouseEvent } from "../editorDom.js";
+import { HorizontalPosition } from "../view/renderingContext.js";
+import { ViewController } from "../view/viewController.js";
+import { MouseTargetFactory, PointerHandlerLastRenderData } from "./mouseTarget.js";
 export interface IPointerHandlerHelper {
     viewDomNode: HTMLElement;
     linesContentDomNode: HTMLElement;

@@ -1,7 +1,7 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { LanguageSelector } from "vs/editor/common/languageSelector";
-import { ITextModel } from "vs/editor/common/model";
+import { IDisposable } from "../../base/common/lifecycle.js";
+import { URI } from "../../base/common/uri.js";
+import { LanguageSelector } from "./languageSelector.js";
+import { ITextModel } from "./model.js";
 export interface NotebookInfo {
     readonly uri: URI;
     readonly type: string;
@@ -14,7 +14,7 @@ export declare class LanguageFeatureRegistry<T> {
     private _clock;
     private readonly _entries;
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: import("../../base/common/event.js").Event<number>;
     constructor(_notebookInfoResolver?: NotebookInfoResolver | undefined);
     register(selector: LanguageSelector, provider: T): IDisposable;
     has(model: ITextModel): boolean;

@@ -1,7 +1,7 @@
-import { IDimension } from "vs/base/browser/dom";
-import { Event } from "vs/base/common/event";
-import { DisposableStore } from "vs/base/common/lifecycle";
-export declare const ILayoutService: any;
+import { IDimension } from "../../../base/browser/dom.js";
+import { Event } from "../../../base/common/event.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+export declare const ILayoutService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILayoutService>;
 export interface ILayoutOffsetInfo {
     /**
      * Generic top offset

@@ -1,13 +1,14 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { ITreeViewsDnDService } from "vs/editor/common/services/treeViewsDndService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { ITreeViewsDnDService } from "../../../common/services/treeViewsDndService.js";
 export declare const defaultProviderConfig = "editor.experimental.dropIntoEditor.defaultProvider";
 export declare const changeDropTypeCommandId = "editor.changeDropType";
-export declare const dropWidgetVisibleCtx: any;
+export declare const dropWidgetVisibleCtx: RawContextKey<boolean>;
 export declare class DropIntoEditorController extends Disposable implements IEditorContribution {
     private readonly _configService;
     private readonly _languageFeaturesService;

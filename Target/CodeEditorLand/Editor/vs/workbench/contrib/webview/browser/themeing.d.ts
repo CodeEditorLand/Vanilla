@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { WebviewStyles } from "vs/workbench/contrib/webview/browser/webview";
-import { IWorkbenchColorTheme, IWorkbenchThemeService } from "vs/workbench/services/themes/common/workbenchThemeService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkbenchColorTheme, IWorkbenchThemeService } from "../../../services/themes/common/workbenchThemeService.js";
+import { WebviewStyles } from "./webview.js";
 interface WebviewThemeData {
     readonly activeTheme: string;
     readonly themeLabel: string;
@@ -13,7 +13,7 @@ export declare class WebviewThemeDataProvider extends Disposable {
     private readonly _configurationService;
     private _cachedWebViewThemeData;
     private readonly _onThemeDataChanged;
-    readonly onThemeDataChanged: any;
+    readonly onThemeDataChanged: import("../../../../base/common/event.js").Event<void>;
     constructor(_themeService: IWorkbenchThemeService, _configurationService: IConfigurationService);
     getTheme(): IWorkbenchColorTheme;
     getWebviewThemeData(): WebviewThemeData;

@@ -1,10 +1,10 @@
-import { Emitter, Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IModelService } from "vs/editor/common/services/model";
-import { IFileService } from "vs/platform/files/common/files";
-import { IMarkerData, IMarkerService, MarkerSeverity } from "vs/platform/markers/common/markers";
-import { ApplyToKind, IProblemMatch, ProblemMatcher } from "vs/workbench/contrib/tasks/common/problemMatcher";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IMarkerData, IMarkerService, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { ApplyToKind, IProblemMatch, ProblemMatcher } from "./problemMatcher.js";
 export declare const enum ProblemCollectorEventKind {
     BackgroundProcessingBegins = "backgroundProcessingBegins",
     BackgroundProcessingEnds = "backgroundProcessingEnds"
@@ -26,19 +26,19 @@ export declare abstract class AbstractProblemCollector extends Disposable implem
     private buffer;
     private bufferLength;
     private openModels;
-    protected readonly modelListeners: any;
+    protected readonly modelListeners: DisposableStore;
     private tail;
     protected applyToByOwner: Map<string, ApplyToKind>;
     private resourcesToClean;
     private markers;
     private deliveredMarkers;
     protected _onDidStateChange: Emitter<IProblemCollectorEvent>;
-    protected readonly _onDidFindFirstMatch: any;
-    readonly onDidFindFirstMatch: any;
-    protected readonly _onDidFindErrors: any;
-    readonly onDidFindErrors: any;
-    protected readonly _onDidRequestInvalidateLastMarker: any;
-    readonly onDidRequestInvalidateLastMarker: any;
+    protected readonly _onDidFindFirstMatch: Emitter<void>;
+    readonly onDidFindFirstMatch: Event<void>;
+    protected readonly _onDidFindErrors: Emitter<void>;
+    readonly onDidFindErrors: Event<void>;
+    protected readonly _onDidRequestInvalidateLastMarker: Emitter<void>;
+    readonly onDidRequestInvalidateLastMarker: Event<void>;
     constructor(problemMatchers: ProblemMatcher[], markerService: IMarkerService, modelService: IModelService, fileService?: IFileService);
     get onDidStateChange(): Event<IProblemCollectorEvent>;
     processLine(line: string): void;

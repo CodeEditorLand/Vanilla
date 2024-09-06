@@ -1,9 +1,9 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IActiveCodeEditor } from "vs/editor/browser/editorBrowser";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { StickyModel } from "vs/editor/contrib/stickyScroll/browser/stickyScrollElement";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IActiveCodeEditor } from "../../../browser/editorBrowser.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { StickyModel } from "./stickyScrollElement.js";
 export interface IStickyModelProvider extends IDisposable {
     /**
      * Method which updates the sticky model

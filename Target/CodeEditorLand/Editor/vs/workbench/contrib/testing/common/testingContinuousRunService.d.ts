@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITestProfileService } from "vs/workbench/contrib/testing/common/testProfileService";
-import { TestService } from "vs/workbench/contrib/testing/common/testServiceImpl";
-import { ITestRunProfile, TestRunProfileBitset } from "vs/workbench/contrib/testing/common/testTypes";
-export declare const ITestingContinuousRunService: any;
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITestProfileService } from "./testProfileService.js";
+import { TestService } from "./testServiceImpl.js";
+import { ITestRunProfile, TestRunProfileBitset } from "./testTypes.js";
+export declare const ITestingContinuousRunService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITestingContinuousRunService>;
 export interface ITestingContinuousRunService {
     readonly _serviceBrand: undefined;
     /**
@@ -56,8 +56,8 @@ export declare class TestingContinuousRunService extends Disposable implements I
     private readonly running;
     private readonly lastRun;
     private readonly isGloballyOn;
-    readonly onDidChange: any;
-    get lastRunProfileIds(): any;
+    readonly onDidChange: Event<string | undefined>;
+    get lastRunProfileIds(): Set<number>;
     constructor(testService: TestService, storageService: IStorageService, contextKeyService: IContextKeyService, testProfileService: ITestProfileService);
     /** @inheritdoc */
     isSpecificallyEnabledFor(testId: string): boolean;

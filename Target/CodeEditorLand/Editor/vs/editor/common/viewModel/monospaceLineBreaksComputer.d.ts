@@ -1,6 +1,6 @@
-import { IComputedEditorOptions, WrappingIndent } from "vs/editor/common/config/editorOptions";
-import { FontInfo } from "vs/editor/common/config/fontInfo";
-import { ILineBreaksComputer, ILineBreaksComputerFactory } from "vs/editor/common/modelLineProjectionData";
+import { IComputedEditorOptions, WrappingIndent } from "../config/editorOptions.js";
+import { FontInfo } from "../config/fontInfo.js";
+import { ILineBreaksComputer, ILineBreaksComputerFactory } from "../modelLineProjectionData.js";
 export declare class MonospaceLineBreaksComputerFactory implements ILineBreaksComputerFactory {
     static create(options: IComputedEditorOptions): MonospaceLineBreaksComputerFactory;
     private readonly classifier;

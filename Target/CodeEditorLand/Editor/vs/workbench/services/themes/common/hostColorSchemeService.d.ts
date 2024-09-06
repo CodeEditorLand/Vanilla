@@ -1,5 +1,5 @@
-import { Event } from "vs/base/common/event";
-export declare const IHostColorSchemeService: any;
+import { Event } from "../../../../base/common/event.js";
+export declare const IHostColorSchemeService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IHostColorSchemeService>;
 export interface IHostColorSchemeService {
     readonly _serviceBrand: undefined;
     readonly dark: boolean;

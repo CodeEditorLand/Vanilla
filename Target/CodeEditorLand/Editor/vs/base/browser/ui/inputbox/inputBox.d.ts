@@ -1,9 +1,9 @@
-import { IHistoryNavigationWidget } from "vs/base/browser/history";
-import { IContextViewProvider } from "vs/base/browser/ui/contextview/contextview";
-import { Widget } from "vs/base/browser/ui/widget";
-import { IAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import "vs/css!./inputBox";
+import { IAction } from "../../../common/actions.js";
+import { Event } from "../../../common/event.js";
+import { IHistoryNavigationWidget } from "../../history.js";
+import { IContextViewProvider } from "../contextview/contextview.js";
+import { Widget } from "../widget.js";
+import "./inputBox.css";
 export interface IInputOptions {
     readonly placeholder?: string;
     readonly showPlaceholderOnFocus?: boolean;
@@ -128,9 +128,9 @@ export declare class HistoryInputBox extends InputBox implements IHistoryNavigat
     private readonly history;
     private observer;
     private readonly _onDidFocus;
-    readonly onDidFocus: any;
+    readonly onDidFocus: Event<void>;
     private readonly _onDidBlur;
-    readonly onDidBlur: any;
+    readonly onDidBlur: Event<void>;
     constructor(container: HTMLElement, contextViewProvider: IContextViewProvider | undefined, options: IHistoryInputOptions);
     dispose(): void;
     addToHistory(always?: boolean): void;

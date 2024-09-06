@@ -1,4 +1,4 @@
-import { Disposable } from "vs/base/common/lifecycle";
+import { Disposable } from "../../../base/common/lifecycle.js";
 /**
  * The editor model is the heavyweight counterpart of editor input. Depending on the editor input, it
  * resolves from a file system retrieve content and may allow for saving it back or reverting it.
@@ -6,7 +6,7 @@ import { Disposable } from "vs/base/common/lifecycle";
  */
 export declare class EditorModel extends Disposable {
     private readonly _onWillDispose;
-    readonly onWillDispose: any;
+    readonly onWillDispose: import("../../../base/common/event.js").Event<void>;
     private resolved;
     /**
      * Causes this model to resolve returning a promise when loading is completed.

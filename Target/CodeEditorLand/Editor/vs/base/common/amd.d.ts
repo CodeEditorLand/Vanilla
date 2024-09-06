@@ -1,5 +1,5 @@
-export declare const isESM = false;
-export declare const canASAR = true;
+export declare const isESM = true;
+export declare const canASAR = false;
 export declare const enum LoaderEventType {
     LoaderAvailable = 1,
     BeginLoadingScript = 10,

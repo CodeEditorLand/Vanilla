@@ -1,13 +1,13 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IFileChange } from "vs/platform/files/common/files";
-import { IRecursiveWatcherWithSubscribe, IUniversalWatchRequest, IWatcher, IWatcherErrorEvent, IWatchRequestWithCorrelation } from "vs/platform/files/common/watcher";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IFileChange } from "../../common/files.js";
+import { ILogMessage, IRecursiveWatcherWithSubscribe, IUniversalWatchRequest, IWatcher, IWatcherErrorEvent, IWatchRequestWithCorrelation } from "../../common/watcher.js";
 export declare abstract class BaseWatcher extends Disposable implements IWatcher {
-    protected readonly _onDidChangeFile: any;
-    readonly onDidChangeFile: any;
-    protected readonly _onDidLogMessage: any;
-    readonly onDidLogMessage: any;
-    protected readonly _onDidWatchFail: any;
+    protected readonly _onDidChangeFile: Emitter<IFileChange[]>;
+    readonly onDidChangeFile: Event<IFileChange[]>;
+    protected readonly _onDidLogMessage: Emitter<ILogMessage>;
+    readonly onDidLogMessage: Event<ILogMessage>;
+    protected readonly _onDidWatchFail: Emitter<IUniversalWatchRequest>;
     private readonly onDidWatchFail;
     private readonly allNonCorrelatedWatchRequests;
     private readonly allCorrelatedWatchRequests;

@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./bracketMatching";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import "./bracketMatching.css";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
 export declare class BracketMatchingController extends Disposable implements IEditorContribution {
     static readonly ID = "editor.contrib.bracketMatchingController";
     static get(editor: ICodeEditor): BracketMatchingController | null;

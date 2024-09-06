@@ -1,36 +1,37 @@
-import { IActionViewItem } from "vs/base/browser/ui/actionbar/actionbar";
-import { IActionViewItemOptions } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { IAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { FuzzyScore } from "vs/base/common/filters";
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./media/testing";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { ViewPane } from "vs/workbench/browser/parts/views/viewPane";
-import { IViewletViewOptions } from "vs/workbench/browser/parts/views/viewsViewlet";
-import { IViewDescriptorService } from "vs/workbench/common/views";
-import { TestingObjectTree } from "vs/workbench/contrib/testing/browser/explorerProjections/testingObjectTree";
-import { TestExplorerViewMode, TestExplorerViewSorting } from "vs/workbench/contrib/testing/common/constants";
-import { TestExplorerFilterState } from "vs/workbench/contrib/testing/common/testExplorerFilterState";
-import { ITestingContinuousRunService } from "vs/workbench/contrib/testing/common/testingContinuousRunService";
-import { ITestingPeekOpener } from "vs/workbench/contrib/testing/common/testingPeekOpener";
-import { ITestProfileService } from "vs/workbench/contrib/testing/common/testProfileService";
-import { ITestResultService } from "vs/workbench/contrib/testing/common/testResultService";
-import { ITestService } from "vs/workbench/contrib/testing/common/testService";
-import { InternalTestItem, ITestRunProfile } from "vs/workbench/contrib/testing/common/testTypes";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { IActionViewItem } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { IActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { Event } from "../../../../base/common/event.js";
+import { FuzzyScore } from "../../../../base/common/filters.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import "./media/testing.css";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ViewPane } from "../../../browser/parts/views/viewPane.js";
+import { IViewletViewOptions } from "../../../browser/parts/views/viewsViewlet.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { TestExplorerViewMode, TestExplorerViewSorting } from "../common/constants.js";
+import { TestExplorerFilterState } from "../common/testExplorerFilterState.js";
+import { ITestingContinuousRunService } from "../common/testingContinuousRunService.js";
+import { ITestingPeekOpener } from "../common/testingPeekOpener.js";
+import { ITestProfileService } from "../common/testProfileService.js";
+import { ITestResultService } from "../common/testResultService.js";
+import { ITestService } from "../common/testService.js";
+import { InternalTestItem, ITestRunProfile } from "../common/testTypes.js";
+import { ITestTreeProjection, TestExplorerTreeElement, TestItemTreeElement, TestTreeErrorMessage } from "./explorerProjections/index.js";
+import { TestingObjectTree } from "./explorerProjections/testingObjectTree.js";
 export declare class TestingExplorerView extends ViewPane {
     private readonly testService;
     private readonly testProfileService;
@@ -45,7 +46,7 @@ export declare class TestingExplorerView extends ViewPane {
     private readonly filterFocusListener;
     private readonly dimensions;
     private lastFocusState;
-    get focusedTreeElements(): any;
+    get focusedTreeElements(): (TestItemTreeElement | TestTreeErrorMessage)[];
     constructor(options: IViewletViewOptions, contextMenuService: IContextMenuService, keybindingService: IKeybindingService, configurationService: IConfigurationService, instantiationService: IInstantiationService, viewDescriptorService: IViewDescriptorService, contextKeyService: IContextKeyService, openerService: IOpenerService, themeService: IThemeService, testService: ITestService, telemetryService: ITelemetryService, hoverService: IHoverService, testProfileService: ITestProfileService, commandService: ICommandService, menuService: IMenuService);
     shouldShowWelcome(): boolean;
     focus(): void;
@@ -97,7 +98,7 @@ declare class TestingExplorerViewModel extends Disposable {
     private readonly crService;
     tree: TestingObjectTree<FuzzyScore>;
     private filter;
-    readonly projection: any;
+    readonly projection: MutableDisposable<ITestTreeProjection>;
     private readonly revealTimeout;
     private readonly _viewMode;
     private readonly _viewSorting;
@@ -115,7 +116,7 @@ declare class TestingExplorerViewModel extends Disposable {
     /**
      * Fires when the visibility of the placeholder state changes.
      */
-    readonly onChangeWelcomeVisibility: any;
+    readonly onChangeWelcomeVisibility: Event<WelcomeExperience>;
     /**
      * Gets whether the welcome should be visible.
      */
@@ -151,6 +152,6 @@ declare class TestingExplorerViewModel extends Disposable {
     /**
      * Gets the selected tests from the tree.
      */
-    getSelectedTests(): any;
+    getSelectedTests(): (TestExplorerTreeElement | null)[];
 }
 export {};

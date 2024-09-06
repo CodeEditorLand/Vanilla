@@ -1,26 +1,27 @@
-import "vs/css!./media/paneviewlet";
-import { IActionViewItem } from "vs/base/browser/ui/actionbar/actionbar";
-import { IDropdownMenuActionViewItemOptions } from "vs/base/browser/ui/dropdown/dropdownActionViewItem";
-import { IListStyles } from "vs/base/browser/ui/list/listWidget";
-import { IPaneOptions, IPaneStyles, Pane } from "vs/base/browser/ui/splitview/paneview";
-import { IAction, IActionRunner } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { ThemeIcon } from "vs/base/common/themables";
-import { PartialExcept } from "vs/base/common/types";
-import { Action2, IAction2Options, MenuId } from "vs/platform/actions/common/actions";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { CompositeMenuActions } from "vs/workbench/browser/actions";
-import { FilterWidget, IFilterWidgetOptions } from "vs/workbench/browser/parts/views/viewFilter";
-import { IView, IViewDescriptorService, ViewContainerLocation } from "vs/workbench/common/views";
-import { IAccessibleViewInformationService } from "vs/workbench/services/accessibility/common/accessibleViewInformationService";
+import "./media/paneviewlet.css";
+import { IActionViewItem } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { IDropdownMenuActionViewItemOptions } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { IListStyles } from "../../../../base/browser/ui/list/listWidget.js";
+import { IPaneOptions, IPaneStyles, Pane } from "../../../../base/browser/ui/splitview/paneview.js";
+import { Action, IAction, IActionRunner } from "../../../../base/common/actions.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { PartialExcept } from "../../../../base/common/types.js";
+import { Action2, IAction2Options, MenuId } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProgressIndicator } from "../../../../platform/progress/common/progress.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IView, IViewDescriptorService, ViewContainerLocation } from "../../../common/views.js";
+import { IAccessibleViewInformationService } from "../../../services/accessibility/common/accessibleViewInformationService.js";
+import { CompositeMenuActions } from "../../actions.js";
+import { FilterWidget, IFilterWidgetOptions } from "./viewFilter.js";
 export declare enum ViewPaneShowActions {
     /** Show the actions when the view is hovered. This is the default behavior. */
     Default = 0,
@@ -39,7 +40,7 @@ export interface IViewPaneOptions extends IPaneOptions {
 export interface IFilterViewPaneOptions extends IViewPaneOptions {
     filterOptions: IFilterWidgetOptions;
 }
-export declare const VIEWPANE_FILTER_ACTION: any;
+export declare const VIEWPANE_FILTER_ACTION: Action;
 export declare abstract class ViewPane extends Pane implements IView {
     protected keybindingService: IKeybindingService;
     protected contextMenuService: IContextMenuService;
@@ -51,7 +52,7 @@ export declare abstract class ViewPane extends Pane implements IView {
     protected themeService: IThemeService;
     protected telemetryService: ITelemetryService;
     protected readonly hoverService: IHoverService;
-    protected readonly accessibleViewInformationService?: any;
+    protected readonly accessibleViewInformationService?: IAccessibleViewInformationService | undefined;
     private static readonly AlwaysShowActionsConfig;
     private _onDidFocus;
     readonly onDidFocus: Event<void>;
@@ -59,9 +60,9 @@ export declare abstract class ViewPane extends Pane implements IView {
     readonly onDidBlur: Event<void>;
     private _onDidChangeBodyVisibility;
     readonly onDidChangeBodyVisibility: Event<boolean>;
-    protected _onDidChangeTitleArea: any;
+    protected _onDidChangeTitleArea: Emitter<void>;
     readonly onDidChangeTitleArea: Event<void>;
-    protected _onDidChangeViewWelcomeState: any;
+    protected _onDidChangeViewWelcomeState: Emitter<void>;
     readonly onDidChangeViewWelcomeState: Event<void>;
     private _isVisible;
     readonly id: string;
@@ -86,7 +87,7 @@ export declare abstract class ViewPane extends Pane implements IView {
     protected twistiesContainer?: HTMLElement;
     private viewWelcomeController;
     protected readonly scopedContextKeyService: IContextKeyService;
-    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, telemetryService: ITelemetryService, hoverService: IHoverService, accessibleViewInformationService?: any);
+    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, telemetryService: ITelemetryService, hoverService: IHoverService, accessibleViewInformationService?: IAccessibleViewInformationService | undefined);
     get headerVisible(): boolean;
     set headerVisible(visible: boolean);
     setVisible(visible: boolean): void;

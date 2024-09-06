@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { LanguageSelector } from "vs/editor/common/languageSelector";
-export declare const IQuickDiffService: any;
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { LanguageSelector } from "../../../../editor/common/languageSelector.js";
+export declare const IQuickDiffService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IQuickDiffService>;
 export interface QuickDiffProvider {
     label: string;
     rootUri: URI | undefined;

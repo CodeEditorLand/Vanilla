@@ -1,2 +1,3 @@
-export declare const AccessibilityHelpAction: any;
-export declare const AccessibleViewAction: any;
+import { MultiCommand } from "../../../../editor/browser/editorExtensions.js";
+export declare const AccessibilityHelpAction: MultiCommand;
+export declare const AccessibleViewAction: MultiCommand;

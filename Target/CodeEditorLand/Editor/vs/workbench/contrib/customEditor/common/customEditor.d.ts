@@ -1,12 +1,13 @@
-import { Event } from "vs/base/common/event";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { IDisposable, IReference } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IRevertOptions, ISaveOptions } from "vs/workbench/common/editor";
-import { RegisteredEditorPriority } from "vs/workbench/services/editor/common/editorResolverService";
-export declare const ICustomEditorService: any;
-export declare const CONTEXT_ACTIVE_CUSTOM_EDITOR_ID: any;
-export declare const CONTEXT_FOCUSED_CUSTOM_EDITOR_IS_EDITABLE: any;
+import { Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { IDisposable, IReference } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IRevertOptions, ISaveOptions } from "../../../common/editor.js";
+import { RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+export declare const ICustomEditorService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ICustomEditorService>;
+export declare const CONTEXT_ACTIVE_CUSTOM_EDITOR_ID: RawContextKey<string>;
+export declare const CONTEXT_FOCUSED_CUSTOM_EDITOR_IS_EDITABLE: RawContextKey<boolean>;
 export interface CustomEditorCapabilities {
     readonly supportsMultipleEditorsPerDocument?: boolean;
 }

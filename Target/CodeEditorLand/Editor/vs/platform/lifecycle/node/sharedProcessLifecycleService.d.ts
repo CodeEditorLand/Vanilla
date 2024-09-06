@@ -1,7 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILogService } from "vs/platform/log/common/log";
-export declare const ISharedProcessLifecycleService: any;
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ILogService } from "../../log/common/log.js";
+export declare const ISharedProcessLifecycleService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ISharedProcessLifecycleService>;
 export interface ISharedProcessLifecycleService {
     readonly _serviceBrand: undefined;
     /**
@@ -13,7 +13,7 @@ export declare class SharedProcessLifecycleService extends Disposable implements
     private readonly logService;
     readonly _serviceBrand: undefined;
     private readonly _onWillShutdown;
-    readonly onWillShutdown: any;
+    readonly onWillShutdown: Event<void>;
     constructor(logService: ILogService);
     fireOnWillShutdown(): void;
 }

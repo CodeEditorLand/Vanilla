@@ -1,9 +1,9 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IExtensionsWorkbenchService } from "vs/workbench/contrib/extensions/common/extensions";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IHostService } from "vs/workbench/services/host/browser/host";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IExtensionsWorkbenchService } from "../common/extensions.js";
 export declare class ExtensionDependencyChecker extends Disposable implements IWorkbenchContribution {
     private readonly extensionService;
     private readonly extensionsWorkbenchService;

@@ -1,6 +1,6 @@
-import { Table } from "vs/base/browser/ui/table/tableWidget";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
+import { Table } from "../../../../base/browser/ui/table/tableWidget.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
 export declare class TableColumnResizeQuickPick extends Disposable {
     private readonly _table;
     private readonly _quickInputService;

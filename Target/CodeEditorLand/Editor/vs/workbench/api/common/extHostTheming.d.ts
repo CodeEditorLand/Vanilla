@@ -1,7 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { ExtHostThemingShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { ColorTheme } from "./extHostTypes";
+import { Event } from "../../../base/common/event.js";
+import { ExtHostThemingShape } from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { ColorTheme } from "./extHostTypes.js";
 export declare class ExtHostTheming implements ExtHostThemingShape {
     readonly _serviceBrand: undefined;
     private _actual;

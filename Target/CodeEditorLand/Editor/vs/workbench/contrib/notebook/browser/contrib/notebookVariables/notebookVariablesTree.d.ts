@@ -1,11 +1,11 @@
-import { IListVirtualDelegate } from "vs/base/browser/ui/list/list";
-import { IListAccessibilityProvider } from "vs/base/browser/ui/list/listWidget";
-import { ITreeNode, ITreeRenderer } from "vs/base/browser/ui/tree/tree";
-import { FuzzyScore } from "vs/base/common/filters";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { WorkbenchObjectTree } from "vs/platform/list/browser/listService";
-import { INotebookVariableElement } from "vs/workbench/contrib/notebook/browser/contrib/notebookVariables/notebookVariablesDataSource";
+import { IListVirtualDelegate } from "../../../../../../base/browser/ui/list/list.js";
+import { IListAccessibilityProvider } from "../../../../../../base/browser/ui/list/listWidget.js";
+import { ITreeNode, ITreeRenderer } from "../../../../../../base/browser/ui/tree/tree.js";
+import { FuzzyScore } from "../../../../../../base/common/filters.js";
+import { DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { WorkbenchObjectTree } from "../../../../../../platform/list/browser/listService.js";
+import { INotebookVariableElement } from "./notebookVariablesDataSource.js";
 export declare class NotebookVariablesTree extends WorkbenchObjectTree<INotebookVariableElement> {
 }
 export declare class NotebookVariablesDelegate implements IListVirtualDelegate<INotebookVariableElement> {

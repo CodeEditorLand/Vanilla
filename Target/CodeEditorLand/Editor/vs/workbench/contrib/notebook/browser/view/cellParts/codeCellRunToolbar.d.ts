@@ -1,11 +1,11 @@
-import { IAction } from "vs/base/common/actions";
-import { IMenu, IMenuService } from "vs/platform/actions/common/actions";
-import { IContextKeyService, IScopedContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ICellViewModel, INotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { CellContentPart } from "vs/workbench/contrib/notebook/browser/view/cellPart";
+import { IAction } from "../../../../../../base/common/actions.js";
+import { IMenu, IMenuService } from "../../../../../../platform/actions/common/actions.js";
+import { IContextKeyService, IScopedContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
+import { CellContentPart } from "../cellPart.js";
 export declare class RunToolbar extends CellContentPart {
     readonly notebookEditor: INotebookEditorDelegate;
     readonly contextKeyService: IContextKeyService;

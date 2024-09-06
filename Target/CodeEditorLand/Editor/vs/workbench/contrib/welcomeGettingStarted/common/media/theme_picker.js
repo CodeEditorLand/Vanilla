@@ -1,4 +1,4 @@
-import{escape as c}from"../../../../../../vs/base/common/strings.js";import{localize as h}from"../../../../../../vs/nls.js";import{ThemeSettingDefaults as e}from"../../../../../../vs/workbench/services/themes/common/workbenchThemeService.js";var t=()=>`
+import{escape as c}from"../../../../../base/common/strings.js";import{localize as h}from"../../../../../nls.js";import{ThemeSettingDefaults as e}from"../../../../services/themes/common/workbenchThemeService.js";var t=()=>`
 <checklist>
 	<div class="theme-picker-row">
 		<checkbox when-checked="setTheme:${e.COLOR_THEME_DARK}" checked-on="config.workbench.colorTheme == '${e.COLOR_THEME_DARK}'">

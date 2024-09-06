@@ -1,6 +1,6 @@
-import { Dimension } from "vs/base/browser/dom";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ContextKeyExpression, IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { ContextKeyExpression, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 type GettingStartedIndexListOptions<T> = {
     title: string;
     klass: string;

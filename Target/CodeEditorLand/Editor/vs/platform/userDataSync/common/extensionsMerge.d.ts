@@ -1,5 +1,5 @@
-import { IExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { ILocalSyncExtension, IRemoteSyncExtension, ISyncExtension } from "vs/platform/userDataSync/common/userDataSync";
+import { IExtensionIdentifier } from "../../extensions/common/extensions.js";
+import { ILocalSyncExtension, IRemoteSyncExtension, ISyncExtension } from "./userDataSync.js";
 export interface IMergeResult {
     readonly local: {
         added: ISyncExtension[];

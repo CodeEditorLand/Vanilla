@@ -1,15 +1,15 @@
-import "vs/css!./media/remoteViewlet";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProgressService } from "vs/platform/progress/common/progress";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IRemoteAgentService } from "vs/workbench/services/remote/common/remoteAgentService";
-import { ITimerService } from "vs/workbench/services/timer/browser/timerService";
+import "./media/remoteViewlet.css";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { ITimerService } from "../../../services/timer/browser/timerService.js";
 export declare class RemoteMarkers implements IWorkbenchContribution {
     constructor(remoteAgentService: IRemoteAgentService, timerService: ITimerService);
 }

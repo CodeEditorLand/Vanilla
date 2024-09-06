@@ -1,8 +1,8 @@
-import { BaseActionViewItem, IBaseActionViewItemOptions } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { IAction } from "vs/base/common/actions";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ITestExplorerFilterState } from "vs/workbench/contrib/testing/common/testExplorerFilterState";
-import { ITestService } from "vs/workbench/contrib/testing/common/testService";
+import { BaseActionViewItem, IBaseActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ITestExplorerFilterState } from "../common/testExplorerFilterState.js";
+import { ITestService } from "../common/testService.js";
 export declare class TestingExplorerFilter extends BaseActionViewItem {
     private readonly state;
     private readonly instantiationService;
@@ -10,7 +10,7 @@ export declare class TestingExplorerFilter extends BaseActionViewItem {
     private input;
     private wrapper;
     private readonly focusEmitter;
-    readonly onDidFocus: any;
+    readonly onDidFocus: import("../../../../base/common/event.js").Event<void>;
     private readonly history;
     private readonly filtersAction;
     constructor(action: IAction, options: IBaseActionViewItemOptions, state: ITestExplorerFilterState, instantiationService: IInstantiationService, testService: ITestService);

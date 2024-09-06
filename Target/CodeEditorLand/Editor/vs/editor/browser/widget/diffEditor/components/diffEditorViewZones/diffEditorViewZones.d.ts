@@ -1,13 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { DiffEditorEditors } from "vs/editor/browser/widget/diffEditor/components/diffEditorEditors";
-import { DiffEditorViewModel } from "vs/editor/browser/widget/diffEditor/diffEditorViewModel";
-import { DiffEditorWidget } from "vs/editor/browser/widget/diffEditor/diffEditorWidget";
-import { IObservableViewZone } from "vs/editor/browser/widget/diffEditor/utils";
-import { DetailedLineRangeMapping } from "vs/editor/common/diff/rangeMapping";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { DiffEditorOptions } from "../../diffEditorOptions";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../../../base/common/observable.js";
+import { IClipboardService } from "../../../../../../platform/clipboard/common/clipboardService.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { DetailedLineRangeMapping } from "../../../../../common/diff/rangeMapping.js";
+import { DiffEditorOptions } from "../../diffEditorOptions.js";
+import { DiffEditorViewModel } from "../../diffEditorViewModel.js";
+import { DiffEditorWidget } from "../../diffEditorWidget.js";
+import { IObservableViewZone } from "../../utils.js";
+import { DiffEditorEditors } from "../diffEditorEditors.js";
 /**
  * Ensures both editors have the same height by aligning unchanged lines.
  * In inline view mode, inserts viewzones to show deleted code from the original text model in the modified code editor.

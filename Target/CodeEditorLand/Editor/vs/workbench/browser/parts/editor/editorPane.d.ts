@@ -1,19 +1,20 @@
-import { IBoundarySashes } from "vs/base/browser/ui/sash/sash";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IExtUri } from "vs/base/common/resources";
-import { URI } from "vs/base/common/uri";
-import { ITextResourceConfigurationService } from "vs/editor/common/services/textResourceConfiguration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IEditorOptions } from "vs/platform/editor/common/editor";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { Composite } from "vs/workbench/browser/composite";
-import { IEditorMemento, IEditorOpenContext, IEditorPane } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { MementoObject } from "vs/workbench/common/memento";
-import { IEditorGroup, IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
+import { IBoundarySashes } from "../../../../base/browser/ui/sash/sash.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IExtUri } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IEditorMemento, IEditorOpenContext, IEditorPane } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { MementoObject } from "../../../common/memento.js";
+import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { Composite } from "../../composite.js";
 /**
  * The base class of editors in the workbench. Editors register themselves for specific editor inputs.
  * Editors are layed out in the editor part of the workbench in editor groups. Multiple editors can be
@@ -37,19 +38,19 @@ import { IEditorGroup, IEditorGroupsService } from "vs/workbench/services/editor
  */
 export declare abstract class EditorPane extends Composite implements IEditorPane {
     readonly group: IEditorGroup;
-    readonly onDidChangeSizeConstraints: any;
-    protected readonly _onDidChangeControl: any;
-    readonly onDidChangeControl: any;
+    readonly onDidChangeSizeConstraints: Event<any>;
+    protected readonly _onDidChangeControl: Emitter<void>;
+    readonly onDidChangeControl: Event<void>;
     private static readonly EDITOR_MEMENTOS;
-    get minimumWidth(): any;
-    get maximumWidth(): any;
-    get minimumHeight(): any;
-    get maximumHeight(): any;
+    get minimumWidth(): number;
+    get maximumWidth(): number;
+    get minimumHeight(): number;
+    get maximumHeight(): number;
     protected _input: EditorInput | undefined;
     get input(): EditorInput | undefined;
     protected _options: IEditorOptions | undefined;
     get options(): IEditorOptions | undefined;
-    get window(): any;
+    get window(): import("../../../../base/browser/window.js").CodeWindow;
     /**
      * Should be overridden by editors that have their own ScopedContextKeyService
      */

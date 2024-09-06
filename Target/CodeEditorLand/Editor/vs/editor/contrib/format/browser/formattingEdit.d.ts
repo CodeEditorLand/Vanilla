@@ -1,5 +1,5 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { TextEdit } from "vs/editor/common/languages";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { TextEdit } from "../../../common/languages.js";
 export declare class FormattingEdit {
     private static _handleEolEdits;
     private static _isFullModelReplaceEdit;

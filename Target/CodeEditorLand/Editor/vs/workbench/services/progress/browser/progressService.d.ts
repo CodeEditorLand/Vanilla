@@ -1,15 +1,15 @@
-import "vs/css!./media/progressService";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ILayoutService } from "vs/platform/layout/browser/layoutService";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IProgress, IProgressOptions, IProgressService, IProgressStep } from "vs/platform/progress/common/progress";
-import { IViewDescriptorService } from "vs/workbench/common/views";
-import { IActivityService } from "vs/workbench/services/activity/common/activity";
-import { IPaneCompositePartService } from "vs/workbench/services/panecomposite/browser/panecomposite";
-import { IStatusbarService } from "vs/workbench/services/statusbar/browser/statusbar";
-import { IUserActivityService } from "vs/workbench/services/userActivity/common/userActivityService";
-import { IViewsService } from "vs/workbench/services/views/common/viewsService";
+import "./media/progressService.css";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IProgress, IProgressOptions, IProgressService, IProgressStep } from "../../../../platform/progress/common/progress.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IActivityService } from "../../activity/common/activity.js";
+import { IPaneCompositePartService } from "../../panecomposite/browser/panecomposite.js";
+import { IStatusbarService } from "../../statusbar/browser/statusbar.js";
+import { IUserActivityService } from "../../userActivity/common/userActivityService.js";
+import { IViewsService } from "../../views/common/viewsService.js";
 export declare class ProgressService extends Disposable implements IProgressService {
     private readonly activityService;
     private readonly paneCompositeService;

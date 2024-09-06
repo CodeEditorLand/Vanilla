@@ -1,5 +1,5 @@
-import { IPtyHostProcessReplayEvent } from "vs/platform/terminal/common/capabilities/capabilities";
-import { ReplayEntry } from "vs/platform/terminal/common/terminalProcess";
+import { IPtyHostProcessReplayEvent } from "./capabilities/capabilities.js";
+import { ReplayEntry } from "./terminalProcess.js";
 export interface IRemoteTerminalProcessReplayEvent {
     events: ReplayEntry[];
 }

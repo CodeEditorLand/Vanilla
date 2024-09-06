@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 export declare class BaseLocalizationWorkbenchContribution extends Disposable implements IWorkbenchContribution {
     constructor();
 }

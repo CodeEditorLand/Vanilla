@@ -1,6 +1,6 @@
-import { IBaseCellEditorOptions } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookOptions } from "vs/workbench/contrib/notebook/browser/notebookOptions";
-import { NotebookEventDispatcher } from "vs/workbench/contrib/notebook/browser/viewModel/eventDispatcher";
+import { IBaseCellEditorOptions } from "../notebookBrowser.js";
+import { NotebookOptions } from "../notebookOptions.js";
+import { NotebookEventDispatcher } from "./eventDispatcher.js";
 export declare class ViewContext {
     readonly notebookOptions: NotebookOptions;
     readonly eventDispatcher: NotebookEventDispatcher;

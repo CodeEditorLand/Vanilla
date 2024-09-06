@@ -1,13 +1,16 @@
-import { CancelablePromise } from "vs/base/common/async";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Position } from "vs/editor/common/core/position";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import { CodeActionProvider } from "vs/editor/common/languages";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IMarkerService } from "vs/platform/markers/common/markers";
-import { CodeActionSet, CodeActionTrigger } from "../common/types";
-export declare const SUPPORTED_CODE_ACTIONS: any;
+import { CancelablePromise } from "../../../../base/common/async.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IMarkerService } from "../../../../platform/markers/common/markers.js";
+import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { Position } from "../../../common/core/position.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import { CodeActionProvider } from "../../../common/languages.js";
+import { CodeActionSet, CodeActionTrigger } from "../common/types.js";
+export declare const SUPPORTED_CODE_ACTIONS: RawContextKey<string>;
 export declare const APPLY_FIX_ALL_COMMAND_ID = "_typescript.applyFixAllCodeAction";
 export declare namespace CodeActionsState {
     const enum Type {
@@ -39,9 +42,9 @@ export declare class CodeActionModel extends Disposable {
     private _state;
     private readonly _supportedCodeActions;
     private readonly _onDidChangeState;
-    readonly onDidChangeState: any;
+    readonly onDidChangeState: import("../../../../base/common/event.js").Event<CodeActionsState.State>;
     private _disposed;
-    constructor(_editor: ICodeEditor, _registry: LanguageFeatureRegistry<CodeActionProvider>, _markerService: IMarkerService, contextKeyService: IContextKeyService, _progressService?: any, _configurationService?: any, _telemetryService?: any);
+    constructor(_editor: ICodeEditor, _registry: LanguageFeatureRegistry<CodeActionProvider>, _markerService: IMarkerService, contextKeyService: IContextKeyService, _progressService?: IEditorProgressService | undefined, _configurationService?: IConfigurationService | undefined, _telemetryService?: ITelemetryService | undefined);
     dispose(): void;
     private _settingEnabledNearbyQuickfixes;
     private _update;

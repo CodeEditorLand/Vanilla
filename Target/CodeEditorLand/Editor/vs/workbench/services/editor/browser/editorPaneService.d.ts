@@ -1,6 +1,6 @@
-import { IEditorPaneService } from "vs/workbench/services/editor/common/editorPaneService";
+import { IEditorPaneService } from "../common/editorPaneService.js";
 export declare class EditorPaneService implements IEditorPaneService {
     readonly _serviceBrand: undefined;
-    readonly onWillInstantiateEditorPane: any;
+    readonly onWillInstantiateEditorPane: import("../../../workbench.web.main.internal.js").Event<import("../../../common/editor.js").IWillInstantiateEditorPaneEvent>;
     didInstantiateEditorPane(typeId: string): boolean;
 }

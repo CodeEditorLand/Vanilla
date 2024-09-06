@@ -1,21 +1,22 @@
-import "vs/css!./standaloneQuickInput";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IInputBox, IInputOptions, IPickOptions, IQuickInputService, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, IQuickWidget, QuickPickInput } from "vs/platform/quickinput/common/quickInput";
+import "./standaloneQuickInput.css";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IInputBox, IInputOptions, IPickOptions, IQuickInputService, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, IQuickWidget, QuickPickInput } from "../../../../platform/quickinput/common/quickInput.js";
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "../../../browser/editorBrowser.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
 export declare class StandaloneQuickInputService implements IQuickInputService {
     private readonly instantiationService;
     private readonly codeEditorService;
     readonly _serviceBrand: undefined;
     private mapEditorToService;
     private get activeService();
-    get currentQuickInput(): any;
-    get quickAccess(): any;
-    get backButton(): any;
-    get onShow(): any;
-    get onHide(): any;
+    get currentQuickInput(): import("../../../../platform/quickinput/common/quickInput.js").IQuickInput | undefined;
+    get quickAccess(): import("../../../../platform/quickinput/common/quickAccess.js").IQuickAccessController;
+    get backButton(): import("../../../../platform/quickinput/common/quickInput.js").IQuickInputButton;
+    get onShow(): Event<void>;
+    get onHide(): Event<void>;
     constructor(instantiationService: IInstantiationService, codeEditorService: ICodeEditorService);
     pick<T extends IQuickPickItem, O extends IPickOptions<T>>(picks: Promise<QuickPickInput<T>[]> | QuickPickInput<T>[], options?: O, token?: CancellationToken): Promise<(O extends {
         canPickMany: true;

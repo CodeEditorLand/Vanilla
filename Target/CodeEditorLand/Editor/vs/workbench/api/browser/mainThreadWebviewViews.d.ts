@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { MainThreadWebviews } from "vs/workbench/api/browser/mainThreadWebviews";
-import * as extHostProtocol from "vs/workbench/api/common/extHost.protocol";
-import { IViewBadge } from "vs/workbench/common/views";
-import { IWebviewViewService } from "vs/workbench/contrib/webviewView/browser/webviewViewService";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
+import { IViewBadge } from "../../common/views.js";
+import { IWebviewViewService } from "../../contrib/webviewView/browser/webviewViewService.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import * as extHostProtocol from "../common/extHost.protocol.js";
+import { MainThreadWebviews } from "./mainThreadWebviews.js";
 export declare class MainThreadWebviewsViews extends Disposable implements extHostProtocol.MainThreadWebviewViewsShape {
     private readonly mainThreadWebviews;
     private readonly _telemetryService;

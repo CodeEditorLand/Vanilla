@@ -1,5 +1,5 @@
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { ITextModel } from "vs/editor/common/model";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { ITextModel } from "../../../../editor/common/model.js";
 /**
  * State written/read by the toggle word wrap action and associated with a particular model.
  */

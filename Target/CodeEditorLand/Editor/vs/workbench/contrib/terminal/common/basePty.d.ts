@@ -1,6 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import type { IPtyHostProcessReplayEvent } from "vs/platform/terminal/common/capabilities/capabilities";
-import { type IProcessDataEvent, type IProcessProperty, type IProcessPropertyMap, type IProcessReadyEvent, type ITerminalChildProcess } from "vs/platform/terminal/common/terminal";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import type { IPtyHostProcessReplayEvent, ISerializedCommandDetectionCapability } from "../../../../platform/terminal/common/capabilities/capabilities.js";
+import { type IProcessDataEvent, type IProcessProperty, type IProcessPropertyMap, type IProcessReadyEvent, type ITerminalChildProcess } from "../../../../platform/terminal/common/terminal.js";
 /**
  * Responsible for establishing and maintaining a connection with an existing terminal process
  * created on the local pty host.
@@ -14,18 +15,18 @@ export declare abstract class BasePty extends Disposable implements Partial<ITer
         rows: number;
     };
     protected _inReplay: boolean;
-    protected readonly _onProcessData: any;
-    readonly onProcessData: any;
-    protected readonly _onProcessReplayComplete: any;
-    readonly onProcessReplayComplete: any;
-    protected readonly _onProcessReady: any;
-    readonly onProcessReady: any;
-    protected readonly _onDidChangeProperty: any;
-    readonly onDidChangeProperty: any;
-    protected readonly _onProcessExit: any;
-    readonly onProcessExit: any;
-    protected readonly _onRestoreCommands: any;
-    readonly onRestoreCommands: any;
+    protected readonly _onProcessData: Emitter<string | IProcessDataEvent>;
+    readonly onProcessData: import("../../../../base/common/event.js").Event<string | IProcessDataEvent>;
+    protected readonly _onProcessReplayComplete: Emitter<void>;
+    readonly onProcessReplayComplete: import("../../../../base/common/event.js").Event<void>;
+    protected readonly _onProcessReady: Emitter<IProcessReadyEvent>;
+    readonly onProcessReady: import("../../../../base/common/event.js").Event<IProcessReadyEvent>;
+    protected readonly _onDidChangeProperty: Emitter<IProcessProperty<any>>;
+    readonly onDidChangeProperty: import("../../../../base/common/event.js").Event<IProcessProperty<any>>;
+    protected readonly _onProcessExit: Emitter<number | undefined>;
+    readonly onProcessExit: import("../../../../base/common/event.js").Event<number | undefined>;
+    protected readonly _onRestoreCommands: Emitter<ISerializedCommandDetectionCapability>;
+    readonly onRestoreCommands: import("../../../../base/common/event.js").Event<ISerializedCommandDetectionCapability>;
     constructor(id: number, shouldPersist: boolean);
     getInitialCwd(): Promise<string>;
     getCwd(): Promise<string>;

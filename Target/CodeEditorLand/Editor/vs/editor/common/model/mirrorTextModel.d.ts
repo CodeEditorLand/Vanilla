@@ -1,6 +1,6 @@
-import { URI } from "vs/base/common/uri";
-import { PrefixSumComputer } from "vs/editor/common/model/prefixSumComputer";
-import { IModelContentChange } from "vs/editor/common/textModelEvents";
+import { URI } from "../../../base/common/uri.js";
+import { IModelContentChange } from "../textModelEvents.js";
+import { PrefixSumComputer } from "./prefixSumComputer.js";
 export interface IModelChangedEvent {
     /**
      * The actual changes.

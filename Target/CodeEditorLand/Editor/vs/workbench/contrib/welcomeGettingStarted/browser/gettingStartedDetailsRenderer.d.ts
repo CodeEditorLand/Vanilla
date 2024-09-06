@@ -1,8 +1,8 @@
-import { URI } from "vs/base/common/uri";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IFileService } from "vs/platform/files/common/files";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { URI } from "../../../../base/common/uri.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 export declare class GettingStartedDetailsRenderer {
     private readonly fileService;
     private readonly notificationService;

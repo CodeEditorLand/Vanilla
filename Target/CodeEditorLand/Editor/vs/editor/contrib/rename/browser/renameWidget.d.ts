@@ -1,16 +1,16 @@
-import { CancellationToken, CancellationTokenSource } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import "vs/css!./renameWidget";
-import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { IDimension } from "vs/editor/common/core/dimension";
-import { IRange } from "vs/editor/common/core/range";
-import { NewSymbolName, NewSymbolNameTriggerKind, ProviderResult } from "vs/editor/common/languages";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ILogService } from "vs/platform/log/common/log";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-export declare const CONTEXT_RENAME_INPUT_VISIBLE: any;
-export declare const CONTEXT_RENAME_INPUT_FOCUSED: any;
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import "./renameWidget.css";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../browser/editorBrowser.js";
+import { IDimension } from "../../../common/core/dimension.js";
+import { IRange } from "../../../common/core/range.js";
+import { NewSymbolName, NewSymbolNameTriggerKind, ProviderResult } from "../../../common/languages.js";
+export declare const CONTEXT_RENAME_INPUT_VISIBLE: RawContextKey<boolean>;
+export declare const CONTEXT_RENAME_INPUT_FOCUSED: RawContextKey<boolean>;
 /**
  * "Source" of the new name:
  * - 'inputField' - user entered the new name

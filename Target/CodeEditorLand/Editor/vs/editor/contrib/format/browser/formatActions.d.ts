@@ -1,8 +1,8 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { IEditorWorkerService } from "vs/editor/common/services/editorWorker";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IAccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
+import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
 export declare class FormatOnType implements IEditorContribution {
     private readonly _editor;
     private readonly _languageFeaturesService;

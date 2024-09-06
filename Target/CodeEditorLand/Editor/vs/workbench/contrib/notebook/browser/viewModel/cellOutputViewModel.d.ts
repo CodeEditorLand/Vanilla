@@ -1,16 +1,16 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICellOutputViewModel, IGenericCellViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
-import { ICellOutput, IOrderedMimeType } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { NotebookTextModel } from "../../common/model/notebookTextModel.js";
+import { ICellOutput, IOrderedMimeType } from "../../common/notebookCommon.js";
+import { INotebookService } from "../../common/notebookService.js";
+import { ICellOutputViewModel, IGenericCellViewModel } from "../notebookBrowser.js";
 export declare class CellOutputViewModel extends Disposable implements ICellOutputViewModel {
     readonly cellViewModel: IGenericCellViewModel;
     private readonly _outputRawData;
     private readonly _notebookService;
     private _onDidResetRendererEmitter;
-    readonly onDidResetRenderer: any;
+    readonly onDidResetRenderer: import("../../../../../base/common/event.js").Event<void>;
     private alwaysShow;
-    visible: any;
+    visible: import("../../../../../base/common/observable.js").ISettableObservable<boolean, void>;
     setVisible(visible?: boolean, force?: boolean): void;
     outputHandle: number;
     get model(): ICellOutput;
@@ -18,10 +18,10 @@ export declare class CellOutputViewModel extends Disposable implements ICellOutp
     get pickedMimeType(): IOrderedMimeType | undefined;
     set pickedMimeType(value: IOrderedMimeType | undefined);
     constructor(cellViewModel: IGenericCellViewModel, _outputRawData: ICellOutput, _notebookService: INotebookService);
-    hasMultiMimeType(): any;
+    hasMultiMimeType(): boolean;
     resolveMimeTypes(textModel: NotebookTextModel, kernelProvides: readonly string[] | undefined): [readonly IOrderedMimeType[], number];
     resetRenderer(): void;
     toRawJSON(): {
-        outputs: any;
+        outputs: import("../../common/notebookCommon.js").IOutputItemDto[];
     };
 }

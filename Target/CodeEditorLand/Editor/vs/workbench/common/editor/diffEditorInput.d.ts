@@ -1,9 +1,9 @@
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { EditorInputCapabilities, IDiffEditorInput, IEditorDescriptor, IEditorPane, IResourceDiffEditorInput, IResourceSideBySideEditorInput, IUntypedEditorInput, Verbosity } from "vs/workbench/common/editor";
-import { EditorInput, IUntypedEditorOptions } from "vs/workbench/common/editor/editorInput";
-import { EditorModel } from "vs/workbench/common/editor/editorModel";
-import { AbstractSideBySideEditorInputSerializer, SideBySideEditorInput } from "vs/workbench/common/editor/sideBySideEditorInput";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { IEditorService } from "../../services/editor/common/editorService.js";
+import { EditorInputCapabilities, IDiffEditorInput, IEditorDescriptor, IEditorPane, IResourceDiffEditorInput, IResourceSideBySideEditorInput, IUntypedEditorInput, Verbosity } from "../editor.js";
+import { EditorInput, IUntypedEditorOptions } from "./editorInput.js";
+import { EditorModel } from "./editorModel.js";
+import { AbstractSideBySideEditorInputSerializer, SideBySideEditorInput } from "./sideBySideEditorInput.js";
 /**
  * The base editor input for the diff editor. It is made up of two editor inputs, the original version
  * and the modified version.
@@ -22,7 +22,7 @@ export declare class DiffEditorInput extends SideBySideEditorInput implements ID
     private computeLabels;
     private computeLabel;
     getName(): string;
-    getDescription(verbosity?: any): string | undefined;
+    getDescription(verbosity?: Verbosity): string | undefined;
     getTitle(verbosity?: Verbosity): string;
     resolve(): Promise<EditorModel>;
     prefersEditorPane<T extends IEditorDescriptor<IEditorPane>>(editorPanes: T[]): T | undefined;

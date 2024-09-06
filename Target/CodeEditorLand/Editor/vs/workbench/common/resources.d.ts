@@ -1,8 +1,8 @@
-import { IExpression } from "vs/base/common/glob";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationChangeEvent, IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
+import { IExpression } from "../../base/common/glob.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { URI } from "../../base/common/uri.js";
+import { IConfigurationChangeEvent, IConfigurationService } from "../../platform/configuration/common/configuration.js";
+import { IWorkspaceContextService } from "../../platform/workspace/common/workspace.js";
 export declare class ResourceGlobMatcher extends Disposable {
     private getExpression;
     private shouldUpdate;
@@ -10,7 +10,7 @@ export declare class ResourceGlobMatcher extends Disposable {
     private readonly configurationService;
     private static readonly NO_FOLDER;
     private readonly _onExpressionChange;
-    readonly onExpressionChange: any;
+    readonly onExpressionChange: import("../../base/common/event.js").Event<void>;
     private readonly mapFolderToParsedExpression;
     private readonly mapFolderToConfiguredExpression;
     constructor(getExpression: (folder?: URI) => IExpression | undefined, shouldUpdate: (event: IConfigurationChangeEvent) => boolean, contextService: IWorkspaceContextService, configurationService: IConfigurationService);

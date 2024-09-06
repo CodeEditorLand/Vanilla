@@ -6,7 +6,8 @@ export interface IRawChatCommandContribution {
     when?: string;
     defaultImplicitVariables?: string[];
     disambiguation?: {
-        categoryName: string;
+        category: string;
+        categoryName?: string /** Deprecated */;
         description: string;
         examples: string[];
     }[];
@@ -25,7 +26,8 @@ export interface IRawChatParticipantContribution {
     defaultImplicitVariables?: string[];
     locations?: RawChatParticipantLocation[];
     disambiguation?: {
-        categoryName: string;
+        category: string;
+        categoryName?: string /** Deprecated */;
         description: string;
         examples: string[];
     }[];

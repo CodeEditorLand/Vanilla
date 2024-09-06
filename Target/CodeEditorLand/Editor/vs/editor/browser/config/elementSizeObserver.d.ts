@@ -1,6 +1,6 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IDimension } from "vs/editor/common/core/dimension";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IDimension } from "../../common/core/dimension.js";
 export declare class ElementSizeObserver extends Disposable {
     private _onDidChange;
     readonly onDidChange: Event<void>;

@@ -1,17 +1,17 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { UriComponents } from "vs/base/common/uri";
-import { IPosition } from "vs/editor/common/core/position";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { ExtHostTestingShape, ILocationDto, MainThreadTestingShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostCommands } from "vs/workbench/api/common/extHostCommands";
-import { IExtHostDocumentsAndEditors } from "vs/workbench/api/common/extHostDocumentsAndEditors";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { ExtHostTestItemCollection } from "vs/workbench/api/common/extHostTestItem";
-import { CoverageDetails, ISerializedTestResults, IStartControllerTests, IStartControllerTestsResult, TestMessageFollowupRequest, TestMessageFollowupResponse, TestsDiffOp } from "vs/workbench/contrib/testing/common/testTypes";
 import type * as vscode from "vscode";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IPosition } from "../../../editor/common/core/position.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { CoverageDetails, ISerializedTestResults, IStartControllerTests, IStartControllerTestsResult, TestMessageFollowupRequest, TestMessageFollowupResponse, TestsDiffOp } from "../../contrib/testing/common/testTypes.js";
+import { ExtHostTestingShape, ILocationDto, MainThreadTestingShape } from "./extHost.protocol.js";
+import { IExtHostCommands } from "./extHostCommands.js";
+import { IExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { ExtHostTestItemCollection } from "./extHostTestItem.js";
 interface ControllerInfo {
     controller: vscode.TestController;
     profiles: Map<number, vscode.TestRunProfile>;
@@ -21,7 +21,7 @@ interface ControllerInfo {
     activeProfiles: Set<number>;
 }
 type DefaultProfileChangeEvent = Map<string, Map</* profileId */ number, boolean>>;
-export declare const IExtHostTesting: any;
+export declare const IExtHostTesting: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostTesting>;
 export interface IExtHostTesting extends ExtHostTesting {
     readonly _serviceBrand: undefined;
 }
@@ -38,7 +38,7 @@ export declare class ExtHostTesting extends Disposable implements ExtHostTesting
     private readonly defaultProfilesChangedEmitter;
     private readonly followupProviders;
     private readonly testFollowups;
-    onResultsChanged: any;
+    onResultsChanged: Event<void>;
     results: ReadonlyArray<vscode.TestRunResult>;
     constructor(rpc: IExtHostRpcService, logService: ILogService, commands: IExtHostCommands, editors: IExtHostDocumentsAndEditors);
     /**
@@ -52,7 +52,7 @@ export declare class ExtHostTesting extends Disposable implements ExtHostTesting
     /**
      * Implements vscode.test.runTests
      */
-    runTests(req: vscode.TestRunRequest, token?: any): Promise<void>;
+    runTests(req: vscode.TestRunRequest, token?: Readonly<CancellationToken>): Promise<void>;
     /**
      * Implements vscode.test.registerTestFollowupProvider
      */
@@ -141,7 +141,7 @@ declare class TestRunTracker extends Disposable {
     /**
      * Fires when a test ends, and no more tests are left running.
      */
-    readonly onEnd: any;
+    readonly onEnd: Event<void>;
     /**
      * Gets whether there are any tests running.
      */
@@ -233,7 +233,7 @@ export declare class TestRunProfileImpl implements vscode.TestRunProfile {
     set tag(tag: vscode.TestTag | undefined);
     get configureHandler(): undefined | (() => void);
     set configureHandler(handler: undefined | (() => void));
-    get onDidChangeDefault(): any;
+    get onDidChangeDefault(): Event<boolean>;
     constructor(proxy: MainThreadTestingShape, profiles: Map<number, vscode.TestRunProfile>, activeProfiles: Set<number>, onDidChangeActiveProfiles: Event<DefaultProfileChangeEvent>, controllerId: string, profileId: number, _label: string, kind: vscode.TestRunProfileKind, runHandler: (request: vscode.TestRunRequest, token: vscode.CancellationToken) => Thenable<void> | void, _isDefault?: boolean, _tag?: vscode.TestTag | undefined, _supportsContinuousRun?: boolean);
     dispose(): void;
 }

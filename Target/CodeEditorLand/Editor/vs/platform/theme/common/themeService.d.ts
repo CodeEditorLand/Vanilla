@@ -1,16 +1,16 @@
-import { Color } from "vs/base/common/color";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { ColorIdentifier } from "vs/platform/theme/common/colorRegistry";
-import { IconContribution, IconDefinition } from "vs/platform/theme/common/iconRegistry";
-import { ColorScheme } from "vs/platform/theme/common/theme";
-export declare const IThemeService: any;
+import { Color } from "../../../base/common/color.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { ColorIdentifier } from "./colorRegistry.js";
+import { IconContribution, IconDefinition } from "./iconRegistry.js";
+import { ColorScheme } from "./theme.js";
+export declare const IThemeService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IThemeService>;
 export declare function themeColorFromId(id: ColorIdentifier): {
-    id: ColorIdentifier;
+    id: string;
 };
-export declare const FileThemeIcon: any;
-export declare const FolderThemeIcon: any;
+export declare const FileThemeIcon: import("../../../base/common/themables.js").ThemeIcon;
+export declare const FolderThemeIcon: import("../../../base/common/themables.js").ThemeIcon;
 export declare function getThemeTypeSelector(type: ColorScheme): string;
 export interface ITokenStyle {
     readonly foreground: number | undefined;
@@ -106,9 +106,13 @@ export interface IPartsSplash {
         foreground: string | undefined;
         editorBackground: string | undefined;
         titleBarBackground: string | undefined;
+        titleBarBorder: string | undefined;
         activityBarBackground: string | undefined;
+        activityBarBorder: string | undefined;
         sideBarBackground: string | undefined;
+        sideBarBorder: string | undefined;
         statusBarBackground: string | undefined;
+        statusBarBorder: string | undefined;
         statusBarNoFolderBackground: string | undefined;
         windowBorder: string | undefined;
     };

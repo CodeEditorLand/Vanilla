@@ -1,5 +1,5 @@
-import { ExtHostTestItemEvent } from "vs/workbench/contrib/testing/common/testItemCollection";
 import * as vscode from "vscode";
+import { ExtHostTestItemEvent } from "../../contrib/testing/common/testItemCollection.js";
 export interface IExtHostTestItemApi {
     controllerId: string;
     parent?: vscode.TestItem;

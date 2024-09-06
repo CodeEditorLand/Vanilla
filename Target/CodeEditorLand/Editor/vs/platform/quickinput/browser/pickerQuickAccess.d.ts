@@ -1,7 +1,7 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable, DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { IQuickAccessProvider, IQuickAccessProviderRunOptions } from "vs/platform/quickinput/common/quickAccess";
-import { IKeyMods, IQuickPick, IQuickPickDidAcceptEvent, IQuickPickItem, IQuickPickSeparator } from "vs/platform/quickinput/common/quickInput";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../base/common/lifecycle.js";
+import { IQuickAccessProvider, IQuickAccessProviderRunOptions } from "../common/quickAccess.js";
+import { IKeyMods, IQuickPick, IQuickPickDidAcceptEvent, IQuickPickItem, IQuickPickSeparator } from "../common/quickInput.js";
 export declare enum TriggerAction {
     /**
      * Do nothing after the button was clicked.

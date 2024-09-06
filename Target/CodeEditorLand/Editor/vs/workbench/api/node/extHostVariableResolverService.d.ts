@@ -1,4 +1,4 @@
-import { ExtHostVariableResolverProviderService } from "vs/workbench/api/common/extHostVariableResolverService";
+import { ExtHostVariableResolverProviderService } from "../common/extHostVariableResolverService.js";
 export declare class NodeExtHostVariableResolverProviderService extends ExtHostVariableResolverProviderService {
     protected homeDir(): string | undefined;
 }

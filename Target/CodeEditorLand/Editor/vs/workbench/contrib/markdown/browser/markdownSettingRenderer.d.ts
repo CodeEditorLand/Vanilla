@@ -1,10 +1,11 @@
-import { Tokens } from "vs/base/common/marked/marked";
-import { URI } from "vs/base/common/uri";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IPreferencesService } from "vs/workbench/services/preferences/common/preferences";
+import { IAction } from "../../../../base/common/actions.js";
+import { Tokens } from "../../../../base/common/marked/marked.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
 export declare class SimpleSettingRenderer {
     private readonly _configurationService;
     private readonly _contextMenuService;
@@ -17,7 +18,7 @@ export declare class SimpleSettingRenderer {
     private _featuredSettings;
     constructor(_configurationService: IConfigurationService, _contextMenuService: IContextMenuService, _preferencesService: IPreferencesService, _telemetryService: ITelemetryService, _clipboardService: IClipboardService);
     get featuredSettingStates(): Map<string, boolean>;
-    getHtmlRenderer(): (token: Tokens.HTML) => string;
+    getHtmlRenderer(): (token: Tokens.HTML | Tokens.Tag) => string;
     settingToUriString(settingId: string, value?: any): string;
     private getSetting;
     parseValue(settingId: string, value: string): any;

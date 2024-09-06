@@ -1,9 +1,9 @@
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { Command } from "vs/editor/common/languages";
-import { IGotoSymbolQuickPickItem } from "vs/editor/contrib/quickAccess/browser/gotoSymbolQuickAccess";
-import { IQuickPickItem } from "vs/platform/quickinput/common/quickInput";
-import { ISymbolQuickPickItem } from "vs/workbench/contrib/search/browser/symbolsQuickAccess";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { Command } from "../../../../../editor/common/languages.js";
+import { IGotoSymbolQuickPickItem } from "../../../../../editor/contrib/quickAccess/browser/gotoSymbolQuickAccess.js";
+import { IQuickPickItem } from "../../../../../platform/quickinput/common/quickInput.js";
+import { ISymbolQuickPickItem } from "../../../search/browser/symbolsQuickAccess.js";
 export declare function registerChatContextActions(): void;
 export type IChatContextQuickPickItem = IFileQuickPickItem | IDynamicVariableQuickPickItem | IStaticVariableQuickPickItem | IGotoSymbolQuickPickItem | ISymbolQuickPickItem | IQuickAccessQuickPickItem | IToolQuickPickItem;
 export interface IFileQuickPickItem extends IQuickPickItem {

@@ -1,10 +1,10 @@
-import { IconLabel } from "vs/base/browser/ui/iconLabel/iconLabel";
-import { IIdentityProvider, IListVirtualDelegate } from "vs/base/browser/ui/list/list";
-import { IListAccessibilityProvider } from "vs/base/browser/ui/list/listWidget";
-import { IAsyncDataSource, ITreeNode, ITreeRenderer, ITreeSorter } from "vs/base/browser/ui/tree/tree";
-import { FuzzyScore } from "vs/base/common/filters";
-import { Location } from "vs/editor/common/languages";
-import { CallHierarchyDirection, CallHierarchyItem, CallHierarchyModel } from "vs/workbench/contrib/callHierarchy/common/callHierarchy";
+import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { IIdentityProvider, IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
+import { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
+import { IAsyncDataSource, ITreeNode, ITreeRenderer, ITreeSorter } from "../../../../base/browser/ui/tree/tree.js";
+import { FuzzyScore } from "../../../../base/common/filters.js";
+import { Location } from "../../../../editor/common/languages.js";
+import { CallHierarchyDirection, CallHierarchyItem, CallHierarchyModel } from "../common/callHierarchy.js";
 export declare class Call {
     readonly item: CallHierarchyItem;
     readonly locations: Location[] | undefined;

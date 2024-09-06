@@ -1,7 +1,7 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ColorScheme } from "vs/platform/theme/common/theme";
-import { IHostColorSchemeService } from "vs/workbench/services/themes/common/hostColorSchemeService";
-import { IColorCustomizations, ISemanticTokenColorCustomizations, ITokenColorCustomizations, IWorkbenchColorTheme, IWorkbenchFileIconTheme, IWorkbenchProductIconTheme, ThemeSettings, ThemeSettingTarget } from "vs/workbench/services/themes/common/workbenchThemeService";
+import { ConfigurationTarget, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ColorScheme } from "../../../../platform/theme/common/theme.js";
+import { IHostColorSchemeService } from "./hostColorSchemeService.js";
+import { IColorCustomizations, ISemanticTokenColorCustomizations, ITokenColorCustomizations, IWorkbenchColorTheme, IWorkbenchFileIconTheme, IWorkbenchProductIconTheme, ThemeSettings, ThemeSettingTarget } from "./workbenchThemeService.js";
 export declare function formatSettingAsLink(str: string): string;
 export declare const COLOR_THEME_CONFIGURATION_SETTINGS_TAG = "colorThemeConfiguration";
 export declare function updateColorThemeConfigurationSchemas(themes: IWorkbenchColorTheme[]): void;
@@ -24,6 +24,6 @@ export declare class ThemeConfiguration {
     setFileIconTheme(theme: IWorkbenchFileIconTheme, settingsTarget: ThemeSettingTarget): Promise<IWorkbenchFileIconTheme>;
     setProductIconTheme(theme: IWorkbenchProductIconTheme, settingsTarget: ThemeSettingTarget): Promise<IWorkbenchProductIconTheme>;
     isDefaultColorTheme(): boolean;
-    findAutoConfigurationTarget(key: string): any;
+    findAutoConfigurationTarget(key: string): ConfigurationTarget.USER | ConfigurationTarget.USER_REMOTE | ConfigurationTarget.WORKSPACE | ConfigurationTarget.WORKSPACE_FOLDER;
     private writeConfiguration;
 }

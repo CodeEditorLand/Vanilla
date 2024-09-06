@@ -1,9 +1,10 @@
-import { Widget } from "vs/base/browser/ui/widget";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextViewService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-export declare const viewFilterSubmenu: any;
+import { Widget } from "../../../../base/browser/ui/widget.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+export declare const viewFilterSubmenu: MenuId;
 export interface IFilterWidgetOptions {
     readonly text?: string;
     readonly placeholder?: string;
@@ -23,13 +24,13 @@ export declare class FilterWidget extends Widget {
     private readonly toolbar;
     private readonly focusContextKey;
     private readonly _onDidChangeFilterText;
-    readonly onDidChangeFilterText: any;
+    readonly onDidChangeFilterText: import("../../../../base/common/event.js").Event<string>;
     private moreFiltersActionViewItem;
     private isMoreFiltersChecked;
     private lastWidth?;
     private focusTracker;
-    get onDidFocus(): any;
-    get onDidBlur(): any;
+    get onDidFocus(): import("../../../../base/common/event.js").Event<void>;
+    get onDidBlur(): import("../../../../base/common/event.js").Event<void>;
     constructor(options: IFilterWidgetOptions, instantiationService: IInstantiationService, contextViewService: IContextViewService, contextKeyService: IContextKeyService, keybindingService: IKeybindingService);
     hasFocus(): boolean;
     focus(): void;

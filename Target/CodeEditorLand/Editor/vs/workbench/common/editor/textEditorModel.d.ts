@@ -1,13 +1,13 @@
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { URI } from "vs/base/common/uri";
-import { ILanguageSelection, ILanguageService } from "vs/editor/common/languages/language";
-import { ITextBufferFactory, ITextModel, ITextSnapshot } from "vs/editor/common/model";
-import { IModelService } from "vs/editor/common/services/model";
-import { IResolvedTextEditorModel, ITextEditorModel } from "vs/editor/common/services/resolverService";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { EditorModel } from "vs/workbench/common/editor/editorModel";
-import { ILanguageDetectionService } from "vs/workbench/services/languageDetection/common/languageDetectionWorkerService";
-import { ILanguageSupport } from "vs/workbench/services/textfile/common/textfiles";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { URI } from "../../../base/common/uri.js";
+import { ILanguageSelection, ILanguageService } from "../../../editor/common/languages/language.js";
+import { ITextBufferFactory, ITextModel, ITextSnapshot } from "../../../editor/common/model.js";
+import { IModelService } from "../../../editor/common/services/model.js";
+import { IResolvedTextEditorModel, ITextEditorModel } from "../../../editor/common/services/resolverService.js";
+import { IAccessibilityService } from "../../../platform/accessibility/common/accessibility.js";
+import { ILanguageDetectionService } from "../../services/languageDetection/common/languageDetectionWorkerService.js";
+import { ILanguageSupport } from "../../services/textfile/common/textfiles.js";
+import { EditorModel } from "./editorModel.js";
 /**
  * The base text editor model leverages the code editor model. This class is only intended to be subclassed and not instantiated.
  */

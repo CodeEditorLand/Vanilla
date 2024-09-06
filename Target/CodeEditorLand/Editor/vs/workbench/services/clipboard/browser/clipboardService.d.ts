@@ -1,9 +1,9 @@
-import { BrowserClipboardService as BaseBrowserClipboardService } from "vs/platform/clipboard/browser/clipboardService";
-import { ILayoutService } from "vs/platform/layout/browser/layoutService";
-import { ILogService } from "vs/platform/log/common/log";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
+import { BrowserClipboardService as BaseBrowserClipboardService } from "../../../../platform/clipboard/browser/clipboardService.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 export declare class BrowserClipboardService extends BaseBrowserClipboardService {
     private readonly notificationService;
     private readonly openerService;

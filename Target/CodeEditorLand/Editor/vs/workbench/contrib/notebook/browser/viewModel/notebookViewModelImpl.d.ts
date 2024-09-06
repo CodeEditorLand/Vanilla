@@ -1,23 +1,23 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IBulkEditService } from "vs/editor/browser/services/bulkEditService";
-import { Range } from "vs/editor/common/core/range";
-import { TrackedRangeStickiness } from "vs/editor/common/model";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { FoldingRegions } from "vs/editor/contrib/folding/browser/foldingRanges";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IUndoRedoService } from "vs/platform/undoRedo/common/undoRedo";
-import { CellFindMatchWithIndex, CellFoldingState, EditorFoldingStateDelegate, ICellViewModel, IModelDecorationsChangeAccessor, INotebookDeltaCellStatusBarItems, INotebookDeltaDecoration, INotebookEditorViewState, INotebookViewCellsUpdateEvent, INotebookViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookLayoutInfo } from "vs/workbench/contrib/notebook/browser/notebookViewEvents";
-import { CodeCellViewModel } from "vs/workbench/contrib/notebook/browser/viewModel/codeCellViewModel";
-import { MarkupCellViewModel } from "vs/workbench/contrib/notebook/browser/viewModel/markupCellViewModel";
-import { ViewContext } from "vs/workbench/contrib/notebook/browser/viewModel/viewContext";
-import { NotebookCellTextModel } from "vs/workbench/contrib/notebook/common/model/notebookCellTextModel";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
-import { INotebookFindOptions, ISelectionState } from "vs/workbench/contrib/notebook/common/notebookCommon";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
-import { ICellRange } from "vs/workbench/contrib/notebook/common/notebookRange";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IBulkEditService } from "../../../../../editor/browser/services/bulkEditService.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { TrackedRangeStickiness } from "../../../../../editor/common/model.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { FoldingRegions } from "../../../../../editor/contrib/folding/browser/foldingRanges.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
+import { NotebookTextModel } from "../../common/model/notebookTextModel.js";
+import { INotebookFindOptions, ISelectionState } from "../../common/notebookCommon.js";
+import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";
+import { ICellRange } from "../../common/notebookRange.js";
+import { CellFindMatchWithIndex, CellFoldingState, EditorFoldingStateDelegate, ICellViewModel, IModelDecorationsChangeAccessor, INotebookDeltaCellStatusBarItems, INotebookDeltaDecoration, INotebookEditorViewState, INotebookViewCellsUpdateEvent, INotebookViewModel } from "../notebookBrowser.js";
+import { NotebookLayoutInfo } from "../notebookViewEvents.js";
+import { CodeCellViewModel } from "./codeCellViewModel.js";
+import { MarkupCellViewModel } from "./markupCellViewModel.js";
+import { ViewContext } from "./viewContext.js";
 export interface NotebookViewModelOptions {
     isReadOnly: boolean;
     inRepl?: boolean;
@@ -42,8 +42,8 @@ export declare class NotebookViewModel extends Disposable implements EditorFoldi
     get viewCells(): ICellViewModel[];
     get length(): number;
     get notebookDocument(): NotebookTextModel;
-    get uri(): any;
-    get metadata(): any;
+    get uri(): URI;
+    get metadata(): import("../../common/notebookCommon.js").NotebookDocumentMetadata;
     private readonly _onDidChangeViewCells;
     get onDidChangeViewCells(): Event<INotebookViewCellsUpdateEvent>;
     private _lastNotebookEditResource;
@@ -69,8 +69,8 @@ export declare class NotebookViewModel extends Disposable implements EditorFoldi
     private _statusBarItemIdToCellMap;
     constructor(viewType: string, _notebook: NotebookTextModel, _viewContext: ViewContext, _layoutInfo: NotebookLayoutInfo | null, _options: NotebookViewModelOptions, _instantiationService: IInstantiationService, _bulkEditService: IBulkEditService, _undoService: IUndoRedoService, _textModelService: ITextModelService, notebookExecutionStateService: INotebookExecutionStateService);
     updateOptions(newOptions: Partial<NotebookViewModelOptions>): void;
-    getFocus(): any;
-    getSelections(): any;
+    getFocus(): ICellRange;
+    getSelections(): ICellRange[];
     setEditorFocus(focused: boolean): void;
     validateRange(cellRange: ICellRange | null | undefined): ICellRange | null;
     updateSelectionsState(state: ISelectionState, source?: "view" | "model"): void;
@@ -79,7 +79,7 @@ export declare class NotebookViewModel extends Disposable implements EditorFoldi
     getFoldedLength(index: number): number;
     updateFoldingRanges(ranges: FoldingRegions): void;
     getHiddenRanges(): ICellRange[];
-    getCellByHandle(handle: number): any;
+    getCellByHandle(handle: number): CellViewModel | undefined;
     getCellIndexByHandle(handle: number): number;
     getCellIndex(cell: ICellViewModel): number;
     cellAt(index: number): CellViewModel | undefined;
@@ -88,11 +88,11 @@ export declare class NotebookViewModel extends Disposable implements EditorFoldi
      * If this._viewCells[index] is visible then return index
      */
     getNearestVisibleCellIndexUpwards(index: number): number;
-    getNextVisibleCellIndex(index: number): any;
+    getNextVisibleCellIndex(index: number): number;
     getPreviousVisibleCellIndex(index: number): number;
     hasCell(cell: ICellViewModel): boolean;
-    getVersionId(): any;
-    getAlternativeId(): any;
+    getVersionId(): number;
+    getAlternativeId(): string;
     getTrackedRange(id: string): ICellRange | null;
     private _getDecorationRange;
     setTrackedRange(id: string | null, newRange: ICellRange | null, newStickiness: TrackedRangeStickiness): string | null;
@@ -112,10 +112,10 @@ export declare class NotebookViewModel extends Disposable implements EditorFoldi
     replaceOne(cell: ICellViewModel, range: Range, text: string): Promise<void>;
     replaceAll(matches: CellFindMatchWithIndex[], texts: string[]): Promise<void>;
     private _withElement;
-    undo(): Promise<any>;
-    redo(): Promise<any>;
+    undo(): Promise<readonly URI[]>;
+    redo(): Promise<readonly URI[]>;
     equal(notebook: NotebookTextModel): boolean;
     dispose(): void;
 }
 export type CellViewModel = (CodeCellViewModel | MarkupCellViewModel) & ICellViewModel;
-export declare function createCellViewModel(instantiationService: IInstantiationService, notebookViewModel: NotebookViewModel, cell: NotebookCellTextModel, viewContext: ViewContext): any;
+export declare function createCellViewModel(instantiationService: IInstantiationService, notebookViewModel: NotebookViewModel, cell: NotebookCellTextModel, viewContext: ViewContext): CodeCellViewModel | MarkupCellViewModel;

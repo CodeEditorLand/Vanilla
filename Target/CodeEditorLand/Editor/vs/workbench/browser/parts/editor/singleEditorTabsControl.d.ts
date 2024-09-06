@@ -1,9 +1,9 @@
-import "vs/css!./media/singleeditortabscontrol";
-import { Dimension } from "vs/base/browser/dom";
-import { EditorTabsControl } from "vs/workbench/browser/parts/editor/editorTabsControl";
-import { IEditorTitleControlDimensions } from "vs/workbench/browser/parts/editor/editorTitleControl";
-import { IEditorPartOptions, IToolbarActions } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
+import "./media/singleeditortabscontrol.css";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { IEditorPartOptions, IToolbarActions } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { EditorTabsControl } from "./editorTabsControl.js";
+import { IEditorTitleControlDimensions } from "./editorTitleControl.js";
 export declare class SingleEditorTabsControl extends EditorTabsControl {
     private titleContainer;
     private editorLabel;

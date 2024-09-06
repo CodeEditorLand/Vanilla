@@ -1,11 +1,11 @@
 import { EventEmitter } from "events";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { URI } from "vs/base/common/uri";
-import { Progress } from "vs/platform/progress/common/progress";
-import { ITextSearchPreviewOptions } from "vs/workbench/services/search/common/search";
-import { TextSearchCompleteNew, TextSearchProviderOptions, TextSearchQueryNew, TextSearchResultNew } from "vs/workbench/services/search/common/searchExtTypes";
-import type { RipgrepTextSearchOptions } from "vs/workbench/services/search/common/searchExtTypesInternal";
-import { IOutputChannel } from "./ripgrepSearchUtils";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Progress } from "../../../../platform/progress/common/progress.js";
+import { ITextSearchPreviewOptions } from "../common/search.js";
+import { TextSearchCompleteNew, TextSearchProviderOptions, TextSearchQueryNew, TextSearchResultNew } from "../common/searchExtTypes.js";
+import type { RipgrepTextSearchOptions } from "../common/searchExtTypesInternal.js";
+import { IOutputChannel } from "./ripgrepSearchUtils.js";
 export declare class RipgrepTextSearchEngine {
     private outputChannel;
     private readonly _numThreads?;

@@ -1,6 +1,6 @@
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IEditSessionIdentityService } from "vs/platform/workspace/common/editSessions";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { IEditSessionIdentityService } from "../../../platform/workspace/common/editSessions.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
 export declare class EditSessionIdentityCreateParticipant {
     private readonly _editSessionIdentityService;
     private _saveParticipantDisposable;

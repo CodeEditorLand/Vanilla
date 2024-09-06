@@ -1,9 +1,9 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IExtensionGalleryService, IGalleryExtension } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IQuickPickItem } from "vs/platform/quickinput/common/quickInput";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IExtensionGalleryService, IGalleryExtension } from "../../extensionManagement/common/extensionManagement.js";
+import { IQuickPickItem } from "../../quickinput/common/quickInput.js";
 export declare function getLocale(extension: IGalleryExtension): string | undefined;
-export declare const ILanguagePackService: any;
+export declare const ILanguagePackService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILanguagePackService>;
 export interface ILanguagePackItem extends IQuickPickItem {
     readonly extensionId?: string;
     readonly galleryExtension?: IGalleryExtension;

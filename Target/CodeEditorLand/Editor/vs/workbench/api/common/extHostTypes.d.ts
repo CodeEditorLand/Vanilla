@@ -1,12 +1,12 @@
-import { IRelativePattern } from "vs/base/common/glob";
-import { MarkdownStringTrustedOptions } from "vs/base/common/htmlContent";
-import { URI } from "vs/base/common/uri";
-import { ExtensionIdentifier, IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { FileSystemProviderErrorCode } from "vs/platform/files/common/files";
-import { RemoteAuthorityResolverErrorCode } from "vs/platform/remote/common/remoteAuthorityResolver";
-import { IRelativePatternDto } from "vs/workbench/api/common/extHost.protocol";
-import { ICellMetadataEdit, IDocumentMetadataEdit } from "vs/workbench/contrib/notebook/common/notebookCommon";
 import type * as vscode from "vscode";
+import { IRelativePattern } from "../../../base/common/glob.js";
+import { MarkdownStringTrustedOptions } from "../../../base/common/htmlContent.js";
+import { URI } from "../../../base/common/uri.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { FileSystemProviderErrorCode } from "../../../platform/files/common/files.js";
+import { RemoteAuthorityResolverErrorCode } from "../../../platform/remote/common/remoteAuthorityResolver.js";
+import { ICellMetadataEdit, IDocumentMetadataEdit } from "../../contrib/notebook/common/notebookCommon.js";
+import { IRelativePatternDto } from "./extHost.protocol.js";
 export declare enum TerminalOutputAnchor {
     Top = 0,
     Bottom = 1

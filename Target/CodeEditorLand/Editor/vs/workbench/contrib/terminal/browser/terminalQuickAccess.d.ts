@@ -1,10 +1,10 @@
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "vs/platform/quickinput/browser/pickerQuickAccess";
-import { IQuickPickSeparator } from "vs/platform/quickinput/common/quickInput";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { ITerminalEditorService, ITerminalGroupService, ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ITerminalEditorService, ITerminalGroupService, ITerminalService } from "./terminal.js";
 export declare class TerminalQuickAccessProvider extends PickerQuickAccessProvider<IPickerQuickAccessItem> {
     private readonly _editorService;
     private readonly _terminalService;

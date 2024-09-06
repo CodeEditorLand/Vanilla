@@ -1,30 +1,30 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { Lazy } from "vs/base/common/lazy";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ResourceMap } from "vs/base/common/map";
-import { TernarySearchTree } from "vs/base/common/ternarySearchTree";
-import { URI } from "vs/base/common/uri";
-import { Range } from "vs/editor/common/core/range";
-import { ITextModel } from "vs/editor/common/model";
-import { IModelService } from "vs/editor/common/services/model";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IFileService, IFileStatWithPartialMetadata } from "vs/platform/files/common/files";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILabelService } from "vs/platform/label/common/label";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProgress, IProgressService, IProgressStep } from "vs/platform/progress/common/progress";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { ICellViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookEditorWidget } from "vs/workbench/contrib/notebook/browser/notebookEditorWidget";
-import { INotebookEditorService } from "vs/workbench/contrib/notebook/browser/services/notebookEditorService";
-import { INotebookCellMatchWithModel } from "vs/workbench/contrib/search/browser/notebookSearch/searchNotebookHelpers";
-import { IReplaceService } from "vs/workbench/contrib/search/browser/replace";
-import { INotebookSearchService } from "vs/workbench/contrib/search/common/notebookSearch";
-import { INotebookCellMatchNoModel } from "vs/workbench/contrib/search/common/searchNotebookHelpers";
-import { ReplacePattern } from "vs/workbench/services/search/common/replace";
-import { IAITextQuery, IFileMatch, IPatternInfo, ISearchComplete, ISearchProgressItem, ISearchRange, ISearchService, ITextQuery, ITextSearchMatch, ITextSearchPreviewOptions, ITextSearchResult, SearchSortOrder } from "vs/workbench/services/search/common/search";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { TernarySearchTree } from "../../../../base/common/ternarySearchTree.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IFileService, IFileStatWithPartialMetadata } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProgress, IProgressService, IProgressStep } from "../../../../platform/progress/common/progress.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ReplacePattern } from "../../../services/search/common/replace.js";
+import { IAITextQuery, IFileMatch, IPatternInfo, ISearchComplete, ISearchProgressItem, ISearchRange, ISearchService, ITextQuery, ITextSearchMatch, ITextSearchPreviewOptions, ITextSearchResult, SearchSortOrder } from "../../../services/search/common/search.js";
+import { ICellViewModel } from "../../notebook/browser/notebookBrowser.js";
+import { NotebookEditorWidget } from "../../notebook/browser/notebookEditorWidget.js";
+import { INotebookEditorService } from "../../notebook/browser/services/notebookEditorService.js";
+import { INotebookSearchService } from "../common/notebookSearch.js";
+import { INotebookCellMatchNoModel } from "../common/searchNotebookHelpers.js";
+import { INotebookCellMatchWithModel } from "./notebookSearch/searchNotebookHelpers.js";
+import { IReplaceService } from "./replace.js";
 export declare class Match {
     protected _parent: FileMatch;
     private _fullPreviewLines;
@@ -48,7 +48,12 @@ export declare class Match {
     };
     get replaceString(): string;
     fullMatchText(includeSurrounding?: boolean): string;
-    rangeInPreview(): any;
+    rangeInPreview(): {
+        startColumn: number;
+        endColumn: number;
+        startLineNumber: number;
+        endLineNumber: number;
+    };
     fullPreviewLines(): string[];
     getMatchString(): string;
 }
@@ -87,7 +92,7 @@ export declare class MatchInNotebook extends Match {
     isReadonly(): boolean;
     get cellIndex(): number;
     get webviewIndex(): number | undefined;
-    get cell(): any;
+    get cell(): ICellViewModel | undefined;
 }
 export declare class FileMatch extends Disposable implements IFileMatch {
     private _query;
@@ -103,7 +108,10 @@ export declare class FileMatch extends Disposable implements IFileMatch {
     private static readonly _CURRENT_FIND_MATCH;
     private static readonly _FIND_MATCH;
     private static getDecorationOption;
-    protected _onChange: any;
+    protected _onChange: Emitter<{
+        didRemove?: boolean;
+        forceUpdateModel?: boolean;
+    }>;
     readonly onChange: Event<{
         didRemove?: boolean;
         forceUpdateModel?: boolean;
@@ -195,7 +203,7 @@ export declare class FolderMatch extends Disposable {
     private readonly replaceService;
     protected readonly instantiationService: IInstantiationService;
     protected readonly uriIdentityService: IUriIdentityService;
-    protected _onChange: any;
+    protected _onChange: Emitter<IChangeEvent>;
     readonly onChange: Event<IChangeEvent>;
     private _onDispose;
     readonly onDispose: Event<void>;
@@ -240,7 +248,7 @@ export declare class FolderMatch extends Disposable {
     addFileMatch(raw: IFileMatch[], silent: boolean, searchInstanceID: string, isAiContributed: boolean): void;
     doAddFile(fileMatch: FileMatch): void;
     hasOnlyReadOnlyMatches(): boolean;
-    protected uriHasParent(parent: URI, child: URI): any;
+    protected uriHasParent(parent: URI, child: URI): boolean;
     private isInParentChain;
     getFolderMatch(resource: URI): FolderMatchWithResource | undefined;
     doAddFolder(folderMatch: FolderMatchWithResource): void;
@@ -313,7 +321,7 @@ export declare class SearchResult extends Disposable {
     get query(): ITextQuery | null;
     set query(query: ITextQuery | null);
     setCachedSearchComplete(cachedSearchComplete: ISearchComplete | undefined, ai: boolean): void;
-    getCachedSearchComplete(ai: boolean): any;
+    getCachedSearchComplete(ai: boolean): ISearchComplete | undefined;
     private onDidAddNotebookEditorWidget;
     private onModelAdded;
     private onNotebookEditorWidgetAdded;
@@ -404,7 +412,7 @@ export declare class SearchViewModelWorkbenchService implements ISearchViewModel
     get searchModel(): SearchModel;
     set searchModel(searchModel: SearchModel);
 }
-export declare const ISearchViewModelWorkbenchService: any;
+export declare const ISearchViewModelWorkbenchService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISearchViewModelWorkbenchService>;
 export interface ISearchViewModelWorkbenchService {
     readonly _serviceBrand: undefined;
     searchModel: SearchModel;

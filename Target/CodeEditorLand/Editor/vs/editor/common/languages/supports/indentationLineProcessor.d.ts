@@ -1,10 +1,10 @@
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { IVirtualModel } from "vs/editor/common/languages/autoIndent";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { IndentRulesSupport } from "vs/editor/common/languages/supports/indentRules";
-import { ITextModel } from "vs/editor/common/model";
-import { IViewLineTokens } from "vs/editor/common/tokens/lineTokens";
+import { Position } from "../../core/position.js";
+import { Range } from "../../core/range.js";
+import { ITextModel } from "../../model.js";
+import { IViewLineTokens } from "../../tokens/lineTokens.js";
+import { IVirtualModel } from "../autoIndent.js";
+import { ILanguageConfigurationService } from "../languageConfigurationRegistry.js";
+import { IndentRulesSupport } from "./indentRules.js";
 /**
  * This class is a wrapper class around {@link IndentRulesSupport}.
  * It processes the lines by removing the language configuration brackets from the regex, string and comment tokens.

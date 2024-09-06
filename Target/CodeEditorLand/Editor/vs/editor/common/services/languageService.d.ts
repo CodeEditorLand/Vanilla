@@ -1,17 +1,17 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ILanguageIdCodec } from "vs/editor/common/languages";
-import { ILanguageExtensionPoint, ILanguageIcon, ILanguageNameIdPair, ILanguageSelection, ILanguageService } from "vs/editor/common/languages/language";
-import { LanguagesRegistry } from "vs/editor/common/services/languagesRegistry";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { ILanguageIdCodec } from "../languages.js";
+import { ILanguageExtensionPoint, ILanguageIcon, ILanguageNameIdPair, ILanguageSelection, ILanguageService } from "../languages/language.js";
+import { LanguagesRegistry } from "./languagesRegistry.js";
 export declare class LanguageService extends Disposable implements ILanguageService {
     _serviceBrand: undefined;
     static instanceCount: number;
     private readonly _onDidRequestBasicLanguageFeatures;
-    readonly onDidRequestBasicLanguageFeatures: any;
+    readonly onDidRequestBasicLanguageFeatures: Event<string>;
     private readonly _onDidRequestRichLanguageFeatures;
-    readonly onDidRequestRichLanguageFeatures: any;
-    protected readonly _onDidChange: any;
+    readonly onDidRequestRichLanguageFeatures: Event<string>;
+    protected readonly _onDidChange: Emitter<void>;
     readonly onDidChange: Event<void>;
     private readonly _requestedBasicLanguages;
     private readonly _requestedRichLanguages;

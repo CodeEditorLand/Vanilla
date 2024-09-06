@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INotebookEditor, INotebookEditorContribution } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
 export declare class DiagnosticCellStatusBarContrib extends Disposable implements INotebookEditorContribution {
     static id: string;
     constructor(notebookEditor: INotebookEditor, instantiationService: IInstantiationService);

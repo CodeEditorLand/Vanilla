@@ -1,7 +1,7 @@
-import "vs/css!./media/actions";
-import { Action2, IAction2Options } from "vs/platform/actions/common/actions";
-import { ICommandHandler } from "vs/platform/commands/common/commands";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
+import "./media/actions.css";
+import { Action2, IAction2Options } from "../../../platform/actions/common/actions.js";
+import { ICommandHandler } from "../../../platform/commands/common/commands.js";
+import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
 export declare class CloseWindowAction extends Action2 {
     static readonly ID = "workbench.action.closeWindow";
     constructor();

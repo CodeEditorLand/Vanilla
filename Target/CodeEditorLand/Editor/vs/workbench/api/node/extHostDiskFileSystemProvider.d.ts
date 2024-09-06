@@ -1,5 +1,5 @@
-import { ILogService } from "vs/platform/log/common/log";
-import { IExtHostConsumerFileSystem } from "vs/workbench/api/common/extHostFileSystemConsumer";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IExtHostConsumerFileSystem } from "../common/extHostFileSystemConsumer.js";
 export declare class ExtHostDiskFileSystemProvider {
     constructor(extHostConsumerFileSystem: IExtHostConsumerFileSystem, logService: ILogService);
 }

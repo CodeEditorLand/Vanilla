@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IExtensionManagementService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IProductService } from "vs/platform/product/common/productService";
-import type { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import type { IWorkbenchContribution } from "../../../common/contributions.js";
+import { ITerminalService } from "./terminal.js";
 export declare class TerminalWslRecommendationContribution extends Disposable implements IWorkbenchContribution {
     static ID: string;
     constructor(instantiationService: IInstantiationService, productService: IProductService, notificationService: INotificationService, extensionManagementService: IExtensionManagementService, terminalService: ITerminalService);

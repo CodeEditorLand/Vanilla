@@ -1,8 +1,8 @@
-import { IKeyboardEvent } from "vs/base/browser/keyboardEvent";
-import { Event } from "vs/base/common/event";
-import { KeyCode } from "vs/base/common/keyCodes";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor, IEditorMouseEvent, IMouseTarget } from "vs/editor/browser/editorBrowser";
+import { IKeyboardEvent } from "../../../../../base/browser/keyboardEvent.js";
+import { Event } from "../../../../../base/common/event.js";
+import { KeyCode } from "../../../../../base/common/keyCodes.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ICodeEditor, IEditorMouseEvent, IMouseTarget } from "../../../../browser/editorBrowser.js";
 /**
  * An event that encapsulates the various trigger modifiers logic needed for go to definition.
  */

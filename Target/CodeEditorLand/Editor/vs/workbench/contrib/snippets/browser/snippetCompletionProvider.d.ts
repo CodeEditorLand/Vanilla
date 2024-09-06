@@ -1,13 +1,13 @@
-import { MarkdownString } from "vs/base/common/htmlContent";
-import { Position } from "vs/editor/common/core/position";
-import { IRange } from "vs/editor/common/core/range";
-import { Command, CompletionContext, CompletionItem, CompletionItemInsertTextRule, CompletionItemKind, CompletionItemLabel, CompletionItemProvider, CompletionList } from "vs/editor/common/languages";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ITextModel } from "vs/editor/common/model";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { ISnippetsService } from "vs/workbench/contrib/snippets/browser/snippets";
-import { Snippet } from "vs/workbench/contrib/snippets/browser/snippetsFile";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { Command, CompletionContext, CompletionItem, CompletionItemInsertTextRule, CompletionItemKind, CompletionItemLabel, CompletionItemProvider, CompletionList } from "../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { ILanguageConfigurationService } from "../../../../editor/common/languages/languageConfigurationRegistry.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { ISnippetsService } from "./snippets.js";
+import { Snippet } from "./snippetsFile.js";
 export declare class SnippetCompletion implements CompletionItem {
     readonly snippet: Snippet;
     label: CompletionItemLabel;

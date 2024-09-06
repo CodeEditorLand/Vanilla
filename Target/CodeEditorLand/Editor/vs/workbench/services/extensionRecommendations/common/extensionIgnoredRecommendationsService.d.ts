@@ -1,17 +1,17 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IExtensionIgnoredRecommendationsService } from "vs/workbench/services/extensionRecommendations/common/extensionRecommendations";
-import { IWorkspaceExtensionsConfigService } from "vs/workbench/services/extensionRecommendations/common/workspaceExtensionsConfig";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IExtensionIgnoredRecommendationsService, IgnoredRecommendationChangeNotification } from "./extensionRecommendations.js";
+import { IWorkspaceExtensionsConfigService } from "./workspaceExtensionsConfig.js";
 export declare class ExtensionIgnoredRecommendationsService extends Disposable implements IExtensionIgnoredRecommendationsService {
     private readonly workspaceExtensionsConfigService;
     private readonly storageService;
     readonly _serviceBrand: undefined;
     private _onDidChangeIgnoredRecommendations;
-    readonly onDidChangeIgnoredRecommendations: any;
+    readonly onDidChangeIgnoredRecommendations: import("../../../../base/common/event.js").Event<void>;
     private _globalIgnoredRecommendations;
     get globalIgnoredRecommendations(): string[];
     private _onDidChangeGlobalIgnoredRecommendation;
-    readonly onDidChangeGlobalIgnoredRecommendation: any;
+    readonly onDidChangeGlobalIgnoredRecommendation: import("../../../../base/common/event.js").Event<IgnoredRecommendationChangeNotification>;
     private ignoredWorkspaceRecommendations;
     get ignoredRecommendations(): string[];
     constructor(workspaceExtensionsConfigService: IWorkspaceExtensionsConfigService, storageService: IStorageService);

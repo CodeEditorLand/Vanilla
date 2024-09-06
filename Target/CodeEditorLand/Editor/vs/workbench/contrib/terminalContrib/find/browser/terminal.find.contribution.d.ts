@@ -1,1 +1,1 @@
-import "vs/css!./media/terminalFind";
+import "./media/terminalFind.css";

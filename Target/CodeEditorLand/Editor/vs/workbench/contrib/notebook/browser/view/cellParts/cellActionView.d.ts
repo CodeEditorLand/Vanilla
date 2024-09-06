@@ -1,12 +1,12 @@
-import * as DOM from "vs/base/browser/dom";
-import { IActionViewItemProvider } from "vs/base/browser/ui/actionbar/actionbar";
-import { IActionProvider } from "vs/base/browser/ui/dropdown/dropdown";
-import { IMenuEntryActionViewItemOptions, MenuEntryActionViewItem, SubmenuEntryActionViewItem } from "vs/platform/actions/browser/menuEntryActionViewItem";
-import { SubmenuItemAction } from "vs/platform/actions/common/actions";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IThemeService } from "vs/platform/theme/common/themeService";
+import * as DOM from "../../../../../../base/browser/dom.js";
+import { IActionViewItemProvider } from "../../../../../../base/browser/ui/actionbar/actionbar.js";
+import { IActionProvider } from "../../../../../../base/browser/ui/dropdown/dropdown.js";
+import { IMenuEntryActionViewItemOptions, MenuEntryActionViewItem, SubmenuEntryActionViewItem } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { SubmenuItemAction } from "../../../../../../platform/actions/common/actions.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
 export declare class CodiconActionViewItem extends MenuEntryActionViewItem {
     protected updateLabel(): void;
 }

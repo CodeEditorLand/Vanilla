@@ -1,1 +1,1 @@
-import "vs/css!./media/style";
+import "./media/style.css";

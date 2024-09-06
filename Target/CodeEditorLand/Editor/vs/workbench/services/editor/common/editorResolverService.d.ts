@@ -1,13 +1,13 @@
-import { Event } from "vs/base/common/event";
-import * as glob from "vs/base/common/glob";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { AtLeastOne } from "vs/base/common/types";
-import { URI } from "vs/base/common/uri";
-import { IResourceEditorInput, ITextResourceEditorInput } from "vs/platform/editor/common/editor";
-import { EditorInputWithOptions, EditorInputWithOptionsAndGroup, IResourceDiffEditorInput, IResourceMergeEditorInput, IResourceMultiDiffEditorInput, IUntitledTextResourceEditorInput, IUntypedEditorInput } from "vs/workbench/common/editor";
-import { IEditorGroup } from "vs/workbench/services/editor/common/editorGroupsService";
-import { PreferredGroup } from "vs/workbench/services/editor/common/editorService";
-export declare const IEditorResolverService: any;
+import { Event } from "../../../../base/common/event.js";
+import * as glob from "../../../../base/common/glob.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { AtLeastOne } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IResourceEditorInput, ITextResourceEditorInput } from "../../../../platform/editor/common/editor.js";
+import { EditorInputWithOptions, EditorInputWithOptionsAndGroup, IResourceDiffEditorInput, IResourceMergeEditorInput, IResourceMultiDiffEditorInput, IUntitledTextResourceEditorInput, IUntypedEditorInput } from "../../../common/editor.js";
+import { IEditorGroup } from "./editorGroupsService.js";
+import { PreferredGroup } from "./editorService.js";
+export declare const IEditorResolverService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditorResolverService>;
 export type EditorAssociation = {
     readonly viewType: string;
     readonly filenamePattern?: string;

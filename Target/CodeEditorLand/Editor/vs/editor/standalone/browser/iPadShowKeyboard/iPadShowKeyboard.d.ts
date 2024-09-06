@@ -1,7 +1,7 @@
-import "vs/css!./iPadShowKeyboard";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
+import "./iPadShowKeyboard.css";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
 export declare class IPadShowKeyboard extends Disposable implements IEditorContribution {
     static readonly ID = "editor.contrib.iPadShowKeyboard";
     private readonly editor;

@@ -1,6 +1,6 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ResourceLabelFormatter } from "vs/platform/label/common/label";
-import { ExtHostLabelServiceShape, IMainContext } from "vs/workbench/api/common/extHost.protocol";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { ResourceLabelFormatter } from "../../../platform/label/common/label.js";
+import { ExtHostLabelServiceShape, IMainContext } from "./extHost.protocol.js";
 export declare class ExtHostLabelService implements ExtHostLabelServiceShape {
     private readonly _proxy;
     private _handlePool;

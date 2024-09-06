@@ -1,2 +1,2 @@
-export { TerminalChatController } from "vs/workbench/contrib/terminalContrib/chat/browser/terminalChatController";
-export { TerminalChatContextKeys } from "vs/workbench/contrib/terminalContrib/chat/browser/terminalChat";
+export { TerminalChatController } from "../../terminalContrib/chat/browser/terminalChatController.js";
+export { TerminalChatContextKeys } from "../../terminalContrib/chat/browser/terminalChat.js";

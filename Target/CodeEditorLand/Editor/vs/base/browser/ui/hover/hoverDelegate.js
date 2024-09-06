@@ -1,1 +1,1 @@
-import"../../../../../vs/base/browser/ui/hover/hoverWidget.js";import"../../../../../vs/base/common/htmlContent.js";import"../../../../../vs/base/common/lifecycle.js";
+import"../../../common/htmlContent.js";import"../../../common/lifecycle.js";import"./hoverWidget.js";

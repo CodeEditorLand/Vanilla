@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import type { ThemeIcon } from "vs/base/common/themables";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import type { ThemeIcon } from "../../../../base/common/themables.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 export declare class TerminalIconPicker extends Disposable {
     private readonly _hoverService;
     private readonly _iconSelectBox;

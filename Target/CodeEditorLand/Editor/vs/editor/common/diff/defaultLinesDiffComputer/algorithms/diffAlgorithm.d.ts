@@ -1,4 +1,4 @@
-import { OffsetRange } from "vs/editor/common/core/offsetRange";
+import { OffsetRange } from "../../../core/offsetRange.js";
 /**
  * Represents a synchronous diff algorithm. Should be executed in a worker.
  */

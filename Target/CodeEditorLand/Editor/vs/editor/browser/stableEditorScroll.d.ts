@@ -1,5 +1,5 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Position } from "vs/editor/common/core/position";
+import { Position } from "../common/core/position.js";
+import { ICodeEditor } from "./editorBrowser.js";
 export declare class StableEditorScrollState {
     private readonly _initialScrollTop;
     private readonly _initialContentHeight;

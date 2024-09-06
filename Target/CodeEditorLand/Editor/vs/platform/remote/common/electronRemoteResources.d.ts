@@ -1,4 +1,4 @@
-import { Client, IClientRouter, IConnectionHub } from "vs/base/parts/ipc/common/ipc";
+import { Client, IClientRouter, IConnectionHub } from "../../../base/parts/ipc/common/ipc.js";
 export declare const NODE_REMOTE_RESOURCE_IPC_METHOD_NAME = "request";
 export declare const NODE_REMOTE_RESOURCE_CHANNEL_NAME = "remoteResourceHandler";
 export type NodeRemoteResourceResponse = {

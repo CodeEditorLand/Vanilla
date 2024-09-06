@@ -1,11 +1,12 @@
-import { Disposable, DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { IObservable, ITransaction } from "vs/base/common/observable";
-import { ICodeEditor, IOverlayWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { EditorOption, FindComputedEditorOptionValueById } from "vs/editor/common/config/editorOptions";
-import { Selection } from "vs/editor/common/core/selection";
-import { ICursorSelectionChangedEvent } from "vs/editor/common/cursorEvents";
-import { IModelDeltaDecoration, ITextModel } from "vs/editor/common/model";
-import { IModelContentChangedEvent } from "vs/editor/common/textModelEvents";
+import { Disposable, IDisposable } from "../../base/common/lifecycle.js";
+import { IObservable, ITransaction } from "../../base/common/observable.js";
+import { EditorOption, FindComputedEditorOptionValueById } from "../common/config/editorOptions.js";
+import { Position } from "../common/core/position.js";
+import { Selection } from "../common/core/selection.js";
+import { ICursorSelectionChangedEvent } from "../common/cursorEvents.js";
+import { IModelDeltaDecoration, ITextModel } from "../common/model.js";
+import { IModelContentChangedEvent } from "../common/textModelEvents.js";
+import { ICodeEditor, IOverlayWidgetPosition } from "./editorBrowser.js";
 /**
  * Returns a facade for the code editor that provides observables for various states/events.
  */
@@ -27,24 +28,24 @@ export declare class ObservableCodeEditor extends Disposable {
     private _forceUpdate;
     private readonly _model;
     readonly model: IObservable<ITextModel | null>;
-    readonly isReadonly: any;
+    readonly isReadonly: IObservable<boolean, unknown>;
     private readonly _versionId;
     readonly versionId: IObservable<number | null, IModelContentChangedEvent | undefined>;
     private readonly _selections;
     readonly selections: IObservable<Selection[] | null, ICursorSelectionChangedEvent | undefined>;
-    readonly positions: any;
-    readonly isFocused: any;
-    readonly value: any;
-    readonly valueIsEmpty: any;
-    readonly cursorSelection: any;
-    readonly cursorPosition: any;
-    readonly onDidType: any;
-    readonly scrollTop: any;
-    readonly scrollLeft: any;
-    readonly layoutInfo: any;
-    readonly layoutInfoContentLeft: any;
-    readonly layoutInfoDecorationsLeft: any;
-    readonly contentWidth: any;
+    readonly positions: IObservable<readonly Position[] | null, unknown>;
+    readonly isFocused: IObservable<boolean, unknown>;
+    readonly value: import("../../base/common/observable.js").ISettableObservable<string, void>;
+    readonly valueIsEmpty: IObservable<boolean, unknown>;
+    readonly cursorSelection: IObservable<Selection | null, unknown>;
+    readonly cursorPosition: IObservable<Position | null, unknown>;
+    readonly onDidType: import("../../base/common/observable.js").IObservableSignal<string>;
+    readonly scrollTop: IObservable<number, unknown>;
+    readonly scrollLeft: IObservable<number, unknown>;
+    readonly layoutInfo: IObservable<import("../common/config/editorOptions.js").EditorLayoutInfo, unknown>;
+    readonly layoutInfoContentLeft: IObservable<number, unknown>;
+    readonly layoutInfoDecorationsLeft: IObservable<number, unknown>;
+    readonly contentWidth: IObservable<number, unknown>;
     getOption<T extends EditorOption>(id: T): IObservable<FindComputedEditorOptionValueById<T>>;
     setDecorations(decorations: IObservable<IModelDeltaDecoration[]>): IDisposable;
     private _overlayWidgetCounter;
@@ -56,7 +57,4 @@ interface IObservableOverlayWidget {
     readonly minContentWidthInPx: IObservable<number>;
     get allowEditorOverflow(): boolean;
 }
-type RemoveUndefined<T> = T extends undefined ? never : T;
-export declare function reactToChange<T, TChange>(observable: IObservable<T, TChange>, cb: (value: T, deltas: RemoveUndefined<TChange>[]) => void): IDisposable;
-export declare function reactToChangeWithStore<T, TChange>(observable: IObservable<T, TChange>, cb: (value: T, deltas: RemoveUndefined<TChange>[], store: DisposableStore) => void): IDisposable;
 export {};

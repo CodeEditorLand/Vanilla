@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IActivityService } from "vs/workbench/services/activity/common/activity";
-import { IAuthenticationAccessService } from "vs/workbench/services/authentication/browser/authenticationAccessService";
-import { IAuthenticationUsageService } from "vs/workbench/services/authentication/browser/authenticationUsageService";
-import { AuthenticationSession, IAuthenticationExtensionsService, IAuthenticationService } from "vs/workbench/services/authentication/common/authentication";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IActivityService } from "../../activity/common/activity.js";
+import { AuthenticationSession, IAuthenticationExtensionsService, IAuthenticationService } from "../common/authentication.js";
+import { IAuthenticationAccessService } from "./authenticationAccessService.js";
+import { IAuthenticationUsageService } from "./authenticationUsageService.js";
 export declare class AuthenticationExtensionsService extends Disposable implements IAuthenticationExtensionsService {
     private readonly activityService;
     private readonly storageService;

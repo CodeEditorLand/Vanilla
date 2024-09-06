@@ -1,12 +1,13 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { Event } from "vs/base/common/event";
-import { ILocalizedString } from "vs/platform/action/common/action";
-import { ILogService } from "vs/platform/log/common/log";
-import { IResourceRefHandle } from "vs/platform/userDataSync/common/userDataSync";
-import { EditSessionsStoreClient } from "vs/workbench/contrib/editSessions/common/editSessionsStorageClient";
-export declare const EDIT_SESSION_SYNC_CATEGORY: any;
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { Event } from "../../../../base/common/event.js";
+import { ILocalizedString } from "../../../../platform/action/common/action.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IResourceRefHandle } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { EditSessionsStoreClient } from "./editSessionsStorageClient.js";
+export declare const EDIT_SESSION_SYNC_CATEGORY: import("../../../../nls.js").ILocalizedString;
 export type SyncResource = "editSessions" | "workspaceState";
-export declare const IEditSessionsStorageService: any;
+export declare const IEditSessionsStorageService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditSessionsStorageService>;
 export interface IEditSessionsStorageService {
     _serviceBrand: undefined;
     readonly SIZE_LIMIT: number;
@@ -32,7 +33,7 @@ export interface IEditSessionsStorageService {
     list(resource: SyncResource): Promise<IResourceRefHandle[]>;
     getMachineById(machineId: string): Promise<string | undefined>;
 }
-export declare const IEditSessionsLogService: any;
+export declare const IEditSessionsLogService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditSessionsLogService>;
 export interface IEditSessionsLogService extends ILogService {
 }
 export declare enum ChangeType {
@@ -69,16 +70,16 @@ export interface EditSession {
     folders: Folder[];
 }
 export declare const EDIT_SESSIONS_SIGNED_IN_KEY = "editSessionsSignedIn";
-export declare const EDIT_SESSIONS_SIGNED_IN: any;
+export declare const EDIT_SESSIONS_SIGNED_IN: RawContextKey<boolean>;
 export declare const EDIT_SESSIONS_PENDING_KEY = "editSessionsPending";
-export declare const EDIT_SESSIONS_PENDING: any;
+export declare const EDIT_SESSIONS_PENDING: RawContextKey<boolean>;
 export declare const EDIT_SESSIONS_CONTAINER_ID = "workbench.view.editSessions";
 export declare const EDIT_SESSIONS_DATA_VIEW_ID = "workbench.views.editSessions.data";
 export declare const EDIT_SESSIONS_TITLE: ILocalizedString;
-export declare const EDIT_SESSIONS_VIEW_ICON: any;
-export declare const EDIT_SESSIONS_SHOW_VIEW: any;
+export declare const EDIT_SESSIONS_VIEW_ICON: import("../../../../base/common/themables.js").ThemeIcon;
+export declare const EDIT_SESSIONS_SHOW_VIEW: RawContextKey<boolean>;
 export declare const EDIT_SESSIONS_SCHEME = "vscode-edit-sessions";
 export declare function decodeEditSessionFileContent(version: number, content: string): VSBuffer;
-export declare function hashedEditSessionId(editSessionId: string): any;
+export declare function hashedEditSessionId(editSessionId: string): string;
 export declare const editSessionsLogId = "editSessions";
 export {};

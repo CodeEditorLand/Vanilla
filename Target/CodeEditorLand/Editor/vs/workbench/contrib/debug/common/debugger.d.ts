@@ -1,13 +1,13 @@
-import { IJSONSchema, IJSONSchemaMap, IJSONSchemaSnippet } from "vs/base/common/jsonSchema";
-import { ITextResourcePropertiesService } from "vs/editor/common/services/textResourceConfiguration";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ContextKeyExpression, IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ITelemetryEndpoint } from "vs/platform/telemetry/common/telemetry";
-import { IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-import { IAdapterManager, IConfig, IDebugAdapter, IDebugger, IDebuggerContribution, IDebuggerMetadata, IDebugService, IDebugSession } from "vs/workbench/contrib/debug/common/debug";
-import { IConfigurationResolverService } from "vs/workbench/services/configurationResolver/common/configurationResolver";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
+import { IJSONSchema, IJSONSchemaMap, IJSONSchemaSnippet } from "../../../../base/common/jsonSchema.js";
+import { ITextResourcePropertiesService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpression, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { ITelemetryEndpoint } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IAdapterManager, IConfig, IDebugAdapter, IDebugger, IDebuggerContribution, IDebuggerMetadata, IDebugService, IDebugSession } from "./debug.js";
 export declare class Debugger implements IDebugger, IDebuggerMetadata {
     private adapterManager;
     private readonly configurationService;
@@ -36,8 +36,8 @@ export declare class Debugger implements IDebugger, IDebuggerMetadata {
     get languages(): string[] | undefined;
     get when(): ContextKeyExpression | undefined;
     get hiddenWhen(): ContextKeyExpression | undefined;
-    get enabled(): any;
-    get isHiddenFromDropdown(): any;
+    get enabled(): boolean;
+    get isHiddenFromDropdown(): boolean;
     get strings(): any;
     interestedInLanguage(languageId: string): boolean;
     hasInitialConfiguration(): boolean;

@@ -1,10 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { CodeEditorWidget } from "vs/editor/browser/widget/codeEditor/codeEditorWidget";
-import { DiffEditorWidget } from "vs/editor/browser/widget/diffEditor/diffEditorWidget";
-import { DetailedLineRangeMapping } from "vs/editor/common/diff/rangeMapping";
-import { ITextModel } from "vs/editor/common/model";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { IClipboardService } from "../../../../../../platform/clipboard/common/clipboardService.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { DetailedLineRangeMapping } from "../../../../../common/diff/rangeMapping.js";
+import { ITextModel } from "../../../../../common/model.js";
+import { CodeEditorWidget } from "../../../codeEditor/codeEditorWidget.js";
+import { DiffEditorWidget } from "../../diffEditorWidget.js";
 export declare class InlineDiffDeletedCodeMargin extends Disposable {
     private readonly _getViewZoneId;
     private readonly _marginDomNode;

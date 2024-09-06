@@ -1,5 +1,5 @@
-import { Keybinding, ResolvedKeybinding } from "vs/base/common/keybindings";
-import { IKeyboardEvent } from "vs/platform/keybinding/common/keybinding";
+import { Keybinding, ResolvedKeybinding } from "../../../base/common/keybindings.js";
+import { IKeyboardEvent } from "../../keybinding/common/keybinding.js";
 export interface IKeyboardMapper {
     dumpDebugInfo(): string;
     resolveKeyboardEvent(keyboardEvent: IKeyboardEvent): ResolvedKeybinding;

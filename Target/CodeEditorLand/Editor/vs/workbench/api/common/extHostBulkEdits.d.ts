@@ -1,7 +1,7 @@
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ExtHostDocumentsAndEditors } from "vs/workbench/api/common/extHostDocumentsAndEditors";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
 import type * as vscode from "vscode";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export declare class ExtHostBulkEdits {
     private readonly _proxy;
     private readonly _versionInformationProvider;

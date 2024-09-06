@@ -1,29 +1,30 @@
-import { ActionBar } from "vs/base/browser/ui/actionbar/actionbar";
-import { Button, IButtonStyles } from "vs/base/browser/ui/button/button";
-import { CountBadge, ICountBadgeStyles } from "vs/base/browser/ui/countBadge/countBadge";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { IInputBoxStyles } from "vs/base/browser/ui/inputbox/inputBox";
-import { IKeybindingLabelStyles } from "vs/base/browser/ui/keybindingLabel/keybindingLabel";
-import { IListStyles } from "vs/base/browser/ui/list/listWidget";
-import { IProgressBarStyles, ProgressBar } from "vs/base/browser/ui/progressbar/progressbar";
-import { IToggleStyles } from "vs/base/browser/ui/toggle/toggle";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import Severity from "vs/base/common/severity";
-import "vs/css!./media/quickInput";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IHoverService, WorkbenchHoverDelegate } from "vs/platform/hover/browser/hover";
-import { QuickInputTree } from "vs/platform/quickinput/browser/quickInputTree";
-import { IInputBox, IKeyMods, IQuickInput, IQuickInputButton, IQuickInputToggle, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, IQuickPickSeparator, IQuickWidget, ItemActivation, QuickInputType, QuickPickFocus } from "vs/platform/quickinput/common/quickInput";
-import { QuickInputBox } from "./quickInputBox";
+import { ActionBar } from "../../../base/browser/ui/actionbar/actionbar.js";
+import { Button, IButtonStyles } from "../../../base/browser/ui/button/button.js";
+import { CountBadge, ICountBadgeStyles } from "../../../base/browser/ui/countBadge/countBadge.js";
+import { IHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegate.js";
+import { IInputBoxStyles } from "../../../base/browser/ui/inputbox/inputBox.js";
+import { IKeybindingLabelStyles } from "../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import { IListStyles } from "../../../base/browser/ui/list/listWidget.js";
+import { IProgressBarStyles, ProgressBar } from "../../../base/browser/ui/progressbar/progressbar.js";
+import { IToggleStyles } from "../../../base/browser/ui/toggle/toggle.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
+import Severity from "../../../base/common/severity.js";
+import "./media/quickInput.css";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { RawContextKey } from "../../contextkey/common/contextkey.js";
+import { IHoverService, WorkbenchHoverDelegate } from "../../hover/browser/hover.js";
+import { IInputBox, IKeyMods, IQuickInput, IQuickInputButton, IQuickInputHideEvent, IQuickInputToggle, IQuickNavigateConfiguration, IQuickPick, IQuickPickDidAcceptEvent, IQuickPickItem, IQuickPickItemButtonEvent, IQuickPickSeparator, IQuickPickSeparatorButtonEvent, IQuickPickWillAcceptEvent, IQuickWidget, ItemActivation, QuickInputHideReason, QuickInputType, QuickPickFocus } from "../common/quickInput.js";
+import { QuickInputBox } from "./quickInputBox.js";
+import { QuickInputTree } from "./quickInputTree.js";
 export declare const inQuickInputContextKeyValue = "inQuickInput";
-export declare const InQuickInputContextKey: any;
-export declare const inQuickInputContext: any;
+export declare const InQuickInputContextKey: RawContextKey<boolean>;
+export declare const inQuickInputContext: import("../../contextkey/common/contextkey.js").ContextKeyExpression;
 export declare const quickInputTypeContextKeyValue = "quickInputType";
-export declare const QuickInputTypeContextKey: any;
+export declare const QuickInputTypeContextKey: RawContextKey<QuickInputType>;
 export declare const endOfQuickInputBoxContextKeyValue = "cursorAtEndOfQuickInputBox";
-export declare const EndOfQuickInputBoxContextKey: any;
-export declare const endOfQuickInputBoxContext: any;
+export declare const EndOfQuickInputBoxContextKey: RawContextKey<boolean>;
+export declare const endOfQuickInputBoxContext: import("../../contextkey/common/contextkey.js").ContextKeyExpression;
 export interface IQuickInputOptions {
     idPrefix: string;
     container: HTMLElement;
@@ -64,8 +65,8 @@ export type Writeable<T> = {
     -readonly [P in keyof T]: T[P];
 };
 export declare const backButton: {
-    iconClass: any;
-    tooltip: any;
+    iconClass: string;
+    tooltip: string;
     handle: number;
 };
 export interface QuickInputUI {
@@ -122,7 +123,7 @@ export type Visibilities = {
 };
 declare abstract class QuickInput extends Disposable implements IQuickInput {
     protected ui: QuickInputUI;
-    protected static readonly noPromptMessage: any;
+    protected static readonly noPromptMessage: string;
     private _title;
     private _description;
     private _widget;
@@ -140,7 +141,7 @@ declare abstract class QuickInput extends Disposable implements IQuickInput {
     private buttonsUpdated;
     private _toggles;
     private togglesUpdated;
-    protected noValidationMessage: any;
+    protected noValidationMessage: string;
     private _validationMessage;
     private _lastValidationMessage;
     private _severity;
@@ -149,7 +150,7 @@ declare abstract class QuickInput extends Disposable implements IQuickInput {
     private readonly onDidHideEmitter;
     private readonly onWillHideEmitter;
     private readonly onDisposeEmitter;
-    protected readonly visibleDisposables: any;
+    protected readonly visibleDisposables: DisposableStore;
     private busyDelay;
     abstract type: QuickInputType;
     constructor(ui: QuickInputUI);
@@ -171,7 +172,7 @@ declare abstract class QuickInput extends Disposable implements IQuickInput {
     set busy(busy: boolean);
     get ignoreFocusOut(): boolean;
     set ignoreFocusOut(ignoreFocusOut: boolean);
-    protected get titleButtons(): any[];
+    protected get titleButtons(): (IQuickInputButton | IQuickInputButton[])[];
     get buttons(): IQuickInputButton[];
     set buttons(buttons: IQuickInputButton[]);
     get toggles(): IQuickInputToggle[];
@@ -180,19 +181,19 @@ declare abstract class QuickInput extends Disposable implements IQuickInput {
     set validationMessage(validationMessage: string | undefined);
     get severity(): Severity;
     set severity(severity: Severity);
-    readonly onDidTriggerButton: any;
+    readonly onDidTriggerButton: Event<IQuickInputButton>;
     show(): void;
     hide(): void;
-    didHide(reason?: any): void;
-    readonly onDidHide: any;
-    willHide(reason?: any): void;
-    readonly onWillHide: any;
+    didHide(reason?: QuickInputHideReason): void;
+    readonly onDidHide: Event<IQuickInputHideEvent>;
+    willHide(reason?: QuickInputHideReason): void;
+    readonly onWillHide: Event<IQuickInputHideEvent>;
     protected update(): void;
     private getTitle;
     private getDescription;
     private getSteps;
     protected showMessageDecoration(severity: Severity): void;
-    readonly onDispose: any;
+    readonly onDispose: Event<void>;
     dispose(): void;
 }
 export declare class QuickPick<T extends IQuickPickItem, O extends {
@@ -240,7 +241,7 @@ export declare class QuickPick<T extends IQuickPickItem, O extends {
     private _hideCountBadge;
     private _hideCheckAll;
     private _focusEventBufferer;
-    readonly type: any;
+    readonly type = QuickInputType.QuickPick;
     get quickNavigate(): IQuickNavigateConfiguration | undefined;
     set quickNavigate(quickNavigate: IQuickNavigateConfiguration | undefined);
     get value(): string;
@@ -251,10 +252,10 @@ export declare class QuickPick<T extends IQuickPickItem, O extends {
     get ariaLabel(): string | undefined;
     get placeholder(): string | undefined;
     set placeholder(placeholder: string | undefined);
-    onDidChangeValue: any;
-    onWillAccept: any;
-    onDidAccept: any;
-    onDidCustom: any;
+    onDidChangeValue: Event<string>;
+    onWillAccept: Event<IQuickPickWillAcceptEvent>;
+    onDidAccept: Event<IQuickPickDidAcceptEvent>;
+    onDidCustom: Event<void>;
     get items(): O extends {
         useSeparators: true;
     } ? Array<T | IQuickPickSeparator> : Array<T>;
@@ -283,10 +284,10 @@ export declare class QuickPick<T extends IQuickPickItem, O extends {
     set itemActivation(itemActivation: ItemActivation);
     get activeItems(): T[];
     set activeItems(activeItems: T[]);
-    onDidChangeActive: any;
+    onDidChangeActive: Event<T[]>;
     get selectedItems(): T[];
     set selectedItems(selectedItems: T[]);
-    get keyMods(): any;
+    get keyMods(): IKeyMods;
     get valueSelection(): Readonly<[number, number]> | undefined;
     set valueSelection(valueSelection: Readonly<[number, number]> | undefined);
     get customButton(): boolean;
@@ -305,9 +306,9 @@ export declare class QuickPick<T extends IQuickPickItem, O extends {
     set hideCountBadge(hideCountBadge: boolean);
     get hideCheckAll(): boolean;
     set hideCheckAll(hideCheckAll: boolean);
-    onDidChangeSelection: any;
-    onDidTriggerItemButton: any;
-    onDidTriggerSeparatorButton: any;
+    onDidChangeSelection: Event<T[]>;
+    onDidTriggerItemButton: Event<IQuickPickItemButtonEvent<T>>;
+    onDidTriggerSeparatorButton: Event<IQuickPickSeparatorButtonEvent>;
     private trySelectFirst;
     show(): void;
     private handleAccept;
@@ -325,7 +326,7 @@ export declare class InputBox extends QuickInput implements IInputBox {
     private _prompt;
     private readonly onDidValueChangeEmitter;
     private readonly onDidAcceptEmitter;
-    readonly type: any;
+    readonly type = QuickInputType.InputBox;
     get value(): string;
     set value(value: string);
     get valueSelection(): Readonly<[number, number]> | undefined;
@@ -336,13 +337,13 @@ export declare class InputBox extends QuickInput implements IInputBox {
     set password(password: boolean);
     get prompt(): string | undefined;
     set prompt(prompt: string | undefined);
-    readonly onDidChangeValue: any;
-    readonly onDidAccept: any;
+    readonly onDidChangeValue: Event<string>;
+    readonly onDidAccept: Event<void>;
     show(): void;
     protected update(): void;
 }
 export declare class QuickWidget extends QuickInput implements IQuickWidget {
-    readonly type: any;
+    readonly type = QuickInputType.QuickWidget;
     protected update(): void;
 }
 export declare class QuickInputHoverDelegate extends WorkbenchHoverDelegate {

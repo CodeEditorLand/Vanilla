@@ -1,7 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-export declare const IConfigurationService: any;
+import { Event } from "../../../base/common/event.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IWorkspaceFolder } from "../../workspace/common/workspace.js";
+export declare const IConfigurationService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IConfigurationService>;
 export declare function isConfigurationOverrides(thing: any): thing is IConfigurationOverrides;
 export interface IConfigurationOverrides {
     overrideIdentifier?: string | null;
@@ -21,7 +21,7 @@ export declare const enum ConfigurationTarget {
     DEFAULT = 7,
     MEMORY = 8
 }
-export declare function ConfigurationTargetToString(configurationTarget: ConfigurationTarget): "WORKSPACE_FOLDER" | "APPLICATION" | "USER" | "USER_LOCAL" | "USER_REMOTE" | "WORKSPACE" | "DEFAULT" | "MEMORY";
+export declare function ConfigurationTargetToString(configurationTarget: ConfigurationTarget): "APPLICATION" | "USER" | "USER_LOCAL" | "USER_REMOTE" | "WORKSPACE" | "WORKSPACE_FOLDER" | "DEFAULT" | "MEMORY";
 export interface IConfigurationChange {
     keys: string[];
     overrides: [string, string[]][];

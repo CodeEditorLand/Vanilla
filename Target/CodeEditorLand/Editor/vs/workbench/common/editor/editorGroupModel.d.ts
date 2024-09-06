@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { EditorCloseContext, EditorsOrder, GroupIdentifier, GroupModelChangeKind, IMatchEditorOptions, IUntypedEditorInput, SideBySideEditor } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { EditorCloseContext, EditorsOrder, GroupIdentifier, GroupModelChangeKind, IMatchEditorOptions, IUntypedEditorInput, SideBySideEditor } from "../editor.js";
+import { EditorInput } from "./editorInput.js";
 export interface IEditorOpenOptions {
     readonly pinned?: boolean;
     readonly sticky?: boolean;
@@ -138,7 +138,7 @@ export declare class EditorGroupModel extends Disposable implements IEditorGroup
     private readonly configurationService;
     private static IDS;
     private readonly _onDidModelChange;
-    readonly onDidModelChange: any;
+    readonly onDidModelChange: Event<IGroupModelChangeEvent>;
     private _id;
     get id(): GroupIdentifier;
     private editors;
@@ -167,7 +167,7 @@ export declare class EditorGroupModel extends Disposable implements IEditorGroup
     openEditor(candidate: EditorInput, options?: IEditorOpenOptions): IEditorOpenResult;
     private registerEditorListeners;
     private replaceEditor;
-    closeEditor(candidate: EditorInput, context?: any, openNext?: boolean): IEditorCloseResult | undefined;
+    closeEditor(candidate: EditorInput, context?: EditorCloseContext, openNext?: boolean): IEditorCloseResult | undefined;
     private doCloseEditor;
     moveEditor(candidate: EditorInput, toIndex: number): EditorInput | undefined;
     setActive(candidate: EditorInput | undefined): EditorInput | undefined;

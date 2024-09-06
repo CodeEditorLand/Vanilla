@@ -1,8 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { Iterable } from "vs/base/common/iterator";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { InternalTestItem } from "vs/workbench/contrib/testing/common/testTypes";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { InternalTestItem } from "./testTypes.js";
 export declare class TestExclusions extends Disposable {
     private readonly storageService;
     private readonly excluded;

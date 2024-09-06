@@ -1,15 +1,15 @@
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILabelService } from "vs/platform/label/common/label";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { INativeWorkbenchEnvironmentService } from "vs/workbench/services/environment/electron-sandbox/environmentService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
 export declare class StartupProfiler implements IWorkbenchContribution {
     private readonly _dialogService;
     private readonly _environmentService;

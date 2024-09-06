@@ -1,13 +1,13 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILoggerService } from "vs/platform/log/common/log";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IViewDescriptor, IViewDescriptorService, ViewContainer, ViewContainerLocation, ViewVisibilityState } from "vs/workbench/common/views";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { ViewContainerModel } from "vs/workbench/services/views/common/viewContainerModel";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILoggerService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IViewDescriptor, IViewDescriptorService, ViewContainer, ViewContainerLocation, ViewVisibilityState } from "../../../common/views.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { ViewContainerModel } from "../common/viewContainerModel.js";
 export declare class ViewDescriptorService extends Disposable implements IViewDescriptorService {
     private readonly instantiationService;
     private readonly contextKeyService;
@@ -48,7 +48,16 @@ export declare class ViewDescriptorService extends Disposable implements IViewDe
     private viewDescriptorsCustomLocations;
     private viewContainerBadgeEnablementStates;
     private readonly _onDidChangeViewContainers;
-    readonly onDidChangeViewContainers: any;
+    readonly onDidChangeViewContainers: Event<{
+        added: ReadonlyArray<{
+            container: ViewContainer;
+            location: ViewContainerLocation;
+        }>;
+        removed: ReadonlyArray<{
+            container: ViewContainer;
+            location: ViewContainerLocation;
+        }>;
+    }>;
     get viewContainers(): ReadonlyArray<ViewContainer>;
     private readonly logger;
     constructor(instantiationService: IInstantiationService, contextKeyService: IContextKeyService, storageService: IStorageService, extensionService: IExtensionService, telemetryService: ITelemetryService, loggerService: ILoggerService);

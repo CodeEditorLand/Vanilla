@@ -1,12 +1,12 @@
-import { IToolBarOptions, ToolBar } from "vs/base/browser/ui/toolbar/toolbar";
-import { IAction, SubmenuAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { IMenuActionOptions, IMenuService, MenuId } from "vs/platform/actions/common/actions";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { IToolBarOptions, ToolBar } from "../../../base/browser/ui/toolbar/toolbar.js";
+import { IAction, SubmenuAction } from "../../../base/common/actions.js";
+import { Event } from "../../../base/common/event.js";
+import { ICommandService } from "../../commands/common/commands.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../contextview/browser/contextView.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IMenuActionOptions, IMenuService, MenuId } from "../common/actions.js";
 export declare const enum HiddenItemStrategy {
     /** This toolbar doesn't support hiding*/
     NoHide = -1,

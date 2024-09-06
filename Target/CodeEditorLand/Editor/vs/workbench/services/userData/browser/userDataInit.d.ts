@@ -1,4 +1,4 @@
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 export interface IUserDataInitializer {
     requiresInitialization(): Promise<boolean>;
     whenInitializationFinished(): Promise<void>;
@@ -6,7 +6,7 @@ export interface IUserDataInitializer {
     initializeInstalledExtensions(instantiationService: IInstantiationService): Promise<void>;
     initializeOtherResources(instantiationService: IInstantiationService): Promise<void>;
 }
-export declare const IUserDataInitializationService: any;
+export declare const IUserDataInitializationService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IUserDataInitializationService>;
 export interface IUserDataInitializationService extends IUserDataInitializer {
     _serviceBrand: any;
 }

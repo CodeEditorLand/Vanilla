@@ -1,8 +1,8 @@
-import { Color } from "vs/base/common/color";
-import * as languages from "vs/editor/common/languages";
-import { IColorTheme } from "vs/platform/theme/common/themeService";
-export declare const commentThreadRangeBackground: any;
-export declare const commentThreadRangeActiveBackground: any;
+import { Color } from "../../../../base/common/color.js";
+import * as languages from "../../../../editor/common/languages.js";
+import { IColorTheme } from "../../../../platform/theme/common/themeService.js";
+export declare const commentThreadRangeBackground: string;
+export declare const commentThreadRangeActiveBackground: string;
 export declare const commentThreadStateColorVar = "--comment-thread-state-color";
 export declare const commentViewThreadStateColorVar = "--comment-view-thread-state-color";
 export declare const commentThreadStateBackgroundColorVar = "--comment-thread-state-background-color";

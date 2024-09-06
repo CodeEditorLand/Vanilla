@@ -1,12 +1,12 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IExtensionManagementService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IProductService } from "vs/platform/product/common/productService";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IWorkbenchExtensionEnablementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-export declare const showStartEntryInWeb: any;
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
+export declare const showStartEntryInWeb: RawContextKey<boolean>;
 export declare class RemoteStartEntry extends Disposable implements IWorkbenchContribution {
     private readonly commandService;
     private readonly productService;

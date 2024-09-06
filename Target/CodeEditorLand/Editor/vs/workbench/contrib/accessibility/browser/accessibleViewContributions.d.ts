@@ -1,4 +1,4 @@
-import { Disposable } from "vs/base/common/lifecycle";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 export declare class AccesibleViewHelpContribution extends Disposable {
     static ID: "accesibleViewHelpContribution";
     constructor();

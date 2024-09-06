@@ -1,8 +1,8 @@
-import { IContextMenuProvider } from "vs/base/browser/contextmenu";
-import { IMenuOptions } from "vs/base/browser/ui/menu/menu";
-import { ActionRunner, IAction } from "vs/base/common/actions";
-import { IDisposable } from "vs/base/common/lifecycle";
-import "vs/css!./dropdown";
+import { ActionRunner, IAction } from "../../../common/actions.js";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { IContextMenuProvider } from "../../contextmenu.js";
+import { IMenuOptions } from "../menu/menu.js";
+import "./dropdown.css";
 export interface ILabelRenderer {
     (container: HTMLElement): IDisposable | null;
 }
@@ -17,11 +17,11 @@ declare class BaseDropdown extends ActionRunner {
     private contents?;
     private visible;
     private _onDidChangeVisibility;
-    readonly onDidChangeVisibility: any;
+    readonly onDidChangeVisibility: import("../../../common/event.js").Event<boolean>;
     private hover;
     constructor(container: HTMLElement, options: IBaseDropdownOptions);
     get element(): HTMLElement;
-    get label(): any;
+    get label(): HTMLElement | undefined;
     set tooltip(tooltip: string);
     show(): void;
     hide(): void;

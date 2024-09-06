@@ -1,11 +1,11 @@
-import { IKeyboardEvent } from "vs/base/browser/keyboardEvent";
-import { BaseActionViewItem, IActionViewItemOptions } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { Widget } from "vs/base/browser/ui/widget";
-import { IAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { ThemeIcon } from "vs/base/common/themables";
-import "vs/css!./toggle";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
+import { IAction } from "../../../common/actions.js";
+import { Event } from "../../../common/event.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import { IKeyboardEvent } from "../../keyboardEvent.js";
+import { BaseActionViewItem, IActionViewItemOptions } from "../actionbar/actionViewItems.js";
+import { Widget } from "../widget.js";
+import "./toggle.css";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
 export interface IToggleOpts extends IToggleStyles {
     readonly actionClassName?: string;
     readonly icon?: ThemeIcon;

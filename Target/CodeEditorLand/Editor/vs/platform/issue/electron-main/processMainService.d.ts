@@ -1,15 +1,15 @@
-import { IProcessEnvironment } from "vs/base/common/platform";
-import { ICSSDevelopmentService } from "vs/platform/cssDev/node/cssDevService";
-import { IDiagnosticsService, PerformanceInfo, SystemInfo } from "vs/platform/diagnostics/common/diagnostics";
-import { IDiagnosticsMainService } from "vs/platform/diagnostics/electron-main/diagnosticsMainService";
-import { IDialogMainService } from "vs/platform/dialogs/electron-main/dialogMainService";
-import { IEnvironmentMainService } from "vs/platform/environment/electron-main/environmentMainService";
-import { IProcessMainService, ProcessExplorerData } from "vs/platform/issue/common/issue";
-import { ILogService } from "vs/platform/log/common/log";
-import { INativeHostMainService } from "vs/platform/native/electron-main/nativeHostMainService";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IProtocolMainService } from "vs/platform/protocol/electron-main/protocol";
-import { IStateService } from "vs/platform/state/node/state";
+import { IProcessEnvironment } from "../../../base/common/platform.js";
+import { ICSSDevelopmentService } from "../../cssDev/node/cssDevService.js";
+import { IDiagnosticsService, PerformanceInfo, SystemInfo } from "../../diagnostics/common/diagnostics.js";
+import { IDiagnosticsMainService } from "../../diagnostics/electron-main/diagnosticsMainService.js";
+import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { INativeHostMainService } from "../../native/electron-main/nativeHostMainService.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IProtocolMainService } from "../../protocol/electron-main/protocol.js";
+import { IStateService } from "../../state/node/state.js";
+import { IProcessMainService, ProcessExplorerData } from "../common/issue.js";
 export declare class ProcessMainService implements IProcessMainService {
     private userEnv;
     private readonly environmentMainService;

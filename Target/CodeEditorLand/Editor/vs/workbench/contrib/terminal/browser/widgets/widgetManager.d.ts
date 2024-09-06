@@ -1,5 +1,5 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ITerminalWidget } from "vs/workbench/contrib/terminal/browser/widgets/widgets";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { ITerminalWidget } from "./widgets.js";
 export declare class TerminalWidgetManager implements IDisposable {
     private _container;
     private _attached;

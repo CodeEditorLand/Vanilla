@@ -1,10 +1,10 @@
-import { URI } from "vs/base/common/uri";
-import { ILanguageSelection } from "vs/editor/common/languages/language";
-import { IFileService } from "vs/platform/files/common/files";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IOutputChannelModel } from "vs/workbench/contrib/output/common/outputChannelModel";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-export declare const IOutputChannelModelService: any;
+import { URI } from "../../../../base/common/uri.js";
+import { ILanguageSelection } from "../../../../editor/common/languages/language.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IOutputChannelModel } from "./outputChannelModel.js";
+export declare const IOutputChannelModelService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IOutputChannelModelService>;
 export interface IOutputChannelModelService {
     readonly _serviceBrand: undefined;
     createOutputChannelModel(id: string, modelUri: URI, language: ILanguageSelection, file?: URI): IOutputChannelModel;

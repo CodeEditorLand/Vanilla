@@ -1,3 +1,4 @@
+import { IConfigurationPropertySchema } from "../../../../platform/configuration/common/configurationRegistry.js";
 declare enum DocumentationExtensionPointFields {
     when = "when",
     title = "title",
@@ -13,7 +14,7 @@ export interface DocumentationExtensionPoint {
 }
 export declare const documentationExtensionPointDescriptor: {
     extensionPoint: string;
-    deps: any[];
-    jsonSchema: IConfigurationPropertySchema;
+    deps: import("../../../services/extensions/common/extensionsRegistry.js").IExtensionPoint<import("../../../services/language/common/languageService.js").IRawLanguageExtensionPoint[]>[];
+    jsonSchema: Readonly<IConfigurationPropertySchema>;
 };
 export {};

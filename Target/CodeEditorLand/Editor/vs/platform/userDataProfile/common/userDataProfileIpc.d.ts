@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI, UriDto } from "vs/base/common/uri";
-import { IURITransformer } from "vs/base/common/uriIpc";
-import { IChannel, IServerChannel } from "vs/base/parts/ipc/common/ipc";
-import { IUserDataProfile, IUserDataProfileOptions, IUserDataProfilesService, IUserDataProfileUpdateOptions } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IAnyWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI, UriDto } from "../../../base/common/uri.js";
+import { IURITransformer } from "../../../base/common/uriIpc.js";
+import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { DidChangeProfilesEvent, IUserDataProfile, IUserDataProfileOptions, IUserDataProfilesService, IUserDataProfileUpdateOptions } from "./userDataProfile.js";
 export declare class RemoteUserDataProfilesServiceChannel implements IServerChannel {
     private readonly service;
     private readonly getUriTransformer;
@@ -20,7 +20,7 @@ export declare class UserDataProfilesService extends Disposable implements IUser
     private _profiles;
     get profiles(): IUserDataProfile[];
     private readonly _onDidChangeProfiles;
-    readonly onDidChangeProfiles: any;
+    readonly onDidChangeProfiles: Event<DidChangeProfilesEvent>;
     readonly onDidResetWorkspaces: Event<void>;
     private enabled;
     constructor(profiles: readonly UriDto<IUserDataProfile>[], profilesHome: URI, channel: IChannel);

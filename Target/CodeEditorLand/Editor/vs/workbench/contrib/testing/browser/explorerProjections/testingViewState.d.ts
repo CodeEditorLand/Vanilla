@@ -1,4 +1,4 @@
-import { TestId } from "vs/workbench/contrib/testing/common/testId";
+import { TestId } from "../../common/testId.js";
 export interface ISerializedTestTreeCollapseState {
     collapsed?: boolean;
     children?: {

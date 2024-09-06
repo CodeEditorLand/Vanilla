@@ -1,6 +1,7 @@
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IChannel, IChannelClient, ChannelServer as IPCServer } from "vs/base/parts/ipc/common/ipc";
+import { CancellationToken } from "../../../common/cancellation.js";
+import { Event } from "../../../common/event.js";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { IChannel, IChannelClient, ChannelServer as IPCServer } from "../common/ipc.js";
 /**
  * This implementation doesn't perform well since it uses base64 encoding for buffers.
  * We should move all implementations to use named ipc.net, so we stop depending on cp.fork.
@@ -53,10 +54,13 @@ export declare class Client implements IChannelClient, IDisposable {
     private _client;
     private channels;
     private readonly _onDidProcessExit;
-    readonly onDidProcessExit: any;
+    readonly onDidProcessExit: Event<{
+        code: number;
+        signal: string;
+    }>;
     constructor(modulePath: string, options: IIPCOptions);
     getChannel<T extends IChannel>(channelName: string): T;
-    protected requestPromise<T>(channelName: string, name: string, arg?: any, cancellationToken?: any): Promise<T>;
+    protected requestPromise<T>(channelName: string, name: string, arg?: any, cancellationToken?: Readonly<CancellationToken>): Promise<T>;
     protected requestEvent<T>(channelName: string, name: string, arg?: any): Event<T>;
     private get client();
     private getCachedChannel;

@@ -1,6 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IDiffElementLayoutInfo } from "vs/workbench/contrib/notebook/browser/diff/notebookDiffEditorBrowser";
-import { NotebookLayoutChangeEvent, NotebookLayoutInfo } from "vs/workbench/contrib/notebook/browser/notebookViewEvents";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { NotebookLayoutChangeEvent, NotebookLayoutInfo } from "../notebookViewEvents.js";
+import { IDiffElementLayoutInfo } from "./notebookDiffEditorBrowser.js";
 export declare enum NotebookDiffViewEventType {
     LayoutChanged = 1,
     CellLayoutChanged = 2
@@ -18,9 +19,9 @@ export declare class NotebookCellLayoutChangedEvent {
 }
 export type NotebookDiffViewEvent = NotebookDiffLayoutChangedEvent | NotebookCellLayoutChangedEvent;
 export declare class NotebookDiffEditorEventDispatcher extends Disposable {
-    protected readonly _onDidChangeLayout: any;
-    readonly onDidChangeLayout: any;
-    protected readonly _onDidChangeCellLayout: any;
-    readonly onDidChangeCellLayout: any;
+    protected readonly _onDidChangeLayout: Emitter<NotebookDiffLayoutChangedEvent>;
+    readonly onDidChangeLayout: import("../../../../../base/common/event.js").Event<NotebookDiffLayoutChangedEvent>;
+    protected readonly _onDidChangeCellLayout: Emitter<NotebookCellLayoutChangedEvent>;
+    readonly onDidChangeCellLayout: import("../../../../../base/common/event.js").Event<NotebookCellLayoutChangedEvent>;
     emit(events: NotebookDiffViewEvent[]): void;
 }

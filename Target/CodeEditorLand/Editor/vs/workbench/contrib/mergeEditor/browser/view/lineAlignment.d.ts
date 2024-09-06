@@ -1,4 +1,4 @@
-import { ModifiedBaseRange } from "vs/workbench/contrib/mergeEditor/browser/model/modifiedBaseRange";
+import { ModifiedBaseRange } from "../model/modifiedBaseRange.js";
 export type LineAlignment = [
     input1LineNumber: number | undefined,
     baseLineNumber: number,

@@ -1,22 +1,23 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { INativeEnvironmentService } from "vs/platform/environment/common/environment";
-import { ILoggerService } from "vs/platform/log/common/log";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IProgressService } from "vs/platform/progress/common/progress";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { IRemoteTunnelService } from "vs/platform/remoteTunnel/common/remoteTunnel";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IAuthenticationService } from "vs/workbench/services/authentication/common/authentication";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-export declare const REMOTE_TUNNEL_CATEGORY: any;
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { ILoggerService } from "../../../../platform/log/common/log.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IRemoteTunnelService } from "../../../../platform/remoteTunnel/common/remoteTunnel.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+export declare const REMOTE_TUNNEL_CATEGORY: import("../../../../nls.js").ILocalizedString;
+type CONTEXT_KEY_STATES = "connected" | "connecting" | "disconnected";
 export declare const REMOTE_TUNNEL_CONNECTION_STATE_KEY = "remoteTunnelConnection";
-export declare const REMOTE_TUNNEL_CONNECTION_STATE: any;
+export declare const REMOTE_TUNNEL_CONNECTION_STATE: RawContextKey<CONTEXT_KEY_STATES>;
 export declare class RemoteTunnelWorkbenchContribution extends Disposable implements IWorkbenchContribution {
     private readonly authenticationService;
     private readonly dialogService;
@@ -59,3 +60,4 @@ export declare class RemoteTunnelWorkbenchContribution extends Disposable implem
     private getLinkToOpen;
     private showManageOptions;
 }
+export {};

@@ -1,9 +1,9 @@
-import { Color } from "vs/base/common/color";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IBracketPairColorizationOptions } from "vs/editor/common/config/editorOptions";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IViewDescriptorService } from "vs/workbench/common/views";
+import { Color } from "../../../../base/common/color.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IBracketPairColorizationOptions } from "../../../../editor/common/config/editorOptions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IViewDescriptorService } from "../../../common/views.js";
 export interface IChatConfiguration {
     editor: {
         readonly fontSize: number;
@@ -41,7 +41,7 @@ export declare class ChatEditorOptions extends Disposable {
     private readonly viewDescriptorService;
     private static readonly lineHeightEm;
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: import("../../../../base/common/event.js").Event<void>;
     private _config;
     get configuration(): IChatEditorConfiguration;
     private static readonly relevantSettingIds;

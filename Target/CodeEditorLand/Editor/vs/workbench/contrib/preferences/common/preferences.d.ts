@@ -1,9 +1,10 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IStringDictionary } from "vs/base/common/collections";
-import { IExtensionRecommendations } from "vs/base/common/product";
-import { IExtensionGalleryService, IGalleryExtension } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IProductService } from "vs/platform/product/common/productService";
-import { ISearchResult, ISettingsEditorModel } from "vs/workbench/services/preferences/common/preferences";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { IExtensionRecommendations } from "../../../../base/common/product.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IExtensionGalleryService, IGalleryExtension } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ISearchResult, ISettingsEditorModel } from "../../../services/preferences/common/preferences.js";
 export interface IWorkbenchSettingsConfiguration {
     workbench: {
         settings: {
@@ -21,7 +22,7 @@ export interface IEndpointDetails {
     urlBase: string;
     key?: string;
 }
-export declare const IPreferencesSearchService: any;
+export declare const IPreferencesSearchService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IPreferencesSearchService>;
 export interface IPreferencesSearchService {
     readonly _serviceBrand: undefined;
     getLocalSearchProvider(filter: string): ISearchProvider;
@@ -36,15 +37,15 @@ export interface IRemoteSearchProvider extends ISearchProvider {
 export declare const SETTINGS_EDITOR_COMMAND_CLEAR_SEARCH_RESULTS = "settings.action.clearSearchResults";
 export declare const SETTINGS_EDITOR_COMMAND_SHOW_CONTEXT_MENU = "settings.action.showContextMenu";
 export declare const SETTINGS_EDITOR_COMMAND_SUGGEST_FILTERS = "settings.action.suggestFilters";
-export declare const CONTEXT_SETTINGS_EDITOR: any;
-export declare const CONTEXT_SETTINGS_JSON_EDITOR: any;
-export declare const CONTEXT_SETTINGS_SEARCH_FOCUS: any;
-export declare const CONTEXT_TOC_ROW_FOCUS: any;
-export declare const CONTEXT_SETTINGS_ROW_FOCUS: any;
-export declare const CONTEXT_KEYBINDINGS_EDITOR: any;
-export declare const CONTEXT_KEYBINDINGS_SEARCH_FOCUS: any;
-export declare const CONTEXT_KEYBINDING_FOCUS: any;
-export declare const CONTEXT_WHEN_FOCUS: any;
+export declare const CONTEXT_SETTINGS_EDITOR: RawContextKey<boolean>;
+export declare const CONTEXT_SETTINGS_JSON_EDITOR: RawContextKey<boolean>;
+export declare const CONTEXT_SETTINGS_SEARCH_FOCUS: RawContextKey<boolean>;
+export declare const CONTEXT_TOC_ROW_FOCUS: RawContextKey<boolean>;
+export declare const CONTEXT_SETTINGS_ROW_FOCUS: RawContextKey<boolean>;
+export declare const CONTEXT_KEYBINDINGS_EDITOR: RawContextKey<boolean>;
+export declare const CONTEXT_KEYBINDINGS_SEARCH_FOCUS: RawContextKey<boolean>;
+export declare const CONTEXT_KEYBINDING_FOCUS: RawContextKey<boolean>;
+export declare const CONTEXT_WHEN_FOCUS: RawContextKey<boolean>;
 export declare const KEYBINDINGS_EDITOR_COMMAND_SEARCH = "keybindings.editor.searchKeybindings";
 export declare const KEYBINDINGS_EDITOR_COMMAND_CLEAR_SEARCH_RESULTS = "keybindings.editor.clearSearchResults";
 export declare const KEYBINDINGS_EDITOR_COMMAND_CLEAR_SEARCH_HISTORY = "keybindings.editor.clearSearchHistory";

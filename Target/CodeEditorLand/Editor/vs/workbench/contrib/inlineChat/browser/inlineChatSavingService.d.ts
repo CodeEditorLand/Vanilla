@@ -1,5 +1,5 @@
-import { Session } from "vs/workbench/contrib/inlineChat/browser/inlineChatSession";
-export declare const IInlineChatSavingService: any;
+import { Session } from "./inlineChatSession.js";
+export declare const IInlineChatSavingService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IInlineChatSavingService>;
 export interface IInlineChatSavingService {
     _serviceBrand: undefined;
     markChanged(session: Session): void;

@@ -1,8 +1,9 @@
-import { IAction2Options } from "vs/platform/actions/common/actions";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { INotebookActionContext, NotebookAction } from "vs/workbench/contrib/notebook/browser/controller/coreActions";
-import { CellKind } from "vs/workbench/contrib/notebook/common/notebookCommon";
-export declare function insertNewCell(accessor: ServicesAccessor, context: INotebookActionContext, kind: CellKind, direction: "above" | "below", focusEditor: boolean): any;
+import { IAction2Options } from "../../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { CellKind } from "../../common/notebookCommon.js";
+import { CellViewModel } from "../viewModel/notebookViewModelImpl.js";
+import { INotebookActionContext, NotebookAction } from "./coreActions.js";
+export declare function insertNewCell(accessor: ServicesAccessor, context: INotebookActionContext, kind: CellKind, direction: "above" | "below", focusEditor: boolean): CellViewModel | null;
 export declare abstract class InsertCellCommand extends NotebookAction {
     private kind;
     private direction;

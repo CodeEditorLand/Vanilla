@@ -1,8 +1,8 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Range } from "vs/editor/common/core/range";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import { Command, InlayHint, InlayHintsProvider } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Range } from "../../../common/core/range.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import { Command, InlayHint, InlayHintsProvider } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
 export declare class InlayHintAnchor {
     readonly range: Range;
     readonly direction: "before" | "after";

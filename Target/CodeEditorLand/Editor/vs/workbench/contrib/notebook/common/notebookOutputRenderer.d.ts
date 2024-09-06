@@ -1,7 +1,6 @@
-import { Iterable } from "vs/base/common/iterator";
-import { URI } from "vs/base/common/uri";
-import { ExtensionIdentifier, IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ContributedNotebookRendererEntrypoint, INotebookRendererInfo, INotebookStaticPreloadInfo, NotebookRendererEntrypoint, RendererMessagingSpec } from "vs/workbench/contrib/notebook/common/notebookCommon";
+import { URI } from "../../../../base/common/uri.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { ContributedNotebookRendererEntrypoint, INotebookRendererInfo, INotebookStaticPreloadInfo, NotebookRendererEntrypoint, NotebookRendererMatch, RendererMessagingSpec } from "./notebookCommon.js";
 declare class DependencyList {
     private readonly value;
     readonly defined: boolean;
@@ -31,8 +30,8 @@ export declare class NotebookOutputRendererInfo implements INotebookRendererInfo
         readonly optionalDependencies: readonly string[] | undefined;
         readonly requiresMessaging: RendererMessagingSpec | undefined;
     });
-    matchesWithoutKernel(mimeType: string): any;
-    matches(mimeType: string, kernelProvides: ReadonlyArray<string>): any;
+    matchesWithoutKernel(mimeType: string): NotebookRendererMatch;
+    matches(mimeType: string, kernelProvides: ReadonlyArray<string>): NotebookRendererMatch;
     private matchesMimeTypeOnly;
 }
 export declare class NotebookStaticPreloadInfo implements INotebookStaticPreloadInfo {

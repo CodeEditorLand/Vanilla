@@ -1,12 +1,12 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { IProblemReporter as IProblemReporterBase, ValidationStatus } from "vs/base/common/parsers";
-import { Platform } from "vs/base/common/platform";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IWorkspace, IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-import { INamedProblemMatcher, ProblemMatcher, Config as ProblemMatcherConfig } from "vs/workbench/contrib/tasks/common/problemMatcher";
-import { ConfiguredInput } from "vs/workbench/services/configurationResolver/common/configurationResolver";
-import { ITaskDefinitionRegistry } from "./taskDefinitionRegistry";
-import * as Tasks from "./tasks";
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { IProblemReporter as IProblemReporterBase, ValidationStatus } from "../../../../base/common/parsers.js";
+import { Platform } from "../../../../base/common/platform.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IWorkspace, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { ConfiguredInput } from "../../../services/configurationResolver/common/configurationResolver.js";
+import { INamedProblemMatcher, ProblemMatcher, Config as ProblemMatcherConfig } from "./problemMatcher.js";
+import { ITaskDefinitionRegistry } from "./taskDefinitionRegistry.js";
+import * as Tasks from "./tasks.js";
 export declare const enum ShellQuoting {
     /**
      * Default is character escaping.

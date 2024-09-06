@@ -1,5 +1,5 @@
-import { SyncDescriptor } from "./descriptors";
-import { BrandedService, ServiceIdentifier } from "./instantiation";
+import { SyncDescriptor } from "./descriptors.js";
+import { BrandedService, ServiceIdentifier } from "./instantiation.js";
 export declare const enum InstantiationType {
     /**
      * Instantiate this service as soon as a consumer depends on it. _Note_ that this

@@ -1,9 +1,9 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { ProcessItem } from "vs/base/common/processes";
-import { UriComponents } from "vs/base/common/uri";
-import { IWorkspace } from "vs/platform/workspace/common/workspace";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { ProcessItem } from "../../../base/common/processes.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IWorkspace } from "../../workspace/common/workspace.js";
 export declare const ID = "diagnosticsService";
-export declare const IDiagnosticsService: any;
+export declare const IDiagnosticsService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IDiagnosticsService>;
 export interface IDiagnosticsService {
     readonly _serviceBrand: undefined;
     getPerformanceInfo(mainProcessInfo: IMainProcessDiagnostics, remoteInfo: (IRemoteDiagnosticInfo | IRemoteDiagnosticError)[]): Promise<PerformanceInfo>;

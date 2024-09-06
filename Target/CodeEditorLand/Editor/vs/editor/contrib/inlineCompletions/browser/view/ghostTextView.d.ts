@@ -1,25 +1,25 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import "vs/css!./ghostTextView";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ILanguageIdCodec } from "vs/editor/common/languages";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { ITextModel } from "vs/editor/common/model";
-import { LineDecoration } from "vs/editor/common/viewLayout/lineDecorations";
-import { GhostText, GhostTextReplacement } from "vs/editor/contrib/inlineCompletions/browser/model/ghostText";
-export declare const GHOST_TEXT_DESCRIPTION = "ghost-text";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../../base/common/observable.js";
+import "./ghostTextView.css";
+import { ICodeEditor } from "../../../../browser/editorBrowser.js";
+import { ILanguageService } from "../../../../common/languages/language.js";
+import { ITextModel } from "../../../../common/model.js";
+import { LineTokens } from "../../../../common/tokens/lineTokens.js";
+import { LineDecoration } from "../../../../common/viewLayout/lineDecorations.js";
+import { GhostText, GhostTextReplacement } from "../model/ghostText.js";
 export interface IGhostTextWidgetModel {
     readonly targetTextModel: IObservable<ITextModel | undefined>;
     readonly ghostText: IObservable<GhostText | GhostTextReplacement | undefined>;
     readonly minReservedLineCount: IObservable<number>;
 }
 export declare class GhostTextView extends Disposable {
-    private readonly editor;
-    private readonly model;
-    private readonly languageService;
-    private readonly isDisposed;
-    private readonly currentTextModel;
-    constructor(editor: ICodeEditor, model: IGhostTextWidgetModel, languageService: ILanguageService);
+    private readonly _editor;
+    private readonly _model;
+    private readonly _languageService;
+    private readonly _isDisposed;
+    private readonly _editorObs;
+    constructor(_editor: ICodeEditor, _model: IGhostTextWidgetModel, _languageService: ILanguageService);
+    private readonly _useSyntaxHighlighting;
     private readonly uiState;
     private readonly decorations;
     private readonly additionalLinesWidget;
@@ -27,12 +27,11 @@ export declare class GhostTextView extends Disposable {
 }
 export declare class AdditionalLinesWidget extends Disposable {
     private readonly editor;
-    private readonly languageIdCodec;
     private readonly lines;
     private _viewZoneId;
     get viewZoneId(): string | undefined;
     private readonly editorOptionsChanged;
-    constructor(editor: ICodeEditor, languageIdCodec: ILanguageIdCodec, lines: IObservable<{
+    constructor(editor: ICodeEditor, lines: IObservable<{
         targetTextModel: ITextModel;
         lineNumber: number;
         additionalLines: LineData[];
@@ -43,7 +42,7 @@ export declare class AdditionalLinesWidget extends Disposable {
     private updateLines;
 }
 export interface LineData {
-    content: string;
+    content: LineTokens;
     decorations: LineDecoration[];
 }
-export declare const ttPolicy: any;
+export declare const ttPolicy: Pick<TrustedTypePolicy<Options>, "name" | "createHTML"> | undefined;

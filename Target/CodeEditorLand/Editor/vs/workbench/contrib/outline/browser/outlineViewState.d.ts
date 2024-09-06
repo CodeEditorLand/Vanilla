@@ -1,11 +1,15 @@
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IOutlineViewState, OutlineSortOrder } from "vs/workbench/contrib/outline/browser/outline";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IOutlineViewState, OutlineSortOrder } from "./outline.js";
 export declare class OutlineViewState implements IOutlineViewState {
     private _followCursor;
     private _filterOnType;
     private _sortBy;
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: import("../../../../base/common/event.js").Event<{
+        followCursor?: boolean;
+        sortBy?: boolean;
+        filterOnType?: boolean;
+    }>;
     dispose(): void;
     set followCursor(value: boolean);
     get followCursor(): boolean;

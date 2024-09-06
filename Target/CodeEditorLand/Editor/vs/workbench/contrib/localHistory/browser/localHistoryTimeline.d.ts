@@ -1,14 +1,14 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IFileService } from "vs/platform/files/common/files";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { ITimelineService, Timeline, TimelineOptions, TimelineProvider } from "vs/workbench/contrib/timeline/common/timeline";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IPathService } from "vs/workbench/services/path/common/pathService";
-import { IWorkingCopyHistoryService } from "vs/workbench/services/workingCopy/common/workingCopyHistory";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
+import { IWorkingCopyHistoryService } from "../../../services/workingCopy/common/workingCopyHistory.js";
+import { ITimelineService, Timeline, TimelineChangeEvent, TimelineOptions, TimelineProvider } from "../../timeline/common/timeline.js";
 export declare class LocalHistoryTimeline extends Disposable implements IWorkbenchContribution, TimelineProvider {
     private readonly timelineService;
     private readonly workingCopyHistoryService;
@@ -20,10 +20,10 @@ export declare class LocalHistoryTimeline extends Disposable implements IWorkben
     static readonly ID = "workbench.contrib.localHistoryTimeline";
     private static readonly LOCAL_HISTORY_ENABLED_SETTINGS_KEY;
     readonly id = "timeline.localHistory";
-    readonly label: any;
+    readonly label: string;
     readonly scheme = "*";
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: import("../../../../base/common/event.js").Event<TimelineChangeEvent>;
     private readonly timelineProviderDisposable;
     constructor(timelineService: ITimelineService, workingCopyHistoryService: IWorkingCopyHistoryService, pathService: IPathService, fileService: IFileService, environmentService: IWorkbenchEnvironmentService, configurationService: IConfigurationService, contextService: IWorkspaceContextService);
     private registerComponents;

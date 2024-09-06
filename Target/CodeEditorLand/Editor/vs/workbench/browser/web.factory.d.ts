@@ -1,10 +1,10 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { PerformanceMark } from "vs/base/common/performance";
-import { URI } from "vs/base/common/uri";
-import { LogLevel } from "vs/platform/log/common/log";
-import { IProgress, IProgressCompositeOptions, IProgressDialogOptions, IProgressNotificationOptions, IProgressOptions, IProgressStep, IProgressWindowOptions } from "vs/platform/progress/common/progress";
-import { ITunnel, ITunnelOptions, IWorkbenchConstructionOptions } from "vs/workbench/browser/web.api";
-import { IEmbedderTerminalOptions } from "vs/workbench/services/terminal/common/embedderTerminalService";
+import { IDisposable } from "../../base/common/lifecycle.js";
+import { PerformanceMark } from "../../base/common/performance.js";
+import { URI } from "../../base/common/uri.js";
+import { LogLevel } from "../../platform/log/common/log.js";
+import { IProgress, IProgressCompositeOptions, IProgressDialogOptions, IProgressNotificationOptions, IProgressOptions, IProgressStep, IProgressWindowOptions } from "../../platform/progress/common/progress.js";
+import { IEmbedderTerminalOptions } from "../services/terminal/common/embedderTerminalService.js";
+import { ITunnel, ITunnelOptions, IWorkbenchConstructionOptions } from "./web.api.js";
 /**
  * Creates the workbench with the provided options in the provided container.
  *

@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ExtHostAuthenticationShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
 import type * as vscode from "vscode";
+import { Event } from "../../../base/common/event.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostAuthenticationShape } from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export interface IExtHostAuthentication extends ExtHostAuthentication {
 }
-export declare const IExtHostAuthentication: any;
+export declare const IExtHostAuthentication: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostAuthentication>;
 export declare class ExtHostAuthentication implements ExtHostAuthenticationShape {
     _serviceBrand: undefined;
     private _proxy;
@@ -28,7 +28,7 @@ export declare class ExtHostAuthentication implements ExtHostAuthenticationShape
         forceNewSession: vscode.AuthenticationForceNewSessionOptions;
     }): Promise<vscode.AuthenticationSession>;
     getSession(requestingExtension: IExtensionDescription, providerId: string, scopes: readonly string[], options: vscode.AuthenticationGetSessionOptions): Promise<vscode.AuthenticationSession | undefined>;
-    getAccounts(providerId: string): Promise<any>;
+    getAccounts(providerId: string): Promise<readonly import("../../services/authentication/common/authentication.js").AuthenticationSessionAccount[]>;
     removeSession(providerId: string, sessionId: string): Promise<void>;
     registerAuthenticationProvider(id: string, label: string, provider: vscode.AuthenticationProvider, options?: vscode.AuthenticationProviderOptions): vscode.Disposable;
     $createSession(providerId: string, scopes: string[], options: vscode.AuthenticationProviderSessionOptions): Promise<vscode.AuthenticationSession>;

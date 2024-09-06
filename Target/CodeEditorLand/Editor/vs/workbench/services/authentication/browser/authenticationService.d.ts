@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IProductService } from "vs/platform/product/common/productService";
-import { ISecretStorageService } from "vs/platform/secrets/common/secrets";
-import { IAuthenticationAccessService } from "vs/workbench/services/authentication/browser/authenticationAccessService";
-import { AuthenticationProviderInformation, AuthenticationSession, AuthenticationSessionAccount, AuthenticationSessionsChangeEvent, IAuthenticationCreateSessionOptions, IAuthenticationProvider, IAuthenticationService } from "vs/workbench/services/authentication/common/authentication";
-import { IBrowserWorkbenchEnvironmentService } from "vs/workbench/services/environment/browser/environmentService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ISecretStorageService } from "../../../../platform/secrets/common/secrets.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { AuthenticationProviderInformation, AuthenticationSession, AuthenticationSessionAccount, AuthenticationSessionsChangeEvent, IAuthenticationCreateSessionOptions, IAuthenticationProvider, IAuthenticationService } from "../common/authentication.js";
+import { IAuthenticationAccessService } from "./authenticationAccessService.js";
 export declare function getAuthenticationProviderActivationEvent(id: string): string;
 export type AuthenticationSessionInfo = {
     readonly id: string;

@@ -1,6 +1,6 @@
-import { UriComponents } from "vs/base/common/uri";
-import { ISerializableEnvironmentVariableCollection, ISerializableEnvironmentVariableCollections } from "vs/platform/terminal/common/environmentVariable";
-import { IFixedTerminalDimensions, IRawTerminalTabLayoutInfo, IReconnectionProperties, ITerminalEnvironment, ITerminalTabLayoutInfoById, TerminalIcon, TerminalType, TitleEventSource, WaitOnExitValue } from "vs/platform/terminal/common/terminal";
+import { UriComponents } from "../../../base/common/uri.js";
+import { ISerializableEnvironmentVariableCollection, ISerializableEnvironmentVariableCollections } from "./environmentVariable.js";
+import { IFixedTerminalDimensions, IRawTerminalTabLayoutInfo, IReconnectionProperties, ITerminalEnvironment, ITerminalTabLayoutInfoById, TerminalIcon, TerminalType, TitleEventSource, WaitOnExitValue } from "./terminal.js";
 export interface ISingleTerminalConfiguration<T> {
     userValue: T | undefined;
     value: T | undefined;

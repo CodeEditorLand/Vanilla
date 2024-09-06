@@ -1,15 +1,4 @@
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-interface IGettingStartedContentProvider {
-    (): string;
-}
-declare class GettingStartedContentProviderRegistry {
-    private readonly providers;
-    registerProvider(moduleId: string, provider: IGettingStartedContentProvider): void;
-    getProvider(moduleId: string): IGettingStartedContentProvider | undefined;
-}
-export declare const gettingStartedContentRegistry: GettingStartedContentProviderRegistry;
-export declare function moduleToContent(resource: URI): Promise<string>;
+import { ThemeIcon } from "../../../../base/common/themables.js";
 export type BuiltinGettingStartedStep = {
     id: string;
     title: string;

@@ -1,5 +1,5 @@
-import { URI } from "vs/base/common/uri";
-import { IModelService } from "vs/editor/common/services/model";
+import { URI } from "../../../base/common/uri.js";
+import { IModelService } from "../../common/services/model.js";
 /**
  * Create a new web worker that has model syncing capabilities built in.
  * Specify an AMD module to load that will `create` an object that will be proxied.

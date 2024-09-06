@@ -1,6 +1,6 @@
-import { EditorAutoIndentStrategy } from "vs/editor/common/config/editorOptions";
-import { Range } from "vs/editor/common/core/range";
-import { CompleteEnterAction } from "vs/editor/common/languages/languageConfiguration";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ITextModel } from "vs/editor/common/model";
+import { EditorAutoIndentStrategy } from "../config/editorOptions.js";
+import { Range } from "../core/range.js";
+import { ITextModel } from "../model.js";
+import { CompleteEnterAction } from "./languageConfiguration.js";
+import { ILanguageConfigurationService } from "./languageConfigurationRegistry.js";
 export declare function getEnterAction(autoIndent: EditorAutoIndentStrategy, model: ITextModel, range: Range, languageConfigurationService: ILanguageConfigurationService): CompleteEnterAction | null;

@@ -1,13 +1,13 @@
-import { IMouseEvent } from "vs/base/browser/mouseEvent";
-import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { IDimension } from "vs/editor/common/core/dimension";
-import { Position } from "vs/editor/common/core/position";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IDebugService, IExpression, IStackFrame } from "vs/workbench/contrib/debug/common/debug";
+import { IMouseEvent } from "../../../../base/browser/mouseEvent.js";
+import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../../editor/browser/editorBrowser.js";
+import { IDimension } from "../../../../editor/common/core/dimension.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IDebugService, IExpression, IStackFrame } from "../common/debug.js";
 export declare const enum ShowDebugHoverResult {
     NOT_CHANGED = 0,
     NOT_AVAILABLE = 1,

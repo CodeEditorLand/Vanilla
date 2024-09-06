@@ -1,6 +1,6 @@
-import { Color } from "vs/base/common/color";
-import { Event } from "vs/base/common/event";
-import { IColorPresentation } from "vs/editor/common/languages";
+import { Color } from "../../../../base/common/color.js";
+import { Event } from "../../../../base/common/event.js";
+import { IColorPresentation } from "../../../common/languages.js";
 export declare class ColorPickerModel {
     private presentationIndex;
     readonly originalColor: Color;

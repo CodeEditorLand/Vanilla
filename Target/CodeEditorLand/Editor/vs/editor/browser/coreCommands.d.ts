@@ -1,11 +1,11 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorCommand } from "vs/editor/browser/editorExtensions";
-import { IPosition } from "vs/editor/common/core/position";
-import { ISelection } from "vs/editor/common/core/selection";
-import { CursorMove as CursorMove_ } from "vs/editor/common/cursor/cursorMoveCommands";
-import { IViewModel } from "vs/editor/common/viewModel";
-import { ICommandMetadata } from "vs/platform/commands/common/commands";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
+import { ICommandMetadata } from "../../platform/commands/common/commands.js";
+import { ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
+import { IPosition } from "../common/core/position.js";
+import { ISelection } from "../common/core/selection.js";
+import { CursorMove as CursorMove_ } from "../common/cursor/cursorMoveCommands.js";
+import { IViewModel } from "../common/viewModel.js";
+import { ICodeEditor } from "./editorBrowser.js";
+import { EditorCommand } from "./editorExtensions.js";
 export declare abstract class CoreEditorCommand<T> extends EditorCommand {
     runEditorCommand(accessor: ServicesAccessor | null, editor: ICodeEditor, args?: Partial<T> | null): void;
     abstract runCoreEditorCommand(viewModel: IViewModel, args: Partial<T>): void;
@@ -171,7 +171,7 @@ export declare namespace CoreNavigationCommands {
         _runVerticalEditorScroll(viewModel: IViewModel, source: string | null | undefined, args: EditorScroll_.ParsedArguments): void;
         private _computeDesiredScrollTop;
         _runHorizontalEditorScroll(viewModel: IViewModel, source: string | null | undefined, args: EditorScroll_.ParsedArguments): void;
-        _computeDesiredScrollLeft(viewModel: IViewModel, args: EditorScroll_.ParsedArguments): any;
+        _computeDesiredScrollLeft(viewModel: IViewModel, args: EditorScroll_.ParsedArguments): number;
     }
     const EditorScroll: EditorScrollImpl;
     const ScrollLineUp: CoreEditorCommand<BaseCommandOptions>;

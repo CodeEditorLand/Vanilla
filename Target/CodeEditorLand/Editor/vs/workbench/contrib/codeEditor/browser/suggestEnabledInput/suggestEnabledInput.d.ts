@@ -1,17 +1,17 @@
-import { Dimension } from "vs/base/browser/dom";
-import { IHistoryNavigationWidget } from "vs/base/browser/history";
-import { Widget } from "vs/base/browser/ui/widget";
-import { Event } from "vs/base/common/event";
-import { HistoryNavigator } from "vs/base/common/history";
-import "vs/css!./suggestEnabledInput";
-import { CodeEditorWidget } from "vs/editor/browser/widget/codeEditor/codeEditorWidget";
-import * as languages from "vs/editor/common/languages";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IModelService } from "vs/editor/common/services/model";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKey, IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ColorIdentifier } from "vs/platform/theme/common/colorRegistry";
+import { Dimension } from "../../../../../base/browser/dom.js";
+import { IHistoryNavigationWidget } from "../../../../../base/browser/history.js";
+import { Widget } from "../../../../../base/browser/ui/widget.js";
+import { Event } from "../../../../../base/common/event.js";
+import { HistoryNavigator } from "../../../../../base/common/history.js";
+import "./suggestEnabledInput.css";
+import { CodeEditorWidget } from "../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import * as languages from "../../../../../editor/common/languages.js";
+import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKey, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ColorIdentifier } from "../../../../../platform/theme/common/colorRegistry.js";
 export interface SuggestResultsProvider {
     /**
      * Provider function for suggestion results.
@@ -84,9 +84,9 @@ export declare class SuggestEnabledInput extends Widget {
     private readonly _onInputDidChange;
     readonly onInputDidChange: Event<string | undefined>;
     private readonly _onDidFocus;
-    readonly onDidFocus: any;
+    readonly onDidFocus: Event<void>;
     private readonly _onDidBlur;
-    readonly onDidBlur: any;
+    readonly onDidBlur: Event<void>;
     readonly inputWidget: CodeEditorWidget;
     private readonly inputModel;
     protected stylingContainer: HTMLDivElement;
@@ -127,6 +127,6 @@ export declare class SuggestEnabledInputWithHistory extends SuggestEnabledInput 
 export declare class ContextScopedSuggestEnabledInputWithHistory extends SuggestEnabledInputWithHistory {
     private historyContext;
     constructor(options: ISuggestEnabledHistoryOptions, instantiationService: IInstantiationService, modelService: IModelService, contextKeyService: IContextKeyService, languageFeaturesService: ILanguageFeaturesService, configurationService: IConfigurationService);
-    protected getScopedContextKeyService(contextKeyService: IContextKeyService): any;
+    protected getScopedContextKeyService(contextKeyService: IContextKeyService): import("../../../../../platform/contextkey/common/contextkey.js").IScopedContextKeyService;
 }
 export {};

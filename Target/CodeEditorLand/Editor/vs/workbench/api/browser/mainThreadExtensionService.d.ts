@@ -1,16 +1,16 @@
-import { SerializedError } from "vs/base/common/errors";
-import { UriComponents } from "vs/base/common/uri";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { MainThreadExtensionServiceShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtensionsWorkbenchService } from "vs/workbench/contrib/extensions/common/extensions";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { IWorkbenchExtensionEnablementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-import { ExtensionActivationReason, IExtensionService, MissingExtensionDependency } from "vs/workbench/services/extensions/common/extensions";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { ITimerService } from "vs/workbench/services/timer/browser/timerService";
+import { SerializedError } from "../../../base/common/errors.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { ICommandService } from "../../../platform/commands/common/commands.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { INotificationService } from "../../../platform/notification/common/notification.js";
+import { IExtensionsWorkbenchService } from "../../contrib/extensions/common/extensions.js";
+import { IWorkbenchEnvironmentService } from "../../services/environment/common/environmentService.js";
+import { IWorkbenchExtensionEnablementService } from "../../services/extensionManagement/common/extensionManagement.js";
+import { ExtensionActivationReason, IExtensionService, MissingExtensionDependency } from "../../services/extensions/common/extensions.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IHostService } from "../../services/host/browser/host.js";
+import { ITimerService } from "../../services/timer/browser/timerService.js";
+import { MainThreadExtensionServiceShape } from "../common/extHost.protocol.js";
 export declare class MainThreadExtensionService implements MainThreadExtensionServiceShape {
     private readonly _extensionService;
     private readonly _notificationService;
@@ -24,7 +24,7 @@ export declare class MainThreadExtensionService implements MainThreadExtensionSe
     private readonly _internalExtensionService;
     constructor(extHostContext: IExtHostContext, _extensionService: IExtensionService, _notificationService: INotificationService, _extensionsWorkbenchService: IExtensionsWorkbenchService, _hostService: IHostService, _extensionEnablementService: IWorkbenchExtensionEnablementService, _timerService: ITimerService, _commandService: ICommandService, _environmentService: IWorkbenchEnvironmentService);
     dispose(): void;
-    $getExtension(extensionId: string): any;
+    $getExtension(extensionId: string): Promise<Readonly<import("../../../platform/extensions/common/extensions.js").IRelaxedExtensionDescription> | undefined>;
     $activateExtension(extensionId: ExtensionIdentifier, reason: ExtensionActivationReason): Promise<void>;
     $onWillActivateExtension(extensionId: ExtensionIdentifier): Promise<void>;
     $onDidActivateExtension(extensionId: ExtensionIdentifier, codeLoadingTime: number, activateCallTime: number, activateResolvedTime: number, activationReason: ExtensionActivationReason): void;

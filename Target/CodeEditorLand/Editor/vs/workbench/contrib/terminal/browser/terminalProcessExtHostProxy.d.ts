@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IShellLaunchConfig, ITerminalChildProcess, ITerminalDimensions, ITerminalLaunchError, ProcessPropertyType } from "vs/platform/terminal/common/terminal";
-import { ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { ITerminalProcessExtHostProxy } from "vs/workbench/contrib/terminal/common/terminal";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IShellLaunchConfig, ITerminalChildProcess, ITerminalDimensions, ITerminalLaunchError, ProcessPropertyType } from "../../../../platform/terminal/common/terminal.js";
+import { ITerminalProcessExtHostProxy } from "../common/terminal.js";
+import { ITerminalService } from "./terminal.js";
 export declare class TerminalProcessExtHostProxy extends Disposable implements ITerminalChildProcess, ITerminalProcessExtHostProxy {
     instanceId: number;
     private _cols;
@@ -34,7 +34,7 @@ export declare class TerminalProcessExtHostProxy extends Disposable implements I
     private readonly _onRequestCwd;
     readonly onRequestCwd: Event<void>;
     private readonly _onDidChangeProperty;
-    readonly onDidChangeProperty: any;
+    readonly onDidChangeProperty: Event<IProcessProperty<any>>;
     private readonly _onProcessExit;
     readonly onProcessExit: Event<number | undefined>;
     private _pendingInitialCwdRequests;

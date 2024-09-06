@@ -1,8 +1,8 @@
-import { EditorActivation } from "vs/platform/editor/common/editor";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { EditorInputWithOptions, IUntypedEditorInput } from "vs/workbench/common/editor";
-import { IEditorGroup } from "vs/workbench/services/editor/common/editorGroupsService";
-import { AUX_WINDOW_GROUP_TYPE, PreferredGroup } from "vs/workbench/services/editor/common/editorService";
+import { EditorActivation } from "../../../../platform/editor/common/editor.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { EditorInputWithOptions, IUntypedEditorInput } from "../../../common/editor.js";
+import { IEditorGroup } from "./editorGroupsService.js";
+import { AUX_WINDOW_GROUP_TYPE, PreferredGroup } from "./editorService.js";
 /**
  * Finds the target `IEditorGroup` given the instructions provided
  * that is best for the editor and matches the preferred group if

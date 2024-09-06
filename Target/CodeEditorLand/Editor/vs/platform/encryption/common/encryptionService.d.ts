@@ -1,9 +1,9 @@
-export declare const IEncryptionService: any;
+export declare const IEncryptionService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IEncryptionService>;
 export interface IEncryptionService extends ICommonEncryptionService {
     setUsePlainTextEncryption(): Promise<void>;
     getKeyStorageProvider(): Promise<KnownStorageProvider>;
 }
-export declare const IEncryptionMainService: any;
+export declare const IEncryptionMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IEncryptionMainService>;
 export interface IEncryptionMainService extends IEncryptionService {
 }
 export interface ICommonEncryptionService {

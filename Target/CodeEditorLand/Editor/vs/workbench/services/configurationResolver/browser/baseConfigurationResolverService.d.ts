@@ -1,15 +1,15 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { IProcessEnvironment } from "vs/base/common/platform";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { ConfigurationTarget, IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILabelService } from "vs/platform/label/common/label";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IWorkspaceContextService, IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-import { AbstractVariableResolverService } from "vs/workbench/services/configurationResolver/common/variableResolver";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
-import { IPathService } from "vs/workbench/services/path/common/pathService";
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { IProcessEnvironment } from "../../../../base/common/platform.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ConfigurationTarget, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWorkspaceContextService, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { AbstractVariableResolverService } from "../common/variableResolver.js";
 export declare abstract class BaseConfigurationResolverService extends AbstractVariableResolverService {
     private readonly configurationService;
     private readonly commandService;

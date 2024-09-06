@@ -1,6 +1,6 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ChatTreeItem } from "vs/workbench/contrib/chat/browser/chat";
-import { IChatRendererContent } from "vs/workbench/contrib/chat/common/chatViewModel";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { IChatRendererContent } from "../../common/chatViewModel.js";
+import { ChatTreeItem } from "../chat.js";
 export interface IChatContentPart extends IDisposable {
     domNode: HTMLElement;
     /**

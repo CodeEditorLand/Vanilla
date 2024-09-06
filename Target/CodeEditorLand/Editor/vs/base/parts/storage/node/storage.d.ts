@@ -1,5 +1,5 @@
-import { Event } from "vs/base/common/event";
-import { IStorageDatabase, IStorageItemsChangeEvent, IUpdateRequest } from "vs/base/parts/storage/common/storage";
+import { Event } from "../../../common/event.js";
+import { IStorageDatabase, IStorageItemsChangeEvent, IUpdateRequest } from "../common/storage.js";
 export interface ISQLiteStorageDatabaseOptions {
     readonly logging?: ISQLiteStorageDatabaseLoggingOptions;
 }

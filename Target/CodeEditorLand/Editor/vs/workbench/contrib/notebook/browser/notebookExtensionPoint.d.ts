@@ -1,4 +1,4 @@
-import { ContributedNotebookRendererEntrypoint, RendererMessagingSpec } from "vs/workbench/contrib/notebook/common/notebookCommon";
+import { ContributedNotebookRendererEntrypoint, RendererMessagingSpec } from "../common/notebookCommon.js";
 declare const NotebookEditorContribution: Readonly<{
     type: "type";
     displayName: "displayName";
@@ -32,7 +32,17 @@ export interface INotebookRendererContribution {
     readonly [NotebookRendererContribution.optionalDependencies]: readonly string[];
     readonly [NotebookRendererContribution.requiresMessaging]: RendererMessagingSpec;
 }
-export declare const notebooksExtensionPoint: any;
-export declare const notebookRendererExtensionPoint: any;
-export declare const notebookPreloadExtensionPoint: any;
+declare const NotebookPreloadContribution: Readonly<{
+    type: "type";
+    entrypoint: "entrypoint";
+    localResourceRoots: "localResourceRoots";
+}>;
+interface INotebookPreloadContribution {
+    readonly [NotebookPreloadContribution.type]: string;
+    readonly [NotebookPreloadContribution.entrypoint]: string;
+    readonly [NotebookPreloadContribution.localResourceRoots]: readonly string[];
+}
+export declare const notebooksExtensionPoint: import("../../../services/extensions/common/extensionsRegistry.js").IExtensionPoint<INotebookEditorContribution[]>;
+export declare const notebookRendererExtensionPoint: import("../../../services/extensions/common/extensionsRegistry.js").IExtensionPoint<INotebookRendererContribution[]>;
+export declare const notebookPreloadExtensionPoint: import("../../../services/extensions/common/extensionsRegistry.js").IExtensionPoint<INotebookPreloadContribution[]>;
 export {};

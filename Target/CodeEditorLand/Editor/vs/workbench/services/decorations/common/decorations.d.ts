@@ -1,10 +1,10 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { ColorIdentifier } from "vs/platform/theme/common/colorRegistry";
-export declare const IDecorationsService: any;
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ColorIdentifier } from "../../../../platform/theme/common/colorRegistry.js";
+export declare const IDecorationsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IDecorationsService>;
 export interface IDecorationData {
     readonly weight?: number;
     readonly color?: ColorIdentifier;

@@ -1,13 +1,13 @@
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ILogService } from "vs/platform/log/common/log";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IFilesConfigurationService } from "vs/workbench/services/filesConfiguration/common/filesConfigurationService";
-import { ILifecycleService, ShutdownReason } from "vs/workbench/services/lifecycle/common/lifecycle";
-import { IWorkingCopy } from "vs/workbench/services/workingCopy/common/workingCopy";
-import { IWorkingCopyBackupService } from "vs/workbench/services/workingCopy/common/workingCopyBackup";
-import { IWorkingCopyEditorHandler, IWorkingCopyEditorService } from "vs/workbench/services/workingCopy/common/workingCopyEditorService";
-import { IWorkingCopyService } from "vs/workbench/services/workingCopy/common/workingCopyService";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IEditorGroupsService } from "../../editor/common/editorGroupsService.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
+import { ILifecycleService, ShutdownReason } from "../../lifecycle/common/lifecycle.js";
+import { IWorkingCopy, IWorkingCopyIdentifier } from "./workingCopy.js";
+import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
+import { IWorkingCopyEditorHandler, IWorkingCopyEditorService } from "./workingCopyEditorService.js";
+import { IWorkingCopyService } from "./workingCopyService.js";
 /**
  * The working copy backup tracker deals with:
  * - restoring backups that exist

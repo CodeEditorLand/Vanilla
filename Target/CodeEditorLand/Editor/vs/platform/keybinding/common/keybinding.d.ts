@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { IJSONSchema } from "vs/base/common/jsonSchema";
-import { Keybinding, ResolvedKeybinding } from "vs/base/common/keybindings";
-import { KeyCode } from "vs/base/common/keyCodes";
-import { IContextKeyService, IContextKeyServiceTarget } from "vs/platform/contextkey/common/contextkey";
-import { ResolutionResult } from "vs/platform/keybinding/common/keybindingResolver";
-import { ResolvedKeybindingItem } from "vs/platform/keybinding/common/resolvedKeybindingItem";
+import { Event } from "../../../base/common/event.js";
+import { IJSONSchema } from "../../../base/common/jsonSchema.js";
+import { Keybinding, ResolvedKeybinding } from "../../../base/common/keybindings.js";
+import { KeyCode } from "../../../base/common/keyCodes.js";
+import { IContextKeyService, IContextKeyServiceTarget } from "../../contextkey/common/contextkey.js";
+import { ResolutionResult } from "./keybindingResolver.js";
+import { ResolvedKeybindingItem } from "./resolvedKeybindingItem.js";
 export interface IUserFriendlyKeybinding {
     key: string;
     command: string;
@@ -25,7 +25,7 @@ export interface KeybindingsSchemaContribution {
     readonly onDidChange?: Event<void>;
     getSchemaAdditions(): IJSONSchema[];
 }
-export declare const IKeybindingService: any;
+export declare const IKeybindingService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IKeybindingService>;
 export interface IKeybindingService {
     readonly _serviceBrand: undefined;
     readonly inChordMode: boolean;

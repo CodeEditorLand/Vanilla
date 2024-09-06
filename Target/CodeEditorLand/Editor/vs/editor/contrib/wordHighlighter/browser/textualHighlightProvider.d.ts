@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
 export declare class TextualMultiDocumentHighlightFeature extends Disposable {
     constructor(languageFeaturesService: ILanguageFeaturesService);
 }

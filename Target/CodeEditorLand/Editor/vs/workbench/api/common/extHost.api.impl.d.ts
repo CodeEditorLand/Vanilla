@@ -1,8 +1,8 @@
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { ExtHostConfigProvider } from "vs/workbench/api/common/extHostConfiguration";
-import { ExtensionDescriptionRegistry } from "vs/workbench/services/extensions/common/extensionDescriptionRegistry";
 import type * as vscode from "vscode";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
+import { ExtensionDescriptionRegistry } from "../../services/extensions/common/extensionDescriptionRegistry.js";
+import { ExtHostConfigProvider } from "./extHostConfiguration.js";
 export interface IExtensionRegistries {
     mine: ExtensionDescriptionRegistry;
     all: ExtensionDescriptionRegistry;

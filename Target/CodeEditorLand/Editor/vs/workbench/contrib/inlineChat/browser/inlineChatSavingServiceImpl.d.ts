@@ -1,13 +1,13 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILogService } from "vs/platform/log/common/log";
-import { Session } from "vs/workbench/contrib/inlineChat/browser/inlineChatSession";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IFilesConfigurationService } from "vs/workbench/services/filesConfiguration/common/filesConfigurationService";
-import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
-import { IWorkingCopyFileService } from "vs/workbench/services/workingCopy/common/workingCopyFileService";
-import { IInlineChatSavingService } from "./inlineChatSavingService";
-import { IInlineChatSessionService } from "./inlineChatSessionService";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { IWorkingCopyFileService } from "../../../services/workingCopy/common/workingCopyFileService.js";
+import { IInlineChatSavingService } from "./inlineChatSavingService.js";
+import { Session } from "./inlineChatSession.js";
+import { IInlineChatSessionService } from "./inlineChatSessionService.js";
 export declare class InlineChatSavingServiceImpl implements IInlineChatSavingService {
     private readonly _fileConfigService;
     private readonly _editorGroupService;

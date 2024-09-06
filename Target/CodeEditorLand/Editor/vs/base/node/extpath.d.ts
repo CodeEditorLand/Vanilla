@@ -1,4 +1,4 @@
-import { CancellationToken } from "vs/base/common/cancellation";
+import { CancellationToken } from "../common/cancellation.js";
 /**
  * Copied from: https://github.com/microsoft/vscode-node-debug/blob/master/src/node/pathUtilities.ts#L83
  *

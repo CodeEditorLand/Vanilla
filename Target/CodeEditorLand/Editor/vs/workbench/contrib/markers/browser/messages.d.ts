@@ -1,9 +1,10 @@
-import { ILocalizedString } from "vs/platform/action/common/action";
-import { IRelatedInformation } from "vs/platform/markers/common/markers";
-import { Marker } from "./markersModel";
+import * as nls from "../../../../nls.js";
+import { ILocalizedString } from "../../../../platform/action/common/action.js";
+import { IRelatedInformation } from "../../../../platform/markers/common/markers.js";
+import { Marker } from "./markersModel.js";
 export default class Messages {
     static MARKERS_PANEL_TOGGLE_LABEL: string;
-    static MARKERS_PANEL_SHOW_LABEL: any;
+    static MARKERS_PANEL_SHOW_LABEL: nls.ILocalizedString;
     static PROBLEMS_PANEL_CONFIGURATION_TITLE: string;
     static PROBLEMS_PANEL_CONFIGURATION_AUTO_REVEAL: string;
     static PROBLEMS_PANEL_CONFIGURATION_VIEW_MODE: string;

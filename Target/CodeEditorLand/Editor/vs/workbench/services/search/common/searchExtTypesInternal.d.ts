@@ -1,4 +1,4 @@
-import { FileSearchProviderFolderOptions, FileSearchProviderOptions, TextSearchProviderFolderOptions, TextSearchProviderOptions } from "vs/workbench/services/search/common/searchExtTypes";
+import { FileSearchProviderFolderOptions, FileSearchProviderOptions, TextSearchProviderFolderOptions, TextSearchProviderOptions } from "./searchExtTypes.js";
 interface RipgrepSearchOptionsCommon {
     numThreads?: number;
 }

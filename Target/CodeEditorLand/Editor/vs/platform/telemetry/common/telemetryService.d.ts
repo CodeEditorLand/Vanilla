@@ -1,8 +1,8 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IProductService } from "vs/platform/product/common/productService";
-import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "vs/platform/telemetry/common/gdprTypings";
-import { ICommonProperties, ITelemetryData, ITelemetryService, TelemetryLevel } from "vs/platform/telemetry/common/telemetry";
-import { ITelemetryAppender } from "vs/platform/telemetry/common/telemetryUtils";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IProductService } from "../../product/common/productService.js";
+import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "./gdprTypings.js";
+import { ICommonProperties, ITelemetryData, ITelemetryService, TelemetryLevel } from "./telemetry.js";
+import { ITelemetryAppender } from "./telemetryUtils.js";
 export interface ITelemetryServiceConfig {
     appenders: ITelemetryAppender[];
     sendErrorTelemetry?: boolean;

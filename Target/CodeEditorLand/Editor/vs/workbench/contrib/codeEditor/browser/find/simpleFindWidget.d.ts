@@ -1,12 +1,12 @@
-import "vs/css!./simpleFindWidget";
-import * as dom from "vs/base/browser/dom";
-import { IVerticalSashLayoutProvider, Sash } from "vs/base/browser/ui/sash/sash";
-import { Widget } from "vs/base/browser/ui/widget";
-import { FindReplaceState, INewFindReplaceState } from "vs/editor/contrib/find/browser/findState";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextViewService } from "vs/platform/contextview/browser/contextView";
-import type { IHoverService } from "vs/platform/hover/browser/hover";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import "./simpleFindWidget.css";
+import * as dom from "../../../../../base/browser/dom.js";
+import { IVerticalSashLayoutProvider, Sash } from "../../../../../base/browser/ui/sash/sash.js";
+import { Widget } from "../../../../../base/browser/ui/widget.js";
+import { FindReplaceState, INewFindReplaceState } from "../../../../../editor/contrib/find/browser/findState.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IContextViewService } from "../../../../../platform/contextview/browser/contextView.js";
+import type { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
 interface IFindOptions {
     showCommonFindToggles?: boolean;
     checkImeCompletionState?: boolean;
@@ -51,13 +51,13 @@ export declare abstract class SimpleFindWidget extends Widget implements IVertic
         resultIndex: number;
         resultCount: number;
     } | undefined>;
-    protected get inputValue(): any;
+    protected get inputValue(): string;
     get focusTracker(): dom.IFocusTracker;
     private _getKeybinding;
     dispose(): void;
     isVisible(): boolean;
     getDomNode(): HTMLElement;
-    getFindInputDomNode(): any;
+    getFindInputDomNode(): HTMLElement;
     reveal(initialInput?: string, animated?: boolean): void;
     show(initialInput?: string): void;
     hide(animated?: boolean): void;
@@ -73,5 +73,5 @@ export declare abstract class SimpleFindWidget extends Widget implements IVertic
     changeState(state: INewFindReplaceState): void;
     private _announceSearchResults;
 }
-export declare const simpleFindWidgetSashBorder: any;
+export declare const simpleFindWidgetSashBorder: string;
 export {};

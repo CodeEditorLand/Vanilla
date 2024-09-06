@@ -1,8 +1,8 @@
-import { IObservable } from "vs/base/common/observable";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { MergeEditorViewModel } from "vs/workbench/contrib/mergeEditor/browser/view/viewModel";
-import { CodeEditorView } from "./codeEditorView";
+import { IObservable } from "../../../../../../base/common/observable.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { MergeEditorViewModel } from "../viewModel.js";
+import { CodeEditorView } from "./codeEditorView.js";
 export declare class BaseCodeEditorView extends CodeEditorView {
     constructor(viewModel: IObservable<MergeEditorViewModel | undefined>, instantiationService: IInstantiationService, configurationService: IConfigurationService);
     private readonly decorations;

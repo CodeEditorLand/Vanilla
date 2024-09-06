@@ -1,18 +1,19 @@
-import { IMouseEvent } from "vs/base/browser/mouseEvent";
-import { ActionBar, IActionBarOptions } from "vs/base/browser/ui/actionbar/actionbar";
-import { Color } from "vs/base/common/color";
-import "vs/css!./media/peekViewWidget";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IOptions, IStyles, ZoneWidget } from "vs/editor/contrib/zoneWidget/browser/zoneWidget";
-import { IInstantiationService, ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-export declare const IPeekViewService: any;
+import { IMouseEvent } from "../../../../base/browser/mouseEvent.js";
+import { ActionBar, IActionBarOptions } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { Color } from "../../../../base/common/color.js";
+import "./media/peekViewWidget.css";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IOptions, IStyles, ZoneWidget } from "../../zoneWidget/browser/zoneWidget.js";
+export declare const IPeekViewService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IPeekViewService>;
 export interface IPeekViewService {
     readonly _serviceBrand: undefined;
     addExclusiveWidget(editor: ICodeEditor, widget: PeekViewWidget): void;
 }
 export declare namespace PeekContext {
-    const inPeekEditor: any;
-    const notInPeekEditor: any;
+    const inPeekEditor: RawContextKey<boolean>;
+    const notInPeekEditor: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
 }
 export declare function getOuterEditor(accessor: ServicesAccessor): ICodeEditor | null;
 export interface IPeekViewStyles extends IStyles {
@@ -27,7 +28,7 @@ export declare abstract class PeekViewWidget extends ZoneWidget {
     protected readonly instantiationService: IInstantiationService;
     readonly _serviceBrand: undefined;
     private readonly _onDidClose;
-    readonly onDidClose: any;
+    readonly onDidClose: import("../../../../base/common/event.js").Event<PeekViewWidget>;
     private disposed?;
     protected _headElement?: HTMLDivElement;
     protected _titleElement?: HTMLDivElement;
@@ -52,18 +53,18 @@ export declare abstract class PeekViewWidget extends ZoneWidget {
     protected _doLayoutHead(heightInPixel: number, widthInPixel: number): void;
     protected _doLayoutBody(heightInPixel: number, widthInPixel: number): void;
 }
-export declare const peekViewTitleBackground: any;
-export declare const peekViewTitleForeground: any;
-export declare const peekViewTitleInfoForeground: any;
-export declare const peekViewBorder: any;
-export declare const peekViewResultsBackground: any;
-export declare const peekViewResultsMatchForeground: any;
-export declare const peekViewResultsFileForeground: any;
-export declare const peekViewResultsSelectionBackground: any;
-export declare const peekViewResultsSelectionForeground: any;
-export declare const peekViewEditorBackground: any;
-export declare const peekViewEditorGutterBackground: any;
-export declare const peekViewEditorStickyScrollBackground: any;
-export declare const peekViewResultsMatchHighlight: any;
-export declare const peekViewEditorMatchHighlight: any;
-export declare const peekViewEditorMatchHighlightBorder: any;
+export declare const peekViewTitleBackground: string;
+export declare const peekViewTitleForeground: string;
+export declare const peekViewTitleInfoForeground: string;
+export declare const peekViewBorder: string;
+export declare const peekViewResultsBackground: string;
+export declare const peekViewResultsMatchForeground: string;
+export declare const peekViewResultsFileForeground: string;
+export declare const peekViewResultsSelectionBackground: string;
+export declare const peekViewResultsSelectionForeground: string;
+export declare const peekViewEditorBackground: string;
+export declare const peekViewEditorGutterBackground: string;
+export declare const peekViewEditorStickyScrollBackground: string;
+export declare const peekViewResultsMatchHighlight: string;
+export declare const peekViewEditorMatchHighlight: string;
+export declare const peekViewEditorMatchHighlightBorder: string;

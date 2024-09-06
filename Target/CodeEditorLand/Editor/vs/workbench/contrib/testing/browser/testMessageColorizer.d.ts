@@ -1,7 +1,7 @@
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { IDisposable } from "vs/base/common/lifecycle";
-import "vs/css!./media/testMessageColorizer";
-import { CodeEditorWidget } from "vs/editor/browser/widget/codeEditor/codeEditorWidget";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import "./media/testMessageColorizer.css";
+import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
 export declare const renderTestMessageAsText: (tm: string | IMarkdownString) => any;
 /**
  * Applies decorations based on ANSI styles from the test message in the editor.

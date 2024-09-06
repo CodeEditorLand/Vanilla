@@ -1,14 +1,14 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable } from "vs/base/common/lifecycle";
-import { UriComponents } from "vs/base/common/uri";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { ITestProfileService } from "vs/workbench/contrib/testing/common/testProfileService";
-import { ITestResultService } from "vs/workbench/contrib/testing/common/testResultService";
-import { ITestService } from "vs/workbench/contrib/testing/common/testService";
-import { CoverageDetails, ExtensionRunTestsRequest, IFileCoverage, ITestItem, ITestMessage, ITestRunProfile, ITestRunTask, ResolvedTestRunRequest, TestControllerCapability, TestResultState, TestsDiffOp } from "vs/workbench/contrib/testing/common/testTypes";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { ILocationDto, ITestControllerPatch, MainThreadTestingShape } from "../common/extHost.protocol";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
+import { ITestProfileService } from "../../contrib/testing/common/testProfileService.js";
+import { ITestResultService } from "../../contrib/testing/common/testResultService.js";
+import { ITestService } from "../../contrib/testing/common/testService.js";
+import { CoverageDetails, ExtensionRunTestsRequest, IFileCoverage, ITestItem, ITestMessage, ITestRunProfile, ITestRunTask, ResolvedTestRunRequest, TestControllerCapability, TestResultState, TestsDiffOp } from "../../contrib/testing/common/testTypes.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { ILocationDto, ITestControllerPatch, MainThreadTestingShape } from "../common/extHost.protocol.js";
 export declare class MainThreadTesting extends Disposable implements MainThreadTestingShape {
     private readonly uriIdentityService;
     private readonly testService;

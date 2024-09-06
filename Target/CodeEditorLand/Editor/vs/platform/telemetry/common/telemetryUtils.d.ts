@@ -1,8 +1,8 @@
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IProductService } from "vs/platform/product/common/productService";
-import { ICustomEndpointTelemetryService, ITelemetryData, ITelemetryEndpoint, ITelemetryService, TelemetryLevel } from "vs/platform/telemetry/common/telemetry";
+import { URI } from "../../../base/common/uri.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IProductService } from "../../product/common/productService.js";
+import { ICustomEndpointTelemetryService, ITelemetryData, ITelemetryEndpoint, ITelemetryService, TelemetryLevel } from "./telemetry.js";
 /**
  * A special class used to denoting a telemetry value which should not be clean.
  * This is because that value is "Trusted" not to contain identifiable information such as paths.
@@ -15,7 +15,7 @@ export declare class TelemetryTrustedValue<T> {
 }
 export declare class NullTelemetryServiceShape implements ITelemetryService {
     readonly _serviceBrand: undefined;
-    readonly telemetryLevel: any;
+    readonly telemetryLevel = TelemetryLevel.NONE;
     readonly sessionId = "someValue.sessionId";
     readonly machineId = "someValue.machineId";
     readonly sqmId = "someValue.sqmId";
@@ -90,7 +90,7 @@ export declare function cleanRemoteAuthority(remoteAuthority?: string): string;
  * @param configService The config servivce
  * @returns true if internal, false otherwise
  */
-export declare function isInternalTelemetry(productService: IProductService, configService: IConfigurationService): any;
+export declare function isInternalTelemetry(productService: IProductService, configService: IConfigurationService): boolean;
 interface IPathEnvironment {
     appRoot: string;
     extensionsPath: string;

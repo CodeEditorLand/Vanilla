@@ -1,7 +1,7 @@
-import { Color } from "vs/base/common/color";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ILazyTokenizationSupport, ITokenizationRegistry, ITokenizationSupportChangedEvent } from "vs/editor/common/languages";
+import { Color } from "../../base/common/color.js";
+import { Event } from "../../base/common/event.js";
+import { IDisposable } from "../../base/common/lifecycle.js";
+import { ILazyTokenizationSupport, ITokenizationRegistry, ITokenizationSupportChangedEvent } from "./languages.js";
 export declare class TokenizationRegistry<TSupport> implements ITokenizationRegistry<TSupport> {
     private readonly _tokenizationSupports;
     private readonly _factories;

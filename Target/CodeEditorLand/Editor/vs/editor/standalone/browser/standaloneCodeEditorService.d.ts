@@ -1,7 +1,7 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { AbstractCodeEditorService } from "vs/editor/browser/services/abstractCodeEditorService";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IThemeService } from "vs/platform/theme/common/themeService";
+import { IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
+import { IThemeService } from "../../../platform/theme/common/themeService.js";
+import { ICodeEditor } from "../../browser/editorBrowser.js";
+import { AbstractCodeEditorService } from "../../browser/services/abstractCodeEditorService.js";
 export declare class StandaloneCodeEditorService extends AbstractCodeEditorService {
     private readonly _editorIsOpen;
     private _activeCodeEditor;

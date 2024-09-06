@@ -1,5 +1,5 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
+import { Event } from "../../../common/event.js";
+import { Disposable, IDisposable } from "../../../common/lifecycle.js";
 export declare enum StorageHint {
     STORAGE_DOES_NOT_EXIST = 0,
     STORAGE_IN_MEMORY = 1
@@ -69,7 +69,7 @@ export declare class Storage extends Disposable implements IStorage {
     private readonly options;
     private static readonly DEFAULT_FLUSH_DELAY;
     private readonly _onDidChangeStorage;
-    readonly onDidChangeStorage: any;
+    readonly onDidChangeStorage: Event<IStorageChangeEvent>;
     private state;
     private cache;
     private readonly flushDelayer;
@@ -105,7 +105,7 @@ export declare class Storage extends Disposable implements IStorage {
     isInMemory(): boolean;
 }
 export declare class InMemoryStorageDatabase implements IStorageDatabase {
-    readonly onDidChangeItemsExternal: any;
+    readonly onDidChangeItemsExternal: Event<any>;
     private readonly items;
     getItems(): Promise<Map<string, string>>;
     updateItems(request: IUpdateRequest): Promise<void>;

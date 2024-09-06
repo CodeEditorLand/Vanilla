@@ -1,10 +1,10 @@
-import { ObjectTree } from "vs/base/browser/ui/tree/objectTree";
-import { FuzzyScore } from "vs/base/common/filters";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ITestTreeProjection, TestExplorerTreeElement, TestItemTreeElement } from "vs/workbench/contrib/testing/browser/explorerProjections/index";
-import { ISerializedTestTreeCollapseState } from "vs/workbench/contrib/testing/browser/explorerProjections/testingViewState";
-import { ITestResultService } from "vs/workbench/contrib/testing/common/testResultService";
-import { ITestService } from "vs/workbench/contrib/testing/common/testService";
+import { ObjectTree } from "../../../../../base/browser/ui/tree/objectTree.js";
+import { FuzzyScore } from "../../../../../base/common/filters.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ITestResultService } from "../../common/testResultService.js";
+import { ITestService } from "../../common/testService.js";
+import { ITestTreeProjection, TestExplorerTreeElement, TestItemTreeElement } from "./index.js";
+import { ISerializedTestTreeCollapseState } from "./testingViewState.js";
 /**
  * Projection that lists tests in their traditional tree view.
  */
@@ -21,7 +21,7 @@ export declare class ListProjection extends Disposable implements ITestTreeProje
     /**
      * @inheritdoc
      */
-    readonly onUpdate: any;
+    readonly onUpdate: import("../../../../../base/common/event.js").Event<void>;
     constructor(lastState: ISerializedTestTreeCollapseState, testService: ITestService, results: ITestResultService);
     /**
      * @inheritdoc

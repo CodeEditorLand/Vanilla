@@ -1,16 +1,16 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IExtensionResourceLoaderService } from "vs/platform/extensionResourceLoader/common/extensionResourceLoader";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IProgressService } from "vs/platform/progress/common/progress";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { ITextMateTokenizationService } from "vs/workbench/services/textMate/browser/textMateTokenizationFeature";
-import { IWorkbenchThemeService } from "vs/workbench/services/themes/common/workbenchThemeService";
 import type { IGrammar } from "vscode-textmate";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IWorkbenchThemeService } from "../../themes/common/workbenchThemeService.js";
+import { ITextMateTokenizationService } from "./textMateTokenizationFeature.js";
 export declare class TextMateTokenizationFeature extends Disposable implements ITextMateTokenizationService {
     private readonly _languageService;
     private readonly _themeService;

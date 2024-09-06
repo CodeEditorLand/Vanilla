@@ -1,11 +1,11 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICellOutput, IOutputDto, IOutputItemDto } from "vs/workbench/contrib/notebook/common/notebookCommon";
+import { VSBuffer } from "../../../../../base/common/buffer.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ICellOutput, IOutputDto, IOutputItemDto } from "../notebookCommon.js";
 export declare class NotebookCellOutputTextModel extends Disposable implements ICellOutput {
     private _rawOutput;
     private _onDidChangeData;
-    onDidChangeData: any;
-    get outputs(): any;
+    onDidChangeData: import("../../../../../base/common/event.js").Event<void>;
+    get outputs(): IOutputItemDto[];
     get metadata(): Record<string, any> | undefined;
     get outputId(): string;
     /**

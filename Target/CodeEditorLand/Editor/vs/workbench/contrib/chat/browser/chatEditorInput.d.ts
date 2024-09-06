@@ -1,12 +1,12 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { EditorInputCapabilities, IEditorSerializer, IUntypedEditorInput } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import type { IChatEditorOptions } from "vs/workbench/contrib/chat/browser/chatEditor";
-import { IChatModel } from "vs/workbench/contrib/chat/common/chatModel";
-import { IChatService } from "vs/workbench/contrib/chat/common/chatService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { EditorInputCapabilities, IEditorSerializer, IUntypedEditorInput } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IChatModel } from "../common/chatModel.js";
+import { IChatService } from "../common/chatService.js";
+import type { IChatEditorOptions } from "./chatEditor.js";
 export declare class ChatEditorInput extends EditorInput {
     readonly resource: URI;
     readonly options: IChatEditorOptions;
@@ -32,7 +32,7 @@ export declare class ChatEditorInput extends EditorInput {
 export declare class ChatEditorModel extends Disposable {
     readonly model: IChatModel;
     private _onWillDispose;
-    readonly onWillDispose: any;
+    readonly onWillDispose: import("../../../../base/common/event.js").Event<void>;
     private _isDisposed;
     private _isResolved;
     constructor(model: IChatModel);
@@ -42,7 +42,7 @@ export declare class ChatEditorModel extends Disposable {
     dispose(): void;
 }
 export declare namespace ChatUri {
-    const scheme: any;
+    const scheme = "vscode-chat-editor";
     function generate(handle: number): URI;
     function parse(resource: URI): {
         handle: number;

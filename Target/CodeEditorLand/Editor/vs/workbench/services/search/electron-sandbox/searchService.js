@@ -1,1 +1,1 @@
-import{InstantiationType as e,registerSingleton as r}from"../../../../../vs/platform/instantiation/common/extensions.js";import{ISearchService as i}from"../../../../../vs/workbench/services/search/common/search.js";import{SearchService as o}from"../../../../../vs/workbench/services/search/common/searchService.js";r(i,o,e.Delayed);
+import{InstantiationType as e,registerSingleton as r}from"../../../../platform/instantiation/common/extensions.js";import{ISearchService as i}from"../common/search.js";import{SearchService as o}from"../common/searchService.js";r(i,o,e.Delayed);

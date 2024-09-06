@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IProductService } from "vs/platform/product/common/productService";
-import { AbstractURLService } from "vs/platform/url/common/urlService";
-import { IBrowserWorkbenchEnvironmentService } from "vs/workbench/services/environment/browser/environmentService";
+import { Event } from "../../../../base/common/event.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { AbstractURLService } from "../../../../platform/url/common/urlService.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
 export interface IURLCallbackProvider {
     /**
      * Indicates that a Uri has been opened outside of VSCode. The Uri

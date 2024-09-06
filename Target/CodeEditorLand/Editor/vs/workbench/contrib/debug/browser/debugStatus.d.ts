@@ -1,7 +1,7 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IDebugService } from "vs/workbench/contrib/debug/common/debug";
-import { IStatusbarService } from "vs/workbench/services/statusbar/browser/statusbar";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { IDebugService } from "../common/debug.js";
 export declare class DebugStatusContribution implements IWorkbenchContribution {
     private readonly statusBarService;
     private readonly debugService;

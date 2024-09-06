@@ -1,3 +1,4 @@
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 export declare const enum TerminalContextKeyStrings {
     IsOpen = "terminalIsOpen",
     Count = "terminalCount",
@@ -32,66 +33,66 @@ export declare const enum TerminalContextKeyStrings {
 }
 export declare namespace TerminalContextKeys {
     /** Whether there is at least one opened terminal. */
-    const isOpen: any;
+    const isOpen: RawContextKey<boolean>;
     /** Whether the terminal is focused. */
-    const focus: any;
+    const focus: RawContextKey<boolean>;
     /** Whether any terminal is focused, including detached terminals used in other UI. */
-    const focusInAny: any;
+    const focusInAny: RawContextKey<boolean>;
     /** Whether a terminal in the editor area is focused. */
-    const editorFocus: any;
+    const editorFocus: RawContextKey<boolean>;
     /** The current number of terminals. */
-    const count: any;
+    const count: RawContextKey<number>;
     /** The current number of terminal groups. */
-    const groupCount: any;
+    const groupCount: RawContextKey<number>;
     /** Whether the terminal tabs view is narrow. */
-    const tabsNarrow: any;
+    const tabsNarrow: RawContextKey<boolean>;
     /** Whether the terminal tabs view is narrow. */
-    const terminalHasFixedWidth: any;
+    const terminalHasFixedWidth: RawContextKey<boolean>;
     /** Whether the terminal tabs widget is focused. */
-    const tabsFocus: any;
+    const tabsFocus: RawContextKey<boolean>;
     /** Whether a web extension has contributed a profile */
-    const webExtensionContributedProfile: any;
+    const webExtensionContributedProfile: RawContextKey<boolean>;
     /** Whether at least one terminal has been created */
-    const terminalHasBeenCreated: any;
+    const terminalHasBeenCreated: RawContextKey<boolean>;
     /** Whether at least one terminal has been created */
-    const terminalEditorActive: any;
+    const terminalEditorActive: RawContextKey<boolean>;
     /** Whether the mouse is within the terminal tabs list. */
-    const tabsMouse: any;
+    const tabsMouse: RawContextKey<boolean>;
     /** The shell type of the active terminal, this is set if the type can be detected. */
-    const shellType: any;
+    const shellType: RawContextKey<string>;
     /** Whether the terminal's alt buffer is active. */
-    const altBufferActive: any;
+    const altBufferActive: RawContextKey<boolean>;
     /** Whether the terminal's suggest widget is visible. */
-    const suggestWidgetVisible: any;
+    const suggestWidgetVisible: RawContextKey<boolean>;
     /** Whether the terminal is NOT focused. */
-    const notFocus: any;
+    const notFocus: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
     /** Whether the terminal view is showing. */
-    const viewShowing: any;
+    const viewShowing: RawContextKey<boolean>;
     /** Whether text is selected in the active terminal. */
-    const textSelected: any;
+    const textSelected: RawContextKey<boolean>;
     /** Whether text is selected in a focused terminal. `textSelected` counts text selected in an active in a terminal view or an editor, where `textSelectedInFocused` simply counts text in an element with DOM focus. */
-    const textSelectedInFocused: any;
+    const textSelectedInFocused: RawContextKey<boolean>;
     /** Whether text is NOT selected in the active terminal. */
-    const notTextSelected: any;
+    const notTextSelected: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
     /** Whether the active terminal's find widget is visible. */
-    const findVisible: any;
+    const findVisible: RawContextKey<boolean>;
     /** Whether the active terminal's find widget is NOT visible. */
-    const notFindVisible: any;
+    const notFindVisible: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
     /** Whether the active terminal's find widget text input is focused. */
-    const findInputFocus: any;
+    const findInputFocus: RawContextKey<boolean>;
     /** Whether an element within the active terminal's find widget is focused. */
-    const findFocus: any;
+    const findFocus: RawContextKey<boolean>;
     /** Whether NO elements within the active terminal's find widget is focused. */
-    const notFindFocus: any;
+    const notFindFocus: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
     /** Whether terminal processes can be launched in the current workspace. */
-    const processSupported: any;
+    const processSupported: RawContextKey<boolean>;
     /** Whether one terminal is selected in the terminal tabs list. */
-    const tabsSingularSelection: any;
+    const tabsSingularSelection: RawContextKey<boolean>;
     /** Whether the focused tab's terminal is a split terminal. */
-    const splitTerminal: any;
+    const splitTerminal: RawContextKey<boolean>;
     /** Whether the terminal run command picker is currently open. */
-    const inTerminalRunCommandPicker: any;
+    const inTerminalRunCommandPicker: RawContextKey<boolean>;
     /** Whether shell integration is enabled in the active terminal. This only considers full VS Code shell integration. */
-    const terminalShellIntegrationEnabled: any;
-    const shouldShowViewInlineActions: any;
+    const terminalShellIntegrationEnabled: RawContextKey<boolean>;
+    const shouldShowViewInlineActions: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression | undefined;
 }

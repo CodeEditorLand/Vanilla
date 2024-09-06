@@ -1,9 +1,9 @@
-import { IJSONSchema } from "vs/base/common/jsonSchema";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ExtensionKind } from "vs/platform/environment/common/environment";
-import { IActivationEventsGenerator } from "vs/platform/extensionManagement/common/implicitActivationEvents";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { IMessage } from "vs/workbench/services/extensions/common/extensions";
+import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ExtensionKind } from "../../../../platform/environment/common/environment.js";
+import { IActivationEventsGenerator } from "../../../../platform/extensionManagement/common/implicitActivationEvents.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { IMessage } from "./extensions.js";
 export declare class ExtensionMessageCollector {
     private readonly _messageHandler;
     private readonly _extension;

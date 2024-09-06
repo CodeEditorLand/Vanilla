@@ -1,1 +1,1 @@
-o.exports=semver;
+export*from"semver";

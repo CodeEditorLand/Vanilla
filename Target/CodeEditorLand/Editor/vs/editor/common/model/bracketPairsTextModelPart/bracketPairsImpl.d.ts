@@ -1,17 +1,17 @@
-import { CallbackIterable } from "vs/base/common/arrays";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IPosition } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { ILanguageConfigurationService, LanguageConfigurationServiceChangeEvent } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { TextModel } from "vs/editor/common/model/textModel";
-import { BracketInfo, BracketPairInfo, BracketPairWithMinIndentationInfo, IBracketPairsTextModelPart, IFoundBracket } from "vs/editor/common/textModelBracketPairs";
-import { IModelContentChangedEvent, IModelLanguageChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from "vs/editor/common/textModelEvents";
+import { CallbackIterable } from "../../../../base/common/arrays.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IPosition } from "../../core/position.js";
+import { Range } from "../../core/range.js";
+import { ILanguageConfigurationService, LanguageConfigurationServiceChangeEvent } from "../../languages/languageConfigurationRegistry.js";
+import { BracketInfo, BracketPairInfo, BracketPairWithMinIndentationInfo, IBracketPairsTextModelPart, IFoundBracket } from "../../textModelBracketPairs.js";
+import { IModelContentChangedEvent, IModelLanguageChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from "../../textModelEvents.js";
+import { TextModel } from "../textModel.js";
 export declare class BracketPairsTextModelPart extends Disposable implements IBracketPairsTextModelPart {
     private readonly textModel;
     private readonly languageConfigurationService;
     private readonly bracketPairsTree;
     private readonly onDidChangeEmitter;
-    readonly onDidChange: any;
+    readonly onDidChange: import("../../../../base/common/event.js").Event<void>;
     private get canBuildAST();
     private bracketsRequested;
     constructor(textModel: TextModel, languageConfigurationService: ILanguageConfigurationService);

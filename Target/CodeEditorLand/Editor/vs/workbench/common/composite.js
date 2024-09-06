@@ -1,1 +1,1 @@
-import"../../../vs/base/common/event.js";
+import"../../base/common/event.js";

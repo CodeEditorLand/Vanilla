@@ -1,5 +1,5 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { BaseCellRenderTemplate } from "vs/workbench/contrib/notebook/browser/view/notebookRenderingCommon";
+import { ICodeEditor } from "../../../../../../editor/browser/editorBrowser.js";
+import { BaseCellRenderTemplate } from "../notebookRenderingCommon.js";
 export declare class CodeCellDragImageRenderer {
     getDragImage(templateData: BaseCellRenderTemplate, editor: ICodeEditor, type: "code" | "markdown"): HTMLElement;
     private getDragImageImpl;

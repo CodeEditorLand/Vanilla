@@ -1,10 +1,10 @@
-import { ActionBar, IActionViewItemProvider } from "vs/base/browser/ui/actionbar/actionbar";
-import { AnchorAlignment } from "vs/base/browser/ui/contextview/contextview";
-import { IAction, IActionRunner } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { ResolvedKeybinding } from "vs/base/common/keybindings";
-import { ScrollEvent } from "vs/base/common/scrollable";
-import { ThemeIcon } from "vs/base/common/themables";
+import { IAction, IActionRunner } from "../../../common/actions.js";
+import { Event } from "../../../common/event.js";
+import { ResolvedKeybinding } from "../../../common/keybindings.js";
+import { ScrollEvent } from "../../../common/scrollable.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import { ActionBar, IActionViewItemProvider } from "../actionbar/actionbar.js";
+import { AnchorAlignment } from "../contextview/contextview.js";
 export declare const MENU_MNEMONIC_REGEX: RegExp;
 export declare const MENU_ESCAPED_MNEMONIC_REGEX: RegExp;
 export declare enum HorizontalDirection {

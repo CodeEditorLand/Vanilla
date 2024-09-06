@@ -1,5 +1,4 @@
-import { Iterable } from "vs/base/common/iterator";
-import { TestResultState } from "vs/workbench/contrib/testing/common/testTypes";
+import { TestResultState } from "./testTypes.js";
 /**
  * Accessor for nodes in get and refresh computed state.
  */
@@ -19,4 +18,4 @@ export interface IComputedStateAndDurationAccessor<T> extends IComputedStateAcce
  * Refreshes the computed state for the node and its parents. Any changes
  * elements cause `addUpdated` to be called.
  */
-export declare const refreshComputedState: <T extends object>(accessor: IComputedStateAccessor<T>, node: T, explicitNewComputedState?: any, refreshDuration?: boolean) => Set<T>;
+export declare const refreshComputedState: <T extends object>(accessor: IComputedStateAccessor<T>, node: T, explicitNewComputedState?: TestResultState, refreshDuration?: boolean) => Set<T>;

@@ -1,8 +1,8 @@
-import "vs/css!./media/gettingStarted";
-import { URI } from "vs/base/common/uri";
-import { IEditorOptions } from "vs/platform/editor/common/editor";
-import { IUntypedEditorInput } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
+import "./media/gettingStarted.css";
+import { URI } from "../../../../base/common/uri.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IUntypedEditorInput } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
 export declare const gettingStartedInputTypeId = "workbench.editors.gettingStartedInput";
 export interface GettingStartedEditorOptions extends IEditorOptions {
     selectedCategory?: string;
@@ -11,14 +11,14 @@ export interface GettingStartedEditorOptions extends IEditorOptions {
 }
 export declare class GettingStartedInput extends EditorInput {
     static readonly ID = "workbench.editors.gettingStartedInput";
-    static readonly RESOURCE: any;
+    static readonly RESOURCE: URI;
     get typeId(): string;
     get editorId(): string | undefined;
     toUntyped(): IUntypedEditorInput;
     get resource(): URI | undefined;
     matches(other: EditorInput | IUntypedEditorInput): boolean;
     constructor(options: GettingStartedEditorOptions);
-    getName(): any;
+    getName(): string;
     selectedCategory: string | undefined;
     selectedStep: string | undefined;
     showTelemetryNotice: boolean;

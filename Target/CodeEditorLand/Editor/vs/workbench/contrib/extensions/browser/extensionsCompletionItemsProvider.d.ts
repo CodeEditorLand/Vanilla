@@ -1,7 +1,7 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IExtensionManagementService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 export declare class ExtensionsCompletionItemsProvider extends Disposable implements IWorkbenchContribution {
     private readonly extensionManagementService;
     constructor(extensionManagementService: IExtensionManagementService, languageFeaturesService: ILanguageFeaturesService);

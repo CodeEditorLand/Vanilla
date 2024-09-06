@@ -1,4 +1,4 @@
-import { IMatch } from "vs/base/common/filters";
+import { IMatch } from "./filters.js";
 export type FuzzyScore = [number, number[]];
 export type FuzzyScorerCache = {
     [key: string]: IItemScore;

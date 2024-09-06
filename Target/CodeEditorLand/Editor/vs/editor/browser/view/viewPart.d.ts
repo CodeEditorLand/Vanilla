@@ -1,7 +1,7 @@
-import { FastDomNode } from "vs/base/browser/fastDomNode";
-import { RenderingContext, RestrictedRenderingContext } from "vs/editor/browser/view/renderingContext";
-import { ViewEventHandler } from "vs/editor/common/viewEventHandler";
-import { ViewContext } from "vs/editor/common/viewModel/viewContext";
+import { FastDomNode } from "../../../base/browser/fastDomNode.js";
+import { ViewEventHandler } from "../../common/viewEventHandler.js";
+import { ViewContext } from "../../common/viewModel/viewContext.js";
+import { RenderingContext, RestrictedRenderingContext } from "./renderingContext.js";
 export declare abstract class ViewPart extends ViewEventHandler {
     _context: ViewContext;
     constructor(context: ViewContext);

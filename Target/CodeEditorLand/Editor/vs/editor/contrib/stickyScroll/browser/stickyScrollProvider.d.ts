@@ -1,9 +1,9 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { StickyElement, StickyRange } from "vs/editor/contrib/stickyScroll/browser/stickyScrollElement";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { StickyElement, StickyRange } from "./stickyScrollElement.js";
 export declare class StickyLineCandidate {
     readonly startLineNumber: number;
     readonly endLineNumber: number;
@@ -22,7 +22,7 @@ export declare class StickyLineCandidateProvider extends Disposable implements I
     private readonly _languageConfigurationService;
     static readonly ID = "store.contrib.stickyScrollController";
     private readonly _onDidChangeStickyScroll;
-    readonly onDidChangeStickyScroll: any;
+    readonly onDidChangeStickyScroll: Event<void>;
     private readonly _editor;
     private readonly _updateSoon;
     private readonly _sessionStore;

@@ -1,12 +1,12 @@
-import { Emitter } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
-import { IUserDataSyncEnablementService } from "vs/platform/userDataSync/common/userDataSync";
-import { SettingsTreeSettingElement } from "vs/workbench/contrib/preferences/browser/settingsTreeModels";
-import { IWorkbenchConfigurationService } from "vs/workbench/services/configuration/common/configuration";
+import { Emitter } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IWorkbenchConfigurationService } from "../../../services/configuration/common/configuration.js";
+import { SettingsTreeSettingElement } from "./settingsTreeModels.js";
 type ScopeString = "workspace" | "user" | "remote" | "default";
 export interface ISettingOverrideClickEvent {
     scope: ScopeString;

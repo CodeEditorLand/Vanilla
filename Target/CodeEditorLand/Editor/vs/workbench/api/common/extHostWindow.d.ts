@@ -1,8 +1,8 @@
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
 import { WindowState } from "vscode";
-import { ExtHostWindowShape, IOpenUriOptions } from "./extHost.protocol";
+import { Event } from "../../../base/common/event.js";
+import { URI } from "../../../base/common/uri.js";
+import { ExtHostWindowShape, IOpenUriOptions } from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 export declare class ExtHostWindow implements ExtHostWindowShape {
     private static InitialState;
     private _proxy;
@@ -17,6 +17,6 @@ export declare class ExtHostWindow implements ExtHostWindowShape {
     openUri(stringOrUri: string | URI, options: IOpenUriOptions): Promise<boolean>;
     asExternalUri(uri: URI, options: IOpenUriOptions): Promise<URI>;
 }
-export declare const IExtHostWindow: any;
+export declare const IExtHostWindow: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostWindow>;
 export interface IExtHostWindow extends ExtHostWindow, ExtHostWindowShape {
 }

@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { BareFontInfo, FontInfo } from "vs/editor/common/config/fontInfo";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { BareFontInfo, FontInfo } from "../../common/config/fontInfo.js";
 /**
  * Serializable font information.
  */
@@ -26,7 +26,7 @@ export declare class FontMeasurementsImpl extends Disposable {
     private readonly _cache;
     private _evictUntrustedReadingsTimeout;
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: import("../../../base/common/event.js").Event<void>;
     dispose(): void;
     /**
      * Clear all cached font information and trigger a change event.

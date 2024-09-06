@@ -1,5 +1,5 @@
-import { ScopedLineTokens } from "vs/editor/common/languages/supports";
-import { RichEditBrackets } from "vs/editor/common/languages/supports/richEditBrackets";
+import { ScopedLineTokens } from "../supports.js";
+import { RichEditBrackets } from "./richEditBrackets.js";
 /**
  * Interface used to support electric characters
  * @internal

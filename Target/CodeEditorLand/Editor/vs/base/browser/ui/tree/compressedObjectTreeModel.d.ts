@@ -1,8 +1,6 @@
-import { IList } from "vs/base/browser/ui/tree/indexTreeModel";
-import { IObjectTreeModel, IObjectTreeModelOptions, IObjectTreeModelSetChildrenOptions } from "vs/base/browser/ui/tree/objectTreeModel";
-import { ICollapseStateChangeEvent, IObjectTreeElement, ITreeModel, ITreeModelSpliceEvent, ITreeNode } from "vs/base/browser/ui/tree/tree";
-import { Event } from "vs/base/common/event";
-import { Iterable } from "vs/base/common/iterator";
+import { Event } from "../../../common/event.js";
+import { IObjectTreeModel, IObjectTreeModelOptions, IObjectTreeModelSetChildrenOptions } from "./objectTreeModel.js";
+import { ICollapseStateChangeEvent, IObjectTreeElement, ITreeListSpliceData, ITreeModel, ITreeModelSpliceEvent, ITreeNode } from "./tree.js";
 export interface ICompressedTreeElement<T> extends IObjectTreeElement<T> {
     readonly children?: Iterable<ICompressedTreeElement<T>>;
     readonly incompressible?: boolean;
@@ -19,7 +17,8 @@ interface ICompressedObjectTreeModelOptions<T, TFilterData> extends IObjectTreeM
 export declare class CompressedObjectTreeModel<T extends NonNullable<any>, TFilterData extends NonNullable<any> = void> implements ITreeModel<ICompressedTreeNode<T> | null, TFilterData, T | null> {
     private user;
     readonly rootRef: null;
-    get onDidSplice(): Event<ITreeModelSpliceEvent<ICompressedTreeNode<T> | null, TFilterData>>;
+    get onDidSpliceRenderedNodes(): Event<ITreeListSpliceData<ICompressedTreeNode<T> | null, TFilterData>>;
+    get onDidSpliceModel(): Event<ITreeModelSpliceEvent<ICompressedTreeNode<T> | null, TFilterData>>;
     get onDidChangeCollapseState(): Event<ICollapseStateChangeEvent<ICompressedTreeNode<T>, TFilterData>>;
     get onDidChangeRenderNodeCount(): Event<ITreeNode<ICompressedTreeNode<T>, TFilterData>>;
     private model;
@@ -27,7 +26,7 @@ export declare class CompressedObjectTreeModel<T extends NonNullable<any>, TFilt
     private enabled;
     private readonly identityProvider?;
     get size(): number;
-    constructor(user: string, list: IList<ITreeNode<ICompressedTreeNode<T>, TFilterData>>, options?: ICompressedObjectTreeModelOptions<T, TFilterData>);
+    constructor(user: string, options?: ICompressedObjectTreeModelOptions<T, TFilterData>);
     setChildren(element: T | null, children: Iterable<ICompressedTreeElement<T>> | undefined, options: IObjectTreeModelSetChildrenOptions<T, TFilterData>): void;
     isCompressionEnabled(): boolean;
     setCompressionEnabled(enabled: boolean): void;
@@ -46,7 +45,6 @@ export declare class CompressedObjectTreeModel<T extends NonNullable<any>, TFilt
     setCollapsed(location: T | null, collapsed?: boolean | undefined, recursive?: boolean | undefined): boolean;
     expandTo(location: T | null): void;
     rerender(location: T | null): void;
-    updateElementHeight(element: T, height: number): void;
     refilter(): void;
     resort(location?: T | null, recursive?: boolean): void;
     getCompressedNode(element: T | null): ICompressedTreeNode<T> | null;
@@ -60,13 +58,14 @@ export interface ICompressibleObjectTreeModelOptions<T, TFilterData> extends IOb
 }
 export declare class CompressibleObjectTreeModel<T extends NonNullable<any>, TFilterData extends NonNullable<any> = void> implements IObjectTreeModel<T, TFilterData> {
     readonly rootRef: null;
-    get onDidSplice(): Event<ITreeModelSpliceEvent<T | null, TFilterData>>;
+    get onDidSpliceModel(): Event<ITreeModelSpliceEvent<T | null, TFilterData>>;
+    get onDidSpliceRenderedNodes(): Event<ITreeListSpliceData<T | null, TFilterData>>;
     get onDidChangeCollapseState(): Event<ICollapseStateChangeEvent<T | null, TFilterData>>;
     get onDidChangeRenderNodeCount(): Event<ITreeNode<T | null, TFilterData>>;
     private elementMapper;
     private nodeMapper;
     private model;
-    constructor(user: string, list: IList<ITreeNode<T, TFilterData>>, options?: ICompressibleObjectTreeModelOptions<T, TFilterData>);
+    constructor(user: string, options?: ICompressibleObjectTreeModelOptions<T, TFilterData>);
     setChildren(element: T | null, children?: Iterable<ICompressedTreeElement<T>>, options?: IObjectTreeModelSetChildrenOptions<T, TFilterData>): void;
     isCompressionEnabled(): boolean;
     setCompressionEnabled(enabled: boolean): void;
@@ -84,7 +83,6 @@ export declare class CompressibleObjectTreeModel<T extends NonNullable<any>, TFi
     setCollapsed(location: T | null, collapsed?: boolean | undefined, recursive?: boolean | undefined): boolean;
     expandTo(location: T | null): void;
     rerender(location: T | null): void;
-    updateElementHeight(element: T, height: number): void;
     refilter(): void;
     resort(element?: T | null, recursive?: boolean): void;
     getCompressedTreeNode(location?: T | null): ITreeNode<ICompressedTreeNode<T> | null, TFilterData>;

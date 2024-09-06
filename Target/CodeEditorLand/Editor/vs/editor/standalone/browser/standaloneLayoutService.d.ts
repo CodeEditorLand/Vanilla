@@ -1,18 +1,19 @@
-import * as dom from "vs/base/browser/dom";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { ILayoutOffsetInfo, ILayoutService } from "vs/platform/layout/browser/layoutService";
+import * as dom from "../../../base/browser/dom.js";
+import { Event } from "../../../base/common/event.js";
+import { ILayoutOffsetInfo, ILayoutService } from "../../../platform/layout/browser/layoutService.js";
+import { ICodeEditorService } from "../../browser/services/codeEditorService.js";
 declare class StandaloneLayoutService implements ILayoutService {
     private _codeEditorService;
     readonly _serviceBrand: undefined;
-    readonly onDidLayoutMainContainer: any;
-    readonly onDidLayoutActiveContainer: any;
-    readonly onDidLayoutContainer: any;
-    readonly onDidChangeActiveContainer: any;
-    readonly onDidAddContainer: any;
+    readonly onDidLayoutMainContainer: Event<any>;
+    readonly onDidLayoutActiveContainer: Event<any>;
+    readonly onDidLayoutContainer: Event<any>;
+    readonly onDidChangeActiveContainer: Event<any>;
+    readonly onDidAddContainer: Event<any>;
     get mainContainer(): HTMLElement;
     get activeContainer(): HTMLElement;
     get mainContainerDimension(): dom.IDimension;
-    get activeContainerDimension(): any;
+    get activeContainerDimension(): dom.Dimension;
     readonly mainContainerOffset: ILayoutOffsetInfo;
     readonly activeContainerOffset: ILayoutOffsetInfo;
     get containers(): Iterable<HTMLElement>;

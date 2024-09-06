@@ -1,7 +1,7 @@
-import { URI } from "vs/base/common/uri";
-import { IResourceUndoRedoElement, UndoRedoElementType } from "vs/platform/undoRedo/common/undoRedo";
-import { NotebookCellTextModel } from "vs/workbench/contrib/notebook/common/model/notebookCellTextModel";
-import { ISelectionState, NotebookCellMetadata } from "vs/workbench/contrib/notebook/common/notebookCommon";
+import { URI } from "../../../../../base/common/uri.js";
+import { IResourceUndoRedoElement, UndoRedoElementType } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { ISelectionState, NotebookCellMetadata } from "../notebookCommon.js";
+import { NotebookCellTextModel } from "./notebookCellTextModel.js";
 /**
  * It should not modify Undo/Redo stack
  */
@@ -34,7 +34,7 @@ export declare class SpliceCellsEdit implements IResourceUndoRedoElement {
     private beforeHandles;
     private endHandles;
     type: UndoRedoElementType.Resource;
-    get label(): "Insert Cell" | "Delete Cell" | "Insert Cells" | "Delete Cells";
+    get label(): "Insert Cells" | "Insert Cell" | "Delete Cells" | "Delete Cell";
     code: string;
     constructor(resource: URI, diffs: [
         number,

@@ -1,1 +1,1 @@
-import "vs/css!./media/preferences";
+import "./media/preferences.css";

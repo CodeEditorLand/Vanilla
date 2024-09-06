@@ -1,7 +1,8 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { OneReference } from "vs/editor/contrib/gotoSymbol/browser/referencesModel";
-export declare const ctxHasSymbols: any;
-export declare const ISymbolNavigationService: any;
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { OneReference } from "./referencesModel.js";
+export declare const ctxHasSymbols: RawContextKey<false>;
+export declare const ISymbolNavigationService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISymbolNavigationService>;
 export interface ISymbolNavigationService {
     readonly _serviceBrand: undefined;
     reset(): void;

@@ -1,6 +1,6 @@
-import { IDocumentFilterDto, MainThreadShareShape } from "vs/workbench/api/common/extHost.protocol";
-import { IShareService } from "vs/workbench/contrib/share/common/share";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { IShareService } from "../../contrib/share/common/share.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IDocumentFilterDto, MainThreadShareShape } from "../common/extHost.protocol.js";
 export declare class MainThreadShare implements MainThreadShareShape {
     private readonly shareService;
     private readonly proxy;

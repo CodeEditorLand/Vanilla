@@ -1,11 +1,11 @@
-import { NativeParsedArgs } from "vs/platform/environment/common/argv";
+import { NativeParsedArgs } from "../common/argv.js";
 /**
  * This code is also used by standalone cli's. Avoid adding any other dependencies.
  */
 declare const helpCategories: {
-    o: any;
-    e: any;
-    t: any;
+    o: string;
+    e: string;
+    t: string;
 };
 export interface Option<OptionType> {
     type: OptionType;

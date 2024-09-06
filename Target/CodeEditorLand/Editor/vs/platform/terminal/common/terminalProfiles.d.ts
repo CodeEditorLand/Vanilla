@@ -1,5 +1,5 @@
-import { UriComponents } from "vs/base/common/uri";
-import { IExtensionTerminalProfile, ITerminalProfile, TerminalIcon } from "vs/platform/terminal/common/terminal";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IExtensionTerminalProfile, ITerminalProfile, TerminalIcon } from "./terminal.js";
 export declare function createProfileSchemaEnums(detectedProfiles: ITerminalProfile[], extensionProfiles?: readonly IExtensionTerminalProfile[]): {
     values: (string | null)[] | undefined;
     markdownDescriptions: string[] | undefined;

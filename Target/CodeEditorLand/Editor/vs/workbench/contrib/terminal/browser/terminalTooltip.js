@@ -1,4 +1,4 @@
-import{asArray as c}from"../../../../../vs/base/common/arrays.js";import{MarkdownString as h}from"../../../../../vs/base/common/htmlContent.js";import{localize as l}from"../../../../../vs/nls.js";import{TerminalCapability as s}from"../../../../../vs/platform/terminal/common/capabilities/capabilities.js";import"../../../../../vs/workbench/contrib/terminal/browser/terminal.js";function C(n){let o="";const e=n.statusList.statuses,t=[];for(const i of e)o+=`
+import{asArray as c}from"../../../../base/common/arrays.js";import{MarkdownString as h}from"../../../../base/common/htmlContent.js";import{localize as l}from"../../../../nls.js";import{TerminalCapability as s}from"../../../../platform/terminal/common/capabilities/capabilities.js";import"./terminal.js";function C(n){let o="";const e=n.statusList.statuses,t=[];for(const i of e)o+=`
 
 ---
 

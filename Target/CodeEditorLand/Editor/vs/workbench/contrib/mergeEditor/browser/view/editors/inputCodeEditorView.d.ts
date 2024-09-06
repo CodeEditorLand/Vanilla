@@ -1,13 +1,13 @@
-import { IAction } from "vs/base/common/actions";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable, ITransaction } from "vs/base/common/observable";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { InputState, ModifiedBaseRange } from "vs/workbench/contrib/mergeEditor/browser/model/modifiedBaseRange";
-import { MergeEditorViewModel } from "vs/workbench/contrib/mergeEditor/browser/view/viewModel";
-import { IGutterItemInfo, IGutterItemView } from "../editorGutter";
-import { CodeEditorView } from "./codeEditorView";
+import { IAction } from "../../../../../../base/common/actions.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { IObservable, ITransaction } from "../../../../../../base/common/observable.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { InputState, ModifiedBaseRange } from "../../model/modifiedBaseRange.js";
+import { IGutterItemInfo, IGutterItemView } from "../editorGutter.js";
+import { MergeEditorViewModel } from "../viewModel.js";
+import { CodeEditorView } from "./codeEditorView.js";
 export declare class InputCodeEditorView extends CodeEditorView {
     readonly inputNumber: 1 | 2;
     readonly otherInputNumber: number;
@@ -21,9 +21,9 @@ export declare class ModifiedBaseRangeGutterItemModel implements IGutterItemInfo
     private readonly inputNumber;
     private readonly viewModel;
     private readonly model;
-    readonly range: any;
+    readonly range: import("../../model/lineRange.js").LineRange;
     constructor(id: string, baseRange: ModifiedBaseRange, inputNumber: 1 | 2, viewModel: MergeEditorViewModel);
-    readonly enabled: any;
+    readonly enabled: IObservable<boolean, unknown>;
     readonly toggleState: IObservable<InputState>;
     readonly state: IObservable<{
         handled: boolean;

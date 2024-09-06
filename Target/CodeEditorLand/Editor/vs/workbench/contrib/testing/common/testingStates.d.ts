@@ -1,4 +1,4 @@
-import { TestResultState } from "vs/workbench/contrib/testing/common/testTypes";
+import { TestResultState } from "./testTypes.js";
 export type TreeStateNode = {
     statusNode: true;
     state: TestResultState;
@@ -12,13 +12,13 @@ export type TreeStateNode = {
 export declare const statePriority: {
     [K in TestResultState]: number;
 };
-export declare const isFailedState: (s: TestResultState) => boolean;
-export declare const isStateWithResult: (s: TestResultState) => boolean;
+export declare const isFailedState: (s: TestResultState) => s is TestResultState.Failed | TestResultState.Errored;
+export declare const isStateWithResult: (s: TestResultState) => s is TestResultState.Passed | TestResultState.Failed | TestResultState.Errored;
 export declare const stateNodes: {
     [K in TestResultState]: TreeStateNode;
 };
 export declare const cmpPriority: (a: TestResultState, b: TestResultState) => number;
-export declare const maxPriority: (...states: TestResultState[]) => any;
+export declare const maxPriority: (...states: TestResultState[]) => TestResultState | undefined;
 export declare const statesInOrder: TestResultState[];
 /**
  * Some states are considered terminal; once these are set for a given test run, they

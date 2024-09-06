@@ -1,7 +1,7 @@
-import { OffsetRange } from "vs/editor/common/core/offsetRange";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { ISequence } from "vs/editor/common/diff/defaultLinesDiffComputer/algorithms/diffAlgorithm";
+import { OffsetRange } from "../../core/offsetRange.js";
+import { Position } from "../../core/position.js";
+import { Range } from "../../core/range.js";
+import { ISequence } from "./algorithms/diffAlgorithm.js";
 export declare class LinesSliceCharSequence implements ISequence {
     readonly lines: string[];
     private readonly range;

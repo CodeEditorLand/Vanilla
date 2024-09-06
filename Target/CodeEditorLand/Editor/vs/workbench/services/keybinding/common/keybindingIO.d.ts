@@ -1,6 +1,6 @@
-import { Keybinding } from "vs/base/common/keybindings";
-import { ContextKeyExpression } from "vs/platform/contextkey/common/contextkey";
-import { ResolvedKeybindingItem } from "vs/platform/keybinding/common/resolvedKeybindingItem";
+import { Keybinding } from "../../../../base/common/keybindings.js";
+import { ContextKeyExpression } from "../../../../platform/contextkey/common/contextkey.js";
+import { ResolvedKeybindingItem } from "../../../../platform/keybinding/common/resolvedKeybindingItem.js";
 export interface IUserKeybindingItem {
     keybinding: Keybinding | null;
     command: string | null;

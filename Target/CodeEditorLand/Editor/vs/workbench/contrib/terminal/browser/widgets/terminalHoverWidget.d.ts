@@ -1,10 +1,10 @@
 import type { IViewportRange } from "@xterm/xterm";
-import type { IHoverAction } from "vs/base/browser/ui/hover/hover";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { ITerminalWidget } from "vs/workbench/contrib/terminal/browser/widgets/widgets";
+import type { IHoverAction } from "../../../../../base/browser/ui/hover/hover.js";
+import { IMarkdownString } from "../../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { ITerminalWidget } from "./widgets.js";
 export interface ILinkHoverTargetOptions {
     readonly viewportRange: IViewportRange;
     readonly cellDimensions: {

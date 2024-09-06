@@ -1,8 +1,8 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ExtHostWebviews } from "vs/workbench/api/common/extHostWebview";
 import type * as vscode from "vscode";
-import * as extHostProtocol from "./extHost.protocol";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import * as extHostProtocol from "./extHost.protocol.js";
+import { ExtHostWebviews } from "./extHostWebview.js";
 export declare class ExtHostWebviewViews implements extHostProtocol.ExtHostWebviewViewsShape {
     private readonly _extHostWebview;
     private readonly _proxy;

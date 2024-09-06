@@ -1,8 +1,8 @@
-import { IEditorConfiguration } from "vs/editor/common/config/editorConfiguration";
-import { EditorTheme } from "vs/editor/common/editorTheme";
-import { ViewEventHandler } from "vs/editor/common/viewEventHandler";
-import { IViewLayout, IViewModel } from "vs/editor/common/viewModel";
-import { IColorTheme } from "vs/platform/theme/common/themeService";
+import { IColorTheme } from "../../../platform/theme/common/themeService.js";
+import { IEditorConfiguration } from "../config/editorConfiguration.js";
+import { EditorTheme } from "../editorTheme.js";
+import { ViewEventHandler } from "../viewEventHandler.js";
+import { IViewLayout, IViewModel } from "../viewModel.js";
 export declare class ViewContext {
     readonly configuration: IEditorConfiguration;
     readonly viewModel: IViewModel;

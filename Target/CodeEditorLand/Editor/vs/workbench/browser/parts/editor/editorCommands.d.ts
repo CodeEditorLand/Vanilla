@@ -1,5 +1,5 @@
-import { IResolvedEditorCommandsContext } from "vs/workbench/browser/parts/editor/editorCommandsContext";
-import { GroupDirection, IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
+import { GroupDirection, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IResolvedEditorCommandsContext } from "./editorCommandsContext.js";
 export declare const CLOSE_SAVED_EDITORS_COMMAND_ID = "workbench.action.closeUnmodifiedEditors";
 export declare const CLOSE_EDITORS_IN_GROUP_COMMAND_ID = "workbench.action.closeEditorsInGroup";
 export declare const CLOSE_EDITORS_AND_GROUP_COMMAND_ID = "workbench.action.closeEditorsAndGroup";

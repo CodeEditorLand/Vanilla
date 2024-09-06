@@ -1,19 +1,19 @@
-import { IEditorOptions } from "vs/platform/editor/common/editor";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { EditorPlaceholder, IEditorPlaceholderContents } from "vs/workbench/browser/parts/editor/editorPlaceholder";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { IEditorGroup } from "vs/workbench/services/editor/common/editorGroupsService";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
+import { EditorPlaceholder, IEditorPlaceholderContents } from "./editorPlaceholder.js";
 export interface IOpenCallbacks {
     openInternal: (input: EditorInput, options: IEditorOptions | undefined) => Promise<void>;
 }
 export declare abstract class BaseBinaryResourceEditor extends EditorPlaceholder {
     private readonly callbacks;
     private readonly _onDidChangeMetadata;
-    readonly onDidChangeMetadata: any;
+    readonly onDidChangeMetadata: import("../../../../base/common/event.js").Event<void>;
     private readonly _onDidOpenInPlace;
-    readonly onDidOpenInPlace: any;
+    readonly onDidOpenInPlace: import("../../../../base/common/event.js").Event<void>;
     private metadata;
     constructor(id: string, group: IEditorGroup, callbacks: IOpenCallbacks, telemetryService: ITelemetryService, themeService: IThemeService, storageService: IStorageService);
     getTitle(): string;

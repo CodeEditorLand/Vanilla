@@ -1,5 +1,5 @@
-import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "vs/platform/telemetry/common/gdprTypings";
-export declare const ITelemetryService: any;
+import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "./gdprTypings.js";
+export declare const ITelemetryService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ITelemetryService>;
 export interface ITelemetryData {
     from?: string;
     target?: string;
@@ -39,7 +39,7 @@ export interface ITelemetryEndpoint {
     aiKey: string;
     sendErrorTelemetry: boolean;
 }
-export declare const ICustomEndpointTelemetryService: any;
+export declare const ICustomEndpointTelemetryService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ICustomEndpointTelemetryService>;
 export interface ICustomEndpointTelemetryService {
     readonly _serviceBrand: undefined;
     publicLog(endpoint: ITelemetryEndpoint, eventName: string, data?: ITelemetryData): void;

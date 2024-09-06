@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
 /**
  * Prevents the top-level menu from showing up when doing Alt + Click in the editor
  */

@@ -1,9 +1,9 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { UriComponents } from "vs/base/common/uri";
-import { FileSystemProviderCapabilities, FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileService, IStat } from "vs/platform/files/common/files";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { IFileChangeDto, MainThreadFileSystemShape } from "../common/extHost.protocol";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import { FileSystemProviderCapabilities, FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileService, IStat } from "../../../platform/files/common/files.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IFileChangeDto, MainThreadFileSystemShape } from "../common/extHost.protocol.js";
 export declare class MainThreadFileSystem implements MainThreadFileSystemShape {
     private readonly _fileService;
     private readonly _proxy;

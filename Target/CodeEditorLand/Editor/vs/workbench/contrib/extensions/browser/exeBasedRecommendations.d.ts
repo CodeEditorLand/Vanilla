@@ -1,5 +1,5 @@
-import { IExtensionTipsService } from "vs/platform/extensionManagement/common/extensionManagement";
-import { ExtensionRecommendation, ExtensionRecommendations } from "vs/workbench/contrib/extensions/browser/extensionRecommendations";
+import { IExtensionTipsService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionRecommendation, ExtensionRecommendations } from "./extensionRecommendations.js";
 export declare class ExeBasedRecommendations extends ExtensionRecommendations {
     private readonly extensionTipsService;
     private _otherTips;

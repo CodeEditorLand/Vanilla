@@ -1,9 +1,9 @@
-import { IActionViewItemOptions } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { IAction, IActionRunner } from "vs/base/common/actions";
-import { KeyCode } from "vs/base/common/keyCodes";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import "vs/css!./actionbar";
+import { IAction, IActionRunner, IRunEvent } from "../../../common/actions.js";
+import { KeyCode } from "../../../common/keyCodes.js";
+import { Disposable, IDisposable } from "../../../common/lifecycle.js";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
+import { IActionViewItemOptions } from "./actionViewItems.js";
+import "./actionbar.css";
 export interface IActionViewItem extends IDisposable {
     action: IAction;
     actionRunner: IActionRunner;
@@ -65,14 +65,14 @@ export declare class ActionBar extends Disposable implements IActionRunner {
     domNode: HTMLElement;
     protected readonly actionsList: HTMLElement;
     private readonly _onDidBlur;
-    readonly onDidBlur: any;
+    readonly onDidBlur: import("../../../common/event.js").Event<void>;
     private readonly _onDidCancel;
-    readonly onDidCancel: any;
+    readonly onDidCancel: import("../../../common/event.js").Event<void>;
     private cancelHasListener;
     private readonly _onDidRun;
-    readonly onDidRun: any;
+    readonly onDidRun: import("../../../common/event.js").Event<IRunEvent>;
     private readonly _onWillRun;
-    readonly onWillRun: any;
+    readonly onWillRun: import("../../../common/event.js").Event<IRunEvent>;
     constructor(container: HTMLElement, options?: IActionBarOptions);
     private refreshRole;
     setAriaLabel(label: string): void;

@@ -1,13 +1,13 @@
-import "vs/css!./editorDictation";
-import { IDimension } from "vs/base/browser/dom";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor, IContentWidget, IContentWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { EditorAction2 } from "vs/editor/browser/editorExtensions";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ISpeechService } from "vs/workbench/contrib/speech/common/speechService";
+import "./editorDictation.css";
+import { IDimension } from "../../../../../base/browser/dom.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../../../editor/browser/editorBrowser.js";
+import { EditorAction2 } from "../../../../../editor/browser/editorExtensions.js";
+import { IEditorContribution } from "../../../../../editor/common/editorCommon.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { ISpeechService } from "../../../speech/common/speechService.js";
 export declare class EditorDictationStartAction extends EditorAction2 {
     constructor();
     runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor): void;

@@ -1,12 +1,12 @@
-import { Event } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { DidUninstallExtensionEvent, IExtensionManagementService, IGalleryExtension, ILocalExtension, InstallExtensionEvent, InstallExtensionResult, InstallOptions, Metadata, UninstallExtensionEvent } from "vs/platform/extensionManagement/common/extensionManagement";
-import { ExtensionType, IExtension, IExtensionIdentifier, IExtensionManifest } from "vs/platform/extensions/common/extensions";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { DidUninstallExtensionEvent, IExtensionManagementService, IGalleryExtension, ILocalExtension, InstallExtensionEvent, InstallExtensionResult, InstallOptions, Metadata, UninstallExtensionEvent } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionType, IExtension, IExtensionIdentifier, IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
 export type DidChangeProfileEvent = {
     readonly added: ILocalExtension[];
     readonly removed: ILocalExtension[];
 };
-export declare const IProfileAwareExtensionManagementService: any;
+export declare const IProfileAwareExtensionManagementService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IProfileAwareExtensionManagementService>;
 export interface IProfileAwareExtensionManagementService extends IExtensionManagementService {
     readonly onDidChangeProfile: Event<DidChangeProfileEvent>;
 }
@@ -20,7 +20,7 @@ export declare const enum ExtensionInstallLocation {
     Remote = 2,
     Web = 3
 }
-export declare const IExtensionManagementServerService: any;
+export declare const IExtensionManagementServerService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionManagementServerService>;
 export interface IExtensionManagementServerService {
     readonly _serviceBrand: undefined;
     readonly localExtensionManagementServer: IExtensionManagementServer | null;
@@ -29,7 +29,7 @@ export interface IExtensionManagementServerService {
     getExtensionManagementServer(extension: IExtension): IExtensionManagementServer | null;
     getExtensionInstallLocation(extension: IExtension): ExtensionInstallLocation | null;
 }
-export declare const DefaultIconPath: any;
+export declare const DefaultIconPath: string;
 export interface IResourceExtension {
     readonly type: "resource";
     readonly identifier: IExtensionIdentifier;
@@ -50,7 +50,7 @@ export type DidUninstallExtensionOnServerEvent = DidUninstallExtensionEvent & {
 export type DidChangeProfileForServerEvent = DidChangeProfileEvent & {
     server: IExtensionManagementServer;
 };
-export declare const IWorkbenchExtensionManagementService: any;
+export declare const IWorkbenchExtensionManagementService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkbenchExtensionManagementService>;
 export interface IWorkbenchExtensionManagementService extends IProfileAwareExtensionManagementService {
     readonly _serviceBrand: undefined;
     onInstallExtension: Event<InstallExtensionOnServerEvent>;
@@ -72,7 +72,7 @@ export interface IWorkbenchExtensionManagementService extends IProfileAwareExten
 export declare const extensionsConfigurationNodeBase: {
     id: string;
     order: number;
-    title: any;
+    title: string;
     type: string;
 };
 export declare const enum EnablementState {
@@ -87,7 +87,7 @@ export declare const enum EnablementState {
     EnabledGlobally = 8,
     EnabledWorkspace = 9
 }
-export declare const IWorkbenchExtensionEnablementService: any;
+export declare const IWorkbenchExtensionEnablementService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkbenchExtensionEnablementService>;
 export interface IWorkbenchExtensionEnablementService {
     readonly _serviceBrand: undefined;
     /**
@@ -154,7 +154,7 @@ export interface IScannedExtension extends IExtension {
 export type ScanOptions = {
     readonly skipInvalidExtensions?: boolean;
 };
-export declare const IWebExtensionsScannerService: any;
+export declare const IWebExtensionsScannerService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWebExtensionsScannerService>;
 export interface IWebExtensionsScannerService {
     readonly _serviceBrand: undefined;
     scanSystemExtensions(): Promise<IExtension[]>;

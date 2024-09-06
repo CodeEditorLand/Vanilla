@@ -1,10 +1,10 @@
-import { URI } from "vs/base/common/uri";
-import { IURITransformer } from "vs/base/common/uriIpc";
-import { IMessagePassingProtocol } from "vs/base/parts/ipc/common/ipc";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { MainThreadConsoleShape } from "vs/workbench/api/common/extHost.protocol";
-import { IHostUtils } from "vs/workbench/api/common/extHostExtensionService";
-import { IExtensionHostInitData } from "vs/workbench/services/extensions/common/extensionHostProtocol";
+import { URI } from "../../../base/common/uri.js";
+import { IURITransformer } from "../../../base/common/uriIpc.js";
+import { IMessagePassingProtocol } from "../../../base/parts/ipc/common/ipc.js";
+import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
+import { IExtensionHostInitData } from "../../services/extensions/common/extensionHostProtocol.js";
+import { MainThreadConsoleShape } from "./extHost.protocol.js";
+import { IHostUtils } from "./extHostExtensionService.js";
 export interface IExitFn {
     (code?: number): any;
 }

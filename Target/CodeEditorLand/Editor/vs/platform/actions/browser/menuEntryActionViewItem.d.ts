@@ -1,18 +1,18 @@
-import { ActionViewItem, BaseActionViewItem } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { DropdownMenuActionViewItem, IDropdownMenuActionViewItemOptions } from "vs/base/browser/ui/dropdown/dropdownActionViewItem";
-import { IAction, SubmenuAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import "vs/css!./menuEntryActionViewItem";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IMenu, IMenuActionOptions, IMenuService, MenuItemAction, SubmenuItemAction } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IThemeService } from "vs/platform/theme/common/themeService";
+import { ActionViewItem, BaseActionViewItem } from "../../../base/browser/ui/actionbar/actionViewItems.js";
+import { DropdownMenuActionViewItem, IDropdownMenuActionViewItemOptions } from "../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { IAction, SubmenuAction } from "../../../base/common/actions.js";
+import { Event } from "../../../base/common/event.js";
+import "./menuEntryActionViewItem.css";
+import { IHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegate.js";
+import { IAccessibilityService } from "../../accessibility/common/accessibility.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../contextview/browser/contextView.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+import { INotificationService } from "../../notification/common/notification.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { IThemeService } from "../../theme/common/themeService.js";
+import { IMenu, IMenuActionOptions, IMenuService, MenuItemAction, SubmenuItemAction } from "../common/actions.js";
 export declare function createAndFillInContextMenuActions(menu: IMenu, options: IMenuActionOptions | undefined, target: IAction[] | {
     primary: IAction[];
     secondary: IAction[];
@@ -51,7 +51,7 @@ export declare class MenuEntryActionViewItem<T extends IMenuEntryActionViewItemO
     onClick(event: MouseEvent): Promise<void>;
     render(container: HTMLElement): void;
     protected updateLabel(): void;
-    protected getTooltip(): any;
+    protected getTooltip(): string;
     protected updateClass(): void;
     private _updateItemClass;
 }

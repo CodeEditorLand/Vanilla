@@ -1,7 +1,7 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ICanonicalUriProvider, ICanonicalUriService } from "vs/platform/workspace/common/canonicalUri";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICanonicalUriProvider, ICanonicalUriService } from "../../../../platform/workspace/common/canonicalUri.js";
 export declare class CanonicalUriService implements ICanonicalUriService {
     readonly _serviceBrand: undefined;
     private readonly _providers;

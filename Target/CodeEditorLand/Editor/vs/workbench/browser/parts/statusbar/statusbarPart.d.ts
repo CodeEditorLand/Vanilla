@@ -1,16 +1,16 @@
-import "vs/css!./media/statusbarpart";
-import { IView } from "vs/base/browser/ui/grid/grid";
-import { Event } from "vs/base/common/event";
-import { Disposable, DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { MultiWindowParts, Part } from "vs/workbench/browser/part";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
-import { IStatusbarEntry, IStatusbarEntryAccessor, IStatusbarEntryLocation, IStatusbarEntryPriority, IStatusbarService, IStatusbarStyleOverride, StatusbarAlignment } from "vs/workbench/services/statusbar/browser/statusbar";
+import "./media/statusbarpart.css";
+import { IView } from "../../../../base/browser/ui/grid/grid.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { IStatusbarEntry, IStatusbarEntryAccessor, IStatusbarEntryLocation, IStatusbarEntryPriority, IStatusbarService, IStatusbarStyleOverride, StatusbarAlignment } from "../../../services/statusbar/browser/statusbar.js";
+import { MultiWindowParts, Part } from "../../part.js";
 export interface IStatusbarEntryContainer extends IDisposable {
     /**
      * An event that is triggered when an entry's visibility is changed.
@@ -82,9 +82,12 @@ declare class StatusbarPart extends Part implements IStatusbarEntryContainer {
     private styleElement;
     private pendingEntries;
     private readonly viewModel;
-    readonly onDidChangeEntryVisibility: any;
+    readonly onDidChangeEntryVisibility: Event<{
+        id: string;
+        visible: boolean;
+    }>;
     private readonly _onWillDispose;
-    readonly onWillDispose: any;
+    readonly onWillDispose: Event<void>;
     private leftItemsContainer;
     private rightItemsContainer;
     private readonly hoverDelegate;
@@ -132,13 +135,16 @@ export declare class AuxiliaryStatusbarPart extends StatusbarPart implements IAu
 export declare class StatusbarService extends MultiWindowParts<StatusbarPart> implements IStatusbarService {
     private readonly instantiationService;
     readonly _serviceBrand: undefined;
-    readonly mainPart: any;
+    readonly mainPart: MainStatusbarPart;
     private readonly _onDidCreateAuxiliaryStatusbarPart;
     private readonly onDidCreateAuxiliaryStatusbarPart;
     constructor(instantiationService: IInstantiationService, storageService: IStorageService, themeService: IThemeService);
     createAuxiliaryStatusbarPart(container: HTMLElement): IAuxiliaryStatusbarPart;
     createScoped(statusbarEntryContainer: IStatusbarEntryContainer, disposables: DisposableStore): IStatusbarService;
-    readonly onDidChangeEntryVisibility: any;
+    readonly onDidChangeEntryVisibility: Event<{
+        id: string;
+        visible: boolean;
+    }>;
     addEntry(entry: IStatusbarEntry, id: string, alignment: StatusbarAlignment, priorityOrLocation?: number | IStatusbarEntryLocation | IStatusbarEntryPriority): IStatusbarEntryAccessor;
     private doAddEntryToAllWindows;
     isEntryVisible(id: string): boolean;

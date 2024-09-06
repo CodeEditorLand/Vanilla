@@ -1,10 +1,10 @@
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { ThemeColor } from "vs/base/common/themables";
-import { Command } from "vs/editor/common/languages";
-import { ColorIdentifier } from "vs/platform/theme/common/colorRegistry";
-import { IAuxiliaryStatusbarPart, IStatusbarEntryContainer } from "vs/workbench/browser/parts/statusbar/statusbarPart";
-export declare const IStatusbarService: any;
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { ThemeColor } from "../../../../base/common/themables.js";
+import { Command } from "../../../../editor/common/languages.js";
+import { ColorIdentifier } from "../../../../platform/theme/common/colorRegistry.js";
+import { IAuxiliaryStatusbarPart, IStatusbarEntryContainer } from "../../../browser/parts/statusbar/statusbarPart.js";
+export declare const IStatusbarService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IStatusbarService>;
 export interface IStatusbarService extends IStatusbarEntryContainer {
     readonly _serviceBrand: undefined;
     /**

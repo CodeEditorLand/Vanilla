@@ -1,10 +1,10 @@
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { INotebookEditorService } from "vs/workbench/contrib/notebook/browser/services/notebookEditorService";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { INotebookEditorService } from "../../contrib/notebook/browser/services/notebookEditorService.js";
+import { INotebookService } from "../../contrib/notebook/common/notebookService.js";
+import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../services/editor/common/editorService.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
 export declare class MainThreadNotebooksAndEditors {
     private readonly _notebookService;
     private readonly _notebookEditorService;

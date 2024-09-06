@@ -1,14 +1,14 @@
-import * as dom from "vs/base/browser/dom";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IDiffEditorOptions } from "vs/editor/common/config/editorOptions";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IViewDescriptorService } from "vs/workbench/common/views";
-import { ITerminalService } from "vs/workbench/contrib/terminal/browser/terminal";
-import { InspectSubject } from "vs/workbench/contrib/testing/browser/testResultsView/testResultsSubject";
+import * as dom from "../../../../../base/browser/dom.js";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { IDiffEditorOptions } from "../../../../../editor/common/config/editorOptions.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { IViewDescriptorService } from "../../../../common/views.js";
+import { ITerminalService } from "../../../terminal/browser/terminal.js";
+import { InspectSubject } from "./testResultsSubject.js";
 export interface IPeekOutputRenderer extends IDisposable {
     onDidContentSizeChange?: Event<void>;
     /** Updates the displayed test. Should clear if it cannot display the test. */
@@ -26,11 +26,11 @@ export declare class DiffContentProvider extends Disposable implements IPeekOutp
     private readonly widget;
     private readonly model;
     private dimension?;
-    get onDidContentSizeChange(): any;
+    get onDidContentSizeChange(): Event<any>;
     constructor(editor: ICodeEditor | undefined, container: HTMLElement, instantiationService: IInstantiationService, modelService: ITextModelService);
     update(subject: InspectSubject): Promise<boolean>;
     private clear;
-    layout(dimensions: dom.IDimension, hasMultipleFrames: boolean): any;
+    layout(dimensions: dom.IDimension, hasMultipleFrames: boolean): number | undefined;
     protected getOptions(isMultiline: boolean): IDiffEditorOptions;
 }
 export declare class MarkdownTestMessagePeek extends Disposable implements IPeekOutputRenderer {
@@ -52,11 +52,11 @@ export declare class PlainTextMessagePeek extends Disposable implements IPeekOut
     private readonly widget;
     private readonly model;
     private dimension?;
-    get onDidContentSizeChange(): any;
+    get onDidContentSizeChange(): Event<any>;
     constructor(editor: ICodeEditor | undefined, container: HTMLElement, instantiationService: IInstantiationService, modelService: ITextModelService);
     update(subject: InspectSubject): Promise<boolean>;
     private clear;
-    layout(dimensions: dom.IDimension, hasMultipleFrames: boolean): any;
+    layout(dimensions: dom.IDimension, hasMultipleFrames: boolean): number | undefined;
 }
 export declare class TerminalMessagePeek extends Disposable implements IPeekOutputRenderer {
     private readonly container;
@@ -81,6 +81,6 @@ export declare class TerminalMessagePeek extends Disposable implements IPeekOutp
     private writeNotice;
     private attachTerminalToDom;
     private clear;
-    layout(dimensions: dom.IDimension): any;
+    layout(dimensions: dom.IDimension): number | undefined;
     private layoutTerminal;
 }

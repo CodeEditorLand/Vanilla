@@ -1,9 +1,9 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { FoldingMarkers } from "vs/editor/common/languages/languageConfiguration";
-import { ILanguageConfigurationService } from "vs/editor/common/languages/languageConfigurationRegistry";
-import { ITextModel } from "vs/editor/common/model";
-import { FoldingRegions } from "vs/editor/contrib/folding/browser/foldingRanges";
-import { FoldingLimitReporter, RangeProvider } from "./folding";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { FoldingMarkers } from "../../../common/languages/languageConfiguration.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ITextModel } from "../../../common/model.js";
+import { FoldingLimitReporter, RangeProvider } from "./folding.js";
+import { FoldingRegions } from "./foldingRanges.js";
 export declare class IndentRangeProvider implements RangeProvider {
     private readonly editorModel;
     private readonly languageConfigurationService;
@@ -21,6 +21,6 @@ export declare class RangesCollector {
     private readonly _foldingRangesLimit;
     constructor(foldingRangesLimit: FoldingLimitReporter);
     insertFirst(startLineNumber: number, endLineNumber: number, indent: number): void;
-    toIndentRanges(model: ITextModel): any;
+    toIndentRanges(model: ITextModel): FoldingRegions;
 }
 export declare function computeRanges(model: ITextModel, offSide: boolean, markers?: FoldingMarkers, foldingRangesLimit?: FoldingLimitReporter): FoldingRegions;

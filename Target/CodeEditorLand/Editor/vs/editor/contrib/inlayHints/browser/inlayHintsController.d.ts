@@ -1,12 +1,13 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { ITextModel } from "vs/editor/common/model";
-import { ILanguageFeatureDebounceService } from "vs/editor/common/services/languageFeatureDebounce";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { InlayHintItem } from "vs/editor/contrib/inlayHints/browser/inlayHints";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INotificationService } from "vs/platform/notification/common/notification";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import * as languages from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
+import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { InlayHintItem } from "./inlayHints.js";
 declare class InlayHintsCache {
     readonly _serviceBrand: undefined;
     private readonly _entries;
@@ -16,12 +17,12 @@ declare class InlayHintsCache {
 }
 interface IInlayHintsCache extends InlayHintsCache {
 }
-declare const IInlayHintsCache: any;
+declare const IInlayHintsCache: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IInlayHintsCache>;
 export declare class RenderedInlayHintLabelPart {
     readonly item: InlayHintItem;
     readonly index: number;
     constructor(item: InlayHintItem, index: number);
-    get part(): any;
+    get part(): languages.InlayHintLabelPart | undefined;
 }
 export declare class InlayHintsController implements IEditorContribution {
     private readonly _editor;
@@ -32,13 +33,14 @@ export declare class InlayHintsController implements IEditorContribution {
     private readonly _instaService;
     static readonly ID: string;
     private static readonly _MAX_DECORATORS;
-    private static readonly _MAX_LABEL_LEN;
+    private static readonly _whitespaceData;
     static get(editor: ICodeEditor): InlayHintsController | undefined;
     private readonly _disposables;
     private readonly _sessionDisposables;
     private readonly _debounceInfo;
     private readonly _decorationsMetadata;
     private readonly _ruleFactory;
+    private _cursorInfo?;
     private _activeRenderMode;
     private _activeInlayHintPart?;
     constructor(_editor: ICodeEditor, _languageFeaturesService: ILanguageFeaturesService, _featureDebounce: ILanguageFeatureDebounceService, _inlayHintsCache: IInlayHintsCache, _commandService: ICommandService, _notificationService: INotificationService, _instaService: IInstantiationService);

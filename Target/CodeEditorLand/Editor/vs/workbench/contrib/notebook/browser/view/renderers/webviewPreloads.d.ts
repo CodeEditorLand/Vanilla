@@ -1,4 +1,4 @@
-import type * as webviewMessages from "vs/workbench/contrib/notebook/browser/view/renderers/webviewMessages";
+import type * as webviewMessages from "./webviewMessages.js";
 interface PreloadStyles {
     readonly outputNodePadding: number;
     readonly outputNodeLeftPadding: number;
@@ -15,4 +15,5 @@ export interface RenderOptions {
     readonly minimalError: boolean;
 }
 export declare function preloadsScriptStr(styleValues: PreloadStyles, options: PreloadOptions, renderOptions: RenderOptions, renderers: readonly webviewMessages.RendererMetadata[], preloads: readonly webviewMessages.StaticPreloadMetadata[], isWorkspaceTrusted: boolean, nonce: string): string;
+export declare function isEditableElement(element: Element): boolean;
 export {};

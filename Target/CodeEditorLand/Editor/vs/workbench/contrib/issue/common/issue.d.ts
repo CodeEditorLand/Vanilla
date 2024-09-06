@@ -1,6 +1,6 @@
-import { UriComponents } from "vs/base/common/uri";
-import { ISandboxConfiguration } from "vs/base/parts/sandbox/common/sandboxTypes";
-import { OldIssueReporterData } from "vs/platform/issue/common/issue";
+import { UriComponents } from "../../../../base/common/uri.js";
+import { ISandboxConfiguration } from "../../../../base/parts/sandbox/common/sandboxTypes.js";
+import { OldIssueReporterData } from "../../../../platform/issue/common/issue.js";
 export interface WindowStyles {
     backgroundColor?: string;
     color?: string;
@@ -103,7 +103,7 @@ export interface IssueReporterWindowConfiguration extends ISandboxConfiguration 
 export interface ProcessExplorerWindowConfiguration extends ISandboxConfiguration {
     data: ProcessExplorerData;
 }
-export declare const IIssueFormService: any;
+export declare const IIssueFormService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IIssueFormService>;
 export interface IIssueFormService {
     readonly _serviceBrand: undefined;
     openReporter(data: IssueReporterData): Promise<void>;
@@ -113,12 +113,12 @@ export interface IIssueFormService {
     sendReporterMenu(extensionId: string): Promise<IssueReporterData | undefined>;
     closeReporter(): Promise<void>;
 }
-export declare const IWorkbenchIssueService: any;
+export declare const IWorkbenchIssueService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkbenchIssueService>;
 export interface IWorkbenchIssueService {
     readonly _serviceBrand: undefined;
     openReporter(dataOverrides?: Partial<IssueReporterData>): Promise<void>;
 }
-export declare const IWorkbenchProcessService: any;
+export declare const IWorkbenchProcessService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkbenchProcessService>;
 export interface IWorkbenchProcessService {
     readonly _serviceBrand: undefined;
     openProcessExplorer(): Promise<void>;

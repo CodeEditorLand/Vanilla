@@ -1,10 +1,10 @@
-import { IEditor } from "vs/editor/common/editorCommon";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IDialogService } from "vs/platform/dialogs/common/dialogs";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { AbstractCommandsQuickAccessProvider, ICommandQuickPick, ICommandsQuickAccessOptions } from "vs/platform/quickinput/browser/commandsQuickAccess";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { AbstractCommandsQuickAccessProvider, ICommandQuickPick, ICommandsQuickAccessOptions } from "../../../../platform/quickinput/browser/commandsQuickAccess.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IEditor } from "../../../common/editorCommon.js";
 export declare abstract class AbstractEditorCommandsQuickAccessProvider extends AbstractCommandsQuickAccessProvider {
     constructor(options: ICommandsQuickAccessOptions, instantiationService: IInstantiationService, keybindingService: IKeybindingService, commandService: ICommandService, telemetryService: ITelemetryService, dialogService: IDialogService);
     /**

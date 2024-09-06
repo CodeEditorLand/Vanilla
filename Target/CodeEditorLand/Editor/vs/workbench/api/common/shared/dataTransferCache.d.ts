@@ -1,5 +1,5 @@
-import { VSBuffer } from "vs/base/common/buffer";
-import { IReadonlyVSDataTransfer } from "vs/base/common/dataTransfer";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { IReadonlyVSDataTransfer } from "../../../../base/common/dataTransfer.js";
 export declare class DataTransferFileCache {
     private requestIdPool;
     private readonly dataTransferFiles;

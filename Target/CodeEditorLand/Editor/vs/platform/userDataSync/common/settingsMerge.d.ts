@@ -1,6 +1,6 @@
-import { FormattingOptions } from "vs/base/common/jsonFormatter";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IConflictSetting } from "vs/platform/userDataSync/common/userDataSync";
+import { FormattingOptions } from "../../../base/common/jsonFormatter.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IConflictSetting } from "./userDataSync.js";
 export interface IMergeResult {
     localContent: string | null;
     remoteContent: string | null;

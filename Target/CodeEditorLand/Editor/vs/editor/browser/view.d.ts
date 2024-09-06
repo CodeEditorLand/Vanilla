@@ -1,15 +1,15 @@
-import { FastDomNode } from "vs/base/browser/fastDomNode";
-import { IMouseWheelEvent } from "vs/base/browser/mouseEvent";
-import { IContentWidget, IContentWidgetPosition, IEditorAriaOptions, IGlyphMarginWidget, IGlyphMarginWidgetPosition, IMouseTarget, IOverlayWidget, IOverlayWidgetPosition, IViewZoneChangeAccessor } from "vs/editor/browser/editorBrowser";
-import { ICommandDelegate } from "vs/editor/browser/view/viewController";
-import { ViewUserInputEvents } from "vs/editor/browser/view/viewUserInputEvents";
-import { OverviewRuler } from "vs/editor/browser/viewParts/overviewRuler/overviewRuler";
-import { IEditorConfiguration } from "vs/editor/common/config/editorConfiguration";
-import { ViewEventHandler } from "vs/editor/common/viewEventHandler";
-import * as viewEvents from "vs/editor/common/viewEvents";
-import { IViewModel } from "vs/editor/common/viewModel";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IColorTheme } from "vs/platform/theme/common/themeService";
+import { FastDomNode } from "../../base/browser/fastDomNode.js";
+import { IMouseWheelEvent } from "../../base/browser/mouseEvent.js";
+import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
+import { IColorTheme } from "../../platform/theme/common/themeService.js";
+import { IEditorConfiguration } from "../common/config/editorConfiguration.js";
+import { ViewEventHandler } from "../common/viewEventHandler.js";
+import * as viewEvents from "../common/viewEvents.js";
+import { IViewModel } from "../common/viewModel.js";
+import { IContentWidget, IContentWidgetPosition, IEditorAriaOptions, IGlyphMarginWidget, IGlyphMarginWidgetPosition, IMouseTarget, IOverlayWidget, IOverlayWidgetPosition, IViewZoneChangeAccessor } from "./editorBrowser.js";
+import { ICommandDelegate } from "./view/viewController.js";
+import { ViewUserInputEvents } from "./view/viewUserInputEvents.js";
+import { OverviewRuler } from "./viewParts/overviewRuler/overviewRuler.js";
 export interface IContentWidgetData {
     widget: IContentWidget;
     position: IContentWidgetPosition | null;
@@ -34,7 +34,7 @@ export declare class View extends ViewEventHandler {
     private readonly _glyphMarginWidgets;
     private readonly _viewCursors;
     private readonly _viewParts;
-    private readonly _textAreaHandler;
+    private _editContext;
     private readonly _pointerHandler;
     private readonly _linesContent;
     readonly domNode: FastDomNode<HTMLElement>;

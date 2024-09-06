@@ -1,9 +1,9 @@
-import { IMenuDirection, IMenuStyles } from "vs/base/browser/ui/menu/menu";
-import { IAction, IActionRunner } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { ResolvedKeybinding } from "vs/base/common/keybindings";
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./menubar";
+import { IAction, IActionRunner } from "../../../common/actions.js";
+import { Event } from "../../../common/event.js";
+import { ResolvedKeybinding } from "../../../common/keybindings.js";
+import { Disposable } from "../../../common/lifecycle.js";
+import { IMenuDirection, IMenuStyles } from "./menu.js";
+import "./menubar.css";
 export interface IMenuBarOptions {
     enableMnemonics?: boolean;
     disableAltFocus?: boolean;

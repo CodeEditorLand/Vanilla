@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ICommentInfo, ICommentService } from "vs/workbench/contrib/comments/browser/commentService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { ICommentInfo, ICommentService } from "./commentService.js";
 export declare class CommentThreadRangeDecorator extends Disposable {
     private static description;
     private decorationOptions;

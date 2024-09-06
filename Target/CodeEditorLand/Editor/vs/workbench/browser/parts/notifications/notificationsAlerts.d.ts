@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { INotificationsModel } from "vs/workbench/common/notifications";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { INotificationsModel } from "../../../common/notifications.js";
 export declare class NotificationsAlerts extends Disposable {
     private readonly model;
     constructor(model: INotificationsModel);

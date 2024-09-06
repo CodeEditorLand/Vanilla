@@ -1,23 +1,24 @@
-import "vs/css!./media/compositepart";
-import { IActionViewItem } from "vs/base/browser/ui/actionbar/actionbar";
-import { IBaseActionViewItemOptions } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { AnchorAlignment } from "vs/base/browser/ui/contextview/contextview";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { IBoundarySashes } from "vs/base/browser/ui/sash/sash";
-import { IAction } from "vs/base/common/actions";
-import { WorkbenchToolBar } from "vs/platform/actions/browser/toolbar";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import type { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IProgressIndicator } from "vs/platform/progress/common/progress";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { Composite, CompositeRegistry } from "vs/workbench/browser/composite";
-import { IPartOptions, Part } from "vs/workbench/browser/part";
-import { IComposite } from "vs/workbench/common/composite";
-import { IWorkbenchLayoutService } from "vs/workbench/services/layout/browser/layoutService";
+import "./media/compositepart.css";
+import { IActionViewItem } from "../../../base/browser/ui/actionbar/actionbar.js";
+import { IBaseActionViewItemOptions } from "../../../base/browser/ui/actionbar/actionViewItems.js";
+import { AnchorAlignment } from "../../../base/browser/ui/contextview/contextview.js";
+import { IHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegate.js";
+import { IBoundarySashes } from "../../../base/browser/ui/sash/sash.js";
+import { IAction } from "../../../base/common/actions.js";
+import { Emitter } from "../../../base/common/event.js";
+import { WorkbenchToolBar } from "../../../platform/actions/browser/toolbar.js";
+import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
+import type { IHoverService } from "../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../platform/notification/common/notification.js";
+import { IProgressIndicator } from "../../../platform/progress/common/progress.js";
+import { IStorageService } from "../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../platform/theme/common/themeService.js";
+import { IComposite } from "../../common/composite.js";
+import { IWorkbenchLayoutService } from "../../services/layout/browser/layoutService.js";
+import { Composite, CompositeRegistry } from "../composite.js";
+import { IPartOptions, Part } from "../part.js";
 export interface ICompositeTitleLabel {
     /**
      * Asks to update the title for the composite with the given ID.
@@ -41,8 +42,11 @@ export declare abstract class CompositePart<T extends Composite> extends Part {
     private readonly nameForTelemetry;
     private readonly compositeCSSClass;
     private readonly titleForegroundColor;
-    protected readonly onDidCompositeOpen: any;
-    protected readonly onDidCompositeClose: any;
+    protected readonly onDidCompositeOpen: Emitter<{
+        composite: IComposite;
+        focus: boolean;
+    }>;
+    protected readonly onDidCompositeClose: Emitter<IComposite>;
     protected toolBar: WorkbenchToolBar | undefined;
     protected titleLabelElement: HTMLElement | undefined;
     protected readonly toolbarHoverDelegate: IHoverDelegate;

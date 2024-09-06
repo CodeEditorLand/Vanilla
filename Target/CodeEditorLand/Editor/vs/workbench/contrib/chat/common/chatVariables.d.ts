@@ -1,13 +1,13 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import { URI } from "vs/base/common/uri";
-import { IRange } from "vs/editor/common/core/range";
-import { Location } from "vs/editor/common/languages";
-import { ChatAgentLocation } from "vs/workbench/contrib/chat/common/chatAgents";
-import { IChatModel, IChatRequestVariableData, IChatRequestVariableEntry } from "vs/workbench/contrib/chat/common/chatModel";
-import { IParsedChatRequest } from "vs/workbench/contrib/chat/common/chatParserTypes";
-import { IChatContentReference, IChatProgressMessage } from "vs/workbench/contrib/chat/common/chatService";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { Location } from "../../../../editor/common/languages.js";
+import { ChatAgentLocation } from "./chatAgents.js";
+import { IChatModel, IChatRequestVariableData, IChatRequestVariableEntry } from "./chatModel.js";
+import { IParsedChatRequest } from "./chatParserTypes.js";
+import { IChatContentReference, IChatProgressMessage } from "./chatService.js";
 export interface IChatVariableData {
     id: string;
     name: string;
@@ -23,7 +23,7 @@ export type IChatVariableResolverProgress = IChatContentReference | IChatProgres
 export interface IChatVariableResolver {
     (messageText: string, arg: string | undefined, model: IChatModel, progress: (part: IChatVariableResolverProgress) => void, token: CancellationToken): Promise<IChatRequestVariableValue | undefined>;
 }
-export declare const IChatVariablesService: any;
+export declare const IChatVariablesService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IChatVariablesService>;
 export interface IChatVariablesService {
     _serviceBrand: undefined;
     registerVariable(data: IChatVariableData, resolver: IChatVariableResolver): IDisposable;

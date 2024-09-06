@@ -1,16 +1,16 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IClipboardService } from "vs/platform/clipboard/common/clipboardService";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { ISnippetsService } from "./snippets";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ISnippetsService } from "./snippets.js";
 export declare class TabCompletionController implements IEditorContribution {
     private readonly _editor;
     private readonly _snippetService;
     private readonly _clipboardService;
     private readonly _languageFeaturesService;
     static readonly ID = "editor.tabCompletionController";
-    static readonly ContextKey: any;
+    static readonly ContextKey: RawContextKey<boolean>;
     static get(editor: ICodeEditor): TabCompletionController | null;
     private readonly _hasSnippets;
     private readonly _configListener;

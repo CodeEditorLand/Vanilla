@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IChannel, IServerChannel } from "vs/base/parts/ipc/common/ipc";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
-import { ISyncResourceHandle, IUserDataManualSyncTask, IUserDataSyncResource, IUserDataSyncResourceConflicts, IUserDataSyncService, IUserDataSyncTask, SyncResource, SyncStatus } from "vs/platform/userDataSync/common/userDataSync";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { ISyncResourceHandle, IUserDataManualSyncTask, IUserDataSyncResource, IUserDataSyncResourceConflicts, IUserDataSyncResourceError, IUserDataSyncService, IUserDataSyncTask, SyncResource, SyncStatus } from "./userDataSync.js";
 export declare class UserDataSyncServiceChannel implements IServerChannel {
     private readonly service;
     private readonly userDataProfilesService;
@@ -31,13 +31,13 @@ export declare class UserDataSyncServiceChannelClient extends Disposable impleme
     private _conflicts;
     get conflicts(): IUserDataSyncResourceConflicts[];
     private _onDidChangeConflicts;
-    readonly onDidChangeConflicts: any;
+    readonly onDidChangeConflicts: Event<IUserDataSyncResourceConflicts[]>;
     private _lastSyncTime;
     get lastSyncTime(): number | undefined;
     private _onDidChangeLastSyncTime;
     readonly onDidChangeLastSyncTime: Event<number>;
     private _onSyncErrors;
-    readonly onSyncErrors: any;
+    readonly onSyncErrors: Event<IUserDataSyncResourceError[]>;
     get onDidResetLocal(): Event<void>;
     get onDidResetRemote(): Event<void>;
     constructor(userDataSyncChannel: IChannel, userDataProfilesService: IUserDataProfilesService);

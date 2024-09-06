@@ -1,12 +1,13 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IOutlineModelService } from "vs/editor/contrib/documentSymbols/browser/outlineModel";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IMarkerService } from "vs/platform/markers/common/markers";
-import { INotebookEditor } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
-import { OutlineChangeEvent } from "vs/workbench/services/outline/browser/outline";
-import { OutlineEntry } from "./OutlineEntry";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { Event } from "../../../../../base/common/event.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IOutlineModelService } from "../../../../../editor/contrib/documentSymbols/browser/outlineModel.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IMarkerService } from "../../../../../platform/markers/common/markers.js";
+import { OutlineChangeEvent } from "../../../../services/outline/browser/outline.js";
+import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";
+import { INotebookEditor } from "../notebookBrowser.js";
+import { OutlineEntry } from "./OutlineEntry.js";
 export interface INotebookCellOutlineDataSource {
     readonly activeElement: OutlineEntry | undefined;
     readonly entries: OutlineEntry[];
@@ -28,7 +29,7 @@ export declare class NotebookCellOutlineDataSource implements INotebookCellOutli
     get activeElement(): OutlineEntry | undefined;
     get entries(): OutlineEntry[];
     get isEmpty(): boolean;
-    get uri(): any;
+    get uri(): URI | undefined;
     computeFullSymbols(cancelToken: CancellationToken): Promise<void>;
     recomputeState(): void;
     recomputeActive(): {

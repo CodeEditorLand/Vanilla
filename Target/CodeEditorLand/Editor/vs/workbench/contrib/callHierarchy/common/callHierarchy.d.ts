@@ -1,10 +1,11 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { RefCountedDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IPosition } from "vs/editor/common/core/position";
-import { IRange } from "vs/editor/common/core/range";
-import { ProviderResult, SymbolKind, SymbolTag } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { RefCountedDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IPosition } from "../../../../editor/common/core/position.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { LanguageFeatureRegistry } from "../../../../editor/common/languageFeatureRegistry.js";
+import { ProviderResult, SymbolKind, SymbolTag } from "../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../editor/common/model.js";
 export declare const enum CallHierarchyDirection {
     CallsTo = "incomingCalls",
     CallsFrom = "outgoingCalls"
@@ -37,7 +38,7 @@ export interface CallHierarchyProvider {
     provideIncomingCalls(item: CallHierarchyItem, token: CancellationToken): ProviderResult<IncomingCall[]>;
     provideOutgoingCalls(item: CallHierarchyItem, token: CancellationToken): ProviderResult<OutgoingCall[]>;
 }
-export declare const CallHierarchyProviderRegistry: any;
+export declare const CallHierarchyProviderRegistry: LanguageFeatureRegistry<CallHierarchyProvider>;
 export declare class CallHierarchyModel {
     readonly id: string;
     readonly provider: CallHierarchyProvider;

@@ -1,13 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IConfigurationValue } from "vs/platform/configuration/common/configuration";
-import { ConfigurationDefaultValueSource } from "vs/platform/configuration/common/configurationRegistry";
-import { IProductService } from "vs/platform/product/common/productService";
-import { SettingsTarget } from "vs/workbench/contrib/preferences/browser/preferencesWidgets";
-import { IWorkbenchConfigurationService } from "vs/workbench/services/configuration/common/configuration";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
-import { ISearchResult, ISetting, SettingValueType } from "vs/workbench/services/preferences/common/preferences";
-import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IConfigurationValue } from "../../../../platform/configuration/common/configuration.js";
+import { ConfigurationDefaultValueSource } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IWorkbenchConfigurationService } from "../../../services/configuration/common/configuration.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { ISearchResult, ISetting, SettingValueType } from "../../../services/preferences/common/preferences.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { SettingsTarget } from "./preferencesWidgets.js";
+import { ITOCEntry } from "./settingsLayout.js";
 export declare const ONLINE_SERVICES_SETTING_TAG = "usesOnlineServices";
 export interface ISettingsEditorViewState {
     settingsTarget: SettingsTarget;
@@ -23,8 +25,8 @@ export declare abstract class SettingsTreeElement extends Disposable {
     id: string;
     parent?: SettingsTreeGroupElement;
     private _tabbable;
-    protected readonly _onDidChangeTabbable: any;
-    readonly onDidChangeTabbable: any;
+    protected readonly _onDidChangeTabbable: Emitter<void>;
+    readonly onDidChangeTabbable: import("../../../../base/common/event.js").Event<void>;
     constructor(_id: string);
     get tabbable(): boolean;
     set tabbable(value: boolean);

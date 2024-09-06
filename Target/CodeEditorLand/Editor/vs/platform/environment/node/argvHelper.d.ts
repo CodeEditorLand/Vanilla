@@ -1,5 +1,5 @@
-import { IProcessEnvironment } from "vs/base/common/platform";
-import { NativeParsedArgs } from "vs/platform/environment/common/argv";
+import { IProcessEnvironment } from "../../../base/common/platform.js";
+import { NativeParsedArgs } from "../common/argv.js";
 /**
  * Use this to parse raw code process.argv such as: `Electron . --verbose --wait`
  */

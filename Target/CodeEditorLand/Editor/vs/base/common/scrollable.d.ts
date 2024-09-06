@@ -1,5 +1,5 @@
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
+import { Event } from "./event.js";
+import { Disposable, IDisposable } from "./lifecycle.js";
 export declare const enum ScrollbarVisibility {
     Auto = 1,
     Hidden = 2,

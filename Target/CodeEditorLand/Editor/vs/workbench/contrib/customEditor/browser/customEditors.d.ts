@@ -1,15 +1,16 @@
-import "vs/css!./media/customEditor";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IFileService } from "vs/platform/files/common/files";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { CustomEditorCapabilities, CustomEditorInfo, CustomEditorInfoCollection, ICustomEditorService } from "vs/workbench/contrib/customEditor/common/customEditor";
-import { IEditorGroupsService } from "vs/workbench/services/editor/common/editorGroupsService";
-import { IEditorResolverService, IEditorType } from "vs/workbench/services/editor/common/editorResolverService";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import "./media/customEditor.css";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorResolverService, IEditorType } from "../../../services/editor/common/editorResolverService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { CustomEditorCapabilities, CustomEditorInfo, CustomEditorInfoCollection, ICustomEditorService } from "../common/customEditor.js";
+import { CustomEditorModelManager } from "../common/customEditorModelManager.js";
 export declare class CustomEditorService extends Disposable implements ICustomEditorService {
     private readonly editorService;
     private readonly editorGroupService;
@@ -30,7 +31,7 @@ export declare class CustomEditorService extends Disposable implements ICustomEd
     private withActiveCustomEditor;
     private registerContributionPoints;
     private createDiffEditorInput;
-    get models(): any;
+    get models(): CustomEditorModelManager;
     getCustomEditor(viewType: string): CustomEditorInfo | undefined;
     getContributedCustomEditors(resource: URI): CustomEditorInfoCollection;
     getUserConfiguredCustomEditors(resource: URI): CustomEditorInfoCollection;

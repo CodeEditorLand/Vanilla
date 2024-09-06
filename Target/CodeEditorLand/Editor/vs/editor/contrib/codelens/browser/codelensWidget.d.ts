@@ -1,8 +1,8 @@
-import "vs/css!./codelensWidget";
-import { IActiveCodeEditor, IViewZoneChangeAccessor } from "vs/editor/browser/editorBrowser";
-import { CodeLens, Command } from "vs/editor/common/languages";
-import { IModelDecorationsChangeAccessor, IModelDeltaDecoration, ITextModel } from "vs/editor/common/model";
-import { CodeLensItem } from "vs/editor/contrib/codelens/browser/codelens";
+import "./codelensWidget.css";
+import { IActiveCodeEditor, IViewZoneChangeAccessor } from "../../../browser/editorBrowser.js";
+import { CodeLens, Command } from "../../../common/languages.js";
+import { IModelDecorationsChangeAccessor, IModelDeltaDecoration, ITextModel } from "../../../common/model.js";
+import { CodeLensItem } from "./codelens.js";
 export interface IDecorationIdCallback {
     (decorationId: string): void;
 }

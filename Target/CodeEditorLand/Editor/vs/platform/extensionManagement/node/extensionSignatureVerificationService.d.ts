@@ -1,8 +1,8 @@
-import { IGalleryExtension } from "vs/platform/extensionManagement/common/extensionManagement";
-import { TargetPlatform } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-export declare const IExtensionSignatureVerificationService: any;
+import { TargetPlatform } from "../../extensions/common/extensions.js";
+import { ILogService } from "../../log/common/log.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IGalleryExtension } from "../common/extensionManagement.js";
+export declare const IExtensionSignatureVerificationService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionSignatureVerificationService>;
 /**
  * A service for verifying signed extensions.
  */

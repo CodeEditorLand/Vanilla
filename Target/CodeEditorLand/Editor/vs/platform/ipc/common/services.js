@@ -1,1 +1,1 @@
-import"../../../../vs/base/parts/ipc/common/ipc.js";
+import"../../../base/parts/ipc/common/ipc.js";

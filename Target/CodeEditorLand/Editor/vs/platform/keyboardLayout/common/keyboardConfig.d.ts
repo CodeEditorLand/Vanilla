@@ -1,4 +1,4 @@
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
 export declare const enum DispatchConfig {
     Code = 0,
     KeyCode = 1

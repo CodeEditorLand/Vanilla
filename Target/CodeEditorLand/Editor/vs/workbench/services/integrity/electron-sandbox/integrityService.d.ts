@@ -1,11 +1,11 @@
-import { IChecksumService } from "vs/platform/checksum/common/checksumService";
-import { ILogService } from "vs/platform/log/common/log";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IIntegrityService, IntegrityTestResult } from "vs/workbench/services/integrity/common/integrity";
-import { ILifecycleService } from "vs/workbench/services/lifecycle/common/lifecycle";
+import { IChecksumService } from "../../../../platform/checksum/common/checksumService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { IIntegrityService, IntegrityTestResult } from "../common/integrity.js";
 export declare class IntegrityService implements IIntegrityService {
     private readonly notificationService;
     private readonly storageService;

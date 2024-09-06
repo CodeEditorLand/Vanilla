@@ -1,7 +1,7 @@
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ExtHostAiRelatedInformationShape, IMainContext } from "vs/workbench/api/common/extHost.protocol";
-import { Disposable } from "vs/workbench/api/common/extHostTypes";
 import type { CancellationToken, RelatedInformationProvider, RelatedInformationResult, RelatedInformationType } from "vscode";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostAiRelatedInformationShape, IMainContext } from "./extHost.protocol.js";
+import { Disposable } from "./extHostTypes.js";
 export declare class ExtHostRelatedInformation implements ExtHostAiRelatedInformationShape {
     private _relatedInformationProviders;
     private _nextHandle;

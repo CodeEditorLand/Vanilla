@@ -1,15 +1,15 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import * as pfs from "vs/base/node/pfs";
-import { ILogService } from "vs/platform/log/common/log";
-import { IExtHostConfiguration } from "vs/workbench/api/common/extHostConfiguration";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { ExtHostSearch } from "vs/workbench/api/common/extHostSearch";
-import { IURITransformerService } from "vs/workbench/api/common/extHostUriTransformerService";
-import { IFileQuery, IRawFileQuery, ISearchCompleteStats, ITextQuery } from "vs/workbench/services/search/common/search";
-import { TextSearchManager } from "vs/workbench/services/search/common/textSearchManager";
 import type * as vscode from "vscode";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import * as pfs from "../../../base/node/pfs.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IFileQuery, IRawFileQuery, ISearchCompleteStats, ITextQuery } from "../../services/search/common/search.js";
+import { TextSearchManager } from "../../services/search/common/textSearchManager.js";
+import { IExtHostConfiguration } from "../common/extHostConfiguration.js";
+import { IExtHostInitDataService } from "../common/extHostInitDataService.js";
+import { IExtHostRpcService } from "../common/extHostRpcService.js";
+import { ExtHostSearch } from "../common/extHostSearch.js";
+import { IURITransformerService } from "../common/extHostUriTransformerService.js";
 export declare class NativeExtHostSearch extends ExtHostSearch implements IDisposable {
     private readonly configurationService;
     protected _pfs: typeof pfs;

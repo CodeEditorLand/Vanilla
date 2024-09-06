@@ -1,10 +1,10 @@
-import "vs/css!./media/panelpart";
-import { ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { Action2, IAction2Options } from "vs/platform/actions/common/actions";
-import { ViewContainerLocation } from "vs/workbench/common/views";
+import "./media/panelpart.css";
+import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { Action2, IAction2Options } from "../../../../platform/actions/common/actions.js";
+import { ViewContainerLocation } from "../../../common/views.js";
 export declare class TogglePanelAction extends Action2 {
     static readonly ID = "workbench.action.togglePanel";
-    static readonly LABEL: any;
+    static readonly LABEL: import("../../../../nls.js").ILocalizedString;
     constructor();
     run(accessor: ServicesAccessor): Promise<void>;
 }

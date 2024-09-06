@@ -1,5 +1,5 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
+import { CancellationToken } from "./cancellation.js";
+import { IDisposable } from "./lifecycle.js";
 export interface CacheResult<T> extends IDisposable {
     promise: Promise<T>;
 }

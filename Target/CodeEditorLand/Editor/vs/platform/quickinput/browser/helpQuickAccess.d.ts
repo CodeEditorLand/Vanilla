@@ -1,7 +1,7 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IQuickAccessProvider } from "vs/platform/quickinput/common/quickAccess";
-import { IQuickInputService, IQuickPick, IQuickPickItem } from "vs/platform/quickinput/common/quickInput";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+import { IQuickAccessProvider } from "../common/quickAccess.js";
+import { IQuickInputService, IQuickPick, IQuickPickItem } from "../common/quickInput.js";
 interface IHelpQuickAccessPickItem extends IQuickPickItem {
     readonly prefix: string;
 }

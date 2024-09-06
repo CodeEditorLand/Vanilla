@@ -1,10 +1,10 @@
-import { IProcessEnvironment, OperatingSystem } from "vs/base/common/platform";
-import { URI } from "vs/base/common/uri";
-import { ILogService } from "vs/platform/log/common/log";
-import { IShellLaunchConfig, ITerminalBackend, ITerminalEnvironment, TerminalShellType } from "vs/platform/terminal/common/terminal";
-import { IWorkspaceContextService, IWorkspaceFolder } from "vs/platform/workspace/common/workspace";
-import { IConfigurationResolverService } from "vs/workbench/services/configurationResolver/common/configurationResolver";
-import { IHistoryService } from "vs/workbench/services/history/common/history";
+import { IProcessEnvironment, OperatingSystem } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IShellLaunchConfig, ITerminalBackend, ITerminalEnvironment, TerminalShellType } from "../../../../platform/terminal/common/terminal.js";
+import { IWorkspaceContextService, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
+import { IHistoryService } from "../../../services/history/common/history.js";
 export declare function mergeEnvironments(parent: IProcessEnvironment, other: ITerminalEnvironment | undefined): void;
 export declare function addTerminalEnvironmentKeys(env: IProcessEnvironment, version: string | undefined, locale: string | undefined, detectLocale: "auto" | "off" | "on"): void;
 export declare function shouldSetLangEnvVariable(env: IProcessEnvironment, detectLocale: "auto" | "off" | "on"): boolean;

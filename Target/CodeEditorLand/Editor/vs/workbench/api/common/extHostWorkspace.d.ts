@@ -1,19 +1,19 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { URI, UriComponents } from "vs/base/common/uri";
-import { ExtensionIdentifier, IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { AuthInfo, Credentials } from "vs/platform/request/common/request";
-import { EditSessionIdentityMatch } from "vs/platform/workspace/common/editSessions";
-import { Workspace } from "vs/platform/workspace/common/workspace";
-import { IExtHostFileSystemInfo } from "vs/workbench/api/common/extHostFileSystemInfo";
-import { IExtHostInitDataService } from "vs/workbench/api/common/extHostInitDataService";
-import { IExtHostRpcService } from "vs/workbench/api/common/extHostRpcService";
-import { IURITransformerService } from "vs/workbench/api/common/extHostUriTransformerService";
-import { ITextQueryBuilderOptions } from "vs/workbench/services/search/common/queryBuilder";
-import { IRawFileMatch2, ITextSearchResult } from "vs/workbench/services/search/common/search";
 import type * as vscode from "vscode";
-import { ExtHostWorkspaceShape, IWorkspaceData } from "./extHost.protocol";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { AuthInfo, Credentials } from "../../../platform/request/common/request.js";
+import { EditSessionIdentityMatch } from "../../../platform/workspace/common/editSessions.js";
+import { Workspace } from "../../../platform/workspace/common/workspace.js";
+import { ITextQueryBuilderOptions } from "../../services/search/common/queryBuilder.js";
+import { IRawFileMatch2, ITextSearchResult } from "../../services/search/common/search.js";
+import { ExtHostWorkspaceShape, IWorkspaceData } from "./extHost.protocol.js";
+import { IExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { IURITransformerService } from "./extHostUriTransformerService.js";
 export interface IExtHostWorkspaceProvider {
     getWorkspaceFolder2(uri: vscode.Uri, resolveParent?: boolean): Promise<vscode.WorkspaceFolder | undefined>;
     resolveWorkspaceFolder(uri: vscode.Uri): Promise<vscode.WorkspaceFolder | undefined>;
@@ -73,7 +73,7 @@ export declare class ExtHostWorkspace implements ExtHostWorkspaceShape, IExtHost
     findFiles2New(filePatterns: vscode.GlobPattern[], options: vscode.FindFiles2OptionsNew | undefined, extensionId: ExtensionIdentifier, token?: vscode.CancellationToken): Promise<vscode.Uri[]>;
     private _findFilesImpl;
     private _findFilesBase;
-    findTextInFilesNew(query: vscode.TextSearchQueryNew, extensionId: ExtensionIdentifier, options?: vscode.FindTextInFilesOptionsNew, token?: vscode.CancellationToken): vscode.FindTextInFilesResponse;
+    findTextInFilesNew(query: vscode.TextSearchQueryNew, options: vscode.FindTextInFilesOptionsNew | undefined, extensionId: ExtensionIdentifier, token?: vscode.CancellationToken): vscode.FindTextInFilesResponse;
     findTextInFilesBase(query: vscode.TextSearchQuery, queryOptions: QueryOptions<ITextQueryBuilderOptions>[] | undefined, callback: (result: ITextSearchResult<URI>, uri: URI) => void, token?: vscode.CancellationToken): Promise<vscode.TextSearchComplete>;
     findTextInFiles(query: vscode.TextSearchQuery, options: vscode.FindTextInFilesOptions & {
         useSearchExclude?: boolean;
@@ -90,18 +90,18 @@ export declare class ExtHostWorkspace implements ExtHostWorkspaceShape, IExtHost
     requestWorkspaceTrust(options?: vscode.WorkspaceTrustRequestOptions): Promise<boolean | undefined>;
     $onDidGrantWorkspaceTrust(): void;
     private _providerHandlePool;
-    registerEditSessionIdentityProvider(scheme: string, provider: vscode.EditSessionIdentityProvider): any;
+    registerEditSessionIdentityProvider(scheme: string, provider: vscode.EditSessionIdentityProvider): import("../../../base/common/lifecycle.js").IDisposable;
     $getEditSessionIdentifier(workspaceFolder: UriComponents, cancellationToken: CancellationToken): Promise<string | undefined>;
     $provideEditSessionIdentityMatch(workspaceFolder: UriComponents, identity1: string, identity2: string, cancellationToken: CancellationToken): Promise<EditSessionIdentityMatch | undefined>;
     private readonly _onWillCreateEditSessionIdentityEvent;
     getOnWillCreateEditSessionIdentityEvent(extension: IExtensionDescription): Event<vscode.EditSessionIdentityWillCreateEvent>;
     $onWillCreateEditSessionIdentity(workspaceFolder: UriComponents, token: CancellationToken, timeout: number): Promise<void>;
     private readonly _canonicalUriProviders;
-    registerCanonicalUriProvider(scheme: string, provider: vscode.CanonicalUriProvider): any;
+    registerCanonicalUriProvider(scheme: string, provider: vscode.CanonicalUriProvider): import("../../../base/common/lifecycle.js").IDisposable;
     provideCanonicalUri(uri: URI, options: vscode.CanonicalUriRequestOptions, cancellationToken: CancellationToken): Promise<URI | undefined>;
     $provideCanonicalUri(uri: UriComponents, targetScheme: string, cancellationToken: CancellationToken): Promise<UriComponents | undefined>;
 }
-export declare const IExtHostWorkspace: any;
+export declare const IExtHostWorkspace: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostWorkspace>;
 export interface IExtHostWorkspace extends ExtHostWorkspace, ExtHostWorkspaceShape, IExtHostWorkspaceProvider {
 }
 export {};

@@ -1,14 +1,14 @@
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ISingleEditOperation } from "vs/editor/common/core/editOperation";
-import { ILanguageSelection } from "vs/editor/common/languages/language";
-import { ITextBuffer, ITextBufferFactory, ITextModel, ITextModelCreationOptions } from "vs/editor/common/model";
-import { IModelService } from "vs/editor/common/services/model";
-import { ITextResourcePropertiesService } from "vs/editor/common/services/textResourceConfiguration";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IUndoRedoService } from "vs/platform/undoRedo/common/undoRedo";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { IUndoRedoService } from "../../../platform/undoRedo/common/undoRedo.js";
+import { ISingleEditOperation } from "../core/editOperation.js";
+import { ILanguageSelection } from "../languages/language.js";
+import { ITextBuffer, ITextBufferFactory, ITextModel, ITextModelCreationOptions } from "../model.js";
+import { IModelService } from "./model.js";
+import { ITextResourcePropertiesService } from "./textResourceConfiguration.js";
 export declare class ModelService extends Disposable implements IModelService {
     private readonly _configurationService;
     private readonly _resourcePropertiesService;
@@ -21,7 +21,10 @@ export declare class ModelService extends Disposable implements IModelService {
     private readonly _onModelRemoved;
     readonly onModelRemoved: Event<ITextModel>;
     private readonly _onModelModeChanged;
-    readonly onModelLanguageChanged: any;
+    readonly onModelLanguageChanged: Event<{
+        model: ITextModel;
+        oldLanguageId: string;
+    }>;
     private _modelCreationOptionsByLanguageAndResource;
     /**
      * All the models known in the system.

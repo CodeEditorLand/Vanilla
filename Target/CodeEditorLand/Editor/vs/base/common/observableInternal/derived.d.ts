@@ -1,7 +1,7 @@
-import { EqualityComparer } from "vs/base/common/equals";
-import { DisposableStore, IDisposable } from "vs/base/common/lifecycle";
-import { BaseObservable, IChangeContext, IObservable, IObserver, IReader, ISettableObservable, ITransaction } from "vs/base/common/observableInternal/base";
-import { DebugNameData, DebugOwner, IDebugNameData } from "vs/base/common/observableInternal/debugName";
+import { EqualityComparer } from "../equals.js";
+import { DisposableStore, IDisposable } from "../lifecycle.js";
+import { BaseObservable, IChangeContext, IObservable, IObserver, IReader, ISettableObservable, ITransaction } from "./base.js";
+import { DebugNameData, DebugOwner, IDebugNameData } from "./debugName.js";
 /**
  * Creates an observable that is derived from other observables.
  * The value is only recomputed when absolutely needed.

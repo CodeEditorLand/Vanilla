@@ -1,7 +1,7 @@
 import { BrowserWindowConstructorOptions, HandlerDetails, WebContents } from "electron";
-import { Event } from "vs/base/common/event";
-import { IAuxiliaryWindow } from "vs/platform/auxiliaryWindow/electron-main/auxiliaryWindow";
-export declare const IAuxiliaryWindowsMainService: any;
+import { Event } from "../../../base/common/event.js";
+import { IAuxiliaryWindow } from "./auxiliaryWindow.js";
+export declare const IAuxiliaryWindowsMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IAuxiliaryWindowsMainService>;
 export interface IAuxiliaryWindowsMainService {
     readonly _serviceBrand: undefined;
     readonly onDidMaximizeWindow: Event<IAuxiliaryWindow>;

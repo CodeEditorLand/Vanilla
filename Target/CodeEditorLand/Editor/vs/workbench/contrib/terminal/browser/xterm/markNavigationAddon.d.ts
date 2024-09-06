@@ -1,10 +1,10 @@
 import type { IBufferRange, IMarker, ITerminalAddon, Terminal } from "@xterm/xterm";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ITerminalCapabilityStore, ITerminalCommand } from "vs/platform/terminal/common/capabilities/capabilities";
-import { ICurrentPartialCommand } from "vs/platform/terminal/common/capabilities/commandDetection/terminalCommand";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IMarkTracker } from "vs/workbench/contrib/terminal/browser/terminal";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ITerminalCapabilityStore, ITerminalCommand } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { ICurrentPartialCommand } from "../../../../../platform/terminal/common/capabilities/commandDetection/terminalCommand.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { IMarkTracker } from "../terminal.js";
 declare enum Boundary {
     Top = 0,
     Bottom = 1

@@ -1,12 +1,12 @@
-import { FastDomNode } from "vs/base/browser/fastDomNode";
-import { DynamicViewOverlay } from "vs/editor/browser/view/dynamicViewOverlay";
-import { RenderingContext, RestrictedRenderingContext } from "vs/editor/browser/view/renderingContext";
-import { IVisibleLine } from "vs/editor/browser/view/viewLayer";
-import { ViewPart } from "vs/editor/browser/view/viewPart";
-import { StringBuilder } from "vs/editor/common/core/stringBuilder";
-import * as viewEvents from "vs/editor/common/viewEvents";
-import { ViewportData } from "vs/editor/common/viewLayout/viewLinesViewportData";
-import { ViewContext } from "vs/editor/common/viewModel/viewContext";
+import { FastDomNode } from "../../../base/browser/fastDomNode.js";
+import { StringBuilder } from "../../common/core/stringBuilder.js";
+import * as viewEvents from "../../common/viewEvents.js";
+import { ViewportData } from "../../common/viewLayout/viewLinesViewportData.js";
+import { ViewContext } from "../../common/viewModel/viewContext.js";
+import { DynamicViewOverlay } from "./dynamicViewOverlay.js";
+import { RenderingContext, RestrictedRenderingContext } from "./renderingContext.js";
+import { IVisibleLine } from "./viewLayer.js";
+import { ViewPart } from "./viewPart.js";
 export declare class ViewOverlays extends ViewPart {
     private readonly _visibleLines;
     protected readonly domNode: FastDomNode<HTMLElement>;

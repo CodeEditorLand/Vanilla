@@ -1,6 +1,6 @@
-import { UriComponents } from "vs/base/common/uri";
-import { ISandboxConfiguration } from "vs/base/parts/sandbox/common/sandboxTypes";
-import { PerformanceInfo, SystemInfo } from "vs/platform/diagnostics/common/diagnostics";
+import { UriComponents } from "../../../base/common/uri.js";
+import { ISandboxConfiguration } from "../../../base/parts/sandbox/common/sandboxTypes.js";
+import { PerformanceInfo, SystemInfo } from "../../diagnostics/common/diagnostics.js";
 export interface WindowStyles {
     backgroundColor?: string;
     color?: string;
@@ -103,7 +103,7 @@ export interface OldIssueReporterWindowConfiguration extends ISandboxConfigurati
 export interface ProcessExplorerWindowConfiguration extends ISandboxConfiguration {
     data: ProcessExplorerData;
 }
-export declare const IIssueMainService: any;
+export declare const IIssueMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IIssueMainService>;
 export interface IIssueMainService {
     readonly _serviceBrand: undefined;
     openReporter(data: OldIssueReporterData): Promise<void>;
@@ -113,7 +113,7 @@ export interface IIssueMainService {
     $sendReporterMenu(extensionId: string, extensionName: string): Promise<OldIssueReporterData | undefined>;
     $closeReporter(): Promise<void>;
 }
-export declare const IProcessMainService: any;
+export declare const IProcessMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IProcessMainService>;
 export interface IProcessMainService {
     readonly _serviceBrand: undefined;
     getSystemStatus(): Promise<string>;

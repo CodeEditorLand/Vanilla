@@ -1,13 +1,14 @@
-import { ButtonBar } from "vs/base/browser/ui/button/button";
-import { IAction } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { IToolBarRenderOptions } from "vs/platform/actions/browser/toolbar";
-import { IMenuActionOptions, IMenuService, MenuId } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
+import { ButtonBar } from "../../../base/browser/ui/button/button.js";
+import { IAction } from "../../../base/common/actions.js";
+import { Event } from "../../../base/common/event.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../contextview/browser/contextView.js";
+import { IHoverService } from "../../hover/browser/hover.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IMenuActionOptions, IMenuService, MenuId } from "../common/actions.js";
+import { IToolBarRenderOptions } from "./toolbar.js";
 export type IButtonConfigProvider = (action: IAction, index: number) => {
     showIcon?: boolean;
     showLabel?: boolean;
@@ -22,8 +23,8 @@ export declare class WorkbenchButtonBar extends ButtonBar {
     private readonly _contextMenuService;
     private readonly _keybindingService;
     private readonly _hoverService;
-    protected readonly _store: any;
-    protected readonly _updateStore: any;
+    protected readonly _store: DisposableStore;
+    protected readonly _updateStore: DisposableStore;
     private readonly _actionRunner;
     private readonly _onDidChange;
     readonly onDidChange: Event<this>;

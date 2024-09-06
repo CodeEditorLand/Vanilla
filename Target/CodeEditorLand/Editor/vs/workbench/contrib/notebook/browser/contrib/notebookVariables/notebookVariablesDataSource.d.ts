@@ -1,6 +1,6 @@
-import { IAsyncDataSource } from "vs/base/browser/ui/tree/tree";
-import { NotebookTextModel } from "vs/workbench/contrib/notebook/common/model/notebookTextModel";
-import { INotebookKernelService } from "vs/workbench/contrib/notebook/common/notebookKernelService";
+import { IAsyncDataSource } from "../../../../../../base/browser/ui/tree/tree.js";
+import { NotebookTextModel } from "../../../common/model/notebookTextModel.js";
+import { INotebookKernelService } from "../../../common/notebookKernelService.js";
 export interface INotebookScope {
     kind: "root";
     readonly notebook: NotebookTextModel;

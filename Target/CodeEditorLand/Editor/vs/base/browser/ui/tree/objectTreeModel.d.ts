@@ -1,13 +1,11 @@
-import { IIdentityProvider } from "vs/base/browser/ui/list/list";
-import { IIndexTreeModelOptions, IIndexTreeModelSpliceOptions, IList } from "vs/base/browser/ui/tree/indexTreeModel";
-import { ICollapseStateChangeEvent, IObjectTreeElement, ITreeModel, ITreeModelSpliceEvent, ITreeNode, ITreeSorter } from "vs/base/browser/ui/tree/tree";
-import { Event } from "vs/base/common/event";
-import { Iterable } from "vs/base/common/iterator";
+import { Event } from "../../../common/event.js";
+import { IIdentityProvider } from "../list/list.js";
+import { IIndexTreeModelOptions, IIndexTreeModelSpliceOptions } from "./indexTreeModel.js";
+import { ICollapseStateChangeEvent, IObjectTreeElement, ITreeListSpliceData, ITreeModel, ITreeModelSpliceEvent, ITreeNode, ITreeSorter } from "./tree.js";
 export type ITreeNodeCallback<T, TFilterData> = (node: ITreeNode<T, TFilterData>) => void;
 export interface IObjectTreeModel<T extends NonNullable<any>, TFilterData extends NonNullable<any> = void> extends ITreeModel<T | null, TFilterData, T | null> {
     setChildren(element: T | null, children: Iterable<IObjectTreeElement<T>> | undefined, options?: IObjectTreeModelSetChildrenOptions<T, TFilterData>): void;
     resort(element?: T | null, recursive?: boolean): void;
-    updateElementHeight(element: T, height: number | undefined): void;
 }
 export interface IObjectTreeModelSetChildrenOptions<T, TFilterData> extends IIndexTreeModelSpliceOptions<T, TFilterData> {
 }
@@ -23,16 +21,16 @@ export declare class ObjectTreeModel<T extends NonNullable<any>, TFilterData ext
     private readonly nodesByIdentity;
     private readonly identityProvider?;
     private sorter?;
-    readonly onDidSplice: Event<ITreeModelSpliceEvent<T | null, TFilterData>>;
+    readonly onDidSpliceModel: Event<ITreeModelSpliceEvent<T | null, TFilterData>>;
+    readonly onDidSpliceRenderedNodes: Event<ITreeListSpliceData<T | null, TFilterData>>;
     readonly onDidChangeCollapseState: Event<ICollapseStateChangeEvent<T, TFilterData>>;
     readonly onDidChangeRenderNodeCount: Event<ITreeNode<T, TFilterData>>;
     get size(): number;
-    constructor(user: string, list: IList<ITreeNode<T, TFilterData>>, options?: IObjectTreeModelOptions<T, TFilterData>);
+    constructor(user: string, options?: IObjectTreeModelOptions<T, TFilterData>);
     setChildren(element: T | null, children?: Iterable<IObjectTreeElement<T>>, options?: IObjectTreeModelSetChildrenOptions<T, TFilterData>): void;
     private _setChildren;
     private preserveCollapseState;
     rerender(element: T | null): void;
-    updateElementHeight(element: T, height: number | undefined): void;
     resort(element?: T | null, recursive?: boolean): void;
     private resortChildren;
     getFirstElementChild(ref?: T | null): T | null | undefined;

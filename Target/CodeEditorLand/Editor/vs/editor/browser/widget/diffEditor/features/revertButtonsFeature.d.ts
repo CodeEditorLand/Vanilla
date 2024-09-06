@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { IGlyphMarginWidget, IGlyphMarginWidgetPosition } from "vs/editor/browser/editorBrowser";
-import { DiffEditorEditors } from "vs/editor/browser/widget/diffEditor/components/diffEditorEditors";
-import { DiffEditorOptions } from "vs/editor/browser/widget/diffEditor/diffEditorOptions";
-import { DiffEditorViewModel } from "vs/editor/browser/widget/diffEditor/diffEditorViewModel";
-import { DiffEditorWidget } from "vs/editor/browser/widget/diffEditor/diffEditorWidget";
-import { LineRangeMapping, RangeMapping } from "vs/editor/common/diff/rangeMapping";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../../base/common/observable.js";
+import { LineRangeMapping, RangeMapping } from "../../../../common/diff/rangeMapping.js";
+import { IGlyphMarginWidget, IGlyphMarginWidgetPosition } from "../../../editorBrowser.js";
+import { DiffEditorEditors } from "../components/diffEditorEditors.js";
+import { DiffEditorOptions } from "../diffEditorOptions.js";
+import { DiffEditorViewModel } from "../diffEditorViewModel.js";
+import { DiffEditorWidget } from "../diffEditorWidget.js";
 export declare class RevertButtonsFeature extends Disposable {
     private readonly _editors;
     private readonly _diffModel;

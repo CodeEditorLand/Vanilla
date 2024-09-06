@@ -1,4 +1,4 @@
-import { AstNode } from "./ast";
+import { AstNode } from "./ast.js";
 /**
  * Concatenates a list of (2,3) AstNode's into a single (2,3) AstNode.
  * This mutates the items of the input array!

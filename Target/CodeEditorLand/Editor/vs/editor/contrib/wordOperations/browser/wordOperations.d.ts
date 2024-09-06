@@ -1,10 +1,10 @@
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { EditorAction, EditorCommand, ICommandOptions, ServicesAccessor } from "vs/editor/browser/editorExtensions";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { WordCharacterClassifier } from "vs/editor/common/core/wordCharacterClassifier";
-import { DeleteWordContext, WordNavigationType } from "vs/editor/common/cursor/cursorWordOperations";
-import { ITextModel } from "vs/editor/common/model";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, EditorCommand, ICommandOptions, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { WordCharacterClassifier } from "../../../common/core/wordCharacterClassifier.js";
+import { DeleteWordContext, WordNavigationType } from "../../../common/cursor/cursorWordOperations.js";
+import { ITextModel } from "../../../common/model.js";
 export interface MoveWordOptions extends ICommandOptions {
     inSelectionMode: boolean;
     wordNavigationType: WordNavigationType;

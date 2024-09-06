@@ -12,6 +12,7 @@ export declare class OffsetRange implements IOffsetRange {
     static tryCreate(start: number, endExclusive: number): OffsetRange | undefined;
     static ofLength(length: number): OffsetRange;
     static ofStartAndLength(start: number, length: number): OffsetRange;
+    static emptyAt(offset: number): OffsetRange;
     constructor(start: number, endExclusive: number);
     get isEmpty(): boolean;
     delta(offset: number): OffsetRange;
@@ -34,6 +35,7 @@ export declare class OffsetRange implements IOffsetRange {
      * If the ranges don't even touch, the result is undefined.
      */
     intersect(other: OffsetRange): OffsetRange | undefined;
+    intersectionLength(range: OffsetRange): number;
     intersects(other: OffsetRange): boolean;
     intersectsOrTouches(other: OffsetRange): boolean;
     isBefore(other: OffsetRange): boolean;

@@ -1,15 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IExtHostDocumentsAndEditors } from "vs/workbench/api/common/extHostDocumentsAndEditors";
-import { IExtHostEditorTabs } from "vs/workbench/api/common/extHostEditorTabs";
-import { IExtHostExtensionService } from "vs/workbench/api/common/extHostExtensionService";
-import { IExtHostWorkspace } from "vs/workbench/api/common/extHostWorkspace";
-import { IConfigurationResolverService } from "vs/workbench/services/configurationResolver/common/configurationResolver";
-import { IExtHostConfiguration } from "./extHostConfiguration";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IConfigurationResolverService } from "../../services/configurationResolver/common/configurationResolver.js";
+import { IExtHostConfiguration } from "./extHostConfiguration.js";
+import { IExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { IExtHostEditorTabs } from "./extHostEditorTabs.js";
+import { IExtHostExtensionService } from "./extHostExtensionService.js";
+import { IExtHostWorkspace } from "./extHostWorkspace.js";
 export interface IExtHostVariableResolverProvider {
     readonly _serviceBrand: undefined;
     getResolver(): Promise<IConfigurationResolverService>;
 }
-export declare const IExtHostVariableResolverProvider: any;
+export declare const IExtHostVariableResolverProvider: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostVariableResolverProvider>;
 export declare class ExtHostVariableResolverProviderService extends Disposable implements IExtHostVariableResolverProvider {
     private readonly extensionService;
     private readonly workspaceService;

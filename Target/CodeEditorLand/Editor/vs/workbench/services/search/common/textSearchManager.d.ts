@@ -1,7 +1,7 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { URI } from "vs/base/common/uri";
-import { IAITextQuery, IFileMatch, ISearchCompleteStats, ITextQuery, ITextSearchStats } from "vs/workbench/services/search/common/search";
-import { AITextSearchProviderNew, TextSearchProviderNew, TextSearchResultNew } from "vs/workbench/services/search/common/searchExtTypes";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IAITextQuery, IFileMatch, ISearchCompleteStats, ITextQuery, ITextSearchStats } from "./search.js";
+import { AITextSearchProviderNew, TextSearchProviderNew, TextSearchResultNew } from "./searchExtTypes.js";
 export interface IFileUtils {
     readdir: (resource: URI) => Promise<string[]>;
     toCanonicalName: (encoding: string) => string;

@@ -1,8 +1,8 @@
-import { IMainProcessService } from "vs/platform/ipc/common/mainProcessService";
-import { ILogService } from "vs/platform/log/common/log";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IUserDataProfilesService } from "vs/platform/userDataProfile/common/userDataProfile";
-import { RemoteUserDataProfileStorageService } from "vs/platform/userDataProfile/common/userDataProfileStorageService";
+import { IMainProcessService } from "../../ipc/common/mainProcessService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { IUserDataProfilesService } from "../common/userDataProfile.js";
+import { RemoteUserDataProfileStorageService } from "../common/userDataProfileStorageService.js";
 export declare class SharedProcessUserDataProfileStorageService extends RemoteUserDataProfileStorageService {
     constructor(mainProcessService: IMainProcessService, userDataProfilesService: IUserDataProfilesService, storageService: IStorageService, logService: ILogService);
 }

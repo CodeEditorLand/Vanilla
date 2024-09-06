@@ -1,4 +1,4 @@
-import { IColorMap, ITextMateThemingRule } from "vs/workbench/services/themes/common/workbenchThemeService";
+import { IColorMap, ITextMateThemingRule } from "./workbenchThemeService.js";
 export declare function convertSettings(oldSettings: ITextMateThemingRule[], result: {
     textMateRules: ITextMateThemingRule[];
     colors: IColorMap;

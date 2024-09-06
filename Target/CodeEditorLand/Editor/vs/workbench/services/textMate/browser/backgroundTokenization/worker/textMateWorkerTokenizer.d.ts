@@ -1,8 +1,8 @@
-import { URI } from "vs/base/common/uri";
-import { LanguageId } from "vs/editor/common/encodedTokenAttributes";
-import { IModelChangedEvent, MirrorTextModel } from "vs/editor/common/model/mirrorTextModel";
-import { StateDeltas } from "vs/workbench/services/textMate/browser/backgroundTokenization/worker/textMateTokenizationWorker.worker";
-import { ICreateGrammarResult } from "vs/workbench/services/textMate/common/TMGrammarFactory";
+import { URI } from "../../../../../../base/common/uri.js";
+import { LanguageId } from "../../../../../../editor/common/encodedTokenAttributes.js";
+import { IModelChangedEvent, MirrorTextModel } from "../../../../../../editor/common/model/mirrorTextModel.js";
+import { ICreateGrammarResult } from "../../../common/TMGrammarFactory.js";
+import { StateDeltas } from "./textMateTokenizationWorker.worker.js";
 export interface TextMateModelTokenizerHost {
     getOrCreateGrammar(languageId: string, encodedLanguageId: LanguageId): Promise<ICreateGrammarResult | null>;
     setTokensAndStates(versionId: number, tokens: Uint8Array, stateDeltas: StateDeltas[]): void;

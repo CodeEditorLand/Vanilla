@@ -1,10 +1,10 @@
-import { URI } from "vs/base/common/uri";
-import { IMarker, IMarkerData, IMarkerService, IResourceMarker, MarkerStatistics } from "./markers";
-export declare const unsupportedSchemas: Set<any>;
+import { URI } from "../../../base/common/uri.js";
+import { IMarker, IMarkerData, IMarkerService, IResourceMarker, MarkerStatistics } from "./markers.js";
+export declare const unsupportedSchemas: Set<string>;
 export declare class MarkerService implements IMarkerService {
     readonly _serviceBrand: undefined;
     private readonly _onMarkerChanged;
-    readonly onMarkerChanged: any;
+    readonly onMarkerChanged: import("../../../base/common/event.js").Event<readonly URI[]>;
     private readonly _data;
     private readonly _stats;
     dispose(): void;

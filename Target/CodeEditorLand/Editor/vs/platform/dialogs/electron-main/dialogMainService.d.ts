@@ -1,8 +1,8 @@
 import electron from "electron";
-import { INativeOpenDialogOptions } from "vs/platform/dialogs/common/dialogs";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-export declare const IDialogMainService: any;
+import { ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { INativeOpenDialogOptions } from "../common/dialogs.js";
+export declare const IDialogMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IDialogMainService>;
 export interface IDialogMainService {
     readonly _serviceBrand: undefined;
     pickFileFolder(options: INativeOpenDialogOptions, window?: electron.BrowserWindow): Promise<string[] | undefined>;

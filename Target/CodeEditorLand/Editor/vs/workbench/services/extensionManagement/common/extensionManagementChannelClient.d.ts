@@ -1,17 +1,20 @@
-import { Emitter } from "vs/base/common/event";
-import { URI } from "vs/base/common/uri";
-import { IChannel } from "vs/base/parts/ipc/common/ipc";
-import { IGalleryExtension, ILocalExtension, InstallExtensionInfo, InstallExtensionResult, InstallOptions, IProductVersion, Metadata, UninstallExtensionInfo, UninstallOptions } from "vs/platform/extensionManagement/common/extensionManagement";
-import { ExtensionManagementChannelClient as BaseExtensionManagementChannelClient, ExtensionEventResult } from "vs/platform/extensionManagement/common/extensionManagementIpc";
-import { ExtensionIdentifier, ExtensionType } from "vs/platform/extensions/common/extensions";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { DidChangeProfileEvent, IProfileAwareExtensionManagementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { Emitter } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { IGalleryExtension, ILocalExtension, InstallExtensionInfo, InstallExtensionResult, InstallOptions, IProductVersion, Metadata, UninstallExtensionInfo, UninstallOptions } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionManagementChannelClient as BaseExtensionManagementChannelClient, ExtensionEventResult } from "../../../../platform/extensionManagement/common/extensionManagementIpc.js";
+import { ExtensionIdentifier, ExtensionType } from "../../../../platform/extensions/common/extensions.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { DidChangeProfileEvent, IProfileAwareExtensionManagementService } from "./extensionManagement.js";
 export declare abstract class ProfileAwareExtensionManagementChannelClient extends BaseExtensionManagementChannelClient implements IProfileAwareExtensionManagementService {
     protected readonly userDataProfileService: IUserDataProfileService;
     protected readonly uriIdentityService: IUriIdentityService;
     private readonly _onDidChangeProfile;
-    readonly onDidChangeProfile: any;
+    readonly onDidChangeProfile: import("../../../../base/common/event.js").Event<{
+        readonly added: ILocalExtension[];
+        readonly removed: ILocalExtension[];
+    }>;
     constructor(channel: IChannel, userDataProfileService: IUserDataProfileService, uriIdentityService: IUriIdentityService);
     protected fireEvent<E extends ExtensionEventResult>(event: Emitter<E>, data: E): Promise<void>;
     protected fireEvent<E extends ExtensionEventResult>(event: Emitter<readonly E[]>, data: E[]): Promise<void>;

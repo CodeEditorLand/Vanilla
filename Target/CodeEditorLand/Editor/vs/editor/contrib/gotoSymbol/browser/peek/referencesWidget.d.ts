@@ -1,15 +1,16 @@
-import { IMouseEvent } from "vs/base/browser/mouseEvent";
-import "vs/css!./referencesWidget";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IRange } from "vs/editor/common/core/range";
-import { Location } from "vs/editor/common/languages";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import * as peekView from "vs/editor/contrib/peekView/browser/peekView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ILabelService } from "vs/platform/label/common/label";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { OneReference, ReferencesModel } from "../referencesModel";
+import { IMouseEvent } from "../../../../../base/browser/mouseEvent.js";
+import { Event } from "../../../../../base/common/event.js";
+import "./referencesWidget.css";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { ICodeEditor } from "../../../../browser/editorBrowser.js";
+import { IRange } from "../../../../common/core/range.js";
+import { Location } from "../../../../common/languages.js";
+import { ITextModelService } from "../../../../common/services/resolverService.js";
+import * as peekView from "../../../peekView/browser/peekView.js";
+import { OneReference, ReferencesModel } from "../referencesModel.js";
 export declare class LayoutData {
     ratio: number;
     heightInLines: number;
@@ -36,7 +37,7 @@ export declare class ReferenceWidget extends peekView.PeekViewWidget {
     private readonly _disposeOnNewModel;
     private readonly _callOnDispose;
     private readonly _onDidSelectReference;
-    readonly onDidSelectReference: any;
+    readonly onDidSelectReference: Event<SelectionEvent>;
     private _tree;
     private _treeContainer;
     private _splitView;

@@ -1,11 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { Action2 } from "vs/platform/actions/common/actions";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { ILogService } from "vs/platform/log/common/log";
-import { IWorkspaceTrustManagementService } from "vs/platform/workspace/common/workspaceTrust";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { ITaskService } from "vs/workbench/contrib/tasks/common/taskService";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { ITaskService } from "../common/taskService.js";
 export declare class RunAutomaticTasks extends Disposable implements IWorkbenchContribution {
     private readonly _taskService;
     private readonly _configurationService;
@@ -21,7 +21,7 @@ export declare class RunAutomaticTasks extends Disposable implements IWorkbenchC
 }
 export declare class ManageAutomaticTaskRunning extends Action2 {
     static readonly ID = "workbench.action.tasks.manageAutomaticRunning";
-    static readonly LABEL: any;
+    static readonly LABEL: string;
     constructor();
     run(accessor: ServicesAccessor): Promise<any>;
 }

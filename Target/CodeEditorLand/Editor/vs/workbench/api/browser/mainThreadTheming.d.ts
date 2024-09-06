@@ -1,6 +1,6 @@
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { MainThreadThemingShape } from "../common/extHost.protocol";
+import { IThemeService } from "../../../platform/theme/common/themeService.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadThemingShape } from "../common/extHost.protocol.js";
 export declare class MainThreadTheming implements MainThreadThemingShape {
     private readonly _themeService;
     private readonly _proxy;

@@ -1,16 +1,16 @@
-import { IDimension } from "vs/base/browser/dom";
-import { CancellationTokenSource } from "vs/base/common/cancellation";
-import { Disposable, DisposableStore, IDisposable, IReference } from "vs/base/common/lifecycle";
-import { IObservable } from "vs/base/common/observable";
-import { ICodeEditor, IViewZone } from "vs/editor/browser/editorBrowser";
-import { Position } from "vs/editor/common/core/position";
-import { Range } from "vs/editor/common/core/range";
-import { DetailedLineRangeMapping } from "vs/editor/common/diff/rangeMapping";
-import { IModelDeltaDecoration } from "vs/editor/common/model";
+import { IDimension } from "../../../../base/browser/dom.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Disposable, DisposableStore, IDisposable, IReference } from "../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../base/common/observable.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { DetailedLineRangeMapping } from "../../../common/diff/rangeMapping.js";
+import { IModelDeltaDecoration } from "../../../common/model.js";
+import { ICodeEditor, IViewZone } from "../../editorBrowser.js";
 export declare function joinCombine<T>(arr1: readonly T[], arr2: readonly T[], keySelector: (val: T) => number, combine: (v1: T, v2: T) => T): readonly T[];
 export declare function applyObservableDecorations(editor: ICodeEditor, decorations: IObservable<IModelDeltaDecoration[]>): IDisposable;
-export declare function appendRemoveOnDispose(parent: HTMLElement, child: HTMLElement): any;
-export declare function prependRemoveOnDispose(parent: HTMLElement, child: HTMLElement): any;
+export declare function appendRemoveOnDispose(parent: HTMLElement, child: HTMLElement): IDisposable;
+export declare function prependRemoveOnDispose(parent: HTMLElement, child: HTMLElement): IDisposable;
 export declare class ObservableElementSizeObserver extends Disposable {
     private readonly elementSizeObserver;
     private readonly _width;
@@ -67,7 +67,7 @@ export interface CSSStyle {
 }
 export declare function applyStyle(domNode: HTMLElement, style: Partial<{
     [TKey in keyof CSSStyle]: CSSStyle[TKey] | IObservable<CSSStyle[TKey] | undefined> | undefined;
-}>): any;
+}>): IDisposable;
 export declare function applyViewZones(editor: ICodeEditor, viewZones: IObservable<IObservableViewZone[]>, setIsUpdating?: (isUpdatingViewZones: boolean) => void, zoneIds?: Set<string>): IDisposable;
 export declare class DisposableCancellationTokenSource extends CancellationTokenSource {
     dispose(): void;

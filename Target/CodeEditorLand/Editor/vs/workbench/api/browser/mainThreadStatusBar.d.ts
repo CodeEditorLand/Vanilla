@@ -1,10 +1,10 @@
-import { IMarkdownString } from "vs/base/common/htmlContent";
-import { ThemeColor } from "vs/base/common/themables";
-import { Command } from "vs/editor/common/languages";
-import { IAccessibilityInformation } from "vs/platform/accessibility/common/accessibility";
-import { IExtensionStatusBarItemService } from "vs/workbench/api/browser/statusBarExtensionPoint";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { MainThreadStatusBarShape } from "../common/extHost.protocol";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { ThemeColor } from "../../../base/common/themables.js";
+import { Command } from "../../../editor/common/languages.js";
+import { IAccessibilityInformation } from "../../../platform/accessibility/common/accessibility.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadStatusBarShape } from "../common/extHost.protocol.js";
+import { IExtensionStatusBarItemService } from "./statusBarExtensionPoint.js";
 export declare class MainThreadStatusBar implements MainThreadStatusBarShape {
     private readonly statusbarService;
     private readonly _store;

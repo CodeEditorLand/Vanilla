@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../../vs/platform/instantiation/common/instantiation.js";import"../../../../../vs/workbench/contrib/inlineChat/browser/inlineChatSession.js";const a=e("IInlineChatSavingService	");export{a as IInlineChatSavingService};
+import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"./inlineChatSession.js";const a=e("IInlineChatSavingService	");export{a as IInlineChatSavingService};

@@ -1,6 +1,6 @@
-import { SystemInfo } from "vs/platform/diagnostics/common/diagnostics";
-import { OldIssueType } from "vs/platform/issue/common/issue";
-import { ISettingSearchResult, IssueReporterExtensionData, IssueType } from "vs/workbench/contrib/issue/common/issue";
+import { SystemInfo } from "../../../../platform/diagnostics/common/diagnostics.js";
+import { OldIssueType } from "../../../../platform/issue/common/issue.js";
+import { ISettingSearchResult, IssueReporterExtensionData, IssueType } from "../common/issue.js";
 export interface IssueReporterData {
     issueType: IssueType | OldIssueType;
     issueDescription?: string;

@@ -1,6 +1,6 @@
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IFileService } from "vs/platform/files/common/files";
-import { AdapterLogger, ILogger, LogLevel } from "vs/platform/log/common/log";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { AdapterLogger, ILogger, LogLevel } from "../common/log.js";
 export interface IAutomatedWindow {
     codeAutomationLog(type: string, args: any[]): void;
     codeAutomationExit(code: number, logs: Array<ILogFile>): void;

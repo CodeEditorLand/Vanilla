@@ -1,1 +1,1 @@
-import"../../../../vs/editor/common/languages.js";import"../../../../vs/editor/common/services/semanticTokensProviderStyling.js";import{createDecorator as e}from"../../../../vs/platform/instantiation/common/instantiation.js";const m=e("semanticTokensStylingService");export{m as ISemanticTokensStylingService};
+import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";import"../languages.js";import"./semanticTokensProviderStyling.js";const m=e("semanticTokensStylingService");export{m as ISemanticTokensStylingService};

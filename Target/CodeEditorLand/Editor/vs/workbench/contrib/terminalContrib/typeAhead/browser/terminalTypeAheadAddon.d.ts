@@ -1,9 +1,9 @@
 import type { IBuffer, IBufferCell, IDisposable, ITerminalAddon, Terminal } from "@xterm/xterm";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { ITerminalProcessManager } from "vs/workbench/contrib/terminal/common/terminal";
-import { type ITerminalTypeAheadConfiguration } from "vs/workbench/contrib/terminalContrib/typeAhead/common/terminalTypeAheadConfiguration";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
+import { type ITerminalTypeAheadConfiguration } from "../common/terminalTypeAheadConfiguration.js";
 interface ICoordinate {
     x: number;
     y: number;
@@ -109,7 +109,7 @@ export declare class PredictionStats extends Disposable {
     private _index;
     private readonly _addedAtTime;
     private readonly _changeEmitter;
-    readonly onChange: any;
+    readonly onChange: import("../../../../../base/common/event.js").Event<void>;
     /**
      * Gets the percent (0-1) of predictions that were accurate.
      */
@@ -175,11 +175,11 @@ export declare class PredictionTimeline {
      */
     private _lookBehind?;
     private readonly _addedEmitter;
-    readonly onPredictionAdded: any;
+    readonly onPredictionAdded: import("../../../../../base/common/event.js").Event<IPrediction>;
     private readonly _failedEmitter;
-    readonly onPredictionFailed: any;
+    readonly onPredictionFailed: import("../../../../../base/common/event.js").Event<IPrediction>;
     private readonly _succeededEmitter;
-    readonly onPredictionSucceeded: any;
+    readonly onPredictionSucceeded: import("../../../../../base/common/event.js").Event<IPrediction>;
     private get _currentGenerationPredictions();
     get isShowingPredictions(): boolean;
     get length(): number;

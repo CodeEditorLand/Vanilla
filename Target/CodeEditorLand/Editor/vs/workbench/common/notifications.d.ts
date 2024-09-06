@@ -1,8 +1,8 @@
-import { Action } from "vs/base/common/actions";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { LinkedText } from "vs/base/common/linkedText";
-import { INotification, INotificationActions, INotificationHandle, INotificationProgress, IPromptChoice, IStatusMessageOptions, NotificationMessage, NotificationPriority, NotificationsFilter, Severity } from "vs/platform/notification/common/notification";
+import { Action } from "../../base/common/actions.js";
+import { Event } from "../../base/common/event.js";
+import { Disposable, IDisposable } from "../../base/common/lifecycle.js";
+import { LinkedText } from "../../base/common/linkedText.js";
+import { INotification, INotificationActions, INotificationHandle, INotificationProgress, IPromptChoice, IStatusMessageOptions, NotificationMessage, NotificationPriority, NotificationsFilter, Severity } from "../../platform/notification/common/notification.js";
 export interface INotificationsModel {
     readonly notifications: INotificationViewItem[];
     readonly onDidChangeNotification: Event<INotificationChangeEvent>;
@@ -73,9 +73,9 @@ export declare class NotificationHandle extends Disposable implements INotificat
     private readonly item;
     private readonly onClose;
     private readonly _onDidClose;
-    readonly onDidClose: any;
+    readonly onDidClose: Event<void>;
     private readonly _onDidChangeVisibility;
-    readonly onDidChangeVisibility: any;
+    readonly onDidChangeVisibility: Event<boolean>;
     constructor(item: INotificationViewItem, onClose: (item: INotificationViewItem) => void);
     private registerListeners;
     get progress(): INotificationProgress;
@@ -91,11 +91,11 @@ export interface INotificationsFilter {
 export declare class NotificationsModel extends Disposable implements INotificationsModel {
     private static readonly NO_OP_NOTIFICATION;
     private readonly _onDidChangeNotification;
-    readonly onDidChangeNotification: any;
+    readonly onDidChangeNotification: Event<INotificationChangeEvent>;
     private readonly _onDidChangeStatusMessage;
-    readonly onDidChangeStatusMessage: any;
+    readonly onDidChangeStatusMessage: Event<IStatusMessageChangeEvent>;
     private readonly _onDidChangeFilter;
-    readonly onDidChangeFilter: any;
+    readonly onDidChangeFilter: Event<Partial<INotificationsFilter>>;
     private readonly _notifications;
     get notifications(): INotificationViewItem[];
     private _statusMessage;
@@ -159,7 +159,7 @@ export interface INotificationViewItemProgress extends INotificationProgress {
 export declare class NotificationViewItemProgress extends Disposable implements INotificationViewItemProgress {
     private readonly _state;
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: Event<void>;
     constructor();
     get state(): INotificationViewItemProgressState;
     infinite(): void;
@@ -192,13 +192,13 @@ export declare class NotificationViewItem extends Disposable implements INotific
     private _actions;
     private _progress;
     private readonly _onDidChangeExpansion;
-    readonly onDidChangeExpansion: any;
+    readonly onDidChangeExpansion: Event<void>;
     private readonly _onDidClose;
-    readonly onDidClose: any;
+    readonly onDidClose: Event<void>;
     private readonly _onDidChangeContent;
-    readonly onDidChangeContent: any;
+    readonly onDidChangeContent: Event<INotificationViewItemContentChangeEvent>;
     private readonly _onDidChangeVisibility;
-    readonly onDidChangeVisibility: any;
+    readonly onDidChangeVisibility: Event<boolean>;
     static create(notification: INotification, filter: INotificationsFilter): INotificationViewItem | undefined;
     private static parseNotificationMessage;
     private constructor();
@@ -229,7 +229,7 @@ export declare class NotificationViewItem extends Disposable implements INotific
 }
 export declare class ChoiceAction extends Action {
     private readonly _onDidRun;
-    readonly onDidRun: any;
+    readonly onDidRun: Event<void>;
     private readonly _keepOpen;
     private readonly _menu;
     constructor(id: string, choice: IPromptChoice);

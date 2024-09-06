@@ -1,8 +1,8 @@
-import { FuzzyScoreOptions } from "vs/base/common/filters";
-import { InternalSuggestOptions } from "vs/editor/common/config/editorOptions";
-import { CompletionItemProvider } from "vs/editor/common/languages";
-import { WordDistance } from "vs/editor/contrib/suggest/browser/wordDistance";
-import { CompletionItem } from "./suggest";
+import { FuzzyScoreOptions } from "../../../../base/common/filters.js";
+import { InternalSuggestOptions } from "../../../common/config/editorOptions.js";
+import { CompletionItemProvider } from "../../../common/languages.js";
+import { CompletionItem } from "./suggest.js";
+import { WordDistance } from "./wordDistance.js";
 export interface ICompletionStats {
     pLabelLen: number;
 }

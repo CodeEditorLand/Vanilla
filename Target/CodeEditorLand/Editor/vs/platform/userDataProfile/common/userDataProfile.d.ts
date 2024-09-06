@@ -1,13 +1,13 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ResourceMap } from "vs/base/common/map";
-import { URI, UriDto } from "vs/base/common/uri";
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { IFileService } from "vs/platform/files/common/files";
-import { ILogService } from "vs/platform/log/common/log";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IAnyWorkspaceIdentifier } from "vs/platform/workspace/common/workspace";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../base/common/map.js";
+import { URI, UriDto } from "../../../base/common/uri.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
 export declare const enum ProfileResourceType {
     Settings = "settings",
     Keybindings = "keybindings",
@@ -65,7 +65,7 @@ export interface IUserDataProfileUpdateOptions extends Omit<IUserDataProfileOpti
     readonly name?: string;
     readonly icon?: string | null;
 }
-export declare const IUserDataProfilesService: any;
+export declare const IUserDataProfilesService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataProfilesService>;
 export interface IUserDataProfilesService {
     readonly _serviceBrand: undefined;
     readonly profilesHome: URI;
@@ -118,14 +118,14 @@ export declare class UserDataProfilesService extends Disposable implements IUser
     private readonly profilesCacheHome;
     get defaultProfile(): IUserDataProfile;
     get profiles(): IUserDataProfile[];
-    protected readonly _onDidChangeProfiles: any;
-    readonly onDidChangeProfiles: any;
-    protected readonly _onWillCreateProfile: any;
-    readonly onWillCreateProfile: any;
-    protected readonly _onWillRemoveProfile: any;
-    readonly onWillRemoveProfile: any;
+    protected readonly _onDidChangeProfiles: Emitter<DidChangeProfilesEvent>;
+    readonly onDidChangeProfiles: Event<DidChangeProfilesEvent>;
+    protected readonly _onWillCreateProfile: Emitter<WillCreateProfileEvent>;
+    readonly onWillCreateProfile: Event<WillCreateProfileEvent>;
+    protected readonly _onWillRemoveProfile: Emitter<WillRemoveProfileEvent>;
+    readonly onWillRemoveProfile: Event<WillRemoveProfileEvent>;
     private readonly _onDidResetWorkspaces;
-    readonly onDidResetWorkspaces: any;
+    readonly onDidResetWorkspaces: Event<void>;
     private profileCreationPromises;
     protected readonly transientProfilesObject: TransientUserDataProfilesObject;
     constructor(environmentService: IEnvironmentService, fileService: IFileService, uriIdentityService: IUriIdentityService, logService: ILogService);

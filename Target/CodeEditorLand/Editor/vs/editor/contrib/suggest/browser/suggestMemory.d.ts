@@ -1,9 +1,9 @@
-import { IPosition } from "vs/editor/common/core/position";
-import { CompletionItemKind } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { CompletionItem } from "vs/editor/contrib/suggest/browser/suggest";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IStorageService } from "vs/platform/storage/common/storage";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IPosition } from "../../../common/core/position.js";
+import { CompletionItemKind } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
+import { CompletionItem } from "./suggest.js";
 export declare abstract class Memory {
     readonly name: MemMode;
     constructor(name: MemMode);
@@ -58,7 +58,7 @@ export declare class SuggestMemoryService implements ISuggestMemoryService {
     private _withStrategy;
     private _saveState;
 }
-export declare const ISuggestMemoryService: any;
+export declare const ISuggestMemoryService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISuggestMemoryService>;
 export interface ISuggestMemoryService {
     readonly _serviceBrand: undefined;
     memorize(model: ITextModel, pos: IPosition, item: CompletionItem): void;

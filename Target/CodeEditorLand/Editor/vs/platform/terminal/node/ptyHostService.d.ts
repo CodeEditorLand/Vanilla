@@ -1,11 +1,13 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import * as performance from "vs/base/common/performance";
-import { IProcessEnvironment, OperatingSystem } from "vs/base/common/platform";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { ILoggerService, ILogService } from "vs/platform/log/common/log";
-import { IProcessPropertyMap, IPtyHostLatencyMeasurement, IPtyHostService, ISerializedTerminalState, IShellLaunchConfig, ITerminalLaunchError, ITerminalProcessOptions, ITerminalProfile, ITerminalsLayoutInfo, ProcessPropertyType, TerminalIcon, TitleEventSource } from "vs/platform/terminal/common/terminal";
-import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from "vs/platform/terminal/common/terminalProcess";
-import { IPtyHostStarter } from "vs/platform/terminal/node/ptyHost";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import * as performance from "../../../base/common/performance.js";
+import { IProcessEnvironment, OperatingSystem } from "../../../base/common/platform.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { ILoggerService, ILogService } from "../../log/common/log.js";
+import { IPtyHostProcessReplayEvent } from "../common/capabilities/capabilities.js";
+import { IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IPtyHostLatencyMeasurement, IPtyHostService, IRequestResolveVariablesEvent, ISerializedTerminalState, IShellLaunchConfig, ITerminalLaunchError, ITerminalProcessOptions, ITerminalProfile, ITerminalsLayoutInfo, ProcessPropertyType, TerminalIcon, TitleEventSource } from "../common/terminal.js";
+import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from "../common/terminalProcess.js";
+import { IPtyHostStarter } from "./ptyHost.js";
 /**
  * This service implements IPtyService by launching a pty host process, forwarding messages to and
  * from the pty host process and manages the connection.
@@ -33,29 +35,50 @@ export declare class PtyHostService extends Disposable implements IPtyHostServic
     private _heartbeatFirstTimeout?;
     private _heartbeatSecondTimeout?;
     private readonly _onPtyHostExit;
-    readonly onPtyHostExit: any;
+    readonly onPtyHostExit: Event<number>;
     private readonly _onPtyHostStart;
-    readonly onPtyHostStart: any;
+    readonly onPtyHostStart: Event<void>;
     private readonly _onPtyHostUnresponsive;
-    readonly onPtyHostUnresponsive: any;
+    readonly onPtyHostUnresponsive: Event<void>;
     private readonly _onPtyHostResponsive;
-    readonly onPtyHostResponsive: any;
+    readonly onPtyHostResponsive: Event<void>;
     private readonly _onPtyHostRequestResolveVariables;
-    readonly onPtyHostRequestResolveVariables: any;
+    readonly onPtyHostRequestResolveVariables: Event<IRequestResolveVariablesEvent>;
     private readonly _onProcessData;
-    readonly onProcessData: any;
+    readonly onProcessData: Event<{
+        id: number;
+        event: IProcessDataEvent | string;
+    }>;
     private readonly _onProcessReady;
-    readonly onProcessReady: any;
+    readonly onProcessReady: Event<{
+        id: number;
+        event: IProcessReadyEvent;
+    }>;
     private readonly _onProcessReplay;
-    readonly onProcessReplay: any;
+    readonly onProcessReplay: Event<{
+        id: number;
+        event: IPtyHostProcessReplayEvent;
+    }>;
     private readonly _onProcessOrphanQuestion;
-    readonly onProcessOrphanQuestion: any;
+    readonly onProcessOrphanQuestion: Event<{
+        id: number;
+    }>;
     private readonly _onDidRequestDetach;
-    readonly onDidRequestDetach: any;
+    readonly onDidRequestDetach: Event<{
+        requestId: number;
+        workspaceId: string;
+        instanceId: number;
+    }>;
     private readonly _onDidChangeProperty;
-    readonly onDidChangeProperty: any;
+    readonly onDidChangeProperty: Event<{
+        id: number;
+        property: IProcessProperty<any>;
+    }>;
     private readonly _onProcessExit;
-    readonly onProcessExit: any;
+    readonly onProcessExit: Event<{
+        id: number;
+        event: number | undefined;
+    }>;
     constructor(_ptyHostStarter: IPtyHostStarter, _configurationService: IConfigurationService, _logService: ILogService, _loggerService: ILoggerService);
     private get _ignoreProcessNames();
     private _refreshIgnoreProcessNames;
@@ -101,7 +124,7 @@ export declare class PtyHostService extends Disposable implements IPtyHostServic
         processId: string;
     }>;
     serializeTerminalState(ids: number[]): Promise<string>;
-    reviveTerminalProcesses(workspaceId: string, state: ISerializedTerminalState[], dateTimeFormatLocate: string): Promise<any>;
+    reviveTerminalProcesses(workspaceId: string, state: ISerializedTerminalState[], dateTimeFormatLocate: string): Promise<void>;
     refreshProperty<T extends ProcessPropertyType>(id: number, property: T): Promise<IProcessPropertyMap[T]>;
     updateProperty<T extends ProcessPropertyType>(id: number, property: T, value: IProcessPropertyMap[T]): Promise<void>;
     restartPtyHost(): Promise<void>;

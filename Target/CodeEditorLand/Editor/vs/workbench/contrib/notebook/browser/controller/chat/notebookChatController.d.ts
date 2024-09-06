@@ -1,18 +1,18 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { IActiveCodeEditor } from "vs/editor/browser/editorBrowser";
-import { ISingleEditOperation } from "vs/editor/common/core/editOperation";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IEditorWorkerService } from "vs/editor/common/services/editorWorker";
-import { IModelService } from "vs/editor/common/services/model";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IChatModel } from "vs/workbench/contrib/chat/common/chatModel";
-import { IChatService } from "vs/workbench/contrib/chat/common/chatService";
-import { ProgressingEditsOptions } from "vs/workbench/contrib/inlineChat/browser/inlineChatStrategies";
-import { ICellViewModel, INotebookEditor, INotebookEditorContribution } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { IActiveCodeEditor } from "../../../../../../editor/browser/editorBrowser.js";
+import { ISingleEditOperation } from "../../../../../../editor/common/core/editOperation.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { IEditorWorkerService } from "../../../../../../editor/common/services/editorWorker.js";
+import { IModelService } from "../../../../../../editor/common/services/model.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../../../platform/storage/common/storage.js";
+import { IChatModel } from "../../../../chat/common/chatModel.js";
+import { IChatService } from "../../../../chat/common/chatService.js";
+import { ProgressingEditsOptions } from "../../../../inlineChat/browser/inlineChatStrategies.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { ICellViewModel, INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
 export interface INotebookCellTextModelLike {
     uri: URI;
     viewType: string;
@@ -37,7 +37,9 @@ export declare class NotebookChatController extends Disposable implements INoteb
     private _historyUpdate;
     private _promptCache;
     private readonly _onDidChangePromptCache;
-    readonly onDidChangePromptCache: any;
+    readonly onDidChangePromptCache: import("../../../../../../base/common/event.js").Event<{
+        cell: URI;
+    }>;
     private _strategy;
     private _sessionCtor;
     private _warmupRequestCts?;
@@ -62,7 +64,7 @@ export declare class NotebookChatController extends Disposable implements INoteb
     private _focusWidget;
     private _updateNotebookEditorFocusNSelections;
     hasSession(chatModel: IChatModel): boolean;
-    getSessionInputUri(): any;
+    getSessionInputUri(): URI | undefined;
     acceptInput(): Promise<void>;
     private _makeChanges;
     private _updateUserEditingState;
@@ -74,11 +76,11 @@ export declare class NotebookChatController extends Disposable implements INoteb
     focusNearestWidget(index: number, direction: "above" | "below"): void;
     populateHistory(up: boolean): void;
     cancelCurrentRequest(discard: boolean): Promise<void>;
-    getEditingCell(): any;
+    getEditingCell(): ICellViewModel | null | undefined;
     discard(): void;
     dismiss(discard: boolean): void;
-    isCellGeneratedByChat(cell: ICellViewModel): any;
-    getPromptFromCache(cell: ICellViewModel): any;
+    isCellGeneratedByChat(cell: ICellViewModel): boolean;
+    getPromptFromCache(cell: ICellViewModel): string | undefined;
     dispose(): void;
 }
 export declare class EditStrategy {

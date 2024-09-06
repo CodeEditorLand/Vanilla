@@ -1,22 +1,24 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { Position } from "vs/editor/common/core/position";
-import { Location } from "vs/editor/common/languages";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IWorkspaceTrustRequestService } from "vs/platform/workspace/common/workspaceTrust";
-import { TestExclusions } from "vs/workbench/contrib/testing/common/testExclusions";
-import { ITestProfileService } from "vs/workbench/contrib/testing/common/testProfileService";
-import { ITestResult } from "vs/workbench/contrib/testing/common/testResult";
-import { ITestResultService } from "vs/workbench/contrib/testing/common/testResultService";
-import { AmbiguousRunTestsRequest, IMainThreadTestController, IMainThreadTestHostProxy, ITestFollowups, ITestService } from "vs/workbench/contrib/testing/common/testService";
-import { InternalTestItem, ResolvedTestRunRequest, TestMessageFollowupRequest, TestsDiff } from "vs/workbench/contrib/testing/common/testTypes";
-import { IEditorService } from "vs/workbench/services/editor/common/editorService";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { Location } from "../../../../editor/common/languages.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceTrustRequestService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { MainThreadTestCollection } from "./mainThreadTestCollection.js";
+import { MutableObservableValue } from "./observableValue.js";
+import { TestExclusions } from "./testExclusions.js";
+import { ITestProfileService } from "./testProfileService.js";
+import { ITestResult } from "./testResult.js";
+import { ITestResultService } from "./testResultService.js";
+import { AmbiguousRunTestsRequest, IMainThreadTestController, IMainThreadTestHostProxy, ITestFollowups, ITestService } from "./testService.js";
+import { InternalTestItem, ResolvedTestRunRequest, TestMessageFollowupRequest, TestsDiff } from "./testTypes.js";
 export declare class TestService extends Disposable implements ITestService {
     private readonly uriIdentityService;
     private readonly storage;
@@ -43,19 +45,22 @@ export declare class TestService extends Disposable implements ITestService {
     /**
      * @inheritdoc
      */
-    readonly onWillProcessDiff: any;
+    readonly onWillProcessDiff: import("../../../../base/common/event.js").Event<TestsDiff>;
     /**
      * @inheritdoc
      */
-    readonly onDidProcessDiff: any;
+    readonly onDidProcessDiff: import("../../../../base/common/event.js").Event<TestsDiff>;
     /**
      * @inheritdoc
      */
-    readonly onDidCancelTestRun: any;
+    readonly onDidCancelTestRun: import("../../../../base/common/event.js").Event<{
+        runId: string | undefined;
+        taskId: string | undefined;
+    }>;
     /**
      * @inheritdoc
      */
-    readonly collection: any;
+    readonly collection: MainThreadTestCollection;
     /**
      * @inheritdoc
      */
@@ -63,7 +68,7 @@ export declare class TestService extends Disposable implements ITestService {
     /**
      * @inheritdoc
      */
-    readonly showInlineOutput: any;
+    readonly showInlineOutput: MutableObservableValue<boolean>;
     constructor(contextKeyService: IContextKeyService, instantiationService: IInstantiationService, uriIdentityService: IUriIdentityService, storage: IStorageService, editorService: IEditorService, testProfiles: ITestProfileService, notificationService: INotificationService, configurationService: IConfigurationService, testResults: ITestResultService, workspaceTrustRequestService: IWorkspaceTrustRequestService);
     /**
      * @inheritdoc
@@ -76,13 +81,13 @@ export declare class TestService extends Disposable implements ITestService {
     /**
      * @inheritdoc
      */
-    runTests(req: AmbiguousRunTestsRequest, token?: any): Promise<ITestResult>;
+    runTests(req: AmbiguousRunTestsRequest, token?: Readonly<CancellationToken>): Promise<ITestResult>;
     /** @inheritdoc */
     startContinuousRun(req: ResolvedTestRunRequest, token: CancellationToken): Promise<void>;
     /**
      * @inheritdoc
      */
-    runResolvedTests(req: ResolvedTestRunRequest, token?: any): Promise<any>;
+    runResolvedTests(req: ResolvedTestRunRequest, token?: Readonly<CancellationToken>): Promise<import("./testResult.js").LiveTestResult>;
     /**
      * @inheritdoc
      */
@@ -94,7 +99,7 @@ export declare class TestService extends Disposable implements ITestService {
     /**
      * @inheritdoc
      */
-    getTestController(id: string): any;
+    getTestController(id: string): IMainThreadTestController | undefined;
     /**
      * @inheritdoc
      */

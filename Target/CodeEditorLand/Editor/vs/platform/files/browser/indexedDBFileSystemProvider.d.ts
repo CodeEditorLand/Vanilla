@@ -1,8 +1,8 @@
-import { IndexedDB } from "vs/base/browser/indexedDB";
-import { Event } from "vs/base/common/event";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { FileSystemProviderCapabilities, FileType, IFileChange, IFileDeleteOptions, IFileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability, IFileWriteOptions, IStat, IWatchOptions } from "vs/platform/files/common/files";
+import { IndexedDB } from "../../../base/browser/indexedDB.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { FileSystemProviderCapabilities, FileType, IFileChange, IFileDeleteOptions, IFileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability, IFileWriteOptions, IStat, IWatchOptions } from "../common/files.js";
 export type IndexedDBFileSystemProviderErrorDataClassification = {
     owner: "sandy081";
     comment: "Information about errors that occur in the IndexedDB file system provider";
@@ -39,7 +39,7 @@ export declare class IndexedDBFileSystemProvider extends Disposable implements I
     private readonly _onDidChangeFile;
     readonly onDidChangeFile: Event<readonly IFileChange[]>;
     private readonly _onReportError;
-    readonly onReportError: any;
+    readonly onReportError: Event<IndexedDBFileSystemProviderErrorData>;
     private readonly mtimes;
     private cachedFiletree;
     private writeManyThrottler;

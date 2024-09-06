@@ -1,7 +1,7 @@
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { ILogService } from "vs/platform/log/common/log";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IWorkbenchEnvironmentService } from "vs/workbench/services/environment/common/environmentService";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 export declare class ExtensionsProposedApi {
     private readonly _logService;
     private readonly _environmentService;

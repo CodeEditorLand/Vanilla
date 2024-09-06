@@ -1,5 +1,5 @@
 import * as net from "net";
-import { IServerAPI } from "vs/server/node/remoteExtensionHostAgentServer";
+import { IServerAPI } from "./remoteExtensionHostAgentServer.js";
 /**
  * invoked by server-main.js
  */

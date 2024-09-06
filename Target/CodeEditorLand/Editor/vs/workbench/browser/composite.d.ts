@@ -1,17 +1,17 @@
-import { Dimension, IDomPosition } from "vs/base/browser/dom";
-import { IActionViewItem } from "vs/base/browser/ui/actionbar/actionbar";
-import { IBaseActionViewItemOptions } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { IBoundarySashes } from "vs/base/browser/ui/sash/sash";
-import { IAction, IActionRunner } from "vs/base/common/actions";
-import { Emitter, Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { MenuId } from "vs/platform/actions/common/actions";
-import { IConstructorSignature, IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { Component } from "vs/workbench/common/component";
-import { IComposite, ICompositeControl } from "vs/workbench/common/composite";
+import { Dimension, IDomPosition } from "../../base/browser/dom.js";
+import { IActionViewItem } from "../../base/browser/ui/actionbar/actionbar.js";
+import { IBaseActionViewItemOptions } from "../../base/browser/ui/actionbar/actionViewItems.js";
+import { IBoundarySashes } from "../../base/browser/ui/sash/sash.js";
+import { IAction, IActionRunner } from "../../base/common/actions.js";
+import { Emitter, Event } from "../../base/common/event.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { MenuId } from "../../platform/actions/common/actions.js";
+import { IConstructorSignature, IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../platform/theme/common/themeService.js";
+import { Component } from "../common/component.js";
+import { IComposite, ICompositeControl } from "../common/composite.js";
 /**
  * Composites are layed out in the sidebar and panel part of the workbench. At a time only one composite
  * can be open in the sidebar, and only one composite can be open in the panel.
@@ -27,7 +27,7 @@ import { IComposite, ICompositeControl } from "vs/workbench/common/composite";
 export declare abstract class Composite extends Component implements IComposite {
     protected readonly telemetryService: ITelemetryService;
     private readonly _onTitleAreaUpdate;
-    readonly onTitleAreaUpdate: any;
+    readonly onTitleAreaUpdate: Event<void>;
     protected _onDidFocus: Emitter<void> | undefined;
     get onDidFocus(): Event<void>;
     private _onDidBlur;
@@ -144,9 +144,9 @@ export declare abstract class CompositeDescriptor<T extends Composite> {
 }
 export declare abstract class CompositeRegistry<T extends Composite> extends Disposable {
     private readonly _onDidRegister;
-    readonly onDidRegister: any;
+    readonly onDidRegister: Event<CompositeDescriptor<T>>;
     private readonly _onDidDeregister;
-    readonly onDidDeregister: any;
+    readonly onDidDeregister: Event<CompositeDescriptor<T>>;
     private readonly composites;
     protected registerComposite(descriptor: CompositeDescriptor<T>): void;
     protected deregisterComposite(id: string): void;

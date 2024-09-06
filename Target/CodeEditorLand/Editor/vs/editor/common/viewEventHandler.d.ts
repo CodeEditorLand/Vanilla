@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import * as viewEvents from "vs/editor/common/viewEvents";
+import { Disposable } from "../../base/common/lifecycle.js";
+import * as viewEvents from "./viewEvents.js";
 export declare class ViewEventHandler extends Disposable {
     private _shouldRender;
     constructor();

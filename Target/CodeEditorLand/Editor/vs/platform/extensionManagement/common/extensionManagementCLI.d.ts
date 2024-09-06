@@ -1,7 +1,7 @@
-import { URI } from "vs/base/common/uri";
-import { IExtensionGalleryService, IExtensionManagementService, InstallOptions } from "vs/platform/extensionManagement/common/extensionManagement";
-import { IExtensionManifest } from "vs/platform/extensions/common/extensions";
-import { ILogger } from "vs/platform/log/common/log";
+import { URI } from "../../../base/common/uri.js";
+import { IExtensionManifest } from "../../extensions/common/extensions.js";
+import { ILogger } from "../../log/common/log.js";
+import { IExtensionGalleryService, IExtensionManagementService, InstallOptions } from "./extensionManagement.js";
 export declare class ExtensionManagementCLI {
     protected readonly logger: ILogger;
     private readonly extensionManagementService;

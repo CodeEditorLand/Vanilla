@@ -66,6 +66,9 @@ declare const _allApiProposals: {
     contribAccessibilityHelpContent: {
         proposal: string;
     };
+    contribChatParticipantDetection: {
+        proposal: string;
+    };
     contribCommentEditorActionsMenu: {
         proposal: string;
     };
@@ -112,12 +115,6 @@ declare const _allApiProposals: {
         proposal: string;
     };
     contribShareMenu: {
-        proposal: string;
-    };
-    contribSourceControlHistoryItemChangesMenu: {
-        proposal: string;
-    };
-    contribSourceControlHistoryItemGroupMenu: {
         proposal: string;
     };
     contribSourceControlHistoryItemMenu: {

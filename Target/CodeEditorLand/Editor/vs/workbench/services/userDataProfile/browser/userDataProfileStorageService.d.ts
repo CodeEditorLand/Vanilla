@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { IStorageDatabase } from "vs/base/parts/storage/common/storage";
-import { ILogService } from "vs/platform/log/common/log";
-import { IStorageService } from "vs/platform/storage/common/storage";
-import { IUserDataProfile } from "vs/platform/userDataProfile/common/userDataProfile";
-import { AbstractUserDataProfileStorageService, IProfileStorageChanges, IUserDataProfileStorageService } from "vs/platform/userDataProfile/common/userDataProfileStorageService";
-import { IUserDataProfileService } from "vs/workbench/services/userDataProfile/common/userDataProfile";
+import { Event } from "../../../../base/common/event.js";
+import { IStorageDatabase } from "../../../../base/parts/storage/common/storage.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { AbstractUserDataProfileStorageService, IProfileStorageChanges, IUserDataProfileStorageService } from "../../../../platform/userDataProfile/common/userDataProfileStorageService.js";
+import { IUserDataProfileService } from "../common/userDataProfile.js";
 export declare class UserDataProfileStorageService extends AbstractUserDataProfileStorageService implements IUserDataProfileStorageService {
     private readonly userDataProfileService;
     private readonly logService;

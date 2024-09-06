@@ -1,6 +1,6 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IFileService } from "vs/platform/files/common/files";
-import { IRemoteResourceProvider, IResourceUriProvider } from "vs/workbench/browser/web.api";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IRemoteResourceProvider, IResourceUriProvider } from "../../../browser/web.api.js";
 export declare class BrowserRemoteResourceLoader extends Disposable {
     private readonly provider;
     constructor(fileService: IFileService, provider: IRemoteResourceProvider);

@@ -1,11 +1,11 @@
-import { Event } from "vs/base/common/event";
-import { IMatch } from "vs/base/common/filters";
-import { IDisposable, IReference } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { Position } from "vs/editor/common/core/position";
-import { IRange } from "vs/editor/common/core/range";
-import { LocationLink } from "vs/editor/common/languages";
-import { ITextEditorModel, ITextModelService } from "vs/editor/common/services/resolverService";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { IMatch } from "../../../../base/common/filters.js";
+import { IDisposable, IReference } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Position } from "../../../common/core/position.js";
+import { IRange } from "../../../common/core/range.js";
+import { LocationLink } from "../../../common/languages.js";
+import { ITextEditorModel, ITextModelService } from "../../../common/services/resolverService.js";
 export declare class OneReference {
     readonly isProviderFirst: boolean;
     readonly parent: FileReferences;
@@ -14,7 +14,7 @@ export declare class OneReference {
     readonly id: string;
     private _range?;
     constructor(isProviderFirst: boolean, parent: FileReferences, link: LocationLink, _rangeCallback: (ref: OneReference) => void);
-    get uri(): any;
+    get uri(): URI;
     get range(): IRange;
     set range(value: IRange);
     get ariaMessage(): string;
@@ -44,7 +44,7 @@ export declare class ReferencesModel implements IDisposable {
     private readonly _title;
     readonly groups: FileReferences[];
     readonly references: OneReference[];
-    readonly _onDidChangeReferenceRange: any;
+    readonly _onDidChangeReferenceRange: Emitter<OneReference>;
     readonly onDidChangeReferenceRange: Event<OneReference>;
     constructor(links: LocationLink[], title: string);
     dispose(): void;

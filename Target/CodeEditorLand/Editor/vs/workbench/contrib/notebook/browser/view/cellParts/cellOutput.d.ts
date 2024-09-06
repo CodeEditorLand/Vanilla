@@ -1,17 +1,17 @@
-import { FastDomNode } from "vs/base/browser/fastDomNode";
-import { Disposable } from "vs/base/common/lifecycle";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IQuickInputService } from "vs/platform/quickinput/common/quickInput";
-import { ICellOutputViewModel, IInsetRenderOutput, INotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { CellContentPart } from "vs/workbench/contrib/notebook/browser/view/cellPart";
-import { CodeCellRenderTemplate } from "vs/workbench/contrib/notebook/browser/view/notebookRenderingCommon";
-import { CodeCellViewModel } from "vs/workbench/contrib/notebook/browser/viewModel/codeCellViewModel";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
-import { INotebookService } from "vs/workbench/contrib/notebook/common/notebookService";
-import { IPaneCompositePartService } from "vs/workbench/services/panecomposite/browser/panecomposite";
+import { FastDomNode } from "../../../../../../base/browser/fastDomNode.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { IMenuService } from "../../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
+import { IQuickInputService } from "../../../../../../platform/quickinput/common/quickInput.js";
+import { IPaneCompositePartService } from "../../../../../services/panecomposite/browser/panecomposite.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { INotebookService } from "../../../common/notebookService.js";
+import { ICellOutputViewModel, IInsetRenderOutput, INotebookEditorDelegate } from "../../notebookBrowser.js";
+import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
+import { CellContentPart } from "../cellPart.js";
+import { CodeCellRenderTemplate } from "../notebookRenderingCommon.js";
 interface IRenderResult {
     initRenderIsSynchronous: false;
 }
@@ -66,7 +66,7 @@ export declare class CellOutputContainer extends CellContentPart {
     private readonly instantiationService;
     private _outputEntries;
     private _hasStaleOutputs;
-    hasHiddenOutputs: any;
+    hasHiddenOutputs: import("../../../../../../base/common/observable.js").ISettableObservable<boolean, void>;
     checkForHiddenOutputs(): void;
     get renderedOutputEntries(): OutputEntryViewHandler[];
     constructor(notebookEditor: INotebookEditorDelegate, viewCell: CodeCellViewModel, templateData: CodeCellRenderTemplate, options: {

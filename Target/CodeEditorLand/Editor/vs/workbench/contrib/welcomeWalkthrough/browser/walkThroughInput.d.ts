@@ -1,17 +1,17 @@
-import { Dimension } from "vs/base/browser/dom";
-import { DisposableStore, IReference } from "vs/base/common/lifecycle";
-import { URI } from "vs/base/common/uri";
-import { ITextEditorModel, ITextModelService } from "vs/editor/common/services/resolverService";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { EditorInputCapabilities, IUntypedEditorInput } from "vs/workbench/common/editor";
-import { EditorInput } from "vs/workbench/common/editor/editorInput";
-import { EditorModel } from "vs/workbench/common/editor/editorModel";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { DisposableStore, IReference } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextEditorModel, ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { EditorInputCapabilities, IUntypedEditorInput } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { EditorModel } from "../../../common/editor/editorModel.js";
 declare class WalkThroughModel extends EditorModel {
     private mainRef;
     private snippetRefs;
     constructor(mainRef: string, snippetRefs: IReference<ITextEditorModel>[]);
     get main(): string;
-    get snippets(): any[];
+    get snippets(): ITextEditorModel[];
     dispose(): void;
 }
 export interface WalkThroughInputOptions {

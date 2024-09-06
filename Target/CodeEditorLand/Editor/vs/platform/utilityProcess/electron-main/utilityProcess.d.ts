@@ -1,9 +1,10 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import Severity from "vs/base/common/severity";
-import { ILifecycleMainService } from "vs/platform/lifecycle/electron-main/lifecycleMainService";
-import { ILogService } from "vs/platform/log/common/log";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IWindowsMainService } from "vs/platform/windows/electron-main/windows";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import Severity from "../../../base/common/severity.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
 export interface IUtilityProcessConfiguration {
     /**
      * A way to group utility processes of same type together.
@@ -106,17 +107,17 @@ export declare class UtilityProcess extends Disposable {
     static getAll(): IUtilityProcessInfo[];
     private readonly id;
     private readonly _onStdout;
-    readonly onStdout: any;
+    readonly onStdout: Event<string>;
     private readonly _onStderr;
-    readonly onStderr: any;
+    readonly onStderr: Event<string>;
     private readonly _onMessage;
-    readonly onMessage: any;
+    readonly onMessage: Event<unknown>;
     private readonly _onSpawn;
-    readonly onSpawn: any;
+    readonly onSpawn: Event<number | undefined>;
     private readonly _onExit;
-    readonly onExit: any;
+    readonly onExit: Event<IUtilityProcessExitEvent>;
     private readonly _onCrash;
-    readonly onCrash: any;
+    readonly onCrash: Event<IUtilityProcessCrashEvent>;
     private process;
     private processPid;
     private configuration;

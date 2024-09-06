@@ -1,10 +1,10 @@
-import "vs/css!./viewCursors";
-import { FastDomNode } from "vs/base/browser/fastDomNode";
-import { RenderingContext, RestrictedRenderingContext } from "vs/editor/browser/view/renderingContext";
-import { ViewPart } from "vs/editor/browser/view/viewPart";
-import { IViewCursorRenderData } from "vs/editor/browser/viewParts/viewCursors/viewCursor";
-import * as viewEvents from "vs/editor/common/viewEvents";
-import { ViewContext } from "vs/editor/common/viewModel/viewContext";
+import "./viewCursors.css";
+import { FastDomNode } from "../../../../base/browser/fastDomNode.js";
+import * as viewEvents from "../../../common/viewEvents.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
+import { ViewPart } from "../../view/viewPart.js";
+import { IViewCursorRenderData } from "./viewCursor.js";
 export declare class ViewCursors extends ViewPart {
     static readonly BLINK_INTERVAL = 500;
     private _readOnly;

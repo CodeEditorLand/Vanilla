@@ -1,4 +1,4 @@
-import { ContiguousMultilineTokens } from "vs/editor/common/tokens/contiguousMultilineTokens";
+import { ContiguousMultilineTokens } from "./contiguousMultilineTokens.js";
 export declare class ContiguousMultilineTokensBuilder {
     static deserialize(buff: Uint8Array): ContiguousMultilineTokens[];
     private readonly _tokens;

@@ -1,6 +1,6 @@
-import { IEnvironmentService } from "vs/platform/environment/common/environment";
-import { AbstractLogger, ILoggerService } from "vs/platform/log/common/log";
-import { IEditSessionsLogService } from "vs/workbench/contrib/editSessions/common/editSessions";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { AbstractLogger, ILoggerService } from "../../../../platform/log/common/log.js";
+import { IEditSessionsLogService } from "./editSessions.js";
 export declare class EditSessionsLogService extends AbstractLogger implements IEditSessionsLogService {
     readonly _serviceBrand: undefined;
     private readonly logger;

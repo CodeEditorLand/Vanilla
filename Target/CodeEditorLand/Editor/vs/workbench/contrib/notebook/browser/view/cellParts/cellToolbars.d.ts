@@ -1,10 +1,10 @@
-import { Event } from "vs/base/common/event";
-import { IMenuService, MenuId } from "vs/platform/actions/common/actions";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { ICellViewModel, INotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { CellOverlayPart } from "vs/workbench/contrib/notebook/browser/view/cellPart";
+import { Event } from "../../../../../../base/common/event.js";
+import { IMenuService, MenuId } from "../../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
+import { CellOverlayPart } from "../cellPart.js";
 export declare class BetweenCellToolbar extends CellOverlayPart {
     private readonly _notebookEditor;
     private readonly _bottomCellToolbarContainer;

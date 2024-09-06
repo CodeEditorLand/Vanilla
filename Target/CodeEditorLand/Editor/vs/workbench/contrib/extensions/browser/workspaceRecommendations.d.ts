@@ -1,10 +1,10 @@
-import { IFileService } from "vs/platform/files/common/files";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IUriIdentityService } from "vs/platform/uriIdentity/common/uriIdentity";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { ExtensionRecommendation, ExtensionRecommendations } from "vs/workbench/contrib/extensions/browser/extensionRecommendations";
-import { IWorkbenchExtensionManagementService } from "vs/workbench/services/extensionManagement/common/extensionManagement";
-import { IWorkspaceExtensionsConfigService } from "vs/workbench/services/extensionRecommendations/common/workspaceExtensionsConfig";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchExtensionManagementService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IWorkspaceExtensionsConfigService } from "../../../services/extensionRecommendations/common/workspaceExtensionsConfig.js";
+import { ExtensionRecommendation, ExtensionRecommendations } from "./extensionRecommendations.js";
 export declare class WorkspaceRecommendations extends ExtensionRecommendations {
     private readonly workspaceExtensionsConfigService;
     private readonly contextService;
@@ -15,7 +15,7 @@ export declare class WorkspaceRecommendations extends ExtensionRecommendations {
     private _recommendations;
     get recommendations(): ReadonlyArray<ExtensionRecommendation>;
     private _onDidChangeRecommendations;
-    readonly onDidChangeRecommendations: any;
+    readonly onDidChangeRecommendations: import("../../../../base/common/event.js").Event<void>;
     private _ignoredRecommendations;
     get ignoredRecommendations(): ReadonlyArray<string>;
     private workspaceExtensions;

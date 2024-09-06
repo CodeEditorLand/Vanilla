@@ -1,15 +1,15 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { IEditorOptions } from "vs/editor/common/config/editorOptions";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IActiveNotebookEditorDelegate, ICellViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { MarkdownCellRenderTemplate } from "vs/workbench/contrib/notebook/browser/view/notebookRenderingCommon";
-import { MarkupCellViewModel } from "vs/workbench/contrib/notebook/browser/viewModel/markupCellViewModel";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../../../../editor/browser/editorBrowser.js";
+import { IEditorOptions } from "../../../../../../editor/common/config/editorOptions.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { IAccessibilityService } from "../../../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { IActiveNotebookEditorDelegate, ICellViewModel } from "../../notebookBrowser.js";
+import { MarkupCellViewModel } from "../../viewModel/markupCellViewModel.js";
+import { MarkdownCellRenderTemplate } from "../notebookRenderingCommon.js";
 export declare class MarkupCell extends Disposable {
     private readonly notebookEditor;
     private readonly viewCell;

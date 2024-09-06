@@ -1,16 +1,17 @@
-import { BaseActionViewItem, IActionViewItemOptions } from "vs/base/browser/ui/actionbar/actionViewItems";
-import { HoverPosition } from "vs/base/browser/ui/hover/hoverWidget";
-import { Action, IAction } from "vs/base/common/actions";
-import { Color } from "vs/base/common/color";
-import { URI } from "vs/base/common/uri";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IHoverService } from "vs/platform/hover/browser/hover";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { IColorTheme, IThemeService } from "vs/platform/theme/common/themeService";
-import { ICompositeDragAndDrop } from "vs/workbench/browser/dnd";
-import { IActivity, IBadge } from "vs/workbench/services/activity/common/activity";
+import { BaseActionViewItem, IActionViewItemOptions } from "../../../base/browser/ui/actionbar/actionViewItems.js";
+import { HoverPosition } from "../../../base/browser/ui/hover/hoverWidget.js";
+import { Action, IAction } from "../../../base/common/actions.js";
+import { Color } from "../../../base/common/color.js";
+import { Event } from "../../../base/common/event.js";
+import { URI } from "../../../base/common/uri.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
+import { IColorTheme, IThemeService } from "../../../platform/theme/common/themeService.js";
+import { IActivity, IBadge } from "../../services/activity/common/activity.js";
+import { ICompositeDragAndDrop } from "../dnd.js";
 export interface ICompositeBar {
     /**
      * Unpins a composite from the composite bar.
@@ -49,9 +50,9 @@ export interface ICompositeBarActionItem {
 export declare class CompositeBarAction extends Action {
     private item;
     private readonly _onDidChangeCompositeBarActionItem;
-    readonly onDidChangeCompositeBarActionItem: any;
+    readonly onDidChangeCompositeBarActionItem: Event<CompositeBarAction>;
     private readonly _onDidChangeActivity;
-    readonly onDidChangeActivity: any;
+    readonly onDidChangeActivity: Event<IActivity | undefined>;
     private _activity;
     constructor(item: ICompositeBarActionItem);
     get compositeBarActionItem(): ICompositeBarActionItem;

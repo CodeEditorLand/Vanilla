@@ -1,7 +1,7 @@
-import Severity from "vs/base/common/severity";
-import { URI } from "vs/base/common/uri";
-import { ILocalizedString } from "vs/platform/action/common/action";
-import { ExtensionKind } from "vs/platform/environment/common/environment";
+import Severity from "../../../base/common/severity.js";
+import { URI } from "../../../base/common/uri.js";
+import { ILocalizedString } from "../../action/common/action.js";
+import { ExtensionKind } from "../../environment/common/environment.js";
 export declare const USER_MANIFEST_CACHE_FILE = "extensions.user.cache";
 export declare const BUILTIN_MANIFEST_CACHE_FILE = "extensions.builtin.cache";
 export declare const UNDEFINED_PUBLISHER = "undefined_publisher";
@@ -313,7 +313,7 @@ export declare class ExtensionIdentifier {
      */
     readonly _lower: string;
     constructor(value: string);
-    static equals(a: ExtensionIdentifier | string | null | undefined, b: ExtensionIdentifier | string | null | undefined): any;
+    static equals(a: ExtensionIdentifier | string | null | undefined, b: ExtensionIdentifier | string | null | undefined): boolean;
     /**
      * Gives the value by which to index (for equality).
      */
@@ -359,7 +359,7 @@ export declare function parseApiProposals(enabledApiProposals: string[]): {
     version?: number;
 }[];
 export declare function parseEnabledApiProposalNames(enabledApiProposals: string[]): string[];
-export declare const IBuiltinExtensionsScannerService: any;
+export declare const IBuiltinExtensionsScannerService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IBuiltinExtensionsScannerService>;
 export interface IBuiltinExtensionsScannerService {
     readonly _serviceBrand: undefined;
     scanBuiltinExtensions(): Promise<IExtension[]>;

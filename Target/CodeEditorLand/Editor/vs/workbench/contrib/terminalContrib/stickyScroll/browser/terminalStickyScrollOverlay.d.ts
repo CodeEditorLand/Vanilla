@@ -1,14 +1,14 @@
 import type { Terminal as RawXtermTerminal, Terminal as XTermTerminal } from "@xterm/xterm";
-import { Disposable } from "vs/base/common/lifecycle";
-import "vs/css!./media/stickyScroll";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
-import { ICommandDetectionCapability } from "vs/platform/terminal/common/capabilities/capabilities";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { ITerminalConfigurationService, ITerminalInstance, IXtermColorProvider, IXtermTerminal } from "vs/workbench/contrib/terminal/browser/terminal";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import "./media/stickyScroll.css";
+import { IMenuService } from "../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { ICommandDetectionCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { ITerminalConfigurationService, ITerminalInstance, IXtermColorProvider, IXtermTerminal } from "../../../terminal/browser/terminal.js";
 export declare class TerminalStickyScrollOverlay extends Disposable {
     private readonly _instance;
     private readonly _xterm;

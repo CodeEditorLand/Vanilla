@@ -1,8 +1,8 @@
-import { IDragAndDropData } from "vs/base/browser/dnd";
-import { IMouseEvent } from "vs/base/browser/mouseEvent";
-import { IListDragAndDrop, IListDragOverReaction, IListRenderer } from "vs/base/browser/ui/list/list";
-import { ListViewTargetSector } from "vs/base/browser/ui/list/listView";
-import { Event } from "vs/base/common/event";
+import { Event } from "../../../common/event.js";
+import { IDragAndDropData } from "../../dnd.js";
+import { IMouseEvent } from "../../mouseEvent.js";
+import { IListDragAndDrop, IListDragOverReaction, IListRenderer } from "../list/list.js";
+import { ListViewTargetSector } from "../list/listView.js";
 export declare const enum TreeVisibility {
     /**
      * The tree node should be hidden.
@@ -95,13 +95,19 @@ export interface ICollapseStateChangeEvent<T, TFilterData> {
     node: ITreeNode<T, TFilterData>;
     deep: boolean;
 }
+export interface ITreeListSpliceData<T, TFilterData> {
+    start: number;
+    deleteCount: number;
+    elements: ITreeNode<T, TFilterData>[];
+}
 export interface ITreeModelSpliceEvent<T, TFilterData> {
     insertedNodes: ITreeNode<T, TFilterData>[];
     deletedNodes: ITreeNode<T, TFilterData>[];
 }
 export interface ITreeModel<T, TFilterData, TRef> {
     readonly rootRef: TRef;
-    readonly onDidSplice: Event<ITreeModelSpliceEvent<T, TFilterData>>;
+    readonly onDidSpliceModel: Event<ITreeModelSpliceEvent<T, TFilterData>>;
+    readonly onDidSpliceRenderedNodes: Event<ITreeListSpliceData<T, TFilterData>>;
     readonly onDidChangeCollapseState: Event<ICollapseStateChangeEvent<T, TFilterData>>;
     readonly onDidChangeRenderNodeCount: Event<ITreeNode<T, TFilterData>>;
     has(location: TRef): boolean;

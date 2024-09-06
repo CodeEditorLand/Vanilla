@@ -1,1 +1,1 @@
-import"../../../../../vs/base/common/lifecycle.js";import"../../../../../vs/base/common/uri.js";
+import"../../../../base/common/lifecycle.js";import"../../../../base/common/uri.js";

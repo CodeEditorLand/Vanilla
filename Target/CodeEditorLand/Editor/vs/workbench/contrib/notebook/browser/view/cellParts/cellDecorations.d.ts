@@ -1,5 +1,5 @@
-import { ICellViewModel } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { CellContentPart } from "vs/workbench/contrib/notebook/browser/view/cellPart";
+import { ICellViewModel } from "../../notebookBrowser.js";
+import { CellContentPart } from "../cellPart.js";
 export declare class CellDecorations extends CellContentPart {
     readonly rootContainer: HTMLElement;
     readonly decorationContainer: HTMLElement;

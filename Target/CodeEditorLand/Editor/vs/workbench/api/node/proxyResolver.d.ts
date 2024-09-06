@@ -1,7 +1,7 @@
-import { ILogService } from "vs/platform/log/common/log";
-import { MainThreadTelemetryShape } from "vs/workbench/api/common/extHost.protocol";
-import { ExtHostConfigProvider } from "vs/workbench/api/common/extHostConfiguration";
-import { IExtHostWorkspaceProvider } from "vs/workbench/api/common/extHostWorkspace";
-import { ExtHostExtensionService } from "vs/workbench/api/node/extHostExtensionService";
-import { IExtensionHostInitData } from "vs/workbench/services/extensions/common/extensionHostProtocol";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IExtensionHostInitData } from "../../services/extensions/common/extensionHostProtocol.js";
+import { MainThreadTelemetryShape } from "../common/extHost.protocol.js";
+import { ExtHostConfigProvider } from "../common/extHostConfiguration.js";
+import { IExtHostWorkspaceProvider } from "../common/extHostWorkspace.js";
+import { ExtHostExtensionService } from "./extHostExtensionService.js";
 export declare function connectProxyResolver(extHostWorkspace: IExtHostWorkspaceProvider, configProvider: ExtHostConfigProvider, extensionService: ExtHostExtensionService, extHostLogService: ILogService, mainThreadTelemetry: MainThreadTelemetryShape, initData: IExtensionHostInitData): Promise<void>;

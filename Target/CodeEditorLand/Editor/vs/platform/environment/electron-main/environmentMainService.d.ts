@@ -1,6 +1,6 @@
-import { INativeEnvironmentService } from "vs/platform/environment/common/environment";
-import { NativeEnvironmentService } from "vs/platform/environment/node/environmentService";
-export declare const IEnvironmentMainService: any;
+import { INativeEnvironmentService } from "../common/environment.js";
+import { NativeEnvironmentService } from "../node/environmentService.js";
+export declare const IEnvironmentMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IEnvironmentMainService>;
 /**
  * A subclass of the `INativeEnvironmentService` to be used only in electron-main
  * environments.

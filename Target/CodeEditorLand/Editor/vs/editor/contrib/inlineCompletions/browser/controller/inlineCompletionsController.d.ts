@@ -1,16 +1,17 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { ITransaction } from "vs/base/common/observable";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { Range } from "vs/editor/common/core/range";
-import { ILanguageFeatureDebounceService } from "vs/editor/common/services/languageFeatureDebounce";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IAccessibilityService } from "vs/platform/accessibility/common/accessibility";
-import { IAccessibilitySignalService } from "vs/platform/accessibilitySignal/browser/accessibilitySignalService";
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { IConfigurationService } from "vs/platform/configuration/common/configuration";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindingService } from "vs/platform/keybinding/common/keybinding";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable, ITransaction } from "../../../../../base/common/observable.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+import { IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { ICodeEditor } from "../../../../browser/editorBrowser.js";
+import { Range } from "../../../../common/core/range.js";
+import { ILanguageFeatureDebounceService } from "../../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../../common/services/languageFeatures.js";
+import { InlineCompletionsModel } from "../model/inlineCompletionsModel.js";
 export declare class InlineCompletionsController extends Disposable {
     readonly editor: ICodeEditor;
     private readonly _instantiationService;
@@ -33,7 +34,7 @@ export declare class InlineCompletionsController extends Disposable {
     private readonly _editorDictationInProgress;
     private readonly _enabled;
     private readonly _debounceValue;
-    readonly model: any;
+    readonly model: IObservable<InlineCompletionsModel | undefined, unknown>;
     private readonly _ghostTexts;
     private readonly _stablizedGhostTexts;
     private readonly _ghostTextWidgets;
@@ -42,7 +43,7 @@ export declare class InlineCompletionsController extends Disposable {
     constructor(editor: ICodeEditor, _instantiationService: IInstantiationService, _contextKeyService: IContextKeyService, _configurationService: IConfigurationService, _commandService: ICommandService, _debounceService: ILanguageFeatureDebounceService, _languageFeaturesService: ILanguageFeaturesService, _accessibilitySignalService: IAccessibilitySignalService, _keybindingService: IKeybindingService, _accessibilityService: IAccessibilityService);
     playAccessibilitySignal(tx: ITransaction): void;
     private _provideScreenReaderUpdate;
-    shouldShowHoverAt(range: Range): any;
+    shouldShowHoverAt(range: Range): boolean;
     shouldShowHoverAtViewZone(viewZoneId: string): boolean;
     hide(): void;
 }

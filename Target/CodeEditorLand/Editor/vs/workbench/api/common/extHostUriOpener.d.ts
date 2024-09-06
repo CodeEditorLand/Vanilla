@@ -1,9 +1,9 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { UriComponents } from "vs/base/common/uri";
-import * as languages from "vs/editor/common/languages";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
 import type * as vscode from "vscode";
-import { ExtHostUriOpenersShape, IMainContext } from "./extHost.protocol";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { UriComponents } from "../../../base/common/uri.js";
+import * as languages from "../../../editor/common/languages.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostUriOpenersShape, IMainContext } from "./extHost.protocol.js";
 export declare class ExtHostUriOpeners implements ExtHostUriOpenersShape {
     private static readonly supportedSchemes;
     private readonly _proxy;

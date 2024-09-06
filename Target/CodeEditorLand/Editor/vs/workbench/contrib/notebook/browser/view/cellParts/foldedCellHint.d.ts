@@ -1,7 +1,7 @@
-import { INotebookEditor } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { CellContentPart } from "vs/workbench/contrib/notebook/browser/view/cellPart";
-import { MarkupCellViewModel } from "vs/workbench/contrib/notebook/browser/viewModel/markupCellViewModel";
-import { INotebookExecutionStateService } from "vs/workbench/contrib/notebook/common/notebookExecutionStateService";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { INotebookEditor } from "../../notebookBrowser.js";
+import { MarkupCellViewModel } from "../../viewModel/markupCellViewModel.js";
+import { CellContentPart } from "../cellPart.js";
 export declare class FoldedCellHint extends CellContentPart {
     private readonly _notebookEditor;
     private readonly _container;

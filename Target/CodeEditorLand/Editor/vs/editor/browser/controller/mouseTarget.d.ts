@@ -1,14 +1,14 @@
-import { IPointerHandlerHelper } from "vs/editor/browser/controller/mouseHandler";
-import { IMouseTarget, IMouseTargetContentEmpty, IMouseTargetContentEmptyData, IMouseTargetContentText, IMouseTargetContentTextData, IMouseTargetContentWidget, IMouseTargetMargin, IMouseTargetMarginData, IMouseTargetOutsideEditor, IMouseTargetOverlayWidget, IMouseTargetScrollbar, IMouseTargetTextarea, IMouseTargetUnknown, IMouseTargetViewZone, IMouseTargetViewZoneData, MouseTargetType } from "vs/editor/browser/editorBrowser";
-import { CoordinatesRelativeToEditor, EditorMouseEvent, EditorPagePosition, PageCoordinates } from "vs/editor/browser/editorDom";
-import { HorizontalPosition } from "vs/editor/browser/view/renderingContext";
-import { IViewCursorRenderData } from "vs/editor/browser/viewParts/viewCursors/viewCursor";
-import { EditorLayoutInfo } from "vs/editor/common/config/editorOptions";
-import { Position } from "vs/editor/common/core/position";
-import { Range as EditorRange } from "vs/editor/common/core/range";
-import { InjectedText } from "vs/editor/common/modelLineProjectionData";
-import { IViewModel } from "vs/editor/common/viewModel";
-import { ViewContext } from "vs/editor/common/viewModel/viewContext";
+import { EditorLayoutInfo } from "../../common/config/editorOptions.js";
+import { Position } from "../../common/core/position.js";
+import { Range as EditorRange } from "../../common/core/range.js";
+import { InjectedText } from "../../common/modelLineProjectionData.js";
+import { IViewModel } from "../../common/viewModel.js";
+import { ViewContext } from "../../common/viewModel/viewContext.js";
+import { IMouseTarget, IMouseTargetContentEmpty, IMouseTargetContentEmptyData, IMouseTargetContentText, IMouseTargetContentTextData, IMouseTargetContentWidget, IMouseTargetMargin, IMouseTargetMarginData, IMouseTargetOutsideEditor, IMouseTargetOverlayWidget, IMouseTargetScrollbar, IMouseTargetTextarea, IMouseTargetUnknown, IMouseTargetViewZone, IMouseTargetViewZoneData, MouseTargetType } from "../editorBrowser.js";
+import { CoordinatesRelativeToEditor, EditorMouseEvent, EditorPagePosition, PageCoordinates } from "../editorDom.js";
+import { HorizontalPosition } from "../view/renderingContext.js";
+import { IViewCursorRenderData } from "../viewParts/viewCursors/viewCursor.js";
+import { IPointerHandlerHelper } from "./mouseHandler.js";
 declare const enum HitTestResultType {
     Unknown = 0,
     Content = 1

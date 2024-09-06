@@ -1,7 +1,7 @@
-import { IThemeService, Themable } from "vs/platform/theme/common/themeService";
-import { IDiffElementViewModelBase } from "vs/workbench/contrib/notebook/browser/diff/diffElementViewModel";
-import { NotebookDiffEditorEventDispatcher } from "vs/workbench/contrib/notebook/browser/diff/eventDispatcher";
-import { INotebookTextDiffEditor } from "vs/workbench/contrib/notebook/browser/diff/notebookDiffEditorBrowser";
+import { IThemeService, Themable } from "../../../../../platform/theme/common/themeService.js";
+import { IDiffElementViewModelBase } from "./diffElementViewModel.js";
+import { NotebookDiffEditorEventDispatcher } from "./eventDispatcher.js";
+import { INotebookTextDiffEditor } from "./notebookDiffEditorBrowser.js";
 export declare class NotebookDiffOverviewRuler extends Themable {
     readonly notebookEditor: INotebookTextDiffEditor;
     readonly width: number;

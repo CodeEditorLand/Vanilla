@@ -1,12 +1,12 @@
-import { IconLabel } from "vs/base/browser/ui/iconLabel/iconLabel";
-import { IListRenderer } from "vs/base/browser/ui/list/list";
-import { Event } from "vs/base/common/event";
-import { DisposableStore } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ILanguageService } from "vs/editor/common/languages/language";
-import { IModelService } from "vs/editor/common/services/model";
-import { IThemeService } from "vs/platform/theme/common/themeService";
-import { CompletionItem } from "./suggest";
+import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { IListRenderer } from "../../../../base/browser/ui/list/list.js";
+import { Event } from "../../../../base/common/event.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { ILanguageService } from "../../../common/languages/language.js";
+import { IModelService } from "../../../common/services/model.js";
+import { CompletionItem } from "./suggest.js";
 export declare function getAriaId(index: number): string;
 export interface ISuggestionTemplateData {
     readonly root: HTMLElement;

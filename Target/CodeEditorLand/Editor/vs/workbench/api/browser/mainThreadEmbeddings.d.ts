@@ -1,14 +1,14 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Event } from "vs/base/common/event";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { MainThreadEmbeddingsShape } from "vs/workbench/api/common/extHost.protocol";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadEmbeddingsShape } from "../common/extHost.protocol.js";
 interface IEmbeddingsProvider {
     provideEmbeddings(input: string[], token: CancellationToken): Promise<{
         values: number[];
     }[]>;
 }
-declare const IEmbeddingsService: any;
+declare const IEmbeddingsService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEmbeddingsService>;
 interface IEmbeddingsService {
     _serviceBrand: undefined;
     readonly onDidChange: Event<void>;

@@ -1,5 +1,5 @@
-import type { IStringDictionary } from "vs/base/common/collections";
-import type { IConfigurationPropertySchema } from "vs/platform/configuration/common/configurationRegistry";
+import type { IStringDictionary } from "../../../../../base/common/collections.js";
+import type { IConfigurationPropertySchema } from "../../../../../platform/configuration/common/configurationRegistry.js";
 export declare const enum TerminalSuggestSettingId {
     Enabled = "terminal.integrated.suggest.enabled",
     QuickSuggestions = "terminal.integrated.suggest.quickSuggestions",

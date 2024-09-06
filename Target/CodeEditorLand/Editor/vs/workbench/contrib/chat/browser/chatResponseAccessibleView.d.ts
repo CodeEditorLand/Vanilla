@@ -1,13 +1,14 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IAccessibleViewContentProvider } from "vs/platform/accessibility/browser/accessibleView";
-import { IAccessibleViewImplentation } from "vs/platform/accessibility/browser/accessibleViewRegistry";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { ChatTreeItem, IChatWidget } from "vs/workbench/contrib/chat/browser/chat";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { ChatTreeItem, IChatWidget } from "./chat.js";
 export declare class ChatResponseAccessibleView implements IAccessibleViewImplentation {
     readonly priority = 100;
     readonly name = "panelChat";
-    readonly type: any;
-    readonly when: any;
+    readonly type = AccessibleViewType.View;
+    readonly when: import("../../../../platform/contextkey/common/contextkey.js").RawContextKey<boolean>;
     getProvider(accessor: ServicesAccessor): ChatResponseAccessibleProvider | undefined;
 }
 declare class ChatResponseAccessibleProvider extends Disposable implements IAccessibleViewContentProvider {
@@ -15,10 +16,10 @@ declare class ChatResponseAccessibleProvider extends Disposable implements IAcce
     private readonly _chatInputFocused;
     private _focusedItem;
     constructor(_widget: IChatWidget, item: ChatTreeItem, _chatInputFocused: boolean);
-    readonly id: any;
-    readonly verbositySettingKey: any;
+    readonly id = AccessibleViewProviderId.Chat;
+    readonly verbositySettingKey = AccessibilityVerbositySettingId.Chat;
     readonly options: {
-        type: any;
+        type: AccessibleViewType;
     };
     provideContent(): string;
     private _getContent;

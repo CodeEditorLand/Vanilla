@@ -1,15 +1,15 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ResourceMap } from "vs/base/common/map";
-import { IActiveCodeEditor, ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ICodeEditorService } from "vs/editor/browser/services/codeEditorService";
-import { Position } from "vs/editor/common/core/position";
-import { IEditorContribution } from "vs/editor/common/editorCommon";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import { DocumentHighlight, DocumentHighlightProvider, MultiDocumentHighlightProvider } from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { ILanguageFeaturesService } from "vs/editor/common/services/languageFeatures";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IActiveCodeEditor, ICodeEditor } from "../../../browser/editorBrowser.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { Position } from "../../../common/core/position.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import { DocumentHighlight, DocumentHighlightProvider, MultiDocumentHighlightProvider } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
 export declare function getOccurrencesAtPosition(registry: LanguageFeatureRegistry<DocumentHighlightProvider>, model: ITextModel, position: Position, token: CancellationToken): Promise<ResourceMap<DocumentHighlight[]> | null | undefined>;
 export declare function getOccurrencesAcrossMultipleModels(registry: LanguageFeatureRegistry<MultiDocumentHighlightProvider>, model: ITextModel, position: Position, wordSeparators: string, token: CancellationToken, otherModels: ITextModel[]): Promise<ResourceMap<DocumentHighlight[]> | null | undefined>;
 declare class WordHighlighter {

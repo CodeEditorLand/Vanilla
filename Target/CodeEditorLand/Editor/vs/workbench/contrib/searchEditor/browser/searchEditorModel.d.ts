@@ -1,7 +1,8 @@
-import { URI } from "vs/base/common/uri";
-import { ITextModel } from "vs/editor/common/model";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { SearchConfiguration } from "./searchEditorInput";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { SearchConfiguration } from "./searchEditorInput.js";
 export type SearchEditorData = {
     resultsModel: ITextModel;
     configurationModel: SearchConfigurationModel;
@@ -9,7 +10,7 @@ export type SearchEditorData = {
 export declare class SearchConfigurationModel {
     config: Readonly<SearchConfiguration>;
     private _onConfigDidUpdate;
-    readonly onConfigDidUpdate: any;
+    readonly onConfigDidUpdate: import("../../../../base/common/event.js").Event<SearchConfiguration>;
     constructor(config: Readonly<SearchConfiguration>);
     updateConfig(config: SearchConfiguration): void;
 }
@@ -19,7 +20,9 @@ export declare class SearchEditorModel {
     resolve(): Promise<SearchEditorData>;
 }
 declare class SearchEditorModelFactory {
-    models: any;
+    models: ResourceMap<{
+        resolve: () => Promise<SearchEditorData>;
+    }>;
     constructor();
     initializeModelFromExistingModel(accessor: ServicesAccessor, resource: URI, config: SearchConfiguration): void;
     initializeModelFromRawData(accessor: ServicesAccessor, resource: URI, config: SearchConfiguration, contents: string | undefined): void;

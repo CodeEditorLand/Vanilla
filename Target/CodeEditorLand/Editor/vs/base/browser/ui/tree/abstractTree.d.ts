@@ -1,17 +1,16 @@
-import { IContextViewProvider } from "vs/base/browser/ui/contextview/contextview";
-import { IInputBoxStyles } from "vs/base/browser/ui/inputbox/inputBox";
-import { IListRenderer, IListVirtualDelegate } from "vs/base/browser/ui/list/list";
-import { IListOptions, IListStyles, List, MouseController, TypeNavigationMode } from "vs/base/browser/ui/list/listWidget";
-import { IToggleStyles, Toggle } from "vs/base/browser/ui/toggle/toggle";
-import { ICollapseStateChangeEvent, ITreeContextMenuEvent, ITreeDragAndDrop, ITreeEvent, ITreeFilter, ITreeModel, ITreeModelSpliceEvent, ITreeMouseEvent, ITreeNavigator, ITreeNode, ITreeRenderer, TreeVisibility } from "vs/base/browser/ui/tree/tree";
-import { Event } from "vs/base/common/event";
-import { FuzzyScore } from "vs/base/common/filters";
-import { Disposable, IDisposable } from "vs/base/common/lifecycle";
-import { SetMap } from "vs/base/common/map";
-import { ScrollEvent } from "vs/base/common/scrollable";
-import { ISpliceable } from "vs/base/common/sequence";
-import "vs/css!./media/tree";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
+import { Event } from "../../../common/event.js";
+import { FuzzyScore } from "../../../common/filters.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../common/lifecycle.js";
+import { SetMap } from "../../../common/map.js";
+import { ScrollEvent } from "../../../common/scrollable.js";
+import { IContextViewProvider } from "../contextview/contextview.js";
+import { IInputBoxStyles } from "../inputbox/inputBox.js";
+import { IIdentityProvider, IListRenderer, IListVirtualDelegate } from "../list/list.js";
+import { IListOptions, IListStyles, List, MouseController, TypeNavigationMode } from "../list/listWidget.js";
+import { IToggleStyles, Toggle } from "../toggle/toggle.js";
+import { ICollapseStateChangeEvent, ITreeContextMenuEvent, ITreeDragAndDrop, ITreeEvent, ITreeFilter, ITreeModel, ITreeModelSpliceEvent, ITreeMouseEvent, ITreeNavigator, ITreeNode, ITreeRenderer, TreeVisibility } from "./tree.js";
+import "./media/tree.css";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
 export declare class ComposedTreeDelegate<T, N extends {
     element: T;
 }> implements IListVirtualDelegate<N> {
@@ -65,7 +64,7 @@ interface Collection<T> {
 }
 export declare class TreeRenderer<T, TFilterData, TRef, TTemplateData> implements IListRenderer<ITreeNode<T, TFilterData>, ITreeListTemplateData<TTemplateData>> {
     private renderer;
-    private modelProvider;
+    private model;
     private activeNodes;
     private renderedIndentGuides;
     private static readonly DefaultIndent;
@@ -78,7 +77,7 @@ export declare class TreeRenderer<T, TFilterData, TRef, TTemplateData> implement
     private activeIndentNodes;
     private indentGuidesDisposable;
     private readonly disposables;
-    constructor(renderer: ITreeRenderer<T, TFilterData, TTemplateData>, modelProvider: () => ITreeModel<T, TFilterData, TRef>, onDidChangeCollapseState: Event<ICollapseStateChangeEvent<T, TFilterData>>, activeNodes: Collection<ITreeNode<T, TFilterData>>, renderedIndentGuides: SetMap<ITreeNode<T, TFilterData>, HTMLDivElement>, options?: ITreeRendererOptions);
+    constructor(renderer: ITreeRenderer<T, TFilterData, TTemplateData>, model: ITreeModel<T, TFilterData, TRef>, onDidChangeCollapseState: Event<ICollapseStateChangeEvent<T, TFilterData>>, activeNodes: Collection<ITreeNode<T, TFilterData>>, renderedIndentGuides: SetMap<ITreeNode<T, TFilterData>, HTMLDivElement>, options?: ITreeRendererOptions);
     updateOptions(options?: ITreeRendererOptions): void;
     renderTemplate(container: HTMLElement): ITreeListTemplateData<TTemplateData>;
     renderElement(node: ITreeNode<T, TFilterData>, index: number, templateData: ITreeListTemplateData<TTemplateData>, height: number | undefined): void;
@@ -215,10 +214,10 @@ declare class Trait<T> {
     private nodes;
     private elements;
     private readonly _onDidChange;
-    readonly onDidChange: any;
+    readonly onDidChange: Event<ITreeEvent<T>>;
     private _nodeSet;
     private get nodeSet();
-    constructor(getFirstViewElementWithTrait: () => ITreeNode<T, any> | undefined, identityProvider?: any);
+    constructor(getFirstViewElementWithTrait: () => ITreeNode<T, any> | undefined, identityProvider?: IIdentityProvider<T> | undefined);
     set(nodes: ITreeNode<T, any>[], browserEvent?: UIEvent): void;
     private _set;
     get(): T[];
@@ -267,7 +266,7 @@ export declare abstract class AbstractTree<T, TFilterData, TRef> implements IDis
     private focusNavigationFilter;
     private stickyScrollController?;
     private styleElement;
-    protected readonly disposables: any;
+    protected readonly disposables: DisposableStore;
     get onDidScroll(): Event<ScrollEvent>;
     get onDidChangeFocus(): Event<ITreeEvent<T>>;
     get onDidChangeSelection(): Event<ITreeEvent<T>>;
@@ -362,11 +361,11 @@ export declare abstract class AbstractTree<T, TFilterData, TRef> implements IDis
      * Returns `null` if the element isn't *entirely* in the visible viewport.
      */
     getRelativeTop(location: TRef): number | null;
-    getViewState(identityProvider?: any): AbstractTreeViewState;
+    getViewState(identityProvider?: IIdentityProvider<T> | undefined): AbstractTreeViewState;
     private onLeftArrow;
     private onRightArrow;
     private onSpace;
-    protected abstract createModel(user: string, view: ISpliceable<ITreeNode<T, TFilterData>>, options: IAbstractTreeOptions<T, TFilterData>): ITreeModel<T, TFilterData, TRef>;
+    protected abstract createModel(user: string, options: IAbstractTreeOptions<T, TFilterData>): ITreeModel<T, TFilterData, TRef>;
     navigate(start?: TRef): ITreeNavigator<T>;
     dispose(): void;
 }

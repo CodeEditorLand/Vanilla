@@ -1,9 +1,9 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IMenuService } from "vs/platform/actions/common/actions";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { INotebookEditorDelegate } from "vs/workbench/contrib/notebook/browser/notebookBrowser";
-import { NotebookOptions } from "vs/workbench/contrib/notebook/browser/notebookOptions";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IMenuService } from "../../../../../platform/actions/common/actions.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { INotebookEditorDelegate } from "../notebookBrowser.js";
+import { NotebookOptions } from "../notebookOptions.js";
 export declare class ListTopCellToolbar extends Disposable {
     protected readonly notebookEditor: INotebookEditorDelegate;
     private readonly notebookOptions;

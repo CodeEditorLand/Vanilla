@@ -1,5 +1,5 @@
-import { IV8InspectProfilingService } from "vs/platform/profiling/common/profiling";
-import { IExtensionService, ProfileSession } from "vs/workbench/services/extensions/common/extensions";
+import { IV8InspectProfilingService } from "../../../../platform/profiling/common/profiling.js";
+import { IExtensionService, ProfileSession } from "../common/extensions.js";
 export declare class ExtensionHostProfiler {
     private readonly _host;
     private readonly _port;

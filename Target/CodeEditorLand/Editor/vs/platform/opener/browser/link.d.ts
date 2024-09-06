@@ -1,8 +1,8 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import "vs/css!./link";
-import { IHoverDelegate } from "vs/base/browser/ui/hover/hoverDelegate";
-import { IHoverService } from "vs/platform/hover/browser/hover";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IOpenerService } from "../common/opener.js";
+import "./link.css";
+import { IHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegate.js";
+import { IHoverService } from "../../hover/browser/hover.js";
 export interface ILinkDescriptor {
     readonly label: string | HTMLElement;
     readonly href: string;

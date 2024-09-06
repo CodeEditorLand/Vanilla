@@ -1,7 +1,7 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { URI } from "vs/base/common/uri";
-import { IProgress } from "vs/platform/progress/common/progress";
-import { AITextSearchProviderNew, FileSearchProviderNew, FileSearchProviderOptions, ProviderResult, Range, TextSearchCompleteMessage, TextSearchCompleteNew, TextSearchProviderNew, TextSearchProviderOptions, TextSearchQueryNew, TextSearchResultNew } from "vs/workbench/services/search/common/searchExtTypes";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
+import { AITextSearchProviderNew, FileSearchProviderNew, FileSearchProviderOptions, ProviderResult, Range, TextSearchCompleteMessage, TextSearchCompleteNew, TextSearchProviderNew, TextSearchProviderOptions, TextSearchQueryNew, TextSearchResultNew } from "./searchExtTypes.js";
 /**
  * A relative pattern is a helper to construct glob patterns that are matched
  * relatively to a base path. The base path can either be an absolute file path

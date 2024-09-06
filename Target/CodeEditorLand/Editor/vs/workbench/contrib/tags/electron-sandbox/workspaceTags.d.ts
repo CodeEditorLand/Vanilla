@@ -1,13 +1,13 @@
-import { IDiagnosticsService } from "vs/platform/diagnostics/common/diagnostics";
-import { IFileService } from "vs/platform/files/common/files";
-import { INativeHostService } from "vs/platform/native/common/native";
-import { IProductService } from "vs/platform/product/common/productService";
-import { IRequestService } from "vs/platform/request/common/request";
-import { ITelemetryService } from "vs/platform/telemetry/common/telemetry";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IWorkbenchContribution } from "vs/workbench/common/contributions";
-import { IWorkspaceTagsService } from "vs/workbench/contrib/tags/common/workspaceTags";
-import { ITextFileService } from "vs/workbench/services/textfile/common/textfiles";
+import { IDiagnosticsService } from "../../../../platform/diagnostics/common/diagnostics.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IRequestService } from "../../../../platform/request/common/request.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { IWorkspaceTagsService } from "../common/workspaceTags.js";
 export declare function getHashedRemotesFromConfig(text: string, stripEndingDotGit?: boolean): Promise<string[]>;
 export declare class WorkspaceTags implements IWorkbenchContribution {
     private readonly fileService;

@@ -1,8 +1,8 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { IPosition } from "vs/editor/common/core/position";
-import { AbstractEditorNavigationQuickAccessProvider, IQuickAccessTextEditorContext } from "vs/editor/contrib/quickAccess/browser/editorNavigationQuickAccess";
-import { IQuickPick, IQuickPickItem } from "vs/platform/quickinput/common/quickInput";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IQuickPick, IQuickPickItem } from "../../../../platform/quickinput/common/quickInput.js";
+import { IPosition } from "../../../common/core/position.js";
+import { AbstractEditorNavigationQuickAccessProvider, IQuickAccessTextEditorContext } from "./editorNavigationQuickAccess.js";
 interface IGotoLineQuickPickItem extends IQuickPickItem, Partial<IPosition> {
 }
 export declare abstract class AbstractGotoLineQuickAccessProvider extends AbstractEditorNavigationQuickAccessProvider {

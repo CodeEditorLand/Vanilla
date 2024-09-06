@@ -1,6 +1,11 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { INotebookRendererMessagingService, IScopedRendererMessaging } from "vs/workbench/contrib/notebook/common/notebookRendererMessagingService";
-import { IExtensionService } from "vs/workbench/services/extensions/common/extensions";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
+import { INotebookRendererMessagingService, IScopedRendererMessaging } from "../../common/notebookRendererMessagingService.js";
+type MessageToSend = {
+    editorId: string;
+    rendererId: string;
+    message: unknown;
+};
 export declare class NotebookRendererMessagingService extends Disposable implements INotebookRendererMessagingService {
     private readonly extensionService;
     _serviceBrand: undefined;
@@ -11,7 +16,7 @@ export declare class NotebookRendererMessagingService extends Disposable impleme
     private readonly activations;
     private readonly scopedMessaging;
     private readonly postMessageEmitter;
-    readonly onShouldPostMessage: any;
+    readonly onShouldPostMessage: import("../../../../../base/common/event.js").Event<MessageToSend>;
     constructor(extensionService: IExtensionService);
     /** @inheritdoc */
     receiveMessage(editorId: string | undefined, rendererId: string, message: unknown): Promise<boolean>;
@@ -21,3 +26,4 @@ export declare class NotebookRendererMessagingService extends Disposable impleme
     getScoped(editorId: string): IScopedRendererMessaging;
     private postMessage;
 }
+export {};

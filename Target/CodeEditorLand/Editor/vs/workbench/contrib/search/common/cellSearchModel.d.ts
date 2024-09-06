@@ -1,5 +1,5 @@
-import { Disposable } from "vs/base/common/lifecycle";
-import { FindMatch, IReadonlyTextBuffer } from "vs/editor/common/model";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { FindMatch, IReadonlyTextBuffer } from "../../../../editor/common/model.js";
 interface RawOutputFindMatch {
     textBuffer: IReadonlyTextBuffer;
     matches: FindMatch[];

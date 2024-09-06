@@ -1,10 +1,10 @@
-import { IContextViewProvider } from "vs/base/browser/ui/contextview/contextview";
-import { IFindInputOptions } from "vs/base/browser/ui/findinput/findInput";
-import { IContextKeyService } from "vs/platform/contextkey/common/contextkey";
-import { IContextMenuService } from "vs/platform/contextview/browser/contextView";
-import { ContextScopedFindInput } from "vs/platform/history/browser/contextScopedHistoryWidget";
-import { IInstantiationService } from "vs/platform/instantiation/common/instantiation";
-import { NotebookFindFilters } from "vs/workbench/contrib/notebook/browser/contrib/find/findFilters";
+import { IContextViewProvider } from "../../../../base/browser/ui/contextview/contextview.js";
+import { IFindInputOptions } from "../../../../base/browser/ui/findinput/findInput.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { ContextScopedFindInput } from "../../../../platform/history/browser/contextScopedHistoryWidget.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { NotebookFindFilters } from "../../notebook/browser/contrib/find/findFilters.js";
 export declare class SearchFindInput extends ContextScopedFindInput {
     readonly contextMenuService: IContextMenuService;
     readonly instantiationService: IInstantiationService;
@@ -13,7 +13,7 @@ export declare class SearchFindInput extends ContextScopedFindInput {
     private _aiButton;
     private _filterChecked;
     private readonly _onDidChangeAIToggle;
-    readonly onDidChangeAIToggle: any;
+    readonly onDidChangeAIToggle: import("../../../../base/common/event.js").Event<boolean>;
     private shouldNotebookFilterBeVisible;
     constructor(container: HTMLElement | null, contextViewProvider: IContextViewProvider, options: IFindInputOptions, contextKeyService: IContextKeyService, contextMenuService: IContextMenuService, instantiationService: IInstantiationService, filters: NotebookFindFilters, shouldShowAIButton: boolean, // caller responsible for updating this when it changes,
     filterStartVisiblitity: boolean);
@@ -22,5 +22,5 @@ export declare class SearchFindInput extends ContextScopedFindInput {
     set filterVisible(visible: boolean);
     setEnabled(enabled: boolean): void;
     updateFilterStyles(): void;
-    get isAIEnabled(): any;
+    get isAIEnabled(): boolean;
 }

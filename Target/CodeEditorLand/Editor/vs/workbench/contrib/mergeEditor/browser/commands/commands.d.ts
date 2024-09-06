@@ -1,9 +1,9 @@
-import { Action2, IAction2Options } from "vs/platform/actions/common/actions";
-import { ServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IEditorIdentifier } from "vs/workbench/common/editor";
-import { MergeEditorInput } from "vs/workbench/contrib/mergeEditor/browser/mergeEditorInput";
-import { IMergeEditorInputModel } from "vs/workbench/contrib/mergeEditor/browser/mergeEditorInputModel";
-import { MergeEditorViewModel } from "vs/workbench/contrib/mergeEditor/browser/view/viewModel";
+import { Action2, IAction2Options } from "../../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IEditorIdentifier } from "../../../../common/editor.js";
+import { MergeEditorInput } from "../mergeEditorInput.js";
+import { IMergeEditorInputModel } from "../mergeEditorInputModel.js";
+import { MergeEditorViewModel } from "../view/viewModel.js";
 declare abstract class MergeEditorAction extends Action2 {
     constructor(desc: Readonly<IAction2Options>);
     run(accessor: ServicesAccessor): void;

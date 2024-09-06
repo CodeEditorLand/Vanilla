@@ -1,9 +1,9 @@
-import { IntervalTimer } from "vs/base/common/async";
-import { CancellationToken } from "vs/base/common/cancellation";
-import { IRange } from "vs/editor/common/core/range";
-import { IIdentifiedSingleEditOperation, ITextModel, IValidEditOperation } from "vs/editor/common/model";
-import { IProgress } from "vs/platform/progress/common/progress";
-import { IEditObserver } from "./inlineChatStrategies";
+import { IntervalTimer } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { IIdentifiedSingleEditOperation, ITextModel, IValidEditOperation } from "../../../../editor/common/model.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
+import { IEditObserver } from "./inlineChatStrategies.js";
 export interface AsyncTextEdit {
     readonly range: IRange;
     readonly newText: AsyncIterable<string>;

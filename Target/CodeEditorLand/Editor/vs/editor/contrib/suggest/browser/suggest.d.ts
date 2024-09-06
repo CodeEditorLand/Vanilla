@@ -1,26 +1,28 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { FuzzyScore } from "vs/base/common/filters";
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { InternalQuickSuggestionsOptions, QuickSuggestionsValue } from "vs/editor/common/config/editorOptions";
-import { IPosition, Position } from "vs/editor/common/core/position";
-import { StandardTokenType } from "vs/editor/common/encodedTokenAttributes";
-import { LanguageFeatureRegistry } from "vs/editor/common/languageFeatureRegistry";
-import * as languages from "vs/editor/common/languages";
-import { ITextModel } from "vs/editor/common/model";
-import { ExtensionIdentifier } from "vs/platform/extensions/common/extensions";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { FuzzyScore } from "../../../../base/common/filters.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { InternalQuickSuggestionsOptions, QuickSuggestionsValue } from "../../../common/config/editorOptions.js";
+import { IPosition, Position } from "../../../common/core/position.js";
+import { StandardTokenType } from "../../../common/encodedTokenAttributes.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import * as languages from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
 export declare const Context: {
-    Visible: any;
-    HasFocusedSuggestion: any;
-    DetailsVisible: any;
-    MultipleSuggestions: any;
-    MakesTextEdit: any;
-    AcceptSuggestionsOnEnter: any;
-    HasInsertAndReplaceRange: any;
-    InsertMode: any;
-    CanResolve: any;
+    Visible: RawContextKey<boolean>;
+    HasFocusedSuggestion: RawContextKey<boolean>;
+    DetailsVisible: RawContextKey<boolean>;
+    MultipleSuggestions: RawContextKey<boolean>;
+    MakesTextEdit: RawContextKey<boolean>;
+    AcceptSuggestionsOnEnter: RawContextKey<boolean>;
+    HasInsertAndReplaceRange: RawContextKey<boolean>;
+    InsertMode: RawContextKey<"replace" | "insert">;
+    CanResolve: RawContextKey<boolean>;
 };
-export declare const suggestWidgetStatusbarMenu: any;
+export declare const suggestWidgetStatusbarMenu: MenuId;
 export declare class CompletionItem {
     readonly position: IPosition;
     readonly completion: languages.CompletionItem;
@@ -61,8 +63,8 @@ export declare class CompletionOptions {
     static readonly default: CompletionOptions;
     constructor(snippetSortOrder?: SnippetSortOrder, kindFilter?: Set<languages.CompletionItemKind>, providerFilter?: Set<languages.CompletionItemProvider>, providerItemsToReuse?: ReadonlyMap<languages.CompletionItemProvider, CompletionItem[]>, showDeprecated?: boolean);
 }
-export declare function getSnippetSuggestSupport(): languages.CompletionItemProvider;
-export declare function setSnippetSuggestSupport(support: languages.CompletionItemProvider): languages.CompletionItemProvider;
+export declare function getSnippetSuggestSupport(): languages.CompletionItemProvider | undefined;
+export declare function setSnippetSuggestSupport(support: languages.CompletionItemProvider | undefined): languages.CompletionItemProvider | undefined;
 export interface CompletionDurationEntry {
     readonly providerName: string;
     readonly elapsedProvider: number;

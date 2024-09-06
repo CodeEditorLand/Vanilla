@@ -1,4 +1,4 @@
-import { IDisposable } from "vs/base/common/lifecycle";
+import { IDisposable } from "./lifecycle.js";
 export declare function isHotReloadEnabled(): boolean;
 export declare function registerHotReloadHandler(handler: HotReloadHandler): IDisposable;
 /**

@@ -1,7 +1,7 @@
-import { URI } from "vs/base/common/uri";
-import { IExtensionDescription } from "vs/platform/extensions/common/extensions";
-import { IMainContext } from "vs/workbench/api/common/extHost.protocol";
 import type * as vscode from "vscode";
+import { URI } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { IMainContext } from "./extHost.protocol.js";
 export declare class ExtHostDialogs {
     private readonly _proxy;
     constructor(mainContext: IMainContext);

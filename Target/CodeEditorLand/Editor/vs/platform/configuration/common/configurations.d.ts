@@ -1,13 +1,16 @@
-import { IStringDictionary } from "vs/base/common/collections";
-import { Event } from "vs/base/common/event";
-import { Disposable } from "vs/base/common/lifecycle";
-import { ConfigurationModel } from "vs/platform/configuration/common/configurationModels";
-import { ILogService } from "vs/platform/log/common/log";
-import { IPolicyService } from "vs/platform/policy/common/policy";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ILogService } from "../../log/common/log.js";
+import { IPolicyService } from "../../policy/common/policy.js";
+import { ConfigurationModel } from "./configurationModels.js";
 export declare class DefaultConfiguration extends Disposable {
     private readonly logService;
     private readonly _onDidChangeConfiguration;
-    readonly onDidChangeConfiguration: any;
+    readonly onDidChangeConfiguration: Event<{
+        defaults: ConfigurationModel;
+        properties: string[];
+    }>;
     private _configurationModel;
     get configurationModel(): ConfigurationModel;
     constructor(logService: ILogService);
@@ -24,18 +27,18 @@ export interface IPolicyConfiguration {
     initialize(): Promise<ConfigurationModel>;
 }
 export declare class NullPolicyConfiguration implements IPolicyConfiguration {
-    readonly onDidChangeConfiguration: any;
-    readonly configurationModel: any;
-    initialize(): Promise<any>;
+    readonly onDidChangeConfiguration: Event<any>;
+    readonly configurationModel: ConfigurationModel;
+    initialize(): Promise<ConfigurationModel>;
 }
 export declare class PolicyConfiguration extends Disposable implements IPolicyConfiguration {
     private readonly defaultConfiguration;
     private readonly policyService;
     private readonly logService;
     private readonly _onDidChangeConfiguration;
-    readonly onDidChangeConfiguration: any;
+    readonly onDidChangeConfiguration: Event<ConfigurationModel>;
     private _configurationModel;
-    get configurationModel(): any;
+    get configurationModel(): ConfigurationModel;
     constructor(defaultConfiguration: DefaultConfiguration, policyService: IPolicyService, logService: ILogService);
     initialize(): Promise<ConfigurationModel>;
     private updatePolicyDefinitions;

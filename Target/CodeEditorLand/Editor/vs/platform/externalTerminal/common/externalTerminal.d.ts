@@ -1,5 +1,5 @@
-import { ITerminalEnvironment } from "vs/platform/terminal/common/terminal";
-export declare const IExternalTerminalService: any;
+import { ITerminalEnvironment } from "../../terminal/common/terminal.js";
+export declare const IExternalTerminalService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExternalTerminalService>;
 export interface IExternalTerminalSettings {
     linuxExec?: string;
     osxExec?: string;

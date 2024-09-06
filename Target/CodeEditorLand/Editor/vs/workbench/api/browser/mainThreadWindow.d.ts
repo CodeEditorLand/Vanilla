@@ -1,9 +1,9 @@
-import { UriComponents } from "vs/base/common/uri";
-import { IOpenerService } from "vs/platform/opener/common/opener";
-import { IExtHostContext } from "vs/workbench/services/extensions/common/extHostCustomers";
-import { IHostService } from "vs/workbench/services/host/browser/host";
-import { IUserActivityService } from "vs/workbench/services/userActivity/common/userActivityService";
-import { IOpenUriOptions, MainThreadWindowShape } from "../common/extHost.protocol";
+import { UriComponents } from "../../../base/common/uri.js";
+import { IOpenerService } from "../../../platform/opener/common/opener.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IHostService } from "../../services/host/browser/host.js";
+import { IUserActivityService } from "../../services/userActivity/common/userActivityService.js";
+import { IOpenUriOptions, MainThreadWindowShape } from "../common/extHost.protocol.js";
 export declare class MainThreadWindow implements MainThreadWindowShape {
     private readonly hostService;
     private readonly openerService;
@@ -13,8 +13,8 @@ export declare class MainThreadWindow implements MainThreadWindowShape {
     constructor(extHostContext: IExtHostContext, hostService: IHostService, openerService: IOpenerService, userActivityService: IUserActivityService);
     dispose(): void;
     $getInitialState(): Promise<{
-        isFocused: any;
-        isActive: any;
+        isFocused: boolean;
+        isActive: boolean;
     }>;
     $openUri(uriComponents: UriComponents, uriString: string | undefined, options: IOpenUriOptions): Promise<boolean>;
     $asExternalUri(uriComponents: UriComponents, options: IOpenUriOptions): Promise<UriComponents>;

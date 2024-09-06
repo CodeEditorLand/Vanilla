@@ -1,12 +1,12 @@
-import { CancellationToken } from "vs/base/common/cancellation";
-import { URI } from "vs/base/common/uri";
-import { ICodeEditor } from "vs/editor/browser/editorBrowser";
-import { ResourceTextEdit } from "vs/editor/browser/services/bulkEditService";
-import { IEditorWorkerService } from "vs/editor/common/services/editorWorker";
-import { IModelService } from "vs/editor/common/services/model";
-import { ITextModelService } from "vs/editor/common/services/resolverService";
-import { IProgress } from "vs/platform/progress/common/progress";
-import { IUndoRedoService, UndoRedoGroup, UndoRedoSource } from "vs/platform/undoRedo/common/undoRedo";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { ResourceTextEdit } from "../../../../editor/browser/services/bulkEditService.js";
+import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
+import { IUndoRedoService, UndoRedoGroup, UndoRedoSource } from "../../../../platform/undoRedo/common/undoRedo.js";
 export declare class BulkTextEdits {
     private readonly _label;
     private readonly _code;

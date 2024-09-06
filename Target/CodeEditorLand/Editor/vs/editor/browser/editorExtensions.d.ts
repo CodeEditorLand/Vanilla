@@ -1,14 +1,14 @@
-import { IDisposable } from "vs/base/common/lifecycle";
-import { ThemeIcon } from "vs/base/common/themables";
-import { ICodeEditor, IDiffEditor } from "vs/editor/browser/editorBrowser";
-import { Position } from "vs/editor/common/core/position";
-import { IDiffEditorContribution, IEditorContribution } from "vs/editor/common/editorCommon";
-import { ITextModel } from "vs/editor/common/model";
-import { Action2, MenuId } from "vs/platform/actions/common/actions";
-import { ICommandMetadata } from "vs/platform/commands/common/commands";
-import { ContextKeyExpression } from "vs/platform/contextkey/common/contextkey";
-import { BrandedService, IConstructorSignature, ServicesAccessor as InstantiationServicesAccessor } from "vs/platform/instantiation/common/instantiation";
-import { IKeybindings } from "vs/platform/keybinding/common/keybindingsRegistry";
+import { IDisposable } from "../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../base/common/themables.js";
+import { Action2, MenuId } from "../../platform/actions/common/actions.js";
+import { ICommandMetadata } from "../../platform/commands/common/commands.js";
+import { ContextKeyExpression } from "../../platform/contextkey/common/contextkey.js";
+import { BrandedService, IConstructorSignature, ServicesAccessor as InstantiationServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
+import { IKeybindings } from "../../platform/keybinding/common/keybindingsRegistry.js";
+import { Position } from "../common/core/position.js";
+import { IDiffEditorContribution, IEditorContribution } from "../common/editorCommon.js";
+import { ITextModel } from "../common/model.js";
+import { ICodeEditor, IDiffEditor } from "./editorBrowser.js";
 export type ServicesAccessor = InstantiationServicesAccessor;
 export type EditorContributionCtor = IConstructorSignature<IEditorContribution, [
     ICodeEditor

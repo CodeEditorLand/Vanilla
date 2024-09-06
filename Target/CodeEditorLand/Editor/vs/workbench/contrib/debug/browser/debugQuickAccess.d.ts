@@ -1,9 +1,9 @@
-import { ICommandService } from "vs/platform/commands/common/commands";
-import { INotificationService } from "vs/platform/notification/common/notification";
-import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "vs/platform/quickinput/browser/pickerQuickAccess";
-import { IQuickPickSeparator } from "vs/platform/quickinput/common/quickInput";
-import { IWorkspaceContextService } from "vs/platform/workspace/common/workspace";
-import { IDebugService } from "vs/workbench/contrib/debug/common/debug";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IDebugService } from "../common/debug.js";
 export declare class StartDebugQuickAccessProvider extends PickerQuickAccessProvider<IPickerQuickAccessItem> {
     private readonly debugService;
     private readonly contextService;
