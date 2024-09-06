@@ -1,7 +1,7 @@
-import { ILocalizedString } from "../../../../platform/action/common/action.js";
-import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
-import { IViewDescriptor } from "../../../common/views.js";
-import { TimelinePane } from "./timelinePane.js";
+import { SyncDescriptor } from '../../../../platform/instantiation/common/descriptors.js';
+import { IViewDescriptor } from '../../../common/views.js';
+import { TimelinePane } from './timelinePane.js';
+import { ILocalizedString } from '../../../../platform/action/common/action.js';
 export declare class TimelinePaneDescriptor implements IViewDescriptor {
     readonly id = "timeline";
     readonly name: ILocalizedString;

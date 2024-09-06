@@ -1,14 +1,14 @@
-import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IProgressService } from "../../../../platform/progress/common/progress.js";
-import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IBulkEditService } from "../../../browser/services/bulkEditService.js";
-import { IEditorContribution } from "../../../common/editorCommon.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { HierarchicalKind } from '../../../../base/common/hierarchicalKind.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IBulkEditService } from '../../../browser/services/bulkEditService.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { IClipboardService } from '../../../../platform/clipboard/common/clipboardService.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IProgressService } from '../../../../platform/progress/common/progress.js';
+import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
 export declare const changePasteTypeCommandId = "editor.changePasteType";
 export declare const pasteWidgetVisibleCtx: RawContextKey<boolean>;
 type PastePreference = HierarchicalKind | {

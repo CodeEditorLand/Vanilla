@@ -1,8 +1,8 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
-import { IStorage, IStorageChangeEvent, StorageValue } from "../../../base/parts/storage/common/storage.js";
-import { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
-import { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable, DisposableStore } from '../../../base/common/lifecycle.js';
+import { IStorage, IStorageChangeEvent, StorageValue } from '../../../base/parts/storage/common/storage.js';
+import { IUserDataProfile } from '../../userDataProfile/common/userDataProfile.js';
+import { IAnyWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 export declare const IS_NEW_KEY = "__$__isNewStorageMarker";
 export declare const TARGET_KEY = "__$__targetStorageMarker";
 export declare const IStorageService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IStorageService>;

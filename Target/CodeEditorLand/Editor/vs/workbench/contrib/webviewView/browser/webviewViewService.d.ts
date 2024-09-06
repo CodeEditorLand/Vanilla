@@ -1,8 +1,8 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { IViewBadge } from "../../../common/views.js";
-import { IOverlayWebview } from "../../webview/browser/webview.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IViewBadge } from '../../../common/views.js';
+import { IOverlayWebview } from '../../webview/browser/webview.js';
 /**
  * A webview shown in a view pane.
  */

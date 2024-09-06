@@ -1,19 +1,19 @@
-import { CancellationToken } from "../../base/common/cancellation.js";
-import { VSDataTransfer } from "../../base/common/dataTransfer.js";
-import { Event } from "../../base/common/event.js";
-import { IMarkdownString, MarkdownString } from "../../base/common/htmlContent.js";
-import { IDisposable } from "../../base/common/lifecycle.js";
-import Severity from "../../base/common/severity.js";
-import { ThemeIcon } from "../../base/common/themables.js";
-import { URI, UriComponents } from "../../base/common/uri.js";
-import { Command } from "../../editor/common/languages.js";
-import { IAccessibilityInformation } from "../../platform/accessibility/common/accessibility.js";
-import { ILocalizedString } from "../../platform/action/common/action.js";
-import { ContextKeyExpression } from "../../platform/contextkey/common/contextkey.js";
-import { ExtensionIdentifier } from "../../platform/extensions/common/extensions.js";
-import { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
-import { IKeybindings } from "../../platform/keybinding/common/keybindingsRegistry.js";
-import { IProgressIndicator } from "../../platform/progress/common/progress.js";
+import { Command } from '../../editor/common/languages.js';
+import { UriComponents, URI } from '../../base/common/uri.js';
+import { Event } from '../../base/common/event.js';
+import { ContextKeyExpression } from '../../platform/contextkey/common/contextkey.js';
+import { IDisposable } from '../../base/common/lifecycle.js';
+import { ThemeIcon } from '../../base/common/themables.js';
+import { IKeybindings } from '../../platform/keybinding/common/keybindingsRegistry.js';
+import { ExtensionIdentifier } from '../../platform/extensions/common/extensions.js';
+import { SyncDescriptor } from '../../platform/instantiation/common/descriptors.js';
+import { IProgressIndicator } from '../../platform/progress/common/progress.js';
+import Severity from '../../base/common/severity.js';
+import { IAccessibilityInformation } from '../../platform/accessibility/common/accessibility.js';
+import { IMarkdownString, MarkdownString } from '../../base/common/htmlContent.js';
+import { CancellationToken } from '../../base/common/cancellation.js';
+import { VSDataTransfer } from '../../base/common/dataTransfer.js';
+import { ILocalizedString } from '../../platform/action/common/action.js';
 export declare const VIEWS_LOG_ID = "views";
 export declare const VIEWS_LOG_NAME: string;
 export declare const defaultViewIcon: ThemeIcon;
@@ -27,7 +27,7 @@ export declare const enum ViewContainerLocation {
     AuxiliaryBar = 2
 }
 export declare const ViewContainerLocations: ViewContainerLocation[];
-export declare function ViewContainerLocationToString(viewContainerLocation: ViewContainerLocation): "panel" | "sidebar" | "auxiliarybar";
+export declare function ViewContainerLocationToString(viewContainerLocation: ViewContainerLocation): "sidebar" | "panel" | "auxiliarybar";
 type OpenCommandActionDescriptor = {
     readonly id: string;
     readonly title?: ILocalizedString | string;
@@ -238,7 +238,7 @@ export declare enum ViewContentGroups {
 }
 export interface IViewContentDescriptor {
     readonly content: string;
-    readonly when?: ContextKeyExpression | "default";
+    readonly when?: ContextKeyExpression | 'default';
     readonly group?: string;
     readonly order?: number;
     readonly precondition?: ContextKeyExpression | undefined;
@@ -441,7 +441,7 @@ export declare class ResolvableTreeItem implements ITreeItem {
     resolve: (token: CancellationToken) => Promise<void>;
     private resolved;
     private _hasResolve;
-    constructor(treeItem: ITreeItem, resolve?: (token: CancellationToken) => Promise<ITreeItem | undefined>);
+    constructor(treeItem: ITreeItem, resolve?: ((token: CancellationToken) => Promise<ITreeItem | undefined>));
     get hasResolve(): boolean;
     resetResolve(): void;
     asTreeItem(): ITreeItem;

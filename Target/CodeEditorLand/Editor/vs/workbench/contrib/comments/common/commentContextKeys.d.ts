@@ -1,4 +1,4 @@
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 export declare namespace CommentContextKeys {
     /**
      * A context key that is set when the active cursor is in a commenting range.

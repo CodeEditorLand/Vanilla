@@ -1,13 +1,13 @@
-import * as vscode from "vscode";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { UriComponents } from "../../../base/common/uri.js";
-import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { INotebookKernelSourceAction, NotebookCellExecutionState } from "../../contrib/notebook/common/notebookCommon.js";
-import { ExtHostNotebookKernelsShape, IMainContext } from "./extHost.protocol.js";
-import { ExtHostCommands } from "./extHostCommands.js";
-import { IExtHostInitDataService } from "./extHostInitDataService.js";
-import { ExtHostNotebookController } from "./extHostNotebook.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { UriComponents } from '../../../base/common/uri.js';
+import { ExtensionIdentifier, IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { ExtHostNotebookKernelsShape, IMainContext } from './extHost.protocol.js';
+import { ExtHostCommands } from './extHostCommands.js';
+import { IExtHostInitDataService } from './extHostInitDataService.js';
+import { ExtHostNotebookController } from './extHostNotebook.js';
+import { INotebookKernelSourceAction, NotebookCellExecutionState } from '../../contrib/notebook/common/notebookCommon.js';
+import * as vscode from 'vscode';
 export declare class ExtHostNotebookKernels implements ExtHostNotebookKernelsShape {
     private readonly _initData;
     private readonly _extHostNotebook;
@@ -37,7 +37,7 @@ export declare class ExtHostNotebookKernels implements ExtHostNotebookKernelsSha
     $cancelCells(handle: number, uri: UriComponents, handles: number[]): Promise<void>;
     private id;
     private variableStore;
-    $provideVariables(handle: number, requestId: string, notebookUri: UriComponents, parentId: number | undefined, kind: "named" | "indexed", start: number, token: CancellationToken): Promise<void>;
+    $provideVariables(handle: number, requestId: string, notebookUri: UriComponents, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): Promise<void>;
     $acceptKernelMessageFromRenderer(handle: number, editorId: string, message: any): void;
     $cellExecutionChanged(uri: UriComponents, cellHandle: number, state: NotebookCellExecutionState | undefined): void;
     _createNotebookCellExecution(cell: vscode.NotebookCell, controllerId: string): vscode.NotebookCellExecution;

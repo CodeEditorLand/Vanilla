@@ -1,13 +1,13 @@
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
 export declare enum WorkspaceTrustScope {
     Local = 0,
     Remote = 1
 }
 export interface WorkspaceTrustRequestButton {
     readonly label: string;
-    readonly type: "ContinueWithTrust" | "ContinueWithoutTrust" | "Manage" | "Cancel";
+    readonly type: 'ContinueWithTrust' | 'ContinueWithoutTrust' | 'Manage' | 'Cancel';
 }
 export interface WorkspaceTrustRequestOptions {
     readonly buttons?: WorkspaceTrustRequestButton[];

@@ -1,5 +1,5 @@
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
 /** INavigableContainer represents a logical container composed of widgets that can
     be navigated back and forth with key shortcuts */
 interface INavigableContainer {

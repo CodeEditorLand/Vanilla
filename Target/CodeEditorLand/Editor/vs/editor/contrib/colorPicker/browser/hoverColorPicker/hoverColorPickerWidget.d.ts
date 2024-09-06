@@ -1,10 +1,10 @@
-import "../colorPicker.css";
-import { Widget } from "../../../../../base/browser/ui/widget.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { IEditorHoverColorPickerWidget } from "../../../hover/browser/hoverTypes.js";
-import { ColorPickerModel } from "../colorPickerModel.js";
-import { ColorPickerBody } from "../colorPickerParts/colorPickerBody.js";
-import { ColorPickerHeader } from "../colorPickerParts/colorPickerHeader.js";
+import '../colorPicker.css';
+import { Widget } from '../../../../../base/browser/ui/widget.js';
+import { ColorPickerModel } from '../colorPickerModel.js';
+import { IEditorHoverColorPickerWidget } from '../../../hover/browser/hoverTypes.js';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { ColorPickerBody } from '../colorPickerParts/colorPickerBody.js';
+import { ColorPickerHeader } from '../colorPickerParts/colorPickerHeader.js';
 export declare class ColorPickerWidget extends Widget implements IEditorHoverColorPickerWidget {
     readonly model: ColorPickerModel;
     private pixelRatio;

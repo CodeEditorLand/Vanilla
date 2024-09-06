@@ -1,14 +1,14 @@
-import { EditorLayoutInfo } from "../../common/config/editorOptions.js";
-import { Position } from "../../common/core/position.js";
-import { Range as EditorRange } from "../../common/core/range.js";
-import { InjectedText } from "../../common/modelLineProjectionData.js";
-import { IViewModel } from "../../common/viewModel.js";
-import { ViewContext } from "../../common/viewModel/viewContext.js";
-import { IMouseTarget, IMouseTargetContentEmpty, IMouseTargetContentEmptyData, IMouseTargetContentText, IMouseTargetContentTextData, IMouseTargetContentWidget, IMouseTargetMargin, IMouseTargetMarginData, IMouseTargetOutsideEditor, IMouseTargetOverlayWidget, IMouseTargetScrollbar, IMouseTargetTextarea, IMouseTargetUnknown, IMouseTargetViewZone, IMouseTargetViewZoneData, MouseTargetType } from "../editorBrowser.js";
-import { CoordinatesRelativeToEditor, EditorMouseEvent, EditorPagePosition, PageCoordinates } from "../editorDom.js";
-import { HorizontalPosition } from "../view/renderingContext.js";
-import { IViewCursorRenderData } from "../viewParts/viewCursors/viewCursor.js";
-import { IPointerHandlerHelper } from "./mouseHandler.js";
+import { IPointerHandlerHelper } from './mouseHandler.js';
+import { IMouseTargetContentEmptyData, IMouseTargetMarginData, IMouseTarget, IMouseTargetContentEmpty, IMouseTargetContentText, IMouseTargetContentWidget, IMouseTargetMargin, IMouseTargetOutsideEditor, IMouseTargetOverlayWidget, IMouseTargetScrollbar, IMouseTargetTextarea, IMouseTargetUnknown, IMouseTargetViewZone, IMouseTargetContentTextData, IMouseTargetViewZoneData, MouseTargetType } from '../editorBrowser.js';
+import { EditorMouseEvent, EditorPagePosition, PageCoordinates, CoordinatesRelativeToEditor } from '../editorDom.js';
+import { IViewCursorRenderData } from '../viewParts/viewCursors/viewCursor.js';
+import { EditorLayoutInfo } from '../../common/config/editorOptions.js';
+import { Position } from '../../common/core/position.js';
+import { Range as EditorRange } from '../../common/core/range.js';
+import { HorizontalPosition } from '../view/renderingContext.js';
+import { ViewContext } from '../../common/viewModel/viewContext.js';
+import { IViewModel } from '../../common/viewModel.js';
+import { InjectedText } from '../../common/modelLineProjectionData.js';
 declare const enum HitTestResultType {
     Unknown = 0,
     Content = 1
@@ -46,7 +46,7 @@ export declare class MouseTarget {
     static createContentWidget(element: HTMLElement | null, mouseColumn: number, detail: string): IMouseTargetContentWidget;
     static createScrollbar(element: HTMLElement | null, mouseColumn: number, position: Position): IMouseTargetScrollbar;
     static createOverlayWidget(element: HTMLElement | null, mouseColumn: number, detail: string): IMouseTargetOverlayWidget;
-    static createOutsideEditor(mouseColumn: number, position: Position, outsidePosition: "above" | "below" | "left" | "right", outsideDistance: number): IMouseTargetOutsideEditor;
+    static createOutsideEditor(mouseColumn: number, position: Position, outsidePosition: 'above' | 'below' | 'left' | 'right', outsideDistance: number): IMouseTargetOutsideEditor;
     private static _typeToString;
     static toString(target: IMouseTarget): string;
 }

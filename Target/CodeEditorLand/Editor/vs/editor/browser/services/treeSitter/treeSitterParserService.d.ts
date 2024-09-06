@@ -1,15 +1,15 @@
-import type { Parser } from "@vscode/tree-sitter-wasm";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { ITextModel } from "../../../common/model.js";
-import { IModelService } from "../../../common/services/model.js";
-import { ITreeSitterParseResult, ITreeSitterParserService } from "../../../common/services/treeSitterParserService.js";
-import { IModelContentChange } from "../../../common/textModelEvents.js";
+import type { Parser } from '@vscode/tree-sitter-wasm';
+import { ITreeSitterParserService, ITreeSitterParseResult } from '../../../common/services/treeSitterParserService.js';
+import { IModelService } from '../../../common/services/model.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { ITextModel } from '../../../common/model.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IModelContentChange } from '../../../common/textModelEvents.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { Emitter, Event } from '../../../../base/common/event.js';
+import { IEnvironmentService } from '../../../../platform/environment/common/environment.js';
 export declare class TextModelTreeSitter extends Disposable {
     readonly model: ITextModel;
     private readonly _treeSitterLanguages;

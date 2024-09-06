@@ -1,11 +1,11 @@
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import { ILifecycleMainService, IRelaunchHandler, IRelaunchOptions } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { IProductService } from "../../product/common/productService.js";
-import { IRequestService } from "../../request/common/request.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { AbstractUpdateService } from "./abstractUpdateService.js";
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IEnvironmentMainService } from '../../environment/electron-main/environmentMainService.js';
+import { ILifecycleMainService, IRelaunchHandler, IRelaunchOptions } from '../../lifecycle/electron-main/lifecycleMainService.js';
+import { ILogService } from '../../log/common/log.js';
+import { IProductService } from '../../product/common/productService.js';
+import { IRequestService } from '../../request/common/request.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+import { AbstractUpdateService } from './abstractUpdateService.js';
 export declare class DarwinUpdateService extends AbstractUpdateService implements IRelaunchHandler {
     private readonly telemetryService;
     private readonly disposables;

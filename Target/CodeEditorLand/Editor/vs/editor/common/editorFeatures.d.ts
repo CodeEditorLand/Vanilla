@@ -1,4 +1,4 @@
-import { BrandedService, IConstructorSignature } from "../../platform/instantiation/common/instantiation.js";
+import { BrandedService, IConstructorSignature } from '../../platform/instantiation/common/instantiation.js';
 /**
  * A feature that will be loaded when the first code editor is constructed and disposed when the system shuts down.
  */

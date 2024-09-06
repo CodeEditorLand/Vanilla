@@ -27,7 +27,7 @@ export declare const enum Platform {
     Linux = 2,
     Windows = 3
 }
-export type PlatformName = "Web" | "Windows" | "Mac" | "Linux";
+export type PlatformName = 'Web' | 'Windows' | 'Mac' | 'Linux';
 export declare function PlatformToString(platform: Platform): PlatformName;
 export declare const isWindows: boolean;
 export declare const isMacintosh: boolean;

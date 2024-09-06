@@ -1,8 +1,8 @@
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IRequestService } from "../../../../platform/request/common/request.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IBannerService } from "../../../services/banner/browser/bannerService.js";
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { IBannerService } from '../../../services/banner/browser/bannerService.js';
+import { IRequestService } from '../../../../platform/request/common/request.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare class EmergencyAlert implements IWorkbenchContribution {
     private readonly bannerService;
     private readonly requestService;

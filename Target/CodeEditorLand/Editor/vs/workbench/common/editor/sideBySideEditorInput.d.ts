@@ -1,9 +1,9 @@
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { URI } from "../../../base/common/uri.js";
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import { IEditorService } from "../../services/editor/common/editorService.js";
-import { EditorInputCapabilities, GroupIdentifier, IEditorSerializer, IMoveResult, IResourceSideBySideEditorInput, IRevertOptions, ISaveOptions, ISideBySideEditorInput, IUntypedEditorInput, Verbosity } from "../editor.js";
-import { EditorInput, IUntypedEditorOptions } from "./editorInput.js";
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { URI } from '../../../base/common/uri.js';
+import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
+import { EditorInputCapabilities, GroupIdentifier, ISaveOptions, IRevertOptions, IEditorSerializer, ISideBySideEditorInput, IUntypedEditorInput, IResourceSideBySideEditorInput, IMoveResult, Verbosity } from '../editor.js';
+import { EditorInput, IUntypedEditorOptions } from './editorInput.js';
+import { IEditorService } from '../../services/editor/common/editorService.js';
 /**
  * Side by side editor inputs that have a primary and secondary side.
  */

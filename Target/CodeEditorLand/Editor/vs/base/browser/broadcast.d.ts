@@ -1,4 +1,4 @@
-import { Disposable } from "../common/lifecycle.js";
+import { Disposable } from '../common/lifecycle.js';
 export declare class BroadcastDataChannel<T> extends Disposable {
     private readonly channelName;
     private broadcastChannel;

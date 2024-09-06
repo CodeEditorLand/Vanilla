@@ -1,10 +1,10 @@
-import { FastDomNode } from "../../../../base/browser/fastDomNode.js";
-import { IMouseWheelEvent } from "../../../../base/browser/mouseEvent.js";
-import { IOverviewRulerLayoutInfo } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
-import * as viewEvents from "../../../common/viewEvents.js";
-import { ViewContext } from "../../../common/viewModel/viewContext.js";
-import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
-import { ViewPart } from "../../view/viewPart.js";
+import { FastDomNode } from '../../../../base/browser/fastDomNode.js';
+import { IOverviewRulerLayoutInfo } from '../../../../base/browser/ui/scrollbar/scrollableElement.js';
+import { ViewPart } from '../../view/viewPart.js';
+import { RenderingContext, RestrictedRenderingContext } from '../../view/renderingContext.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
+import * as viewEvents from '../../../common/viewEvents.js';
+import { IMouseWheelEvent } from '../../../../base/browser/mouseEvent.js';
 export declare class EditorScrollbar extends ViewPart {
     private readonly scrollbar;
     private readonly scrollbarDomNode;

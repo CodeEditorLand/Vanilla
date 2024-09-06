@@ -1,7 +1,7 @@
-import "./media/actions.css";
-import { Action2, IAction2Options } from "../../../platform/actions/common/actions.js";
-import { ICommandHandler } from "../../../platform/commands/common/commands.js";
-import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
+import './media/actions.css';
+import { ICommandHandler } from '../../../platform/commands/common/commands.js';
+import { ServicesAccessor } from '../../../platform/instantiation/common/instantiation.js';
+import { Action2, IAction2Options } from '../../../platform/actions/common/actions.js';
 export declare class CloseWindowAction extends Action2 {
     static readonly ID = "workbench.action.closeWindow";
     constructor();

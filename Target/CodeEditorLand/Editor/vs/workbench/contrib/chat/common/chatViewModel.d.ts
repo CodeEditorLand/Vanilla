@@ -1,27 +1,27 @@
-import { Event } from "../../../../base/common/event.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IChatAgentCommand, IChatAgentData, IChatAgentNameService, IChatAgentResult } from "./chatAgents.js";
-import { ChatModelInitState, IChatModel, IChatProgressRenderableResponseContent, IChatRequestModel, IChatRequestVariableEntry, IChatResponseModel, IChatTextEditGroup, IChatWelcomeMessageContent, IResponse } from "./chatModel.js";
-import { IParsedChatRequest } from "./chatParserTypes.js";
-import { ChatAgentVoteDirection, ChatAgentVoteDownReason, IChatCodeCitation, IChatContentReference, IChatFollowup, IChatProgressMessage, IChatResponseErrorDetails, IChatTask, IChatUsedContext } from "./chatService.js";
-import { CodeBlockModelCollection } from "./codeBlockModelCollection.js";
+import { Event } from '../../../../base/common/event.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IChatAgentCommand, IChatAgentData, IChatAgentNameService, IChatAgentResult } from './chatAgents.js';
+import { ChatModelInitState, IChatModel, IChatProgressRenderableResponseContent, IChatRequestModel, IChatRequestVariableEntry, IChatResponseModel, IChatTextEditGroup, IChatWelcomeMessageContent, IResponse } from './chatModel.js';
+import { IParsedChatRequest } from './chatParserTypes.js';
+import { ChatAgentVoteDirection, ChatAgentVoteDownReason, IChatCodeCitation, IChatContentReference, IChatFollowup, IChatProgressMessage, IChatResponseErrorDetails, IChatTask, IChatUsedContext } from './chatService.js';
+import { CodeBlockModelCollection } from './codeBlockModelCollection.js';
 export declare function isRequestVM(item: unknown): item is IChatRequestViewModel;
 export declare function isResponseVM(item: unknown): item is IChatResponseViewModel;
 export declare function isWelcomeVM(item: unknown): item is IChatWelcomeMessageViewModel;
 export type IChatViewModelChangeEvent = IChatAddRequestEvent | IChangePlaceholderEvent | IChatSessionInitEvent | null;
 export interface IChatAddRequestEvent {
-    kind: "addRequest";
+    kind: 'addRequest';
 }
 export interface IChangePlaceholderEvent {
-    kind: "changePlaceholder";
+    kind: 'changePlaceholder';
 }
 export interface IChatSessionInitEvent {
-    kind: "initialize";
+    kind: 'initialize';
 }
 export interface IChatViewModel {
     readonly model: IChatModel;
@@ -91,14 +91,14 @@ export interface IChatResponseRenderData {
  */
 export interface IChatReferences {
     references: ReadonlyArray<IChatContentReference>;
-    kind: "references";
+    kind: 'references';
 }
 /**
  * Content type for citations used during rendering, not in the model
  */
 export interface IChatCodeCitations {
     citations: ReadonlyArray<IChatCodeCitation>;
-    kind: "codeCitations";
+    kind: 'codeCitations';
 }
 /**
  * Type for content parts rendered by IChatListRenderer

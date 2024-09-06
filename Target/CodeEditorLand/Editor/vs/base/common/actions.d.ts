@@ -1,5 +1,5 @@
-import { Emitter, Event } from "./event.js";
-import { Disposable, IDisposable } from "./lifecycle.js";
+import { Emitter, Event } from './event.js';
+import { Disposable, IDisposable } from './lifecycle.js';
 export interface ITelemetryData {
     readonly from?: string;
     readonly target?: string;
@@ -7,22 +7,22 @@ export interface ITelemetryData {
 }
 export type WorkbenchActionExecutedClassification = {
     id: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "The identifier of the action that was run.";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'The identifier of the action that was run.';
     };
     from: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "The name of the component the action was run from.";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'The name of the component the action was run from.';
     };
     detail?: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "Optional details about how the action was run, e.g which keybinding was used.";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'Optional details about how the action was run, e.g which keybinding was used.';
     };
-    owner: "bpasero";
-    comment: "Provides insight into actions that are executed within the workbench.";
+    owner: 'bpasero';
+    comment: 'Provides insight into actions that are executed within the workbench.';
 };
 export type WorkbenchActionExecutedEvent = {
     id: string;

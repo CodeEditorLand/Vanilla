@@ -1,8 +1,8 @@
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IExtensionPoint } from "../../extensions/common/extensionsRegistry.js";
-import { ExtensionData, IThemeExtensionPoint } from "./workbenchThemeService.js";
+import { IExtensionPoint } from '../../extensions/common/extensionsRegistry.js';
+import { ExtensionData, IThemeExtensionPoint } from './workbenchThemeService.js';
+import { Event } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
 export declare function registerColorThemeExtensionPoint(): IExtensionPoint<IThemeExtensionPoint[]>;
 export declare function registerFileIconThemeExtensionPoint(): IExtensionPoint<IThemeExtensionPoint[]>;
 export declare function registerProductIconThemeExtensionPoint(): IExtensionPoint<IThemeExtensionPoint[]>;

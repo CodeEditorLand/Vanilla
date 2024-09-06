@@ -1,12 +1,12 @@
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { IStorage, Storage } from "../../../base/parts/storage/common/storage.js";
-import { ISQLiteStorageDatabaseLoggingOptions } from "../../../base/parts/storage/node/storage.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IFileService } from "../../files/common/files.js";
-import { ILogService } from "../../log/common/log.js";
-import { IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { Emitter, Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { IStorage, Storage } from '../../../base/parts/storage/common/storage.js';
+import { ISQLiteStorageDatabaseLoggingOptions } from '../../../base/parts/storage/node/storage.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IFileService } from '../../files/common/files.js';
+import { ILogService } from '../../log/common/log.js';
+import { IUserDataProfile, IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
+import { IAnyWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 export interface IStorageMainOptions {
     /**
      * If enabled, storage will not persist to disk

@@ -1,7 +1,7 @@
-import { Event } from "../../../common/event.js";
-import { IIdentityProvider } from "../list/list.js";
-import { IIndexTreeModelOptions, IIndexTreeModelSpliceOptions } from "./indexTreeModel.js";
-import { ICollapseStateChangeEvent, IObjectTreeElement, ITreeListSpliceData, ITreeModel, ITreeModelSpliceEvent, ITreeNode, ITreeSorter } from "./tree.js";
+import { IIdentityProvider } from '../list/list.js';
+import { IIndexTreeModelOptions, IIndexTreeModelSpliceOptions } from './indexTreeModel.js';
+import { ICollapseStateChangeEvent, IObjectTreeElement, ITreeListSpliceData, ITreeModel, ITreeModelSpliceEvent, ITreeNode, ITreeSorter } from './tree.js';
+import { Event } from '../../../common/event.js';
 export type ITreeNodeCallback<T, TFilterData> = (node: ITreeNode<T, TFilterData>) => void;
 export interface IObjectTreeModel<T extends NonNullable<any>, TFilterData extends NonNullable<any> = void> extends ITreeModel<T | null, TFilterData, T | null> {
     setChildren(element: T | null, children: Iterable<IObjectTreeElement<T>> | undefined, options?: IObjectTreeModelSetChildrenOptions<T, TFilterData>): void;

@@ -1,8 +1,8 @@
-import { IPosition } from "../core/position.js";
-import { ILanguageConfigurationService } from "../languages/languageConfigurationRegistry.js";
-import { BracketGuideOptions, IActiveIndentGuideInfo, IGuidesTextModelPart, IndentGuide } from "../textModelGuides.js";
-import type { TextModel } from "./textModel.js";
-import { TextModelPart } from "./textModelPart.js";
+import { IPosition } from '../core/position.js';
+import type { TextModel } from './textModel.js';
+import { TextModelPart } from './textModelPart.js';
+import { ILanguageConfigurationService } from '../languages/languageConfigurationRegistry.js';
+import { BracketGuideOptions, IActiveIndentGuideInfo, IGuidesTextModelPart, IndentGuide } from '../textModelGuides.js';
 export declare class GuidesTextModelPart extends TextModelPart implements IGuidesTextModelPart {
     private readonly textModel;
     private readonly languageConfigurationService;

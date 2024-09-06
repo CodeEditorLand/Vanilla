@@ -1,9 +1,9 @@
-import { IStringDictionary } from "../../../../base/common/collections.js";
-import { IProcessEnvironment } from "../../../../base/common/platform.js";
-import { URI as uri } from "../../../../base/common/uri.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import { IConfigurationResolverService } from "./configurationResolver.js";
+import { IStringDictionary } from '../../../../base/common/collections.js';
+import { IProcessEnvironment } from '../../../../base/common/platform.js';
+import { URI as uri } from '../../../../base/common/uri.js';
+import { IConfigurationResolverService } from './configurationResolver.js';
+import { IWorkspaceFolder } from '../../../../platform/workspace/common/workspace.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
 interface IVariableResolveContext {
     getFolderUri(folderName: string): uri | undefined;
     getWorkspaceFolderCount(): number;

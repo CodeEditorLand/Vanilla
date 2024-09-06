@@ -1,9 +1,9 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { FoldingRange, FoldingRangeProvider } from "../../../common/languages.js";
-import { ITextModel } from "../../../common/model.js";
-import { FoldingLimitReporter, RangeProvider } from "./folding.js";
-import { FoldingRegions } from "./foldingRanges.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
+import { ITextModel } from '../../../common/model.js';
+import { FoldingRange, FoldingRangeProvider } from '../../../common/languages.js';
+import { FoldingLimitReporter, RangeProvider } from './folding.js';
+import { FoldingRegions } from './foldingRanges.js';
 export interface IFoldingRangeData extends FoldingRange {
     rank: number;
 }

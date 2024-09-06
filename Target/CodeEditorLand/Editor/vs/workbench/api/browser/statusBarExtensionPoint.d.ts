@@ -1,9 +1,9 @@
-import { Event } from "../../../base/common/event.js";
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { ThemeColor } from "../../../base/common/themables.js";
-import { Command } from "../../../editor/common/languages.js";
-import { IAccessibilityInformation } from "../../../platform/accessibility/common/accessibility.js";
-import { IStatusbarEntry, StatusbarAlignment as MainThreadStatusBarAlignment } from "../../services/statusbar/browser/statusbar.js";
+import { StatusbarAlignment as MainThreadStatusBarAlignment, IStatusbarEntry } from '../../services/statusbar/browser/statusbar.js';
+import { ThemeColor } from '../../../base/common/themables.js';
+import { Command } from '../../../editor/common/languages.js';
+import { IAccessibilityInformation } from '../../../platform/accessibility/common/accessibility.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { Event } from '../../../base/common/event.js';
 export declare const IExtensionStatusBarItemService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionStatusBarItemService>;
 export interface IExtensionStatusBarItemChangeEvent {
     readonly added?: ExtensionStatusBarEntry;

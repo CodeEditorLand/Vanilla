@@ -1,9 +1,9 @@
-import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { IActiveCodeEditor, ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IRange } from "../../../common/core/range.js";
-import { ITextModel } from "../../../common/model.js";
-import { EditorKeybindingCancellationTokenSource } from "./keybindingCancellation.js";
+import { ICodeEditor, IActiveCodeEditor } from '../../../browser/editorBrowser.js';
+import { IRange } from '../../../common/core/range.js';
+import { CancellationTokenSource, CancellationToken } from '../../../../base/common/cancellation.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ITextModel } from '../../../common/model.js';
+import { EditorKeybindingCancellationTokenSource } from './keybindingCancellation.js';
 export declare const enum CodeEditorStateFlag {
     Value = 1,
     Selection = 2,

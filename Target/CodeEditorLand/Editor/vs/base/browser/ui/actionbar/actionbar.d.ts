@@ -1,9 +1,9 @@
-import { IAction, IActionRunner, IRunEvent } from "../../../common/actions.js";
-import { KeyCode } from "../../../common/keyCodes.js";
-import { Disposable, IDisposable } from "../../../common/lifecycle.js";
-import { IHoverDelegate } from "../hover/hoverDelegate.js";
-import { IActionViewItemOptions } from "./actionViewItems.js";
-import "./actionbar.css";
+import { IActionViewItemOptions } from './actionViewItems.js';
+import { IHoverDelegate } from '../hover/hoverDelegate.js';
+import { IAction, IActionRunner, IRunEvent } from '../../../common/actions.js';
+import { KeyCode } from '../../../common/keyCodes.js';
+import { Disposable, IDisposable } from '../../../common/lifecycle.js';
+import './actionbar.css';
 export interface IActionViewItem extends IDisposable {
     action: IAction;
     actionRunner: IActionRunner;

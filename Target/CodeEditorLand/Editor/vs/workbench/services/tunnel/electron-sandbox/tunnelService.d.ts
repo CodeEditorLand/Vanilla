@@ -1,13 +1,13 @@
-import { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IAddressProvider } from "../../../../platform/remote/common/remoteAgentConnection.js";
-import { ISharedProcessTunnelService } from "../../../../platform/remote/common/sharedProcessTunnelService.js";
-import { AbstractTunnelService, ITunnelProvider, RemoteTunnel } from "../../../../platform/tunnel/common/tunnel.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
-import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IWorkbenchEnvironmentService } from '../../environment/common/environmentService.js';
+import { URI } from '../../../../base/common/uri.js';
+import { AbstractTunnelService, RemoteTunnel, ITunnelProvider } from '../../../../platform/tunnel/common/tunnel.js';
+import { IAddressProvider } from '../../../../platform/remote/common/remoteAgentConnection.js';
+import { ISharedProcessTunnelService } from '../../../../platform/remote/common/sharedProcessTunnelService.js';
+import { ILifecycleService } from '../../lifecycle/common/lifecycle.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { INativeWorkbenchEnvironmentService } from '../../environment/electron-sandbox/environmentService.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 export declare class TunnelService extends AbstractTunnelService {
     private readonly _environmentService;
     private readonly _sharedProcessTunnelService;

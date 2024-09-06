@@ -1,6 +1,6 @@
-import { URI } from "../../../../base/common/uri.js";
-import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import { ContributedNotebookRendererEntrypoint, INotebookRendererInfo, INotebookStaticPreloadInfo, NotebookRendererEntrypoint, NotebookRendererMatch, RendererMessagingSpec } from "./notebookCommon.js";
+import { URI } from '../../../../base/common/uri.js';
+import { ExtensionIdentifier, IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { INotebookRendererInfo, ContributedNotebookRendererEntrypoint, NotebookRendererMatch, RendererMessagingSpec, NotebookRendererEntrypoint, INotebookStaticPreloadInfo as INotebookStaticPreloadInfo } from './notebookCommon.js';
 declare class DependencyList {
     private readonly value;
     readonly defined: boolean;

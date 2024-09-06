@@ -1,8 +1,8 @@
-import type * as vscode from "vscode";
-import { Event } from "../../../base/common/event.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ExtHostAuthenticationShape } from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import type * as vscode from 'vscode';
+import { Event } from '../../../base/common/event.js';
+import { ExtHostAuthenticationShape } from './extHost.protocol.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
 export interface IExtHostAuthentication extends ExtHostAuthentication {
 }
 export declare const IExtHostAuthentication: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostAuthentication>;

@@ -1,10 +1,10 @@
-import { Color } from "../../../common/color.js";
-import { Event } from "../../../common/event.js";
-import { Disposable, IDisposable } from "../../../common/lifecycle.js";
-import { ScrollbarVisibility, ScrollEvent } from "../../../common/scrollable.js";
-import { Orientation, Sash } from "../sash/sash.js";
-import "./splitview.css";
-export { Orientation } from "../sash/sash.js";
+import { Orientation, Sash } from '../sash/sash.js';
+import { Color } from '../../../common/color.js';
+import { Event } from '../../../common/event.js';
+import { Disposable, IDisposable } from '../../../common/lifecycle.js';
+import { ScrollbarVisibility, ScrollEvent } from '../../../common/scrollable.js';
+import './splitview.css';
+export { Orientation } from '../sash/sash.js';
 export interface ISplitViewStyles {
     readonly separatorBorder: Color;
 }
@@ -165,14 +165,14 @@ interface ISashItem {
  * all views.
  */
 export type DistributeSizing = {
-    type: "distribute";
+    type: 'distribute';
 };
 /**
  * When adding a view, make space for it by reducing the size of another view,
  * indexed by the provided `index`.
  */
 export type SplitSizing = {
-    type: "split";
+    type: 'split';
     index: number;
 };
 /**
@@ -180,14 +180,14 @@ export type SplitSizing = {
  * distributed evenly, otherwise use SplitSizing.
  */
 export type AutoSizing = {
-    type: "auto";
+    type: 'auto';
     index: number;
 };
 /**
  * When adding or removing views, assume the view is invisible.
  */
 export type InvisibleSizing = {
-    type: "invisible";
+    type: 'invisible';
     cachedVisibleSize: number;
 };
 /**

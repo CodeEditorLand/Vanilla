@@ -1,24 +1,24 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { IFileService, IFileStatWithMetadata } from "../../../../platform/files/common/files.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IProgressService } from "../../../../platform/progress/common/progress.js";
-import { IRevertOptions } from "../../../common/editor.js";
-import { BaseTextEditorModel } from "../../../common/editor/textEditorModel.js";
-import { IExtensionService } from "../../extensions/common/extensions.js";
-import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
-import { ILanguageDetectionService } from "../../languageDetection/common/languageDetectionWorkerService.js";
-import { IPathService } from "../../path/common/pathService.js";
-import { IWorkingCopyBackup, WorkingCopyCapabilities } from "../../workingCopy/common/workingCopy.js";
-import { IWorkingCopyBackupService } from "../../workingCopy/common/workingCopyBackup.js";
-import { IWorkingCopyService } from "../../workingCopy/common/workingCopyService.js";
-import { EncodingMode, IResolvedTextFileEditorModel, ITextFileEditorModel, ITextFileEditorModelSaveEvent, ITextFileResolveOptions, ITextFileSaveAsOptions, ITextFileService, TextFileEditorModelState, TextFileResolveReason } from "./textfiles.js";
+import { URI } from '../../../../base/common/uri.js';
+import { EncodingMode, ITextFileService, TextFileEditorModelState, ITextFileEditorModel, ITextFileResolveOptions, IResolvedTextFileEditorModel, TextFileResolveReason, ITextFileEditorModelSaveEvent, ITextFileSaveAsOptions } from './textfiles.js';
+import { IRevertOptions } from '../../../common/editor.js';
+import { BaseTextEditorModel } from '../../../common/editor/textEditorModel.js';
+import { IWorkingCopyBackupService } from '../../workingCopy/common/workingCopyBackup.js';
+import { IFileService, IFileStatWithMetadata } from '../../../../platform/files/common/files.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ITextModel } from '../../../../editor/common/model.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IWorkingCopyService } from '../../workingCopy/common/workingCopyService.js';
+import { IWorkingCopyBackup, WorkingCopyCapabilities } from '../../workingCopy/common/workingCopy.js';
+import { IFilesConfigurationService } from '../../filesConfiguration/common/filesConfigurationService.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ILanguageDetectionService } from '../../languageDetection/common/languageDetectionWorkerService.js';
+import { IPathService } from '../../path/common/pathService.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
+import { IExtensionService } from '../../extensions/common/extensions.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { IProgressService } from '../../../../platform/progress/common/progress.js';
 /**
  * The text file editor model listens to changes to its underlying code editor model and saves these changes through the file service back to the disk.
  */

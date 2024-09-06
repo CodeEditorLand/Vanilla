@@ -1,19 +1,19 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IStringDictionary } from "../../../base/common/collections.js";
-import { URI } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IFileService } from "../../files/common/files.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { ILogService } from "../../log/common/log.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import { IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { IUserDataProfileStorageService } from "../../userDataProfile/common/userDataProfileStorageService.js";
-import { AbstractInitializer, AbstractSynchroniser, IAcceptResult, IMergeResult, IResourcePreview } from "./abstractSynchronizer.js";
-import { IGlobalState, IRemoteUserData, IStorageValue, IUserData, IUserDataSyncEnablementService, IUserDataSynchroniser, IUserDataSyncLocalStoreService, IUserDataSyncLogService, IUserDataSyncStoreService, UserDataSyncStoreType } from "./userDataSync.js";
-import { UserDataSyncStoreClient } from "./userDataSyncStoreService.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { URI } from '../../../base/common/uri.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IFileService } from '../../files/common/files.js';
+import { ILogService } from '../../log/common/log.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+import { IUriIdentityService } from '../../uriIdentity/common/uriIdentity.js';
+import { AbstractInitializer, AbstractSynchroniser, IAcceptResult, IMergeResult, IResourcePreview } from './abstractSynchronizer.js';
+import { IGlobalState, IRemoteUserData, IStorageValue, IUserData, IUserDataSyncLocalStoreService, IUserDataSynchroniser, IUserDataSyncLogService, IUserDataSyncEnablementService, IUserDataSyncStoreService, UserDataSyncStoreType } from './userDataSync.js';
+import { UserDataSyncStoreClient } from './userDataSyncStoreService.js';
+import { IUserDataProfile, IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
+import { IUserDataProfileStorageService } from '../../userDataProfile/common/userDataProfileStorageService.js';
+import { IInstantiationService } from '../../instantiation/common/instantiation.js';
 type StorageKeys = {
     machine: string[];
     user: string[];
@@ -63,10 +63,7 @@ export declare class GlobalStateSynchroniser extends AbstractSynchroniser implem
     protected getAcceptResult(resourcePreview: IGlobalStateResourcePreview, resource: URI, content: string | null | undefined, token: CancellationToken): Promise<IGlobalStateResourceMergeResult>;
     private acceptLocal;
     private acceptRemote;
-    protected applyResult(remoteUserData: IRemoteUserData, lastSyncUserData: IRemoteUserData | null, resourcePreviews: [
-        IGlobalStateResourcePreview,
-        IGlobalStateResourceMergeResult
-    ][], force: boolean): Promise<void>;
+    protected applyResult(remoteUserData: IRemoteUserData, lastSyncUserData: IRemoteUserData | null, resourcePreviews: [IGlobalStateResourcePreview, IGlobalStateResourceMergeResult][], force: boolean): Promise<void>;
     resolveContent(uri: URI): Promise<string | null>;
     hasLocalData(): Promise<boolean>;
     private getStorageKeys;
@@ -79,7 +76,7 @@ export declare class LocalGlobalStateProvider {
     constructor(fileService: IFileService, environmentService: IEnvironmentService, userDataProfileStorageService: IUserDataProfileStorageService, logService: IUserDataSyncLogService);
     getLocalGlobalState(profile: IUserDataProfile): Promise<IGlobalState>;
     private getLocalArgvContent;
-    writeLocalGlobalState({ added, removed, updated, }: {
+    writeLocalGlobalState({ added, removed, updated }: {
         added: IStringDictionary<IStorageValue>;
         updated: IStringDictionary<IStorageValue>;
         removed: string[];

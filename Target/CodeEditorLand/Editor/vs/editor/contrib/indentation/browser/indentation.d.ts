@@ -1,11 +1,11 @@
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, IActionOptions, ServicesAccessor } from "../../../browser/editorExtensions.js";
-import { Range } from "../../../common/core/range.js";
-import { Selection } from "../../../common/core/selection.js";
-import { ICommand, ICursorStateComputerData, IEditOperationBuilder, IEditorContribution } from "../../../common/editorCommon.js";
-import { TextEdit } from "../../../common/languages.js";
-import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import { ITextModel } from "../../../common/model.js";
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { EditorAction, IActionOptions, ServicesAccessor } from '../../../browser/editorExtensions.js';
+import { Range } from '../../../common/core/range.js';
+import { Selection } from '../../../common/core/selection.js';
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder, IEditorContribution } from '../../../common/editorCommon.js';
+import { ITextModel } from '../../../common/model.js';
+import { TextEdit } from '../../../common/languages.js';
+import { ILanguageConfigurationService } from '../../../common/languages/languageConfigurationRegistry.js';
 export declare class IndentationToSpacesAction extends EditorAction {
     static readonly ID = "editor.action.indentationToSpaces";
     constructor();

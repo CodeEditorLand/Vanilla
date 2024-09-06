@@ -1,11 +1,11 @@
-import { IAction } from "../../../common/actions.js";
-import { Event } from "../../../common/event.js";
-import { ThemeIcon } from "../../../common/themables.js";
-import { IKeyboardEvent } from "../../keyboardEvent.js";
-import { BaseActionViewItem, IActionViewItemOptions } from "../actionbar/actionViewItems.js";
-import { Widget } from "../widget.js";
-import "./toggle.css";
-import { IHoverDelegate } from "../hover/hoverDelegate.js";
+import { IKeyboardEvent } from '../../keyboardEvent.js';
+import { BaseActionViewItem, IActionViewItemOptions } from '../actionbar/actionViewItems.js';
+import { Widget } from '../widget.js';
+import { IAction } from '../../../common/actions.js';
+import { ThemeIcon } from '../../../common/themables.js';
+import { Event } from '../../../common/event.js';
+import './toggle.css';
+import { IHoverDelegate } from '../hover/hoverDelegate.js';
 export interface IToggleOpts extends IToggleStyles {
     readonly actionClassName?: string;
     readonly icon?: ThemeIcon;

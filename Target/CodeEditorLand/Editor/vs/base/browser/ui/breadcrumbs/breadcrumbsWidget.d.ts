@@ -1,7 +1,7 @@
-import { Event } from "../../../common/event.js";
-import { ThemeIcon } from "../../../common/themables.js";
-import * as dom from "../../dom.js";
-import "./breadcrumbsWidget.css";
+import * as dom from '../../dom.js';
+import { ThemeIcon } from '../../../common/themables.js';
+import { Event } from '../../../common/event.js';
+import './breadcrumbsWidget.css';
 export declare abstract class BreadcrumbsItem {
     abstract dispose(): void;
     abstract equals(other: BreadcrumbsItem): boolean;
@@ -15,7 +15,7 @@ export interface IBreadcrumbsWidgetStyles {
     readonly breadcrumbsFocusAndSelectionForeground: string | undefined;
 }
 export interface IBreadcrumbsItemEvent {
-    type: "select" | "focus";
+    type: 'select' | 'focus';
     item: BreadcrumbsItem;
     node: HTMLElement;
     payload: any;

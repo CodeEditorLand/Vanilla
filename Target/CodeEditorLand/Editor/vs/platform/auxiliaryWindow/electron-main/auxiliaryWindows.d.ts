@@ -1,6 +1,6 @@
-import { BrowserWindowConstructorOptions, HandlerDetails, WebContents } from "electron";
-import { Event } from "../../../base/common/event.js";
-import { IAuxiliaryWindow } from "./auxiliaryWindow.js";
+import { BrowserWindowConstructorOptions, HandlerDetails, WebContents } from 'electron';
+import { Event } from '../../../base/common/event.js';
+import { IAuxiliaryWindow } from './auxiliaryWindow.js';
 export declare const IAuxiliaryWindowsMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IAuxiliaryWindowsMainService>;
 export interface IAuxiliaryWindowsMainService {
     readonly _serviceBrand: undefined;

@@ -1,13 +1,13 @@
-import { IProcessEnvironment } from "../../../base/common/platform.js";
-import { ICSSDevelopmentService } from "../../cssDev/node/cssDevService.js";
-import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
-import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { INativeHostMainService } from "../../native/electron-main/nativeHostMainService.js";
-import { IProtocolMainService } from "../../protocol/electron-main/protocol.js";
-import { ICodeWindow } from "../../window/electron-main/window.js";
-import { IWindowsMainService } from "../../windows/electron-main/windows.js";
-import { IIssueMainService, OldIssueReporterData } from "../common/issue.js";
+import { IProcessEnvironment } from '../../../base/common/platform.js';
+import { IDialogMainService } from '../../dialogs/electron-main/dialogMainService.js';
+import { IEnvironmentMainService } from '../../environment/electron-main/environmentMainService.js';
+import { IIssueMainService, OldIssueReporterData } from '../common/issue.js';
+import { ILogService } from '../../log/common/log.js';
+import { INativeHostMainService } from '../../native/electron-main/nativeHostMainService.js';
+import { IProtocolMainService } from '../../protocol/electron-main/protocol.js';
+import { ICodeWindow } from '../../window/electron-main/window.js';
+import { IWindowsMainService } from '../../windows/electron-main/windows.js';
+import { ICSSDevelopmentService } from '../../cssDev/node/cssDevService.js';
 export declare class IssueMainService implements IIssueMainService {
     private userEnv;
     private readonly environmentMainService;

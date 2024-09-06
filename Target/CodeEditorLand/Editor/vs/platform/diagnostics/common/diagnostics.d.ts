@@ -1,7 +1,7 @@
-import { IStringDictionary } from "../../../base/common/collections.js";
-import { ProcessItem } from "../../../base/common/processes.js";
-import { UriComponents } from "../../../base/common/uri.js";
-import { IWorkspace } from "../../workspace/common/workspace.js";
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { ProcessItem } from '../../../base/common/processes.js';
+import { UriComponents } from '../../../base/common/uri.js';
+import { IWorkspace } from '../../workspace/common/workspace.js';
 export declare const ID = "diagnosticsService";
 export declare const IDiagnosticsService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IDiagnosticsService>;
 export interface IDiagnosticsService {

@@ -1,6 +1,6 @@
-import { ResolvedLanguageConfiguration } from "../../../languages/languageConfigurationRegistry.js";
-import { DenseKeyProvider, SmallImmutableSet } from "./smallImmutableSet.js";
-import { OpeningBracketId, Token } from "./tokenizer.js";
+import { ResolvedLanguageConfiguration } from '../../../languages/languageConfigurationRegistry.js';
+import { DenseKeyProvider, SmallImmutableSet } from './smallImmutableSet.js';
+import { OpeningBracketId, Token } from './tokenizer.js';
 export declare class BracketTokens {
     private readonly map;
     static createFromLanguage(configuration: ResolvedLanguageConfiguration, denseKeyProvider: DenseKeyProvider<string>): BracketTokens;
@@ -10,7 +10,7 @@ export declare class BracketTokens {
     getRegExpStr(): string | null;
     /**
      * Returns null if there is no such regexp (because there are no brackets).
-     */
+    */
     get regExpGlobal(): RegExp | null;
     getToken(value: string): Token | undefined;
     findClosingTokenText(openingBracketIds: SmallImmutableSet<OpeningBracketId>): string | undefined;

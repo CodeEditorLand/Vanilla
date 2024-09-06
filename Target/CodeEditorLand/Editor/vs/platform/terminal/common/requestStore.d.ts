@@ -1,5 +1,5 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ILogService } from "../../log/common/log.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { ILogService } from '../../log/common/log.js';
 /**
  * A helper class to track requests that have replies. Using this it's easy to implement an event
  * that accepts a reply.

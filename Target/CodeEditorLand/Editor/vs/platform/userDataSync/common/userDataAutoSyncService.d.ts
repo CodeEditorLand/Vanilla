@@ -1,11 +1,11 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IProductService } from "../../product/common/productService.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { IUserDataAutoSyncService, IUserDataSyncEnablementService, IUserDataSyncLogService, IUserDataSyncService, IUserDataSyncStoreManagementService, IUserDataSyncStoreService, UserDataSyncError } from "./userDataSync.js";
-import { IUserDataSyncAccountService } from "./userDataSyncAccount.js";
-import { IUserDataSyncMachinesService } from "./userDataSyncMachines.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IProductService } from '../../product/common/productService.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+import { IUserDataAutoSyncService, IUserDataSyncLogService, IUserDataSyncEnablementService, IUserDataSyncService, IUserDataSyncStoreManagementService, IUserDataSyncStoreService, UserDataSyncError } from './userDataSync.js';
+import { IUserDataSyncAccountService } from './userDataSyncAccount.js';
+import { IUserDataSyncMachinesService } from './userDataSyncMachines.js';
 export declare class UserDataAutoSyncService extends Disposable implements IUserDataAutoSyncService {
     private readonly userDataSyncStoreManagementService;
     private readonly userDataSyncStoreService;

@@ -1,13 +1,13 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService } from "../../../../../platform/notification/common/notification.js";
-import { IStorageService } from "../../../../../platform/storage/common/storage.js";
-import { IWorkbenchContribution } from "../../../../common/contributions.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { ISaveErrorHandler, ITextFileEditorModel, ITextFileSaveOptions, ITextFileService } from "../../../../services/textfile/common/textfiles.js";
+import { URI } from '../../../../../base/common/uri.js';
+import { ITextFileService, ISaveErrorHandler, ITextFileEditorModel, ITextFileSaveOptions } from '../../../../services/textfile/common/textfiles.js';
+import { ServicesAccessor, IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IWorkbenchContribution } from '../../../../common/contributions.js';
+import { ITextModelService } from '../../../../../editor/common/services/resolverService.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { INotificationService } from '../../../../../platform/notification/common/notification.js';
+import { IStorageService } from '../../../../../platform/storage/common/storage.js';
+import { IEditorService } from '../../../../services/editor/common/editorService.js';
 export declare const CONFLICT_RESOLUTION_CONTEXT = "saveConflictResolutionContext";
 export declare const CONFLICT_RESOLUTION_SCHEME = "conflictResolution";
 export declare class TextFileSaveErrorHandler extends Disposable implements ISaveErrorHandler, IWorkbenchContribution {

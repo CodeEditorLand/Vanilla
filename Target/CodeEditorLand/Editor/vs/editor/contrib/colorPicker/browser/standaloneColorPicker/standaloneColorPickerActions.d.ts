@@ -1,5 +1,5 @@
-import { ICodeEditor } from "../../../../browser/editorBrowser.js";
-import { EditorAction, EditorAction2, ServicesAccessor } from "../../../../browser/editorExtensions.js";
+import { ICodeEditor } from '../../../../browser/editorBrowser.js';
+import { EditorAction, EditorAction2, ServicesAccessor } from '../../../../browser/editorExtensions.js';
 export declare class ShowOrFocusStandaloneColorPicker extends EditorAction2 {
     constructor();
     runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): void;

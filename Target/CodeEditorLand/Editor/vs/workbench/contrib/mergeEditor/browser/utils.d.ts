@@ -1,9 +1,9 @@
-import { CompareResult } from "../../../../base/common/arrays.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { IObservable } from "../../../../base/common/observable.js";
-import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
-import { IModelDeltaDecoration } from "../../../../editor/common/model.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { CompareResult } from '../../../../base/common/arrays.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../base/common/observable.js';
+import { CodeEditorWidget } from '../../../../editor/browser/widget/codeEditor/codeEditorWidget.js';
+import { IModelDeltaDecoration } from '../../../../editor/common/model.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
 export declare function setStyle(element: HTMLElement, style: {
     width?: number | string;
     height?: number | string;

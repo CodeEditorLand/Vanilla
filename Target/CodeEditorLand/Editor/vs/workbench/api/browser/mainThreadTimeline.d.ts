@@ -1,7 +1,7 @@
-import { ILogService } from "../../../platform/log/common/log.js";
-import { ITimelineService, TimelineChangeEvent, TimelineProviderDescriptor } from "../../contrib/timeline/common/timeline.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { MainThreadTimelineShape } from "../common/extHost.protocol.js";
+import { ILogService } from '../../../platform/log/common/log.js';
+import { MainThreadTimelineShape } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { TimelineChangeEvent, TimelineProviderDescriptor, ITimelineService } from '../../contrib/timeline/common/timeline.js';
 export declare class MainThreadTimeline implements MainThreadTimelineShape {
     private readonly logService;
     private readonly _timelineService;

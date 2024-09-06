@@ -1,5 +1,5 @@
-import { Range } from "../core/range.js";
-import { GlyphMarginLane, IGlyphMarginLanesModel } from "../model.js";
+import { Range } from '../core/range.js';
+import { GlyphMarginLane, IGlyphMarginLanesModel } from '../model.js';
 export declare class GlyphMarginLanesModel implements IGlyphMarginLanesModel {
     private lanes;
     private persist;

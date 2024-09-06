@@ -1,9 +1,9 @@
-import { Event } from "../../../common/event.js";
-import { INewScrollDimensions, INewScrollPosition, IScrollDimensions, IScrollPosition, Scrollable, ScrollEvent } from "../../../common/scrollable.js";
-import { IMouseWheelEvent, StandardWheelEvent } from "../../mouseEvent.js";
-import { Widget } from "../widget.js";
-import { ScrollableElementChangeOptions, ScrollableElementCreationOptions, ScrollableElementResolvedOptions } from "./scrollableElementOptions.js";
-import "./media/scrollbars.css";
+import { IMouseWheelEvent, StandardWheelEvent } from '../../mouseEvent.js';
+import { ScrollableElementChangeOptions, ScrollableElementCreationOptions, ScrollableElementResolvedOptions } from './scrollableElementOptions.js';
+import { Widget } from '../widget.js';
+import { Event } from '../../../common/event.js';
+import { INewScrollDimensions, INewScrollPosition, IScrollDimensions, IScrollPosition, ScrollEvent, Scrollable } from '../../../common/scrollable.js';
+import './media/scrollbars.css';
 export interface IOverviewRulerLayoutInfo {
     parent: HTMLElement;
     insertBefore: HTMLElement;

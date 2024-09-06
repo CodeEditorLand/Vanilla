@@ -1,11 +1,11 @@
-import type * as vscode from "vscode";
-import { Emitter, type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { type UriComponents } from "../../../base/common/uri.js";
-import { type ExtHostTerminalShellIntegrationShape, type MainThreadTerminalShellIntegrationShape } from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
-import { IExtHostTerminalService } from "./extHostTerminalService.js";
-import { TerminalShellExecutionCommandLineConfidence } from "./extHostTypes.js";
+import type * as vscode from 'vscode';
+import { TerminalShellExecutionCommandLineConfidence } from './extHostTypes.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { type ExtHostTerminalShellIntegrationShape, type MainThreadTerminalShellIntegrationShape } from './extHost.protocol.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { IExtHostTerminalService } from './extHostTerminalService.js';
+import { Emitter, type Event } from '../../../base/common/event.js';
+import { type UriComponents } from '../../../base/common/uri.js';
 export interface IExtHostTerminalShellIntegration extends ExtHostTerminalShellIntegrationShape {
     readonly _serviceBrand: undefined;
     readonly onDidChangeTerminalShellIntegration: Event<vscode.TerminalShellIntegrationChangeEvent>;

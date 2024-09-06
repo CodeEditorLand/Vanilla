@@ -1,5 +1,5 @@
-import { Disposable } from "../../base/common/lifecycle.js";
-import { INativeWindowConfiguration } from "../../platform/window/common/window.js";
+import { INativeWindowConfiguration } from '../../platform/window/common/window.js';
+import { Disposable } from '../../base/common/lifecycle.js';
 export declare class DesktopMain extends Disposable {
     private readonly configuration;
     constructor(configuration: INativeWindowConfiguration);

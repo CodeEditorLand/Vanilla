@@ -1,5 +1,5 @@
 export interface ICommentsConfiguration {
-    openView: "never" | "file" | "firstFile" | "firstFileUnresolved";
+    openView: 'never' | 'file' | 'firstFile' | 'firstFileUnresolved';
     useRelativeTime: boolean;
     visible: boolean;
     maxHeight: boolean;

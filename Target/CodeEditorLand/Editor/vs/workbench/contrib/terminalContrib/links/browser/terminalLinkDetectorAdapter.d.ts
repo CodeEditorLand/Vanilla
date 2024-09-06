@@ -1,8 +1,8 @@
-import type { ILink, ILinkProvider, IViewportRange } from "@xterm/xterm";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ITerminalLinkDetector, ITerminalSimpleLink } from "./links.js";
-import { TerminalLink } from "./terminalLink.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { ITerminalLinkDetector, ITerminalSimpleLink } from './links.js';
+import { TerminalLink } from './terminalLink.js';
+import type { ILink, ILinkProvider, IViewportRange } from '@xterm/xterm';
 export interface IActivateLinkEvent {
     link: ITerminalSimpleLink;
     event?: MouseEvent;

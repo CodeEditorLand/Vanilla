@@ -1,6 +1,6 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
-import { INotebookRendererMessagingService, IScopedRendererMessaging } from "../../common/notebookRendererMessagingService.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { INotebookRendererMessagingService, IScopedRendererMessaging } from '../../common/notebookRendererMessagingService.js';
+import { IExtensionService } from '../../../../services/extensions/common/extensions.js';
 type MessageToSend = {
     editorId: string;
     rendererId: string;

@@ -1,10 +1,10 @@
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
-import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../services/editor/common/editorService.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { MainThreadEditorTabsShape } from "../common/extHost.protocol.js";
+import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { MainThreadEditorTabsShape } from '../common/extHost.protocol.js';
+import { EditorGroupColumn } from '../../services/editor/common/editorGroupColumn.js';
+import { IEditorGroupsService } from '../../services/editor/common/editorGroupsService.js';
+import { IEditorService } from '../../services/editor/common/editorService.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
 export declare class MainThreadEditorTabs implements MainThreadEditorTabsShape {
     private readonly _editorGroupsService;
     private readonly _configurationService;
@@ -76,11 +76,11 @@ export declare class MainThreadEditorTabs implements MainThreadEditorTabsShape {
      */
     private _onDidTabPinChange;
     /**
-     * Called when the tab is preview / unpreviewed
-     * @param groupId The id of the group the tab is in
-     * @param editorIndex The index of the tab
-     * @param editor The editor input represented by the tab
-     */
+ * Called when the tab is preview / unpreviewed
+ * @param groupId The id of the group the tab is in
+ * @param editorIndex The index of the tab
+ * @param editor The editor input represented by the tab
+ */
     private _onDidTabPreviewChange;
     private _onDidTabMove;
     /**

@@ -1,13 +1,13 @@
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IEditorContribution } from "../../../common/editorCommon.js";
-import * as languages from "../../../common/languages.js";
-import { ITextModel } from "../../../common/model.js";
-import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { InlayHintItem } from "./inlayHints.js";
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import * as languages from '../../../common/languages.js';
+import { ITextModel } from '../../../common/model.js';
+import { ILanguageFeatureDebounceService } from '../../../common/services/languageFeatureDebounce.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { InlayHintItem } from './inlayHints.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
 declare class InlayHintsCache {
     readonly _serviceBrand: undefined;
     private readonly _entries;

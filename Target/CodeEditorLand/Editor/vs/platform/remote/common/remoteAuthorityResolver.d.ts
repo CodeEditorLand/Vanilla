@@ -1,6 +1,6 @@
-import { ErrorNoTelemetry } from "../../../base/common/errors.js";
-import { Event } from "../../../base/common/event.js";
-import { URI } from "../../../base/common/uri.js";
+import { ErrorNoTelemetry } from '../../../base/common/errors.js';
+import { Event } from '../../../base/common/event.js';
+import { URI } from '../../../base/common/uri.js';
 export declare const IRemoteAuthorityResolverService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IRemoteAuthorityResolverService>;
 export declare const enum RemoteConnectionType {
     WebSocket = 0,

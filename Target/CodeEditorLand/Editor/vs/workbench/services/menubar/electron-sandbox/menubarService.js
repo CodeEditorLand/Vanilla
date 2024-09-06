@@ -1,1 +1,1 @@
-import{registerMainProcessRemoteService as e}from"../../../../platform/ipc/electron-sandbox/services.js";import{IMenubarService as r}from"../../../../platform/menubar/electron-sandbox/menubar.js";e(r,"menubar");
+import{IMenubarService as e}from"../../../../platform/menubar/electron-sandbox/menubar.js";import{registerMainProcessRemoteService as r}from"../../../../platform/ipc/electron-sandbox/services.js";r(e,"menubar");

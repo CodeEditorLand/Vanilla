@@ -1,9 +1,9 @@
-import { IStringDictionary } from "../../../base/common/collections.js";
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ILogService } from "../../log/common/log.js";
-import { IPolicyService } from "../../policy/common/policy.js";
-import { ConfigurationModel } from "./configurationModels.js";
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { ConfigurationModel } from './configurationModels.js';
+import { ILogService } from '../../log/common/log.js';
+import { IPolicyService } from '../../policy/common/policy.js';
 export declare class DefaultConfiguration extends Disposable {
     private readonly logService;
     private readonly _onDidChangeConfiguration;

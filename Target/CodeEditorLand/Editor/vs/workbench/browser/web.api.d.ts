@@ -1,19 +1,19 @@
-import type { Event } from "../../base/common/event.js";
-import type { PerformanceMark } from "../../base/common/performance.js";
-import type { IProductConfiguration } from "../../base/common/product.js";
-import type { URI, UriComponents } from "../../base/common/uri.js";
-import type { ITextEditorOptions } from "../../platform/editor/common/editor.js";
-import type { LogLevel } from "../../platform/log/common/log.js";
-import type { IProgress, IProgressCompositeOptions, IProgressDialogOptions, IProgressNotificationOptions, IProgressOptions, IProgressStep, IProgressWindowOptions } from "../../platform/progress/common/progress.js";
-import type { IWebSocketFactory } from "../../platform/remote/browser/browserSocketFactory.js";
-import type { ISecretStorageProvider } from "../../platform/secrets/common/secrets.js";
-import type { TunnelProviderFeatures } from "../../platform/tunnel/common/tunnel.js";
-import type { IFolderToOpen, IWorkspaceToOpen } from "../../platform/window/common/window.js";
-import type { IAuthenticationProvider } from "../services/authentication/common/authentication.js";
-import type { EditorGroupLayout } from "../services/editor/common/editorGroupsService.js";
-import type { IEmbedderTerminalOptions } from "../services/terminal/common/embedderTerminalService.js";
-import type { IUpdateProvider } from "../services/update/browser/updateService.js";
-import type { IURLCallbackProvider } from "../services/url/browser/urlService.js";
+import type { PerformanceMark } from '../../base/common/performance.js';
+import type { UriComponents, URI } from '../../base/common/uri.js';
+import type { IWebSocketFactory } from '../../platform/remote/browser/browserSocketFactory.js';
+import type { IURLCallbackProvider } from '../services/url/browser/urlService.js';
+import type { LogLevel } from '../../platform/log/common/log.js';
+import type { IUpdateProvider } from '../services/update/browser/updateService.js';
+import type { Event } from '../../base/common/event.js';
+import type { IProductConfiguration } from '../../base/common/product.js';
+import type { ISecretStorageProvider } from '../../platform/secrets/common/secrets.js';
+import type { TunnelProviderFeatures } from '../../platform/tunnel/common/tunnel.js';
+import type { IProgress, IProgressCompositeOptions, IProgressDialogOptions, IProgressNotificationOptions, IProgressOptions, IProgressStep, IProgressWindowOptions } from '../../platform/progress/common/progress.js';
+import type { ITextEditorOptions } from '../../platform/editor/common/editor.js';
+import type { IFolderToOpen, IWorkspaceToOpen } from '../../platform/window/common/window.js';
+import type { EditorGroupLayout } from '../services/editor/common/editorGroupsService.js';
+import type { IEmbedderTerminalOptions } from '../services/terminal/common/embedderTerminalService.js';
+import type { IAuthenticationProvider } from '../services/authentication/common/authentication.js';
 /**
  * The `IWorkbench` interface is the API facade for web embedders
  * to call into the workbench.
@@ -57,10 +57,7 @@ export interface IWorkbench {
          *
          * @returns A promise that resolves to tuples of source and marks.
          */
-        retrievePerformanceMarks(): Promise<[
-            string,
-            readonly PerformanceMark[]
-        ][]>;
+        retrievePerformanceMarks(): Promise<[string, readonly PerformanceMark[]][]>;
         /**
          * Allows to open a `URI` with the standard opener service of the
          * workbench.
@@ -635,7 +632,7 @@ export interface IProductQualityChangeHandler {
      * Handler is being called when the user wants to switch between
      * `insider` or `stable` product qualities.
      */
-    (newQuality: "insider" | "stable"): void;
+    (newQuality: 'insider' | 'stable'): void;
 }
 /**
  * Settings sync options

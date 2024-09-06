@@ -1,8 +1,8 @@
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { IOutlineModelService } from "../../../../../editor/contrib/documentSymbols/browser/outlineModel.js";
-import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";
-import { ICellViewModel } from "../notebookBrowser.js";
-import { OutlineEntry } from "./OutlineEntry.js";
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { IOutlineModelService } from '../../../../../editor/contrib/documentSymbols/browser/outlineModel.js';
+import { ICellViewModel } from '../notebookBrowser.js';
+import { OutlineEntry } from './OutlineEntry.js';
+import { INotebookExecutionStateService } from '../../common/notebookExecutionStateService.js';
 export declare const enum NotebookOutlineConstants {
     NonHeaderOutlineLevel = 7
 }

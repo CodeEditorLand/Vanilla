@@ -1,13 +1,13 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILoggerService } from "../../../../platform/log/common/log.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IViewDescriptor, IViewDescriptorService, ViewContainer, ViewContainerLocation, ViewVisibilityState } from "../../../common/views.js";
-import { IExtensionService } from "../../extensions/common/extensions.js";
-import { ViewContainerModel } from "../common/viewContainerModel.js";
+import { ViewContainerLocation, IViewDescriptorService, ViewContainer, IViewDescriptor, ViewVisibilityState } from '../../../common/views.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IExtensionService } from '../../extensions/common/extensions.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Event } from '../../../../base/common/event.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ViewContainerModel } from '../common/viewContainerModel.js';
+import { ILoggerService } from '../../../../platform/log/common/log.js';
 export declare class ViewDescriptorService extends Disposable implements IViewDescriptorService {
     private readonly instantiationService;
     private readonly contextKeyService;

@@ -1,14 +1,14 @@
-import { Action } from "../../../../base/common/actions.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IProgressService } from "../../../../platform/progress/common/progress.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { IHostService } from "../../../services/host/browser/host.js";
-import { IDebugService } from "../../debug/common/debug.js";
+import { Action } from '../../../../base/common/actions.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { INativeHostService } from '../../../../platform/native/common/native.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IProgressService } from '../../../../platform/progress/common/progress.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { IDebugService } from '../../debug/common/debug.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { IHostService } from '../../../services/host/browser/host.js';
 export declare class DebugExtensionHostAction extends Action {
     private readonly _nativeHostService;
     private readonly _dialogService;

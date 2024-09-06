@@ -1,15 +1,15 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { IStorageService } from "../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
-import { WebviewInput } from "../../contrib/webviewPanel/browser/webviewEditorInput.js";
-import { IWebviewWorkbenchService } from "../../contrib/webviewPanel/browser/webviewWorkbenchService.js";
-import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../services/editor/common/editorService.js";
-import { IExtensionService } from "../../services/extensions/common/extensions.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import * as extHostProtocol from "../common/extHost.protocol.js";
-import { MainThreadWebviews } from "./mainThreadWebviews.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
+import { IStorageService } from '../../../platform/storage/common/storage.js';
+import { ITelemetryService } from '../../../platform/telemetry/common/telemetry.js';
+import { MainThreadWebviews } from './mainThreadWebviews.js';
+import * as extHostProtocol from '../common/extHost.protocol.js';
+import { WebviewInput } from '../../contrib/webviewPanel/browser/webviewEditorInput.js';
+import { IWebviewWorkbenchService } from '../../contrib/webviewPanel/browser/webviewWorkbenchService.js';
+import { IEditorGroupsService } from '../../services/editor/common/editorGroupsService.js';
+import { IEditorService } from '../../services/editor/common/editorService.js';
+import { IExtensionService } from '../../services/extensions/common/extensions.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
 export declare class MainThreadWebviewPanels extends Disposable implements extHostProtocol.MainThreadWebviewPanelsShape {
     private readonly _mainThreadWebviews;
     private readonly _configurationService;

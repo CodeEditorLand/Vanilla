@@ -1,13 +1,13 @@
-import { SelectBox } from "../../../../base/browser/ui/selectBox/selectBox.js";
-import { IAction } from "../../../../base/common/actions.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
-import "./media/settingsWidgets.css";
-import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { SettingValueType } from "../../../services/preferences/common/preferences.js";
-type EditKey = "none" | "create" | number;
+import { SelectBox } from '../../../../base/browser/ui/selectBox/selectBox.js';
+import { IAction } from '../../../../base/common/actions.js';
+import { Emitter, Event } from '../../../../base/common/event.js';
+import { Disposable, DisposableStore } from '../../../../base/common/lifecycle.js';
+import './media/settingsWidgets.css';
+import { IContextViewService } from '../../../../platform/contextview/browser/contextView.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+import { SettingValueType } from '../../../services/preferences/common/preferences.js';
+type EditKey = 'none' | 'create' | number;
 type RowElementGroup = {
     rowElement: HTMLElement;
     keyElement: HTMLElement;
@@ -32,30 +32,30 @@ export declare class ListSettingListModel<TDataItem extends object> {
     selectPrevious(): void;
 }
 export interface ISettingListChangeEvent<TDataItem extends object> {
-    type: "change";
+    type: 'change';
     originalItem: TDataItem;
     newItem: TDataItem;
     targetIndex: number;
 }
 export interface ISettingListAddEvent<TDataItem extends object> {
-    type: "add";
+    type: 'add';
     newItem: TDataItem;
     targetIndex: number;
 }
 export interface ISettingListMoveEvent<TDataItem extends object> {
-    type: "move";
+    type: 'move';
     originalItem: TDataItem;
     newItem: TDataItem;
     targetIndex: number;
     sourceIndex: number;
 }
 export interface ISettingListRemoveEvent<TDataItem extends object> {
-    type: "remove";
+    type: 'remove';
     originalItem: TDataItem;
     targetIndex: number;
 }
 export interface ISettingListResetEvent<TDataItem extends object> {
-    type: "reset";
+    type: 'reset';
     originalItem: TDataItem;
     targetIndex: number;
 }
@@ -164,7 +164,7 @@ export declare class IncludeSettingWidget extends ListSettingWidget<IIncludeExcl
     };
 }
 interface IObjectStringData {
-    type: "string";
+    type: 'string';
     data: string;
 }
 export interface IObjectEnumOption {
@@ -172,12 +172,12 @@ export interface IObjectEnumOption {
     description?: string;
 }
 interface IObjectEnumData {
-    type: "enum";
+    type: 'enum';
     data: string;
     options: IObjectEnumOption[];
 }
 interface IObjectBoolData {
-    type: "boolean";
+    type: 'boolean';
     data: boolean;
 }
 type ObjectKey = IObjectStringData | IObjectEnumData;

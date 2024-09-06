@@ -1,6 +1,6 @@
-import Severity from "../../../base/common/severity.js";
-import { URI } from "../../../base/common/uri.js";
-import { IExtensionManifest } from "./extensions.js";
+import Severity from '../../../base/common/severity.js';
+import { URI } from '../../../base/common/uri.js';
+import { IExtensionManifest } from './extensions.js';
 export interface IParsedVersion {
     hasCaret: boolean;
     hasGreaterEquals: boolean;

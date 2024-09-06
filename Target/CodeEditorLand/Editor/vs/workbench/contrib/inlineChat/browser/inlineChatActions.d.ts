@@ -1,9 +1,9 @@
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { EditorAction2 } from "../../../../editor/browser/editorExtensions.js";
-import { Action2, IAction2Options } from "../../../../platform/actions/common/actions.js";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { InlineChatController } from "./inlineChatController.js";
-import { HunkInformation } from "./inlineChatSession.js";
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { EditorAction2 } from '../../../../editor/browser/editorExtensions.js';
+import { InlineChatController } from './inlineChatController.js';
+import { Action2, IAction2Options } from '../../../../platform/actions/common/actions.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { HunkInformation } from './inlineChatSession.js';
 export declare const LOCALIZED_START_INLINE_CHAT_STRING: import("../../../../nls.js").ILocalizedString;
 export declare const START_INLINE_CHAT: import("../../../../base/common/themables.js").ThemeIcon;
 export interface IHoldForSpeech {

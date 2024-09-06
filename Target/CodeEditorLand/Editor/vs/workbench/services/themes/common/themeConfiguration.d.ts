@@ -1,7 +1,7 @@
-import { ConfigurationTarget, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ColorScheme } from "../../../../platform/theme/common/theme.js";
-import { IHostColorSchemeService } from "./hostColorSchemeService.js";
-import { IColorCustomizations, ISemanticTokenColorCustomizations, ITokenColorCustomizations, IWorkbenchColorTheme, IWorkbenchFileIconTheme, IWorkbenchProductIconTheme, ThemeSettings, ThemeSettingTarget } from "./workbenchThemeService.js";
+import { ThemeSettings, IWorkbenchColorTheme, IWorkbenchFileIconTheme, IColorCustomizations, ITokenColorCustomizations, IWorkbenchProductIconTheme, ISemanticTokenColorCustomizations, ThemeSettingTarget } from './workbenchThemeService.js';
+import { IConfigurationService, ConfigurationTarget } from '../../../../platform/configuration/common/configuration.js';
+import { ColorScheme } from '../../../../platform/theme/common/theme.js';
+import { IHostColorSchemeService } from './hostColorSchemeService.js';
 export declare function formatSettingAsLink(str: string): string;
 export declare const COLOR_THEME_CONFIGURATION_SETTINGS_TAG = "colorThemeConfiguration";
 export declare function updateColorThemeConfigurationSchemas(themes: IWorkbenchColorTheme[]): void;

@@ -1,12 +1,12 @@
-import { Dimension } from "../../../../base/browser/dom.js";
-import { IMouseWheelEvent } from "../../../../base/browser/mouseEvent.js";
-import { CodeWindow } from "../../../../base/browser/window.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import { IOverlayWebview, IWebviewService, WebviewContentOptions, WebviewExtensionDescription, WebviewInitInfo, WebviewMessageReceivedEvent, WebviewOptions } from "./webview.js";
+import { Dimension } from '../../../../base/browser/dom.js';
+import { IMouseWheelEvent } from '../../../../base/browser/mouseEvent.js';
+import { CodeWindow } from '../../../../base/browser/window.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { IWorkbenchLayoutService } from '../../../services/layout/browser/layoutService.js';
+import { IOverlayWebview, IWebviewService, WebviewContentOptions, WebviewExtensionDescription, WebviewInitInfo, WebviewMessageReceivedEvent, WebviewOptions } from './webview.js';
 /**
  * Webview that is absolutely positioned over another element and that can creates and destroys an underlying webview as needed.
  */

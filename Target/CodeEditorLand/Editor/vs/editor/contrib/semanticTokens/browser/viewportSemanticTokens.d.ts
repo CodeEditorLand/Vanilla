@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IEditorContribution } from "../../../common/editorCommon.js";
-import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { ISemanticTokensStylingService } from "../../../common/services/semanticTokensStyling.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { ILanguageFeatureDebounceService } from '../../../common/services/languageFeatureDebounce.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { ISemanticTokensStylingService } from '../../../common/services/semanticTokensStyling.js';
 export declare class ViewportSemanticTokensContribution extends Disposable implements IEditorContribution {
     private readonly _semanticTokensStylingService;
     private readonly _themeService;

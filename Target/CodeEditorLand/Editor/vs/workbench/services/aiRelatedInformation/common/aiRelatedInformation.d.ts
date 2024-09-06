@@ -1,5 +1,5 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
 export declare const IAiRelatedInformationService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IAiRelatedInformationService>;
 export declare enum RelatedInformationType {
     SymbolInformation = 1,

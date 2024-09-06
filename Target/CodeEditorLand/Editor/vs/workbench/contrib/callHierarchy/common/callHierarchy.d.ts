@@ -1,11 +1,11 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { RefCountedDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IPosition } from "../../../../editor/common/core/position.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { LanguageFeatureRegistry } from "../../../../editor/common/languageFeatureRegistry.js";
-import { ProviderResult, SymbolKind, SymbolTag } from "../../../../editor/common/languages.js";
-import { ITextModel } from "../../../../editor/common/model.js";
+import { IRange } from '../../../../editor/common/core/range.js';
+import { SymbolKind, ProviderResult, SymbolTag } from '../../../../editor/common/languages.js';
+import { ITextModel } from '../../../../editor/common/model.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { LanguageFeatureRegistry } from '../../../../editor/common/languageFeatureRegistry.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IPosition } from '../../../../editor/common/core/position.js';
+import { RefCountedDisposable } from '../../../../base/common/lifecycle.js';
 export declare const enum CallHierarchyDirection {
     CallsTo = "incomingCalls",
     CallsFrom = "outgoingCalls"

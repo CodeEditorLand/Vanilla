@@ -1,11 +1,11 @@
-import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../base/common/buffer.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { IExpression, IRelativePattern } from "../../../base/common/glob.js";
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { ReadableStreamEvents } from "../../../base/common/stream.js";
-import { URI } from "../../../base/common/uri.js";
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from '../../../base/common/buffer.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { IExpression, IRelativePattern } from '../../../base/common/glob.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ReadableStreamEvents } from '../../../base/common/stream.js';
+import { URI } from '../../../base/common/uri.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
 export declare const IFileService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IFileService>;
 export interface IFileService {
     readonly _serviceBrand: undefined;
@@ -207,7 +207,7 @@ export interface IFileService {
      * The watcher runs uncorrelated and thus will report all events from `IFileService.onDidFilesChange`.
      * This means, most listeners in the application will receive your events. It is encouraged to
      * use correlated watchers (via `IWatchOptionsWithCorrelation`) to limit events to your listener.
-     */
+    */
     watch(resource: URI, options?: IWatchOptionsWithoutCorrelation): IDisposable;
     /**
      * Frees up any resources occupied by this service.
@@ -737,18 +737,18 @@ export declare class FileChangesEvent {
      */
     readonly rawAdded: URI[];
     /**
-     * @deprecated use the `contains` or `affects` method to efficiently find
-     * out if the event relates to a given resource. these methods ensure:
-     * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
-     * - correctly handles `FileChangeType.DELETED` events
-     */
+    * @deprecated use the `contains` or `affects` method to efficiently find
+    * out if the event relates to a given resource. these methods ensure:
+    * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
+    * - correctly handles `FileChangeType.DELETED` events
+    */
     readonly rawUpdated: URI[];
     /**
-     * @deprecated use the `contains` or `affects` method to efficiently find
-     * out if the event relates to a given resource. these methods ensure:
-     * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
-     * - correctly handles `FileChangeType.DELETED` events
-     */
+    * @deprecated use the `contains` or `affects` method to efficiently find
+    * out if the event relates to a given resource. these methods ensure:
+    * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
+    * - correctly handles `FileChangeType.DELETED` events
+    */
     readonly rawDeleted: URI[];
 }
 export declare function isParent(path: string, candidate: string, ignoreCase?: boolean): boolean;
@@ -845,7 +845,7 @@ export interface IFileStatResult {
 export interface IFileStatResultWithMetadata extends IFileStatResult {
     readonly stat?: IFileStatWithMetadata;
 }
-export interface IFileStatWithPartialMetadata extends Omit<IFileStatWithMetadata, "children"> {
+export interface IFileStatWithPartialMetadata extends Omit<IFileStatWithMetadata, 'children'> {
 }
 export interface IFileContent extends IBaseFileStatWithMetadata {
     /**
@@ -1003,7 +1003,7 @@ export interface IFilesConfigurationNode {
     eol: string;
     enableTrash: boolean;
     hotExit: string;
-    saveConflictResolution: "askUser" | "overwriteFileOnDisk";
+    saveConflictResolution: 'askUser' | 'overwriteFileOnDisk';
     readonlyInclude: IGlobPatterns;
     readonlyExclude: IGlobPatterns;
     readonlyFromPermissions: boolean;

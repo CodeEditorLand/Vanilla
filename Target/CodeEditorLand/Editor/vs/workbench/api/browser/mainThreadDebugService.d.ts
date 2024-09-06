@@ -1,9 +1,9 @@
-import { UriComponents } from "../../../base/common/uri.js";
-import { IWorkspaceFolder } from "../../../platform/workspace/common/workspace.js";
-import { DebugConfigurationProviderTriggerKind, IConfig, IDebugAdapter, IDebugAdapterFactory, IDebugService, IDebugSession } from "../../contrib/debug/common/debug.js";
-import { IDebugVisualizerService } from "../../contrib/debug/common/debugVisualizers.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { DebugSessionUUID, IDataBreakpointDto, IDebugConfiguration, IDebugSessionDto, IFunctionBreakpointDto, ISourceMultiBreakpointDto, IStartDebuggingOptions, MainThreadDebugServiceShape } from "../common/extHost.protocol.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import { IDebugService, IConfig, IDebugAdapter, IDebugSession, IDebugAdapterFactory, DebugConfigurationProviderTriggerKind } from '../../contrib/debug/common/debug.js';
+import { MainThreadDebugServiceShape, DebugSessionUUID, ISourceMultiBreakpointDto, IFunctionBreakpointDto, IDebugSessionDto, IDataBreakpointDto, IStartDebuggingOptions, IDebugConfiguration } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IWorkspaceFolder } from '../../../platform/workspace/common/workspace.js';
+import { IDebugVisualizerService } from '../../contrib/debug/common/debugVisualizers.js';
 export declare class MainThreadDebugService implements MainThreadDebugServiceShape, IDebugAdapterFactory {
     private readonly debugService;
     private readonly visualizerService;

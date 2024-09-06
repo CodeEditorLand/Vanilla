@@ -1,9 +1,9 @@
-import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
-import { IIdentityProvider, IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
-import { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
-import { IAsyncDataSource, ITreeNode, ITreeRenderer, ITreeSorter } from "../../../../base/browser/ui/tree/tree.js";
-import { FuzzyScore } from "../../../../base/common/filters.js";
-import { TypeHierarchyDirection, TypeHierarchyItem, TypeHierarchyModel } from "../common/typeHierarchy.js";
+import { IAsyncDataSource, ITreeRenderer, ITreeNode, ITreeSorter } from '../../../../base/browser/ui/tree/tree.js';
+import { TypeHierarchyDirection, TypeHierarchyItem, TypeHierarchyModel } from '../common/typeHierarchy.js';
+import { IIdentityProvider, IListVirtualDelegate } from '../../../../base/browser/ui/list/list.js';
+import { FuzzyScore } from '../../../../base/common/filters.js';
+import { IconLabel } from '../../../../base/browser/ui/iconLabel/iconLabel.js';
+import { IListAccessibilityProvider } from '../../../../base/browser/ui/list/listWidget.js';
 export declare class Type {
     readonly item: TypeHierarchyItem;
     readonly model: TypeHierarchyModel;

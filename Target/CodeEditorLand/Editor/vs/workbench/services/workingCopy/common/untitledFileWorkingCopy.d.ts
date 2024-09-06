@@ -1,14 +1,14 @@
-import { VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ISaveOptions } from "../../../common/editor.js";
-import { IFileWorkingCopy, IFileWorkingCopyModel, IFileWorkingCopyModelFactory } from "./fileWorkingCopy.js";
-import { IWorkingCopyBackup, IWorkingCopySaveEvent } from "./workingCopy.js";
-import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
-import { IWorkingCopyService } from "./workingCopyService.js";
+import { Event } from '../../../../base/common/event.js';
+import { VSBufferReadableStream } from '../../../../base/common/buffer.js';
+import { IWorkingCopyBackup, IWorkingCopySaveEvent } from './workingCopy.js';
+import { IFileWorkingCopy, IFileWorkingCopyModel, IFileWorkingCopyModelFactory } from './fileWorkingCopy.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IWorkingCopyService } from './workingCopyService.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ISaveOptions } from '../../../common/editor.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IWorkingCopyBackupService } from './workingCopyBackup.js';
 /**
  * Untitled file specific working copy model factory.
  */

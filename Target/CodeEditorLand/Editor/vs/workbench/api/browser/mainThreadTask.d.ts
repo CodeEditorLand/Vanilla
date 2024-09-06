@@ -1,10 +1,10 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IWorkspaceContextService } from "../../../platform/workspace/common/workspace.js";
-import { ITaskService } from "../../contrib/tasks/common/taskService.js";
-import { IConfigurationResolverService } from "../../services/configurationResolver/common/configurationResolver.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { MainThreadTaskShape } from "../common/extHost.protocol.js";
-import { ITaskDTO, ITaskExecutionDTO, ITaskFilterDTO, ITaskHandleDTO, ITaskSystemInfoDTO } from "../common/shared/tasks.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IWorkspaceContextService } from '../../../platform/workspace/common/workspace.js';
+import { ITaskService } from '../../contrib/tasks/common/taskService.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { MainThreadTaskShape } from '../common/extHost.protocol.js';
+import { ITaskExecutionDTO, ITaskDTO, ITaskHandleDTO, ITaskFilterDTO, ITaskSystemInfoDTO } from '../common/shared/tasks.js';
+import { IConfigurationResolverService } from '../../services/configurationResolver/common/configurationResolver.js';
 export declare class MainThreadTask extends Disposable implements MainThreadTaskShape {
     private readonly _taskService;
     private readonly _workspaceContextServer;

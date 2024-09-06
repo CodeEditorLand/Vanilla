@@ -1,8 +1,8 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
-import { ActionSet } from "../../../../platform/actionWidget/common/actionWidget.js";
-import { Position } from "../../../common/core/position.js";
-import * as languages from "../../../common/languages.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { HierarchicalKind } from '../../../../base/common/hierarchicalKind.js';
+import { Position } from '../../../common/core/position.js';
+import * as languages from '../../../common/languages.js';
+import { ActionSet } from '../../../../platform/actionWidget/common/actionWidget.js';
 export declare const CodeActionKind: {
     readonly QuickFix: HierarchicalKind;
     readonly Refactor: HierarchicalKind;

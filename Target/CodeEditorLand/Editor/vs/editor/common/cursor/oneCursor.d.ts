@@ -1,9 +1,9 @@
-import { Selection } from "../core/selection.js";
-import { CursorState, SingleCursorState } from "../cursorCommon.js";
-import { CursorContext } from "./cursorContext.js";
+import { CursorState, SingleCursorState } from '../cursorCommon.js';
+import { CursorContext } from './cursorContext.js';
+import { Selection } from '../core/selection.js';
 /**
  * Represents a single cursor.
- */
+*/
 export declare class Cursor {
     modelState: SingleCursorState;
     viewState: SingleCursorState;

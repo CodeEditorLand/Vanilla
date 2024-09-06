@@ -1,9 +1,9 @@
-import { IStorageService } from "../../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { BaseBinaryResourceEditor } from "../../../../browser/parts/editor/binaryEditor.js";
-import { IEditorGroup } from "../../../../services/editor/common/editorGroupsService.js";
-import { IEditorResolverService } from "../../../../services/editor/common/editorResolverService.js";
+import { BaseBinaryResourceEditor } from '../../../../browser/parts/editor/binaryEditor.js';
+import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { IStorageService } from '../../../../../platform/storage/common/storage.js';
+import { IEditorResolverService } from '../../../../services/editor/common/editorResolverService.js';
+import { IEditorGroup } from '../../../../services/editor/common/editorGroupsService.js';
 /**
  * An implementation of editor for binary files that cannot be displayed.
  */

@@ -1,7 +1,7 @@
-import { Emitter } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { NotebookLayoutChangeEvent, NotebookLayoutInfo } from "../notebookViewEvents.js";
-import { IDiffElementLayoutInfo } from "./notebookDiffEditorBrowser.js";
+import { Emitter } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IDiffElementLayoutInfo } from './notebookDiffEditorBrowser.js';
+import { NotebookLayoutChangeEvent, NotebookLayoutInfo } from '../notebookViewEvents.js';
 export declare enum NotebookDiffViewEventType {
     LayoutChanged = 1,
     CellLayoutChanged = 2

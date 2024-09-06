@@ -1,12 +1,12 @@
-import { SequencerByKey } from "../../../base/common/async.js";
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IEncryptionService } from "../../encryption/common/encryptionService.js";
-import { ILogService } from "../../log/common/log.js";
-import { IStorageService } from "../../storage/common/storage.js";
+import { SequencerByKey } from '../../../base/common/async.js';
+import { IEncryptionService } from '../../encryption/common/encryptionService.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { Emitter, Event } from '../../../base/common/event.js';
+import { ILogService } from '../../log/common/log.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
 export declare const ISecretStorageService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ISecretStorageService>;
 export interface ISecretStorageProvider {
-    type: "in-memory" | "persisted" | "unknown";
+    type: 'in-memory' | 'persisted' | 'unknown';
     get(key: string): Promise<string | undefined>;
     set(key: string, value: string): Promise<void>;
     delete(key: string): Promise<void>;

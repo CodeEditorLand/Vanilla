@@ -224,7 +224,7 @@ export declare const enum GraphemeBreakType {
 /**
  * Computes the offset after performing a left delete on the given string,
  * while considering unicode grapheme/emoji rules.
- */
+*/
 export declare function getLeftDeleteOffset(offset: number, str: string): number;
 export declare const noBreakWhitespace = "\u00A0";
 export declare class AmbiguousCharacters {

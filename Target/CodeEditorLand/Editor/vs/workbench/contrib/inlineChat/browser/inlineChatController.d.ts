@@ -1,23 +1,23 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { IPosition, Position } from "../../../../editor/common/core/position.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { ISelection } from "../../../../editor/common/core/selection.js";
-import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
-import { TextEdit } from "../../../../editor/common/languages.js";
-import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IChatService } from "../../chat/common/chatService.js";
-import { INotebookEditorService } from "../../notebook/browser/services/notebookEditorService.js";
-import { IInlineChatSavingService } from "./inlineChatSavingService.js";
-import { HunkInformation, Session } from "./inlineChatSession.js";
-import { IInlineChatSessionService } from "./inlineChatSessionService.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Emitter, Event } from '../../../../base/common/event.js';
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { IPosition, Position } from '../../../../editor/common/core/position.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { ISelection } from '../../../../editor/common/core/selection.js';
+import { IEditorContribution } from '../../../../editor/common/editorCommon.js';
+import { TextEdit } from '../../../../editor/common/languages.js';
+import { IEditorWorkerService } from '../../../../editor/common/services/editorWorker.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IChatService } from '../../chat/common/chatService.js';
+import { HunkInformation, Session } from './inlineChatSession.js';
+import { INotebookEditorService } from '../../notebook/browser/services/notebookEditorService.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IInlineChatSavingService } from './inlineChatSavingService.js';
+import { IInlineChatSessionService } from './inlineChatSessionService.js';
 export declare const enum State {
     CREATE_SESSION = "CREATE_SESSION",
     INIT_UI = "INIT_UI",

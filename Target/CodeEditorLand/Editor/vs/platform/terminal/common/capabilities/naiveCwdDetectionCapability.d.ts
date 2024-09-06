@@ -1,5 +1,5 @@
-import { ITerminalChildProcess } from "../terminal.js";
-import { INaiveCwdDetectionCapability, TerminalCapability } from "./capabilities.js";
+import { ITerminalChildProcess } from '../terminal.js';
+import { TerminalCapability, INaiveCwdDetectionCapability } from './capabilities.js';
 export declare class NaiveCwdDetectionCapability implements INaiveCwdDetectionCapability {
     private readonly _process;
     constructor(_process: ITerminalChildProcess);

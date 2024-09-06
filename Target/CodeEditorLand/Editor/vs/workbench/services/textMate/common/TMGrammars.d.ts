@@ -1,4 +1,4 @@
-import { IExtensionPoint } from "../../extensions/common/extensionsRegistry.js";
+import { IExtensionPoint } from '../../extensions/common/extensionsRegistry.js';
 export interface IEmbeddedLanguagesMap {
     [scopeName: string]: string;
 }

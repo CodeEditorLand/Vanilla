@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
-import { ITerminalInstance } from "../../terminal/browser/terminal.js";
-import { ITerminalStatus } from "../../terminal/common/terminal.js";
-import { AbstractProblemCollector } from "../common/problemCollectors.js";
-import { ITaskService, Task } from "../common/taskService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { AbstractProblemCollector } from '../common/problemCollectors.js';
+import { ITaskService, Task } from '../common/taskService.js';
+import { ITerminalInstance } from '../../terminal/browser/terminal.js';
+import { IAccessibilitySignalService } from '../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
+import { ITerminalStatus } from '../../terminal/common/terminal.js';
 export declare const ACTIVE_TASK_STATUS: ITerminalStatus;
 export declare const SUCCEEDED_TASK_STATUS: ITerminalStatus;
 export declare const FAILED_TASK_STATUS: ITerminalStatus;

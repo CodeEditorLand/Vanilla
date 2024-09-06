@@ -1,4 +1,4 @@
-import { URI } from "../../../../base/common/uri.js";
+import { URI } from '../../../../base/common/uri.js';
 export declare class StickyRange {
     readonly startLineNumber: number;
     readonly endLineNumber: number;
@@ -11,7 +11,7 @@ export declare class StickyElement {
     readonly range: StickyRange | undefined;
     /**
      * Must be sorted by start line number
-     */
+    */
     readonly children: StickyElement[];
     /**
      * Parent sticky outline element
@@ -24,7 +24,7 @@ export declare class StickyElement {
     range: StickyRange | undefined, 
     /**
      * Must be sorted by start line number
-     */
+    */
     children: StickyElement[], 
     /**
      * Parent sticky outline element

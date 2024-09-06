@@ -1,8 +1,8 @@
-import { IOffsetRange, OffsetRange } from "../../../../editor/common/core/offsetRange.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { ChatAgentLocation, IChatAgentCommand, IChatAgentData, IChatAgentService } from "./chatAgents.js";
-import { IChatSlashData } from "./chatSlashCommands.js";
-import { IChatRequestVariableValue } from "./chatVariables.js";
+import { IOffsetRange, OffsetRange } from '../../../../editor/common/core/offsetRange.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { ChatAgentLocation, IChatAgentCommand, IChatAgentData, IChatAgentService } from './chatAgents.js';
+import { IChatSlashData } from './chatSlashCommands.js';
+import { IChatRequestVariableValue } from './chatVariables.js';
 export interface IParsedChatRequest {
     readonly parts: ReadonlyArray<IParsedChatRequestPart>;
     readonly text: string;

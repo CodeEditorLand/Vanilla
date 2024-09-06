@@ -1,13 +1,13 @@
-import { VSBuffer } from "../../../base/common/buffer.js";
-import { Event } from "../../../base/common/event.js";
-import { URI } from "../../../base/common/uri.js";
-import { MessageBoxOptions, MessageBoxReturnValue, OpenDialogOptions, OpenDialogReturnValue, SaveDialogOptions, SaveDialogReturnValue } from "../../../base/parts/sandbox/common/electronTypes.js";
-import { ISerializableCommandAction } from "../../action/common/action.js";
-import { INativeOpenDialogOptions } from "../../dialogs/common/dialogs.js";
-import { IV8Profile } from "../../profiling/common/profiling.js";
-import { AuthInfo, Credentials } from "../../request/common/request.js";
-import { IPartsSplash } from "../../theme/common/themeService.js";
-import { IColorScheme, IOpenedAuxiliaryWindow, IOpenedMainWindow, IOpenEmptyWindowOptions, IOpenWindowOptions, IPoint, IRectangle, IWindowOpenable } from "../../window/common/window.js";
+import { VSBuffer } from '../../../base/common/buffer.js';
+import { Event } from '../../../base/common/event.js';
+import { URI } from '../../../base/common/uri.js';
+import { MessageBoxOptions, MessageBoxReturnValue, OpenDialogOptions, OpenDialogReturnValue, SaveDialogOptions, SaveDialogReturnValue } from '../../../base/parts/sandbox/common/electronTypes.js';
+import { ISerializableCommandAction } from '../../action/common/action.js';
+import { INativeOpenDialogOptions } from '../../dialogs/common/dialogs.js';
+import { IV8Profile } from '../../profiling/common/profiling.js';
+import { AuthInfo, Credentials } from '../../request/common/request.js';
+import { IPartsSplash } from '../../theme/common/themeService.js';
+import { IColorScheme, IOpenedAuxiliaryWindow, IOpenedMainWindow, IOpenEmptyWindowOptions, IOpenWindowOptions, IPoint, IRectangle, IWindowOpenable } from '../../window/common/window.js';
 export interface ICPUProperties {
     model: string;
     speed: number;
@@ -124,13 +124,13 @@ export interface ICommonNativeHostService {
     hasWSLFeatureInstalled(): Promise<boolean>;
     getProcessId(): Promise<number | undefined>;
     killProcess(pid: number, code: string): Promise<void>;
-    readClipboardText(type?: "selection" | "clipboard"): Promise<string>;
-    writeClipboardText(text: string, type?: "selection" | "clipboard"): Promise<void>;
+    readClipboardText(type?: 'selection' | 'clipboard'): Promise<string>;
+    writeClipboardText(text: string, type?: 'selection' | 'clipboard'): Promise<void>;
     readClipboardFindText(): Promise<string>;
     writeClipboardFindText(text: string): Promise<void>;
-    writeClipboardBuffer(format: string, buffer: VSBuffer, type?: "selection" | "clipboard"): Promise<void>;
+    writeClipboardBuffer(format: string, buffer: VSBuffer, type?: 'selection' | 'clipboard'): Promise<void>;
     readClipboardBuffer(format: string): Promise<VSBuffer>;
-    hasClipboard(format: string, type?: "selection" | "clipboard"): Promise<boolean>;
+    hasClipboard(format: string, type?: 'selection' | 'clipboard'): Promise<boolean>;
     newWindowTab(): Promise<void>;
     showPreviousWindowTab(): Promise<void>;
     showNextWindowTab(): Promise<void>;
@@ -159,7 +159,7 @@ export interface ICommonNativeHostService {
     lookupKerberosAuthorization(url: string): Promise<string | undefined>;
     loadCertificates(): Promise<string[]>;
     findFreePort(startPort: number, giveUpAfter: number, timeout: number, stride?: number): Promise<number>;
-    windowsGetStringRegKey(hive: "HKEY_CURRENT_USER" | "HKEY_LOCAL_MACHINE" | "HKEY_CLASSES_ROOT" | "HKEY_USERS" | "HKEY_CURRENT_CONFIG", path: string, name: string): Promise<string | undefined>;
+    windowsGetStringRegKey(hive: 'HKEY_CURRENT_USER' | 'HKEY_LOCAL_MACHINE' | 'HKEY_CLASSES_ROOT' | 'HKEY_USERS' | 'HKEY_CURRENT_CONFIG', path: string, name: string): Promise<string | undefined>;
 }
 export declare const INativeHostService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<INativeHostService>;
 /**

@@ -1,13 +1,13 @@
-import { IStringDictionary } from "../../../base/common/collections.js";
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../base/common/map.js";
-import { URI, UriDto } from "../../../base/common/uri.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IFileService } from "../../files/common/files.js";
-import { ILogService } from "../../log/common/log.js";
-import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { Emitter, Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI, UriDto } from '../../../base/common/uri.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IFileService } from '../../files/common/files.js';
+import { ILogService } from '../../log/common/log.js';
+import { IAnyWorkspaceIdentifier } from '../../workspace/common/workspace.js';
+import { ResourceMap } from '../../../base/common/map.js';
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { IUriIdentityService } from '../../uriIdentity/common/uriIdentity.js';
 export declare const enum ProfileResourceType {
     Settings = "settings",
     Keybindings = "keybindings",
@@ -61,7 +61,7 @@ export interface IUserDataProfileOptions {
     readonly useDefaultFlags?: UseDefaultProfileFlags;
     readonly transient?: boolean;
 }
-export interface IUserDataProfileUpdateOptions extends Omit<IUserDataProfileOptions, "icon"> {
+export interface IUserDataProfileUpdateOptions extends Omit<IUserDataProfileOptions, 'icon'> {
     readonly name?: string;
     readonly icon?: string | null;
 }

@@ -1,1 +1,1 @@
-import "./tabCompletion.js";
+import './tabCompletion.js';

@@ -1,7 +1,7 @@
-import { URI } from "../../../../base/common/uri.js";
-import { IResourceEditorInput } from "../../../../platform/editor/common/editor.js";
-import { GroupIdentifier } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IResourceEditorInput } from '../../../../platform/editor/common/editor.js';
+import { GroupIdentifier } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { URI } from '../../../../base/common/uri.js';
 export declare const IHistoryService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IHistoryService>;
 /**
  * Limit editor navigation to certain kinds.

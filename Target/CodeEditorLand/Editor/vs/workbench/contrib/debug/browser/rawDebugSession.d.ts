@@ -1,11 +1,11 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { IExtensionHostDebugService } from "../../../../platform/debug/common/extensionHostDebug.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { AdapterEndEvent, IConfig, IDebugAdapter, IDebugger } from "../common/debug.js";
+import { Event } from '../../../../base/common/event.js';
+import { IDebugAdapter, IConfig, AdapterEndEvent, IDebugger } from '../common/debug.js';
+import { IExtensionHostDebugService } from '../../../../platform/debug/common/extensionHostDebug.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
 /**
  * Encapsulates the DebugAdapter lifecycle and some idiosyncrasies of the Debug Adapter Protocol.
  */

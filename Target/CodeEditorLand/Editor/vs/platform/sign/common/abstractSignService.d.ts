@@ -1,10 +1,10 @@
-import { IMessage, ISignService } from "./sign.js";
+import { IMessage, ISignService } from './sign.js';
 export interface IVsdaSigner {
     sign(arg: string): string;
 }
 export interface IVsdaValidator {
     createNewMessage(arg: string): string;
-    validate(arg: string): "ok" | "error";
+    validate(arg: string): 'ok' | 'error';
     dispose?(): void;
 }
 export declare abstract class AbstractSignService implements ISignService {

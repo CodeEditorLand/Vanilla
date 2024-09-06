@@ -1,7 +1,7 @@
-import { HoverAction } from "../../../../base/browser/ui/hover/hoverWidget.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { IEditorHoverAction, IEditorHoverStatusBar } from "./hoverTypes.js";
+import { HoverAction } from '../../../../base/browser/ui/hover/hoverWidget.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IEditorHoverAction, IEditorHoverStatusBar } from './hoverTypes.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 export declare class EditorHoverStatusBar extends Disposable implements IEditorHoverStatusBar {
     private readonly _keybindingService;
     readonly hoverElement: HTMLElement;

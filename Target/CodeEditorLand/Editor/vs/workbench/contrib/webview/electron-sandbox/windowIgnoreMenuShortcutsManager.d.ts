@@ -1,6 +1,6 @@
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IMainProcessService } from '../../../../platform/ipc/common/mainProcessService.js';
+import { INativeHostService } from '../../../../platform/native/common/native.js';
 export declare class WindowIgnoreMenuShortcutsManager {
     private readonly _nativeHostService;
     private readonly _isUsingNativeTitleBars;

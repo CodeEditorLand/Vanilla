@@ -1,1 +1,1 @@
-import "./markersFileDecorations.js";
+import './markersFileDecorations.js';

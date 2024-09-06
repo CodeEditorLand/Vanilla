@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IDebugService } from "./debug.js";
+import { IDebugService } from './debug.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 export declare class DebugWatchAccessibilityAnnouncer extends Disposable implements IWorkbenchContribution {
     private readonly _debugService;
     private readonly _logService;

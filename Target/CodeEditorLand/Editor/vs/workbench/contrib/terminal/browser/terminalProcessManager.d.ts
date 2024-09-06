@@ -1,25 +1,25 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { OperatingSystem } from "../../../../base/common/platform.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { ISerializedCommandDetectionCapability } from "../../../../platform/terminal/common/capabilities/capabilities.js";
-import { TerminalCapabilityStore } from "../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";
-import { IEnvironmentVariableCollection, IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
-import { IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IReconnectionProperties, IShellLaunchConfig, ITerminalBackend, ITerminalLaunchError, ITerminalLogService, ProcessPropertyType } from "../../../../platform/terminal/common/terminal.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { IHistoryService } from "../../../services/history/common/history.js";
-import { IPathService } from "../../../services/path/common/pathService.js";
-import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
-import { IEnvironmentVariableInfo, IEnvironmentVariableService } from "../common/environmentVariable.js";
-import { IBeforeProcessDataEvent, ITerminalProcessManager, ITerminalProfileResolverService, ProcessState } from "../common/terminal.js";
-import { ITerminalConfigurationService, ITerminalInstanceService } from "./terminal.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { OperatingSystem } from '../../../../base/common/platform.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { ISerializedCommandDetectionCapability } from '../../../../platform/terminal/common/capabilities/capabilities.js';
+import { TerminalCapabilityStore } from '../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js';
+import { IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IReconnectionProperties, IShellLaunchConfig, ITerminalBackend, ITerminalLaunchError, ITerminalLogService, ProcessPropertyType } from '../../../../platform/terminal/common/terminal.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { ITerminalConfigurationService, ITerminalInstanceService } from './terminal.js';
+import { IEnvironmentVariableInfo, IEnvironmentVariableService } from '../common/environmentVariable.js';
+import { IBeforeProcessDataEvent, ITerminalProcessManager, ITerminalProfileResolverService, ProcessState } from '../common/terminal.js';
+import { IConfigurationResolverService } from '../../../services/configurationResolver/common/configurationResolver.js';
+import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
+import { IHistoryService } from '../../../services/history/common/history.js';
+import { IPathService } from '../../../services/path/common/pathService.js';
+import { IRemoteAgentService } from '../../../services/remote/common/remoteAgentService.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IEnvironmentVariableCollection, IMergedEnvironmentVariableCollection } from '../../../../platform/terminal/common/environmentVariable.js';
 /**
  * Holds all state related to the creation and management of terminal processes.
  *
@@ -119,7 +119,7 @@ export declare class TerminalProcessManager extends Disposable implements ITermi
     setDimensions(cols: number, rows: number): Promise<void>;
     setDimensions(cols: number, rows: number, sync: false): Promise<void>;
     setDimensions(cols: number, rows: number, sync: true): void;
-    setUnicodeVersion(version: "6" | "11"): Promise<void>;
+    setUnicodeVersion(version: '6' | '11'): Promise<void>;
     private _resize;
     write(data: string): Promise<void>;
     processBinary(data: string): Promise<void>;

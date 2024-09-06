@@ -1,5 +1,5 @@
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { InputNumber } from "./model/modifiedBaseRange.js";
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { InputNumber } from './model/modifiedBaseRange.js';
 export declare class MergeEditorTelemetry {
     private readonly telemetryService;
     constructor(telemetryService: ITelemetryService);

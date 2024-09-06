@@ -1,5 +1,5 @@
-import { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
-import { ISyncUserDataProfile } from "./userDataSync.js";
+import { IUserDataProfile } from '../../userDataProfile/common/userDataProfile.js';
+import { ISyncUserDataProfile } from './userDataSync.js';
 interface IRelaxedMergeResult {
     local: {
         added: ISyncUserDataProfile[];

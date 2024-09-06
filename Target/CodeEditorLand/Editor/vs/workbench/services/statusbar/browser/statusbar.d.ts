@@ -1,9 +1,9 @@
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
-import { ThemeColor } from "../../../../base/common/themables.js";
-import { Command } from "../../../../editor/common/languages.js";
-import { ColorIdentifier } from "../../../../platform/theme/common/colorRegistry.js";
-import { IAuxiliaryStatusbarPart, IStatusbarEntryContainer } from "../../../browser/parts/statusbar/statusbarPart.js";
+import { DisposableStore, IDisposable } from '../../../../base/common/lifecycle.js';
+import { ThemeColor } from '../../../../base/common/themables.js';
+import { Command } from '../../../../editor/common/languages.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { ColorIdentifier } from '../../../../platform/theme/common/colorRegistry.js';
+import { IAuxiliaryStatusbarPart, IStatusbarEntryContainer } from '../../../browser/parts/statusbar/statusbarPart.js';
 export declare const IStatusbarService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IStatusbarService>;
 export interface IStatusbarService extends IStatusbarEntryContainer {
     readonly _serviceBrand: undefined;
@@ -72,7 +72,7 @@ export interface IStatusbarStyleOverride {
     readonly background?: ColorIdentifier;
     readonly border?: ColorIdentifier;
 }
-export type StatusbarEntryKind = "standard" | "warning" | "error" | "prominent" | "remote" | "offline";
+export type StatusbarEntryKind = 'standard' | 'warning' | 'error' | 'prominent' | 'remote' | 'offline';
 export declare const StatusbarEntryKinds: StatusbarEntryKind[];
 /**
  * A declarative way of describing a status bar entry
@@ -129,7 +129,7 @@ export interface IStatusbarEntry {
      * Will enable a spinning icon in front of the text to indicate progress. When `true` is
      * specified, `loading` will be used.
      */
-    readonly showProgress?: boolean | "loading" | "syncing";
+    readonly showProgress?: boolean | 'loading' | 'syncing';
     /**
      * The kind of status bar entry. This applies different colors to the entry.
      */

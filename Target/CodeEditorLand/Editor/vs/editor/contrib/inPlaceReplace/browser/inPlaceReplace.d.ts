@@ -1,1 +1,1 @@
-import "./inPlaceReplace.css";
+import './inPlaceReplace.css';

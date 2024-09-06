@@ -1,7 +1,7 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { IUserDataProfileImportExportService } from "../../services/userDataProfile/common/userDataProfile.js";
-import { MainThreadProfileContentHandlersShape } from "../common/extHost.protocol.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { MainThreadProfileContentHandlersShape } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IUserDataProfileImportExportService } from '../../services/userDataProfile/common/userDataProfile.js';
 export declare class MainThreadProfileContentHandlers extends Disposable implements MainThreadProfileContentHandlersShape {
     private readonly userDataProfileImportExportService;
     private readonly proxy;

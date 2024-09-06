@@ -1,7 +1,7 @@
-import { ThemeIcon } from "../../../common/themables.js";
-import { Widget } from "../widget.js";
-import "./radio.css";
-import { IHoverDelegate } from "../hover/hoverDelegate.js";
+import { Widget } from '../widget.js';
+import { ThemeIcon } from '../../../common/themables.js';
+import './radio.css';
+import { IHoverDelegate } from '../hover/hoverDelegate.js';
 export interface IRadioStyles {
     readonly activeForeground?: string;
     readonly activeBackground?: string;

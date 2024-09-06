@@ -1,10 +1,10 @@
-import { Color } from "../../../base/common/color.js";
-import { Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { ColorIdentifier } from "./colorRegistry.js";
-import { IconContribution, IconDefinition } from "./iconRegistry.js";
-import { ColorScheme } from "./theme.js";
+import { Color } from '../../../base/common/color.js';
+import { Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { ColorIdentifier } from './colorRegistry.js';
+import { IconContribution, IconDefinition } from './iconRegistry.js';
+import { ColorScheme } from './theme.js';
 export declare const IThemeService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IThemeService>;
 export declare function themeColorFromId(id: ColorIdentifier): {
     id: string;

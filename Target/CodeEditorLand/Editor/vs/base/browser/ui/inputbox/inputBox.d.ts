@@ -1,9 +1,9 @@
-import { IAction } from "../../../common/actions.js";
-import { Event } from "../../../common/event.js";
-import { IHistoryNavigationWidget } from "../../history.js";
-import { IContextViewProvider } from "../contextview/contextview.js";
-import { Widget } from "../widget.js";
-import "./inputBox.css";
+import { IHistoryNavigationWidget } from '../../history.js';
+import { IContextViewProvider } from '../contextview/contextview.js';
+import { Widget } from '../widget.js';
+import { IAction } from '../../../common/actions.js';
+import { Event } from '../../../common/event.js';
+import './inputBox.css';
 export interface IInputOptions {
     readonly placeholder?: string;
     readonly showPlaceholderOnFocus?: boolean;

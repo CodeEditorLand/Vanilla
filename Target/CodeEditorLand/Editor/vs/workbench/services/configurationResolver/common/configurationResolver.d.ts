@@ -1,8 +1,8 @@
-import { IStringDictionary } from "../../../../base/common/collections.js";
-import { ErrorNoTelemetry } from "../../../../base/common/errors.js";
-import { IProcessEnvironment } from "../../../../base/common/platform.js";
-import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
-import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { IStringDictionary } from '../../../../base/common/collections.js';
+import { IWorkspaceFolder } from '../../../../platform/workspace/common/workspace.js';
+import { ConfigurationTarget } from '../../../../platform/configuration/common/configuration.js';
+import { IProcessEnvironment } from '../../../../base/common/platform.js';
+import { ErrorNoTelemetry } from '../../../../base/common/errors.js';
 export declare const IConfigurationResolverService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IConfigurationResolverService>;
 export interface IConfigurationResolverService {
     readonly _serviceBrand: undefined;
@@ -45,14 +45,14 @@ export interface IConfigurationResolverService {
 }
 interface PromptStringInputInfo {
     id: string;
-    type: "promptString";
+    type: 'promptString';
     description: string;
     default?: string;
     password?: boolean;
 }
 interface PickStringInputInfo {
     id: string;
-    type: "pickString";
+    type: 'pickString';
     description: string;
     options: (string | {
         value: string;
@@ -62,7 +62,7 @@ interface PickStringInputInfo {
 }
 interface CommandInputInfo {
     id: string;
-    type: "command";
+    type: 'command';
     command: string;
     args?: any;
 }

@@ -1,10 +1,10 @@
-import { Event } from "../../../common/event.js";
-import { IDisposable } from "../../../common/lifecycle.js";
-import { IContentActionHandler } from "../../formattedTextRenderer.js";
-import { IContextViewProvider } from "../contextview/contextview.js";
-import { IListStyles } from "../list/listWidget.js";
-import { Widget } from "../widget.js";
-import "./selectBox.css";
+import { IContentActionHandler } from '../../formattedTextRenderer.js';
+import { IContextViewProvider } from '../contextview/contextview.js';
+import { IListStyles } from '../list/listWidget.js';
+import { Widget } from '../widget.js';
+import { Event } from '../../../common/event.js';
+import { IDisposable } from '../../../common/lifecycle.js';
+import './selectBox.css';
 export interface ISelectBoxDelegate extends IDisposable {
     readonly onDidSelect: Event<ISelectData>;
     setOptions(options: ISelectOptionItem[], selected?: number): void;

@@ -1,4 +1,4 @@
-import { BareFontInfo } from "../../common/config/fontInfo.js";
+import { BareFontInfo } from '../../common/config/fontInfo.js';
 export declare const enum CharWidthRequestType {
     Regular = 0,
     Italic = 1,

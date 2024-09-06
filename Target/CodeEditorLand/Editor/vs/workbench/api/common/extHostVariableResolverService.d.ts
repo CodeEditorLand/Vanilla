@@ -1,10 +1,10 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IConfigurationResolverService } from "../../services/configurationResolver/common/configurationResolver.js";
-import { IExtHostConfiguration } from "./extHostConfiguration.js";
-import { IExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
-import { IExtHostEditorTabs } from "./extHostEditorTabs.js";
-import { IExtHostExtensionService } from "./extHostExtensionService.js";
-import { IExtHostWorkspace } from "./extHostWorkspace.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IExtHostDocumentsAndEditors } from './extHostDocumentsAndEditors.js';
+import { IExtHostEditorTabs } from './extHostEditorTabs.js';
+import { IExtHostExtensionService } from './extHostExtensionService.js';
+import { IExtHostWorkspace } from './extHostWorkspace.js';
+import { IConfigurationResolverService } from '../../services/configurationResolver/common/configurationResolver.js';
+import { IExtHostConfiguration } from './extHostConfiguration.js';
 export interface IExtHostVariableResolverProvider {
     readonly _serviceBrand: undefined;
     getResolver(): Promise<IConfigurationResolverService>;

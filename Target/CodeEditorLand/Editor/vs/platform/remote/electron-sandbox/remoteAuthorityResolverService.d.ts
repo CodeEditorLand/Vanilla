@@ -1,8 +1,8 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IProductService } from "../../product/common/productService.js";
-import { IRemoteAuthorityResolverService, IRemoteConnectionData, ResolvedAuthority, ResolvedOptions, ResolverResult } from "../common/remoteAuthorityResolver.js";
-import { ElectronRemoteResourceLoader } from "./electronRemoteResourceLoader.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IProductService } from '../../product/common/productService.js';
+import { IRemoteAuthorityResolverService, IRemoteConnectionData, ResolvedAuthority, ResolvedOptions, ResolverResult } from '../common/remoteAuthorityResolver.js';
+import { ElectronRemoteResourceLoader } from './electronRemoteResourceLoader.js';
 export declare class RemoteAuthorityResolverService extends Disposable implements IRemoteAuthorityResolverService {
     private readonly remoteResourceLoader;
     readonly _serviceBrand: undefined;

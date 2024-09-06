@@ -1,5 +1,5 @@
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IConfigurationNode } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IConfigurationNode } from '../../../../platform/configuration/common/configurationRegistry.js';
 export declare const enum TestingConfigKeys {
     AutoRunDelay = "testing.autoRun.delay",
     AutoOpenPeekView = "testing.automaticallyOpenPeekView",

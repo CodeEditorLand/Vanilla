@@ -1,9 +1,9 @@
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { IRequestHandler, IWorkerServer } from "../../../../../base/common/worker/simpleWorker.js";
-import { DefaultEndOfLine } from "../../../../../editor/common/model.js";
-import { IModelChangedEvent } from "../../../../../editor/common/model/mirrorTextModel.js";
-import { CellKind, IMainCellDto, INotebookDiffResult, IOutputDto, NotebookCellInternalMetadata, NotebookCellMetadata, NotebookCellsChangedEventDto, NotebookCellTextModelSplice, NotebookDocumentMetadata } from "../notebookCommon.js";
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { IRequestHandler, IWorkerServer } from '../../../../../base/common/worker/simpleWorker.js';
+import { CellKind, IMainCellDto, INotebookDiffResult, IOutputDto, NotebookCellInternalMetadata, NotebookCellMetadata, NotebookCellsChangedEventDto, NotebookCellTextModelSplice, NotebookDocumentMetadata } from '../notebookCommon.js';
+import { DefaultEndOfLine } from '../../../../../editor/common/model.js';
+import { IModelChangedEvent } from '../../../../../editor/common/model/mirrorTextModel.js';
 declare class MirrorCell {
     readonly handle: number;
     private readonly _eol;

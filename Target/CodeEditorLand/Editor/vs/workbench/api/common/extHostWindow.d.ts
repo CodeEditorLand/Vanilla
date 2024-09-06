@@ -1,8 +1,8 @@
-import { WindowState } from "vscode";
-import { Event } from "../../../base/common/event.js";
-import { URI } from "../../../base/common/uri.js";
-import { ExtHostWindowShape, IOpenUriOptions } from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import { Event } from '../../../base/common/event.js';
+import { URI } from '../../../base/common/uri.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { WindowState } from 'vscode';
+import { ExtHostWindowShape, IOpenUriOptions } from './extHost.protocol.js';
 export declare class ExtHostWindow implements ExtHostWindowShape {
     private static InitialState;
     private _proxy;

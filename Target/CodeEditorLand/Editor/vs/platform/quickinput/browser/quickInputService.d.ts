@@ -1,13 +1,13 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IContextKeyService } from "../../contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { ILayoutService } from "../../layout/browser/layoutService.js";
-import { IThemeService, Themable } from "../../theme/common/themeService.js";
-import { IQuickAccessController } from "../common/quickAccess.js";
-import { IInputBox, IInputOptions, IKeyMods, IPickOptions, IQuickInputButton, IQuickInputService, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, IQuickWidget, QuickPickInput } from "../common/quickInput.js";
-import { IQuickInputOptions } from "./quickInput.js";
-import { IQuickInputControllerHost, QuickInputController } from "./quickInputController.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IContextKeyService } from '../../contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../instantiation/common/instantiation.js';
+import { ILayoutService } from '../../layout/browser/layoutService.js';
+import { IQuickAccessController } from '../common/quickAccess.js';
+import { IInputBox, IInputOptions, IKeyMods, IPickOptions, IQuickInputButton, IQuickInputService, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, IQuickWidget, QuickPickInput } from '../common/quickInput.js';
+import { IThemeService, Themable } from '../../theme/common/themeService.js';
+import { IQuickInputOptions } from './quickInput.js';
+import { QuickInputController, IQuickInputControllerHost } from './quickInputController.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
 export declare class QuickInputService extends Themable implements IQuickInputService {
     private readonly instantiationService;
     protected readonly contextKeyService: IContextKeyService;

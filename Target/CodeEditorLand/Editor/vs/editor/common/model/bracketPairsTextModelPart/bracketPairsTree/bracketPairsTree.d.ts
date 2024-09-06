@@ -1,11 +1,11 @@
-import { CallbackIterable } from "../../../../../base/common/arrays.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { Position } from "../../../core/position.js";
-import { Range } from "../../../core/range.js";
-import { ResolvedLanguageConfiguration } from "../../../languages/languageConfigurationRegistry.js";
-import { BracketInfo, BracketPairWithMinIndentationInfo, IFoundBracket } from "../../../textModelBracketPairs.js";
-import { IModelContentChangedEvent, IModelTokensChangedEvent } from "../../../textModelEvents.js";
-import { TextModel } from "../../textModel.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { Range } from '../../../core/range.js';
+import { BracketInfo, BracketPairWithMinIndentationInfo, IFoundBracket } from '../../../textModelBracketPairs.js';
+import { TextModel } from '../../textModel.js';
+import { IModelContentChangedEvent, IModelTokensChangedEvent } from '../../../textModelEvents.js';
+import { ResolvedLanguageConfiguration } from '../../../languages/languageConfigurationRegistry.js';
+import { Position } from '../../../core/position.js';
+import { CallbackIterable } from '../../../../../base/common/arrays.js';
 export declare class BracketPairsTree extends Disposable {
     private readonly textModel;
     private readonly getLanguageConfiguration;
@@ -26,7 +26,7 @@ export declare class BracketPairsTree extends Disposable {
     private flushQueue;
     /**
      * @pure (only if isPure = true)
-     */
+    */
     private parseDocumentFromTextBuffer;
     getBracketsInRange(range: Range, onlyColorizedBrackets: boolean): CallbackIterable<BracketInfo>;
     getBracketPairsInRange(range: Range, includeMinIndentation: boolean): CallbackIterable<BracketPairWithMinIndentationInfo>;

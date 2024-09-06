@@ -1,4 +1,4 @@
-import { Event } from "./event.js";
+import { Event } from './event.js';
 export interface ISplice<T> {
     readonly start: number;
     readonly deleteCount: number;

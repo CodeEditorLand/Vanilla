@@ -1,5 +1,5 @@
-import { OffsetRange } from "./offsetRange.js";
-import { Range } from "./range.js";
+import { OffsetRange } from './offsetRange.js';
+import { Range } from './range.js';
 /**
  * A range of lines (1-based).
  */
@@ -59,7 +59,7 @@ export declare class LineRange {
     toInclusiveRange(): Range | null;
     /**
      * @deprecated Using this function is discouraged because it might lead to bugs: The end position is not guaranteed to be a valid position!
-     */
+    */
     toExclusiveRange(): Range;
     mapToLineArray<T>(f: (lineNumber: number) => T): T[];
     forEach(f: (lineNumber: number) => void): void;
@@ -74,10 +74,7 @@ export declare class LineRange {
      */
     toOffsetRange(): OffsetRange;
 }
-export type ISerializedLineRange = [
-    startLineNumber: number,
-    endLineNumberExclusive: number
-];
+export type ISerializedLineRange = [startLineNumber: number, endLineNumberExclusive: number];
 export declare class LineRangeSet {
     /**
      * Sorted by start line number.

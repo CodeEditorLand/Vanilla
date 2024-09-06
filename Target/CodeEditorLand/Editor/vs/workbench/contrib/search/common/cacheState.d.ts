@@ -1,4 +1,4 @@
-import { IFileQuery } from "../../../services/search/common/search.js";
+import { IFileQuery } from '../../../services/search/common/search.js';
 export declare class FileQueryCacheState {
     private cacheQuery;
     private loadFn;

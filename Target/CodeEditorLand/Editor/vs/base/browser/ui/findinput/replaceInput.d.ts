@@ -1,11 +1,11 @@
-import { Event } from "../../../common/event.js";
-import { IKeyboardEvent } from "../../keyboardEvent.js";
-import { IMouseEvent } from "../../mouseEvent.js";
-import { IContextViewProvider } from "../contextview/contextview.js";
-import { HistoryInputBox, IInputBoxStyles, IInputValidator, IMessage as InputBoxMessage } from "../inputbox/inputBox.js";
-import { IToggleStyles } from "../toggle/toggle.js";
-import { Widget } from "../widget.js";
-import "./findInput.css";
+import { IKeyboardEvent } from '../../keyboardEvent.js';
+import { IMouseEvent } from '../../mouseEvent.js';
+import { IToggleStyles } from '../toggle/toggle.js';
+import { IContextViewProvider } from '../contextview/contextview.js';
+import { HistoryInputBox, IInputBoxStyles, IInputValidator, IMessage as InputBoxMessage } from '../inputbox/inputBox.js';
+import { Widget } from '../widget.js';
+import { Event } from '../../../common/event.js';
+import './findInput.css';
 export interface IReplaceInputOptions {
     readonly placeholder?: string;
     readonly width?: number;

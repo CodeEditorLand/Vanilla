@@ -1,12 +1,12 @@
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { Range } from "../../../../../editor/common/core/range.js";
-import { ILanguageService } from "../../../../../editor/common/languages/language.js";
-import * as model from "../../../../../editor/common/model.js";
-import { TextModel } from "../../../../../editor/common/model/textModel.js";
-import { ILanguageDetectionService } from "../../../../services/languageDetection/common/languageDetectionWorkerService.js";
-import { CellInternalMetadataChangedEvent, CellKind, ICell, ICellDto2, ICellOutput, IOutputDto, IOutputItemDto, NotebookCellCollapseState, NotebookCellInternalMetadata, NotebookCellMetadata, NotebookCellOutputsSplice, TransientCellMetadata, TransientOptions } from "../notebookCommon.js";
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { Range } from '../../../../../editor/common/core/range.js';
+import * as model from '../../../../../editor/common/model.js';
+import { TextModel } from '../../../../../editor/common/model/textModel.js';
+import { ILanguageService } from '../../../../../editor/common/languages/language.js';
+import { CellInternalMetadataChangedEvent, CellKind, ICell, ICellDto2, ICellOutput, IOutputDto, IOutputItemDto, NotebookCellCollapseState, NotebookCellInternalMetadata, NotebookCellMetadata, NotebookCellOutputsSplice, TransientCellMetadata, TransientOptions } from '../notebookCommon.js';
+import { ILanguageDetectionService } from '../../../../services/languageDetection/common/languageDetectionWorkerService.js';
 export declare class NotebookCellTextModel extends Disposable implements ICell {
     readonly uri: URI;
     readonly handle: number;
@@ -23,7 +23,7 @@ export declare class NotebookCellTextModel extends Disposable implements ICell {
     private readonly _onDidChangeOutputItems;
     readonly onDidChangeOutputItems: Event<void>;
     private readonly _onDidChangeContent;
-    readonly onDidChangeContent: Event<"content" | "language" | "mime">;
+    readonly onDidChangeContent: Event<'content' | 'language' | 'mime'>;
     private readonly _onDidChangeMetadata;
     readonly onDidChangeMetadata: Event<void>;
     private readonly _onDidChangeInternalMetadata;

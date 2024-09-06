@@ -1,4 +1,4 @@
-import { Transform } from "stream";
+import { Transform } from 'stream';
 /**
  * A Transform stream that splits the input on the "splitter" substring.
  * The resulting chunks will contain (and trail with) the splitter match.

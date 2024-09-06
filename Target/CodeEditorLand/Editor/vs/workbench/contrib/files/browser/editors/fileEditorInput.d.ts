@@ -1,20 +1,20 @@
-import { IMarkdownString } from "../../../../../base/common/htmlContent.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
-import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
-import { ITextResourceEditorInput } from "../../../../../platform/editor/common/editor.js";
-import { IFileService } from "../../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { EditorInputCapabilities, GroupIdentifier, IEditorDescriptor, IEditorPane, IFileEditorInput, IFileEditorInputOptions, IMoveResult, IUntypedEditorInput, Verbosity } from "../../../../common/editor.js";
-import { BinaryEditorModel } from "../../../../common/editor/binaryEditorModel.js";
-import { EditorInput, IUntypedEditorOptions } from "../../../../common/editor/editorInput.js";
-import { AbstractTextResourceEditorInput } from "../../../../common/editor/textResourceEditorInput.js";
-import { ICustomEditorLabelService } from "../../../../services/editor/common/customEditorLabelService.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { IFilesConfigurationService } from "../../../../services/filesConfiguration/common/filesConfigurationService.js";
-import { IPathService } from "../../../../services/path/common/pathService.js";
-import { EncodingMode, ITextFileEditorModel, ITextFileService } from "../../../../services/textfile/common/textfiles.js";
+import { URI } from '../../../../../base/common/uri.js';
+import { IFileEditorInput, Verbosity, GroupIdentifier, IMoveResult, EditorInputCapabilities, IEditorDescriptor, IEditorPane, IUntypedEditorInput, IFileEditorInputOptions } from '../../../../common/editor.js';
+import { EditorInput, IUntypedEditorOptions } from '../../../../common/editor/editorInput.js';
+import { AbstractTextResourceEditorInput } from '../../../../common/editor/textResourceEditorInput.js';
+import { ITextResourceEditorInput } from '../../../../../platform/editor/common/editor.js';
+import { BinaryEditorModel } from '../../../../common/editor/binaryEditorModel.js';
+import { IFileService } from '../../../../../platform/files/common/files.js';
+import { ITextFileService, ITextFileEditorModel, EncodingMode } from '../../../../services/textfile/common/textfiles.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { ITextModelService } from '../../../../../editor/common/services/resolverService.js';
+import { ILabelService } from '../../../../../platform/label/common/label.js';
+import { IFilesConfigurationService } from '../../../../services/filesConfiguration/common/filesConfigurationService.js';
+import { IEditorService } from '../../../../services/editor/common/editorService.js';
+import { IPathService } from '../../../../services/path/common/pathService.js';
+import { ITextResourceConfigurationService } from '../../../../../editor/common/services/textResourceConfiguration.js';
+import { IMarkdownString } from '../../../../../base/common/htmlContent.js';
+import { ICustomEditorLabelService } from '../../../../services/editor/common/customEditorLabelService.js';
 /**
  * A file editor input is the input type for the file editor of file system resources.
  */

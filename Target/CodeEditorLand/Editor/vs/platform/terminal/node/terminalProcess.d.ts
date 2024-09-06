@@ -1,9 +1,9 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IProcessEnvironment } from "../../../base/common/platform.js";
-import { ILogService } from "../../log/common/log.js";
-import { IProductService } from "../../product/common/productService.js";
-import { IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IProcessReadyWindowsPty, IShellLaunchConfig, ITerminalChildProcess, ITerminalLaunchError, ITerminalProcessOptions, ProcessPropertyType, TerminalShellType } from "../common/terminal.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IProcessEnvironment } from '../../../base/common/platform.js';
+import { ILogService } from '../../log/common/log.js';
+import { IProductService } from '../../product/common/productService.js';
+import { IShellLaunchConfig, ITerminalChildProcess, ITerminalLaunchError, IProcessProperty, IProcessPropertyMap as IProcessPropertyMap, ProcessPropertyType, TerminalShellType, IProcessReadyEvent, ITerminalProcessOptions, IProcessReadyWindowsPty } from '../common/terminal.js';
 export declare class TerminalProcess extends Disposable implements ITerminalChildProcess {
     readonly shellLaunchConfig: IShellLaunchConfig;
     /**
@@ -73,7 +73,7 @@ export declare class TerminalProcess extends Disposable implements ITerminalChil
     clearBuffer(): void;
     acknowledgeDataEvent(charCount: number): void;
     clearUnacknowledgedChars(): void;
-    setUnicodeVersion(version: "6" | "11"): Promise<void>;
+    setUnicodeVersion(version: '6' | '11'): Promise<void>;
     getInitialCwd(): Promise<string>;
     getCwd(): Promise<string>;
     getWindowsPty(): IProcessReadyWindowsPty | undefined;

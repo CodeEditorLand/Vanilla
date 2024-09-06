@@ -1,8 +1,8 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { MainThreadEmbeddingsShape } from "../common/extHost.protocol.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { MainThreadEmbeddingsShape } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
 interface IEmbeddingsProvider {
     provideEmbeddings(input: string[], token: CancellationToken): Promise<{
         values: number[];

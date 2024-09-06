@@ -1,15 +1,15 @@
-import { IObservable, IReader, ITransaction } from "../../../../../base/common/observable.js";
-import { Range } from "../../../../../editor/common/core/range.js";
-import { ILanguageService } from "../../../../../editor/common/languages/language.js";
-import { ITextModel } from "../../../../../editor/common/model.js";
-import { IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
-import { EditorModel } from "../../../../common/editor/editorModel.js";
-import { MergeEditorTelemetry } from "../telemetry.js";
-import { IMergeDiffComputer } from "./diffComputer.js";
-import { LineRange } from "./lineRange.js";
-import { DetailedLineRangeMapping, DocumentLineRangeMap } from "./mapping.js";
-import { InputNumber, ModifiedBaseRange, ModifiedBaseRangeState } from "./modifiedBaseRange.js";
-import { TextModelDiffChangeReason } from "./textModelDiffs.js";
+import { IObservable, IReader, ITransaction } from '../../../../../base/common/observable.js';
+import { Range } from '../../../../../editor/common/core/range.js';
+import { ILanguageService } from '../../../../../editor/common/languages/language.js';
+import { ITextModel } from '../../../../../editor/common/model.js';
+import { IUndoRedoService } from '../../../../../platform/undoRedo/common/undoRedo.js';
+import { EditorModel } from '../../../../common/editor/editorModel.js';
+import { IMergeDiffComputer } from './diffComputer.js';
+import { LineRange } from './lineRange.js';
+import { DetailedLineRangeMapping, DocumentLineRangeMap } from './mapping.js';
+import { TextModelDiffChangeReason } from './textModelDiffs.js';
+import { MergeEditorTelemetry } from '../telemetry.js';
+import { InputNumber, ModifiedBaseRange, ModifiedBaseRangeState } from './modifiedBaseRange.js';
 export interface InputData {
     readonly textModel: ITextModel;
     readonly title: string | undefined;

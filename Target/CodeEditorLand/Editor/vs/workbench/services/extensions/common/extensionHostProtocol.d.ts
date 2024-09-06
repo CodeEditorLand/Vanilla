@@ -1,8 +1,8 @@
-import { VSBuffer } from "../../../../base/common/buffer.js";
-import { URI, UriComponents, UriDto } from "../../../../base/common/uri.js";
-import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import { ILoggerResource, LogLevel } from "../../../../platform/log/common/log.js";
-import { IRemoteConnectionData } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { VSBuffer } from '../../../../base/common/buffer.js';
+import { URI, UriComponents, UriDto } from '../../../../base/common/uri.js';
+import { ExtensionIdentifier, IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { ILoggerResource, LogLevel } from '../../../../platform/log/common/log.js';
+import { IRemoteConnectionData } from '../../../../platform/remote/common/remoteAuthorityResolver.js';
 export interface IExtensionDescriptionSnapshot {
     readonly versionId: number;
     readonly allExtensions: IExtensionDescription[];
@@ -83,8 +83,8 @@ export interface IStaticWorkspaceData {
 }
 export interface MessagePortLike {
     postMessage(message: any, transfer?: any[]): void;
-    addEventListener(type: "message", listener: (e: any) => any): void;
-    removeEventListener(type: "message", listener: (e: any) => any): void;
+    addEventListener(type: 'message', listener: (e: any) => any): void;
+    removeEventListener(type: 'message', listener: (e: any) => any): void;
     start(): void;
 }
 export declare enum UIKind {
@@ -96,17 +96,17 @@ export declare const enum ExtensionHostExitCode {
     UnexpectedError = 81
 }
 export interface IExtHostReadyMessage {
-    type: "VSCODE_EXTHOST_IPC_READY";
+    type: 'VSCODE_EXTHOST_IPC_READY';
 }
 export interface IExtHostSocketMessage {
-    type: "VSCODE_EXTHOST_IPC_SOCKET";
+    type: 'VSCODE_EXTHOST_IPC_SOCKET';
     initialDataChunk: string;
     skipWebSocketFrames: boolean;
     permessageDeflate: boolean;
     inflateBytes: string;
 }
 export interface IExtHostReduceGraceTimeMessage {
-    type: "VSCODE_EXTHOST_IPC_REDUCE_GRACE_TIME";
+    type: 'VSCODE_EXTHOST_IPC_REDUCE_GRACE_TIME';
 }
 export declare const enum MessageType {
     Initialized = 0,

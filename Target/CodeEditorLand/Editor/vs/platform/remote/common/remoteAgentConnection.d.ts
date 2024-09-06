@@ -1,41 +1,41 @@
-import { CancelablePromise } from "../../../base/common/async.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IIPCLogger } from "../../../base/parts/ipc/common/ipc.js";
-import { Client, PersistentProtocol } from "../../../base/parts/ipc/common/ipc.net.js";
-import { ILogService } from "../../log/common/log.js";
-import { ISignService } from "../../sign/common/sign.js";
-import { RemoteAgentConnectionContext } from "./remoteAgentEnvironment.js";
-import { RemoteConnection } from "./remoteAuthorityResolver.js";
-import { IRemoteSocketFactoryService } from "./remoteSocketFactoryService.js";
+import { CancelablePromise } from '../../../base/common/async.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IIPCLogger } from '../../../base/parts/ipc/common/ipc.js';
+import { Client, PersistentProtocol } from '../../../base/parts/ipc/common/ipc.net.js';
+import { ILogService } from '../../log/common/log.js';
+import { RemoteAgentConnectionContext } from './remoteAgentEnvironment.js';
+import { RemoteConnection } from './remoteAuthorityResolver.js';
+import { IRemoteSocketFactoryService } from './remoteSocketFactoryService.js';
+import { ISignService } from '../../sign/common/sign.js';
 export declare const enum ConnectionType {
     Management = 1,
     ExtensionHost = 2,
     Tunnel = 3
 }
 export interface AuthRequest {
-    type: "auth";
+    type: 'auth';
     auth: string;
     data: string;
 }
 export interface SignRequest {
-    type: "sign";
+    type: 'sign';
     data: string;
     signedData: string;
 }
 export interface ConnectionTypeRequest {
-    type: "connectionType";
+    type: 'connectionType';
     commit?: string;
     signedData: string;
     desiredConnectionType?: ConnectionType;
     args?: any;
 }
 export interface ErrorMessage {
-    type: "error";
+    type: 'error';
     reason: string;
 }
 export interface OKMessage {
-    type: "ok";
+    type: 'ok';
 }
 export type HandshakeMessage = AuthRequest | SignRequest | ConnectionTypeRequest | ErrorMessage | OKMessage;
 interface ISimpleConnectionOptions<T extends RemoteConnection = RemoteConnection> {

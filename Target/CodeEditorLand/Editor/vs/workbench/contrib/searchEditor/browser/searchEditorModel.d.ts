@@ -1,8 +1,8 @@
-import { ResourceMap } from "../../../../base/common/map.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { SearchConfiguration } from "./searchEditorInput.js";
+import { URI } from '../../../../base/common/uri.js';
+import { ITextModel } from '../../../../editor/common/model.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { SearchConfiguration } from './searchEditorInput.js';
+import { ResourceMap } from '../../../../base/common/map.js';
 export type SearchEditorData = {
     resultsModel: ITextModel;
     configurationModel: SearchConfigurationModel;

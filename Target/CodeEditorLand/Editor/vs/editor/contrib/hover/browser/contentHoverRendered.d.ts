@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import { HoverVerbosityAction } from "../../../common/languages.js";
-import { ContentHoverResult } from "./contentHoverTypes.js";
-import { HoverStartSource } from "./hoverOperation.js";
-import { IEditorHoverContext, IEditorHoverParticipant, IHoverPart } from "./hoverTypes.js";
+import { IEditorHoverContext, IEditorHoverParticipant, IHoverPart } from './hoverTypes.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { HoverStartSource } from './hoverOperation.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { Position } from '../../../common/core/position.js';
+import { Range } from '../../../common/core/range.js';
+import { ContentHoverResult } from './contentHoverTypes.js';
+import { HoverVerbosityAction } from '../../../common/languages.js';
 export declare class RenderedContentHover extends Disposable {
     closestMouseDistance: number | undefined;
     initialMousePosX: number | undefined;

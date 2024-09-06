@@ -1,11 +1,11 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { ILogService } from "../../log/common/log.js";
-import { IProductService } from "../../product/common/productService.js";
-import { IAddressProvider, IConnectionOptions } from "../../remote/common/remoteAgentConnection.js";
-import { IRemoteSocketFactoryService } from "../../remote/common/remoteSocketFactoryService.js";
-import { ISignService } from "../../sign/common/sign.js";
-import { AbstractTunnelService, ISharedTunnelsService, ITunnelProvider, RemoteTunnel, TunnelPrivacyId } from "../common/tunnel.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { ILogService } from '../../log/common/log.js';
+import { IProductService } from '../../product/common/productService.js';
+import { IAddressProvider, IConnectionOptions } from '../../remote/common/remoteAgentConnection.js';
+import { IRemoteSocketFactoryService } from '../../remote/common/remoteSocketFactoryService.js';
+import { ISignService } from '../../sign/common/sign.js';
+import { AbstractTunnelService, ISharedTunnelsService, ITunnelProvider, RemoteTunnel, TunnelPrivacyId } from '../common/tunnel.js';
 export declare class NodeRemoteTunnel extends Disposable implements RemoteTunnel {
     private readonly defaultTunnelHost;
     private readonly suggestedLocalPort?;

@@ -1,17 +1,17 @@
-import { Dimension, IDomPosition } from "../../base/browser/dom.js";
-import { IActionViewItem } from "../../base/browser/ui/actionbar/actionbar.js";
-import { IBaseActionViewItemOptions } from "../../base/browser/ui/actionbar/actionViewItems.js";
-import { IBoundarySashes } from "../../base/browser/ui/sash/sash.js";
-import { IAction, IActionRunner } from "../../base/common/actions.js";
-import { Emitter, Event } from "../../base/common/event.js";
-import { Disposable } from "../../base/common/lifecycle.js";
-import { MenuId } from "../../platform/actions/common/actions.js";
-import { IConstructorSignature, IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../platform/theme/common/themeService.js";
-import { Component } from "../common/component.js";
-import { IComposite, ICompositeControl } from "../common/composite.js";
+import { IAction, IActionRunner } from '../../base/common/actions.js';
+import { Component } from '../common/component.js';
+import { ITelemetryService } from '../../platform/telemetry/common/telemetry.js';
+import { IComposite, ICompositeControl } from '../common/composite.js';
+import { Event, Emitter } from '../../base/common/event.js';
+import { IThemeService } from '../../platform/theme/common/themeService.js';
+import { IConstructorSignature, IInstantiationService } from '../../platform/instantiation/common/instantiation.js';
+import { Dimension, IDomPosition } from '../../base/browser/dom.js';
+import { IStorageService } from '../../platform/storage/common/storage.js';
+import { Disposable } from '../../base/common/lifecycle.js';
+import { IActionViewItem } from '../../base/browser/ui/actionbar/actionbar.js';
+import { MenuId } from '../../platform/actions/common/actions.js';
+import { IBoundarySashes } from '../../base/browser/ui/sash/sash.js';
+import { IBaseActionViewItemOptions } from '../../base/browser/ui/actionbar/actionViewItems.js';
 /**
  * Composites are layed out in the sidebar and panel part of the workbench. At a time only one composite
  * can be open in the sidebar, and only one composite can be open in the panel.

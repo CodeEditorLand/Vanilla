@@ -1,10 +1,10 @@
-import { Event } from "../../../common/event.js";
-import { DisposableStore, IDisposable } from "../../../common/lifecycle.js";
-import { ScrollEvent } from "../../../common/scrollable.js";
-import { ISpliceable } from "../../../common/sequence.js";
-import { IListOptions, IListOptionsUpdate, IListStyles } from "../list/listWidget.js";
-import { ITableColumn, ITableContextMenuEvent, ITableEvent, ITableGestureEvent, ITableMouseEvent, ITableRenderer, ITableTouchEvent, ITableVirtualDelegate } from "./table.js";
-import "./table.css";
+import { IListOptions, IListOptionsUpdate, IListStyles } from '../list/listWidget.js';
+import { ITableColumn, ITableContextMenuEvent, ITableEvent, ITableGestureEvent, ITableMouseEvent, ITableRenderer, ITableTouchEvent, ITableVirtualDelegate } from './table.js';
+import { Event } from '../../../common/event.js';
+import { DisposableStore, IDisposable } from '../../../common/lifecycle.js';
+import { ScrollEvent } from '../../../common/scrollable.js';
+import { ISpliceable } from '../../../common/sequence.js';
+import './table.css';
 type TCell = any;
 export interface ITableOptions<TRow> extends IListOptions<TRow> {
 }

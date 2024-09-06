@@ -1,8 +1,8 @@
-import { OffsetRange } from "./offsetRange.js";
+import { OffsetRange } from './offsetRange.js';
 /**
  * Describes an edit to a (0-based) string.
  * Use `TextEdit` to describe edits for a 1-based line/column text.
- */
+*/
 export declare class OffsetEdit {
     readonly edits: readonly SingleOffsetEdit[];
     static readonly empty: OffsetEdit;

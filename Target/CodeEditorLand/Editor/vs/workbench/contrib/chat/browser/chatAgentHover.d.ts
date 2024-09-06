@@ -1,9 +1,9 @@
-import { IManagedHoverOptions } from "../../../../base/browser/ui/hover/hover.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
-import { IChatAgentData, IChatAgentNameService, IChatAgentService } from "../common/chatAgents.js";
+import { IManagedHoverOptions } from '../../../../base/browser/ui/hover/hover.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IChatAgentData, IChatAgentNameService, IChatAgentService } from '../common/chatAgents.js';
+import { IExtensionsWorkbenchService } from '../../extensions/common/extensions.js';
 export declare class ChatAgentHover extends Disposable {
     private readonly chatAgentService;
     private readonly extensionService;

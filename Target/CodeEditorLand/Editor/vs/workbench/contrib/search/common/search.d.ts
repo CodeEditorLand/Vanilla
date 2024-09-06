@@ -1,11 +1,11 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { Location, ProviderResult, SymbolKind, SymbolTag } from "../../../../editor/common/languages.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { ISearchConfiguration, ISearchConfigurationProperties } from "../../../services/search/common/search.js";
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ISearchConfiguration, ISearchConfigurationProperties } from '../../../services/search/common/search.js';
+import { SymbolKind, Location, ProviderResult, SymbolTag } from '../../../../editor/common/languages.js';
+import { URI } from '../../../../base/common/uri.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 export interface IWorkspaceSymbol {
     name: string;
     containerName?: string;
@@ -32,7 +32,7 @@ export interface IWorkbenchSearchConfigurationProperties extends ISearchConfigur
         includeSymbols: boolean;
         includeHistory: boolean;
         history: {
-            filterSortOrder: "default" | "recency";
+            filterSortOrder: 'default' | 'recency';
         };
     };
 }

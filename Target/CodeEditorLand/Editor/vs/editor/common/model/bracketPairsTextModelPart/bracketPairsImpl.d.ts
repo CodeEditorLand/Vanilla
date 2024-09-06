@@ -1,11 +1,11 @@
-import { CallbackIterable } from "../../../../base/common/arrays.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IPosition } from "../../core/position.js";
-import { Range } from "../../core/range.js";
-import { ILanguageConfigurationService, LanguageConfigurationServiceChangeEvent } from "../../languages/languageConfigurationRegistry.js";
-import { BracketInfo, BracketPairInfo, BracketPairWithMinIndentationInfo, IBracketPairsTextModelPart, IFoundBracket } from "../../textModelBracketPairs.js";
-import { IModelContentChangedEvent, IModelLanguageChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from "../../textModelEvents.js";
-import { TextModel } from "../textModel.js";
+import { CallbackIterable } from '../../../../base/common/arrays.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IPosition } from '../../core/position.js';
+import { Range } from '../../core/range.js';
+import { ILanguageConfigurationService, LanguageConfigurationServiceChangeEvent } from '../../languages/languageConfigurationRegistry.js';
+import { TextModel } from '../textModel.js';
+import { BracketInfo, BracketPairInfo, BracketPairWithMinIndentationInfo, IBracketPairsTextModelPart, IFoundBracket } from '../../textModelBracketPairs.js';
+import { IModelContentChangedEvent, IModelLanguageChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from '../../textModelEvents.js';
 export declare class BracketPairsTextModelPart extends Disposable implements IBracketPairsTextModelPart {
     private readonly textModel;
     private readonly languageConfigurationService;
@@ -25,7 +25,7 @@ export declare class BracketPairsTextModelPart extends Disposable implements IBr
     /**
      * Returns all bracket pairs that intersect the given range.
      * The result is sorted by the start position.
-     */
+    */
     getBracketPairsInRange(range: Range): CallbackIterable<BracketPairInfo>;
     getBracketPairsInRangeWithMinIndentation(range: Range): CallbackIterable<BracketPairWithMinIndentationInfo>;
     getBracketsInRange(range: Range, onlyColorizedBrackets?: boolean): CallbackIterable<BracketInfo>;

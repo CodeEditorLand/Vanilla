@@ -1,12 +1,12 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import * as glob from "../../../../base/common/glob.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { ResourceSet } from "../../../../base/common/map.js";
-import { URI, UriComponents } from "../../../../base/common/uri.js";
-import { IFilesConfiguration } from "../../../../platform/files/common/files.js";
-import { ITelemetryData } from "../../../../platform/telemetry/common/telemetry.js";
-import { GlobPattern, TextSearchCompleteMessageType } from "./searchExtTypes.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import * as glob from '../../../../base/common/glob.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI, UriComponents } from '../../../../base/common/uri.js';
+import { IFilesConfiguration } from '../../../../platform/files/common/files.js';
+import { ITelemetryData } from '../../../../platform/telemetry/common/telemetry.js';
+import { Event } from '../../../../base/common/event.js';
+import { GlobPattern, TextSearchCompleteMessageType } from './searchExtTypes.js';
+import { ResourceSet } from '../../../../base/common/map.js';
 export { TextSearchCompleteMessageType };
 export declare const VIEWLET_ID = "workbench.view.search";
 export declare const PANEL_ID = "workbench.panel.search";
@@ -185,13 +185,13 @@ export declare const enum SearchCompletionExitCode {
     NewSearchStarted = 1
 }
 export interface ITextSearchStats {
-    type: "textSearchProvider" | "searchProcess" | "aiTextSearchProvider";
+    type: 'textSearchProvider' | 'searchProcess' | 'aiTextSearchProvider';
 }
 export interface IFileSearchStats {
     fromCache: boolean;
     detailStats: ISearchEngineStats | ICachedSearchStats | IFileSearchProviderStats;
     resultCount: number;
-    type: "fileSearchProvider" | "searchProcess";
+    type: 'fileSearchProvider' | 'searchProcess';
     sortingTime?: number;
 }
 export interface ICachedSearchStats {
@@ -260,22 +260,22 @@ export interface ISearchConfigurationProperties {
     followSymlinks: boolean;
     smartCase: boolean;
     globalFindClipboard: boolean;
-    location: "sidebar" | "panel";
+    location: 'sidebar' | 'panel';
     useReplacePreview: boolean;
     showLineNumbers: boolean;
     usePCRE2: boolean;
-    actionsPosition: "auto" | "right";
+    actionsPosition: 'auto' | 'right';
     maintainFileSearchCache: boolean;
     maxResults: number | null;
-    collapseResults: "auto" | "alwaysCollapse" | "alwaysExpand";
+    collapseResults: 'auto' | 'alwaysCollapse' | 'alwaysExpand';
     searchOnType: boolean;
     seedOnFocus: boolean;
     seedWithNearestWord: boolean;
     searchOnTypeDebouncePeriod: number;
-    mode: "view" | "reuseEditor" | "newEditor";
+    mode: 'view' | 'reuseEditor' | 'newEditor';
     searchEditor: {
-        doubleClickBehaviour: "selectWord" | "goToLocation" | "openLocationToSide";
-        singleClickBehaviour: "default" | "peekDefinition";
+        doubleClickBehaviour: 'selectWord' | 'goToLocation' | 'openLocationToSide';
+        singleClickBehaviour: 'default' | 'peekDefinition';
         reusePriorSearchConfiguration: boolean;
         defaultNumberOfContextLines: number | null;
         focusResultsOnSearch: boolean;
@@ -347,7 +347,7 @@ export interface ISearchEngine<T> {
     cancel: () => void;
 }
 export interface ISerializedSearchSuccess {
-    type: "success";
+    type: 'success';
     limitHit: boolean;
     messages: ITextSearchCompleteMessage[];
     stats?: IFileSearchStats | ITextSearchStats;
@@ -358,7 +358,7 @@ export interface ISearchEngineSuccess {
     stats: ISearchEngineStats;
 }
 export interface ISerializedSearchError {
-    type: "error";
+    type: 'error';
     error: {
         message: string;
         stack: string;

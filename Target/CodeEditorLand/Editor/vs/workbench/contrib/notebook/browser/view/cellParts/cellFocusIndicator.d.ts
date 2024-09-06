@@ -1,7 +1,7 @@
-import { FastDomNode } from "../../../../../../base/browser/fastDomNode.js";
-import { ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
-import { CellContentPart } from "../cellPart.js";
-import { CellTitleToolbarPart } from "./cellToolbars.js";
+import { FastDomNode } from '../../../../../../base/browser/fastDomNode.js';
+import { ICellViewModel, INotebookEditorDelegate } from '../../notebookBrowser.js';
+import { CellContentPart } from '../cellPart.js';
+import { CellTitleToolbarPart } from './cellToolbars.js';
 export declare class CellFocusIndicator extends CellContentPart {
     readonly notebookEditor: INotebookEditorDelegate;
     readonly titleToolbar: CellTitleToolbarPart;

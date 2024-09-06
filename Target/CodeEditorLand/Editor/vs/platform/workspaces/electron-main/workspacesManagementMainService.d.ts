@@ -1,14 +1,14 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IBackupMainService } from "../../backup/electron-main/backup.js";
-import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
-import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { IUserDataProfilesMainService } from "../../userDataProfile/electron-main/userDataProfile.js";
-import { ICodeWindow } from "../../window/electron-main/window.js";
-import { IResolvedWorkspace, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
-import { IEnterWorkspaceResult, IUntitledWorkspaceInfo, IWorkspaceFolderCreationData } from "../common/workspaces.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IBackupMainService } from '../../backup/electron-main/backup.js';
+import { IDialogMainService } from '../../dialogs/electron-main/dialogMainService.js';
+import { IEnvironmentMainService } from '../../environment/electron-main/environmentMainService.js';
+import { ILogService } from '../../log/common/log.js';
+import { IUserDataProfilesMainService } from '../../userDataProfile/electron-main/userDataProfile.js';
+import { ICodeWindow } from '../../window/electron-main/window.js';
+import { IWorkspaceIdentifier, IResolvedWorkspace } from '../../workspace/common/workspace.js';
+import { IEnterWorkspaceResult, IUntitledWorkspaceInfo, IWorkspaceFolderCreationData } from '../common/workspaces.js';
 export declare const IWorkspacesManagementMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWorkspacesManagementMainService>;
 export interface IWorkspaceEnteredEvent {
     readonly window: ICodeWindow;

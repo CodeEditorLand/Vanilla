@@ -1,9 +1,9 @@
-import { IAction, IActionRunner } from "../../../common/actions.js";
-import { Event } from "../../../common/event.js";
-import { ResolvedKeybinding } from "../../../common/keybindings.js";
-import { Disposable } from "../../../common/lifecycle.js";
-import { IMenuDirection, IMenuStyles } from "./menu.js";
-import "./menubar.css";
+import { IMenuDirection, IMenuStyles } from './menu.js';
+import { IAction, IActionRunner } from '../../../common/actions.js';
+import { Event } from '../../../common/event.js';
+import { ResolvedKeybinding } from '../../../common/keybindings.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import './menubar.css';
 export interface IMenuBarOptions {
     enableMnemonics?: boolean;
     disableAltFocus?: boolean;

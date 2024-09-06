@@ -1,9 +1,9 @@
-import { URI } from "../../../../base/common/uri.js";
-import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IconContribution, IconDefinition } from "../../../../platform/theme/common/iconRegistry.js";
-import { ExtensionData, IThemeExtensionPoint, IWorkbenchProductIconTheme } from "../common/workbenchThemeService.js";
+import { URI } from '../../../../base/common/uri.js';
+import { ExtensionData, IThemeExtensionPoint, IWorkbenchProductIconTheme } from '../common/workbenchThemeService.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IconDefinition, IconContribution } from '../../../../platform/theme/common/iconRegistry.js';
+import { IExtensionResourceLoaderService } from '../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js';
 export declare const DEFAULT_PRODUCT_ICON_THEME_ID = "";
 export declare class ProductIconThemeData implements IWorkbenchProductIconTheme {
     static readonly STORAGE_KEY = "productIconThemeData";

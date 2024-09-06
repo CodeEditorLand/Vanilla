@@ -1,6 +1,6 @@
-import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import { Action, IAction } from "../../../../base/common/actions.js";
-import { UriComponents } from "../../../../base/common/uri.js";
+import { Action, IAction } from '../../../../base/common/actions.js';
+import { UriComponents } from '../../../../base/common/uri.js';
+import { ActionViewItem } from '../../../../base/browser/ui/actionbar/actionViewItems.js';
 export declare class ToggleReactionsAction extends Action {
     static readonly ID = "toolbar.toggle.pickReactions";
     private _menuActions;

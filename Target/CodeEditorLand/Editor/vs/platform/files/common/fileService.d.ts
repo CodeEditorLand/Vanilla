@@ -1,9 +1,9 @@
-import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../base/common/buffer.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { ILogService } from "../../log/common/log.js";
-import { FileChangesEvent, FileOperationEvent, FileSystemProviderCapabilities, ICreateFileOptions, IFileContent, IFileDeleteOptions, IFileService, IFileStat, IFileStatResult, IFileStatResultWithMetadata, IFileStatWithMetadata, IFileStatWithPartialMetadata, IFileStreamContent, IFileSystemProvider, IFileSystemProviderActivationEvent, IFileSystemProviderCapabilitiesChangeEvent, IFileSystemProviderRegistrationEvent, IFileSystemWatcher, IReadFileOptions, IReadFileStreamOptions, IResolveFileOptions, IResolveMetadataFileOptions, IWatchOptionsWithCorrelation, IWatchOptionsWithoutCorrelation, IWriteFileOptions } from "./files.js";
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from '../../../base/common/buffer.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { FileChangesEvent, IFileDeleteOptions, FileOperationEvent, FileSystemProviderCapabilities, ICreateFileOptions, IFileContent, IFileService, IFileStat, IFileStatWithMetadata, IFileStreamContent, IFileSystemProvider, IFileSystemProviderActivationEvent, IFileSystemProviderCapabilitiesChangeEvent, IFileSystemProviderRegistrationEvent, IReadFileOptions, IReadFileStreamOptions, IResolveFileOptions, IFileStatResult, IFileStatResultWithMetadata, IResolveMetadataFileOptions, IFileStatWithPartialMetadata, IWriteFileOptions, IWatchOptionsWithCorrelation, IFileSystemWatcher, IWatchOptionsWithoutCorrelation } from './files.js';
+import { ILogService } from '../../log/common/log.js';
 export declare class FileService extends Disposable implements IFileService {
     private readonly logService;
     readonly _serviceBrand: undefined;

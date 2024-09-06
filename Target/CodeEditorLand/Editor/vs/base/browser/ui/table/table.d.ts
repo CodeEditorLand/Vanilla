@@ -1,5 +1,5 @@
-import { Event } from "../../../common/event.js";
-import { IListContextMenuEvent, IListEvent, IListGestureEvent, IListMouseEvent, IListRenderer, IListTouchEvent } from "../list/list.js";
+import { IListContextMenuEvent, IListEvent, IListGestureEvent, IListMouseEvent, IListRenderer, IListTouchEvent } from '../list/list.js';
+import { Event } from '../../../common/event.js';
 export interface ITableColumn<TRow, TCell> {
     readonly label: string;
     readonly tooltip?: string;

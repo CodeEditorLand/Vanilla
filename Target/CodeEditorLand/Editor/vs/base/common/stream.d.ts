@@ -1,8 +1,8 @@
-import { CancellationToken } from "./cancellation.js";
+import { CancellationToken } from './cancellation.js';
 /**
  * The payload that flows in readable stream events.
  */
-export type ReadableStreamEventPayload<T> = T | Error | "end";
+export type ReadableStreamEventPayload<T> = T | Error | 'end';
 export interface ReadableStreamEvents<T> {
     /**
      * The 'data' event is emitted whenever the stream is
@@ -15,17 +15,17 @@ export interface ReadableStreamEvents<T> {
      * Use `listenStream` as a helper method to listen to
      * stream events in the right order.
      */
-    on(event: "data", callback: (data: T) => void): void;
+    on(event: 'data', callback: (data: T) => void): void;
     /**
      * Emitted when any error occurs.
      */
-    on(event: "error", callback: (err: Error) => void): void;
+    on(event: 'error', callback: (err: Error) => void): void;
     /**
      * The 'end' event is emitted when there is no more data
      * to be consumed from the stream. The 'end' event will
      * not be emitted unless the data is completely consumed.
      */
-    on(event: "end", callback: () => void): void;
+    on(event: 'end', callback: () => void): void;
 }
 /**
  * A interface that emulates the API shape of a node.js readable

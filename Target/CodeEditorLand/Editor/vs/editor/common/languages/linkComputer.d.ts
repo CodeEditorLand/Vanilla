@@ -1,4 +1,4 @@
-import { ILink } from "../languages.js";
+import { ILink } from '../languages.js';
 export interface ILinkComputerTarget {
     getLineCount(): number;
     getLineContent(lineNumber: number): string;

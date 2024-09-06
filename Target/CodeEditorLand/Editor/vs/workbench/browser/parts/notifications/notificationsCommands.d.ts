@@ -1,8 +1,8 @@
-import { ActionRunner, IAction } from "../../../../base/common/actions.js";
-import { IListService } from "../../../../platform/list/browser/listService.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { INotificationViewItem, NotificationsModel } from "../../../common/notifications.js";
+import { INotificationViewItem, NotificationsModel } from '../../../common/notifications.js';
+import { IListService } from '../../../../platform/list/browser/listService.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { ActionRunner, IAction } from '../../../../base/common/actions.js';
 export declare const SHOW_NOTIFICATIONS_CENTER = "notifications.showList";
 export declare const HIDE_NOTIFICATIONS_CENTER = "notifications.hideList";
 export declare const HIDE_NOTIFICATION_TOAST = "notifications.hideToasts";

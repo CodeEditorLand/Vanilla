@@ -1,8 +1,8 @@
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { IComputedEditorOptions } from "../../../common/config/editorOptions.js";
-import { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import { EndOfLinePreference } from "../../../common/model.js";
+import { EndOfLinePreference } from '../../../common/model.js';
+import { Position } from '../../../common/core/position.js';
+import { Range } from '../../../common/core/range.js';
+import { IComputedEditorOptions } from '../../../common/config/editorOptions.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 export interface ISimpleModel {
     getLineCount(): number;
     getLineMaxColumn(lineNumber: number): number;

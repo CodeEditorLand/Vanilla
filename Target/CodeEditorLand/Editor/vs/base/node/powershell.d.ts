@@ -10,6 +10,6 @@ export interface IPowerShellExeDetails {
  */
 export declare function enumeratePowerShellInstallations(): AsyncIterable<IPowerShellExeDetails>;
 /**
- * Returns the first available PowerShell executable found in the search order.
- */
+* Returns the first available PowerShell executable found in the search order.
+*/
 export declare function getFirstAvailablePowerShellInstallation(): Promise<IPowerShellExeDetails | null>;

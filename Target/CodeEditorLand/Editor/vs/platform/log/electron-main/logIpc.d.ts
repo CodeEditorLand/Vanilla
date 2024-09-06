@@ -1,6 +1,6 @@
-import { Event } from "../../../base/common/event.js";
-import { IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { ILoggerMainService } from "./loggerService.js";
+import { Event } from '../../../base/common/event.js';
+import { IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { ILoggerMainService } from './loggerService.js';
 export declare class LoggerChannel implements IServerChannel {
     private readonly loggerService;
     private readonly loggers;

@@ -1,4 +1,4 @@
-import "./countBadge.css";
+import './countBadge.css';
 export interface ICountBadgeOptions {
     readonly count?: number;
     readonly countFormat?: string;

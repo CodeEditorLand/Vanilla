@@ -1,15 +1,15 @@
-import { Event } from "../../../../base/common/event.js";
-import Severity from "../../../../base/common/severity.js";
-import { IMessagePassingProtocol } from "../../../../base/parts/ipc/common/ipc.js";
-import { ExtensionIdentifier, IExtension, IExtensionContributions, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import { ApiProposalName } from "../../../../platform/extensions/common/extensionsApiProposals.js";
-import { IV8Profile } from "../../../../platform/profiling/common/profiling.js";
-import { ExtensionHostKind } from "./extensionHostKind.js";
-import { IExtensionDescriptionDelta, IExtensionDescriptionSnapshot } from "./extensionHostProtocol.js";
-import { ExtensionRunningLocation } from "./extensionRunningLocation.js";
-import { IExtensionPoint } from "./extensionsRegistry.js";
+import { Event } from '../../../../base/common/event.js';
+import Severity from '../../../../base/common/severity.js';
+import { IMessagePassingProtocol } from '../../../../base/parts/ipc/common/ipc.js';
+import { ExtensionIdentifier, IExtension, IExtensionContributions, IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { ApiProposalName } from '../../../../platform/extensions/common/extensionsApiProposals.js';
+import { IV8Profile } from '../../../../platform/profiling/common/profiling.js';
+import { ExtensionHostKind } from './extensionHostKind.js';
+import { IExtensionDescriptionDelta, IExtensionDescriptionSnapshot } from './extensionHostProtocol.js';
+import { ExtensionRunningLocation } from './extensionRunningLocation.js';
+import { IExtensionPoint } from './extensionsRegistry.js';
 export declare const nullExtensionDescription: Readonly<Readonly<import("../../../../platform/extensions/common/extensions.js").IRelaxedExtensionDescription>>;
-export type WebWorkerExtHostConfigValue = boolean | "auto";
+export type WebWorkerExtHostConfigValue = boolean | 'auto';
 export declare const webWorkerExtHostConfig = "extensions.webWorker";
 export declare const IExtensionService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionService>;
 export interface IMessage {
@@ -123,7 +123,7 @@ export declare function checkProposedApiEnabled(extension: IExtensionDescription
 /**
  * Extension id or one of the four known program states.
  */
-export type ProfileSegmentId = string | "idle" | "program" | "gc" | "self";
+export type ProfileSegmentId = string | 'idle' | 'program' | 'gc' | 'self';
 export interface ExtensionActivationReason {
     readonly startup: boolean;
     readonly extensionId: ExtensionIdentifier;

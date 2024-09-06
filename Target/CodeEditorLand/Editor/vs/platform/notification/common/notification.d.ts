@@ -1,7 +1,7 @@
-import { IAction } from "../../../base/common/actions.js";
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import BaseSeverity from "../../../base/common/severity.js";
+import { IAction } from '../../../base/common/actions.js';
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import BaseSeverity from '../../../base/common/severity.js';
 export import Severity = BaseSeverity;
 export declare const INotificationService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<INotificationService>;
 export type NotificationMessage = string | Error;
@@ -261,7 +261,7 @@ export declare enum NotificationsFilter {
     OFF = 0,
     /**
      * All notifications are silent except error notifications.
-     */
+    */
     ERROR = 1
 }
 export interface INotificationSourceFilter extends INotificationSource {

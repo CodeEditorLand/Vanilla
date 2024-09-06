@@ -1,6 +1,6 @@
-import { Comparator } from "../../../../../base/common/arrays.js";
-import { Range } from "../../../../../editor/common/core/range.js";
-import { ITextModel } from "../../../../../editor/common/model.js";
+import { Comparator } from '../../../../../base/common/arrays.js';
+import { Range } from '../../../../../editor/common/core/range.js';
+import { ITextModel } from '../../../../../editor/common/model.js';
 export declare class LineRange {
     readonly startLineNumber: number;
     readonly lineCount: number;
@@ -13,7 +13,7 @@ export declare class LineRange {
     get isEmpty(): boolean;
     /**
      * Returns false if there is at least one line between `this` and `other`.
-     */
+    */
     touches(other: LineRange): boolean;
     isAfter(range: LineRange): boolean;
     isBefore(range: LineRange): boolean;

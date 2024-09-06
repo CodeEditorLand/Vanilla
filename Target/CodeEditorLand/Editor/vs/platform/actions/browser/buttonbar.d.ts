@@ -1,14 +1,14 @@
-import { ButtonBar } from "../../../base/browser/ui/button/button.js";
-import { IAction } from "../../../base/common/actions.js";
-import { Event } from "../../../base/common/event.js";
-import { DisposableStore } from "../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../contextview/browser/contextView.js";
-import { IHoverService } from "../../hover/browser/hover.js";
-import { IKeybindingService } from "../../keybinding/common/keybinding.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { IMenuActionOptions, IMenuService, MenuId } from "../common/actions.js";
-import { IToolBarRenderOptions } from "./toolbar.js";
+import { ButtonBar } from '../../../base/browser/ui/button/button.js';
+import { IAction } from '../../../base/common/actions.js';
+import { Event } from '../../../base/common/event.js';
+import { DisposableStore } from '../../../base/common/lifecycle.js';
+import { IToolBarRenderOptions } from './toolbar.js';
+import { MenuId, IMenuService, IMenuActionOptions } from '../common/actions.js';
+import { IContextKeyService } from '../../contextkey/common/contextkey.js';
+import { IContextMenuService } from '../../contextview/browser/contextView.js';
+import { IHoverService } from '../../hover/browser/hover.js';
+import { IKeybindingService } from '../../keybinding/common/keybinding.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 export type IButtonConfigProvider = (action: IAction, index: number) => {
     showIcon?: boolean;
     showLabel?: boolean;

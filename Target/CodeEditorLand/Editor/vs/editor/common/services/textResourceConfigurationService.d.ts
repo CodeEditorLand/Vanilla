@@ -1,11 +1,11 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { ConfigurationTarget, IConfigurationService, IConfigurationValue } from "../../../platform/configuration/common/configuration.js";
-import { IPosition } from "../core/position.js";
-import { ILanguageService } from "../languages/language.js";
-import { IModelService } from "./model.js";
-import { ITextResourceConfigurationChangeEvent, ITextResourceConfigurationService } from "./textResourceConfiguration.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IPosition } from '../core/position.js';
+import { ILanguageService } from '../languages/language.js';
+import { IModelService } from './model.js';
+import { ITextResourceConfigurationService, ITextResourceConfigurationChangeEvent } from './textResourceConfiguration.js';
+import { IConfigurationService, ConfigurationTarget, IConfigurationValue } from '../../../platform/configuration/common/configuration.js';
 export declare class TextResourceConfigurationService extends Disposable implements ITextResourceConfigurationService {
     private readonly configurationService;
     private readonly modelService;

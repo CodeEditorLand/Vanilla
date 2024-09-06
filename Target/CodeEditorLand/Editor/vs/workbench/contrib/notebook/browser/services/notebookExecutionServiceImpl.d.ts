@@ -1,13 +1,13 @@
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
-import { ICommandService } from "../../../../../platform/commands/common/commands.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IWorkspaceTrustRequestService } from "../../../../../platform/workspace/common/workspaceTrust.js";
-import { NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
-import { INotebookTextModel } from "../../common/notebookCommon.js";
-import { ICellExecutionParticipant, INotebookExecutionService } from "../../common/notebookExecutionService.js";
-import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";
-import { INotebookKernelHistoryService, INotebookKernelService } from "../../common/notebookKernelService.js";
-import { INotebookLoggingService } from "../../common/notebookLoggingService.js";
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { ICommandService } from '../../../../../platform/commands/common/commands.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IWorkspaceTrustRequestService } from '../../../../../platform/workspace/common/workspaceTrust.js';
+import { NotebookCellTextModel } from '../../common/model/notebookCellTextModel.js';
+import { INotebookTextModel } from '../../common/notebookCommon.js';
+import { INotebookExecutionService, ICellExecutionParticipant } from '../../common/notebookExecutionService.js';
+import { INotebookExecutionStateService } from '../../common/notebookExecutionStateService.js';
+import { INotebookKernelHistoryService, INotebookKernelService } from '../../common/notebookKernelService.js';
+import { INotebookLoggingService } from '../../common/notebookLoggingService.js';
 export declare class NotebookExecutionService implements INotebookExecutionService, IDisposable {
     private readonly _commandService;
     private readonly _notebookKernelService;

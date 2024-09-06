@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import "./stickyScroll.css";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "../../../browser/editorBrowser.js";
-import { Position } from "../../../common/core/position.js";
-import { CharacterMapping } from "../../../common/viewLayout/viewLineRenderer.js";
-import { FoldingModel } from "../../folding/browser/foldingModel.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import './stickyScroll.css';
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from '../../../browser/editorBrowser.js';
+import { Position } from '../../../common/core/position.js';
+import { CharacterMapping } from '../../../common/viewLayout/viewLineRenderer.js';
+import { FoldingModel } from '../../folding/browser/foldingModel.js';
 export declare class StickyScrollWidgetState {
     readonly startLineNumbers: number[];
     readonly endLineNumbers: number[];

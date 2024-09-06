@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IObservable } from "../../../../../base/common/observable.js";
-import "./ghostTextView.css";
-import { ICodeEditor } from "../../../../browser/editorBrowser.js";
-import { ILanguageService } from "../../../../common/languages/language.js";
-import { ITextModel } from "../../../../common/model.js";
-import { LineTokens } from "../../../../common/tokens/lineTokens.js";
-import { LineDecoration } from "../../../../common/viewLayout/lineDecorations.js";
-import { GhostText, GhostTextReplacement } from "../model/ghostText.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../../base/common/observable.js';
+import './ghostTextView.css';
+import { ICodeEditor } from '../../../../browser/editorBrowser.js';
+import { ILanguageService } from '../../../../common/languages/language.js';
+import { ITextModel } from '../../../../common/model.js';
+import { LineTokens } from '../../../../common/tokens/lineTokens.js';
+import { LineDecoration } from '../../../../common/viewLayout/lineDecorations.js';
+import { GhostText, GhostTextReplacement } from '../model/ghostText.js';
 export interface IGhostTextWidgetModel {
     readonly targetTextModel: IObservable<ITextModel | undefined>;
     readonly ghostText: IObservable<GhostText | GhostTextReplacement | undefined>;

@@ -1,9 +1,9 @@
-import "./media/singleeditortabscontrol.css";
-import { Dimension } from "../../../../base/browser/dom.js";
-import { IEditorPartOptions, IToolbarActions } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { EditorTabsControl } from "./editorTabsControl.js";
-import { IEditorTitleControlDimensions } from "./editorTitleControl.js";
+import './media/singleeditortabscontrol.css';
+import { IEditorPartOptions, IToolbarActions } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { EditorTabsControl } from './editorTabsControl.js';
+import { Dimension } from '../../../../base/browser/dom.js';
+import { IEditorTitleControlDimensions } from './editorTitleControl.js';
 export declare class SingleEditorTabsControl extends EditorTabsControl {
     private titleContainer;
     private editorLabel;

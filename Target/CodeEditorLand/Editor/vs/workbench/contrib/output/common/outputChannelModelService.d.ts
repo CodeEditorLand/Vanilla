@@ -1,9 +1,9 @@
-import { URI } from "../../../../base/common/uri.js";
-import { ILanguageSelection } from "../../../../editor/common/languages/language.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { IOutputChannelModel } from "./outputChannelModel.js";
+import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IOutputChannelModel } from './outputChannelModel.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ILanguageSelection } from '../../../../editor/common/languages/language.js';
 export declare const IOutputChannelModelService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IOutputChannelModelService>;
 export interface IOutputChannelModelService {
     readonly _serviceBrand: undefined;

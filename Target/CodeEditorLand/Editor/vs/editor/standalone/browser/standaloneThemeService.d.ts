@@ -1,7 +1,7 @@
-import { Color } from "../../../base/common/color.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { IFileIconTheme, IProductIconTheme } from "../../../platform/theme/common/themeService.js";
-import { IStandaloneTheme, IStandaloneThemeData, IStandaloneThemeService } from "../common/standaloneTheme.js";
+import { Color } from '../../../base/common/color.js';
+import { IStandaloneTheme, IStandaloneThemeData, IStandaloneThemeService } from '../common/standaloneTheme.js';
+import { IFileIconTheme, IProductIconTheme } from '../../../platform/theme/common/themeService.js';
+import { IDisposable, Disposable } from '../../../base/common/lifecycle.js';
 export declare const VS_LIGHT_THEME_NAME = "vs";
 export declare const VS_DARK_THEME_NAME = "vs-dark";
 export declare const HC_BLACK_THEME_NAME = "hc-black";

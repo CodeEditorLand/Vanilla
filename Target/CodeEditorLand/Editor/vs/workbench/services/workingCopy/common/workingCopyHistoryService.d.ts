@@ -1,18 +1,18 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../../base/common/map.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { SaveSource } from "../../../common/editor.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
-import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
-import { IWorkingCopyHistoryEntry, IWorkingCopyHistoryEntryDescriptor, IWorkingCopyHistoryEvent, IWorkingCopyHistoryService } from "./workingCopyHistory.js";
+import { Event, Emitter } from '../../../../base/common/event.js';
+import { ILifecycleService } from '../../lifecycle/common/lifecycle.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IWorkingCopyHistoryEntry, IWorkingCopyHistoryEntryDescriptor, IWorkingCopyHistoryEvent, IWorkingCopyHistoryService } from './workingCopyHistory.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IRemoteAgentService } from '../../remote/common/remoteAgentService.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IWorkbenchEnvironmentService } from '../../environment/common/environmentService.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ResourceMap } from '../../../../base/common/map.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { SaveSource } from '../../../common/editor.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 export interface IWorkingCopyHistoryModelOptions {
     /**
      * Whether to flush when the model changes. If not

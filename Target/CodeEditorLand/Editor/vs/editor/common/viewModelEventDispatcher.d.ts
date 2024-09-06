@@ -1,10 +1,10 @@
-import { Disposable } from "../../base/common/lifecycle.js";
-import { Selection } from "./core/selection.js";
-import { CursorChangeReason } from "./cursorEvents.js";
-import { IContentSizeChangedEvent } from "./editorCommon.js";
-import { IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelLanguageChangedEvent, IModelLanguageConfigurationChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from "./textModelEvents.js";
-import { ViewEventHandler } from "./viewEventHandler.js";
-import { ViewEvent } from "./viewEvents.js";
+import { ViewEventHandler } from './viewEventHandler.js';
+import { ViewEvent } from './viewEvents.js';
+import { IContentSizeChangedEvent } from './editorCommon.js';
+import { Selection } from './core/selection.js';
+import { Disposable } from '../../base/common/lifecycle.js';
+import { CursorChangeReason } from './cursorEvents.js';
+import { IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelLanguageChangedEvent, IModelLanguageConfigurationChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from './textModelEvents.js';
 export declare class ViewModelEventDispatcher extends Disposable {
     private readonly _onEvent;
     readonly onEvent: import("../../base/common/event.js").Event<OutgoingViewModelEvent>;
@@ -34,7 +34,7 @@ export declare class ViewModelEventsCollector {
     emitViewEvent(event: ViewEvent): void;
     emitOutgoingEvent(e: OutgoingViewModelEvent): void;
 }
-export type OutgoingViewModelEvent = ContentSizeChangedEvent | FocusChangedEvent | ScrollChangedEvent | ViewZonesChangedEvent | HiddenAreasChangedEvent | ReadOnlyEditAttemptEvent | CursorStateChangedEvent | ModelDecorationsChangedEvent | ModelLanguageChangedEvent | ModelLanguageConfigurationChangedEvent | ModelContentChangedEvent | ModelOptionsChangedEvent | ModelTokensChangedEvent;
+export type OutgoingViewModelEvent = (ContentSizeChangedEvent | FocusChangedEvent | ScrollChangedEvent | ViewZonesChangedEvent | HiddenAreasChangedEvent | ReadOnlyEditAttemptEvent | CursorStateChangedEvent | ModelDecorationsChangedEvent | ModelLanguageChangedEvent | ModelLanguageConfigurationChangedEvent | ModelContentChangedEvent | ModelOptionsChangedEvent | ModelTokensChangedEvent);
 export declare const enum OutgoingViewModelEventKind {
     ContentSizeChanged = 0,
     FocusChanged = 1,

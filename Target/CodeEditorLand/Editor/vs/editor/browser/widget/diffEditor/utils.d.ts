@@ -1,12 +1,12 @@
-import { IDimension } from "../../../../base/browser/dom.js";
-import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import { Disposable, DisposableStore, IDisposable, IReference } from "../../../../base/common/lifecycle.js";
-import { IObservable } from "../../../../base/common/observable.js";
-import { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import { DetailedLineRangeMapping } from "../../../common/diff/rangeMapping.js";
-import { IModelDeltaDecoration } from "../../../common/model.js";
-import { ICodeEditor, IViewZone } from "../../editorBrowser.js";
+import { IDimension } from '../../../../base/browser/dom.js';
+import { CancellationTokenSource } from '../../../../base/common/cancellation.js';
+import { Disposable, DisposableStore, IDisposable, IReference } from '../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../base/common/observable.js';
+import { ICodeEditor, IViewZone } from '../../editorBrowser.js';
+import { Position } from '../../../common/core/position.js';
+import { Range } from '../../../common/core/range.js';
+import { DetailedLineRangeMapping } from '../../../common/diff/rangeMapping.js';
+import { IModelDeltaDecoration } from '../../../common/model.js';
 export declare function joinCombine<T>(arr1: readonly T[], arr2: readonly T[], keySelector: (val: T) => number, combine: (v1: T, v2: T) => T): readonly T[];
 export declare function applyObservableDecorations(editor: ICodeEditor, decorations: IObservable<IModelDeltaDecoration[]>): IDisposable;
 export declare function appendRemoveOnDispose(parent: HTMLElement, child: HTMLElement): IDisposable;
@@ -60,8 +60,8 @@ export interface CSSStyle {
     height: number | string;
     width: number | string;
     top: number | string;
-    visibility: "visible" | "hidden" | "collapse";
-    display: "block" | "inline" | "inline-block" | "flex" | "none";
+    visibility: 'visible' | 'hidden' | 'collapse';
+    display: 'block' | 'inline' | 'inline-block' | 'flex' | 'none';
     paddingLeft: number | string;
     paddingRight: number | string;
 }

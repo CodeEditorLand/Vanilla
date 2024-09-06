@@ -1,9 +1,9 @@
-import { URI } from "../../../../base/common/uri.js";
-import { IEditor } from "../../../../editor/common/editorCommon.js";
-import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { MutableObservableValue } from "./observableValue.js";
-import { ITestResult } from "./testResult.js";
-import { TestResultItem } from "./testTypes.js";
+import { URI } from '../../../../base/common/uri.js';
+import { ITextEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { TestResultItem } from './testTypes.js';
+import { ITestResult } from './testResult.js';
+import { IEditor } from '../../../../editor/common/editorCommon.js';
+import { MutableObservableValue } from './observableValue.js';
 export interface IShowResultOptions {
     /** Reveal the peek, if configured, in the given editor */
     inEditor?: IEditor;

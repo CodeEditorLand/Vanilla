@@ -1,16 +1,16 @@
-import { Event } from "../../base/common/event.js";
-import { IMarkdownString } from "../../base/common/htmlContent.js";
-import { IDisposable } from "../../base/common/lifecycle.js";
-import { ThemeColor } from "../../base/common/themables.js";
-import { URI, UriComponents } from "../../base/common/uri.js";
-import { ICommandMetadata } from "../../platform/commands/common/commands.js";
-import { IEditorOptions } from "./config/editorOptions.js";
-import { IDimension } from "./core/dimension.js";
-import { IPosition, Position } from "./core/position.js";
-import { IRange, Range } from "./core/range.js";
-import { ISelection, Selection } from "./core/selection.js";
-import { IModelDecoration, IModelDecorationsChangeAccessor, IModelDeltaDecoration, ITextModel, IValidEditOperation, OverviewRulerLane, TrackedRangeStickiness } from "./model.js";
-import { IModelDecorationsChangedEvent } from "./textModelEvents.js";
+import { Event } from '../../base/common/event.js';
+import { IMarkdownString } from '../../base/common/htmlContent.js';
+import { IDisposable } from '../../base/common/lifecycle.js';
+import { ThemeColor } from '../../base/common/themables.js';
+import { URI, UriComponents } from '../../base/common/uri.js';
+import { IEditorOptions } from './config/editorOptions.js';
+import { IDimension } from './core/dimension.js';
+import { IPosition, Position } from './core/position.js';
+import { IRange, Range } from './core/range.js';
+import { ISelection, Selection } from './core/selection.js';
+import { IModelDecoration, IModelDecorationsChangeAccessor, IModelDeltaDecoration, ITextModel, IValidEditOperation, OverviewRulerLane, TrackedRangeStickiness } from './model.js';
+import { IModelDecorationsChangedEvent } from './textModelEvents.js';
+import { ICommandMetadata } from '../../platform/commands/common/commands.js';
 /**
  * A builder and helper for edit operations for a command.
  */

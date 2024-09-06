@@ -1,9 +1,9 @@
-import { OverviewRulerPosition } from "../../../common/config/editorOptions.js";
-import { ViewEventHandler } from "../../../common/viewEventHandler.js";
-import * as viewEvents from "../../../common/viewEvents.js";
-import { OverviewRulerZone } from "../../../common/viewModel/overviewZoneManager.js";
-import { ViewContext } from "../../../common/viewModel/viewContext.js";
-import { IOverviewRuler } from "../../editorBrowser.js";
+import { IOverviewRuler } from '../../editorBrowser.js';
+import { OverviewRulerPosition } from '../../../common/config/editorOptions.js';
+import { OverviewRulerZone } from '../../../common/viewModel/overviewZoneManager.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
+import * as viewEvents from '../../../common/viewEvents.js';
+import { ViewEventHandler } from '../../../common/viewEventHandler.js';
 export declare class OverviewRuler extends ViewEventHandler implements IOverviewRuler {
     private readonly _context;
     private readonly _domNode;

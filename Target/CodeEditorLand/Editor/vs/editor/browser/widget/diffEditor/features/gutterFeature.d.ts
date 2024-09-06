@@ -1,15 +1,15 @@
-import { IBoundarySashes } from "../../../../../base/browser/ui/sash/sash.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IObservable } from "../../../../../base/common/observable.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { IMenuService } from "../../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { DetailedLineRangeMapping } from "../../../../common/diff/rangeMapping.js";
-import { DiffEditorEditors } from "../components/diffEditorEditors.js";
-import { SashLayout } from "../components/diffEditorSash.js";
-import { DiffEditorOptions } from "../diffEditorOptions.js";
-import { DiffEditorViewModel } from "../diffEditorViewModel.js";
+import { IBoundarySashes } from '../../../../../base/browser/ui/sash/sash.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../../base/common/observable.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { DiffEditorEditors } from '../components/diffEditorEditors.js';
+import { SashLayout } from '../components/diffEditorSash.js';
+import { DiffEditorOptions } from '../diffEditorOptions.js';
+import { DiffEditorViewModel } from '../diffEditorViewModel.js';
+import { DetailedLineRangeMapping } from '../../../../common/diff/rangeMapping.js';
+import { IMenuService } from '../../../../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
 export declare class DiffEditorGutter extends Disposable {
     private readonly _diffModel;
     private readonly _editors;
@@ -35,7 +35,7 @@ export interface DiffEditorSelectionHunkToolbarContext {
     mapping: DetailedLineRangeMapping;
     /**
      * The original text with the selected modified changes applied.
-     */
+    */
     originalWithModifiedChanges: string;
     modifiedUri: URI;
     originalUri: URI;

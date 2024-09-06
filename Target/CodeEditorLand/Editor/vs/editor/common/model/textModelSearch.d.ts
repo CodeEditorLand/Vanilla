@@ -1,8 +1,8 @@
-import { Position } from "../core/position.js";
-import { Range } from "../core/range.js";
-import { WordCharacterClassifier } from "../core/wordCharacterClassifier.js";
-import { FindMatch, SearchData } from "../model.js";
-import { TextModel } from "./textModel.js";
+import { WordCharacterClassifier } from '../core/wordCharacterClassifier.js';
+import { Position } from '../core/position.js';
+import { Range } from '../core/range.js';
+import { FindMatch, SearchData } from '../model.js';
+import { TextModel } from './textModel.js';
 export declare class SearchParams {
     readonly searchString: string;
     readonly isRegex: boolean;

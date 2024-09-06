@@ -1,16 +1,16 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ExtensionHostKind } from "./extensionHostKind.js";
-import { IExtensionHostManager } from "./extensionHostManagers.js";
-import { IExtensionDescriptionDelta } from "./extensionHostProtocol.js";
-import { IResolveAuthorityResult } from "./extensionHostProxy.js";
-import { ExtensionRunningLocation } from "./extensionRunningLocation.js";
-import { ActivationKind, ExtensionActivationReason, ExtensionHostStartup, IExtensionHost, IInternalExtensionService } from "./extensions.js";
-import { ResponsiveState } from "./rpcProtocol.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ExtensionIdentifier, IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { ExtensionHostKind } from './extensionHostKind.js';
+import { IExtensionHostManager } from './extensionHostManagers.js';
+import { IExtensionDescriptionDelta } from './extensionHostProtocol.js';
+import { IResolveAuthorityResult } from './extensionHostProxy.js';
+import { ExtensionRunningLocation } from './extensionRunningLocation.js';
+import { ActivationKind, ExtensionActivationReason, ExtensionHostStartup, IExtensionHost, IInternalExtensionService } from './extensions.js';
+import { ResponsiveState } from './rpcProtocol.js';
 /**
  * Waits until `start()` and only if it has extensions proceeds to really start.
  */

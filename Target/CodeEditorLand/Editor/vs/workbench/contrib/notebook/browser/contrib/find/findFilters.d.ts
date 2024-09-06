@@ -1,6 +1,6 @@
-import { Event } from "../../../../../../base/common/event.js";
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { INotebookFindScope } from "../../../common/notebookCommon.js";
+import { Event } from '../../../../../../base/common/event.js';
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { INotebookFindScope } from '../../../common/notebookCommon.js';
 export interface INotebookFindChangeEvent {
     markupInput?: boolean;
     markupPreview?: boolean;

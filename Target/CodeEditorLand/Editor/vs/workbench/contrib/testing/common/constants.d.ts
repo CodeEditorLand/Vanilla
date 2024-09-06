@@ -1,4 +1,4 @@
-import { TestResultState, TestRunProfileBitset } from "./testTypes.js";
+import { TestResultState, TestRunProfileBitset } from './testTypes.js';
 export declare const enum Testing {
     ViewletId = "workbench.view.extension.test",
     ExplorerViewId = "workbench.view.testing",

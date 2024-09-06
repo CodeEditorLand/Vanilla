@@ -1,4 +1,4 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
 /**
  * The editor model is the heavyweight counterpart of editor input. Depending on the editor input, it
  * resolves from a file system retrieve content and may allow for saving it back or reverting it.

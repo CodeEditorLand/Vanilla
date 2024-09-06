@@ -1,5 +1,5 @@
-import { Position } from "./core/position.js";
-import { Selection } from "./core/selection.js";
+import { Position } from './core/position.js';
+import { Selection } from './core/selection.js';
 /**
  * Describes the reason the cursor has changed its position.
  */

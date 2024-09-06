@@ -1,9 +1,9 @@
-import { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { INotebookExecutionStateService } from "../common/notebookExecutionStateService.js";
-import { CellViewModel, NotebookViewModel } from "./viewModel/notebookViewModelImpl.js";
+import { IListAccessibilityProvider } from '../../../../base/browser/ui/list/listWidget.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { CellViewModel, NotebookViewModel } from './viewModel/notebookViewModelImpl.js';
+import { INotebookExecutionStateService } from '../common/notebookExecutionStateService.js';
 export declare class NotebookAccessibilityProvider extends Disposable implements IListAccessibilityProvider<CellViewModel> {
     private readonly notebookExecutionStateService;
     private readonly viewModel;

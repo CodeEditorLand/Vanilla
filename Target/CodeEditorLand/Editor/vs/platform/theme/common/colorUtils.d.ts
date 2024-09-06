@@ -1,7 +1,7 @@
-import { Color } from "../../../base/common/color.js";
-import { Event } from "../../../base/common/event.js";
-import { IJSONSchema } from "../../../base/common/jsonSchema.js";
-import { IColorTheme } from "./themeService.js";
+import { Color } from '../../../base/common/color.js';
+import { Event } from '../../../base/common/event.js';
+import { IJSONSchema } from '../../../base/common/jsonSchema.js';
+import { IColorTheme } from './themeService.js';
 export type ColorIdentifier = string;
 export interface ColorContribution {
     readonly id: ColorIdentifier;

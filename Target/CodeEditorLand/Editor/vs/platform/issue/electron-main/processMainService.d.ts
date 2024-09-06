@@ -1,15 +1,15 @@
-import { IProcessEnvironment } from "../../../base/common/platform.js";
-import { ICSSDevelopmentService } from "../../cssDev/node/cssDevService.js";
-import { IDiagnosticsService, PerformanceInfo, SystemInfo } from "../../diagnostics/common/diagnostics.js";
-import { IDiagnosticsMainService } from "../../diagnostics/electron-main/diagnosticsMainService.js";
-import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
-import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { INativeHostMainService } from "../../native/electron-main/nativeHostMainService.js";
-import { IProductService } from "../../product/common/productService.js";
-import { IProtocolMainService } from "../../protocol/electron-main/protocol.js";
-import { IStateService } from "../../state/node/state.js";
-import { IProcessMainService, ProcessExplorerData } from "../common/issue.js";
+import { IProcessEnvironment } from '../../../base/common/platform.js';
+import { IDiagnosticsService, PerformanceInfo, SystemInfo } from '../../diagnostics/common/diagnostics.js';
+import { IDiagnosticsMainService } from '../../diagnostics/electron-main/diagnosticsMainService.js';
+import { IDialogMainService } from '../../dialogs/electron-main/dialogMainService.js';
+import { IEnvironmentMainService } from '../../environment/electron-main/environmentMainService.js';
+import { ICSSDevelopmentService } from '../../cssDev/node/cssDevService.js';
+import { IProcessMainService, ProcessExplorerData } from '../common/issue.js';
+import { ILogService } from '../../log/common/log.js';
+import { INativeHostMainService } from '../../native/electron-main/nativeHostMainService.js';
+import { IProductService } from '../../product/common/productService.js';
+import { IProtocolMainService } from '../../protocol/electron-main/protocol.js';
+import { IStateService } from '../../state/node/state.js';
 export declare class ProcessMainService implements IProcessMainService {
     private userEnv;
     private readonly environmentMainService;

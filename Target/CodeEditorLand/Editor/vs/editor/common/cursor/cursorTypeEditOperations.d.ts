@@ -1,9 +1,9 @@
-import { ReplaceCommandWithOffsetCursorState } from "../commands/replaceCommand.js";
-import { Range } from "../core/range.js";
-import { Selection } from "../core/selection.js";
-import { CursorConfiguration, EditOperationResult, EditOperationType, ICursorSimpleModel } from "../cursorCommon.js";
-import { ICommand, ICursorStateComputerData } from "../editorCommon.js";
-import { ITextModel } from "../model.js";
+import { ReplaceCommandWithOffsetCursorState } from '../commands/replaceCommand.js';
+import { CursorConfiguration, EditOperationResult, EditOperationType, ICursorSimpleModel } from '../cursorCommon.js';
+import { Range } from '../core/range.js';
+import { Selection } from '../core/selection.js';
+import { ICommand, ICursorStateComputerData } from '../editorCommon.js';
+import { ITextModel } from '../model.js';
 export declare class AutoIndentOperation {
     static getEdits(config: CursorConfiguration, model: ITextModel, selections: Selection[], ch: string, isDoingComposition: boolean): EditOperationResult | undefined;
     private static _isAutoIndentType;

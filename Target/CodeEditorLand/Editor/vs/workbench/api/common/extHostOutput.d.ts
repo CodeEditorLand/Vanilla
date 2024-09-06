@@ -1,11 +1,11 @@
-import type * as vscode from "vscode";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILoggerService, ILogService } from "../../../platform/log/common/log.js";
-import { ExtHostOutputServiceShape } from "./extHost.protocol.js";
-import { IExtHostConsumerFileSystem } from "./extHostFileSystemConsumer.js";
-import { IExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
-import { IExtHostInitDataService } from "./extHostInitDataService.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import { ExtHostOutputServiceShape } from './extHost.protocol.js';
+import type * as vscode from 'vscode';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ILoggerService, ILogService } from '../../../platform/log/common/log.js';
+import { IExtHostConsumerFileSystem } from './extHostFileSystemConsumer.js';
+import { IExtHostInitDataService } from './extHostInitDataService.js';
+import { IExtHostFileSystemInfo } from './extHostFileSystemInfo.js';
 export declare class ExtHostOutputService implements ExtHostOutputServiceShape {
     private readonly initData;
     private readonly extHostFileSystem;

@@ -1,5 +1,5 @@
-import { Position } from "./position.js";
-import { IRange, Range } from "./range.js";
+import { Position } from './position.js';
+import { IRange, Range } from './range.js';
 /**
  * A single edit operation, that acts as a simple replace.
  * i.e. Replace text at `range` with `text` in model.

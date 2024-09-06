@@ -1,20 +1,20 @@
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IPosition, Position } from "../../../common/core/position.js";
-import { IWordAtPosition } from "../../../common/core/wordHelper.js";
-import { CompletionItemKind, CompletionTriggerKind } from "../../../common/languages.js";
-import { ITextModel } from "../../../common/model.js";
-import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { CompletionModel } from "./completionModel.js";
-import { CompletionOptions } from "./suggest.js";
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IPosition, Position } from '../../../common/core/position.js';
+import { ITextModel } from '../../../common/model.js';
+import { CompletionItemKind, CompletionTriggerKind } from '../../../common/languages.js';
+import { IEditorWorkerService } from '../../../common/services/editorWorker.js';
+import { IClipboardService } from '../../../../platform/clipboard/common/clipboardService.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { CompletionModel } from './completionModel.js';
+import { CompletionOptions } from './suggest.js';
+import { IWordAtPosition } from '../../../common/core/wordHelper.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { IEnvironmentService } from '../../../../platform/environment/common/environment.js';
 export interface ICancelEvent {
     readonly retrigger: boolean;
 }

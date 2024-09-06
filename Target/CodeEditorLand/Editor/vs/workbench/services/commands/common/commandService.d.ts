@@ -1,9 +1,9 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ICommandEvent, ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ICommandService, ICommandEvent } from '../../../../platform/commands/common/commands.js';
+import { IExtensionService } from '../../extensions/common/extensions.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare class CommandService extends Disposable implements ICommandService {
     private readonly _instantiationService;
     private readonly _extensionService;

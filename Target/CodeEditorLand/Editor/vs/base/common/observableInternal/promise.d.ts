@@ -1,5 +1,5 @@
-import { CancellationToken } from "../cancellation.js";
-import { IObservable, IReader } from "./base.js";
+import { IObservable, IReader } from './base.js';
+import { CancellationToken } from '../cancellation.js';
 export declare class ObservableLazy<T> {
     private readonly _computeValue;
     private readonly _value;

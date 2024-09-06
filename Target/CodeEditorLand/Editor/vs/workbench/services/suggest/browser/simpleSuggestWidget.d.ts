@@ -1,14 +1,14 @@
-import "./media/suggest.css";
-import * as dom from "../../../../base/browser/dom.js";
-import { List } from "../../../../base/browser/ui/list/listWidget.js";
-import { ResizableHTMLElement } from "../../../../base/browser/ui/resizable/resizable.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { MenuId } from "../../../../platform/actions/common/actions.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { SimpleCompletionItem } from "./simpleCompletionItem.js";
-import { LineContext, SimpleCompletionModel } from "./simpleCompletionModel.js";
-import { type ISimpleSuggestWidgetFontInfo } from "./simpleSuggestWidgetRenderer.js";
+import './media/suggest.css';
+import * as dom from '../../../../base/browser/dom.js';
+import { List } from '../../../../base/browser/ui/list/listWidget.js';
+import { ResizableHTMLElement } from '../../../../base/browser/ui/resizable/resizable.js';
+import { SimpleCompletionItem } from './simpleCompletionItem.js';
+import { LineContext, SimpleCompletionModel } from './simpleCompletionModel.js';
+import { type ISimpleSuggestWidgetFontInfo } from './simpleSuggestWidgetRenderer.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { MenuId } from '../../../../platform/actions/common/actions.js';
 export interface ISimpleSelectedSuggestion {
     item: SimpleCompletionItem;
     index: number;

@@ -1,6 +1,6 @@
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITextModel } from "../../../common/model.js";
-import { CodeLensModel } from "./codelens.js";
+import { ITextModel } from '../../../common/model.js';
+import { CodeLensModel } from './codelens.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
 export declare const ICodeLensCache: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ICodeLensCache>;
 export interface ICodeLensCache {
     readonly _serviceBrand: undefined;

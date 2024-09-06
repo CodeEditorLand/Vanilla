@@ -1,8 +1,8 @@
-import { IAction } from "../../base/common/actions.js";
-import { Event } from "../../base/common/event.js";
-import { Disposable } from "../../base/common/lifecycle.js";
-import { IMenuActionOptions, IMenuService, MenuId } from "../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
+import { IAction } from '../../base/common/actions.js';
+import { Disposable } from '../../base/common/lifecycle.js';
+import { Event } from '../../base/common/event.js';
+import { MenuId, IMenuService, IMenuActionOptions } from '../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../platform/contextkey/common/contextkey.js';
 export declare class CompositeMenuActions extends Disposable {
     readonly menuId: MenuId;
     private readonly contextMenuId;

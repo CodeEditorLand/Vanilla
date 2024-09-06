@@ -1,17 +1,17 @@
-import { VSBufferReadableStream } from "../../../base/common/buffer.js";
-import { IStringDictionary } from "../../../base/common/collections.js";
-import { Event } from "../../../base/common/event.js";
-import { FormattingOptions } from "../../../base/common/jsonFormatter.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { IExtUri } from "../../../base/common/resources.js";
-import { URI } from "../../../base/common/uri.js";
-import { IHeaders } from "../../../base/parts/request/common/request.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IExtensionIdentifier } from "../../extensionManagement/common/extensionManagement.js";
-import { IExtensionManifest } from "../../extensions/common/extensions.js";
-import { ILogService } from "../../log/common/log.js";
-import { IUserDataProfile, UseDefaultProfileFlags } from "../../userDataProfile/common/userDataProfile.js";
-import { IUserDataSyncMachine } from "./userDataSyncMachines.js";
+import { VSBufferReadableStream } from '../../../base/common/buffer.js';
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { Event } from '../../../base/common/event.js';
+import { FormattingOptions } from '../../../base/common/jsonFormatter.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { IExtUri } from '../../../base/common/resources.js';
+import { URI } from '../../../base/common/uri.js';
+import { IHeaders } from '../../../base/parts/request/common/request.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IExtensionIdentifier } from '../../extensionManagement/common/extensionManagement.js';
+import { IExtensionManifest } from '../../extensions/common/extensions.js';
+import { ILogService } from '../../log/common/log.js';
+import { IUserDataProfile, UseDefaultProfileFlags } from '../../userDataProfile/common/userDataProfile.js';
+import { IUserDataSyncMachine } from './userDataSyncMachines.js';
 export declare function getDisallowedIgnoredSettings(): string[];
 export declare function getDefaultIgnoredSettings(excludeExtensions?: boolean): string[];
 export declare function getIgnoredSettingsForExtension(manifest: IExtensionManifest): string[];
@@ -88,8 +88,8 @@ export interface IResourceRefHandle {
     ref: string;
     created: number;
 }
-export type ServerResource = SyncResource | "machines" | "editSessions" | "workspaceState";
-export type UserDataSyncStoreType = "insiders" | "stable";
+export type ServerResource = SyncResource | 'machines' | 'editSessions' | 'workspaceState';
+export type UserDataSyncStoreType = 'insiders' | 'stable';
 export declare const IUserDataSyncStoreManagementService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncStoreManagementService>;
 export interface IUserDataSyncStoreManagementService {
     readonly _serviceBrand: undefined;
@@ -129,18 +129,18 @@ export declare const HEADER_OPERATION_ID = "x-operation-id";
 export declare const HEADER_EXECUTION_ID = "X-Execution-Id";
 export declare function createSyncHeaders(executionId: string): IHeaders;
 export declare const enum UserDataSyncErrorCode {
-    Unauthorized = "Unauthorized",
-    Forbidden = "Forbidden",
-    NotFound = "NotFound",
-    MethodNotFound = "MethodNotFound",
-    Conflict = "Conflict",
-    Gone = "Gone",
-    PreconditionFailed = "PreconditionFailed",
-    TooLarge = "TooLarge",
-    UpgradeRequired = "UpgradeRequired",
-    PreconditionRequired = "PreconditionRequired",
-    TooManyRequests = "RemoteTooManyRequests",
-    TooManyRequestsAndRetryAfter = "TooManyRequestsAndRetryAfter",
+    Unauthorized = "Unauthorized",/* 401 */
+    Forbidden = "Forbidden",/* 403 */
+    NotFound = "NotFound",/* 404 */
+    MethodNotFound = "MethodNotFound",/* 405 */
+    Conflict = "Conflict",/* 409 */
+    Gone = "Gone",/* 410 */
+    PreconditionFailed = "PreconditionFailed",/* 412 */
+    TooLarge = "TooLarge",/* 413 */
+    UpgradeRequired = "UpgradeRequired",/* 426 */
+    PreconditionRequired = "PreconditionRequired",/* 428 */
+    TooManyRequests = "RemoteTooManyRequests",/* 429 */
+    TooManyRequestsAndRetryAfter = "TooManyRequestsAndRetryAfter",/* 429 + Retry-After */
     RequestFailed = "RequestFailed",
     RequestCanceled = "RequestCanceled",
     RequestTimeout = "RequestTimeout",

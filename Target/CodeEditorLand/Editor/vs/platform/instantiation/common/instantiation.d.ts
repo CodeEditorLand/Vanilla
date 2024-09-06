@@ -1,6 +1,6 @@
-import { DisposableStore } from "../../../base/common/lifecycle.js";
-import * as descriptors from "./descriptors.js";
-import { ServiceCollection } from "./serviceCollection.js";
+import { DisposableStore } from '../../../base/common/lifecycle.js';
+import * as descriptors from './descriptors.js';
+import { ServiceCollection } from './serviceCollection.js';
 export declare namespace _util {
     const serviceIds: Map<string, ServiceIdentifier<any>>;
     const DI_TARGET = "$di$target";

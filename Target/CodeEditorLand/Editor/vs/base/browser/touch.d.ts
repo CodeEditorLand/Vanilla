@@ -1,4 +1,4 @@
-import { Disposable, IDisposable } from "../common/lifecycle.js";
+import { Disposable, IDisposable } from '../common/lifecycle.js';
 export declare namespace EventType {
     const Tap = "-monaco-gesturetap";
     const Change = "-monaco-gesturechange";

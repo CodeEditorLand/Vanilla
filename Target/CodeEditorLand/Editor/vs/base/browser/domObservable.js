@@ -1,1 +1,1 @@
-import{DisposableStore as s}from"../common/lifecycle.js";import{autorun as a}from"../common/observable.js";import{createStyleSheet2 as b}from"./dom.js";function S(r){const e=new s,t=e.add(b());return e.add(a(o=>{t.setStyle(r.read(o))})),e}export{S as createStyleSheetFromObservable};
+import{createStyleSheet2 as s}from"./dom.js";import{DisposableStore as a}from"../common/lifecycle.js";import{autorun as b}from"../common/observable.js";function S(r){const e=new a,t=e.add(s());return e.add(b(o=>{t.setStyle(r.read(o))})),e}export{S as createStyleSheetFromObservable};

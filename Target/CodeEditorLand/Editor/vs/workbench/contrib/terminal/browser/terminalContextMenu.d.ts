@@ -1,9 +1,9 @@
-import { ActionRunner, IAction } from "../../../../base/common/actions.js";
-import { SingleOrMany } from "../../../../base/common/types.js";
-import { IMenu } from "../../../../platform/actions/common/actions.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { ISerializedTerminalInstanceContext } from "../common/terminal.js";
-import { ITerminalInstance } from "./terminal.js";
+import { ActionRunner, IAction } from '../../../../base/common/actions.js';
+import { SingleOrMany } from '../../../../base/common/types.js';
+import { IMenu } from '../../../../platform/actions/common/actions.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { ITerminalInstance } from './terminal.js';
+import { ISerializedTerminalInstanceContext } from '../common/terminal.js';
 /**
  * A context that is passed to actions as arguments to represent the terminal instance(s) being
  * acted upon.

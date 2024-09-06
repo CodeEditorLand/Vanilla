@@ -1,10 +1,10 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
-import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
-import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { ServicesAccessor } from '../../../../editor/browser/editorExtensions.js';
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from '../../../../platform/accessibility/browser/accessibleView.js';
+import { IAccessibleViewImplentation } from '../../../../platform/accessibility/browser/accessibleViewRegistry.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { AccessibilityVerbositySettingId } from '../../accessibility/browser/accessibilityConfiguration.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IViewsService } from '../../../services/views/common/viewsService.js';
 export declare class RunAndDebugAccessibilityHelp implements IAccessibleViewImplentation {
     priority: number;
     name: string;

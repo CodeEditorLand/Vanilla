@@ -1,15 +1,15 @@
-import type { ITerminalAddon, Terminal as RawXtermTerminal } from "@xterm/xterm";
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ITerminalCapabilityStore } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { IDetachedTerminalInstance, ITerminalContribution, ITerminalEditorService, ITerminalGroupService, ITerminalInstance, IXtermTerminal } from "../../../terminal/browser/terminal.js";
-import { TerminalWidgetManager } from "../../../terminal/browser/widgets/widgetManager.js";
-import { ITerminalProcessInfo, ITerminalProcessManager } from "../../../terminal/common/terminal.js";
-import "./media/terminalInitialHint.css";
-import { IStorageService } from "../../../../../platform/storage/common/storage.js";
-import { IChatAgent, IChatAgentService } from "../../../chat/common/chatAgents.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IDetachedTerminalInstance, ITerminalContribution, ITerminalEditorService, ITerminalGroupService, ITerminalInstance, IXtermTerminal } from '../../../terminal/browser/terminal.js';
+import type { Terminal as RawXtermTerminal, ITerminalAddon } from '@xterm/xterm';
+import { TerminalWidgetManager } from '../../../terminal/browser/widgets/widgetManager.js';
+import { ITerminalProcessManager, ITerminalProcessInfo } from '../../../terminal/common/terminal.js';
+import { ITerminalCapabilityStore } from '../../../../../platform/terminal/common/capabilities/capabilities.js';
+import { Event } from '../../../../../base/common/event.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import './media/terminalInitialHint.css';
+import { IChatAgent, IChatAgentService } from '../../../chat/common/chatAgents.js';
+import { IStorageService } from '../../../../../platform/storage/common/storage.js';
 export declare class InitialHintAddon extends Disposable implements ITerminalAddon {
     private readonly _capabilities;
     private readonly _onDidChangeAgents;
@@ -33,7 +33,7 @@ export declare class TerminalInitialHintContribution extends Disposable implemen
     static get(instance: ITerminalInstance | IDetachedTerminalInstance): TerminalInitialHintContribution | null;
     private _decoration;
     private _xterm;
-    constructor(_instance: Pick<ITerminalInstance, "capabilities" | "shellLaunchConfig"> | IDetachedTerminalInstance, processManager: ITerminalProcessManager | ITerminalProcessInfo | undefined, widgetManager: TerminalWidgetManager | undefined, _instantiationService: IInstantiationService, _configurationService: IConfigurationService, _terminalGroupService: ITerminalGroupService, _terminalEditorService: ITerminalEditorService, _chatAgentService: IChatAgentService, _storageService: IStorageService);
+    constructor(_instance: Pick<ITerminalInstance, 'capabilities' | 'shellLaunchConfig'> | IDetachedTerminalInstance, processManager: ITerminalProcessManager | ITerminalProcessInfo | undefined, widgetManager: TerminalWidgetManager | undefined, _instantiationService: IInstantiationService, _configurationService: IConfigurationService, _terminalGroupService: ITerminalGroupService, _terminalEditorService: ITerminalEditorService, _chatAgentService: IChatAgentService, _storageService: IStorageService);
     xtermOpen(xterm: IXtermTerminal & {
         raw: RawXtermTerminal;
     }): void;

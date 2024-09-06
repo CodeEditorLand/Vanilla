@@ -1,21 +1,21 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IEditorOptions as ICodeEditorOptions } from "../../../../editor/common/config/editorOptions.js";
-import { ICodeEditorViewState } from "../../../../editor/common/editorCommon.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IEditorOpenContext } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { AbstractTextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
-import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { AbstractTextCodeEditor } from "./textCodeEditor.js";
+import { IEditorOpenContext } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { AbstractTextResourceEditorInput } from '../../../common/editor/textResourceEditorInput.js';
+import { AbstractTextCodeEditor } from './textCodeEditor.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { ITextResourceConfigurationService } from '../../../../editor/common/services/textResourceConfiguration.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { ICodeEditorViewState } from '../../../../editor/common/editorCommon.js';
+import { IEditorGroup, IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { IEditorOptions as ICodeEditorOptions } from '../../../../editor/common/config/editorOptions.js';
+import { ITextEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
 /**
  * An editor implementation that is capable of showing the contents of resource inputs. Uses
  * the TextEditor widget to show the contents.

@@ -1,12 +1,12 @@
-import { EditorAutoClosingEditStrategy, EditorAutoClosingStrategy } from "../config/editorOptions.js";
-import { Position } from "../core/position.js";
-import { Range } from "../core/range.js";
-import { Selection } from "../core/selection.js";
-import { WordCharacterClassifier } from "../core/wordCharacterClassifier.js";
-import { IWordAtPosition } from "../core/wordHelper.js";
-import { CursorConfiguration, ICursorSimpleModel, SingleCursorState } from "../cursorCommon.js";
-import { AutoClosingPairs } from "../languages/languageConfiguration.js";
-import { ITextModel } from "../model.js";
+import { EditorAutoClosingEditStrategy, EditorAutoClosingStrategy } from '../config/editorOptions.js';
+import { CursorConfiguration, ICursorSimpleModel, SingleCursorState } from '../cursorCommon.js';
+import { WordCharacterClassifier } from '../core/wordCharacterClassifier.js';
+import { Position } from '../core/position.js';
+import { Range } from '../core/range.js';
+import { Selection } from '../core/selection.js';
+import { ITextModel } from '../model.js';
+import { IWordAtPosition } from '../core/wordHelper.js';
+import { AutoClosingPairs } from '../languages/languageConfiguration.js';
 export declare const enum WordNavigationType {
     WordStart = 0,
     WordStartFast = 1,

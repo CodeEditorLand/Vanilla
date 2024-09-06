@@ -1,5 +1,5 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ITerminalCapabilityImplMap, ITerminalCapabilityStore, TerminalCapability, TerminalCapabilityChangeEvent } from "./capabilities.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ITerminalCapabilityImplMap, ITerminalCapabilityStore, TerminalCapability, TerminalCapabilityChangeEvent } from './capabilities.js';
 export declare class TerminalCapabilityStore extends Disposable implements ITerminalCapabilityStore {
     private _map;
     private readonly _onDidRemoveCapabilityType;

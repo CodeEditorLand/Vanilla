@@ -1,2 +1,2 @@
-import "./processService.js";
-import "./issueMainService.js";
+import './processService.js';
+import './issueMainService.js';

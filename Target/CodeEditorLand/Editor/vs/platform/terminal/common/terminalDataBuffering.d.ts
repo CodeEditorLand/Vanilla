@@ -1,6 +1,6 @@
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { IProcessDataEvent } from "./terminal.js";
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { IProcessDataEvent } from './terminal.js';
 export declare class TerminalDataBufferer implements IDisposable {
     private readonly _callback;
     private readonly _terminalBufferMap;

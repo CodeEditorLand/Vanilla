@@ -1,10 +1,10 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import * as languages from "../../../../editor/common/languages.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ICellRange } from "../../notebook/common/notebookRange.js";
-import { CommentMenus } from "./commentMenus.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import * as languages from '../../../../editor/common/languages.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { CommentMenus } from './commentMenus.js';
+import { ICellRange } from '../../notebook/common/notebookRange.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 export declare class CommentThreadAdditionalActions<T extends IRange | ICellRange> extends Disposable {
     private _commentThread;
     private _contextKeyService;

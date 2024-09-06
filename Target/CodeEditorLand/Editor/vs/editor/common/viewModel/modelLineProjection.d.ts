@@ -1,14 +1,14 @@
-import { Position } from "../core/position.js";
-import { IRange } from "../core/range.js";
-import { EndOfLinePreference, PositionAffinity } from "../model.js";
-import { InjectedText, ModelLineProjectionData } from "../modelLineProjectionData.js";
-import { LineTokens } from "../tokens/lineTokens.js";
-import { ViewLineData } from "../viewModel.js";
+import { LineTokens } from '../tokens/lineTokens.js';
+import { Position } from '../core/position.js';
+import { IRange } from '../core/range.js';
+import { EndOfLinePreference, PositionAffinity } from '../model.js';
+import { InjectedText, ModelLineProjectionData } from '../modelLineProjectionData.js';
+import { ViewLineData } from '../viewModel.js';
 export interface IModelLineProjection {
     isVisible(): boolean;
     /**
      * This invalidates the current instance (potentially reuses and returns it again).
-     */
+    */
     setVisible(isVisible: boolean): IModelLineProjection;
     getProjectionData(): ModelLineProjectionData | null;
     getViewLineCount(): number;

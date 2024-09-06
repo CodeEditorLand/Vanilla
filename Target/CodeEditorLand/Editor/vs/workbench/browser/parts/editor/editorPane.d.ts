@@ -1,20 +1,20 @@
-import { IBoundarySashes } from "../../../../base/browser/ui/sash/sash.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IExtUri } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IEditorMemento, IEditorOpenContext, IEditorPane } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { MementoObject } from "../../../common/memento.js";
-import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { Composite } from "../../composite.js";
+import { Composite } from '../../composite.js';
+import { IEditorPane, IEditorMemento, IEditorOpenContext } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IEditorGroup, IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { URI } from '../../../../base/common/uri.js';
+import { Emitter, Event } from '../../../../base/common/event.js';
+import { MementoObject } from '../../../common/memento.js';
+import { IExtUri } from '../../../../base/common/resources.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { ITextResourceConfigurationService } from '../../../../editor/common/services/textResourceConfiguration.js';
+import { IBoundarySashes } from '../../../../base/browser/ui/sash/sash.js';
 /**
  * The base class of editors in the workbench. Editors register themselves for specific editor inputs.
  * Editors are layed out in the editor part of the workbench in editor groups. Multiple editors can be

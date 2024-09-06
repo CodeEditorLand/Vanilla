@@ -1,8 +1,8 @@
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IDialogService } from "../../dialogs/common/dialogs.js";
-import { INotificationService } from "../../notification/common/notification.js";
-import { IPastFutureElements, IUndoRedoElement, IUndoRedoService, ResourceEditStackSnapshot, UndoRedoGroup, UndoRedoSource, UriComparisonKeyComputer } from "./undoRedo.js";
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IDialogService } from '../../dialogs/common/dialogs.js';
+import { INotificationService } from '../../notification/common/notification.js';
+import { IPastFutureElements, IUndoRedoElement, IUndoRedoService, ResourceEditStackSnapshot, UndoRedoGroup, UndoRedoSource, UriComparisonKeyComputer } from './undoRedo.js';
 export declare class UndoRedoService implements IUndoRedoService {
     private readonly _dialogService;
     private readonly _notificationService;

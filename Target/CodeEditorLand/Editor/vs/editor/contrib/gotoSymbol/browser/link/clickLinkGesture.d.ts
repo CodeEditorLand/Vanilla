@@ -1,8 +1,8 @@
-import { IKeyboardEvent } from "../../../../../base/browser/keyboardEvent.js";
-import { Event } from "../../../../../base/common/event.js";
-import { KeyCode } from "../../../../../base/common/keyCodes.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ICodeEditor, IEditorMouseEvent, IMouseTarget } from "../../../../browser/editorBrowser.js";
+import { IKeyboardEvent } from '../../../../../base/browser/keyboardEvent.js';
+import { Event } from '../../../../../base/common/event.js';
+import { KeyCode } from '../../../../../base/common/keyCodes.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ICodeEditor, IEditorMouseEvent, IMouseTarget } from '../../../../browser/editorBrowser.js';
 /**
  * An event that encapsulates the various trigger modifiers logic needed for go to definition.
  */
@@ -25,7 +25,7 @@ export declare class ClickLinkKeyboardEvent {
     readonly hasTriggerModifier: boolean;
     constructor(source: IKeyboardEvent, opts: ClickLinkOptions);
 }
-export type TriggerModifier = "ctrlKey" | "shiftKey" | "altKey" | "metaKey";
+export type TriggerModifier = 'ctrlKey' | 'shiftKey' | 'altKey' | 'metaKey';
 export declare class ClickLinkOptions {
     readonly triggerKey: KeyCode;
     readonly triggerModifier: TriggerModifier;
@@ -42,10 +42,7 @@ export interface IClickLinkGestureOptions {
 }
 export declare class ClickLinkGesture extends Disposable {
     private readonly _onMouseMoveOrRelevantKeyDown;
-    readonly onMouseMoveOrRelevantKeyDown: Event<[
-        ClickLinkMouseEvent,
-        ClickLinkKeyboardEvent | null
-    ]>;
+    readonly onMouseMoveOrRelevantKeyDown: Event<[ClickLinkMouseEvent, ClickLinkKeyboardEvent | null]>;
     private readonly _onExecute;
     readonly onExecute: Event<ClickLinkMouseEvent>;
     private readonly _onCancel;

@@ -1,10 +1,10 @@
-import "./media/welcomeWidget.css";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "../../../../editor/browser/editorBrowser.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import './media/welcomeWidget.css';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from '../../../../editor/browser/editorBrowser.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
 export declare class WelcomeWidget extends Disposable implements IOverlayWidget {
     private readonly _editor;
     private readonly instantiationService;

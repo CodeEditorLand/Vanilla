@@ -1,5 +1,5 @@
-import { MenuId } from "../../../../platform/actions/common/actions.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { MenuId } from '../../../../platform/actions/common/actions.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 export declare const enum InlineChatConfigKeys {
     Mode = "inlineChat.mode",
     FinishOnType = "inlineChat.finishOnType",

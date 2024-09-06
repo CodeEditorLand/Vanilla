@@ -1,14 +1,14 @@
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Keybinding, ResolvedKeybinding } from "../../../base/common/keybindings.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ICommandService } from "../../commands/common/commands.js";
-import { IContextKeyService, IContextKeyServiceTarget } from "../../contextkey/common/contextkey.js";
-import { ILogService } from "../../log/common/log.js";
-import { INotificationService } from "../../notification/common/notification.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { IKeybindingService, IKeyboardEvent, KeybindingsSchemaContribution } from "./keybinding.js";
-import { KeybindingResolver, ResolutionResult } from "./keybindingResolver.js";
-import { ResolvedKeybindingItem } from "./resolvedKeybindingItem.js";
+import { Emitter, Event } from '../../../base/common/event.js';
+import { Keybinding, ResolvedKeybinding } from '../../../base/common/keybindings.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { ICommandService } from '../../commands/common/commands.js';
+import { IContextKeyService, IContextKeyServiceTarget } from '../../contextkey/common/contextkey.js';
+import { IKeybindingService, IKeyboardEvent, KeybindingsSchemaContribution } from './keybinding.js';
+import { ResolutionResult, KeybindingResolver } from './keybindingResolver.js';
+import { ResolvedKeybindingItem } from './resolvedKeybindingItem.js';
+import { ILogService } from '../../log/common/log.js';
+import { INotificationService } from '../../notification/common/notification.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 export declare abstract class AbstractKeybindingService extends Disposable implements IKeybindingService {
     private _contextKeyService;
     protected _commandService: ICommandService;

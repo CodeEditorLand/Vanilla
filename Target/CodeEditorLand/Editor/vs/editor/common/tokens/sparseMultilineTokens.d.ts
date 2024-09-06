@@ -1,4 +1,4 @@
-import { IRange, Range } from "../core/range.js";
+import { IRange, Range } from '../core/range.js';
 /**
  * Represents sparse tokens over a contiguous range of lines.
  */

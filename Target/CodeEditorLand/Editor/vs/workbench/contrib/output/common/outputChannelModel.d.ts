@@ -1,14 +1,14 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ILanguageSelection } from "../../../../editor/common/languages/language.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { OutputChannelUpdateMode } from "../../../services/output/common/output.js";
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ITextModel } from '../../../../editor/common/model.js';
+import { IEditorWorkerService } from '../../../../editor/common/services/editorWorker.js';
+import { Event } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ILanguageSelection } from '../../../../editor/common/languages/language.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { OutputChannelUpdateMode } from '../../../services/output/common/output.js';
 export interface IOutputChannelModel extends IDisposable {
     readonly onDispose: Event<void>;
     append(output: string): void;

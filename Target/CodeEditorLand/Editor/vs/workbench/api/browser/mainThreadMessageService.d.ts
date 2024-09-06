@@ -1,10 +1,10 @@
-import Severity from "../../../base/common/severity.js";
-import { ICommandService } from "../../../platform/commands/common/commands.js";
-import { IDialogService } from "../../../platform/dialogs/common/dialogs.js";
-import { INotificationService } from "../../../platform/notification/common/notification.js";
-import { IExtensionService } from "../../services/extensions/common/extensions.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { MainThreadMessageOptions, MainThreadMessageServiceShape } from "../common/extHost.protocol.js";
+import Severity from '../../../base/common/severity.js';
+import { MainThreadMessageServiceShape, MainThreadMessageOptions } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IDialogService } from '../../../platform/dialogs/common/dialogs.js';
+import { INotificationService } from '../../../platform/notification/common/notification.js';
+import { ICommandService } from '../../../platform/commands/common/commands.js';
+import { IExtensionService } from '../../services/extensions/common/extensions.js';
 export declare class MainThreadMessageService implements MainThreadMessageServiceShape {
     private readonly _notificationService;
     private readonly _commandService;

@@ -1,25 +1,25 @@
-import { IndexedDB } from "../../../base/browser/indexedDB.js";
-import { Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { FileSystemProviderCapabilities, FileType, IFileChange, IFileDeleteOptions, IFileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability, IFileWriteOptions, IStat, IWatchOptions } from "../common/files.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IFileDeleteOptions, IFileOverwriteOptions, FileSystemProviderCapabilities, FileType, IFileWriteOptions, IFileChange, IFileSystemProviderWithFileReadWriteCapability, IStat, IWatchOptions } from '../common/files.js';
+import { IndexedDB } from '../../../base/browser/indexedDB.js';
 export type IndexedDBFileSystemProviderErrorDataClassification = {
-    owner: "sandy081";
-    comment: "Information about errors that occur in the IndexedDB file system provider";
+    owner: 'sandy081';
+    comment: 'Information about errors that occur in the IndexedDB file system provider';
     readonly scheme: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "IndexedDB file system provider scheme for which this error occurred";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'IndexedDB file system provider scheme for which this error occurred';
     };
     readonly operation: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "operation during which this error occurred";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'operation during which this error occurred';
     };
     readonly code: {
-        classification: "SystemMetaData";
-        purpose: "PerformanceAndHealth";
-        comment: "error code";
+        classification: 'SystemMetaData';
+        purpose: 'PerformanceAndHealth';
+        comment: 'error code';
     };
 };
 export type IndexedDBFileSystemProviderErrorData = {

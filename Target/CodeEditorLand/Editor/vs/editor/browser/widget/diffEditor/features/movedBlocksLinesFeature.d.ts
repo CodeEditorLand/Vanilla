@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IObservable } from "../../../../../base/common/observable.js";
-import { EditorLayoutInfo } from "../../../../common/config/editorOptions.js";
-import { DiffEditorEditors } from "../components/diffEditorEditors.js";
-import { DiffEditorViewModel } from "../diffEditorViewModel.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../../base/common/observable.js';
+import { DiffEditorEditors } from '../components/diffEditorEditors.js';
+import { DiffEditorViewModel } from '../diffEditorViewModel.js';
+import { EditorLayoutInfo } from '../../../../common/config/editorOptions.js';
 export declare class MovedBlocksLinesFeature extends Disposable {
     private readonly _rootElement;
     private readonly _diffModel;

@@ -1,7 +1,7 @@
-import { DisposableStore } from "../../../../../base/common/lifecycle.js";
-import { IReader } from "../../../../../base/common/observable.js";
-import { ICodeEditor, IViewZoneChangeAccessor } from "../../../../../editor/browser/editorBrowser.js";
-import { MergeEditorViewModel } from "./viewModel.js";
+import { DisposableStore } from '../../../../../base/common/lifecycle.js';
+import { IReader } from '../../../../../base/common/observable.js';
+import { ICodeEditor, IViewZoneChangeAccessor } from '../../../../../editor/browser/editorBrowser.js';
+import { MergeEditorViewModel } from './viewModel.js';
 export declare class ViewZoneComputer {
     private readonly input1Editor;
     private readonly input2Editor;
@@ -26,7 +26,7 @@ export declare class MergeEditorViewZones {
 }
 /**
  * This is an abstract class to create various editor view zones.
- */
+*/
 export declare abstract class MergeEditorViewZone {
     abstract create(viewZoneChangeAccessor: IViewZoneChangeAccessor, viewZoneIdsToCleanUp: string[], disposableStore: DisposableStore): void;
 }

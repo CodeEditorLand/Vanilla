@@ -1,13 +1,13 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IFolderBackupInfo, IWorkspaceBackupInfo } from "../../../../platform/backup/common/backup.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkspaceContextService, IWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
-import { IEnterWorkspaceResult, IRecent, IRecentlyOpened, IWorkspaceFolderCreationData, IWorkspacesService } from "../../../../platform/workspaces/common/workspaces.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IWorkspacesService, IWorkspaceFolderCreationData, IEnterWorkspaceResult, IRecentlyOpened, IRecent } from '../../../../platform/workspaces/common/workspaces.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IWorkspaceContextService, IWorkspaceIdentifier } from '../../../../platform/workspace/common/workspace.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IWorkbenchEnvironmentService } from '../../environment/common/environmentService.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IWorkspaceBackupInfo, IFolderBackupInfo } from '../../../../platform/backup/common/backup.js';
 export declare class BrowserWorkspacesService extends Disposable implements IWorkspacesService {
     private readonly storageService;
     private readonly contextService;

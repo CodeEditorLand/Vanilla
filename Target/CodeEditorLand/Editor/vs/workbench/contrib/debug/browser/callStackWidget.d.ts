@@ -1,11 +1,11 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { IObservable, ISettableObservable } from "../../../../base/common/observable.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import "./media/callStackWidget.css";
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IObservable, ISettableObservable } from '../../../../base/common/observable.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { URI } from '../../../../base/common/uri.js';
+import './media/callStackWidget.css';
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 export declare class CallStackFrame {
     readonly name: string;
     readonly source?: URI | undefined;

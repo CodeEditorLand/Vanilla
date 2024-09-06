@@ -1,7 +1,7 @@
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IKeybindings } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { IActiveCodeEditor } from "../../../browser/editorBrowser.js";
-import { FindReplaceState } from "./findState.js";
+import { IActiveCodeEditor } from '../../../browser/editorBrowser.js';
+import { FindReplaceState } from './findState.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IKeybindings } from '../../../../platform/keybinding/common/keybindingsRegistry.js';
 export declare const CONTEXT_FIND_WIDGET_VISIBLE: RawContextKey<boolean>;
 export declare const CONTEXT_FIND_WIDGET_NOT_VISIBLE: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
 export declare const CONTEXT_FIND_INPUT_FOCUSED: RawContextKey<boolean>;

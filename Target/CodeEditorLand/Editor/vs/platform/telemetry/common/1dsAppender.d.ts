@@ -1,5 +1,5 @@
-import type { IExtendedTelemetryItem, ITelemetryItem, ITelemetryUnloadState } from "@microsoft/1ds-core-js";
-import { ITelemetryAppender } from "./telemetryUtils.js";
+import type { IExtendedTelemetryItem, ITelemetryItem, ITelemetryUnloadState } from '@microsoft/1ds-core-js';
+import { ITelemetryAppender } from './telemetryUtils.js';
 export interface IAppInsightsCore {
     pluginVersionString: string;
     track(item: ITelemetryItem | IExtendedTelemetryItem): void;

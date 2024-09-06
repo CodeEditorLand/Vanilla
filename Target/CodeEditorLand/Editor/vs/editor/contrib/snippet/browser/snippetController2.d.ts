@@ -1,12 +1,12 @@
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { Range } from "../../../common/core/range.js";
-import { IEditorContribution } from "../../../common/editorCommon.js";
-import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { OvertypingCapturer } from "../../suggest/browser/suggestOvertypingCapturer.js";
-import { ISnippetEdit } from "./snippetSession.js";
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { Range } from '../../../common/core/range.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { ILanguageConfigurationService } from '../../../common/languages/languageConfigurationRegistry.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { OvertypingCapturer } from '../../suggest/browser/suggestOvertypingCapturer.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { ISnippetEdit } from './snippetSession.js';
 export interface ISnippetInsertOptions {
     overwriteBefore: number;
     overwriteAfter: number;

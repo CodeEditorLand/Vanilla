@@ -1,29 +1,29 @@
-import { Event } from "../../../base/common/event.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { IProductService } from "../../product/common/productService.js";
-import { IRequestService } from "../../request/common/request.js";
-import { AvailableForDownload, IUpdateService, State, UpdateType } from "../common/update.js";
+import { Event } from '../../../base/common/event.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IEnvironmentMainService } from '../../environment/electron-main/environmentMainService.js';
+import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
+import { ILogService } from '../../log/common/log.js';
+import { IProductService } from '../../product/common/productService.js';
+import { IRequestService } from '../../request/common/request.js';
+import { AvailableForDownload, IUpdateService, State, UpdateType } from '../common/update.js';
 export declare function createUpdateURL(platform: string, quality: string, productService: IProductService): string;
 export type UpdateNotAvailableClassification = {
-    owner: "joaomoreno";
+    owner: 'joaomoreno';
     explicit: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "Whether the user has manually checked for updates, or this was an automatic check.";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'Whether the user has manually checked for updates, or this was an automatic check.';
     };
-    comment: "This is used to understand how often VS Code pings the update server for an update and there's none available.";
+    comment: 'This is used to understand how often VS Code pings the update server for an update and there\'s none available.';
 };
 export type UpdateErrorClassification = {
-    owner: "joaomoreno";
+    owner: 'joaomoreno';
     messageHash: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "The hash of the error message.";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'The hash of the error message.';
     };
-    comment: "This is used to know how often VS Code updates have failed.";
+    comment: 'This is used to know how often VS Code updates have failed.';
 };
 export declare abstract class AbstractUpdateService implements IUpdateService {
     protected readonly lifecycleMainService: ILifecycleMainService;

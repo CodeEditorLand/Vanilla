@@ -1,10 +1,10 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ServicesAccessor } from "../../../browser/editorExtensions.js";
-import { IRange } from "../../../common/core/range.js";
-import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
-import { DocumentColorProvider, IColorInformation, IColorPresentation } from "../../../common/languages.js";
-import { ITextModel } from "../../../common/model.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IRange } from '../../../common/core/range.js';
+import { ITextModel } from '../../../common/model.js';
+import { DocumentColorProvider, IColorInformation, IColorPresentation } from '../../../common/languages.js';
+import { LanguageFeatureRegistry } from '../../../common/languageFeatureRegistry.js';
+import { ServicesAccessor } from '../../../browser/editorExtensions.js';
 export declare function getColors(colorProviderRegistry: LanguageFeatureRegistry<DocumentColorProvider>, model: ITextModel, token: CancellationToken, isDefaultColorDecoratorsEnabled?: boolean): Promise<IColorData[]>;
 export declare function getColorPresentations(model: ITextModel, colorInfo: IColorInformation, provider: DocumentColorProvider, token: CancellationToken): Promise<IColorPresentation[] | null | undefined>;
 export interface IColorData {

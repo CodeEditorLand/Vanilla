@@ -1,0 +1,3 @@
+var s=Object.defineProperty;var u=Object.getOwnPropertyDescriptor;var c=(e,i,o,r)=>{for(var n=r>1?void 0:r?u(i,o):i,a=e.length-1,f;a>=0;a--)(f=e[a])&&(n=(r?f(i,o,n):f(n))||n);return r&&n&&s(i,o,n),n},m=(e,i)=>(o,r)=>i(o,r,e);import*as l from"../../../../base/common/platform.js";import"../../../../base/common/uri.js";import"../../../common/services/textResourceConfiguration.js";import{IConfigurationService as g}from"../../../../platform/configuration/common/configuration.js";let t=class{constructor(i){this.configurationService=i}getEOL(i,o){const r=this.configurationService.getValue("files.eol",{overrideIdentifier:o,resource:i});return r&&typeof r=="string"&&r!=="auto"?r:l.isLinux||l.isMacintosh?`
+`:`\r
+`}};t=c([m(0,g)],t);export{t as TestTextResourcePropertiesService};

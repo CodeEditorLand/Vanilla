@@ -1,3 +1,5 @@
+import type { BuildOptions } from "esbuild";
+
 /**
  * @module ESBuild
  *
@@ -20,7 +22,9 @@ export default {
 				onStart(async () => {
 					try {
 						outdir
-							? await (await import("fs/promises")).rm(outdir, {
+							? await (
+									await import("fs/promises")
+								).rm(outdir, {
 									recursive: true,
 								})
 							: {};
@@ -30,7 +34,26 @@ export default {
 				});
 			},
 		},
+		{
+			name: "Exclude",
+			setup({ onLoad }) {
+				// biome-ignore lint/nursery/useTopLevelRegex:
+				onLoad({ filter: /.*/ }, ({ path }) => {
+					if (
+						[
+							"Source/vs/base/test/common/filters.perf.data.d.ts",
+						].some((Search) =>
+							path.split(sep).join(posix.sep).includes(Search),
+						)
+					) {
+						return { contents: "", loader: "js" };
+					}
+
+					return null;
+				});
+			},
+		},
 	],
 } satisfies BuildOptions as BuildOptions;
 
-import type { BuildOptions } from "esbuild";
+export const { sep, posix } = await import("path");

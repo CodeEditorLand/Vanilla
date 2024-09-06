@@ -1,4 +1,4 @@
-import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "./gdprTypings.js";
+import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from './gdprTypings.js';
 export declare const ITelemetryService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ITelemetryService>;
 export interface ITelemetryData {
     from?: string;

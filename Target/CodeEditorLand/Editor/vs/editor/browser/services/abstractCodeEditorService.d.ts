@@ -1,12 +1,12 @@
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IResourceEditorInput } from "../../../platform/editor/common/editor.js";
-import { IThemeService } from "../../../platform/theme/common/themeService.js";
-import { IDecorationRenderOptions } from "../../common/editorCommon.js";
-import { IModelDecorationOptions, ITextModel } from "../../common/model.js";
-import { ICodeEditor, IDiffEditor } from "../editorBrowser.js";
-import { ICodeEditorOpenHandler, ICodeEditorService } from "./codeEditorService.js";
+import { Emitter, Event } from '../../../base/common/event.js';
+import { IDisposable, Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { ICodeEditor, IDiffEditor } from '../editorBrowser.js';
+import { ICodeEditorOpenHandler, ICodeEditorService } from './codeEditorService.js';
+import { IDecorationRenderOptions } from '../../common/editorCommon.js';
+import { IModelDecorationOptions, ITextModel } from '../../common/model.js';
+import { IResourceEditorInput } from '../../../platform/editor/common/editor.js';
+import { IThemeService } from '../../../platform/theme/common/themeService.js';
 export declare abstract class AbstractCodeEditorService extends Disposable implements ICodeEditorService {
     private readonly _themeService;
     readonly _serviceBrand: undefined;

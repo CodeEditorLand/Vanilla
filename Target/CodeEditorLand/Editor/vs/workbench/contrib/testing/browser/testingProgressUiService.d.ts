@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { ITestCoverageService } from "../common/testCoverageService.js";
-import { ITestResult } from "../common/testResult.js";
-import { ITestResultService } from "../common/testResultService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ITestCoverageService } from '../common/testCoverageService.js';
+import { ITestResult } from '../common/testResult.js';
+import { ITestResultService } from '../common/testResultService.js';
+import { IViewsService } from '../../../services/views/common/viewsService.js';
 /** Workbench contribution that triggers updates in the TestingProgressUi service */
 export declare class TestingProgressTrigger extends Disposable {
     private readonly configurationService;
@@ -22,4 +22,4 @@ export declare const collectTestStateCounts: (isRunning: boolean, results: Reado
     totalWillBeRun: number;
     skipped: number;
 };
-export declare const getTestProgressText: ({ isRunning, passed, runSoFar, totalWillBeRun, skipped, failed, }: CountSummary) => string;
+export declare const getTestProgressText: ({ isRunning, passed, runSoFar, totalWillBeRun, skipped, failed }: CountSummary) => string;

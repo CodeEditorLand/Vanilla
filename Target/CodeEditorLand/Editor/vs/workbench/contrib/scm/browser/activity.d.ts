@@ -1,13 +1,13 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IActivityService } from "../../../services/activity/common/activity.js";
-import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
-import { ITitleService } from "../../../services/title/browser/titleService.js";
-import { ISCMService, ISCMViewService } from "../common/scm.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ISCMService, ISCMViewService } from '../common/scm.js';
+import { IActivityService } from '../../../services/activity/common/activity.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IStatusbarService } from '../../../services/statusbar/browser/statusbar.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { ITitleService } from '../../../services/title/browser/titleService.js';
+import { IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
 export declare class SCMActiveRepositoryController extends Disposable implements IWorkbenchContribution {
     private readonly activityService;
     private readonly configurationService;

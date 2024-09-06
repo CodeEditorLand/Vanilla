@@ -1,6 +1,6 @@
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { DefaultEndOfLine, ITextBuffer, ITextBufferBuilder, ITextBufferFactory } from "../../model.js";
-import { StringBuffer } from "./pieceTreeBase.js";
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { DefaultEndOfLine, ITextBuffer, ITextBufferBuilder, ITextBufferFactory } from '../../model.js';
+import { StringBuffer } from './pieceTreeBase.js';
 declare class PieceTreeTextBufferFactory implements ITextBufferFactory {
     private readonly _chunks;
     private readonly _bom;

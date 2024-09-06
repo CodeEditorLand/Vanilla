@@ -1,7 +1,7 @@
-import { VSBuffer } from "../../../common/buffer.js";
-import { Event } from "../../../common/event.js";
-import { IDisposable } from "../../../common/lifecycle.js";
-import { IMessagePassingProtocol, IPCClient } from "./ipc.js";
+import { VSBuffer } from '../../../common/buffer.js';
+import { Event } from '../../../common/event.js';
+import { IDisposable } from '../../../common/lifecycle.js';
+import { IMessagePassingProtocol, IPCClient } from './ipc.js';
 /**
  * Declare minimal `MessageEvent` and `MessagePort` interfaces here
  * so that this utility can be used both from `browser` and
@@ -15,8 +15,8 @@ export interface MessageEvent {
     data: Uint8Array;
 }
 export interface MessagePort {
-    addEventListener(type: "message", listener: (this: MessagePort, e: MessageEvent) => unknown): void;
-    removeEventListener(type: "message", listener: (this: MessagePort, e: MessageEvent) => unknown): void;
+    addEventListener(type: 'message', listener: (this: MessagePort, e: MessageEvent) => unknown): void;
+    removeEventListener(type: 'message', listener: (this: MessagePort, e: MessageEvent) => unknown): void;
     postMessage(message: Uint8Array): void;
     start(): void;
     close(): void;

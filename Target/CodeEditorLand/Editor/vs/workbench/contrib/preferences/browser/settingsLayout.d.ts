@@ -1,4 +1,4 @@
-import { ExtensionToggleData } from "../common/preferences.js";
+import { ExtensionToggleData } from '../common/preferences.js';
 export interface ITOCEntry<T> {
     id: string;
     label: string;

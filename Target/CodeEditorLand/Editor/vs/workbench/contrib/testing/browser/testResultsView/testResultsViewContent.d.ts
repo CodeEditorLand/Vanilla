@@ -1,13 +1,13 @@
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import "./testResultsViewContent.css";
-import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
-import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IObservableValue } from "../../common/observableValue.js";
-import { InspectSubject } from "./testResultsSubject.js";
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import './testResultsViewContent.css';
+import { ICodeEditor } from '../../../../../editor/browser/editorBrowser.js';
+import { ITextModelService } from '../../../../../editor/common/services/resolverService.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IUriIdentityService } from '../../../../../platform/uriIdentity/common/uriIdentity.js';
+import { InspectSubject } from './testResultsSubject.js';
+import { IObservableValue } from '../../common/observableValue.js';
 /** UI state that can be saved/restored, used to give a nice experience when switching stack frames */
 export interface ITestResultsViewContentUiState {
     splitViewWidths: number[];

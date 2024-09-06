@@ -1,4 +1,4 @@
-import { IWorkerClient, IWorkerServer } from "../../../../base/common/worker/simpleWorker.js";
+import { IWorkerClient, IWorkerServer } from '../../../../base/common/worker/simpleWorker.js';
 export declare abstract class LanguageDetectionWorkerHost {
     static CHANNEL_NAME: string;
     static getChannel(workerServer: IWorkerServer): LanguageDetectionWorkerHost;

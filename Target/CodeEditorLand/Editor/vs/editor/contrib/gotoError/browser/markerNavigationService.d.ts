@@ -1,10 +1,10 @@
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IMarker, IMarkerService } from "../../../../platform/markers/common/markers.js";
-import { Position } from "../../../common/core/position.js";
-import { ITextModel } from "../../../common/model.js";
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { Position } from '../../../common/core/position.js';
+import { ITextModel } from '../../../common/model.js';
+import { IMarker, IMarkerService } from '../../../../platform/markers/common/markers.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 export declare class MarkerCoordinate {
     readonly marker: IMarker;
     readonly index: number;

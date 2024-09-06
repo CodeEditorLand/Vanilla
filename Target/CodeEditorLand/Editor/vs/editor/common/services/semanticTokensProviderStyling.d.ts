@@ -1,8 +1,8 @@
-import { ILogService } from "../../../platform/log/common/log.js";
-import { IThemeService } from "../../../platform/theme/common/themeService.js";
-import { SemanticTokens, SemanticTokensLegend } from "../languages.js";
-import { ILanguageService } from "../languages/language.js";
-import { SparseMultilineTokens } from "../tokens/sparseMultilineTokens.js";
+import { SemanticTokensLegend, SemanticTokens } from '../languages.js';
+import { IThemeService } from '../../../platform/theme/common/themeService.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { SparseMultilineTokens } from '../tokens/sparseMultilineTokens.js';
+import { ILanguageService } from '../languages/language.js';
 export declare class SemanticTokensProviderStyling {
     private readonly _legend;
     private readonly _themeService;

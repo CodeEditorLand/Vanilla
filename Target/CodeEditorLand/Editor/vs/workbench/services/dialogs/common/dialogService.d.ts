@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfirmation, IConfirmationResult, IDialogService, IInput, IInputResult, IPrompt, IPromptResult, IPromptResultWithCancel, IPromptWithCustomCancel, IPromptWithDefaultCancel } from "../../../../platform/dialogs/common/dialogs.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { DialogsModel } from "../../../common/dialogs.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IConfirmation, IConfirmationResult, IDialogService, IInput, IInputResult, IPrompt, IPromptResult, IPromptResultWithCancel, IPromptWithCustomCancel, IPromptWithDefaultCancel } from '../../../../platform/dialogs/common/dialogs.js';
+import { DialogsModel } from '../../../common/dialogs.js';
+import { IWorkbenchEnvironmentService } from '../../environment/common/environmentService.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare class DialogService extends Disposable implements IDialogService {
     private readonly environmentService;
     private readonly logService;

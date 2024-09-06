@@ -1,10 +1,10 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
-import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { InlineCompletionsModel } from "./model/inlineCompletionsModel.js";
+import { Event } from '../../../../base/common/event.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { AccessibleViewType, AccessibleViewProviderId, IAccessibleViewContentProvider } from '../../../../platform/accessibility/browser/accessibleView.js';
+import { IAccessibleViewImplentation } from '../../../../platform/accessibility/browser/accessibleViewRegistry.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { InlineCompletionsModel } from './model/inlineCompletionsModel.js';
 export declare class InlineCompletionsAccessibleView implements IAccessibleViewImplentation {
     readonly type = AccessibleViewType.View;
     readonly priority = 95;

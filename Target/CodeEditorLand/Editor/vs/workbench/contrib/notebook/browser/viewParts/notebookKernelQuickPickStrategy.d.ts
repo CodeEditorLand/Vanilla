@@ -1,20 +1,20 @@
-import { IAction } from "../../../../../base/common/actions.js";
-import { Command } from "../../../../../editor/common/languages.js";
-import { ICommandService } from "../../../../../platform/commands/common/commands.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { ILogService } from "../../../../../platform/log/common/log.js";
-import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
-import { IProductService } from "../../../../../platform/product/common/productService.js";
-import { IQuickInputService, IQuickPickItem, QuickPickInput } from "../../../../../platform/quickinput/common/quickInput.js";
-import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
-import { IPaneCompositePartService } from "../../../../services/panecomposite/browser/panecomposite.js";
-import { IExtensionsWorkbenchService } from "../../../extensions/common/extensions.js";
-import { NotebookTextModel } from "../../common/model/notebookTextModel.js";
-import { INotebookTextModel } from "../../common/notebookCommon.js";
-import { INotebookKernel, INotebookKernelHistoryService, INotebookKernelMatchResult, INotebookKernelService, ISourceAction } from "../../common/notebookKernelService.js";
-import { IActiveNotebookEditor } from "../notebookBrowser.js";
-import { NotebookEditorWidget } from "../notebookEditorWidget.js";
+import { IAction } from '../../../../../base/common/actions.js';
+import { Command } from '../../../../../editor/common/languages.js';
+import { ICommandService } from '../../../../../platform/commands/common/commands.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { ILabelService } from '../../../../../platform/label/common/label.js';
+import { ILogService } from '../../../../../platform/log/common/log.js';
+import { IProductService } from '../../../../../platform/product/common/productService.js';
+import { IQuickInputService, IQuickPickItem, QuickPickInput } from '../../../../../platform/quickinput/common/quickInput.js';
+import { IExtensionsWorkbenchService } from '../../../extensions/common/extensions.js';
+import { IActiveNotebookEditor } from '../notebookBrowser.js';
+import { NotebookEditorWidget } from '../notebookEditorWidget.js';
+import { NotebookTextModel } from '../../common/model/notebookTextModel.js';
+import { INotebookKernel, INotebookKernelHistoryService, INotebookKernelMatchResult, INotebookKernelService, ISourceAction } from '../../common/notebookKernelService.js';
+import { IExtensionService } from '../../../../services/extensions/common/extensions.js';
+import { IPaneCompositePartService } from '../../../../services/panecomposite/browser/panecomposite.js';
+import { IOpenerService } from '../../../../../platform/opener/common/opener.js';
+import { INotebookTextModel } from '../../common/notebookCommon.js';
 type KernelPick = IQuickPickItem & {
     kernel: INotebookKernel;
 };
@@ -29,7 +29,7 @@ type InstallExtensionPick = IQuickPickItem & {
     extensionIds: string[];
 };
 type SearchMarketplacePick = IQuickPickItem & {
-    id: "install";
+    id: 'install';
 };
 type KernelSourceQuickPickItem = IQuickPickItem & {
     command: Command;

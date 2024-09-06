@@ -1,10 +1,10 @@
-import * as vscode from "vscode";
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ExtHostEditorsShape, IEditorPropertiesChangeData, IMainContext, ITextEditorPositionData } from "./extHost.protocol.js";
-import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
-import { ExtHostTextEditor } from "./extHostTextEditor.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ExtHostEditorsShape, IEditorPropertiesChangeData, IMainContext, ITextEditorPositionData } from './extHost.protocol.js';
+import { ExtHostDocumentsAndEditors } from './extHostDocumentsAndEditors.js';
+import { ExtHostTextEditor } from './extHostTextEditor.js';
+import * as vscode from 'vscode';
 export declare class ExtHostEditors extends Disposable implements ExtHostEditorsShape {
     private readonly _extHostDocumentsAndEditors;
     private readonly _onDidChangeTextEditorSelection;

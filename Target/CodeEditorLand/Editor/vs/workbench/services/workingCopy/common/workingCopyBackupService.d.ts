@@ -1,11 +1,11 @@
-import { VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IWorkingCopyBackupMeta, IWorkingCopyIdentifier } from "./workingCopy.js";
-import { IResolvedWorkingCopyBackup, IWorkingCopyBackupService } from "./workingCopyBackup.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IResolvedWorkingCopyBackup, IWorkingCopyBackupService } from './workingCopyBackup.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { VSBufferReadable, VSBufferReadableStream } from '../../../../base/common/buffer.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IWorkingCopyBackupMeta, IWorkingCopyIdentifier } from './workingCopy.js';
 export declare class WorkingCopyBackupsModel {
     private backupRoot;
     private fileService;

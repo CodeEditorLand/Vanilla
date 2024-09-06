@@ -1,9 +1,9 @@
-import "./iconlabel.css";
-import { IMatch } from "../../../common/filters.js";
-import { Disposable } from "../../../common/lifecycle.js";
-import { URI } from "../../../common/uri.js";
-import type { IManagedHoverTooltipMarkdownString } from "../hover/hover.js";
-import { IHoverDelegate } from "../hover/hoverDelegate.js";
+import './iconlabel.css';
+import { IHoverDelegate } from '../hover/hoverDelegate.js';
+import { IMatch } from '../../../common/filters.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import type { IManagedHoverTooltipMarkdownString } from '../hover/hover.js';
+import { URI } from '../../../common/uri.js';
 export interface IIconLabelCreationOptions {
     readonly supportHighlights?: boolean;
     readonly supportDescriptionHighlights?: boolean;

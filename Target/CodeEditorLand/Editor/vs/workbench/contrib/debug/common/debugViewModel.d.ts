@@ -1,6 +1,6 @@
-import { Event } from "../../../../base/common/event.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IDebugSession, IExpression, IExpressionContainer, IStackFrame, IThread, IViewModel } from "./debug.js";
+import { Event } from '../../../../base/common/event.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IDebugSession, IExpression, IExpressionContainer, IStackFrame, IThread, IViewModel } from './debug.js';
 export declare class ViewModel implements IViewModel {
     private contextKeyService;
     firstSessionStart: boolean;
@@ -68,9 +68,9 @@ export declare class ViewModel implements IViewModel {
     get onWillUpdateViews(): Event<void>;
     isMultiSessionView(): boolean;
     setMultiSessionView(isMultiSessionView: boolean): void;
-    setVisualizedExpression(original: IExpression, visualized: (IExpression & {
+    setVisualizedExpression(original: IExpression, visualized: IExpression & {
         treeId: string;
-    }) | undefined): void;
+    } | undefined): void;
     getVisualizedExpression(expression: IExpression): IExpression | string | undefined;
     evaluateLazyExpression(expression: IExpressionContainer): Promise<void>;
     private getPreferredVisualizedKey;

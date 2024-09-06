@@ -1,6 +1,6 @@
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { TestExplorerViewMode, TestExplorerViewSorting } from "./constants.js";
-import { TestRunProfileBitset } from "./testTypes.js";
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { TestExplorerViewMode, TestExplorerViewSorting } from './constants.js';
+import { TestRunProfileBitset } from './testTypes.js';
 export declare namespace TestingContextKeys {
     const providerCount: RawContextKey<0>;
     const canRefreshTests: RawContextKey<false>;

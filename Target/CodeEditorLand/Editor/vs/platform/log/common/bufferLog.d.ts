@@ -1,4 +1,4 @@
-import { AbstractMessageLogger, ILogger, LogLevel } from "./log.js";
+import { AbstractMessageLogger, ILogger, LogLevel } from './log.js';
 export declare class BufferLogger extends AbstractMessageLogger {
     readonly _serviceBrand: undefined;
     private buffer;

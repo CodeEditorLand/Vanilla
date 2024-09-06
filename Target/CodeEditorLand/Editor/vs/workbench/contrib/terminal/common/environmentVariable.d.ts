@@ -1,6 +1,6 @@
-import { Event } from "../../../../base/common/event.js";
-import { EnvironmentVariableScope, IEnvironmentVariableCollection, IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
-import { ITerminalStatus } from "./terminal.js";
+import { Event } from '../../../../base/common/event.js';
+import { EnvironmentVariableScope, IEnvironmentVariableCollection, IMergedEnvironmentVariableCollection } from '../../../../platform/terminal/common/environmentVariable.js';
+import { ITerminalStatus } from './terminal.js';
 export declare const IEnvironmentVariableService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEnvironmentVariableService>;
 /**
  * Tracks and persists environment variable collections as defined by extensions.

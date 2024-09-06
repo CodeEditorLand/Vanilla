@@ -1,9 +1,9 @@
-import type { IBuffer, IBufferCell, IDisposable, ITerminalAddon, Terminal } from "@xterm/xterm";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
-import { type ITerminalTypeAheadConfiguration } from "../common/terminalTypeAheadConfiguration.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
+import { ITerminalProcessManager } from '../../../terminal/common/terminal.js';
+import type { IBuffer, IBufferCell, IDisposable, ITerminalAddon, Terminal } from '@xterm/xterm';
+import { type ITerminalTypeAheadConfiguration } from '../common/terminalTypeAheadConfiguration.js';
 interface ICoordinate {
     x: number;
     y: number;
@@ -243,7 +243,7 @@ declare class TypeAheadStyle implements IDisposable {
     apply: string;
     undo: string;
     private _csiHandler?;
-    constructor(value: ITerminalTypeAheadConfiguration["localEchoStyle"], _terminal: Terminal);
+    constructor(value: ITerminalTypeAheadConfiguration['localEchoStyle'], _terminal: Terminal);
     /**
      * Signals that a style was written to the terminal and we should watch
      * for it coming in.
@@ -266,7 +266,7 @@ declare class TypeAheadStyle implements IDisposable {
     /**
      * Updates the current typeahead style.
      */
-    onUpdate(style: ITerminalTypeAheadConfiguration["localEchoStyle"]): void;
+    onUpdate(style: ITerminalTypeAheadConfiguration['localEchoStyle']): void;
     private _getArgs;
 }
 export declare const enum CharPredictState {

@@ -1,12 +1,12 @@
-import { URI } from "../../../../base/common/uri.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IResourceDiffEditorInput, IResourceSideBySideEditorInput, IUntypedEditorInput } from "../../../common/editor.js";
-import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { EditorModel } from "../../../common/editor/editorModel.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { INotebookDiffEditorModel, IResolvedNotebookEditorModel } from "./notebookCommon.js";
-import { NotebookEditorInput } from "./notebookEditorInput.js";
+import { IResourceDiffEditorInput, IResourceSideBySideEditorInput, IUntypedEditorInput } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { EditorModel } from '../../../common/editor/editorModel.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { INotebookDiffEditorModel, IResolvedNotebookEditorModel } from './notebookCommon.js';
+import { DiffEditorInput } from '../../../common/editor/diffEditorInput.js';
+import { NotebookEditorInput } from './notebookEditorInput.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
 declare class NotebookDiffEditorModel extends EditorModel implements INotebookDiffEditorModel {
     readonly original: IResolvedNotebookEditorModel;
     readonly modified: IResolvedNotebookEditorModel;

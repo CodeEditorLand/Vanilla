@@ -1,8 +1,8 @@
-import { Event } from "../../../base/common/event.js";
-import { URI } from "../../../base/common/uri.js";
-import { IURITransformer } from "../../../base/common/uriIpc.js";
-import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { IDownloadService } from "./download.js";
+import { Event } from '../../../base/common/event.js';
+import { URI } from '../../../base/common/uri.js';
+import { IURITransformer } from '../../../base/common/uriIpc.js';
+import { IChannel, IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { IDownloadService } from './download.js';
 export declare class DownloadServiceChannel implements IServerChannel {
     private readonly service;
     constructor(service: IDownloadService);

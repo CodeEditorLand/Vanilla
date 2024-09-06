@@ -1,17 +1,17 @@
-import { VSBufferReadableStream } from "../../../base/common/buffer.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ConfigurationSyncStore } from "../../../base/common/product.js";
-import { URI } from "../../../base/common/uri.js";
-import { IHeaders, IRequestContext, IRequestOptions } from "../../../base/parts/request/common/request.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IFileService } from "../../files/common/files.js";
-import { IProductService } from "../../product/common/productService.js";
-import { IRequestService } from "../../request/common/request.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import { IResourceRefHandle, IUserData, IUserDataManifest, IUserDataSyncLogService, IUserDataSyncStore, IUserDataSyncStoreManagementService, IUserDataSyncStoreService, ServerResource, UserDataSyncErrorCode, UserDataSyncStoreType } from "./userDataSync.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { ConfigurationSyncStore } from '../../../base/common/product.js';
+import { URI } from '../../../base/common/uri.js';
+import { IHeaders, IRequestContext, IRequestOptions } from '../../../base/parts/request/common/request.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IFileService } from '../../files/common/files.js';
+import { IProductService } from '../../product/common/productService.js';
+import { IRequestService } from '../../request/common/request.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { IResourceRefHandle, IUserData, IUserDataManifest, IUserDataSyncLogService, IUserDataSyncStore, IUserDataSyncStoreManagementService, IUserDataSyncStoreService, ServerResource, UserDataSyncErrorCode, UserDataSyncStoreType } from './userDataSync.js';
+import { VSBufferReadableStream } from '../../../base/common/buffer.js';
 type UserDataSyncStore = IUserDataSyncStore & {
     defaultType: UserDataSyncStoreType;
 };
@@ -28,9 +28,9 @@ export declare abstract class AbstractUserDataSyncStoreManagementService extends
     protected set userDataSyncStoreType(type: UserDataSyncStoreType | undefined);
     constructor(productService: IProductService, configurationService: IConfigurationService, storageService: IStorageService);
     protected updateUserDataSyncStore(): void;
-    protected toUserDataSyncStore(configurationSyncStore: (ConfigurationSyncStore & {
+    protected toUserDataSyncStore(configurationSyncStore: ConfigurationSyncStore & {
         web?: ConfigurationSyncStore;
-    }) | undefined): UserDataSyncStore | undefined;
+    } | undefined): UserDataSyncStore | undefined;
     abstract switch(type: UserDataSyncStoreType): Promise<void>;
     abstract getPreviousUserDataSyncStore(): Promise<IUserDataSyncStore | undefined>;
 }
@@ -90,7 +90,7 @@ export declare class RequestsSession {
     private readonly logService;
     private requests;
     private startTime;
-    constructor(limit: number, interval: number, requestService: IRequestService, logService: IUserDataSyncLogService);
+    constructor(limit: number, interval: number, /* in ms */ requestService: IRequestService, logService: IUserDataSyncLogService);
     request(url: string, options: IRequestOptions, token: CancellationToken): Promise<IRequestContext>;
     private isExpired;
     private reset;

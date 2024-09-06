@@ -1,4 +1,4 @@
-import { URI, UriComponents } from "./uri.js";
+import { URI, UriComponents } from './uri.js';
 export interface MarkdownStringTrustedOptions {
     readonly enabledCommands: readonly string[];
 }

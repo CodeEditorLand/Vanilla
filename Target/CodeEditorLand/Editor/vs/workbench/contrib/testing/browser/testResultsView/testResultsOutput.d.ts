@@ -1,14 +1,14 @@
-import * as dom from "../../../../../base/browser/dom.js";
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
-import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
-import { IDiffEditorOptions } from "../../../../../editor/common/config/editorOptions.js";
-import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
-import { IViewDescriptorService } from "../../../../common/views.js";
-import { ITerminalService } from "../../../terminal/browser/terminal.js";
-import { InspectSubject } from "./testResultsSubject.js";
+import * as dom from '../../../../../base/browser/dom.js';
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../../../editor/browser/editorBrowser.js';
+import { IDiffEditorOptions } from '../../../../../editor/common/config/editorOptions.js';
+import { ITextModelService } from '../../../../../editor/common/services/resolverService.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IWorkspaceContextService } from '../../../../../platform/workspace/common/workspace.js';
+import { IViewDescriptorService } from '../../../../common/views.js';
+import { ITerminalService } from '../../../terminal/browser/terminal.js';
+import { InspectSubject } from './testResultsSubject.js';
 export interface IPeekOutputRenderer extends IDisposable {
     onDidContentSizeChange?: Event<void>;
     /** Updates the displayed test. Should clear if it cannot display the test. */

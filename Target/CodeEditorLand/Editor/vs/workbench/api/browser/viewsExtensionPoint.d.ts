@@ -1,4 +1,4 @@
-import { IJSONSchema } from "../../../base/common/jsonSchema.js";
+import { IJSONSchema } from '../../../base/common/jsonSchema.js';
 export interface IUserFriendlyViewsContainerDescriptor {
     id: string;
     title: string;

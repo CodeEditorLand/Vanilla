@@ -1,9 +1,9 @@
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
-import { NotebookTextModel } from "../../contrib/notebook/common/model/notebookTextModel.js";
-import { INotebookEditorModelResolverService } from "../../contrib/notebook/common/notebookEditorModelResolverService.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { MainThreadNotebookDocumentsShape, NotebookDataDto } from "../common/extHost.protocol.js";
+import { URI, UriComponents } from '../../../base/common/uri.js';
+import { NotebookTextModel } from '../../contrib/notebook/common/model/notebookTextModel.js';
+import { INotebookEditorModelResolverService } from '../../contrib/notebook/common/notebookEditorModelResolverService.js';
+import { IUriIdentityService } from '../../../platform/uriIdentity/common/uriIdentity.js';
+import { MainThreadNotebookDocumentsShape, NotebookDataDto } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
 export declare class MainThreadNotebookDocuments implements MainThreadNotebookDocumentsShape {
     private readonly _notebookEditorModelResolverService;
     private readonly _uriIdentityService;

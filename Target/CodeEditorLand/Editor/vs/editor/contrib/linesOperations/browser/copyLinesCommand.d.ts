@@ -1,6 +1,6 @@
-import { Selection } from "../../../common/core/selection.js";
-import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../../../common/editorCommon.js";
-import { ITextModel } from "../../../common/model.js";
+import { Selection } from '../../../common/core/selection.js';
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from '../../../common/editorCommon.js';
+import { ITextModel } from '../../../common/model.js';
 export declare class CopyLinesCommand implements ICommand {
     private readonly _selection;
     private readonly _isCopyingDown;

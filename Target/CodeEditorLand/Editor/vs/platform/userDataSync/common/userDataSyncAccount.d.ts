@@ -1,6 +1,6 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IUserDataSyncLogService, IUserDataSyncStoreService } from "./userDataSync.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IUserDataSyncLogService, IUserDataSyncStoreService } from './userDataSync.js';
 export interface IUserDataSyncAccount {
     readonly authenticationProviderId: string;
     readonly token: string;

@@ -1,12 +1,12 @@
-import { IStringDictionary } from "../../../../base/common/collections.js";
-import { Color } from "../../../../base/common/color.js";
-import { Event } from "../../../../base/common/event.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import Severity from "../../../../base/common/severity.js";
-import { ExtensionIdentifier, IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
-import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { Event } from '../../../../base/common/event.js';
+import { ExtensionIdentifier, IExtensionManifest } from '../../../../platform/extensions/common/extensions.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { SyncDescriptor } from '../../../../platform/instantiation/common/descriptors.js';
+import Severity from '../../../../base/common/severity.js';
+import { IStringDictionary } from '../../../../base/common/collections.js';
+import { ResolvedKeybinding } from '../../../../base/common/keybindings.js';
+import { Color } from '../../../../base/common/color.js';
 export declare namespace Extensions {
     const ExtensionFeaturesRegistry = "workbench.registry.extensionFeatures";
 }
@@ -20,7 +20,7 @@ export interface IRenderedData<T> extends IDisposable {
     readonly onDidChange?: Event<T>;
 }
 export interface IExtensionFeatureMarkdownRenderer extends IExtensionFeatureRenderer {
-    type: "markdown";
+    type: 'markdown';
     render(manifest: IExtensionManifest): IRenderedData<IMarkdownString>;
 }
 export type IRowData = string | IMarkdownString | ResolvedKeybinding | Color | ReadonlyArray<ResolvedKeybinding | IMarkdownString | Color>;
@@ -29,11 +29,11 @@ export interface ITableData {
     rows: IRowData[][];
 }
 export interface IExtensionFeatureTableRenderer extends IExtensionFeatureRenderer {
-    type: "table";
+    type: 'table';
     render(manifest: IExtensionManifest): IRenderedData<ITableData>;
 }
 export interface IExtensionFeatureMarkdownAndTableRenderer extends IExtensionFeatureRenderer {
-    type: "markdown+table";
+    type: 'markdown+table';
     render(manifest: IExtensionManifest): IRenderedData<Array<IMarkdownString | ITableData>>;
 }
 export interface IExtensionFeatureDescriptor {

@@ -1,7 +1,7 @@
-import "../colorPicker.css";
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ColorPickerModel } from "../colorPickerModel.js";
+import '../colorPicker.css';
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ColorPickerModel } from '../colorPickerModel.js';
 export declare class SaturationBox extends Disposable {
     private readonly model;
     private pixelRatio;

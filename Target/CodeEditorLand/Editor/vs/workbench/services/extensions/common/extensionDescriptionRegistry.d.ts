@@ -1,5 +1,5 @@
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { ExtensionIdentifier, IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
 export declare class DeltaExtensionsResult {
     readonly versionId: number;
     readonly removedDueToLooping: IExtensionDescription[];

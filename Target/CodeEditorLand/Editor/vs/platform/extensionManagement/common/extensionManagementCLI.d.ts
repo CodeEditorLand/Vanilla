@@ -1,7 +1,7 @@
-import { URI } from "../../../base/common/uri.js";
-import { IExtensionManifest } from "../../extensions/common/extensions.js";
-import { ILogger } from "../../log/common/log.js";
-import { IExtensionGalleryService, IExtensionManagementService, InstallOptions } from "./extensionManagement.js";
+import { URI } from '../../../base/common/uri.js';
+import { IExtensionGalleryService, IExtensionManagementService, InstallOptions } from './extensionManagement.js';
+import { IExtensionManifest } from '../../extensions/common/extensions.js';
+import { ILogger } from '../../log/common/log.js';
 export declare class ExtensionManagementCLI {
     protected readonly logger: ILogger;
     private readonly extensionManagementService;

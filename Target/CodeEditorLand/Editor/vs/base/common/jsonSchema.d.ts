@@ -1,4 +1,4 @@
-export type JSONSchemaType = "string" | "number" | "integer" | "boolean" | "null" | "array" | "object";
+export type JSONSchemaType = 'string' | 'number' | 'integer' | 'boolean' | 'null' | 'array' | 'object';
 export interface IJSONSchema {
     id?: string;
     $id?: string;
@@ -92,20 +92,20 @@ export interface IJSONSchemaSnippet {
  * TODO: only supports basic schemas. Doesn't support all JSON schema features.
  */
 export type SchemaToType<T> = T extends {
-    type: "string";
+    type: 'string';
 } ? string : T extends {
-    type: "number";
+    type: 'number';
 } ? number : T extends {
-    type: "boolean";
+    type: 'boolean';
 } ? boolean : T extends {
-    type: "null";
+    type: 'null';
 } ? null : T extends {
-    type: "object";
+    type: 'object';
     properties: infer P;
 } ? {
     [K in keyof P]: SchemaToType<P[K]>;
 } : T extends {
-    type: "array";
+    type: 'array';
     items: infer I;
 } ? Array<SchemaToType<I>> : never;
 export declare function getCompressedContent(schema: IJSONSchema): string;

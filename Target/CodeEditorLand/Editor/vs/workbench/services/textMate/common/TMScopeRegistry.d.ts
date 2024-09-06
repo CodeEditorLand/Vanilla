@@ -1,5 +1,5 @@
-import { URI } from "../../../../base/common/uri.js";
-import { LanguageId, StandardTokenType } from "../../../../editor/common/encodedTokenAttributes.js";
+import { URI } from '../../../../base/common/uri.js';
+import { LanguageId, StandardTokenType } from '../../../../editor/common/encodedTokenAttributes.js';
 export interface IValidGrammarDefinition {
     location: URI;
     language?: string;

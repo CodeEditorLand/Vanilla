@@ -1,8 +1,8 @@
-import * as dom from "../../../../base/browser/dom.js";
-import { Event } from "../../../../base/common/event.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "../../../browser/editorBrowser.js";
-import { CompletionItem } from "./suggest.js";
+import * as dom from '../../../../base/browser/dom.js';
+import { Event } from '../../../../base/common/event.js';
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from '../../../browser/editorBrowser.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { CompletionItem } from './suggest.js';
 export declare function canExpandCompletionItem(item: CompletionItem | undefined): boolean;
 export declare class SuggestDetailsWidget {
     private readonly _editor;
@@ -46,6 +46,7 @@ export declare class SuggestDetailsWidget {
     pageUp(): void;
     set borderWidth(width: number);
     get borderWidth(): number;
+    focus(): void;
 }
 export declare class SuggestDetailsOverlay implements IOverlayWidget {
     readonly widget: SuggestDetailsWidget;

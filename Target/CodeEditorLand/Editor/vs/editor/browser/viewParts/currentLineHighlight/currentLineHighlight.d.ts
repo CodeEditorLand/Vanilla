@@ -1,11 +1,11 @@
-import "./currentLineHighlight.css";
-import * as viewEvents from "../../../common/viewEvents.js";
-import { ViewContext } from "../../../common/viewModel/viewContext.js";
-import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
-import { RenderingContext } from "../../view/renderingContext.js";
+import './currentLineHighlight.css';
+import { DynamicViewOverlay } from '../../view/dynamicViewOverlay.js';
+import { RenderingContext } from '../../view/renderingContext.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
+import * as viewEvents from '../../../common/viewEvents.js';
 export declare abstract class AbstractLineHighlightOverlay extends DynamicViewOverlay {
     private readonly _context;
-    protected _renderLineHighlight: "none" | "gutter" | "line" | "all";
+    protected _renderLineHighlight: 'none' | 'gutter' | 'line' | 'all';
     protected _wordWrap: boolean;
     protected _contentLeft: number;
     protected _contentWidth: number;

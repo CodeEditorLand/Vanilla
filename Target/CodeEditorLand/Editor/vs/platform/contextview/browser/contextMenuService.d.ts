@@ -1,12 +1,12 @@
-import { IContextMenuDelegate } from "../../../base/browser/contextmenu.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IMenuService } from "../../actions/common/actions.js";
-import { IContextKeyService } from "../../contextkey/common/contextkey.js";
-import { IKeybindingService } from "../../keybinding/common/keybinding.js";
-import { INotificationService } from "../../notification/common/notification.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { IContextMenuHandlerOptions } from "./contextMenuHandler.js";
-import { IContextMenuMenuDelegate, IContextMenuService, IContextViewService } from "./contextView.js";
+import { IContextMenuDelegate } from '../../../base/browser/contextmenu.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IMenuService } from '../../actions/common/actions.js';
+import { IContextKeyService } from '../../contextkey/common/contextkey.js';
+import { IKeybindingService } from '../../keybinding/common/keybinding.js';
+import { INotificationService } from '../../notification/common/notification.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+import { IContextMenuHandlerOptions } from './contextMenuHandler.js';
+import { IContextMenuMenuDelegate, IContextMenuService, IContextViewService } from './contextView.js';
 export declare class ContextMenuService extends Disposable implements IContextMenuService {
     private readonly telemetryService;
     private readonly notificationService;

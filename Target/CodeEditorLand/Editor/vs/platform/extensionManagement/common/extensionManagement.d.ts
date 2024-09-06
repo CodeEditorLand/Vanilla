@@ -1,10 +1,10 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IStringDictionary } from "../../../base/common/collections.js";
-import { Event } from "../../../base/common/event.js";
-import { IPager } from "../../../base/common/paging.js";
-import { Platform } from "../../../base/common/platform.js";
-import { URI } from "../../../base/common/uri.js";
-import { ExtensionType, IExtension, IExtensionManifest, TargetPlatform } from "../../extensions/common/extensions.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { Event } from '../../../base/common/event.js';
+import { IPager } from '../../../base/common/paging.js';
+import { Platform } from '../../../base/common/platform.js';
+import { URI } from '../../../base/common/uri.js';
+import { ExtensionType, IExtension, IExtensionManifest, TargetPlatform } from '../../extensions/common/extensions.js';
 export declare const EXTENSION_IDENTIFIER_PATTERN = "^([a-z0-9A-Z][a-z0-9-A-Z]*)\\.([a-z0-9A-Z][a-z0-9-A-Z]*)$";
 export declare const EXTENSION_IDENTIFIER_REGEX: RegExp;
 export declare const WEB_EXTENSION_TAG = "__web_extension";
@@ -22,7 +22,7 @@ export interface IProductVersion {
 }
 export declare function TargetPlatformToString(targetPlatform: TargetPlatform): "Web" | "Mac" | TargetPlatform.UNIVERSAL | TargetPlatform.UNKNOWN | TargetPlatform.UNDEFINED | "Windows 64 bit" | "Windows ARM" | "Linux 64 bit" | "Linux ARM 64" | "Linux ARM" | "Alpine Linux 64 bit" | "Alpine ARM 64" | "Mac Silicon";
 export declare function toTargetPlatform(targetPlatform: string): TargetPlatform;
-export declare function getTargetPlatform(platform: Platform | "alpine", arch: string | undefined): TargetPlatform;
+export declare function getTargetPlatform(platform: Platform | 'alpine', arch: string | undefined): TargetPlatform;
 export declare function isNotWebExtensionInWebTargetPlatform(allTargetPlatforms: TargetPlatform[], productTargetPlatform: TargetPlatform): boolean;
 export declare function isTargetPlatformCompatible(extensionTargetPlatform: TargetPlatform, allTargetPlatforms: TargetPlatform[], productTargetPlatform: TargetPlatform): boolean;
 export interface IGalleryExtensionProperties {
@@ -64,7 +64,7 @@ export interface IGalleryExtensionVersion {
     isPreReleaseVersion: boolean;
 }
 export interface IGalleryExtension {
-    type: "gallery";
+    type: 'gallery';
     name: string;
     identifier: IGalleryExtensionIdentifier;
     version: string;
@@ -96,7 +96,7 @@ export interface IGalleryExtension {
     queryContext?: IStringDictionary<any>;
     supportLink?: string;
 }
-export type InstallSource = "gallery" | "vsix" | "resource";
+export type InstallSource = 'gallery' | 'vsix' | 'resource';
 export interface IGalleryMetadata {
     id: string;
     publisherId: string;

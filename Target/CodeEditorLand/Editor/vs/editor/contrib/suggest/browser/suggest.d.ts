@@ -1,16 +1,16 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { FuzzyScore } from "../../../../base/common/filters.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { MenuId } from "../../../../platform/actions/common/actions.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { InternalQuickSuggestionsOptions, QuickSuggestionsValue } from "../../../common/config/editorOptions.js";
-import { IPosition, Position } from "../../../common/core/position.js";
-import { StandardTokenType } from "../../../common/encodedTokenAttributes.js";
-import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
-import * as languages from "../../../common/languages.js";
-import { ITextModel } from "../../../common/model.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { FuzzyScore } from '../../../../base/common/filters.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IPosition, Position } from '../../../common/core/position.js';
+import { ITextModel } from '../../../common/model.js';
+import * as languages from '../../../common/languages.js';
+import { MenuId } from '../../../../platform/actions/common/actions.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { LanguageFeatureRegistry } from '../../../common/languageFeatureRegistry.js';
+import { InternalQuickSuggestionsOptions, QuickSuggestionsValue } from '../../../common/config/editorOptions.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { StandardTokenType } from '../../../common/encodedTokenAttributes.js';
 export declare const Context: {
     Visible: RawContextKey<boolean>;
     HasFocusedSuggestion: RawContextKey<boolean>;
@@ -28,7 +28,7 @@ export declare class CompletionItem {
     readonly completion: languages.CompletionItem;
     readonly container: languages.CompletionList;
     readonly provider: languages.CompletionItemProvider;
-    _brand: "ISuggestionItem";
+    _brand: 'ISuggestionItem';
     readonly editStart: IPosition;
     readonly editInsertEnd: IPosition;
     readonly editReplaceEnd: IPosition;
@@ -87,12 +87,12 @@ export declare function showSimpleSuggestions(editor: ICodeEditor, provider: lan
 export interface ISuggestItemPreselector {
     /**
      * The preselector with highest priority is asked first.
-     */
+    */
     readonly priority: number;
     /**
      * Is called to preselect a suggest item.
      * When -1 is returned, item preselectors with lower priority are asked.
-     */
+    */
     select(model: ITextModel, pos: IPosition, items: CompletionItem[]): number | -1;
 }
 export declare abstract class QuickSuggestionsOptions {

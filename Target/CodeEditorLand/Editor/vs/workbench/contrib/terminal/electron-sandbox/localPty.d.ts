@@ -1,5 +1,5 @@
-import { IProcessPropertyMap, IPtyService, ITerminalChildProcess, ITerminalLaunchError, ProcessPropertyType } from "../../../../platform/terminal/common/terminal.js";
-import { BasePty } from "../common/basePty.js";
+import { IProcessPropertyMap, IPtyService, ITerminalChildProcess, ITerminalLaunchError, ProcessPropertyType } from '../../../../platform/terminal/common/terminal.js';
+import { BasePty } from '../common/basePty.js';
 /**
  * Responsible for establishing and maintaining a connection with an existing terminal process
  * created on the local pty host.
@@ -23,6 +23,6 @@ export declare class LocalPty extends BasePty implements ITerminalChildProcess {
     refreshProperty<T extends ProcessPropertyType>(type: T): Promise<IProcessPropertyMap[T]>;
     updateProperty<T extends ProcessPropertyType>(type: T, value: IProcessPropertyMap[T]): Promise<void>;
     acknowledgeDataEvent(charCount: number): void;
-    setUnicodeVersion(version: "6" | "11"): Promise<void>;
+    setUnicodeVersion(version: '6' | '11'): Promise<void>;
     handleOrphanQuestion(): void;
 }

@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
 export declare class AccesibleViewHelpContribution extends Disposable {
-    static ID: "accesibleViewHelpContribution";
+    static ID: 'accesibleViewHelpContribution';
     constructor();
 }
 export declare class AccesibleViewContributions extends Disposable {
-    static ID: "accesibleViewContributions";
+    static ID: 'accesibleViewContributions';
     constructor();
 }

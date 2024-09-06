@@ -1,13 +1,13 @@
-import * as perf from "../../../../base/common/performance.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IUpdateService } from "../../../../platform/update/common/update.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IEditorService } from "../../editor/common/editorService.js";
-import { IExtensionService } from "../../extensions/common/extensions.js";
-import { IWorkbenchLayoutService } from "../../layout/browser/layoutService.js";
-import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
-import { IPaneCompositePartService } from "../../panecomposite/browser/panecomposite.js";
+import * as perf from '../../../../base/common/performance.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IExtensionService } from '../../extensions/common/extensions.js';
+import { IUpdateService } from '../../../../platform/update/common/update.js';
+import { ILifecycleService } from '../../lifecycle/common/lifecycle.js';
+import { IEditorService } from '../../editor/common/editorService.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IWorkbenchLayoutService } from '../../layout/browser/layoutService.js';
+import { IPaneCompositePartService } from '../../panecomposite/browser/panecomposite.js';
 export interface IMemoryInfo {
     readonly workingSetSize: number;
     readonly privateBytes: number;
@@ -324,10 +324,7 @@ export interface ITimerService {
      * Get all currently known performance marks by source. There is no sorting of the
      * returned tuples but the marks of a tuple are guaranteed to be sorted by start times.
      */
-    getPerformanceMarks(): [
-        source: string,
-        marks: readonly perf.PerformanceMark[]
-    ][];
+    getPerformanceMarks(): [source: string, marks: readonly perf.PerformanceMark[]][];
     /**
      * Return the duration between two marks.
      * @param from from mark name
@@ -363,10 +360,7 @@ export declare abstract class AbstractTimerService implements ITimerService {
     whenReady(): Promise<boolean>;
     get startupMetrics(): IStartupMetrics;
     setPerformanceMarks(source: string, marks: perf.PerformanceMark[]): void;
-    getPerformanceMarks(): [
-        source: string,
-        marks: readonly perf.PerformanceMark[]
-    ][];
+    getPerformanceMarks(): [source: string, marks: readonly perf.PerformanceMark[]][];
     getDuration(from: string, to: string): number;
     getStartTime(mark: string): number;
     private _reportStartupTimes;

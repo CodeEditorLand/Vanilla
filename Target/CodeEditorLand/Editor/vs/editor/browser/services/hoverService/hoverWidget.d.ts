@@ -1,13 +1,13 @@
-import "./hover.css";
-import { AnchorPosition } from "../../../../base/browser/ui/contextview/contextview.js";
-import type { IHoverOptions, IHoverWidget } from "../../../../base/browser/ui/hover/hover.js";
-import { Widget } from "../../../../base/browser/ui/widget.js";
-import { Event } from "../../../../base/common/event.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import './hover.css';
+import { Event } from '../../../../base/common/event.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { Widget } from '../../../../base/browser/ui/widget.js';
+import { AnchorPosition } from '../../../../base/browser/ui/contextview/contextview.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
+import type { IHoverOptions, IHoverWidget } from '../../../../base/browser/ui/hover/hover.js';
 export declare class HoverWidget extends Widget implements IHoverWidget {
     private readonly _keybindingService;
     private readonly _configurationService;

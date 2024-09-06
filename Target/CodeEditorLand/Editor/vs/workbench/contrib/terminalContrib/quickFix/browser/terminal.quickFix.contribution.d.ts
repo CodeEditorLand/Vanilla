@@ -1,1 +1,1 @@
-import "./media/terminalQuickFix.css";
+import './media/terminalQuickFix.css';

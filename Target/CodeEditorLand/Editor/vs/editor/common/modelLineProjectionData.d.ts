@@ -1,8 +1,8 @@
-import { WrappingIndent } from "./config/editorOptions.js";
-import { FontInfo } from "./config/fontInfo.js";
-import { Position } from "./core/position.js";
-import { InjectedTextOptions, PositionAffinity } from "./model.js";
-import { LineInjectedText } from "./textModelEvents.js";
+import { WrappingIndent } from './config/editorOptions.js';
+import { FontInfo } from './config/fontInfo.js';
+import { Position } from './core/position.js';
+import { InjectedTextOptions, PositionAffinity } from './model.js';
+import { LineInjectedText } from './textModelEvents.js';
 /**
  * *input*:
  * ```
@@ -83,7 +83,7 @@ export declare class OutputPosition {
     toPosition(baseLineNumber: number): Position;
 }
 export interface ILineBreaksComputerFactory {
-    createLineBreaksComputer(fontInfo: FontInfo, tabSize: number, wrappingColumn: number, wrappingIndent: WrappingIndent, wordBreak: "normal" | "keepAll"): ILineBreaksComputer;
+    createLineBreaksComputer(fontInfo: FontInfo, tabSize: number, wrappingColumn: number, wrappingIndent: WrappingIndent, wordBreak: 'normal' | 'keepAll'): ILineBreaksComputer;
 }
 export interface ILineBreaksComputer {
     /**

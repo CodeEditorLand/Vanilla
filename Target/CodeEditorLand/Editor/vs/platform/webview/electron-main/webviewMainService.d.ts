@@ -1,6 +1,6 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IWindowsMainService } from "../../windows/electron-main/windows.js";
-import { FoundInFrameResult, IWebviewManagerService, WebviewWebContentsId, WebviewWindowId } from "../common/webviewManagerService.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { FoundInFrameResult, IWebviewManagerService, WebviewWebContentsId, WebviewWindowId } from '../common/webviewManagerService.js';
+import { IWindowsMainService } from '../../windows/electron-main/windows.js';
 export declare class WebviewMainService extends Disposable implements IWebviewManagerService {
     private readonly windowsMainService;
     readonly _serviceBrand: undefined;

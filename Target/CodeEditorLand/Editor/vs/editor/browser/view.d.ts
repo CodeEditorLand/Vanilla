@@ -1,15 +1,15 @@
-import { FastDomNode } from "../../base/browser/fastDomNode.js";
-import { IMouseWheelEvent } from "../../base/browser/mouseEvent.js";
-import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
-import { IColorTheme } from "../../platform/theme/common/themeService.js";
-import { IEditorConfiguration } from "../common/config/editorConfiguration.js";
-import { ViewEventHandler } from "../common/viewEventHandler.js";
-import * as viewEvents from "../common/viewEvents.js";
-import { IViewModel } from "../common/viewModel.js";
-import { IContentWidget, IContentWidgetPosition, IEditorAriaOptions, IGlyphMarginWidget, IGlyphMarginWidgetPosition, IMouseTarget, IOverlayWidget, IOverlayWidgetPosition, IViewZoneChangeAccessor } from "./editorBrowser.js";
-import { ICommandDelegate } from "./view/viewController.js";
-import { ViewUserInputEvents } from "./view/viewUserInputEvents.js";
-import { OverviewRuler } from "./viewParts/overviewRuler/overviewRuler.js";
+import { FastDomNode } from '../../base/browser/fastDomNode.js';
+import { IMouseWheelEvent } from '../../base/browser/mouseEvent.js';
+import { IContentWidget, IContentWidgetPosition, IEditorAriaOptions, IGlyphMarginWidget, IGlyphMarginWidgetPosition, IMouseTarget, IOverlayWidget, IOverlayWidgetPosition, IViewZoneChangeAccessor } from './editorBrowser.js';
+import { ICommandDelegate } from './view/viewController.js';
+import { ViewUserInputEvents } from './view/viewUserInputEvents.js';
+import { OverviewRuler } from './viewParts/overviewRuler/overviewRuler.js';
+import { IEditorConfiguration } from '../common/config/editorConfiguration.js';
+import { ViewEventHandler } from '../common/viewEventHandler.js';
+import * as viewEvents from '../common/viewEvents.js';
+import { IViewModel } from '../common/viewModel.js';
+import { IInstantiationService } from '../../platform/instantiation/common/instantiation.js';
+import { IColorTheme } from '../../platform/theme/common/themeService.js';
 export interface IContentWidgetData {
     widget: IContentWidget;
     position: IContentWidgetPosition | null;

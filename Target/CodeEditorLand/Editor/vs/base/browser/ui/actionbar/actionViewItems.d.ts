@@ -1,12 +1,12 @@
-import { IAction, IActionRunner } from "../../../common/actions.js";
-import { Disposable } from "../../../common/lifecycle.js";
-import { EventLike } from "../../dom.js";
-import { IContextViewProvider } from "../contextview/contextview.js";
-import { IHoverDelegate } from "../hover/hoverDelegate.js";
-import { ISelectBoxOptions, ISelectBoxStyles, ISelectOptionItem, SelectBox } from "../selectBox/selectBox.js";
-import { IToggleStyles } from "../toggle/toggle.js";
-import { IActionViewItem } from "./actionbar.js";
-import "./actionbar.css";
+import { EventLike } from '../../dom.js';
+import { IActionViewItem } from './actionbar.js';
+import { IContextViewProvider } from '../contextview/contextview.js';
+import { IHoverDelegate } from '../hover/hoverDelegate.js';
+import { ISelectBoxOptions, ISelectBoxStyles, ISelectOptionItem, SelectBox } from '../selectBox/selectBox.js';
+import { IToggleStyles } from '../toggle/toggle.js';
+import { IAction, IActionRunner } from '../../../common/actions.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import './actionbar.css';
 export interface IBaseActionViewItemOptions {
     draggable?: boolean;
     isMenu?: boolean;

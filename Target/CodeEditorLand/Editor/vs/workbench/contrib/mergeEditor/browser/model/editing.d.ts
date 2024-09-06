@@ -1,10 +1,10 @@
-import { Range } from "../../../../../editor/common/core/range.js";
-import { IIdentifiedSingleEditOperation } from "../../../../../editor/common/model.js";
-import { LineRange } from "./lineRange.js";
+import { Range } from '../../../../../editor/common/core/range.js';
+import { IIdentifiedSingleEditOperation } from '../../../../../editor/common/model.js';
+import { LineRange } from './lineRange.js';
 /**
  * Represents an edit, expressed in whole lines:
  * At (before) {@link LineRange.startLineNumber}, delete {@link LineRange.lineCount} many lines and insert {@link newLines}.
- */
+*/
 export declare class LineRangeEdit {
     readonly range: LineRange;
     readonly newLines: string[];

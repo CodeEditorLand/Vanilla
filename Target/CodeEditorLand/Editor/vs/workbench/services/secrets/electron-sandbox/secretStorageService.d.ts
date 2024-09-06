@@ -1,12 +1,12 @@
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IEncryptionService } from "../../../../platform/encryption/common/encryptionService.js";
-import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { BaseSecretStorageService } from "../../../../platform/secrets/common/secrets.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IJSONEditingService } from "../../configuration/common/jsonEditing.js";
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IEncryptionService } from '../../../../platform/encryption/common/encryptionService.js';
+import { INativeEnvironmentService } from '../../../../platform/environment/common/environment.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { BaseSecretStorageService } from '../../../../platform/secrets/common/secrets.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IJSONEditingService } from '../../configuration/common/jsonEditing.js';
 export declare class NativeSecretStorageService extends BaseSecretStorageService {
     private readonly _notificationService;
     private readonly _dialogService;

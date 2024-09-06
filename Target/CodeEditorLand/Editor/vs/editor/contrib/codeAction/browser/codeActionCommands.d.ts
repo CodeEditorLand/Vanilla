@@ -1,5 +1,5 @@
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, EditorCommand, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { EditorAction, EditorCommand, ServicesAccessor } from '../../../browser/editorExtensions.js';
 export declare class QuickFixAction extends EditorAction {
     constructor();
     run(_accessor: ServicesAccessor, editor: ICodeEditor): void;

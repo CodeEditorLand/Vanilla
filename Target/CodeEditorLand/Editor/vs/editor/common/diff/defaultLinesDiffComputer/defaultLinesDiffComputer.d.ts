@@ -1,5 +1,5 @@
-import { ILinesDiffComputer, ILinesDiffComputerOptions, LinesDiff } from "../linesDiffComputer.js";
-import { DetailedLineRangeMapping, RangeMapping } from "../rangeMapping.js";
+import { ILinesDiffComputer, ILinesDiffComputerOptions, LinesDiff } from '../linesDiffComputer.js';
+import { DetailedLineRangeMapping, RangeMapping } from '../rangeMapping.js';
 export declare class DefaultLinesDiffComputer implements ILinesDiffComputer {
     private readonly dynamicProgrammingDiffing;
     private readonly myersDiffingAlgorithm;

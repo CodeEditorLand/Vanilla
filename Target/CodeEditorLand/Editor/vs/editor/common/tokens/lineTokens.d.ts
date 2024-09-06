@@ -1,9 +1,9 @@
-import { OffsetRange } from "../core/offsetRange.js";
-import { IPosition } from "../core/position.js";
-import { ColorId, ITokenPresentation, StandardTokenType } from "../encodedTokenAttributes.js";
-import { ILanguageIdCodec } from "../languages.js";
-import { ITextModel } from "../model.js";
-import { TokenArray } from "./tokenArray.js";
+import { ILanguageIdCodec } from '../languages.js';
+import { ColorId, StandardTokenType, ITokenPresentation } from '../encodedTokenAttributes.js';
+import { IPosition } from '../core/position.js';
+import { ITextModel } from '../model.js';
+import { OffsetRange } from '../core/offsetRange.js';
+import { TokenArray } from './tokenArray.js';
 export interface IViewLineTokens {
     languageIdCodec: ILanguageIdCodec;
     equals(other: IViewLineTokens): boolean;
@@ -60,7 +60,7 @@ export declare class LineTokens implements IViewLineTokens {
     /**
      * @pure
      * @param insertTokens Must be sorted by offset.
-     */
+    */
     withInserted(insertTokens: {
         offset: number;
         text: string;

@@ -1,7 +1,7 @@
 /**
  * Represents an immutable set that works best for a small number of elements (less than 32).
  * It uses bits to encode element membership efficiently.
- */
+*/
 export declare class SmallImmutableSet<T> {
     private readonly items;
     private readonly additionalItems;
@@ -22,7 +22,7 @@ export interface IDenseKeyProvider<T> {
 export declare const identityKeyProvider: IDenseKeyProvider<number>;
 /**
  * Assigns values a unique incrementing key.
- */
+*/
 export declare class DenseKeyProvider<T> {
     private readonly items;
     getKey(value: T): number;

@@ -86,7 +86,7 @@ export declare const enum ParseErrorCode {
     InvalidEscapeCharacter = 15,
     InvalidCharacter = 16
 }
-export type NodeType = "object" | "array" | "property" | "string" | "number" | "boolean" | "null";
+export type NodeType = 'object' | 'array' | 'property' | 'string' | 'number' | 'boolean' | 'null';
 export interface Node {
     readonly type: NodeType;
     readonly value?: any;

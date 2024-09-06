@@ -1,14 +1,14 @@
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { ITunnelService } from "../../../../platform/tunnel/common/tunnel.js";
-import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { IPathService } from "../../../services/path/common/pathService.js";
-import { IDebugSession } from "../common/debug.js";
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { ITunnelService } from '../../../../platform/tunnel/common/tunnel.js';
+import { IWorkspaceFolder } from '../../../../platform/workspace/common/workspace.js';
+import { IDebugSession } from '../common/debug.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
+import { IPathService } from '../../../services/path/common/pathService.js';
 export declare const enum DebugLinkHoverBehavior {
     /** A nice workbench hover */
     Rich = 0,

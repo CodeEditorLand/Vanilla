@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { Range } from "../../../../../../editor/common/core/range.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { INotebookFindScope } from "../../../common/notebookCommon.js";
-import { ICellViewModel, INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { Range } from '../../../../../../editor/common/core/range.js';
+import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
+import { ICellViewModel, INotebookEditor, INotebookEditorContribution } from '../../notebookBrowser.js';
+import { INotebookFindScope } from '../../../common/notebookCommon.js';
 export interface IShowNotebookFindWidgetOptions {
     isRegex?: boolean;
     wholeWord?: boolean;

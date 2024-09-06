@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IObservable, ISettableObservable } from "../../../../base/common/observable.js";
-import "./inlineEditsWidget.css";
-import { MenuWorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { LineRange } from "../../../common/core/lineRange.js";
-import { DetailedLineRangeMapping } from "../../../common/diff/rangeMapping.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IObservable, ISettableObservable } from '../../../../base/common/observable.js';
+import './inlineEditsWidget.css';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { LineRange } from '../../../common/core/lineRange.js';
+import { DetailedLineRangeMapping } from '../../../common/diff/rangeMapping.js';
+import { MenuWorkbenchToolBar } from '../../../../platform/actions/browser/toolbar.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 export declare class InlineEdit {
     readonly range: LineRange;
     readonly newLines: string[];

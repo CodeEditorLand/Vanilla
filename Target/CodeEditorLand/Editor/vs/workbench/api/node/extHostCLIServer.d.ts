@@ -1,7 +1,7 @@
-import { ILogService } from "../../../platform/log/common/log.js";
-import { IExtHostCommands } from "../common/extHostCommands.js";
+import { IExtHostCommands } from '../common/extHostCommands.js';
+import { ILogService } from '../../../platform/log/common/log.js';
 export interface OpenCommandPipeArgs {
-    type: "open";
+    type: 'open';
     fileURIs?: string[];
     folderURIs?: string[];
     forceNewWindow?: boolean;
@@ -14,14 +14,14 @@ export interface OpenCommandPipeArgs {
     remoteAuthority?: string | null;
 }
 export interface OpenExternalCommandPipeArgs {
-    type: "openExternal";
+    type: 'openExternal';
     uris: string[];
 }
 export interface StatusPipeArgs {
-    type: "status";
+    type: 'status';
 }
 export interface ExtensionManagementPipeArgs {
-    type: "extensionManagement";
+    type: 'extensionManagement';
     list?: {
         showVersions?: boolean;
         category?: string;

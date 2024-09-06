@@ -1,6 +1,6 @@
-import { WorkbenchObjectTree } from "../../../../../platform/list/browser/listService.js";
-import { TestExplorerTreeElement } from "./index.js";
-import { ISerializedTestTreeCollapseState } from "./testingViewState.js";
+import { WorkbenchObjectTree } from '../../../../../platform/list/browser/listService.js';
+import { TestExplorerTreeElement } from './index.js';
+import { ISerializedTestTreeCollapseState } from './testingViewState.js';
 export declare class TestingObjectTree<TFilterData = void> extends WorkbenchObjectTree<TestExplorerTreeElement, TFilterData> {
     /**
      * Gets a serialized view state for the tree, optimized for storage.

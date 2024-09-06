@@ -1,13 +1,13 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IObservable, ITransaction } from "../../../../base/common/observable.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ContextKeyValue } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { Selection } from "../../../common/core/selection.js";
-import { IDiffEditorViewModel } from "../../../common/editorCommon.js";
-import { IModelService } from "../../../common/services/model.js";
-import { RefCounted } from "../diffEditor/utils.js";
-import { IDocumentDiffItem, IMultiDiffEditorModel } from "./model.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IObservable, ITransaction } from '../../../../base/common/observable.js';
+import { URI } from '../../../../base/common/uri.js';
+import { RefCounted } from '../diffEditor/utils.js';
+import { IDocumentDiffItem, IMultiDiffEditorModel } from './model.js';
+import { Selection } from '../../../common/core/selection.js';
+import { IDiffEditorViewModel } from '../../../common/editorCommon.js';
+import { IModelService } from '../../../common/services/model.js';
+import { ContextKeyValue } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 export declare class MultiDiffEditorViewModel extends Disposable {
     readonly model: IMultiDiffEditorModel;
     private readonly _instantiationService;
@@ -32,7 +32,7 @@ export declare class DocumentDiffItemViewModel extends Disposable {
     private readonly _modelService;
     /**
      * The diff editor view model keeps its inner objects alive.
-     */
+    */
     readonly diffEditorViewModelRef: RefCounted<IDiffEditorViewModel>;
     get diffEditorViewModel(): IDiffEditorViewModel;
     readonly collapsed: import("../../../../base/common/observable.js").ISettableObservable<boolean, void>;

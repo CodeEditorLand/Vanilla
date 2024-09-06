@@ -1,9 +1,9 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import { EditorCloseContext, EditorsOrder, GroupIdentifier, GroupModelChangeKind, IMatchEditorOptions, IUntypedEditorInput, SideBySideEditor } from "../editor.js";
-import { EditorInput } from "./editorInput.js";
+import { Event } from '../../../base/common/event.js';
+import { GroupIdentifier, EditorsOrder, IUntypedEditorInput, SideBySideEditor, EditorCloseContext, IMatchEditorOptions, GroupModelChangeKind } from '../editor.js';
+import { EditorInput } from './editorInput.js';
+import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
+import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
 export interface IEditorOpenOptions {
     readonly pinned?: boolean;
     readonly sticky?: boolean;

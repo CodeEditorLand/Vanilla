@@ -1,11 +1,11 @@
-import "./media/editortitlecontrol.css";
-import { Dimension } from "../../../../base/browser/dom.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
-import { IEditorPartOptions } from "../../../common/editor.js";
-import { IReadonlyEditorGroupModel } from "../../../common/editor/editorGroupModel.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IEditorGroupsView, IEditorGroupTitleHeight, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from "./editor.js";
+import './media/editortitlecontrol.css';
+import { Dimension } from '../../../../base/browser/dom.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IThemeService, Themable } from '../../../../platform/theme/common/themeService.js';
+import { IEditorGroupsView, IEditorGroupTitleHeight, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from './editor.js';
+import { IEditorPartOptions } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IReadonlyEditorGroupModel } from '../../../common/editor/editorGroupModel.js';
 export interface IEditorTitleControlDimensions {
     /**
      * The size of the parent container the title control is layed out in.

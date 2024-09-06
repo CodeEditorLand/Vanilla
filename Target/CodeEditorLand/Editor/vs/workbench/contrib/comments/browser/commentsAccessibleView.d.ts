@@ -1,10 +1,10 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
-import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
-import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
-import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
-import { CommentsMenus } from "./commentsTreeViewer.js";
-import { CommentsPanel } from "./commentsView.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ServicesAccessor } from '../../../../editor/browser/editorExtensions.js';
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from '../../../../platform/accessibility/browser/accessibleView.js';
+import { IAccessibleViewImplentation } from '../../../../platform/accessibility/browser/accessibleViewRegistry.js';
+import { AccessibilityVerbositySettingId } from '../../accessibility/browser/accessibilityConfiguration.js';
+import { CommentsMenus } from './commentsTreeViewer.js';
+import { CommentsPanel } from './commentsView.js';
 export declare class CommentsAccessibleView extends Disposable implements IAccessibleViewImplentation {
     readonly priority = 90;
     readonly name = "comment";

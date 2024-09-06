@@ -1,20 +1,20 @@
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { ScrollbarVisibility } from "../../../base/common/scrollable.js";
-import { AccessibilitySupport } from "../../../platform/accessibility/common/accessibility.js";
-import { IConfigurationPropertySchema } from "../../../platform/configuration/common/configurationRegistry.js";
-import { FontInfo } from "./fontInfo.js";
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { ScrollbarVisibility } from '../../../base/common/scrollable.js';
+import { FontInfo } from './fontInfo.js';
+import { AccessibilitySupport } from '../../../platform/accessibility/common/accessibility.js';
+import { IConfigurationPropertySchema } from '../../../platform/configuration/common/configurationRegistry.js';
 /**
  * Configuration options for auto closing quotes and brackets
  */
-export type EditorAutoClosingStrategy = "always" | "languageDefined" | "beforeWhitespace" | "never";
+export type EditorAutoClosingStrategy = 'always' | 'languageDefined' | 'beforeWhitespace' | 'never';
 /**
  * Configuration options for auto wrapping quotes and brackets
  */
-export type EditorAutoSurroundStrategy = "languageDefined" | "quotes" | "brackets" | "never";
+export type EditorAutoSurroundStrategy = 'languageDefined' | 'quotes' | 'brackets' | 'never';
 /**
  * Configuration options for typing over closing quotes or brackets
  */
-export type EditorAutoClosingEditStrategy = "always" | "auto" | "never";
+export type EditorAutoClosingEditStrategy = 'always' | 'auto' | 'never';
 /**
  * Configuration options for auto indentation in the editor
  */
@@ -82,24 +82,24 @@ export interface IEditorOptions {
     /**
      * Controls the minimal number of visible leading and trailing lines surrounding the cursor.
      * Defaults to 0.
-     */
+    */
     cursorSurroundingLines?: number;
     /**
      * Controls when `cursorSurroundingLines` should be enforced
      * Defaults to `default`, `cursorSurroundingLines` is not enforced when cursor position is changed
      * by mouse.
-     */
-    cursorSurroundingLinesStyle?: "default" | "all";
+    */
+    cursorSurroundingLinesStyle?: 'default' | 'all';
     /**
      * Render last line number when the file ends with a newline.
      * Defaults to 'on' for Windows and macOS and 'dimmed' for Linux.
-     */
-    renderFinalNewline?: "on" | "off" | "dimmed";
+    */
+    renderFinalNewline?: 'on' | 'off' | 'dimmed';
     /**
      * Remove unusual line terminators like LINE SEPARATOR (LS), PARAGRAPH SEPARATOR (PS).
      * Defaults to 'prompt'.
      */
-    unusualLineTerminators?: "auto" | "off" | "prompt";
+    unusualLineTerminators?: 'auto' | 'off' | 'prompt';
     /**
      * Should the corresponding line be selected when clicking on the line number?
      * Defaults to true.
@@ -164,7 +164,7 @@ export interface IEditorOptions {
      * Should the editor render validation decorations.
      * Defaults to editable.
      */
-    renderValidationDecorations?: "editable" | "on" | "off";
+    renderValidationDecorations?: 'editable' | 'on' | 'off';
     /**
      * Control the behavior and rendering of the scrollbars.
      */
@@ -200,7 +200,7 @@ export interface IEditorOptions {
      * Control the cursor animation style, possible values are 'blink', 'smooth', 'phase', 'expand' and 'solid'.
      * Defaults to 'blink'.
      */
-    cursorBlinking?: "blink" | "smooth" | "phase" | "expand" | "solid";
+    cursorBlinking?: 'blink' | 'smooth' | 'phase' | 'expand' | 'solid';
     /**
      * Zoom the font in the editor when using the mouse wheel in combination with holding Ctrl.
      * Defaults to false.
@@ -210,17 +210,17 @@ export interface IEditorOptions {
      * Control the mouse pointer style, either 'text' or 'default' or 'copy'
      * Defaults to 'text'
      */
-    mouseStyle?: "text" | "default" | "copy";
+    mouseStyle?: 'text' | 'default' | 'copy';
     /**
      * Enable smooth caret animation.
      * Defaults to 'off'.
      */
-    cursorSmoothCaretAnimation?: "off" | "explicit" | "on";
+    cursorSmoothCaretAnimation?: 'off' | 'explicit' | 'on';
     /**
      * Control the cursor style, either 'block' or 'line'.
      * Defaults to 'line'.
      */
-    cursorStyle?: "line" | "block" | "underline" | "line-thin" | "block-outline" | "underline-thin";
+    cursorStyle?: 'line' | 'block' | 'underline' | 'line-thin' | 'block-outline' | 'underline-thin';
     /**
      * Control the width of the cursor when cursorStyle is set to 'line'
      */
@@ -283,15 +283,15 @@ export interface IEditorOptions {
      * When `wordWrap` = "bounded", the lines will wrap at min(viewport width, wordWrapColumn).
      * Defaults to "off".
      */
-    wordWrap?: "off" | "on" | "wordWrapColumn" | "bounded";
+    wordWrap?: 'off' | 'on' | 'wordWrapColumn' | 'bounded';
     /**
      * Override the `wordWrap` setting.
      */
-    wordWrapOverride1?: "off" | "on" | "inherit";
+    wordWrapOverride1?: 'off' | 'on' | 'inherit';
     /**
      * Override the `wordWrapOverride1` setting.
      */
-    wordWrapOverride2?: "off" | "on" | "inherit";
+    wordWrapOverride2?: 'off' | 'on' | 'inherit';
     /**
      * Control the wrapping of the editor.
      * When `wordWrap` = "off", the lines will never wrap.
@@ -305,12 +305,12 @@ export interface IEditorOptions {
      * Control indentation of wrapped lines. Can be: 'none', 'same', 'indent' or 'deepIndent'.
      * Defaults to 'same' in vscode and to 'none' in monaco-editor.
      */
-    wrappingIndent?: "none" | "same" | "indent" | "deepIndent";
+    wrappingIndent?: 'none' | 'same' | 'indent' | 'deepIndent';
     /**
      * Controls the wrapping strategy to use.
      * Defaults to 'simple'.
      */
-    wrappingStrategy?: "simple" | "advanced";
+    wrappingStrategy?: 'simple' | 'advanced';
     /**
      * Configure word wrapping characters. A break will be introduced before these characters.
      */
@@ -324,7 +324,7 @@ export interface IEditorOptions {
      * When wordBreak = 'normal', Use the default line break rule.
      * When wordBreak = 'keepAll', Word breaks should not be used for Chinese/Japanese/Korean (CJK) text. Non-CJK text behavior is the same as for normal.
      */
-    wordBreak?: "normal" | "keepAll";
+    wordBreak?: 'normal' | 'keepAll';
     /**
      * Performance guard: Stop rendering a line after x characters.
      * Defaults to 10000.
@@ -347,7 +347,7 @@ export interface IEditorOptions {
     /**
      * Controls what is the condition to spawn a color picker from a color dectorator
      */
-    colorDecoratorsActivatedOn?: "clickAndHover" | "click" | "hover";
+    colorDecoratorsActivatedOn?: 'clickAndHover' | 'click' | 'hover';
     /**
      * Controls the max number of color decorators that can be rendered in an editor at once.
      */
@@ -385,7 +385,7 @@ export interface IEditorOptions {
      * The modifier to be used to add multiple cursors with the mouse.
      * Defaults to 'alt'
      */
-    multiCursorModifier?: "ctrlCmd" | "alt";
+    multiCursorModifier?: 'ctrlCmd' | 'alt';
     /**
      * Merge overlapping selections.
      * Defaults to true
@@ -395,7 +395,7 @@ export interface IEditorOptions {
      * Configure the behaviour when pasting a text with the line count equal to the cursor count.
      * Defaults to 'spread'.
      */
-    multiCursorPaste?: "spread" | "full";
+    multiCursorPaste?: 'spread' | 'full';
     /**
      * Controls the max number of text cursors that can be in an active editor at once.
      */
@@ -404,7 +404,7 @@ export interface IEditorOptions {
      * Configure the editor's accessibility support.
      * Defaults to 'auto'. It is best to leave this to 'auto'.
      */
-    accessibilitySupport?: "auto" | "off" | "on";
+    accessibilitySupport?: 'auto' | 'off' | 'on';
     /**
      * Controls the number of lines in the editor that can be read out by a screen reader
      */
@@ -473,7 +473,7 @@ export interface IEditorOptions {
      * Controls whether the editor should automatically adjust the indentation when users type, paste, move or indent lines.
      * Defaults to advanced.
      */
-    autoIndent?: "none" | "keep" | "brackets" | "advanced" | "full";
+    autoIndent?: 'none' | 'keep' | 'brackets' | 'advanced' | 'full';
     /**
      * Emulate selection behaviour of tab characters when using spaces for indentation.
      * This means selection will stick to tab stops.
@@ -503,7 +503,7 @@ export interface IEditorOptions {
      * Accept suggestions on ENTER.
      * Defaults to 'on'.
      */
-    acceptSuggestionOnEnter?: "on" | "smart" | "off";
+    acceptSuggestionOnEnter?: 'on' | 'smart' | 'off';
     /**
      * Accept suggestions on provider defined characters.
      * Defaults to true.
@@ -512,7 +512,7 @@ export interface IEditorOptions {
     /**
      * Enable snippet suggestions. Default to 'true'.
      */
-    snippetSuggestions?: "top" | "bottom" | "inline" | "none";
+    snippetSuggestions?: 'top' | 'bottom' | 'inline' | 'none';
     /**
      * Copying without a selection copies the current line.
      */
@@ -524,7 +524,7 @@ export interface IEditorOptions {
     /**
      * The history mode for suggestions.
      */
-    suggestSelection?: "first" | "recentlyUsed" | "recentlyUsedByPrefix";
+    suggestSelection?: 'first' | 'recentlyUsed' | 'recentlyUsedByPrefix';
     /**
      * The font size for the suggest widget.
      * Defaults to the editor font size.
@@ -538,7 +538,7 @@ export interface IEditorOptions {
     /**
      * Enable tab completion.
      */
-    tabCompletion?: "on" | "off" | "onlySnippets";
+    tabCompletion?: 'on' | 'off' | 'onlySnippets';
     /**
      * Enable selection highlight.
      * Defaults to true.
@@ -551,7 +551,7 @@ export interface IEditorOptions {
      * 'singleFile' triggers occurrence highlighting in the current document
      * 'multiFile'  triggers occurrence highlighting across valid open documents
      */
-    occurrencesHighlight?: "off" | "singleFile" | "multiFile";
+    occurrencesHighlight?: 'off' | 'singleFile' | 'multiFile';
     /**
      * Show code lens
      * Defaults to true.
@@ -582,7 +582,7 @@ export interface IEditorOptions {
      * Selects the folding strategy. 'auto' uses the strategies contributed for the current document, 'indentation' uses the indentation based folding strategy.
      * Defaults to 'auto'.
      */
-    foldingStrategy?: "auto" | "indentation";
+    foldingStrategy?: 'auto' | 'indentation';
     /**
      * Enable highlight for folded regions.
      * Defaults to true.
@@ -602,7 +602,7 @@ export interface IEditorOptions {
      * Controls whether the fold actions in the gutter stay always visible or hide unless the mouse is over the gutter.
      * Defaults to 'mouseover'.
      */
-    showFoldingControls?: "always" | "never" | "mouseover";
+    showFoldingControls?: 'always' | 'never' | 'mouseover';
     /**
      * Controls whether clicking on the empty content after a folded line will unfold the line.
      * Defaults to false.
@@ -612,17 +612,17 @@ export interface IEditorOptions {
      * Enable highlighting of matching brackets.
      * Defaults to 'always'.
      */
-    matchBrackets?: "never" | "near" | "always";
+    matchBrackets?: 'never' | 'near' | 'always';
     /**
      * Enable experimental whitespace rendering.
      * Defaults to 'svg'.
      */
-    experimentalWhitespaceRendering?: "svg" | "font" | "off";
+    experimentalWhitespaceRendering?: 'svg' | 'font' | 'off';
     /**
      * Enable rendering of whitespace.
      * Defaults to 'selection'.
      */
-    renderWhitespace?: "none" | "boundary" | "selection" | "trailing" | "all";
+    renderWhitespace?: 'none' | 'boundary' | 'selection' | 'trailing' | 'all';
     /**
      * Enable rendering of control characters.
      * Defaults to true.
@@ -632,7 +632,7 @@ export interface IEditorOptions {
      * Enable rendering of current line highlight.
      * Defaults to all.
      */
-    renderLineHighlight?: "none" | "gutter" | "line" | "all";
+    renderLineHighlight?: 'none' | 'gutter' | 'line' | 'all';
     /**
      * Control if the current line highlight should be rendered only the editor is focused.
      * Defaults to false.
@@ -670,11 +670,11 @@ export interface IEditorOptions {
      * Controls whether to focus the inline editor in the peek widget by default.
      * Defaults to false.
      */
-    peekWidgetDefaultFocus?: "tree" | "editor";
+    peekWidgetDefaultFocus?: 'tree' | 'editor';
     /**
      * Sets a placeholder for the editor.
      * If set, the placeholder is shown if the editor is empty.
-     */
+    */
     placeholder?: string | undefined;
     /**
      * Controls whether the definition link opens element in the peek widget.
@@ -699,7 +699,7 @@ export interface IEditorOptions {
     useShadowDOM?: boolean;
     /**
      * Controls the behavior of editor guides.
-     */
+    */
     guides?: IGuidesOptions;
     /**
      * Controls the behavior of the unicode highlight feature
@@ -708,7 +708,7 @@ export interface IEditorOptions {
     unicodeHighlight?: IUnicodeHighlightOptions;
     /**
      * Configures bracket pair colorization (disabled by default).
-     */
+    */
     bracketPairColorization?: IBracketPairColorizationOptions;
     /**
      * Controls dropping into the editor from an external source.
@@ -768,7 +768,7 @@ export interface IDiffEditorBaseOptions {
     /**
      * If set, the diff editor is optimized for small views.
      * Defaults to `false`.
-     */
+    */
     compactMode?: boolean;
     /**
      * Timeout in milliseconds after which diff computation is cancelled.
@@ -797,7 +797,7 @@ export interface IDiffEditorBaseOptions {
     renderMarginRevertIcon?: boolean;
     /**
      * Indicates if the gutter menu should be rendered.
-     */
+    */
     renderGutterMenu?: boolean;
     /**
      * Original model should be editable?
@@ -817,11 +817,11 @@ export interface IDiffEditorBaseOptions {
     /**
      * Control the wrapping of the diff editor.
      */
-    diffWordWrap?: "off" | "on" | "inherit";
+    diffWordWrap?: 'off' | 'on' | 'inherit';
     /**
      * Diff Algorithm
-     */
-    diffAlgorithm?: "legacy" | "advanced";
+    */
+    diffAlgorithm?: 'legacy' | 'advanced';
     /**
      * Whether the diff editor aria label should be verbose.
      */
@@ -834,7 +834,7 @@ export interface IDiffEditorBaseOptions {
         showEmptyDecorations?: boolean;
         /**
          * Only applies when `renderSideBySide` is set to false.
-         */
+        */
         useTrueInlineView?: boolean;
     };
     /**
@@ -926,7 +926,7 @@ export interface IEditorOption<K extends EditorOption, V> {
     compute(env: IEnvironmentalOptions, options: IComputedEditorOptions, value: V): V;
     /**
      * Might modify `value`.
-     */
+    */
     applyUpdate(value: V | undefined, update: V): ApplyUpdateResult<V>;
 }
 /**
@@ -966,7 +966,7 @@ export declare class ApplyUpdateResult<T> {
  */
 declare abstract class ComputedEditorOption<K extends EditorOption, V> implements IEditorOption<K, V> {
     readonly id: K;
-    readonly name: "_never_";
+    readonly name: '_never_';
     readonly defaultValue: V;
     readonly schema: IConfigurationPropertySchema | undefined;
     constructor(id: K);
@@ -1070,23 +1070,23 @@ export declare enum TextEditorCursorStyle {
 /**
  * @internal
  */
-export declare function cursorStyleToString(cursorStyle: TextEditorCursorStyle): "line" | "block" | "underline" | "line-thin" | "block-outline" | "underline-thin";
+export declare function cursorStyleToString(cursorStyle: TextEditorCursorStyle): 'line' | 'block' | 'underline' | 'line-thin' | 'block-outline' | 'underline-thin';
 /**
  * Configuration options for editor find widget
  */
 export interface IEditorFindOptions {
     /**
-     * Controls whether the cursor should move to find matches while typing.
-     */
+    * Controls whether the cursor should move to find matches while typing.
+    */
     cursorMoveOnType?: boolean;
     /**
      * Controls if we seed search string in the Find Widget with editor selection.
      */
-    seedSearchStringFromSelection?: "never" | "always" | "selection";
+    seedSearchStringFromSelection?: 'never' | 'always' | 'selection';
     /**
      * Controls if Find in Selection flag is turned on in the editor.
      */
-    autoFindInSelection?: "never" | "always" | "multiline";
+    autoFindInSelection?: 'never' | 'always' | 'multiline';
     addExtraSpaceOnTop?: boolean;
     /**
      * @internal
@@ -1121,7 +1121,7 @@ export declare class EditorFontVariations extends BaseEditorOption<EditorOption.
     validate(input: any): string;
     compute(env: IEnvironmentalOptions, options: IComputedEditorOptions, value: string): string;
 }
-export type GoToLocationValues = "peek" | "gotoAndPeek" | "goto";
+export type GoToLocationValues = 'peek' | 'gotoAndPeek' | 'goto';
 /**
  * Configuration options for go to location
  */
@@ -1328,7 +1328,7 @@ export interface IEditorLayoutComputerInput {
     readonly lineNumbers: InternalEditorRenderLineNumbersOptions;
     readonly lineNumbersMinChars: number;
     readonly scrollBeyondLastLine: boolean;
-    readonly wordWrap: "wordWrapColumn" | "on" | "off" | "bounded";
+    readonly wordWrap: 'wordWrapColumn' | 'on' | 'off' | 'bounded';
     readonly wordWrapColumn: number;
     readonly wordWrapMinified: boolean;
     readonly accessibilitySupport: AccessibilitySupport;
@@ -1409,7 +1409,7 @@ export interface IEditorStickyScrollOptions {
     /**
      * Model to choose for sticky scroll by default
      */
-    defaultModel?: "outlineModel" | "foldingProviderModel" | "indentationModel";
+    defaultModel?: 'outlineModel' | 'foldingProviderModel' | 'indentationModel';
     /**
      * Define whether to scroll sticky scroll with editor horizontal scrollbae
      */
@@ -1427,7 +1427,7 @@ export interface IEditorInlayHintsOptions {
      * Enable the inline hints.
      * Defaults to true.
      */
-    enabled?: "on" | "off" | "offUnlessPressed" | "onUnlessPressed";
+    enabled?: 'on' | 'off' | 'offUnlessPressed' | 'onUnlessPressed';
     /**
      * Font size of inline hints.
      * Default to 90% of the editor font size.
@@ -1470,17 +1470,17 @@ export interface IEditorMinimapOptions {
      * Control the side of the minimap in editor.
      * Defaults to 'right'.
      */
-    side?: "right" | "left";
+    side?: 'right' | 'left';
     /**
      * Control the minimap rendering mode.
      * Defaults to 'actual'.
      */
-    size?: "proportional" | "fill" | "fit";
+    size?: 'proportional' | 'fill' | 'fit';
     /**
      * Control the rendering of the minimap slider.
      * Defaults to 'mouseover'.
      */
-    showSlider?: "always" | "mouseover";
+    showSlider?: 'always' | 'mouseover';
     /**
      * Render the actual text on a line (as opposed to color blocks).
      * Defaults to true.
@@ -1552,7 +1552,7 @@ export interface IEditorParameterHintOptions {
  * @internal
  */
 export type InternalParameterHintOptions = Readonly<Required<IEditorParameterHintOptions>>;
-export type QuickSuggestionsValue = "on" | "inline" | "off";
+export type QuickSuggestionsValue = 'on' | 'inline' | 'off';
 /**
  * Configuration options for quick suggestions
  */
@@ -1566,7 +1566,7 @@ export interface InternalQuickSuggestionsOptions {
     readonly comments: QuickSuggestionsValue;
     readonly strings: QuickSuggestionsValue;
 }
-export type LineNumbersType = "on" | "off" | "relative" | "interval" | ((lineNumber: number) => string);
+export type LineNumbersType = 'on' | 'off' | 'relative' | 'interval' | ((lineNumber: number) => string);
 export declare const enum RenderLineNumbersType {
     Off = 0,
     On = 1,
@@ -1600,12 +1600,12 @@ export interface IEditorScrollbarOptions {
      * Render vertical scrollbar.
      * Defaults to 'auto'.
      */
-    vertical?: "auto" | "visible" | "hidden";
+    vertical?: 'auto' | 'visible' | 'hidden';
     /**
      * Render horizontal scrollbar.
      * Defaults to 'auto'.
      */
-    horizontal?: "auto" | "visible" | "hidden";
+    horizontal?: 'auto' | 'visible' | 'hidden';
     /**
      * Cast horizontal and vertical shadows when the content is scrolled.
      * Defaults to true.
@@ -1684,10 +1684,10 @@ export interface InternalEditorScrollbarOptions {
     readonly scrollByPage: boolean;
     readonly ignoreHorizontalScrollbarInContentHeight: boolean;
 }
-export type InUntrustedWorkspace = "inUntrustedWorkspace";
+export type InUntrustedWorkspace = 'inUntrustedWorkspace';
 /**
  * @internal
- */
+*/
 export declare const inUntrustedWorkspace: InUntrustedWorkspace;
 /**
  * Configuration options for unicode highlighting.
@@ -1720,7 +1720,7 @@ export interface IUnicodeHighlightOptions {
     /**
      * Unicode characters that are common in allowed locales are not being highlighted.
      */
-    allowedLocales?: Record<string | "_os" | "_vscode", true>;
+    allowedLocales?: Record<string | '_os' | '_vscode', true>;
 }
 /**
  * @internal
@@ -1741,7 +1741,7 @@ export declare const unicodeHighlightConfigKeys: {
 export interface IInlineSuggestOptions {
     /**
      * Enable or disable the rendering of automatic inline completions.
-     */
+    */
     enabled?: boolean;
     /**
      * Configures the mode.
@@ -1749,9 +1749,9 @@ export interface IInlineSuggestOptions {
      * Use `subword` to only show ghost text if the replace text is a subword of the suggestion text.
      * Use `subwordSmart` to only show ghost text if the replace text is a subword of the suggestion text, but the subword must start after the cursor position.
      * Defaults to `prefix`.
-     */
-    mode?: "prefix" | "subword" | "subwordSmart";
-    showToolbar?: "always" | "onHover" | "never";
+    */
+    mode?: 'prefix' | 'subword' | 'subwordSmart';
+    showToolbar?: 'always' | 'onHover' | 'never';
     syntaxHighlightingEnabled?: boolean;
     suppressSuggestions?: boolean;
     /**
@@ -1761,7 +1761,7 @@ export interface IInlineSuggestOptions {
     /**
      * Font family for inline suggestions.
      */
-    fontFamily?: string | "default";
+    fontFamily?: string | 'default';
 }
 /**
  * @internal
@@ -1770,13 +1770,13 @@ export type InternalInlineSuggestOptions = Readonly<Required<IInlineSuggestOptio
 export interface IInlineEditOptions {
     /**
      * Enable or disable the rendering of automatic inline edit.
-     */
+    */
     enabled?: boolean;
-    showToolbar?: "always" | "onHover" | "never";
+    showToolbar?: 'always' | 'onHover' | 'never';
     /**
      * Font family for inline suggestions.
      */
-    fontFamily?: string | "default";
+    fontFamily?: string | 'default';
     /**
      * Does not clear active inline suggestions when the editor loses focus.
      */
@@ -1789,11 +1789,11 @@ export type InternalInlineEditOptions = Readonly<Required<IInlineEditOptions>>;
 export interface IBracketPairColorizationOptions {
     /**
      * Enable or disable bracket pair colorization.
-     */
+    */
     enabled?: boolean;
     /**
      * Use independent color pool per bracket type.
-     */
+    */
     independentColorPoolPerBracketType?: boolean;
 }
 /**
@@ -1804,17 +1804,17 @@ export interface IGuidesOptions {
     /**
      * Enable rendering of bracket pair guides.
      * Defaults to false.
-     */
-    bracketPairs?: boolean | "active";
+    */
+    bracketPairs?: boolean | 'active';
     /**
      * Enable rendering of vertical bracket pair guides.
      * Defaults to 'active'.
      */
-    bracketPairsHorizontal?: boolean | "active";
+    bracketPairsHorizontal?: boolean | 'active';
     /**
      * Enable highlighting of the active bracket pair.
      * Defaults to true.
-     */
+    */
     highlightActiveBracketPair?: boolean;
     /**
      * Enable rendering of indent guides.
@@ -1825,7 +1825,7 @@ export interface IGuidesOptions {
      * Enable highlighting of the active indent guide.
      * Defaults to true.
      */
-    highlightActiveIndentation?: boolean | "always";
+    highlightActiveIndentation?: boolean | 'always';
 }
 /**
  * @internal
@@ -1838,7 +1838,7 @@ export interface ISuggestOptions {
     /**
      * Overwrite word ends on accept. Default to false.
      */
-    insertMode?: "insert" | "replace";
+    insertMode?: 'insert' | 'replace';
     /**
      * Enable graceful matching. Defaults to true.
      */
@@ -1858,7 +1858,7 @@ export interface ISuggestOptions {
     /**
      * Select suggestions when triggered via quick suggest or trigger characters
      */
-    selectionMode?: "always" | "never" | "whenTriggerCharacter" | "whenQuickSuggestion";
+    selectionMode?: 'always' | 'never' | 'whenTriggerCharacter' | 'whenQuickSuggestion';
     /**
      * Enable or disable icons in suggestions. Defaults to true.
      */
@@ -1873,8 +1873,8 @@ export interface ISuggestOptions {
     preview?: boolean;
     /**
      * Configures the mode of the preview.
-     */
-    previewMode?: "prefix" | "subword" | "subwordSmart";
+    */
+    previewMode?: 'prefix' | 'subword' | 'subwordSmart';
     /**
      * Show details inline with the label. Defaults to true.
      */
@@ -2048,7 +2048,7 @@ export interface IDropIntoEditorOptions {
      * Controls if a widget is shown after a drop.
      * Defaults to 'afterDrop'.
      */
-    showDropSelector?: "afterDrop" | "never";
+    showDropSelector?: 'afterDrop' | 'never';
 }
 /**
  * @internal
@@ -2067,7 +2067,7 @@ export interface IPasteAsOptions {
      * Controls if a widget is shown after a drop.
      * Defaults to 'afterPaste'.
      */
-    showPasteSelector?: "afterPaste" | "never";
+    showPasteSelector?: 'afterPaste' | 'never';
 }
 /**
  * @internal
@@ -2397,7 +2397,7 @@ export declare const EditorOptions: {
 };
 type EditorOptionsType = typeof EditorOptions;
 type FindEditorOptionsKeyById<T extends EditorOption> = {
-    [K in keyof EditorOptionsType]: EditorOptionsType[K]["id"] extends T ? K : never;
+    [K in keyof EditorOptionsType]: EditorOptionsType[K]['id'] extends T ? K : never;
 }[keyof EditorOptionsType];
 type ComputedEditorOptionValue<T extends IEditorOption<any, any>> = T extends IEditorOption<any, infer R> ? R : never;
 export type FindComputedEditorOptionValueById<T extends EditorOption> = NonNullable<ComputedEditorOptionValue<EditorOptionsType[FindEditorOptionsKeyById<T>]>>;

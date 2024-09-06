@@ -1,14 +1,14 @@
-import { Event } from "../../../../base/common/event.js";
-import "./media/gotoErrorWidget.css";
-import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { IMarker, IRelatedInformation } from "../../../../platform/markers/common/markers.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { PeekViewWidget } from "../../peekView/browser/peekView.js";
+import { Event } from '../../../../base/common/event.js';
+import './media/gotoErrorWidget.css';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { PeekViewWidget } from '../../peekView/browser/peekView.js';
+import { IMenuService, MenuId } from '../../../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { IMarker, IRelatedInformation } from '../../../../platform/markers/common/markers.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
 export declare class MarkerNavigationWidget extends PeekViewWidget {
     private readonly _themeService;
     private readonly _openerService;

@@ -1,5 +1,5 @@
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
 export declare const IUndoRedoService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUndoRedoService>;
 export declare const enum UndoRedoElementType {
     Resource = 0,

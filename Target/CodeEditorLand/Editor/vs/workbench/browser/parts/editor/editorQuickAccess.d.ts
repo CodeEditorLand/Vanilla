@@ -1,13 +1,13 @@
-import "./media/editorquickaccess.css";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
-import { IQuickPick, IQuickPickItemWithResource, IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
-import { GroupIdentifier, IEditorIdentifier } from "../../../common/editor.js";
-import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
+import './media/editorquickaccess.css';
+import { IQuickPickSeparator, IQuickPickItemWithResource, IQuickPick } from '../../../../platform/quickinput/common/quickInput.js';
+import { PickerQuickAccessProvider, IPickerQuickAccessItem } from '../../../../platform/quickinput/browser/pickerQuickAccess.js';
+import { IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { IEditorIdentifier, GroupIdentifier } from '../../../common/editor.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
 interface IEditorQuickPickItem extends IQuickPickItemWithResource, IPickerQuickAccessItem {
     groupId: GroupIdentifier;
 }

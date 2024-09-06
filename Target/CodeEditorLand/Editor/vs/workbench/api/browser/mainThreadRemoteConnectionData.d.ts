@@ -1,7 +1,7 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IRemoteAuthorityResolverService } from "../../../platform/remote/common/remoteAuthorityResolver.js";
-import { IWorkbenchEnvironmentService } from "../../services/environment/common/environmentService.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IRemoteAuthorityResolverService } from '../../../platform/remote/common/remoteAuthorityResolver.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IWorkbenchEnvironmentService } from '../../services/environment/common/environmentService.js';
 export declare class MainThreadRemoteConnectionData extends Disposable {
     protected readonly _environmentService: IWorkbenchEnvironmentService;
     private readonly _proxy;

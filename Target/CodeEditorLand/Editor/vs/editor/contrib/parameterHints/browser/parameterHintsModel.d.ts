@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
-import * as languages from "../../../common/languages.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { LanguageFeatureRegistry } from '../../../common/languageFeatureRegistry.js';
+import * as languages from '../../../common/languages.js';
 export interface TriggerContext {
     readonly triggerKind: languages.SignatureHelpTriggerKind;
     readonly triggerCharacter?: string;

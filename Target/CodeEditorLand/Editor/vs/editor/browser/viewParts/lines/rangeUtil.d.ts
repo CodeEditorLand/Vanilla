@@ -1,5 +1,5 @@
-import { FloatHorizontalRange } from "../../view/renderingContext.js";
-import { DomReadingContext } from "./domReadingContext.js";
+import { FloatHorizontalRange } from '../../view/renderingContext.js';
+import { DomReadingContext } from './domReadingContext.js';
 export declare class RangeUtil {
     /**
      * Reusing the same range here

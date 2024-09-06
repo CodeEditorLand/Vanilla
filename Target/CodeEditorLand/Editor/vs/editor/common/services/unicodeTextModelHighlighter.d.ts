@@ -1,5 +1,5 @@
-import { IRange } from "../core/range.js";
-import { IUnicodeHighlightsResult } from "./editorWorker.js";
+import { IRange } from '../core/range.js';
+import { IUnicodeHighlightsResult } from './editorWorker.js';
 export declare class UnicodeTextModelHighlighter {
     static computeUnicodeHighlights(model: IUnicodeCharacterSearcherTarget, options: UnicodeHighlighterOptions, range?: IRange): IUnicodeHighlightsResult;
     static computeUnicodeHighlightReason(char: string, options: UnicodeHighlighterOptions): UnicodeHighlighterReason | null;

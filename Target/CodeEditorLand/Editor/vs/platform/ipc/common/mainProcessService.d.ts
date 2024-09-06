@@ -1,5 +1,5 @@
-import { IChannel, IPCServer, IServerChannel, StaticRouter } from "../../../base/parts/ipc/common/ipc.js";
-import { IRemoteService } from "./services.js";
+import { IChannel, IPCServer, IServerChannel, StaticRouter } from '../../../base/parts/ipc/common/ipc.js';
+import { IRemoteService } from './services.js';
 export declare const IMainProcessService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IMainProcessService>;
 export interface IMainProcessService extends IRemoteService {
 }

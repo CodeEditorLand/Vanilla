@@ -1,6 +1,6 @@
-import { IRange } from "../../../../editor/common/core/range.js";
-import { IChatProgressRenderableResponseContent, IChatProgressResponseContent } from "./chatModel.js";
-import { IChatMarkdownContent } from "./chatService.js";
+import { IRange } from '../../../../editor/common/core/range.js';
+import { IChatProgressRenderableResponseContent, IChatProgressResponseContent } from './chatModel.js';
+import { IChatMarkdownContent } from './chatService.js';
 export declare const contentRefUrl = "http://_vscodecontentref_";
 export declare function annotateSpecialMarkdownContent(response: ReadonlyArray<IChatProgressResponseContent>): IChatProgressRenderableResponseContent[];
 export interface IMarkdownVulnerability {

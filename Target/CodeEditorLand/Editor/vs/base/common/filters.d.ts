@@ -37,11 +37,7 @@ export declare function isPatternInWord(patternLow: string, patternPos: number, 
  * 3. `<match_pos_1>`
  * 4. `<match_pos_0>` etc
  */
-export type FuzzyScore = [
-    score: number,
-    wordStart: number,
-    ...matches: number[]
-];
+export type FuzzyScore = [score: number, wordStart: number, ...matches: number[]];
 export declare namespace FuzzyScore {
     /**
      * No matches and value `-100`

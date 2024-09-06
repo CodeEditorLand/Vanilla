@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IObservable } from "../../../../base/common/observable.js";
-import "./inlineEditSideBySideWidget.css";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IDiffProviderFactoryService } from "../../../browser/widget/diffEditor/diffProviderFactoryService.js";
-import { IInlineEdit } from "../../../common/languages.js";
-import { IModelService } from "../../../common/services/model.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../base/common/observable.js';
+import './inlineEditSideBySideWidget.css';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IDiffProviderFactoryService } from '../../../browser/widget/diffEditor/diffProviderFactoryService.js';
+import { IInlineEdit } from '../../../common/languages.js';
+import { IModelService } from '../../../common/services/model.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 export declare class InlineEditSideBySideWidget extends Disposable {
     private readonly _editor;
     private readonly _model;

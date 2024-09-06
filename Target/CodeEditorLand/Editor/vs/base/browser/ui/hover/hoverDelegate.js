@@ -1,1 +1,1 @@
-import"../../../common/htmlContent.js";import"../../../common/lifecycle.js";import"./hoverWidget.js";
+import"./hoverWidget.js";import"../../../common/htmlContent.js";import"../../../common/lifecycle.js";

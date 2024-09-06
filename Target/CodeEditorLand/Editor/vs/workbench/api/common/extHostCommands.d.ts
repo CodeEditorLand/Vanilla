@@ -1,18 +1,18 @@
-import type * as vscode from "vscode";
-import { DisposableStore } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IPosition } from "../../../editor/common/core/position.js";
-import { IRange } from "../../../editor/common/core/range.js";
-import { ISelection } from "../../../editor/common/core/selection.js";
-import * as languages from "../../../editor/common/languages.js";
-import { ICommandMetadata } from "../../../platform/commands/common/commands.js";
-import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { ExtHostCommandsShape, ICommandDto, ICommandMetadataDto } from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
-import { IExtHostTelemetry } from "./extHostTelemetry.js";
-import * as extHostTypeConverter from "./extHostTypeConverters.js";
-import * as extHostTypes from "./extHostTypes.js";
+import { ICommandMetadata } from '../../../platform/commands/common/commands.js';
+import * as extHostTypes from './extHostTypes.js';
+import * as extHostTypeConverter from './extHostTypeConverters.js';
+import { ExtHostCommandsShape, ICommandDto, ICommandMetadataDto } from './extHost.protocol.js';
+import * as languages from '../../../editor/common/languages.js';
+import type * as vscode from 'vscode';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { IRange } from '../../../editor/common/core/range.js';
+import { IPosition } from '../../../editor/common/core/position.js';
+import { URI } from '../../../base/common/uri.js';
+import { DisposableStore } from '../../../base/common/lifecycle.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { ISelection } from '../../../editor/common/core/selection.js';
+import { ExtensionIdentifier, IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { IExtHostTelemetry } from './extHostTelemetry.js';
 export interface ArgumentProcessor {
     processArgument(arg: any, extensionId: ExtensionIdentifier | undefined): any;
 }

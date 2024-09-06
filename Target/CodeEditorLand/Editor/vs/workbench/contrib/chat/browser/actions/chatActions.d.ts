@@ -1,5 +1,5 @@
-import { IChatRequestViewModel, IChatResponseViewModel } from "../../common/chatViewModel.js";
-import { ChatViewPane } from "../chatViewPane.js";
+import { ChatViewPane } from '../chatViewPane.js';
+import { IChatRequestViewModel, IChatResponseViewModel } from '../../common/chatViewModel.js';
 export interface IChatViewTitleActionContext {
     chatView: ChatViewPane;
 }

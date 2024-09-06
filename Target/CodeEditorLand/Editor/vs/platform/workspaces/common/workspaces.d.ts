@@ -1,9 +1,9 @@
-import { Event } from "../../../base/common/event.js";
-import { IExtUri } from "../../../base/common/resources.js";
-import { URI } from "../../../base/common/uri.js";
-import { IFolderBackupInfo, IWorkspaceBackupInfo } from "../../backup/common/backup.js";
-import { ILogService } from "../../log/common/log.js";
-import { IBaseWorkspace, IRawFileWorkspaceFolder, IRawUriWorkspaceFolder, IWorkspaceIdentifier, WorkspaceFolder } from "../../workspace/common/workspace.js";
+import { Event } from '../../../base/common/event.js';
+import { IExtUri } from '../../../base/common/resources.js';
+import { URI } from '../../../base/common/uri.js';
+import { IWorkspaceBackupInfo, IFolderBackupInfo } from '../../backup/common/backup.js';
+import { ILogService } from '../../log/common/log.js';
+import { IBaseWorkspace, IRawFileWorkspaceFolder, IRawUriWorkspaceFolder, IWorkspaceIdentifier, WorkspaceFolder } from '../../workspace/common/workspace.js';
 export declare const IWorkspacesService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWorkspacesService>;
 export interface IWorkspacesService {
     readonly _serviceBrand: undefined;

@@ -1,9 +1,9 @@
-import "../colorPicker.css";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ColorPickerModel } from "../colorPickerModel.js";
-import { InsertButton } from "./colorPickerInsertButton.js";
-import { SaturationBox } from "./colorPickerSaturationBox.js";
-import { Strip } from "./colorPickerStrip.js";
+import '../colorPicker.css';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ColorPickerModel } from '../colorPickerModel.js';
+import { SaturationBox } from './colorPickerSaturationBox.js';
+import { InsertButton } from './colorPickerInsertButton.js';
+import { Strip } from './colorPickerStrip.js';
 export declare class ColorPickerBody extends Disposable {
     private readonly model;
     private pixelRatio;

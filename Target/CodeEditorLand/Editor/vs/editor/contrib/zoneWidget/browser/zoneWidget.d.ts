@@ -1,11 +1,11 @@
-import { IHorizontalSashLayoutProvider } from "../../../../base/browser/ui/sash/sash.js";
-import { Color } from "../../../../base/common/color.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import "./zoneWidget.css";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, IViewZone } from "../../../browser/editorBrowser.js";
-import { EditorLayoutInfo } from "../../../common/config/editorOptions.js";
-import { IPosition, Position } from "../../../common/core/position.js";
-import { IRange, Range } from "../../../common/core/range.js";
+import { IHorizontalSashLayoutProvider } from '../../../../base/browser/ui/sash/sash.js';
+import { Color } from '../../../../base/common/color.js';
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
+import './zoneWidget.css';
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, IViewZone } from '../../../browser/editorBrowser.js';
+import { EditorLayoutInfo } from '../../../common/config/editorOptions.js';
+import { IPosition, Position } from '../../../common/core/position.js';
+import { IRange, Range } from '../../../common/core/range.js';
 export interface IOptions {
     showFrame?: boolean;
     showArrow?: boolean;

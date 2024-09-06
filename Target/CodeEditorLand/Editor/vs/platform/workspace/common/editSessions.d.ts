@@ -1,6 +1,6 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { IWorkspaceFolder } from "./workspace.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { IWorkspaceFolder } from './workspace.js';
 export interface IEditSessionIdentityProvider {
     readonly scheme: string;
     getEditSessionIdentifier(workspaceFolder: IWorkspaceFolder, token: CancellationToken): Promise<string | undefined>;

@@ -1,13 +1,13 @@
-import { Color } from "../../../../../base/common/color.js";
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { ICodeEditor } from "../../../../browser/editorBrowser.js";
-import { Range } from "../../../../common/core/range.js";
-import { LanguageFeatureRegistry } from "../../../../common/languageFeatureRegistry.js";
-import { DocumentColorProvider, IColorInformation } from "../../../../common/languages.js";
-import { IEditorHoverRenderContext } from "../../../hover/browser/hoverTypes.js";
-import { ColorPickerModel } from "../colorPickerModel.js";
-import { ColorPickerWidget } from "../hoverColorPicker/hoverColorPickerWidget.js";
+import { Color } from '../../../../../base/common/color.js';
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { ICodeEditor } from '../../../../browser/editorBrowser.js';
+import { LanguageFeatureRegistry } from '../../../../common/languageFeatureRegistry.js';
+import { DocumentColorProvider, IColorInformation } from '../../../../common/languages.js';
+import { IEditorHoverRenderContext } from '../../../hover/browser/hoverTypes.js';
+import { ColorPickerModel } from '../colorPickerModel.js';
+import { ColorPickerWidget } from '../hoverColorPicker/hoverColorPickerWidget.js';
+import { Range } from '../../../../common/core/range.js';
 export declare class StandaloneColorPickerHover {
     readonly owner: StandaloneColorPickerParticipant;
     readonly range: Range;

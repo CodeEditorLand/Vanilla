@@ -1,6 +1,6 @@
-import { StringBuilder } from "../core/stringBuilder.js";
-import { IViewLineTokens } from "../tokens/lineTokens.js";
-import { LineDecoration } from "./lineDecorations.js";
+import { IViewLineTokens } from '../tokens/lineTokens.js';
+import { StringBuilder } from '../core/stringBuilder.js';
+import { LineDecoration } from './lineDecorations.js';
 export declare const enum RenderWhitespace {
     None = 0,
     Boundary = 1,
@@ -44,7 +44,7 @@ export declare class RenderLineInput {
      * and ordered by position within the line.
      */
     readonly selectionsOnLine: LineRange[] | null;
-    constructor(useMonospaceOptimizations: boolean, canUseHalfwidthRightwardsArrow: boolean, lineContent: string, continuesWithWrappedLine: boolean, isBasicASCII: boolean, containsRTL: boolean, fauxIndentLength: number, lineTokens: IViewLineTokens, lineDecorations: LineDecoration[], tabSize: number, startVisibleColumn: number, spaceWidth: number, middotWidth: number, wsmiddotWidth: number, stopRenderingLineAfter: number, renderWhitespace: "none" | "boundary" | "selection" | "trailing" | "all", renderControlCharacters: boolean, fontLigatures: boolean, selectionsOnLine: LineRange[] | null);
+    constructor(useMonospaceOptimizations: boolean, canUseHalfwidthRightwardsArrow: boolean, lineContent: string, continuesWithWrappedLine: boolean, isBasicASCII: boolean, containsRTL: boolean, fauxIndentLength: number, lineTokens: IViewLineTokens, lineDecorations: LineDecoration[], tabSize: number, startVisibleColumn: number, spaceWidth: number, middotWidth: number, wsmiddotWidth: number, stopRenderingLineAfter: number, renderWhitespace: 'none' | 'boundary' | 'selection' | 'trailing' | 'all', renderControlCharacters: boolean, fontLigatures: boolean, selectionsOnLine: LineRange[] | null);
     private sameSelection;
     equals(other: RenderLineInput): boolean;
 }

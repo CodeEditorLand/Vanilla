@@ -1,4 +1,4 @@
-import { Color } from "../../../../base/common/color.js";
+import { Color } from '../../../../base/common/color.js';
 export declare const editorBackground: string;
 export declare const editorForeground: string;
 export declare const editorStickyScrollBackground: string;

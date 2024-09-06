@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { NotebookTextModel } from "../../common/model/notebookTextModel.js";
-import { ICellOutput, IOrderedMimeType } from "../../common/notebookCommon.js";
-import { INotebookService } from "../../common/notebookService.js";
-import { ICellOutputViewModel, IGenericCellViewModel } from "../notebookBrowser.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ICellOutputViewModel, IGenericCellViewModel } from '../notebookBrowser.js';
+import { NotebookTextModel } from '../../common/model/notebookTextModel.js';
+import { ICellOutput, IOrderedMimeType } from '../../common/notebookCommon.js';
+import { INotebookService } from '../../common/notebookService.js';
 export declare class CellOutputViewModel extends Disposable implements ICellOutputViewModel {
     readonly cellViewModel: IGenericCellViewModel;
     private readonly _outputRawData;

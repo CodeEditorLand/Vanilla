@@ -1,8 +1,8 @@
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IEditorContribution } from "../../../common/editorCommon.js";
-import { ICodeEditor } from "../../editorBrowser.js";
-import { IEditorContributionDescription } from "../../editorExtensions.js";
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../editorBrowser.js';
+import { IEditorContributionDescription } from '../../editorExtensions.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 export declare class CodeEditorContributions extends Disposable {
     private _editor;
     private _instantiationService;

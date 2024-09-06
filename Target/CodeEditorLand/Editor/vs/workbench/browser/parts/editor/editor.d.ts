@@ -1,16 +1,16 @@
-import { Dimension } from "../../../../base/browser/dom.js";
-import { ISerializableView } from "../../../../base/browser/ui/grid/grid.js";
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationChangeEvent, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ContextKeyValue, IContextKey, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { EditorCloseContext, GroupIdentifier, IEditorCloseEvent, IEditorIdentifier, IEditorPane, IEditorPartOptions, IEditorPartOptionsChangeEvent, IEditorWillOpenEvent, SideBySideEditor } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IAuxiliaryWindowOpenOptions } from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
-import { GroupDirection, GroupsArrangement, GroupsOrder, IAuxiliaryEditorPart, IEditorGroup, IEditorPart, IMergeGroupOptions } from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { GroupIdentifier, IEditorIdentifier, IEditorCloseEvent, IEditorPartOptions, IEditorPartOptionsChangeEvent, SideBySideEditor, EditorCloseContext, IEditorPane, IEditorWillOpenEvent } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IEditorGroup, GroupDirection, IMergeGroupOptions, GroupsOrder, GroupsArrangement, IAuxiliaryEditorPart, IEditorPart } from '../../../services/editor/common/editorGroupsService.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { Dimension } from '../../../../base/browser/dom.js';
+import { Event } from '../../../../base/common/event.js';
+import { IConfigurationChangeEvent, IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { ISerializableView } from '../../../../base/browser/ui/grid/grid.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { IAuxiliaryWindowOpenOptions } from '../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js';
+import { ContextKeyValue, IContextKey, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 export interface IEditorPartCreationOptions {
     readonly restorePreviousState: boolean;
 }

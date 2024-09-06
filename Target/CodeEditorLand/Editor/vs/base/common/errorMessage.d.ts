@@ -1,4 +1,4 @@
-import { IAction } from "./actions.js";
+import { IAction } from './actions.js';
 /**
  * Tries to generate a human readable error message out of the error. If the verbose parameter
  * is set to true, the error message will include stacktrace details if provided.

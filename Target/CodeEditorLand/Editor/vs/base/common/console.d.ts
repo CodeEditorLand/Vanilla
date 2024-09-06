@@ -1,4 +1,4 @@
-import { URI } from "./uri.js";
+import { URI } from './uri.js';
 export interface IRemoteConsoleLog {
     type: string;
     severity: string;

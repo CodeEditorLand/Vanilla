@@ -1,5 +1,5 @@
-import { URI } from "../../../base/common/uri.js";
-import { NativeParsedArgs } from "./argv.js";
+import { URI } from '../../../base/common/uri.js';
+import { NativeParsedArgs } from './argv.js';
 export declare const IEnvironmentService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IEnvironmentService>;
 export declare const INativeEnvironmentService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<INativeEnvironmentService>;
 export interface IDebugParams {
@@ -15,7 +15,7 @@ export interface IExtensionHostDebugParams extends IDebugParams {
  *
  * **NOTE**: This is defined in `platform/environment` because it can appear as a CLI argument.
  */
-export type ExtensionKind = "ui" | "workspace" | "web";
+export type ExtensionKind = 'ui' | 'workspace' | 'web';
 /**
  * A basic environment service that can be used in various processes,
  * such as main, renderer and shared process. Use subclasses of this
@@ -32,7 +32,7 @@ export interface IEnvironmentService {
     localHistoryHome: URI;
     cacheHome: URI;
     userDataSyncHome: URI;
-    sync: "on" | "off" | undefined;
+    sync: 'on' | 'off' | undefined;
     continueOn?: string;
     editSessionId?: string;
     debugExtensionHost: IExtensionHostDebugParams;

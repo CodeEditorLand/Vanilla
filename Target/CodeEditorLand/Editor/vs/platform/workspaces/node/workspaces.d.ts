@@ -1,6 +1,6 @@
-import { Stats } from "fs";
-import { URI } from "../../../base/common/uri.js";
-import { IEmptyWorkspaceIdentifier, ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { Stats } from 'fs';
+import { URI } from '../../../base/common/uri.js';
+import { IEmptyWorkspaceIdentifier, ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 /**
  * Length of workspace identifiers that are not empty. Those are
  * MD5 hashes (128bits / 4 due to hex presentation).

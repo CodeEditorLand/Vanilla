@@ -1,13 +1,13 @@
-import { VSBuffer } from "../../../../base/common/buffer.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IObservable } from "../../../../base/common/observable.js";
-import { WellDefinedPrefixTree } from "../../../../base/common/prefixTree.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { TestCoverage } from "./testCoverage.js";
-import { TestStateCount } from "./testingStates.js";
-import { IRichLocation, ISerializedTestResults, ITestItem, ITestMessage, ITestOutputMessage, ITestRunTask, ITestTaskState, ResolvedTestRunRequest, TestResultItem, TestResultState } from "./testTypes.js";
+import { VSBuffer } from '../../../../base/common/buffer.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../base/common/observable.js';
+import { WellDefinedPrefixTree } from '../../../../base/common/prefixTree.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { TestCoverage } from './testCoverage.js';
+import { TestStateCount } from './testingStates.js';
+import { IRichLocation, ISerializedTestResults, ITestItem, ITestMessage, ITestOutputMessage, ITestRunTask, ITestTaskState, ResolvedTestRunRequest, TestResultItem, TestResultState } from './testTypes.js';
 export interface ITestRunTaskResults extends ITestRunTask {
     /**
      * Contains test coverage for the result, if it's available.

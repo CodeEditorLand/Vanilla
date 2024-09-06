@@ -1,1 +1,1 @@
-import{registerSharedProcessRemoteService as e}from"../../ipc/electron-sandbox/services.js";import{IDiagnosticsService as r}from"../common/diagnostics.js";e(r,"diagnostics");
+import{IDiagnosticsService as e}from"../common/diagnostics.js";import{registerSharedProcessRemoteService as r}from"../../ipc/electron-sandbox/services.js";r(e,"diagnostics");

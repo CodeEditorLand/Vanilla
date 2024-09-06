@@ -1,10 +1,10 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IStorageDatabase } from "../../../base/parts/storage/common/storage.js";
-import { IRemoteService } from "../../ipc/common/services.js";
-import { ILogService } from "../../log/common/log.js";
-import { IStorageService, IStorageValueChangeEvent, StorageTarget } from "../../storage/common/storage.js";
-import { IUserDataProfile, IUserDataProfilesService } from "./userDataProfile.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IStorageDatabase } from '../../../base/parts/storage/common/storage.js';
+import { IStorageService, IStorageValueChangeEvent, StorageTarget } from '../../storage/common/storage.js';
+import { Event } from '../../../base/common/event.js';
+import { IRemoteService } from '../../ipc/common/services.js';
+import { ILogService } from '../../log/common/log.js';
+import { IUserDataProfile, IUserDataProfilesService } from './userDataProfile.js';
 export interface IProfileStorageValueChanges {
     readonly profile: IUserDataProfile;
     readonly changes: IStorageValueChangeEvent[];
@@ -44,7 +44,7 @@ export interface IUserDataProfileStorageService {
 export declare abstract class AbstractUserDataProfileStorageService extends Disposable implements IUserDataProfileStorageService {
     protected readonly storageService: IStorageService;
     _serviceBrand: undefined;
-    abstract readonly onDidChange: Event<IProfileStorageChanges>;
+    readonly abstract onDidChange: Event<IProfileStorageChanges>;
     private readonly storageServicesMap;
     constructor(persistStorages: boolean, storageService: IStorageService);
     readStorageData(profile: IUserDataProfile): Promise<Map<string, IStorageValue>>;

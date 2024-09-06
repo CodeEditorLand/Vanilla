@@ -1,4 +1,4 @@
-import { ITerminalEnvironment } from "../../terminal/common/terminal.js";
+import { ITerminalEnvironment } from '../../terminal/common/terminal.js';
 export declare const IExternalTerminalService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExternalTerminalService>;
 export interface IExternalTerminalSettings {
     linuxExec?: string;
@@ -18,7 +18,7 @@ export interface IExternalTerminalService {
 }
 export interface IExternalTerminalConfiguration {
     terminal: {
-        explorerKind: "integrated" | "external" | "both";
+        explorerKind: 'integrated' | 'external' | 'both';
         external: IExternalTerminalSettings;
     };
 }

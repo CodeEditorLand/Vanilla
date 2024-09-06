@@ -30,7 +30,7 @@ export declare function isSigPipeError(e: unknown): e is Error;
  * This function should only be called with errors that indicate a bug in the product.
  * E.g. buggy extensions/invalid user-input/network issues should not be able to trigger this code path.
  * If they are, this indicates there is also a bug in the product.
- */
+*/
 export declare function onBugIndicatingError(e: any): undefined;
 export declare function onUnexpectedError(e: any): undefined;
 export declare function onUnexpectedExternalError(e: any): undefined;

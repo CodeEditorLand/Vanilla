@@ -1,8 +1,8 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Range } from "../../../common/core/range.js";
-import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
-import { DocumentRangeSemanticTokensProvider, DocumentSemanticTokensProvider, SemanticTokens, SemanticTokensEdits } from "../../../common/languages.js";
-import { ITextModel } from "../../../common/model.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ITextModel } from '../../../common/model.js';
+import { DocumentSemanticTokensProvider, SemanticTokens, SemanticTokensEdits, DocumentRangeSemanticTokensProvider } from '../../../common/languages.js';
+import { Range } from '../../../common/core/range.js';
+import { LanguageFeatureRegistry } from '../../../common/languageFeatureRegistry.js';
 export declare function isSemanticTokens(v: SemanticTokens | SemanticTokensEdits): v is SemanticTokens;
 export declare function isSemanticTokensEdits(v: SemanticTokens | SemanticTokensEdits): v is SemanticTokensEdits;
 export declare class DocumentSemanticTokensResult {

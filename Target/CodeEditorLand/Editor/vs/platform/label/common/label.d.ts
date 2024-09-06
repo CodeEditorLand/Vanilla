@@ -1,7 +1,7 @@
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { ISingleFolderWorkspaceIdentifier, IWorkspace, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IWorkspace, ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 export declare const ILabelService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILabelService>;
 export interface ILabelService {
     readonly _serviceBrand: undefined;
@@ -14,15 +14,15 @@ export interface ILabelService {
     getUriLabel(resource: URI, options?: {
         relative?: boolean;
         noPrefix?: boolean;
-        separator?: "/" | "\\";
+        separator?: '/' | '\\';
     }): string;
     getUriBasenameLabel(resource: URI): string;
-    getWorkspaceLabel(workspace: IWorkspaceIdentifier | ISingleFolderWorkspaceIdentifier | URI | IWorkspace, options?: {
+    getWorkspaceLabel(workspace: (IWorkspaceIdentifier | ISingleFolderWorkspaceIdentifier | URI | IWorkspace), options?: {
         verbose: Verbosity;
     }): string;
     getHostLabel(scheme: string, authority?: string): string;
     getHostTooltip(scheme: string, authority?: string): string | undefined;
-    getSeparator(scheme: string, authority?: string): "/" | "\\";
+    getSeparator(scheme: string, authority?: string): '/' | '\\';
     registerFormatter(formatter: ResourceLabelFormatter): IDisposable;
     onDidChangeFormatters: Event<IFormatterChangeEvent>;
     /**
@@ -48,7 +48,7 @@ export interface ResourceLabelFormatter {
 }
 export interface ResourceLabelFormatting {
     label: string;
-    separator: "/" | "\\" | "";
+    separator: '/' | '\\' | '';
     tildify?: boolean;
     normalizeDriveLetter?: boolean;
     workspaceSuffix?: string;

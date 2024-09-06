@@ -1,6 +1,6 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { CommentThread } from "../../../../editor/common/languages.js";
-import { ICommentThreadChangedEvent, ResourceWithCommentThreads } from "../common/commentModel.js";
+import { CommentThread } from '../../../../editor/common/languages.js';
+import { ResourceWithCommentThreads, ICommentThreadChangedEvent } from '../common/commentModel.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 export declare function threadHasMeaningfulComments(thread: CommentThread): boolean;
 export interface ICommentsModel {
     hasCommentThreads(): boolean;

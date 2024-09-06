@@ -1,17 +1,17 @@
-import { Event } from "../../../../base/common/event.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI, UriComponents, UriDto } from "../../../../base/common/uri.js";
-import { IOffsetRange } from "../../../../editor/common/core/offsetRange.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { TextEdit } from "../../../../editor/common/languages.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ChatAgentLocation, IChatAgentCommand, IChatAgentData, IChatAgentResult, IChatAgentService } from "./chatAgents.js";
-import { IParsedChatRequest } from "./chatParserTypes.js";
-import { ChatAgentVoteDirection, ChatAgentVoteDownReason, IChatAgentMarkdownContentWithVulnerability, IChatCodeCitation, IChatCommandButton, IChatConfirmation, IChatContentInlineReference, IChatContentReference, IChatFollowup, IChatLocationData, IChatMarkdownContent, IChatProgress, IChatProgressMessage, IChatResponseProgressFileTreeData, IChatTask, IChatTextEdit, IChatTreeData, IChatUsedContext, IChatWarningMessage } from "./chatService.js";
-import { IChatRequestVariableValue } from "./chatVariables.js";
+import { Event } from '../../../../base/common/event.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { URI, UriComponents, UriDto } from '../../../../base/common/uri.js';
+import { IOffsetRange } from '../../../../editor/common/core/offsetRange.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { TextEdit } from '../../../../editor/common/languages.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { ChatAgentLocation, IChatAgentCommand, IChatAgentData, IChatAgentResult, IChatAgentService } from './chatAgents.js';
+import { IParsedChatRequest } from './chatParserTypes.js';
+import { ChatAgentVoteDirection, ChatAgentVoteDownReason, IChatAgentMarkdownContentWithVulnerability, IChatCodeCitation, IChatCommandButton, IChatConfirmation, IChatContentInlineReference, IChatContentReference, IChatFollowup, IChatLocationData, IChatMarkdownContent, IChatProgress, IChatProgressMessage, IChatResponseProgressFileTreeData, IChatTask, IChatTextEdit, IChatTreeData, IChatUsedContext, IChatWarningMessage } from './chatService.js';
+import { IChatRequestVariableValue } from './chatVariables.js';
 export interface IChatRequestVariableEntry {
     id: string;
     fullName?: string;
@@ -49,7 +49,7 @@ export interface IChatTextEditGroup {
     uri: URI;
     edits: TextEdit[][];
     state?: IChatTextEditGroupState;
-    kind: "textEditGroup";
+    kind: 'textEditGroup';
 }
 export type IChatProgressResponseContent = IChatMarkdownContent | IChatAgentMarkdownContentWithVulnerability | IChatTreeData | IChatContentInlineReference | IChatProgressMessage | IChatCommandButton | IChatWarningMessage | IChatTask | IChatTextEditGroup | IChatConfirmation;
 export type IChatProgressRenderableResponseContent = Exclude<IChatProgressResponseContent, IChatContentInlineReference | IChatAgentMarkdownContentWithVulnerability>;
@@ -246,7 +246,7 @@ export interface ISerializableChatData2 extends ISerializableChatData1 {
     lastMessageDate: number;
     computedTitle: string | undefined;
 }
-export interface ISerializableChatData3 extends Omit<ISerializableChatData2, "version" | "computedTitle"> {
+export interface ISerializableChatData3 extends Omit<ISerializableChatData2, 'version' | 'computedTitle'> {
     version: 3;
     customTitle: string | undefined;
 }
@@ -267,15 +267,15 @@ export declare function isExportableSessionData(obj: unknown): obj is IExportabl
 export declare function isSerializableSessionData(obj: unknown): obj is ISerializableChatData;
 export type IChatChangeEvent = IChatInitEvent | IChatAddRequestEvent | IChatChangedRequestEvent | IChatRemoveRequestEvent | IChatAddResponseEvent | IChatSetAgentEvent | IChatMoveEvent;
 export interface IChatAddRequestEvent {
-    kind: "addRequest";
+    kind: 'addRequest';
     request: IChatRequestModel;
 }
 export interface IChatChangedRequestEvent {
-    kind: "changedRequest";
+    kind: 'changedRequest';
     request: IChatRequestModel;
 }
 export interface IChatAddResponseEvent {
-    kind: "addResponse";
+    kind: 'addResponse';
     response: IChatResponseModel;
 }
 export declare const enum ChatRequestRemovalReason {
@@ -293,23 +293,23 @@ export declare const enum ChatRequestRemovalReason {
     Adoption = 2
 }
 export interface IChatRemoveRequestEvent {
-    kind: "removeRequest";
+    kind: 'removeRequest';
     requestId: string;
     responseId?: string;
     reason: ChatRequestRemovalReason;
 }
 export interface IChatMoveEvent {
-    kind: "move";
+    kind: 'move';
     target: URI;
     range: IRange;
 }
 export interface IChatSetAgentEvent {
-    kind: "setAgent";
+    kind: 'setAgent';
     agent: IChatAgentData;
     command?: IChatAgentCommand;
 }
 export interface IChatInitEvent {
-    kind: "initialize";
+    kind: 'initialize';
 }
 export declare enum ChatModelInitState {
     Created = 0,

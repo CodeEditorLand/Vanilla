@@ -1,8 +1,8 @@
-import { Event, PauseableEmitter } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { ServicesAccessor } from "../../instantiation/common/instantiation.js";
-import { ContextKeyExpression, ContextKeyValue, IContext, IContextKey, IContextKeyChangeEvent, IContextKeyService, IContextKeyServiceTarget, IScopedContextKeyService } from "../common/contextkey.js";
+import { Event, PauseableEmitter } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { ContextKeyExpression, ContextKeyValue, IContext, IContextKey, IContextKeyChangeEvent, IContextKeyService, IContextKeyServiceTarget, IScopedContextKeyService } from '../common/contextkey.js';
+import { ServicesAccessor } from '../../instantiation/common/instantiation.js';
 export declare class Context implements IContext {
     protected _parent: Context | null;
     protected _value: Record<string, any>;

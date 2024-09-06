@@ -1,32 +1,32 @@
-import { IDragAndDropData } from "../../../../base/browser/dnd.js";
-import { ListViewTargetSector } from "../../../../base/browser/ui/list/listView.js";
-import { ITreeDragAndDrop, ITreeDragOverReaction } from "../../../../base/browser/ui/tree/tree.js";
-import { ActionRunner, IAction } from "../../../../base/common/actions.js";
-import { Event } from "../../../../base/common/event.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import "./media/views.css";
-import { ITreeViewsDnDService } from "../../../../editor/common/services/treeViewsDndService.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IProgressService } from "../../../../platform/progress/common/progress.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { ITreeItem, ITreeView, ITreeViewDataProvider, ITreeViewDragAndDropController, IViewBadge, IViewDescriptorService, TreeViewItemHandleArg, TreeViewPaneHandleArg, ViewContainer, ViewContainerLocation } from "../../../common/views.js";
-import { IAccessibleViewInformationService } from "../../../services/accessibility/common/accessibleViewInformationService.js";
-import { IActivityService } from "../../../services/activity/common/activity.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { ViewPane } from "./viewPane.js";
-import { IViewletViewOptions } from "./viewsViewlet.js";
+import { IDragAndDropData } from '../../../../base/browser/dnd.js';
+import { ListViewTargetSector } from '../../../../base/browser/ui/list/listView.js';
+import { ITreeDragAndDrop, ITreeDragOverReaction } from '../../../../base/browser/ui/tree/tree.js';
+import { ActionRunner, IAction } from '../../../../base/common/actions.js';
+import { Event } from '../../../../base/common/event.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import './media/views.css';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IProgressService } from '../../../../platform/progress/common/progress.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { ViewPane } from './viewPane.js';
+import { IViewletViewOptions } from './viewsViewlet.js';
+import { ITreeItem, ITreeView, ITreeViewDataProvider, ITreeViewDragAndDropController, IViewBadge, IViewDescriptorService, TreeViewItemHandleArg, TreeViewPaneHandleArg, ViewContainer, ViewContainerLocation } from '../../../common/views.js';
+import { IActivityService } from '../../../services/activity/common/activity.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+import { ITreeViewsDnDService } from '../../../../editor/common/services/treeViewsDndService.js';
+import { IAccessibleViewInformationService } from '../../../services/accessibility/common/accessibleViewInformationService.js';
 export declare class TreeViewPane extends ViewPane {
     protected readonly treeView: ITreeView;
     private _container;
@@ -180,7 +180,7 @@ declare abstract class AbstractTreeView extends Disposable implements ITreeView 
 }
 declare class MultipleSelectionActionRunner extends ActionRunner {
     private getSelectedResources;
-    constructor(notificationService: INotificationService, getSelectedResources: () => ITreeItem[]);
+    constructor(notificationService: INotificationService, getSelectedResources: (() => ITreeItem[]));
     protected runAction(action: IAction, context: TreeViewItemHandleArg | TreeViewPaneHandleArg): Promise<void>;
 }
 export declare class CustomTreeView extends AbstractTreeView {

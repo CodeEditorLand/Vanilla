@@ -1,9 +1,9 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { ILocalizedString } from "../../action/common/action.js";
-import { RawContextKey } from "../../contextkey/common/contextkey.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { ILocalizedString } from '../../action/common/action.js';
+import { RawContextKey } from '../../contextkey/common/contextkey.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
 export declare const ILogService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILogService>;
 export declare const ILoggerService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILoggerService>;
 export declare function isLogLevel(thing: unknown): thing is LogLevel;
@@ -54,7 +54,7 @@ export interface ILoggerOptions {
     /**
      * When to log. Set to `always` to log always.
      */
-    logLevel?: "always" | LogLevel;
+    logLevel?: 'always' | LogLevel;
     /**
      * Whether the log should be hidden from the user.
      */
@@ -94,7 +94,7 @@ export interface ILoggerService {
      *
      * This will also register the logger with the logger service.
      */
-    createLogger(id: string, options?: Omit<ILoggerOptions, "id">): ILogger;
+    createLogger(id: string, options?: Omit<ILoggerOptions, 'id'>): ILogger;
     /**
      * Gets an existing logger, if any.
      */

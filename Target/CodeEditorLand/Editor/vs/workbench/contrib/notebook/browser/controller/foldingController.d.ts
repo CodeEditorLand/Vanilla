@@ -1,6 +1,6 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ICellRange } from "../../common/notebookRange.js";
-import { CellFoldingState, INotebookEditor, INotebookEditorContribution, INotebookEditorMouseEvent } from "../notebookBrowser.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { INotebookEditor, INotebookEditorMouseEvent, INotebookEditorContribution, CellFoldingState } from '../notebookBrowser.js';
+import { ICellRange } from '../../common/notebookRange.js';
 export declare class FoldingController extends Disposable implements INotebookEditorContribution {
     private readonly _notebookEditor;
     static id: string;

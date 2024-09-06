@@ -1,11 +1,11 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Position } from "../../../../editor/common/core/position.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IConfigPresentation, IDebuggerContribution, IDebugSession } from "./debug.js";
+import { IDebuggerContribution, IDebugSession, IConfigPresentation } from './debug.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ITextModel } from '../../../../editor/common/model.js';
+import { Position } from '../../../../editor/common/core/position.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ILanguageFeaturesService } from '../../../../editor/common/services/languageFeatures.js';
 export declare function formatPII(value: string, excludePII: boolean, args: {
     [key: string]: string;
 } | undefined): string;

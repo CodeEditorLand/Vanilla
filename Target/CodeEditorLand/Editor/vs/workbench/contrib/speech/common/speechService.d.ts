@@ -1,8 +1,8 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
 export declare const ISpeechService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISpeechService>;
 export declare const HasSpeechProvider: RawContextKey<boolean>;
 export declare const SpeechToTextInProgress: RawContextKey<boolean>;

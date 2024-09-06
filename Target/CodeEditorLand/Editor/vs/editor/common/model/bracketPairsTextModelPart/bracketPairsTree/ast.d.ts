@@ -1,8 +1,8 @@
-import { BracketKind } from "../../../languages/supports/languageBracketsConfiguration.js";
-import { ITextModel } from "../../../model.js";
-import { Length } from "./length.js";
-import { SmallImmutableSet } from "./smallImmutableSet.js";
-import { OpeningBracketId } from "./tokenizer.js";
+import { BracketKind } from '../../../languages/supports/languageBracketsConfiguration.js';
+import { ITextModel } from '../../../model.js';
+import { Length } from './length.js';
+import { SmallImmutableSet } from './smallImmutableSet.js';
+import { OpeningBracketId } from './tokenizer.js';
 export declare const enum AstNodeKind {
     Text = 0,
     Bracket = 1,
@@ -13,31 +13,31 @@ export declare const enum AstNodeKind {
 export type AstNode = PairAstNode | ListAstNode | BracketAstNode | InvalidBracketAstNode | TextAstNode;
 /**
  * The base implementation for all AST nodes.
- */
+*/
 declare abstract class BaseAstNode {
     abstract readonly kind: AstNodeKind;
     abstract readonly childrenLength: number;
     /**
      * Might return null even if {@link idx} is smaller than {@link BaseAstNode.childrenLength}.
-     */
+    */
     abstract getChild(idx: number): AstNode | null;
     /**
      * Try to avoid using this property, as implementations might need to allocate the resulting array.
-     */
+    */
     abstract readonly children: readonly AstNode[];
     /**
      * Represents the set of all (potentially) missing opening bracket ids in this node.
      * E.g. in `{ ] ) }` that set is {`[`, `(` }.
-     */
+    */
     abstract readonly missingOpeningBracketIds: SmallImmutableSet<OpeningBracketId>;
     /**
      * In case of a list, determines the height of the (2,3) tree.
-     */
+    */
     abstract readonly listHeight: number;
     protected _length: Length;
     /**
      * The length of the entire node, which should equal the sum of lengths of all children.
-     */
+    */
     get length(): Length;
     constructor(length: Length);
     /**
@@ -58,7 +58,7 @@ declare abstract class BaseAstNode {
  * Represents a bracket pair including its child (e.g. `{ ... }`).
  * Might be unclosed.
  * Immutable, if all children are immutable.
- */
+*/
 export declare class PairAstNode extends BaseAstNode {
     readonly openingBracket: BracketAstNode;
     readonly child: AstNode | null;
@@ -71,7 +71,7 @@ export declare class PairAstNode extends BaseAstNode {
     getChild(idx: number): AstNode | null;
     /**
      * Avoid using this property, it allocates an array!
-     */
+    */
     get children(): AstNode[];
     private constructor();
     canBeReused(openBracketIds: SmallImmutableSet<OpeningBracketId>): boolean;
@@ -84,7 +84,7 @@ export declare abstract class ListAstNode extends BaseAstNode {
     private _missingOpeningBracketIds;
     /**
      * This method uses more memory-efficient list nodes that can only store 2 or 3 children.
-     */
+    */
     static create23(item1: AstNode, item2: AstNode, item3: AstNode | null, immutable?: boolean): ListAstNode;
     static create(items: AstNode[], immutable?: boolean): ListAstNode;
     static getEmpty(): ImmutableArrayListAstNode;
@@ -93,7 +93,7 @@ export declare abstract class ListAstNode extends BaseAstNode {
     private cachedMinIndentation;
     /**
      * Use ListAstNode.create.
-     */
+    */
     constructor(length: Length, listHeight: number, _missingOpeningBracketIds: SmallImmutableSet<OpeningBracketId>);
     protected throwIfImmutable(): void;
     protected abstract setChild(idx: number, child: AstNode): void;
@@ -114,7 +114,7 @@ export declare abstract class ListAstNode extends BaseAstNode {
 }
 /**
  * For debugging.
- */
+*/
 declare class ArrayListAstNode extends ListAstNode {
     private readonly _children;
     get childrenLength(): number;
@@ -131,7 +131,7 @@ declare class ArrayListAstNode extends ListAstNode {
 }
 /**
  * Immutable, if all children are immutable.
- */
+*/
 declare class ImmutableArrayListAstNode extends ArrayListAstNode {
     toMutable(): ListAstNode;
     protected throwIfImmutable(): void;
@@ -155,7 +155,7 @@ export declare class BracketAstNode extends ImmutableLeafAstNode {
     /**
      * In case of a opening bracket, this is the id of the opening bracket.
      * In case of a closing bracket, this contains the ids of all opening brackets it can close.
-     */
+    */
     readonly bracketIds: SmallImmutableSet<OpeningBracketId>;
     static create(length: Length, bracketInfo: BracketKind, bracketIds: SmallImmutableSet<OpeningBracketId>): BracketAstNode;
     get kind(): AstNodeKind.Bracket;

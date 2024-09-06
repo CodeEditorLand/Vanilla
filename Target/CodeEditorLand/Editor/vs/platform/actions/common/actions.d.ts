@@ -1,12 +1,12 @@
-import { IAction, SubmenuAction } from "../../../base/common/actions.js";
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { ICommandAction, ICommandActionTitle, Icon, ILocalizedString } from "../../action/common/action.js";
-import { Categories } from "../../action/common/actionCommonCategories.js";
-import { ICommandService } from "../../commands/common/commands.js";
-import { ContextKeyExpression, IContextKeyService } from "../../contextkey/common/contextkey.js";
-import { ServicesAccessor } from "../../instantiation/common/instantiation.js";
-import { IKeybindingRule } from "../../keybinding/common/keybindingsRegistry.js";
+import { IAction, SubmenuAction } from '../../../base/common/actions.js';
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ICommandAction, ICommandActionTitle, Icon, ILocalizedString } from '../../action/common/action.js';
+import { Categories } from '../../action/common/actionCommonCategories.js';
+import { ICommandService } from '../../commands/common/commands.js';
+import { ContextKeyExpression, IContextKeyService } from '../../contextkey/common/contextkey.js';
+import { ServicesAccessor } from '../../instantiation/common/instantiation.js';
+import { IKeybindingRule } from '../../keybinding/common/keybindingsRegistry.js';
 export interface IMenuItem {
     command: ICommandAction;
     alt?: ICommandAction;
@@ -14,7 +14,7 @@ export interface IMenuItem {
      * Menu item is hidden if this expression returns false.
      */
     when?: ContextKeyExpression;
-    group?: "navigation" | string;
+    group?: 'navigation' | string;
     order?: number;
     isHiddenByDefault?: boolean;
 }
@@ -23,7 +23,7 @@ export interface ISubmenuItem {
     submenu: MenuId;
     icon?: Icon;
     when?: ContextKeyExpression;
-    group?: "navigation" | string;
+    group?: 'navigation' | string;
     order?: number;
     isSelection?: boolean;
     rememberDefaultAction?: boolean;
@@ -328,11 +328,11 @@ interface IAction2CommonOptions extends ICommandAction {
     menu?: OneOrN<{
         id: MenuId;
         precondition?: null;
-    } & Omit<IMenuItem, "command">>;
+    } & Omit<IMenuItem, 'command'>>;
     /**
      * One keybinding.
      */
-    keybinding?: OneOrN<Omit<IKeybindingRule, "id">>;
+    keybinding?: OneOrN<Omit<IKeybindingRule, 'id'>>;
 }
 interface IBaseAction2Options extends IAction2CommonOptions {
     /**

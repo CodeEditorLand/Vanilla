@@ -1,10 +1,10 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IObservable } from "../../../../../base/common/observable.js";
-import { BaseCodeEditorView } from "./editors/baseCodeEditorView.js";
-import { InputCodeEditorView } from "./editors/inputCodeEditorView.js";
-import { ResultCodeEditorView } from "./editors/resultCodeEditorView.js";
-import { IMergeEditorLayout } from "./mergeEditor.js";
-import { MergeEditorViewModel } from "./viewModel.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../../base/common/observable.js';
+import { BaseCodeEditorView } from './editors/baseCodeEditorView.js';
+import { IMergeEditorLayout } from './mergeEditor.js';
+import { MergeEditorViewModel } from './viewModel.js';
+import { InputCodeEditorView } from './editors/inputCodeEditorView.js';
+import { ResultCodeEditorView } from './editors/resultCodeEditorView.js';
 export declare class ScrollSynchronizer extends Disposable {
     private readonly viewModel;
     private readonly input1View;

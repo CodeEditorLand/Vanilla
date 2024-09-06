@@ -1,15 +1,15 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IKeyboardEvent } from "../../../../platform/keybinding/common/keybinding.js";
-import { IKeyboardLayoutInfo, IKeyboardLayoutService, IKeyboardMapping } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
-import { IKeyboardMapper } from "../../../../platform/keyboardLayout/common/keyboardMapper.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { KeymapInfo } from "../common/keymapInfo.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { KeymapInfo } from '../common/keymapInfo.js';
+import { IKeyboardMapper } from '../../../../platform/keyboardLayout/common/keyboardMapper.js';
+import { IKeyboardEvent } from '../../../../platform/keybinding/common/keybinding.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IEnvironmentService } from '../../../../platform/environment/common/environment.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IKeyboardLayoutInfo, IKeyboardLayoutService, IKeyboardMapping } from '../../../../platform/keyboardLayout/common/keyboardLayout.js';
 export declare class BrowserKeyboardMapperFactoryBase extends Disposable {
     private readonly _configurationService;
     protected _initialized: boolean;

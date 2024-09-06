@@ -1,8 +1,8 @@
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { INativeEnvironmentService } from "../../environment/common/environment.js";
-import { ILogService } from "../../log/common/log.js";
-import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { IIPCObjectUrl, IProtocolMainService } from "./protocol.js";
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { INativeEnvironmentService } from '../../environment/common/environment.js';
+import { ILogService } from '../../log/common/log.js';
+import { IIPCObjectUrl, IProtocolMainService } from './protocol.js';
+import { IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
 export declare class ProtocolMainService extends Disposable implements IProtocolMainService {
     private readonly environmentService;
     private readonly logService;

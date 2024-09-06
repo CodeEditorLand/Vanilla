@@ -1,15 +1,15 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IPreparedQuery } from "../../../../base/common/fuzzyScorer.js";
-import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IQuickAccessProviderRunOptions } from "../../../../platform/quickinput/common/quickAccess.js";
-import { IQuickPick, IQuickPickItem, IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
-import { IRange } from "../../../common/core/range.js";
-import { DocumentSymbol, SymbolKind } from "../../../common/languages.js";
-import { ITextModel } from "../../../common/model.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { IOutlineModelService } from "../../documentSymbols/browser/outlineModel.js";
-import { AbstractEditorNavigationQuickAccessProvider, IEditorNavigationQuickAccessOptions, IQuickAccessTextEditorContext } from "./editorNavigationQuickAccess.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IPreparedQuery } from '../../../../base/common/fuzzyScorer.js';
+import { DisposableStore, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IRange } from '../../../common/core/range.js';
+import { ITextModel } from '../../../common/model.js';
+import { DocumentSymbol, SymbolKind } from '../../../common/languages.js';
+import { IOutlineModelService } from '../../documentSymbols/browser/outlineModel.js';
+import { AbstractEditorNavigationQuickAccessProvider, IEditorNavigationQuickAccessOptions, IQuickAccessTextEditorContext } from './editorNavigationQuickAccess.js';
+import { IQuickPick, IQuickPickItem, IQuickPickSeparator } from '../../../../platform/quickinput/common/quickInput.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { IQuickAccessProviderRunOptions } from '../../../../platform/quickinput/common/quickAccess.js';
+import { URI } from '../../../../base/common/uri.js';
 export interface IGotoSymbolQuickPickItem extends IQuickPickItem {
     kind: SymbolKind;
     index: number;
@@ -22,7 +22,7 @@ export interface IGotoSymbolQuickPickItem extends IQuickPickItem {
     };
 }
 export interface IGotoSymbolQuickAccessProviderOptions extends IEditorNavigationQuickAccessOptions {
-    openSideBySideDirection?: () => undefined | "right" | "down";
+    openSideBySideDirection?: () => undefined | 'right' | 'down';
     /**
      * A handler to invoke when an item is accepted for
      * this particular showing of the quick access.

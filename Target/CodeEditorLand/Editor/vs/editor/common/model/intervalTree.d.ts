@@ -1,6 +1,6 @@
-import { Range } from "../core/range.js";
-import { TrackedRangeStickiness as ActualTrackedRangeStickiness } from "../model.js";
-import { ModelDecorationOptions } from "./textModel.js";
+import { Range } from '../core/range.js';
+import { TrackedRangeStickiness as ActualTrackedRangeStickiness } from '../model.js';
+import { ModelDecorationOptions } from './textModel.js';
 export declare const enum ClassName {
     EditorHintDecoration = "squiggly-hint",
     EditorInfoDecoration = "squiggly-info",

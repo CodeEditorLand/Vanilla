@@ -1,16 +1,16 @@
-import "./documentSymbolsTree.css";
-import "../../../../../editor/contrib/symbolIcons/browser/symbolIcons.js";
-import { HighlightedLabel } from "../../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
-import { IconLabel } from "../../../../../base/browser/ui/iconLabel/iconLabel.js";
-import { IIdentityProvider, IKeyboardNavigationLabelProvider, IListVirtualDelegate } from "../../../../../base/browser/ui/list/list.js";
-import { IListAccessibilityProvider } from "../../../../../base/browser/ui/list/listWidget.js";
-import { ITreeFilter, ITreeNode, ITreeRenderer } from "../../../../../base/browser/ui/tree/tree.js";
-import { FuzzyScore } from "../../../../../base/common/filters.js";
-import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
-import { OutlineElement, OutlineGroup } from "../../../../../editor/contrib/documentSymbols/browser/outlineModel.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { IOutlineComparator, OutlineTarget } from "../../../../services/outline/browser/outline.js";
+import './documentSymbolsTree.css';
+import '../../../../../editor/contrib/symbolIcons/browser/symbolIcons.js';
+import { HighlightedLabel } from '../../../../../base/browser/ui/highlightedlabel/highlightedLabel.js';
+import { IIdentityProvider, IKeyboardNavigationLabelProvider, IListVirtualDelegate } from '../../../../../base/browser/ui/list/list.js';
+import { ITreeNode, ITreeRenderer, ITreeFilter } from '../../../../../base/browser/ui/tree/tree.js';
+import { FuzzyScore } from '../../../../../base/common/filters.js';
+import { OutlineElement, OutlineGroup } from '../../../../../editor/contrib/documentSymbols/browser/outlineModel.js';
+import { IconLabel } from '../../../../../base/browser/ui/iconLabel/iconLabel.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { ITextResourceConfigurationService } from '../../../../../editor/common/services/textResourceConfiguration.js';
+import { IListAccessibilityProvider } from '../../../../../base/browser/ui/list/listWidget.js';
+import { IOutlineComparator, OutlineTarget } from '../../../../services/outline/browser/outline.js';
 export type DocumentSymbolItem = OutlineGroup | OutlineElement;
 export declare class DocumentSymbolNavigationLabelProvider implements IKeyboardNavigationLabelProvider<DocumentSymbolItem> {
     getKeyboardNavigationLabel(element: DocumentSymbolItem): {
@@ -95,7 +95,7 @@ export declare class DocumentSymbolFilter implements ITreeFilter<DocumentSymbolI
         24: "showOperators";
         25: "showTypeParameters";
     }>;
-    constructor(_prefix: "breadcrumbs" | "outline", _textResourceConfigService: ITextResourceConfigurationService);
+    constructor(_prefix: 'breadcrumbs' | 'outline', _textResourceConfigService: ITextResourceConfigurationService);
     filter(element: DocumentSymbolItem): boolean;
 }
 export declare class DocumentSymbolComparator implements IOutlineComparator<DocumentSymbolItem> {

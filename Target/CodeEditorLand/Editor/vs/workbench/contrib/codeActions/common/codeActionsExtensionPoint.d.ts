@@ -1,4 +1,4 @@
-import { IConfigurationPropertySchema } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IConfigurationPropertySchema } from '../../../../platform/configuration/common/configurationRegistry.js';
 declare enum CodeActionExtensionPointFields {
     languages = "languages",
     actions = "actions",

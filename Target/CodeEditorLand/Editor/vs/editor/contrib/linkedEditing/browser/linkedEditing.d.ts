@@ -1,14 +1,14 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
-import { IPosition } from "../../../common/core/position.js";
-import { IEditorContribution } from "../../../common/editorCommon.js";
-import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import "./linkedEditing.css";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { EditorAction, ServicesAccessor } from '../../../browser/editorExtensions.js';
+import { IPosition } from '../../../common/core/position.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { ILanguageConfigurationService } from '../../../common/languages/languageConfigurationRegistry.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { ILanguageFeatureDebounceService } from '../../../common/services/languageFeatureDebounce.js';
+import './linkedEditing.css';
 export declare const CONTEXT_ONTYPE_RENAME_INPUT_VISIBLE: RawContextKey<boolean>;
 export declare class LinkedEditingContribution extends Disposable implements IEditorContribution {
     private readonly languageConfigurationService;

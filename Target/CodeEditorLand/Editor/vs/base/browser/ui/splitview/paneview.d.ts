@@ -1,9 +1,9 @@
-import { Event } from "../../../common/event.js";
-import { Disposable } from "../../../common/lifecycle.js";
-import { ScrollEvent } from "../../../common/scrollable.js";
-import { IBoundarySashes, Orientation } from "../sash/sash.js";
-import "./paneview.css";
-import { IView } from "./splitview.js";
+import { IBoundarySashes, Orientation } from '../sash/sash.js';
+import { Event } from '../../../common/event.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import { ScrollEvent } from '../../../common/scrollable.js';
+import './paneview.css';
+import { IView } from './splitview.js';
 export interface IPaneOptions {
     minimumBodySize?: number;
     maximumBodySize?: number;

@@ -1,4 +1,4 @@
-import { CancellationToken } from "./cancellation.js";
+import { CancellationToken } from './cancellation.js';
 export interface TfIdfDocument {
     readonly key: string;
     readonly textChunks: readonly string[];

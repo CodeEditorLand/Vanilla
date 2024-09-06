@@ -1,6 +1,6 @@
-import { UriComponents } from "../../../../base/common/uri.js";
-import { ISandboxConfiguration } from "../../../../base/parts/sandbox/common/sandboxTypes.js";
-import { OldIssueReporterData } from "../../../../platform/issue/common/issue.js";
+import { UriComponents } from '../../../../base/common/uri.js';
+import { ISandboxConfiguration } from '../../../../base/parts/sandbox/common/sandboxTypes.js';
+import { OldIssueReporterData } from '../../../../platform/issue/common/issue.js';
 export interface WindowStyles {
     backgroundColor?: string;
     color?: string;

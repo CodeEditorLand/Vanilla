@@ -1,14 +1,14 @@
-import { Event } from "../../../base/common/event.js";
-import type * as performance from "../../../base/common/performance.js";
-import { IProcessEnvironment, OperatingSystem } from "../../../base/common/platform.js";
-import { ThemeIcon } from "../../../base/common/themables.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { RawContextKey } from "../../contextkey/common/contextkey.js";
-import { ILogService } from "../../log/common/log.js";
-import { IWorkspaceFolder } from "../../workspace/common/workspace.js";
-import { IPtyHostProcessReplayEvent, ISerializedCommandDetectionCapability, ITerminalCapabilityStore } from "./capabilities/capabilities.js";
-import { ISerializableEnvironmentVariableCollections } from "./environmentVariable.js";
-import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from "./terminalProcess.js";
+import { Event } from '../../../base/common/event.js';
+import { IProcessEnvironment, OperatingSystem } from '../../../base/common/platform.js';
+import { URI, UriComponents } from '../../../base/common/uri.js';
+import { IPtyHostProcessReplayEvent, ISerializedCommandDetectionCapability, ITerminalCapabilityStore } from './capabilities/capabilities.js';
+import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from './terminalProcess.js';
+import { ThemeIcon } from '../../../base/common/themables.js';
+import { ISerializableEnvironmentVariableCollections } from './environmentVariable.js';
+import { RawContextKey } from '../../contextkey/common/contextkey.js';
+import { IWorkspaceFolder } from '../../workspace/common/workspace.js';
+import type * as performance from '../../../base/common/performance.js';
+import { ILogService } from '../../log/common/log.js';
 export declare const terminalTabFocusModeContextKey: RawContextKey<boolean>;
 export declare const enum TerminalSettingPrefix {
     AutomationProfile = "terminal.integrated.automationProfile.",
@@ -172,7 +172,7 @@ export interface IReconnectionProperties {
     ownerId: string;
     data?: unknown;
 }
-export type TerminalType = "Task" | "Local" | undefined;
+export type TerminalType = 'Task' | 'Local' | undefined;
 export declare enum TitleEventSource {
     /** From the API or the rename command that overrides any other type */
     Api = 0,
@@ -247,7 +247,7 @@ export interface IFixedTerminalDimensions {
 }
 /**
  * A service that communicates with a pty host.
- */
+*/
 export interface IPtyService {
     readonly _serviceBrand: undefined;
     readonly onProcessData: Event<{
@@ -278,7 +278,7 @@ export interface IPtyService {
         id: number;
         event: number | undefined;
     }>;
-    createProcess(shellLaunchConfig: IShellLaunchConfig, cwd: string, cols: number, rows: number, unicodeVersion: "6" | "11", env: IProcessEnvironment, executableEnv: IProcessEnvironment, options: ITerminalProcessOptions, shouldPersist: boolean, workspaceId: string, workspaceName: string): Promise<number>;
+    createProcess(shellLaunchConfig: IShellLaunchConfig, cwd: string, cols: number, rows: number, unicodeVersion: '6' | '11', env: IProcessEnvironment, executableEnv: IProcessEnvironment, options: ITerminalProcessOptions, shouldPersist: boolean, workspaceId: string, workspaceName: string): Promise<number>;
     attachToProcess(id: number): Promise<void>;
     detachFromProcess(id: number, forcePersist?: boolean): Promise<void>;
     shutdownAll(): Promise<void>;
@@ -301,7 +301,7 @@ export interface IPtyService {
     getInitialCwd(id: number): Promise<string>;
     getCwd(id: number): Promise<string>;
     acknowledgeDataEvent(id: number, charCount: number): Promise<void>;
-    setUnicodeVersion(id: number, version: "6" | "11"): Promise<void>;
+    setUnicodeVersion(id: number, version: '6' | '11'): Promise<void>;
     processBinary(id: number, data: string): Promise<void>;
     /** Confirm the process is _not_ an orphan. */
     orphanQuestionReply(id: number): Promise<void>;
@@ -312,7 +312,7 @@ export interface IPtyService {
     uninstallAutoReply(match: string): Promise<void>;
     getDefaultSystemShell(osOverride?: OperatingSystem): Promise<string>;
     getEnvironment(): Promise<IProcessEnvironment>;
-    getWslPath(original: string, direction: "unix-to-win" | "win-to-unix"): Promise<string>;
+    getWslPath(original: string, direction: 'unix-to-win' | 'win-to-unix'): Promise<string>;
     getRevivedPtyNewId(workspaceId: string, id: number): Promise<number | undefined>;
     setTerminalLayoutInfo(args: ISetTerminalLayoutInfoArgs): Promise<void>;
     getTerminalLayoutInfo(args: IGetTerminalLayoutInfoArgs): Promise<ITerminalsLayoutInfo | undefined>;
@@ -351,7 +351,7 @@ export interface IPtyHostController {
 /**
  * A service that communicates with a pty host controller (eg. main or server
  * process) and is able to launch and forward requests to the pty host.
- */
+*/
 export interface IPtyHostService extends IPtyService, IPtyHostController {
 }
 export interface IPtyHostLatencyMeasurement {
@@ -371,7 +371,7 @@ export interface ISerializedTerminalState {
     shellLaunchConfig: IShellLaunchConfig;
     processDetails: IProcessDetails;
     processLaunchConfig: IPersistentTerminalProcessLaunchConfig;
-    unicodeVersion: "6" | "11";
+    unicodeVersion: '6' | '11';
     replayEvent: IPtyHostProcessReplayEvent;
     timestamp: number;
 }
@@ -425,7 +425,7 @@ export interface IShellLaunchConfig {
     /**
      * A string to follow the name of the terminal with, indicating the type of terminal
      */
-    type?: "Task" | "Local";
+    type?: 'Task' | 'Local';
     /**
      * The shell executable (bash, cmd, etc.).
      */
@@ -598,7 +598,7 @@ export interface IShellLaunchConfigDto {
     useShellEnvironment?: boolean;
     hideFromUser?: boolean;
     reconnectionProperties?: IReconnectionProperties;
-    type?: "Task" | "Local";
+    type?: 'Task' | 'Local';
     isFeatureTerminal?: boolean;
 }
 /**
@@ -632,7 +632,7 @@ export interface IProcessReadyWindowsPty {
     /**
      * What pty emulation backend is being used.
      */
-    backend: "conpty" | "winpty";
+    backend: 'conpty' | 'winpty';
     /**
      * The Windows build version (eg. 19045)
      */
@@ -702,7 +702,7 @@ export interface ITerminalChildProcess {
      * Sets the unicode version for the process, this drives the size of some characters in the
      * xterm-headless instance.
      */
-    setUnicodeVersion(version: "6" | "11"): Promise<void>;
+    setUnicodeVersion(version: '6' | '11'): Promise<void>;
     getInitialCwd(): Promise<string>;
     getCwd(): Promise<string>;
     refreshProperty<T extends ProcessPropertyType>(property: T): Promise<IProcessPropertyMap[T]>;
@@ -716,11 +716,11 @@ export interface IReconnectConstants {
 export declare const enum LocalReconnectConstants {
     /**
      * If there is no reconnection within this time-frame, consider the connection permanently closed...
-     */
+    */
     GraceTime = 60000,// 60 seconds
     /**
      * Maximal grace time between the first and the last reconnection...
-     */
+    */
     ShortGraceTime = 6000
 }
 export declare const enum FlowControlConstants {
@@ -879,7 +879,7 @@ export interface ITerminalOutputMatcher {
     /**
      * Which side of the output to anchor the {@link offset} and {@link length} against.
      */
-    anchor: "top" | "bottom";
+    anchor: 'top' | 'bottom';
     /**
      * The number of rows above or below the {@link anchor} to start matching against.
      */
@@ -900,8 +900,8 @@ export interface ITerminalCommandSelector {
     commandLineMatcher: string | RegExp;
     outputMatcher?: ITerminalOutputMatcher;
     exitStatus: boolean;
-    commandExitResult: "success" | "error";
-    kind?: "fix" | "explain";
+    commandExitResult: 'success' | 'error';
+    kind?: 'fix' | 'explain';
 }
 export interface ITerminalBackend {
     readonly remoteAuthority: string | undefined;
@@ -941,7 +941,7 @@ export interface ITerminalBackend {
     getLatency(): Promise<IPtyHostLatencyMeasurement[]>;
     getDefaultSystemShell(osOverride?: OperatingSystem): Promise<string>;
     getProfiles(profiles: unknown, defaultProfile: unknown, includeDetectedProfiles?: boolean): Promise<ITerminalProfile[]>;
-    getWslPath(original: string, direction: "unix-to-win" | "win-to-unix"): Promise<string>;
+    getWslPath(original: string, direction: 'unix-to-win' | 'win-to-unix'): Promise<string>;
     getEnvironment(): Promise<IProcessEnvironment>;
     getShellEnvironment(): Promise<IProcessEnvironment | undefined>;
     setTerminalLayoutInfo(layoutInfo?: ITerminalsLayoutInfoById): Promise<void>;
@@ -953,7 +953,7 @@ export interface ITerminalBackend {
     requestDetachInstance(workspaceId: string, instanceId: number): Promise<IProcessDetails | undefined>;
     acceptDetachInstanceReply(requestId: number, persistentProcessId?: number): Promise<void>;
     persistTerminalState(): Promise<void>;
-    createProcess(shellLaunchConfig: IShellLaunchConfig, cwd: string, cols: number, rows: number, unicodeVersion: "6" | "11", env: IProcessEnvironment, options: ITerminalProcessOptions, shouldPersist: boolean): Promise<ITerminalChildProcess>;
+    createProcess(shellLaunchConfig: IShellLaunchConfig, cwd: string, cols: number, rows: number, unicodeVersion: '6' | '11', env: IProcessEnvironment, options: ITerminalProcessOptions, shouldPersist: boolean): Promise<ITerminalChildProcess>;
     restartPtyHost(): void;
 }
 export declare const TerminalExtensions: {

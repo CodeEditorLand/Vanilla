@@ -1,9 +1,9 @@
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { ITerminalOutputMatch, ITerminalOutputMatcher } from "../terminal.js";
-import { ReplayEntry } from "../terminalProcess.js";
-import type { IPromptInputModel, ISerializedPromptInputModel } from "./commandDetection/promptInputModel.js";
-import { ICurrentPartialCommand } from "./commandDetection/terminalCommand.js";
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import type { IPromptInputModel, ISerializedPromptInputModel } from './commandDetection/promptInputModel.js';
+import { ICurrentPartialCommand } from './commandDetection/terminalCommand.js';
+import { ITerminalOutputMatch, ITerminalOutputMatcher } from '../terminal.js';
+import { ReplayEntry } from '../terminalProcess.js';
 interface IEvent<T, U = void> {
     (listener: (arg1: T, arg2: U) => any): IDisposable;
 }
@@ -206,7 +206,7 @@ export interface IPartialCommandDetectionCapability {
 }
 interface IBaseTerminalCommand {
     command: string;
-    commandLineConfidence: "low" | "medium" | "high";
+    commandLineConfidence: 'low' | 'medium' | 'high';
     isTrusted: boolean;
     timestamp: number;
     duration: number;

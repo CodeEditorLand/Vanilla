@@ -1,12 +1,12 @@
-import { IAction, IActionRunner } from "../../../common/actions.js";
-import { Event as BaseEvent } from "../../../common/event.js";
-import { IMarkdownString } from "../../../common/htmlContent.js";
-import { Disposable, IDisposable } from "../../../common/lifecycle.js";
-import { ThemeIcon } from "../../../common/themables.js";
-import { IContextMenuProvider } from "../../contextmenu.js";
-import { IHoverDelegate } from "../hover/hoverDelegate.js";
-import "./button.css";
-import { IActionProvider } from "../dropdown/dropdown.js";
+import { IContextMenuProvider } from '../../contextmenu.js';
+import { IHoverDelegate } from '../hover/hoverDelegate.js';
+import { IAction, IActionRunner } from '../../../common/actions.js';
+import { Event as BaseEvent } from '../../../common/event.js';
+import { IMarkdownString } from '../../../common/htmlContent.js';
+import { Disposable, IDisposable } from '../../../common/lifecycle.js';
+import { ThemeIcon } from '../../../common/themables.js';
+import './button.css';
+import { IActionProvider } from '../dropdown/dropdown.js';
 export interface IButtonOptions extends Partial<IButtonStyles> {
     readonly title?: boolean | string;
     readonly ariaLabel?: boolean | string;

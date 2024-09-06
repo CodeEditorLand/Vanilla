@@ -1,4 +1,4 @@
-import { IBaseBackupInfo, IFolderBackupInfo, IWorkspaceBackupInfo } from "../common/backup.js";
+import { IBaseBackupInfo, IFolderBackupInfo, IWorkspaceBackupInfo } from '../common/backup.js';
 export interface IEmptyWindowBackupInfo extends IBaseBackupInfo {
     readonly backupFolder: string;
 }

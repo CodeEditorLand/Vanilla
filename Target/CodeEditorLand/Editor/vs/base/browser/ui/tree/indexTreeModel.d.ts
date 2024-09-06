@@ -1,6 +1,6 @@
-import { Event } from "../../../common/event.js";
-import { IIdentityProvider } from "../list/list.js";
-import { ICollapseStateChangeEvent, ITreeElement, ITreeFilter, ITreeFilterDataResult, ITreeListSpliceData, ITreeModel, ITreeModelSpliceEvent, ITreeNode, TreeVisibility } from "./tree.js";
+import { IIdentityProvider } from '../list/list.js';
+import { ICollapseStateChangeEvent, ITreeElement, ITreeFilter, ITreeFilterDataResult, ITreeListSpliceData, ITreeModel, ITreeModelSpliceEvent, ITreeNode, TreeVisibility } from './tree.js';
+import { Event } from '../../../common/event.js';
 export interface IIndexTreeNode<T, TFilterData = void> extends ITreeNode<T, TFilterData> {
     readonly parent: IIndexTreeNode<T, TFilterData> | undefined;
     readonly children: IIndexTreeNode<T, TFilterData>[];

@@ -1,8 +1,8 @@
-import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import { AbstractDialogHandler, IAsyncPromptResult, IConfirmation, IConfirmationResult, IPrompt } from "../../../../platform/dialogs/common/dialogs.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IClipboardService } from '../../../../platform/clipboard/common/clipboardService.js';
+import { AbstractDialogHandler, IConfirmation, IConfirmationResult, IPrompt, IAsyncPromptResult } from '../../../../platform/dialogs/common/dialogs.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { INativeHostService } from '../../../../platform/native/common/native.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
 export declare class NativeDialogHandler extends AbstractDialogHandler {
     private readonly logService;
     private readonly nativeHostService;

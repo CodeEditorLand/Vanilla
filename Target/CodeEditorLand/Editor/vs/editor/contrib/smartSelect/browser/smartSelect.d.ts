@@ -1,12 +1,12 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import { IEditorContribution } from "../../../common/editorCommon.js";
-import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
-import * as languages from "../../../common/languages.js";
-import { ITextModel } from "../../../common/model.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { Position } from '../../../common/core/position.js';
+import { Range } from '../../../common/core/range.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { ITextModel } from '../../../common/model.js';
+import * as languages from '../../../common/languages.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { LanguageFeatureRegistry } from '../../../common/languageFeatureRegistry.js';
 export declare class SmartSelectController implements IEditorContribution {
     private readonly _editor;
     private readonly _languageFeaturesService;

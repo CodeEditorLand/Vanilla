@@ -1,15 +1,15 @@
-import { CancelablePromise } from "../../../../../base/common/async.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService, RawContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService } from "../../../../../platform/notification/common/notification.js";
-import { IStorageService } from "../../../../../platform/storage/common/storage.js";
-import { ICodeEditor } from "../../../../browser/editorBrowser.js";
-import { ICodeEditorService } from "../../../../browser/services/codeEditorService.js";
-import { Range } from "../../../../common/core/range.js";
-import { IEditorContribution } from "../../../../common/editorCommon.js";
-import { Location } from "../../../../common/languages.js";
-import { OneReference, ReferencesModel } from "../referencesModel.js";
+import { CancelablePromise } from '../../../../../base/common/async.js';
+import { ICodeEditor } from '../../../../browser/editorBrowser.js';
+import { ICodeEditorService } from '../../../../browser/services/codeEditorService.js';
+import { Range } from '../../../../common/core/range.js';
+import { IEditorContribution } from '../../../../common/editorCommon.js';
+import { Location } from '../../../../common/languages.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService, RawContextKey } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { INotificationService } from '../../../../../platform/notification/common/notification.js';
+import { IStorageService } from '../../../../../platform/storage/common/storage.js';
+import { OneReference, ReferencesModel } from '../referencesModel.js';
 export declare const ctxReferenceSearchVisible: RawContextKey<boolean>;
 export declare abstract class ReferencesController implements IEditorContribution {
     private readonly _defaultTreeKeyboardSupport;

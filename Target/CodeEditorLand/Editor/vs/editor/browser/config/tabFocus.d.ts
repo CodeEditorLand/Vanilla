@@ -1,4 +1,4 @@
-import { Event } from "../../../base/common/event.js";
+import { Event } from '../../../base/common/event.js';
 declare class TabFocusImpl {
     private _tabFocus;
     private readonly _onDidChangeTabFocus;

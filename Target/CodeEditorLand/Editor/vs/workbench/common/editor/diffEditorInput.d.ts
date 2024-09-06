@@ -1,9 +1,9 @@
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import { IEditorService } from "../../services/editor/common/editorService.js";
-import { EditorInputCapabilities, IDiffEditorInput, IEditorDescriptor, IEditorPane, IResourceDiffEditorInput, IResourceSideBySideEditorInput, IUntypedEditorInput, Verbosity } from "../editor.js";
-import { EditorInput, IUntypedEditorOptions } from "./editorInput.js";
-import { EditorModel } from "./editorModel.js";
-import { AbstractSideBySideEditorInputSerializer, SideBySideEditorInput } from "./sideBySideEditorInput.js";
+import { AbstractSideBySideEditorInputSerializer, SideBySideEditorInput } from './sideBySideEditorInput.js';
+import { EditorInput, IUntypedEditorOptions } from './editorInput.js';
+import { EditorModel } from './editorModel.js';
+import { Verbosity, IEditorDescriptor, IEditorPane, IResourceDiffEditorInput, IUntypedEditorInput, IDiffEditorInput, IResourceSideBySideEditorInput, EditorInputCapabilities } from '../editor.js';
+import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
+import { IEditorService } from '../../services/editor/common/editorService.js';
 /**
  * The base editor input for the diff editor. It is made up of two editor inputs, the original version
  * and the modified version.

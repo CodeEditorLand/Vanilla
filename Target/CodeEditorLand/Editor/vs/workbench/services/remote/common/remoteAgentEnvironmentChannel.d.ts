@@ -1,12 +1,12 @@
-import * as performance from "../../../../base/common/performance.js";
-import * as platform from "../../../../base/common/platform.js";
-import { UriComponents, UriDto } from "../../../../base/common/uri.js";
-import { IChannel } from "../../../../base/parts/ipc/common/ipc.js";
-import { IDiagnosticInfo, IDiagnosticInfoOptions } from "../../../../platform/diagnostics/common/diagnostics.js";
-import { IRemoteAgentEnvironment } from "../../../../platform/remote/common/remoteAgentEnvironment.js";
-import { ITelemetryData, TelemetryLevel } from "../../../../platform/telemetry/common/telemetry.js";
-import { IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import { IExtensionHostExitInfo } from "./remoteAgentService.js";
+import * as platform from '../../../../base/common/platform.js';
+import * as performance from '../../../../base/common/performance.js';
+import { UriComponents, UriDto } from '../../../../base/common/uri.js';
+import { IChannel } from '../../../../base/parts/ipc/common/ipc.js';
+import { IRemoteAgentEnvironment } from '../../../../platform/remote/common/remoteAgentEnvironment.js';
+import { IDiagnosticInfoOptions, IDiagnosticInfo } from '../../../../platform/diagnostics/common/diagnostics.js';
+import { ITelemetryData, TelemetryLevel } from '../../../../platform/telemetry/common/telemetry.js';
+import { IExtensionHostExitInfo } from './remoteAgentService.js';
+import { IUserDataProfile } from '../../../../platform/userDataProfile/common/userDataProfile.js';
 export interface IGetEnvironmentDataArguments {
     remoteAuthority: string;
     profile?: string;

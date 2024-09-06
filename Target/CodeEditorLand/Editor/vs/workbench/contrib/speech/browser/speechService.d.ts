@@ -1,13 +1,13 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { IHostService } from "../../../services/host/browser/host.js";
-import { ISpeechProvider, ISpeechService, ISpeechToTextSession, ITextToSpeechSession, KeywordRecognitionStatus } from "../common/speechService.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IHostService } from '../../../services/host/browser/host.js';
+import { ISpeechService, ISpeechProvider, ISpeechToTextSession, KeywordRecognitionStatus, ITextToSpeechSession } from '../common/speechService.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
 export interface ISpeechProviderDescriptor {
     readonly name: string;
     readonly description?: string;

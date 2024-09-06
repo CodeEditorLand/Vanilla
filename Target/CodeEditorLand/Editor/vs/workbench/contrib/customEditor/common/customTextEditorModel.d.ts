@@ -1,12 +1,12 @@
-import { Event } from "../../../../base/common/event.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { Disposable, IReference } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IResolvedTextEditorModel } from "../../../../editor/common/services/resolverService.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IRevertOptions, ISaveOptions } from "../../../common/editor.js";
-import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import { ICustomEditorModel } from "./customEditor.js";
+import { Event } from '../../../../base/common/event.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { Disposable, IReference } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IResolvedTextEditorModel } from '../../../../editor/common/services/resolverService.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IRevertOptions, ISaveOptions } from '../../../common/editor.js';
+import { ICustomEditorModel } from './customEditor.js';
+import { ITextFileService } from '../../../services/textfile/common/textfiles.js';
 export declare class CustomTextEditorModel extends Disposable implements ICustomEditorModel {
     readonly viewType: string;
     private readonly _resource;

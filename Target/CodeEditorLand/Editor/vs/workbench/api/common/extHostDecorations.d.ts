@@ -1,9 +1,9 @@
-import type * as vscode from "vscode";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { DecorationReply, DecorationRequest, ExtHostDecorationsShape } from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import type * as vscode from 'vscode';
+import { ExtHostDecorationsShape, DecorationRequest, DecorationReply } from './extHost.protocol.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { ILogService } from '../../../platform/log/common/log.js';
 export declare class ExtHostDecorations implements ExtHostDecorationsShape {
     private readonly _logService;
     private static _handlePool;

@@ -1,13 +1,13 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { GroupIdentifier } from "../../../common/editor.js";
-import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { ACTIVE_GROUP_TYPE, IEditorService, SIDE_GROUP_TYPE } from "../../../services/editor/common/editorService.js";
-import { IOverlayWebview, IWebviewService, WebviewInitInfo } from "../../webview/browser/webview.js";
-import { WebviewInput, WebviewInputInitInfo } from "./webviewEditorInput.js";
-import { WebviewIconManager, WebviewIcons } from "./webviewIconManager.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { GroupIdentifier } from '../../../common/editor.js';
+import { IOverlayWebview, IWebviewService, WebviewInitInfo } from '../../webview/browser/webview.js';
+import { WebviewIconManager, WebviewIcons } from './webviewIconManager.js';
+import { IEditorGroup, IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { ACTIVE_GROUP_TYPE, IEditorService, SIDE_GROUP_TYPE } from '../../../services/editor/common/editorService.js';
+import { WebviewInput, WebviewInputInitInfo } from './webviewEditorInput.js';
 export interface IWebViewShowOptions {
     readonly group?: IEditorGroup | GroupIdentifier | ACTIVE_GROUP_TYPE | SIDE_GROUP_TYPE;
     readonly preserveFocus?: boolean;

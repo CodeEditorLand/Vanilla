@@ -1,5 +1,5 @@
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { ModelDecorationOptions } from '../../../common/model/textModel.js';
 export declare const diffMoveBorder: string;
 export declare const diffMoveBorderActive: string;
 export declare const diffEditorUnchangedRegionShadow: string;

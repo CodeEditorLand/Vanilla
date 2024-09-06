@@ -1,6 +1,6 @@
-import * as cp from "child_process";
-import * as glob from "../../../../base/common/glob.js";
-import { IFileQuery, IFolderQuery } from "../common/search.js";
+import * as cp from 'child_process';
+import * as glob from '../../../../base/common/glob.js';
+import { IFileQuery, IFolderQuery } from '../common/search.js';
 export declare function spawnRipgrepCmd(config: IFileQuery, folderQuery: IFolderQuery, includePattern?: glob.IExpression, excludePattern?: glob.IExpression, numThreads?: number): {
     cmd: cp.ChildProcessWithoutNullStreams;
     rgDiskPath: any;

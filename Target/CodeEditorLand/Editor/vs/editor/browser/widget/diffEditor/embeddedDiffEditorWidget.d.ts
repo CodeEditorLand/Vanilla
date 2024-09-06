@@ -1,11 +1,11 @@
-import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
-import { IEditorOptions } from "../../../common/config/editorOptions.js";
-import { ICodeEditor, IDiffEditorConstructionOptions } from "../../editorBrowser.js";
-import { ICodeEditorService } from "../../services/codeEditorService.js";
-import { DiffEditorWidget, IDiffCodeEditorWidgetOptions } from "./diffEditorWidget.js";
+import { ICodeEditor, IDiffEditorConstructionOptions } from '../../editorBrowser.js';
+import { ICodeEditorService } from '../../services/codeEditorService.js';
+import { DiffEditorWidget, IDiffCodeEditorWidgetOptions } from './diffEditorWidget.js';
+import { IEditorOptions } from '../../../common/config/editorOptions.js';
+import { IAccessibilitySignalService } from '../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IEditorProgressService } from '../../../../platform/progress/common/progress.js';
 export declare class EmbeddedDiffEditorWidget extends DiffEditorWidget {
     private readonly _parentEditor;
     private readonly _overwriteOptions;

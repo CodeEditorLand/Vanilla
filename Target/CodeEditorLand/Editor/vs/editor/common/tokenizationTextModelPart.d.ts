@@ -1,12 +1,12 @@
-import { OffsetEdit } from "./core/offsetEdit.js";
-import { OffsetRange } from "./core/offsetRange.js";
-import { Range } from "./core/range.js";
-import { StandardTokenType } from "./encodedTokenAttributes.js";
-import { LineTokens } from "./tokens/lineTokens.js";
-import { SparseMultilineTokens } from "./tokens/sparseMultilineTokens.js";
+import { OffsetEdit } from './core/offsetEdit.js';
+import { OffsetRange } from './core/offsetRange.js';
+import { Range } from './core/range.js';
+import { StandardTokenType } from './encodedTokenAttributes.js';
+import { LineTokens } from './tokens/lineTokens.js';
+import { SparseMultilineTokens } from './tokens/sparseMultilineTokens.js';
 /**
  * Provides tokenization related functionality of the text model.
- */
+*/
 export interface ITokenizationTextModelPart {
     readonly hasTokens: boolean;
     /**
@@ -61,14 +61,14 @@ export interface ITokenizationTextModelPart {
      */
     getLineTokens(lineNumber: number): LineTokens;
     /**
-     * Returns the standard token type for a character if the character were to be inserted at
-     * the given position. If the result cannot be accurate, it returns null.
-     * @internal
-     */
+    * Returns the standard token type for a character if the character were to be inserted at
+    * the given position. If the result cannot be accurate, it returns null.
+    * @internal
+    */
     getTokenTypeIfInsertingCharacter(lineNumber: number, column: number, character: string): StandardTokenType;
     /**
      * @internal
-     */
+    */
     tokenizeLineWithEdit(lineNumber: number, edit: LineEditWithAdditionalLines): ITokenizeLineWithEditResult;
     getLanguageId(): string;
     getLanguageIdAtPosition(lineNumber: number, column: number): string;
@@ -78,21 +78,21 @@ export interface ITokenizationTextModelPart {
 export declare class LineEditWithAdditionalLines {
     /**
      * The edit for the main line.
-     */
+    */
     readonly lineEdit: OffsetEdit;
     /**
      * Full lines appended after the main line.
-     */
+    */
     readonly additionalLines: string[] | null;
     static replace(range: OffsetRange, text: string): LineEditWithAdditionalLines;
     constructor(
     /**
      * The edit for the main line.
-     */
+    */
     lineEdit: OffsetEdit, 
     /**
      * Full lines appended after the main line.
-     */
+    */
     additionalLines: string[] | null);
 }
 export interface ITokenizeLineWithEditResult {

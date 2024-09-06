@@ -1,10 +1,10 @@
-import { CodeWindow } from "../../../../base/browser/window.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { EditorInputCapabilities, GroupIdentifier, IUntypedEditorInput, Verbosity } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IOverlayWebview } from "../../webview/browser/webview.js";
-import { WebviewIconManager, WebviewIcons } from "./webviewIconManager.js";
+import { CodeWindow } from '../../../../base/browser/window.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { EditorInputCapabilities, GroupIdentifier, IUntypedEditorInput, Verbosity } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IOverlayWebview } from '../../webview/browser/webview.js';
+import { WebviewIconManager, WebviewIcons } from './webviewIconManager.js';
 export interface WebviewInputInitInfo {
     readonly viewType: string;
     readonly providedId: string | undefined;

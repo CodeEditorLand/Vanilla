@@ -1,10 +1,10 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import Severity from "../../../base/common/severity.js";
-import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { Event } from '../../../base/common/event.js';
+import { ILogService } from '../../log/common/log.js';
+import { IWindowsMainService } from '../../windows/electron-main/windows.js';
+import Severity from '../../../base/common/severity.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
 export interface IUtilityProcessConfiguration {
     /**
      * A way to group utility processes of same type together.
@@ -86,13 +86,13 @@ export interface IUtilityProcessExitEvent extends IUtilityProcessExitBaseEvent {
      * The signal that caused the process to exit is unknown
      * for utility processes.
      */
-    readonly signal: "unknown";
+    readonly signal: 'unknown';
 }
 export interface IUtilityProcessCrashEvent extends IUtilityProcessExitBaseEvent {
     /**
      * The reason of the utility process crash.
      */
-    readonly reason: "clean-exit" | "abnormal-exit" | "killed" | "crashed" | "oom" | "launch-failed" | "integrity-failure";
+    readonly reason: 'clean-exit' | 'abnormal-exit' | 'killed' | 'crashed' | 'oom' | 'launch-failed' | 'integrity-failure';
 }
 export interface IUtilityProcessInfo {
     readonly pid: number;

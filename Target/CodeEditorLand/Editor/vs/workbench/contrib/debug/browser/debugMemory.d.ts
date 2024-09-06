@@ -1,7 +1,7 @@
-import { Event } from "../../../../base/common/event.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IFileChange, IFileOpenOptions, IFileSystemProvider, IStat, IWatchOptions } from "../../../../platform/files/common/files.js";
-import { IDebugService, IDebugSession } from "../common/debug.js";
+import { Event } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IFileOpenOptions, IFileChange, IFileSystemProvider, IStat, IWatchOptions } from '../../../../platform/files/common/files.js';
+import { IDebugService, IDebugSession } from '../common/debug.js';
 export declare class DebugMemoryFileSystemProvider implements IFileSystemProvider {
     private readonly debugService;
     private memoryFdCounter;

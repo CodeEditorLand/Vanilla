@@ -1,23 +1,23 @@
-import { Event } from "../../base/common/event.js";
-import { IMarkdownString } from "../../base/common/htmlContent.js";
-import { IDisposable } from "../../base/common/lifecycle.js";
-import { ThemeColor } from "../../base/common/themables.js";
-import { URI } from "../../base/common/uri.js";
-import { UndoRedoGroup } from "../../platform/undoRedo/common/undoRedo.js";
-import { ISingleEditOperation } from "./core/editOperation.js";
-import { IPosition, Position } from "./core/position.js";
-import { IRange, Range } from "./core/range.js";
-import { Selection } from "./core/selection.js";
-import { TextChange } from "./core/textChange.js";
-import { WordCharacterClassifier } from "./core/wordCharacterClassifier.js";
-import { IWordAtPosition } from "./core/wordHelper.js";
-import { FormattingOptions } from "./languages.js";
-import { ILanguageSelection } from "./languages/language.js";
-import { IBracketPairsTextModelPart } from "./textModelBracketPairs.js";
-import { IModelContentChange, IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelLanguageChangedEvent, IModelLanguageConfigurationChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent, InternalModelContentChangeEvent, ModelInjectedTextChangedEvent } from "./textModelEvents.js";
-import { IGuidesTextModelPart } from "./textModelGuides.js";
-import { ITokenizationTextModelPart } from "./tokenizationTextModelPart.js";
-import { TokenArray } from "./tokens/tokenArray.js";
+import { Event } from '../../base/common/event.js';
+import { IMarkdownString } from '../../base/common/htmlContent.js';
+import { IDisposable } from '../../base/common/lifecycle.js';
+import { ThemeColor } from '../../base/common/themables.js';
+import { URI } from '../../base/common/uri.js';
+import { ISingleEditOperation } from './core/editOperation.js';
+import { IPosition, Position } from './core/position.js';
+import { IRange, Range } from './core/range.js';
+import { Selection } from './core/selection.js';
+import { TextChange } from './core/textChange.js';
+import { WordCharacterClassifier } from './core/wordCharacterClassifier.js';
+import { IWordAtPosition } from './core/wordHelper.js';
+import { FormattingOptions } from './languages.js';
+import { ILanguageSelection } from './languages/language.js';
+import { IBracketPairsTextModelPart } from './textModelBracketPairs.js';
+import { IModelContentChange, IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelLanguageChangedEvent, IModelLanguageConfigurationChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent, InternalModelContentChangeEvent, ModelInjectedTextChangedEvent } from './textModelEvents.js';
+import { IGuidesTextModelPart } from './textModelGuides.js';
+import { ITokenizationTextModelPart } from './tokenizationTextModelPart.js';
+import { UndoRedoGroup } from '../../platform/undoRedo/common/undoRedo.js';
+import { TokenArray } from './tokens/tokenArray.js';
 /**
  * Vertical Lane in the overview ruler of the editor.
  */
@@ -245,17 +245,17 @@ export interface IModelDecorationOptions {
     /**
      * If set, this decoration will not be rendered for comment tokens.
      * @internal
-     */
+    */
     hideInCommentTokens?: boolean | null;
     /**
      * If set, this decoration will not be rendered for string tokens.
      * @internal
-     */
+    */
     hideInStringTokens?: boolean | null;
 }
 /**
  * Configures text that is injected into the view without changing the underlying document.
- */
+*/
 export interface InjectedTextOptions {
     /**
      * Sets the text to inject. Must be a single line.
@@ -263,7 +263,7 @@ export interface InjectedTextOptions {
     readonly content: string;
     /**
      * @internal
-     */
+    */
     readonly tokens?: TokenArray | null;
     /**
      * If set, the decoration will be rendered inline with the text with this CSS class name.
@@ -281,7 +281,7 @@ export interface InjectedTextOptions {
     /**
      * Configures cursor stops around injected text.
      * Defaults to {@link InjectedTextCursorStops.Both}.
-     */
+    */
     readonly cursorStops?: InjectedTextCursorStops | null;
 }
 export declare enum InjectedTextCursorStops {
@@ -479,13 +479,13 @@ export declare class TextModelResolvedOptions {
     readonly defaultEOL: DefaultEndOfLine;
     readonly trimAutoWhitespace: boolean;
     readonly bracketPairColorizationOptions: BracketPairColorizationOptions;
-    get originalIndentSize(): number | "tabSize";
+    get originalIndentSize(): number | 'tabSize';
     /**
      * @internal
      */
     constructor(src: {
         tabSize: number;
-        indentSize: number | "tabSize";
+        indentSize: number | 'tabSize';
         insertSpaces: boolean;
         defaultEOL: DefaultEndOfLine;
         trimAutoWhitespace: boolean;
@@ -505,7 +505,7 @@ export declare class TextModelResolvedOptions {
  */
 export interface ITextModelCreationOptions {
     tabSize: number;
-    indentSize: number | "tabSize";
+    indentSize: number | 'tabSize';
     insertSpaces: boolean;
     detectIndentation: boolean;
     trimAutoWhitespace: boolean;
@@ -520,7 +520,7 @@ export interface BracketPairColorizationOptions {
 }
 export interface ITextModelUpdateOptions {
     tabSize?: number;
-    indentSize?: number | "tabSize";
+    indentSize?: number | 'tabSize';
     insertSpaces?: boolean;
     trimAutoWhitespace?: boolean;
     bracketColorizationOptions?: BracketPairColorizationOptions;
@@ -1127,17 +1127,17 @@ export interface ITextModel {
     /**
      * Gets the column at which indentation stops at a given line.
      * @internal
-     */
+    */
     getLineIndentColumn(lineNumber: number): number;
     /**
      * Returns an object that can be used to query brackets.
      * @internal
-     */
+    */
     readonly bracketPairs: IBracketPairsTextModelPart;
     /**
      * Returns an object that can be used to query indent guides.
      * @internal
-     */
+    */
     readonly guides: IGuidesTextModelPart;
     /**
      * @internal
@@ -1161,23 +1161,23 @@ export interface IAttachedView {
 export declare const enum PositionAffinity {
     /**
      * Prefers the left most position.
-     */
+    */
     Left = 0,
     /**
      * Prefers the right most position.
-     */
+    */
     Right = 1,
     /**
      * No preference.
-     */
+    */
     None = 2,
     /**
      * If the given position is on injected text, prefers the position left of it.
-     */
+    */
     LeftOfInjectedText = 3,
     /**
      * If the given position is on injected text, prefers the position right of it.
-     */
+    */
     RightOfInjectedText = 4
 }
 /**
@@ -1275,7 +1275,7 @@ export declare class SearchData {
  * @internal
  */
 export interface ITextBuffer extends IReadonlyTextBuffer, IDisposable {
-    setEOL(newEOL: "\r\n" | "\n"): void;
+    setEOL(newEOL: '\r\n' | '\n'): void;
     applyEdits(rawOperations: ValidAnnotatedEditOperation[], recordTrimAutoWhitespace: boolean, computeUndoEdits: boolean): ApplyEditsResult;
 }
 /**

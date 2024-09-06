@@ -1,6 +1,6 @@
-import { LineRange } from "../core/lineRange.js";
-import { Range } from "../core/range.js";
-import { AbstractText, SingleTextEdit } from "../core/textEdit.js";
+import { LineRange } from '../core/lineRange.js';
+import { Range } from '../core/range.js';
+import { AbstractText, SingleTextEdit } from '../core/textEdit.js';
 /**
  * Maps a line range in the original text model to a line range in the modified text model.
  */
@@ -24,13 +24,13 @@ export declare class LineRangeMapping {
      * This method assumes that the LineRangeMapping describes a valid diff!
      * I.e. if one range is empty, the other range cannot be the entire document.
      * It avoids various problems when the line range points to non-existing line-numbers.
-     */
+    */
     toRangeMapping(): RangeMapping;
     /**
      * This method assumes that the LineRangeMapping describes a valid diff!
      * I.e. if one range is empty, the other range cannot be the entire document.
      * It avoids various problems when the line range points to non-existing line-numbers.
-     */
+    */
     toRangeMapping2(original: string[], modified: string[]): RangeMapping;
 }
 /**
@@ -68,6 +68,6 @@ export declare class RangeMapping {
     flip(): RangeMapping;
     /**
      * Creates a single text edit that describes the change from the original to the modified text.
-     */
+    */
     toTextEdit(modified: AbstractText): SingleTextEdit;
 }

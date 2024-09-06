@@ -1,5 +1,5 @@
-import { LineRange } from "../core/lineRange.js";
-import { IRange } from "../core/range.js";
+import { IRange } from '../core/range.js';
+import { LineRange } from '../core/lineRange.js';
 /**
  * Represents contiguous tokens over a contiguous range of lines.
  */

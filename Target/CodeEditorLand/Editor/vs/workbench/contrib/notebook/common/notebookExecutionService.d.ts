@@ -1,8 +1,8 @@
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { NotebookCellTextModel } from "./model/notebookCellTextModel.js";
-import { INotebookTextModel, IOutputDto, IOutputItemDto } from "./notebookCommon.js";
-import { INotebookCellExecution } from "./notebookExecutionStateService.js";
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { NotebookCellTextModel } from './model/notebookCellTextModel.js';
+import { INotebookTextModel, IOutputDto, IOutputItemDto } from './notebookCommon.js';
+import { INotebookCellExecution } from './notebookExecutionStateService.js';
 export declare enum CellExecutionUpdateType {
     Output = 1,
     OutputItems = 2,

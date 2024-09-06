@@ -1,5 +1,5 @@
-import { Event } from "../../../../base/common/event.js";
-import { LogLevel } from "../../../../platform/log/common/log.js";
+import { LogLevel } from '../../../../platform/log/common/log.js';
+import { Event } from '../../../../base/common/event.js';
 interface ParsedArgvLogLevels {
     default?: LogLevel;
     extensions?: [string, LogLevel][];

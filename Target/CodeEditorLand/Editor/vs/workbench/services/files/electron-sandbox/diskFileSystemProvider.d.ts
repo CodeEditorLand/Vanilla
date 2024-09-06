@@ -1,13 +1,13 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { ReadableStreamEvents } from "../../../../base/common/stream.js";
-import { URI } from "../../../../base/common/uri.js";
-import { AbstractDiskFileSystemProvider } from "../../../../platform/files/common/diskFileSystemProvider.js";
-import { FileSystemProviderCapabilities, FileType, IFileAtomicReadOptions, IFileChange, IFileDeleteOptions, IFileOpenOptions, IFileOverwriteOptions, IFileReadStreamOptions, IFileSystemProviderWithFileAtomicReadCapability, IFileSystemProviderWithFileCloneCapability, IFileSystemProviderWithFileFolderCopyCapability, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithOpenReadWriteCloseCapability, IFileWriteOptions, IStat } from "../../../../platform/files/common/files.js";
-import { AbstractUniversalWatcherClient, ILogMessage } from "../../../../platform/files/common/watcher.js";
-import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
-import { ILoggerService, ILogService } from "../../../../platform/log/common/log.js";
-import { IUtilityProcessWorkerWorkbenchService } from "../../utilityProcess/electron-sandbox/utilityProcessWorkerWorkbenchService.js";
+import { Event } from '../../../../base/common/event.js';
+import { FileSystemProviderCapabilities, IFileDeleteOptions, IStat, FileType, IFileReadStreamOptions, IFileWriteOptions, IFileOpenOptions, IFileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithOpenReadWriteCloseCapability, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileFolderCopyCapability, IFileSystemProviderWithFileAtomicReadCapability, IFileAtomicReadOptions, IFileSystemProviderWithFileCloneCapability, IFileChange } from '../../../../platform/files/common/files.js';
+import { AbstractDiskFileSystemProvider } from '../../../../platform/files/common/diskFileSystemProvider.js';
+import { IMainProcessService } from '../../../../platform/ipc/common/mainProcessService.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ReadableStreamEvents } from '../../../../base/common/stream.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ILogMessage, AbstractUniversalWatcherClient } from '../../../../platform/files/common/watcher.js';
+import { ILoggerService, ILogService } from '../../../../platform/log/common/log.js';
+import { IUtilityProcessWorkerWorkbenchService } from '../../utilityProcess/electron-sandbox/utilityProcessWorkerWorkbenchService.js';
 /**
  * A sandbox ready disk file system provider that delegates almost all calls
  * to the main process via `DiskFileSystemProviderServer` except for recursive

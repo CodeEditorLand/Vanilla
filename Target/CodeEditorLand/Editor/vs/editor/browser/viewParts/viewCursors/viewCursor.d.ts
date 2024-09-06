@@ -1,8 +1,8 @@
-import { FastDomNode } from "../../../../base/browser/fastDomNode.js";
-import { Position } from "../../../common/core/position.js";
-import * as viewEvents from "../../../common/viewEvents.js";
-import { ViewContext } from "../../../common/viewModel/viewContext.js";
-import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
+import { FastDomNode } from '../../../../base/browser/fastDomNode.js';
+import { Position } from '../../../common/core/position.js';
+import { RenderingContext, RestrictedRenderingContext } from '../../view/renderingContext.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
+import * as viewEvents from '../../../common/viewEvents.js';
 export interface IViewCursorRenderData {
     domNode: HTMLElement;
     position: Position;

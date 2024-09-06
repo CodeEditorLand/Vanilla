@@ -1,9 +1,9 @@
-import { IMenuService } from "../../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { FastAndSlowPicks, IPickerQuickAccessItem, PickerQuickAccessProvider, Picks } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { PickerQuickAccessProvider, IPickerQuickAccessItem, FastAndSlowPicks, Picks } from '../../../../platform/quickinput/browser/pickerQuickAccess.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IMenuService } from '../../../../platform/actions/common/actions.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
 export declare class IssueQuickAccess extends PickerQuickAccessProvider<IPickerQuickAccessItem> {
     private readonly menuService;
     private readonly contextKeyService;

@@ -1,10 +1,10 @@
-import { ResourceMap } from "../../../../base/common/map.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IConfigurationChange, IConfigurationModel, IConfigurationOverrides, IConfigurationValue } from "../../../../platform/configuration/common/configuration.js";
-import { Configuration as BaseConfiguration, ConfigurationModel, ConfigurationModelParser, ConfigurationParseOptions } from "../../../../platform/configuration/common/configurationModels.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { Workspace } from "../../../../platform/workspace/common/workspace.js";
-import { IStoredWorkspaceFolder } from "../../../../platform/workspaces/common/workspaces.js";
+import { IConfigurationModel, IConfigurationOverrides, IConfigurationValue, IConfigurationChange } from '../../../../platform/configuration/common/configuration.js';
+import { Configuration as BaseConfiguration, ConfigurationModelParser, ConfigurationModel, ConfigurationParseOptions } from '../../../../platform/configuration/common/configurationModels.js';
+import { IStoredWorkspaceFolder } from '../../../../platform/workspaces/common/workspaces.js';
+import { Workspace } from '../../../../platform/workspace/common/workspace.js';
+import { ResourceMap } from '../../../../base/common/map.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare class WorkspaceConfigurationModelParser extends ConfigurationModelParser {
     private _folders;
     private _transient;

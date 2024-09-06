@@ -1,4 +1,4 @@
-import { URI } from "../../../base/common/uri.js";
+import { URI } from '../../../base/common/uri.js';
 export declare const enum RecommendationSource {
     FILE = 1,
     WORKSPACE = 2,

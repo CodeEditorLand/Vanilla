@@ -1,12 +1,12 @@
-import * as DOM from "../../../../base/browser/dom.js";
-import { ActionViewItem, IActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import { Action, IAction } from "../../../../base/common/actions.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { Marker } from "./markersModel.js";
-import "./markersViewActions.css";
+import * as DOM from '../../../../base/browser/dom.js';
+import { Action, IAction } from '../../../../base/common/actions.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Marker } from './markersModel.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { Event } from '../../../../base/common/event.js';
+import { ActionViewItem, IActionViewItemOptions } from '../../../../base/browser/ui/actionbar/actionViewItems.js';
+import './markersViewActions.css';
 export interface IMarkersFiltersChangeEvent {
     excludedFiles?: boolean;
     showWarnings?: boolean;

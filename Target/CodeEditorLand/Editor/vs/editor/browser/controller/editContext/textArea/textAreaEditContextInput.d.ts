@@ -1,13 +1,13 @@
-import { IKeyboardEvent } from "../../../../../base/browser/keyboardEvent.js";
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { OperatingSystem } from "../../../../../base/common/platform.js";
-import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
-import { ILogService } from "../../../../../platform/log/common/log.js";
-import { Position } from "../../../../common/core/position.js";
-import { Selection } from "../../../../common/core/selection.js";
-import { ClipboardDataToCopy, ClipboardStoredMetadata } from "../clipboardUtils.js";
-import { ITextAreaWrapper, ITypeData, TextAreaState } from "./textAreaEditContextState.js";
+import { IKeyboardEvent } from '../../../../../base/browser/keyboardEvent.js';
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { OperatingSystem } from '../../../../../base/common/platform.js';
+import { Position } from '../../../../common/core/position.js';
+import { Selection } from '../../../../common/core/selection.js';
+import { IAccessibilityService } from '../../../../../platform/accessibility/common/accessibility.js';
+import { ILogService } from '../../../../../platform/log/common/log.js';
+import { ClipboardDataToCopy, ClipboardStoredMetadata } from '../clipboardUtils.js';
+import { ITextAreaWrapper, ITypeData, TextAreaState } from './textAreaEditContextState.js';
 export declare namespace TextAreaSyntethicEvents {
     const Tap = "-monaco-textarea-synthetic-tap";
 }

@@ -1,5 +1,5 @@
-import { URI } from "../../../../base/common/uri.js";
-import { IWorkspace, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
+import { WorkbenchState, IWorkspace } from '../../../../platform/workspace/common/workspace.js';
+import { URI } from '../../../../base/common/uri.js';
 export type Tags = {
     [index: string]: boolean | number | string | undefined;
 };

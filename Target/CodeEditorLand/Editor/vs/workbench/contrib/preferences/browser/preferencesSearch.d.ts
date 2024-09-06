@@ -1,12 +1,12 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
-import { ISearchResult, ISetting, ISettingsEditorModel, SettingMatchType } from "../../../services/preferences/common/preferences.js";
-import { IPreferencesSearchService, IRemoteSearchProvider, ISearchProvider } from "../common/preferences.js";
+import { ISettingsEditorModel, ISetting, ISearchResult, SettingMatchType } from '../../../services/preferences/common/preferences.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IPreferencesSearchService, IRemoteSearchProvider, ISearchProvider } from '../common/preferences.js';
+import { IExtensionManagementService } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { IWorkbenchExtensionEnablementService } from '../../../services/extensionManagement/common/extensionManagement.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 export interface IEndpointDetails {
     urlBase?: string;
     key?: string;

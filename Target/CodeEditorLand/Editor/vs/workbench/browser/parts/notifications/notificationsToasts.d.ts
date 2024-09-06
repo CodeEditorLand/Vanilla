@@ -1,15 +1,15 @@
-import "./media/notificationsToasts.css";
-import { Dimension } from "../../../../base/browser/dom.js";
-import { Event } from "../../../../base/common/event.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
-import { INotificationsModel } from "../../../common/notifications.js";
-import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { IHostService } from "../../../services/host/browser/host.js";
-import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
-import { INotificationsToastController } from "./notificationsCommands.js";
+import './media/notificationsToasts.css';
+import { INotificationsModel } from '../../../common/notifications.js';
+import { Dimension } from '../../../../base/browser/dom.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { Event } from '../../../../base/common/event.js';
+import { IWorkbenchLayoutService } from '../../../services/layout/browser/layoutService.js';
+import { IThemeService, Themable } from '../../../../platform/theme/common/themeService.js';
+import { IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { INotificationsToastController } from './notificationsCommands.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { ILifecycleService } from '../../../services/lifecycle/common/lifecycle.js';
+import { IHostService } from '../../../services/host/browser/host.js';
 export declare class NotificationsToasts extends Themable implements INotificationsToastController {
     private readonly container;
     private readonly model;

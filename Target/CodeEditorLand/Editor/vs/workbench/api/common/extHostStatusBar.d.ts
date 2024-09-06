@@ -1,8 +1,8 @@
-import type * as vscode from "vscode";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ExtHostStatusBarShape, IMainContext, MainThreadStatusBarShape, StatusBarItemDto } from "./extHost.protocol.js";
-import { CommandsConverter } from "./extHostCommands.js";
-import { Disposable, StatusBarAlignment as ExtHostStatusBarAlignment, ThemeColor } from "./extHostTypes.js";
+import { StatusBarAlignment as ExtHostStatusBarAlignment, Disposable, ThemeColor } from './extHostTypes.js';
+import type * as vscode from 'vscode';
+import { MainThreadStatusBarShape, IMainContext, ExtHostStatusBarShape, StatusBarItemDto } from './extHost.protocol.js';
+import { CommandsConverter } from './extHostCommands.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
 export declare class ExtHostStatusBarEntry implements vscode.StatusBarItem {
     #private;
     private static ID_GEN;

@@ -1,7 +1,7 @@
-import { Emitter } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { IPtyHostProcessReplayEvent, ISerializedCommandDetectionCapability } from "../../../../platform/terminal/common/capabilities/capabilities.js";
-import { type IProcessDataEvent, type IProcessProperty, type IProcessPropertyMap, type IProcessReadyEvent, type ITerminalChildProcess } from "../../../../platform/terminal/common/terminal.js";
+import { Emitter } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import type { IPtyHostProcessReplayEvent, ISerializedCommandDetectionCapability } from '../../../../platform/terminal/common/capabilities/capabilities.js';
+import { type IProcessDataEvent, type IProcessProperty, type IProcessPropertyMap, type IProcessReadyEvent, type ITerminalChildProcess } from '../../../../platform/terminal/common/terminal.js';
 /**
  * Responsible for establishing and maintaining a connection with an existing terminal process
  * created on the local pty host.

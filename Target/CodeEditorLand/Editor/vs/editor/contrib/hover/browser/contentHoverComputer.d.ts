@@ -1,8 +1,8 @@
-import { AsyncIterableObject } from "../../../../base/common/async.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { HoverStartSource, IHoverComputer } from "./hoverOperation.js";
-import { HoverAnchor, IEditorHoverParticipant, IHoverPart } from "./hoverTypes.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { HoverStartSource, IHoverComputer } from './hoverOperation.js';
+import { HoverAnchor, IEditorHoverParticipant, IHoverPart } from './hoverTypes.js';
+import { AsyncIterableObject } from '../../../../base/common/async.js';
 export interface ContentHoverComputerOptions {
     shouldFocus: boolean;
     anchor: HoverAnchor;

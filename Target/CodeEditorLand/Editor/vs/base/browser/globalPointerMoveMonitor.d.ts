@@ -1,4 +1,4 @@
-import { IDisposable } from "../common/lifecycle.js";
+import { IDisposable } from '../common/lifecycle.js';
 export interface IPointerMoveCallback {
     (event: PointerEvent): void;
 }

@@ -1,1 +1,1 @@
-import "./media/languageStatus.css";
+import './media/languageStatus.css';

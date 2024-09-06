@@ -1,9 +1,9 @@
-import type * as vscode from "vscode";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { IToolInvocation, IToolResult } from "../../contrib/chat/common/languageModelToolsService.js";
-import { ExtHostLanguageModelToolsShape, IMainContext, IToolDataDto } from "./extHost.protocol.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ExtHostLanguageModelToolsShape, IMainContext, IToolDataDto } from './extHost.protocol.js';
+import { IToolInvocation, IToolResult } from '../../contrib/chat/common/languageModelToolsService.js';
+import type * as vscode from 'vscode';
 export declare class ExtHostLanguageModelTools implements ExtHostLanguageModelToolsShape {
     /** A map of tools that were registered in this EH */
     private readonly _registeredTools;

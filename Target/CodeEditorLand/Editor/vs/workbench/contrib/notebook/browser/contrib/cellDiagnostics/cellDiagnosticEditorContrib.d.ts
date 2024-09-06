@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { IMarkerService } from "../../../../../../platform/markers/common/markers.js";
-import { IChatAgentService } from "../../../../chat/common/chatAgents.js";
-import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
-import { INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { IMarkerService } from '../../../../../../platform/markers/common/markers.js';
+import { INotebookExecutionStateService } from '../../../common/notebookExecutionStateService.js';
+import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
+import { INotebookEditor, INotebookEditorContribution } from '../../notebookBrowser.js';
+import { IChatAgentService } from '../../../../chat/common/chatAgents.js';
 export declare class CellDiagnostics extends Disposable implements INotebookEditorContribution {
     private readonly notebookEditor;
     private readonly notebookExecutionStateService;

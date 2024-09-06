@@ -1,1 +1,1 @@
-import "./terminalChatActions.js";
+import './terminalChatActions.js';

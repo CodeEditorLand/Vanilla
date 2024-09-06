@@ -1,4 +1,4 @@
-import { IPosition } from "./core/position.js";
+import { IPosition } from './core/position.js';
 export interface IGuidesTextModelPart {
     /**
      * @internal
@@ -37,22 +37,22 @@ export declare class IndentGuide {
     /**
      * If set, this indent guide is a horizontal guide (no vertical part).
      * It starts at visibleColumn and continues until endColumn.
-     */
+    */
     readonly horizontalLine: IndentGuideHorizontalLine | null;
     /**
      * If set (!= -1), only show this guide for wrapped lines that don't contain this model column, but are after it.
-     */
+    */
     readonly forWrappedLinesAfterColumn: number | -1;
     readonly forWrappedLinesBeforeOrAtColumn: number | -1;
     constructor(visibleColumn: number | -1, column: number | -1, className: string, 
     /**
      * If set, this indent guide is a horizontal guide (no vertical part).
      * It starts at visibleColumn and continues until endColumn.
-     */
+    */
     horizontalLine: IndentGuideHorizontalLine | null, 
     /**
      * If set (!= -1), only show this guide for wrapped lines that don't contain this model column, but are after it.
-     */
+    */
     forWrappedLinesAfterColumn: number | -1, forWrappedLinesBeforeOrAtColumn: number | -1);
 }
 export declare class IndentGuideHorizontalLine {

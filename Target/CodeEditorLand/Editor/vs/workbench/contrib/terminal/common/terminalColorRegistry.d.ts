@@ -1,4 +1,4 @@
-import { ColorDefaults, ColorIdentifier } from "../../../../platform/theme/common/colorRegistry.js";
+import { ColorIdentifier, ColorDefaults } from '../../../../platform/theme/common/colorRegistry.js';
 /**
  * The color identifiers for the terminal's ansi colors. The index in the array corresponds to the index
  * of the color in the terminal color table.

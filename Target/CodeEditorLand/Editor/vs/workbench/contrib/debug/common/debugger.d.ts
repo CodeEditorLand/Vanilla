@@ -1,13 +1,13 @@
-import { IJSONSchema, IJSONSchemaMap, IJSONSchemaSnippet } from "../../../../base/common/jsonSchema.js";
-import { ITextResourcePropertiesService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ContextKeyExpression, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import { ITelemetryEndpoint } from "../../../../platform/telemetry/common/telemetry.js";
-import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { IAdapterManager, IConfig, IDebugAdapter, IDebugger, IDebuggerContribution, IDebuggerMetadata, IDebugService, IDebugSession } from "./debug.js";
+import { IJSONSchema, IJSONSchemaMap, IJSONSchemaSnippet } from '../../../../base/common/jsonSchema.js';
+import { IWorkspaceFolder } from '../../../../platform/workspace/common/workspace.js';
+import { IConfig, IDebuggerContribution, IDebugAdapter, IDebugger, IDebugSession, IAdapterManager, IDebugService, IDebuggerMetadata } from './debug.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IConfigurationResolverService } from '../../../services/configurationResolver/common/configurationResolver.js';
+import { ITextResourcePropertiesService } from '../../../../editor/common/services/textResourceConfiguration.js';
+import { IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { ITelemetryEndpoint } from '../../../../platform/telemetry/common/telemetry.js';
+import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
+import { ContextKeyExpression, IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 export declare class Debugger implements IDebugger, IDebuggerMetadata {
     private adapterManager;
     private readonly configurationService;

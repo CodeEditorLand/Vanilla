@@ -1,10 +1,10 @@
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { IClipboardService } from "../../../../../../platform/clipboard/common/clipboardService.js";
-import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
-import { DetailedLineRangeMapping } from "../../../../../common/diff/rangeMapping.js";
-import { ITextModel } from "../../../../../common/model.js";
-import { CodeEditorWidget } from "../../../codeEditor/codeEditorWidget.js";
-import { DiffEditorWidget } from "../../diffEditorWidget.js";
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { CodeEditorWidget } from '../../../codeEditor/codeEditorWidget.js';
+import { DiffEditorWidget } from '../../diffEditorWidget.js';
+import { DetailedLineRangeMapping } from '../../../../../common/diff/rangeMapping.js';
+import { ITextModel } from '../../../../../common/model.js';
+import { IClipboardService } from '../../../../../../platform/clipboard/common/clipboardService.js';
+import { IContextMenuService } from '../../../../../../platform/contextview/browser/contextView.js';
 export declare class InlineDiffDeletedCodeMargin extends Disposable {
     private readonly _getViewZoneId;
     private readonly _marginDomNode;

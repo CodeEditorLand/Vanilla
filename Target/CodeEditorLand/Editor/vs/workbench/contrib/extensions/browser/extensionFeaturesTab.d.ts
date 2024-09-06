@@ -1,6 +1,6 @@
-import { IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { IExtensionManifest } from '../../../../platform/extensions/common/extensions.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IThemeService, Themable } from '../../../../platform/theme/common/themeService.js';
 export declare class ExtensionFeaturesTab extends Themable {
     private readonly manifest;
     private readonly feature;

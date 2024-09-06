@@ -1,14 +1,14 @@
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { UriComponents } from "../../../base/common/uri.js";
-import { ILanguageService } from "../../../editor/common/languages/language.js";
-import { IModelService } from "../../../editor/common/services/model.js";
-import { ITextModelService } from "../../../editor/common/services/resolverService.js";
-import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkspaceContextService } from "../../../platform/workspace/common/workspace.js";
-import { IQuickDiffService } from "../../contrib/scm/common/quickDiff.js";
-import { InputValidationType, ISCMService, ISCMViewService } from "../../contrib/scm/common/scm.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { MainThreadSCMShape, SCMGroupFeatures, SCMHistoryItemGroupDto, SCMProviderFeatures, SCMRawResourceSplices } from "../common/extHost.protocol.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import { ISCMService, ISCMViewService, InputValidationType } from '../../contrib/scm/common/scm.js';
+import { MainThreadSCMShape, SCMProviderFeatures, SCMRawResourceSplices, SCMGroupFeatures, SCMHistoryItemGroupDto } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { IQuickDiffService } from '../../contrib/scm/common/quickDiff.js';
+import { IUriIdentityService } from '../../../platform/uriIdentity/common/uriIdentity.js';
+import { IWorkspaceContextService } from '../../../platform/workspace/common/workspace.js';
+import { ILanguageService } from '../../../editor/common/languages/language.js';
+import { IModelService } from '../../../editor/common/services/model.js';
+import { ITextModelService } from '../../../editor/common/services/resolverService.js';
 export declare class MainThreadSCM implements MainThreadSCMShape {
     private readonly scmService;
     private readonly scmViewService;
@@ -28,13 +28,7 @@ export declare class MainThreadSCM implements MainThreadSCMShape {
     $registerSourceControl(handle: number, id: string, label: string, rootUri: UriComponents | undefined, inputBoxDocumentUri: UriComponents): Promise<void>;
     $updateSourceControl(handle: number, features: SCMProviderFeatures): Promise<void>;
     $unregisterSourceControl(handle: number): Promise<void>;
-    $registerGroups(sourceControlHandle: number, groups: [
-        number,
-        string,
-        string,
-        SCMGroupFeatures,
-        boolean
-    ][], splices: SCMRawResourceSplices[]): Promise<void>;
+    $registerGroups(sourceControlHandle: number, groups: [number, string, string, SCMGroupFeatures, /* multiDiffEditorEnableViewChanges */ boolean][], splices: SCMRawResourceSplices[]): Promise<void>;
     $updateGroup(sourceControlHandle: number, groupHandle: number, features: SCMGroupFeatures): Promise<void>;
     $updateGroupLabel(sourceControlHandle: number, groupHandle: number, label: string): Promise<void>;
     $spliceResourceStates(sourceControlHandle: number, splices: SCMRawResourceSplices[]): Promise<void>;

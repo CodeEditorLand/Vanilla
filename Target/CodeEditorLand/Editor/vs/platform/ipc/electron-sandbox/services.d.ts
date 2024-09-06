@@ -1,6 +1,6 @@
-import { IChannel, ProxyChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { ServiceIdentifier } from "../../instantiation/common/instantiation.js";
-import { IRemoteService } from "../common/services.js";
+import { IChannel, ProxyChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { ServiceIdentifier } from '../../instantiation/common/instantiation.js';
+import { IRemoteService } from '../common/services.js';
 type ChannelClientCtor<T> = {
     new (channel: IChannel, ...args: any[]): T;
 };

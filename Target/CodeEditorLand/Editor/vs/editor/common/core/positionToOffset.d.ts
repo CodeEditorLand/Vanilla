@@ -1,7 +1,7 @@
-import { OffsetRange } from "./offsetRange.js";
-import { Position } from "./position.js";
-import { Range } from "./range.js";
-import { TextLength } from "./textLength.js";
+import { OffsetRange } from './offsetRange.js';
+import { Position } from './position.js';
+import { Range } from './range.js';
+import { TextLength } from './textLength.js';
 export declare class PositionOffsetTransformer {
     readonly text: string;
     private readonly lineStartOffsetByLineIdx;

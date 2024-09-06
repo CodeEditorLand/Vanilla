@@ -1,7 +1,7 @@
-import "./media/searchEditor.css";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { SearchResult } from "../../search/browser/searchModel.js";
-import { OpenSearchEditorArgs } from "./searchEditor.contribution.js";
+import './media/searchEditor.css';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { SearchResult } from '../../search/browser/searchModel.js';
+import { OpenSearchEditorArgs } from './searchEditor.contribution.js';
 export declare const toggleSearchEditorCaseSensitiveCommand: (accessor: ServicesAccessor) => void;
 export declare const toggleSearchEditorWholeWordCommand: (accessor: ServicesAccessor) => void;
 export declare const toggleSearchEditorRegexCommand: (accessor: ServicesAccessor) => void;

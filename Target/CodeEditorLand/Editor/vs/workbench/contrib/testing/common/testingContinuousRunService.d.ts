@@ -1,10 +1,10 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITestProfileService } from "./testProfileService.js";
-import { TestService } from "./testServiceImpl.js";
-import { ITestRunProfile, TestRunProfileBitset } from "./testTypes.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { TestService } from './testServiceImpl.js';
+import { ITestRunProfile, TestRunProfileBitset } from './testTypes.js';
+import { Event } from '../../../../base/common/event.js';
+import { ITestProfileService } from './testProfileService.js';
 export declare const ITestingContinuousRunService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITestingContinuousRunService>;
 export interface ITestingContinuousRunService {
     readonly _serviceBrand: undefined;

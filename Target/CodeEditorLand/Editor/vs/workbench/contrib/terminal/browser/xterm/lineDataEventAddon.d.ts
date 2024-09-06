@@ -1,6 +1,6 @@
-import type { ITerminalAddon, Terminal as XTermTerminal } from "@xterm/xterm";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { OperatingSystem } from "../../../../../base/common/platform.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { OperatingSystem } from '../../../../../base/common/platform.js';
+import type { Terminal as XTermTerminal, ITerminalAddon } from '@xterm/xterm';
 /**
  * Provides extensions to the xterm object in a modular, testable way.
  */

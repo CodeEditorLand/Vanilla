@@ -1,25 +1,25 @@
-import type { ClipboardAddon as ClipboardAddonType } from "@xterm/addon-clipboard";
-import type { ImageAddon as ImageAddonType } from "@xterm/addon-image";
-import type { ISearchOptions, SearchAddon as SearchAddonType } from "@xterm/addon-search";
-import type { SerializeAddon as SerializeAddonType } from "@xterm/addon-serialize";
-import type { Unicode11Addon as Unicode11AddonType } from "@xterm/addon-unicode11";
-import type { WebglAddon as WebglAddonType } from "@xterm/addon-webgl";
-import type { ITheme, Terminal as RawXtermTerminal } from "@xterm/xterm";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
-import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ILayoutService } from "../../../../../platform/layout/browser/layoutService.js";
-import { INotificationService } from "../../../../../platform/notification/common/notification.js";
-import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import { ITerminalCapabilityStore, ITerminalCommand } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { IShellIntegration, ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
-import { IColorTheme, IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { ITerminalFont } from "../../common/terminal.js";
-import { IDetachedXtermTerminal, IInternalXtermTerminal, IMarkTracker, ITerminalConfigurationService, IXtermAttachToElementOptions, IXtermColorProvider, IXtermTerminal } from "../terminal.js";
-import { ScrollPosition } from "./markNavigationAddon.js";
+import type { ITheme, Terminal as RawXtermTerminal } from '@xterm/xterm';
+import type { ISearchOptions, SearchAddon as SearchAddonType } from '@xterm/addon-search';
+import type { Unicode11Addon as Unicode11AddonType } from '@xterm/addon-unicode11';
+import type { WebglAddon as WebglAddonType } from '@xterm/addon-webgl';
+import type { SerializeAddon as SerializeAddonType } from '@xterm/addon-serialize';
+import type { ImageAddon as ImageAddonType } from '@xterm/addon-image';
+import type { ClipboardAddon as ClipboardAddonType } from '@xterm/addon-clipboard';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IShellIntegration, ITerminalLogService } from '../../../../../platform/terminal/common/terminal.js';
+import { ITerminalFont } from '../../common/terminal.js';
+import { IMarkTracker, IInternalXtermTerminal, IXtermTerminal, IXtermColorProvider, IXtermAttachToElementOptions, IDetachedXtermTerminal, ITerminalConfigurationService } from '../terminal.js';
+import { INotificationService } from '../../../../../platform/notification/common/notification.js';
+import { ScrollPosition } from './markNavigationAddon.js';
+import { IColorTheme, IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { ITerminalCapabilityStore, ITerminalCommand } from '../../../../../platform/terminal/common/capabilities/capabilities.js';
+import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IClipboardService } from '../../../../../platform/clipboard/common/clipboardService.js';
+import { ILayoutService } from '../../../../../platform/layout/browser/layoutService.js';
+import { IAccessibilitySignalService } from '../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
 /**
  * Wraps the xterm object with additional functionality. Interaction with the backing process is out
  * of the scope of this class.

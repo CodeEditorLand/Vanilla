@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { IWorkbenchContribution } from "../../../../../common/contributions.js";
-import { IEditorGroupsService } from "../../../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../../../services/editor/common/editorService.js";
-import { IStatusbarService } from "../../../../../services/statusbar/browser/statusbar.js";
-import { INotebookKernelService } from "../../../common/notebookKernelService.js";
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
+import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
+import { IWorkbenchContribution } from '../../../../../common/contributions.js';
+import { INotebookKernelService } from '../../../common/notebookKernelService.js';
+import { IEditorService } from '../../../../../services/editor/common/editorService.js';
+import { IStatusbarService } from '../../../../../services/statusbar/browser/statusbar.js';
+import { IEditorGroupsService } from '../../../../../services/editor/common/editorGroupsService.js';
 export declare class KernelStatus extends Disposable implements IWorkbenchContribution {
     private readonly _editorService;
     private readonly _statusbarService;

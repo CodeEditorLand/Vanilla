@@ -1,23 +1,23 @@
-import { VSBuffer } from "../../base/common/buffer.js";
-import { CancellationToken } from "../../base/common/cancellation.js";
-import { Color } from "../../base/common/color.js";
-import { IReadonlyVSDataTransfer } from "../../base/common/dataTransfer.js";
-import { Event } from "../../base/common/event.js";
-import { HierarchicalKind } from "../../base/common/hierarchicalKind.js";
-import { IMarkdownString } from "../../base/common/htmlContent.js";
-import { IDisposable } from "../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../base/common/themables.js";
-import { URI, UriComponents } from "../../base/common/uri.js";
-import { ExtensionIdentifier } from "../../platform/extensions/common/extensions.js";
-import { IMarkerData } from "../../platform/markers/common/markers.js";
-import { ISingleEditOperation } from "./core/editOperation.js";
-import { IPosition, Position } from "./core/position.js";
-import { IRange, Range } from "./core/range.js";
-import { Selection } from "./core/selection.js";
-import { LanguageId } from "./encodedTokenAttributes.js";
-import { LanguageSelector } from "./languageSelector.js";
-import * as model from "./model.js";
-import { ContiguousMultilineTokens } from "./tokens/contiguousMultilineTokens.js";
+import { VSBuffer } from '../../base/common/buffer.js';
+import { CancellationToken } from '../../base/common/cancellation.js';
+import { Color } from '../../base/common/color.js';
+import { IReadonlyVSDataTransfer } from '../../base/common/dataTransfer.js';
+import { Event } from '../../base/common/event.js';
+import { HierarchicalKind } from '../../base/common/hierarchicalKind.js';
+import { IMarkdownString } from '../../base/common/htmlContent.js';
+import { IDisposable } from '../../base/common/lifecycle.js';
+import { ThemeIcon } from '../../base/common/themables.js';
+import { URI, UriComponents } from '../../base/common/uri.js';
+import { ISingleEditOperation } from './core/editOperation.js';
+import { IPosition, Position } from './core/position.js';
+import { IRange, Range } from './core/range.js';
+import { Selection } from './core/selection.js';
+import { LanguageId } from './encodedTokenAttributes.js';
+import { LanguageSelector } from './languageSelector.js';
+import * as model from './model.js';
+import { ContiguousMultilineTokens } from './tokens/contiguousMultilineTokens.js';
+import { ExtensionIdentifier } from '../../platform/extensions/common/extensions.js';
+import { IMarkerData } from '../../platform/markers/common/markers.js';
 /**
  * @internal
  */
@@ -233,7 +233,7 @@ export interface InlineValueContext {
  * @internal
  */
 export interface InlineValueText {
-    type: "text";
+    type: 'text';
     range: IRange;
     text: string;
 }
@@ -242,7 +242,7 @@ export interface InlineValueText {
  * @internal
  */
 export interface InlineValueVariableLookup {
-    type: "variable";
+    type: 'variable';
     range: IRange;
     variableName?: string;
     caseSensitiveLookup: boolean;
@@ -252,7 +252,7 @@ export interface InlineValueVariableLookup {
  * @internal
  */
 export interface InlineValueExpression {
-    type: "expression";
+    type: 'expression';
     range: IRange;
     expression?: string;
 }
@@ -548,7 +548,7 @@ export interface InlineCompletionContext {
     /**
      * @experimental
      * @internal
-     */
+    */
     readonly userPrompt?: string | undefined;
 }
 export declare class SelectedSuggestionInfo {
@@ -567,7 +567,7 @@ export interface InlineCompletion {
      *
      * The text can also be a snippet. In that case, a preview with default parameters is shown.
      * When accepting the suggestion, the full snippet is inserted.
-     */
+    */
     readonly insertText: string | {
         snippet: string;
     };
@@ -585,13 +585,13 @@ export interface InlineCompletion {
     /**
      * The range to replace.
      * Must begin and end on the same line.
-     */
+    */
     readonly range?: IRange;
     readonly command?: Command;
     /**
      * If set to `true`, unopened closing brackets are removed and unclosed opening brackets are closed.
      * Defaults to `false`.
-     */
+    */
     readonly completeBracketPairs?: boolean;
 }
 export interface InlineCompletions<TItem extends InlineCompletion = InlineCompletion> {
@@ -612,20 +612,20 @@ export interface InlineCompletionsProvider<T extends InlineCompletions = InlineC
     /**
      * @experimental
      * @internal
-     */
+    */
     provideInlineEdits?(model: model.ITextModel, range: Range, context: InlineCompletionContext, token: CancellationToken): ProviderResult<T>;
     /**
      * Will be called when an item is shown.
      * @param updatedInsertText Is useful to understand bracket completion.
-     */
-    handleItemDidShow?(completions: T, item: T["items"][number], updatedInsertText: string): void;
+    */
+    handleItemDidShow?(completions: T, item: T['items'][number], updatedInsertText: string): void;
     /**
      * Will be called when an item is partially accepted.
      */
-    handlePartialAccept?(completions: T, item: T["items"][number], acceptedCharacters: number, info: PartialAcceptInfo): void;
+    handlePartialAccept?(completions: T, item: T['items'][number], acceptedCharacters: number, info: PartialAcceptInfo): void;
     /**
      * Will be called when a completions list is no longer in use and can be garbage-collected.
-     */
+    */
     freeInlineCompletions(completions: T): void;
     /**
      * Only used for {@link yieldsToGroupIds}.
@@ -985,6 +985,10 @@ export interface LocationLink {
  * @internal
  */
 export declare function isLocationLink(thing: any): thing is LocationLink;
+/**
+ * @internal
+ */
+export declare function isLocation(thing: any): thing is Location;
 export type Definition = Location | Location[] | LocationLink[];
 /**
  * The definition provider interface defines the contract between extensions and
@@ -1718,7 +1722,7 @@ export interface ILazyTokenizationSupport<TSupport> {
 export declare class LazyTokenizationSupport<TSupport = ITokenizationSupport> implements IDisposable, ILazyTokenizationSupport<TSupport> {
     private readonly createSupport;
     private _tokenizationSupport;
-    constructor(createSupport: () => Promise<(TSupport & IDisposable) | null>);
+    constructor(createSupport: () => Promise<TSupport & IDisposable | null>);
     dispose(): void;
     get tokenizationSupport(): Promise<TSupport | null>;
 }
@@ -1827,7 +1831,26 @@ export interface DocumentContextItem {
 }
 export interface MappedEditsContext {
     /** The outer array is sorted by priority - from highest to lowest. The inner arrays contain elements of the same priority. */
-    documents: DocumentContextItem[][];
+    readonly documents: DocumentContextItem[][];
+    /**
+     * @internal
+     */
+    readonly conversation?: (ConversationRequest | ConversationResponse)[];
+}
+/**
+ * @internal
+ */
+export interface ConversationRequest {
+    readonly type: 'request';
+    readonly message: string;
+}
+/**
+ * @internal
+ */
+export interface ConversationResponse {
+    readonly type: 'response';
+    readonly message: string;
+    readonly references?: DocumentContextItem[];
 }
 export interface MappedEditsProvider {
     /**

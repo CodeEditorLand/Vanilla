@@ -1,8 +1,8 @@
-import { SelectActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import { ISelectOptionItem } from "../../../../base/browser/ui/selectBox/selectBox.js";
-import { Action, IAction } from "../../../../base/common/actions.js";
-import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { Action, IAction } from '../../../../base/common/actions.js';
+import { IContextViewService } from '../../../../platform/contextview/browser/contextView.js';
+import { ISelectOptionItem } from '../../../../base/browser/ui/selectBox/selectBox.js';
+import { SelectActionViewItem } from '../../../../base/browser/ui/actionbar/actionViewItems.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
 export interface IQuickDiffSelectItem extends ISelectOptionItem {
     provider: string;
 }

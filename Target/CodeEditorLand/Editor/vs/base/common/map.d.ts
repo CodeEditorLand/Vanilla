@@ -1,4 +1,4 @@
-import { URI } from "./uri.js";
+import { URI } from './uri.js';
 export declare function getOrSet<K, V>(map: Map<K, V>, key: K, value: V): V;
 export declare function mapToString<K, V>(map: Map<K, V>): string;
 export declare function setToString<K>(set: Set<K>): string;

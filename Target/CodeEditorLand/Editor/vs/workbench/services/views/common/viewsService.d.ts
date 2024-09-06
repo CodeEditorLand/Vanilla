@@ -1,7 +1,7 @@
-import { Event } from "../../../../base/common/event.js";
-import { IProgressIndicator } from "../../../../platform/progress/common/progress.js";
-import { IPaneComposite } from "../../../common/panecomposite.js";
-import { IView, IViewPaneContainer, ViewContainer, ViewContainerLocation } from "../../../common/views.js";
+import { Event } from '../../../../base/common/event.js';
+import { IProgressIndicator } from '../../../../platform/progress/common/progress.js';
+import { IPaneComposite } from '../../../common/panecomposite.js';
+import { IView, IViewPaneContainer, ViewContainer, ViewContainerLocation } from '../../../common/views.js';
 export declare const IViewsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IViewsService>;
 export interface IViewsService {
     readonly _serviceBrand: undefined;

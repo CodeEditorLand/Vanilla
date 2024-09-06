@@ -1,9 +1,9 @@
-import { Widget } from "../../../../base/browser/ui/widget.js";
-import { MenuId } from "../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IContextViewService } from '../../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { MenuId } from '../../../../platform/actions/common/actions.js';
+import { Widget } from '../../../../base/browser/ui/widget.js';
 export declare const viewFilterSubmenu: MenuId;
 export interface IFilterWidgetOptions {
     readonly text?: string;

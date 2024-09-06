@@ -1,5 +1,5 @@
-import { Event } from "../../../base/common/event.js";
-import { RawContextKey } from "../../contextkey/common/contextkey.js";
+import { Event } from '../../../base/common/event.js';
+import { RawContextKey } from '../../contextkey/common/contextkey.js';
 export declare const IAccessibilityService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IAccessibilityService>;
 export interface IAccessibilityService {
     readonly _serviceBrand: undefined;

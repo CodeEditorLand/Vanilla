@@ -1,9 +1,9 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IUntitledTextEditorModel, UntitledTextEditorModel } from "./untitledTextEditorModel.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { UntitledTextEditorModel, IUntitledTextEditorModel } from './untitledTextEditorModel.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 export declare const IUntitledTextEditorService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IUntitledTextEditorService>;
 export interface INewUntitledTextEditorOptions {
     /**

@@ -1,12 +1,12 @@
-import { Dimension } from "../../../../base/browser/dom.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IEditorPartOptions } from "../../../common/editor.js";
-import { IReadonlyEditorGroupModel } from "../../../common/editor/editorGroupModel.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IEditorGroupsView, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from "./editor.js";
-import { IEditorTabsControl } from "./editorTabsControl.js";
-import { IEditorTitleControlDimensions } from "./editorTitleControl.js";
+import { Dimension } from '../../../../base/browser/dom.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IEditorGroupsView, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from './editor.js';
+import { IEditorTabsControl } from './editorTabsControl.js';
+import { IEditorPartOptions } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IEditorTitleControlDimensions } from './editorTitleControl.js';
+import { IReadonlyEditorGroupModel } from '../../../common/editor/editorGroupModel.js';
 export declare class MultiRowEditorControl extends Disposable implements IEditorTabsControl {
     private readonly parent;
     private readonly groupsView;

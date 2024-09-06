@@ -1,1 +1,1 @@
-import "./accessibility.css";
+import './accessibility.css';

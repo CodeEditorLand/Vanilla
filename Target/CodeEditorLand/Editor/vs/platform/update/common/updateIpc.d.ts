@@ -1,6 +1,6 @@
-import { Event } from "../../../base/common/event.js";
-import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { IUpdateService, State } from "./update.js";
+import { Event } from '../../../base/common/event.js';
+import { IChannel, IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { IUpdateService, State } from './update.js';
 export declare class UpdateChannel implements IServerChannel {
     private service;
     constructor(service: IUpdateService);

@@ -1,4 +1,4 @@
-import type { IExperimentationFilterProvider } from "tas-client-umd";
+import type { IExperimentationFilterProvider } from 'tas-client-umd';
 export declare const ASSIGNMENT_STORAGE_KEY = "VSCode.ABExp.FeatureData";
 export declare const ASSIGNMENT_REFETCH_INTERVAL = 0;
 export interface IAssignmentService {
@@ -61,7 +61,7 @@ export declare class AssignmentFilterProvider implements IExperimentationFilterP
      * Ref: https://github.com/microsoft/tas-client/blob/30340d5e1da37c2789049fcf45928b954680606f/vscode-tas-client/src/vscode-tas-client/VSCodeFilterProvider.ts#L35
      *
      * @param version Version string to be trimmed.
-     */
+    */
     private static trimVersionSuffix;
     getFilterValue(filter: string): string | null;
     getFilters(): Map<string, any>;

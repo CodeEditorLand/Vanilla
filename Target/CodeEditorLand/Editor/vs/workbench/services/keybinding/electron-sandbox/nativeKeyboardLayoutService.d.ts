@@ -1,7 +1,7 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
-import { IKeyboardLayoutInfo, IKeyboardMapping } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IKeyboardLayoutInfo, IKeyboardMapping } from '../../../../platform/keyboardLayout/common/keyboardLayout.js';
+import { Event } from '../../../../base/common/event.js';
+import { IMainProcessService } from '../../../../platform/ipc/common/mainProcessService.js';
 export declare const INativeKeyboardLayoutService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INativeKeyboardLayoutService>;
 export interface INativeKeyboardLayoutService {
     readonly _serviceBrand: undefined;

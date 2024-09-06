@@ -1,12 +1,12 @@
-import * as vscode from "vscode";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { ProvidedPortAttributes, RemoteTunnel, TunnelCreationOptions, TunnelOptions } from "../../../platform/tunnel/common/tunnel.js";
-import { CandidatePort } from "../../services/remote/common/tunnelModel.js";
-import { ExtHostTunnelServiceShape, MainThreadTunnelServiceShape, PortAttributesSelector, TunnelDto } from "./extHost.protocol.js";
-import { IExtHostInitDataService } from "./extHostInitDataService.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { ProvidedPortAttributes, RemoteTunnel, TunnelCreationOptions, TunnelOptions } from '../../../platform/tunnel/common/tunnel.js';
+import { ExtHostTunnelServiceShape, MainThreadTunnelServiceShape, PortAttributesSelector, TunnelDto } from './extHost.protocol.js';
+import { IExtHostInitDataService } from './extHostInitDataService.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { CandidatePort } from '../../services/remote/common/tunnelModel.js';
+import * as vscode from 'vscode';
 export declare namespace TunnelDtoConverter {
     function fromApiTunnel(tunnel: vscode.Tunnel): TunnelDto;
     function fromServiceTunnel(tunnel: RemoteTunnel): TunnelDto;
@@ -56,7 +56,7 @@ export declare class ExtHostTunnelService extends Disposable implements IExtHost
      * the share process, so a synethic tunnel factory is used as a default.
      */
     setTunnelFactory(provider: vscode.RemoteAuthorityResolver | undefined, managedRemoteAuthority: vscode.ManagedResolvedAuthority | undefined): Promise<IDisposable>;
-    protected makeManagedTunnelFactory(_authority: vscode.ManagedResolvedAuthority): vscode.RemoteAuthorityResolver["tunnelFactory"];
+    protected makeManagedTunnelFactory(_authority: vscode.ManagedResolvedAuthority): vscode.RemoteAuthorityResolver['tunnelFactory'];
     $closeTunnel(remote: {
         host: string;
         port: number;

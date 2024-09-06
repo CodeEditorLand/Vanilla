@@ -1,9 +1,9 @@
-import { IAction } from "../../../base/common/actions.js";
-import { Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { IKeyboardEvent } from "../../keybinding/common/keybinding.js";
-import { IPickerQuickAccessItem } from "../../quickinput/browser/pickerQuickAccess.js";
-import { IQuickPickItem } from "../../quickinput/common/quickInput.js";
+import { IKeyboardEvent } from '../../keybinding/common/keybinding.js';
+import { IPickerQuickAccessItem } from '../../quickinput/browser/pickerQuickAccess.js';
+import { Event } from '../../../base/common/event.js';
+import { IAction } from '../../../base/common/actions.js';
+import { IQuickPickItem } from '../../quickinput/common/quickInput.js';
+import { IDisposable, Disposable } from '../../../base/common/lifecycle.js';
 export declare const IAccessibleViewService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IAccessibleViewService>;
 export declare const enum AccessibleViewProviderId {
     Terminal = "terminal",
@@ -22,7 +22,8 @@ export declare const enum AccessibleViewProviderId {
     Comments = "comments",
     Repl = "repl",
     ReplHelp = "replHelp",
-    RunAndDebug = "runAndDebug"
+    RunAndDebug = "runAndDebug",
+    Walkthrough = "walkthrough"
 }
 export declare const enum AccessibleViewType {
     Help = "help",
@@ -44,7 +45,7 @@ export interface IAccessibleViewOptions {
      * If set to 'initial-bottom', places the cursor on the bottom line of the accessible view and preserves it henceforth.
      * If set to 'bottom', places the cursor on the bottom line of the accessible view.
      */
-    position?: "bottom" | "initial-bottom";
+    position?: 'bottom' | 'initial-bottom';
     /**
      * @returns a string that will be used as the content of the help dialog
      * instead of the one provided by default.
@@ -97,7 +98,7 @@ export interface IAccessibleViewService {
     showAccessibleViewHelp(): void;
     next(): void;
     previous(): void;
-    navigateToCodeBlock(type: "next" | "previous"): void;
+    navigateToCodeBlock(type: 'next' | 'previous'): void;
     goToSymbol(): void;
     disableHint(): void;
     getPosition(id: AccessibleViewProviderId): IPosition | undefined;

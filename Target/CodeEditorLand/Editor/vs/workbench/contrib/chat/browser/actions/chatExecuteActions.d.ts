@@ -1,6 +1,6 @@
-import { ServicesAccessor } from "../../../../../editor/browser/editorExtensions.js";
-import { Action2 } from "../../../../../platform/actions/common/actions.js";
-import { IChatWidget } from "../chat.js";
+import { ServicesAccessor } from '../../../../../editor/browser/editorExtensions.js';
+import { Action2 } from '../../../../../platform/actions/common/actions.js';
+import { IChatWidget } from '../chat.js';
 export interface IVoiceChatExecuteActionContext {
     readonly disableTimeout?: boolean;
 }

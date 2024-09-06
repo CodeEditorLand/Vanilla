@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
-import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { IAuthenticationService } from '../../../services/authentication/common/authentication.js';
+import { IBrowserWorkbenchEnvironmentService } from '../../../services/environment/browser/environmentService.js';
 export declare class AuthenticationContribution extends Disposable implements IWorkbenchContribution {
     private readonly _authenticationService;
     private readonly _environmentService;

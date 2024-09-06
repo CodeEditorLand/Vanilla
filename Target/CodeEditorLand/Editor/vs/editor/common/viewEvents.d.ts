@@ -1,11 +1,11 @@
-import { ScrollEvent } from "../../base/common/scrollable.js";
-import { IColorTheme } from "../../platform/theme/common/themeService.js";
-import { ConfigurationChangedEvent, EditorOption } from "./config/editorOptions.js";
-import { Range } from "./core/range.js";
-import { Selection } from "./core/selection.js";
-import { CursorChangeReason } from "./cursorEvents.js";
-import { ScrollType } from "./editorCommon.js";
-import { IModelDecorationsChangedEvent } from "./textModelEvents.js";
+import { ScrollEvent } from '../../base/common/scrollable.js';
+import { ConfigurationChangedEvent, EditorOption } from './config/editorOptions.js';
+import { Range } from './core/range.js';
+import { Selection } from './core/selection.js';
+import { CursorChangeReason } from './cursorEvents.js';
+import { ScrollType } from './editorCommon.js';
+import { IModelDecorationsChangedEvent } from './textModelEvents.js';
+import { IColorTheme } from '../../platform/theme/common/themeService.js';
 export declare const enum ViewEventType {
     ViewCompositionStart = 0,
     ViewCompositionEnd = 1,
@@ -228,4 +228,4 @@ export declare class ViewZonesChangedEvent {
     readonly type = ViewEventType.ViewZonesChanged;
     constructor();
 }
-export type ViewEvent = ViewCompositionStartEvent | ViewCompositionEndEvent | ViewConfigurationChangedEvent | ViewCursorStateChangedEvent | ViewDecorationsChangedEvent | ViewFlushedEvent | ViewFocusChangedEvent | ViewLanguageConfigurationEvent | ViewLineMappingChangedEvent | ViewLinesChangedEvent | ViewLinesDeletedEvent | ViewLinesInsertedEvent | ViewRevealRangeRequestEvent | ViewScrollChangedEvent | ViewThemeChangedEvent | ViewTokensChangedEvent | ViewTokensColorsChangedEvent | ViewZonesChangedEvent;
+export type ViewEvent = (ViewCompositionStartEvent | ViewCompositionEndEvent | ViewConfigurationChangedEvent | ViewCursorStateChangedEvent | ViewDecorationsChangedEvent | ViewFlushedEvent | ViewFocusChangedEvent | ViewLanguageConfigurationEvent | ViewLineMappingChangedEvent | ViewLinesChangedEvent | ViewLinesDeletedEvent | ViewLinesInsertedEvent | ViewRevealRangeRequestEvent | ViewScrollChangedEvent | ViewThemeChangedEvent | ViewTokensChangedEvent | ViewTokensColorsChangedEvent | ViewZonesChangedEvent);

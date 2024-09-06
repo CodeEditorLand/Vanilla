@@ -1,11 +1,11 @@
-import { ICommandMetadata } from "../../platform/commands/common/commands.js";
-import { ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
-import { IPosition } from "../common/core/position.js";
-import { ISelection } from "../common/core/selection.js";
-import { CursorMove as CursorMove_ } from "../common/cursor/cursorMoveCommands.js";
-import { IViewModel } from "../common/viewModel.js";
-import { ICodeEditor } from "./editorBrowser.js";
-import { EditorCommand } from "./editorExtensions.js";
+import { ICodeEditor } from './editorBrowser.js';
+import { EditorCommand } from './editorExtensions.js';
+import { CursorMove as CursorMove_ } from '../common/cursor/cursorMoveCommands.js';
+import { IPosition } from '../common/core/position.js';
+import { ICommandMetadata } from '../../platform/commands/common/commands.js';
+import { ServicesAccessor } from '../../platform/instantiation/common/instantiation.js';
+import { IViewModel } from '../common/viewModel.js';
+import { ISelection } from '../common/core/selection.js';
 export declare abstract class CoreEditorCommand<T> extends EditorCommand {
     runEditorCommand(accessor: ServicesAccessor | null, editor: ICodeEditor, args?: Partial<T> | null): void;
     abstract runCoreEditorCommand(viewModel: IViewModel, args: Partial<T>): void;
@@ -99,7 +99,7 @@ export declare const enum NavigationCommandRevealType {
 }
 export declare namespace CoreNavigationCommands {
     interface BaseCommandOptions {
-        source?: "mouse" | "keyboard" | string;
+        source?: 'mouse' | 'keyboard' | string;
     }
     interface MoveCommandOptions extends BaseCommandOptions {
         position: IPosition;

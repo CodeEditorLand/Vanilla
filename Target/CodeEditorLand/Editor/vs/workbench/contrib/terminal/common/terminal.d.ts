@@ -1,15 +1,15 @@
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { MarshalledId } from "../../../../base/common/marshallingIds.js";
-import { IProcessEnvironment, OperatingSystem } from "../../../../base/common/platform.js";
-import Severity from "../../../../base/common/severity.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ISerializedCommandDetectionCapability, ITerminalCapabilityStore } from "../../../../platform/terminal/common/capabilities/capabilities.js";
-import { IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
-import { ICreateContributedTerminalProfileOptions, IExtensionTerminalProfile, IFixedTerminalDimensions, IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IProcessReadyWindowsPty, IShellLaunchConfig, ITerminalBackend, ITerminalContributions, ITerminalEnvironment, ITerminalLaunchError, ITerminalProfile, ITerminalProfileObject, ProcessPropertyType, TerminalIcon, TerminalLocationString, TitleEventSource } from "../../../../platform/terminal/common/terminal.js";
-import { IExtensionPointDescriptor } from "../../../services/extensions/common/extensionsRegistry.js";
-import { IEnvironmentVariableInfo } from "./environmentVariable.js";
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { MarshalledId } from '../../../../base/common/marshallingIds.js';
+import { IProcessEnvironment, OperatingSystem } from '../../../../base/common/platform.js';
+import Severity from '../../../../base/common/severity.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ISerializedCommandDetectionCapability, ITerminalCapabilityStore } from '../../../../platform/terminal/common/capabilities/capabilities.js';
+import { IMergedEnvironmentVariableCollection } from '../../../../platform/terminal/common/environmentVariable.js';
+import { ICreateContributedTerminalProfileOptions, IExtensionTerminalProfile, IFixedTerminalDimensions, IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IProcessReadyWindowsPty, IShellLaunchConfig, ITerminalBackend, ITerminalContributions, ITerminalEnvironment, ITerminalLaunchError, ITerminalProfile, ITerminalProfileObject, ProcessPropertyType, TerminalIcon, TerminalLocationString, TitleEventSource } from '../../../../platform/terminal/common/terminal.js';
+import { IEnvironmentVariableInfo } from './environmentVariable.js';
+import { IExtensionPointDescriptor } from '../../../services/extensions/common/extensionsRegistry.js';
 export declare const TERMINAL_VIEW_ID = "terminal";
 export declare const TERMINAL_CREATION_COMMANDS: string[];
 export declare const TERMINAL_CONFIG_SECTION = "terminal.integrated";
@@ -67,7 +67,7 @@ export interface IShellLaunchConfigResolveOptions {
     os: OperatingSystem;
     allowAutomationShell?: boolean;
 }
-export type FontWeight = "normal" | "bold" | number;
+export type FontWeight = 'normal' | 'bold' | number;
 export interface ITerminalProfiles {
     linux: {
         [key: string]: ITerminalProfileObject;
@@ -79,14 +79,14 @@ export interface ITerminalProfiles {
         [key: string]: ITerminalProfileObject;
     };
 }
-export type ConfirmOnKill = "never" | "always" | "editor" | "panel";
-export type ConfirmOnExit = "never" | "always" | "hasChildProcesses";
+export type ConfirmOnKill = 'never' | 'always' | 'editor' | 'panel';
+export type ConfirmOnExit = 'never' | 'always' | 'hasChildProcesses';
 export interface ICompleteTerminalConfiguration {
-    "terminal.integrated.env.windows": ITerminalEnvironment;
-    "terminal.integrated.env.osx": ITerminalEnvironment;
-    "terminal.integrated.env.linux": ITerminalEnvironment;
-    "terminal.integrated.cwd": string;
-    "terminal.integrated.detectLocale": "auto" | "off" | "on";
+    'terminal.integrated.env.windows': ITerminalEnvironment;
+    'terminal.integrated.env.osx': ITerminalEnvironment;
+    'terminal.integrated.env.linux': ITerminalEnvironment;
+    'terminal.integrated.cwd': string;
+    'terminal.integrated.detectLocale': 'auto' | 'off' | 'on';
 }
 export interface ITerminalConfiguration {
     shell: {
@@ -114,12 +114,12 @@ export interface ITerminalConfiguration {
     altClickMovesCursor: boolean;
     macOptionIsMeta: boolean;
     macOptionClickForcesSelection: boolean;
-    gpuAcceleration: "auto" | "on" | "off";
-    rightClickBehavior: "default" | "copyPaste" | "paste" | "selectWord" | "nothing";
-    middleClickBehavior: "default" | "paste";
+    gpuAcceleration: 'auto' | 'on' | 'off';
+    rightClickBehavior: 'default' | 'copyPaste' | 'paste' | 'selectWord' | 'nothing';
+    middleClickBehavior: 'default' | 'paste';
     cursorBlinking: boolean;
-    cursorStyle: "block" | "underline" | "line";
-    cursorStyleInactive: "outline" | "block" | "underline" | "line" | "none";
+    cursorStyle: 'block' | 'underline' | 'line';
+    cursorStyleInactive: 'outline' | 'block' | 'underline' | 'line' | 'none';
     cursorWidth: number;
     drawBoldTextInBrightColors: boolean;
     fastScrollSensitivity: number;
@@ -133,7 +133,7 @@ export interface ITerminalConfiguration {
     fontSize: number;
     letterSpacing: number;
     lineHeight: number;
-    detectLocale: "auto" | "off" | "on";
+    detectLocale: 'auto' | 'off' | 'on';
     scrollback: number;
     commandsToSkipShell: string[];
     allowChords: boolean;
@@ -153,22 +153,22 @@ export interface ITerminalConfiguration {
             [key: string]: string;
         };
     };
-    environmentChangesIndicator: "off" | "on" | "warnonly";
+    environmentChangesIndicator: 'off' | 'on' | 'warnonly';
     environmentChangesRelaunch: boolean;
     showExitAlert: boolean;
-    splitCwd: "workspaceRoot" | "initial" | "inherited";
+    splitCwd: 'workspaceRoot' | 'initial' | 'inherited';
     windowsEnableConpty: boolean;
     wordSeparators: string;
-    enableFileLinks: "off" | "on" | "notRemote";
+    enableFileLinks: 'off' | 'on' | 'notRemote';
     allowedLinkSchemes: string[];
-    unicodeVersion: "6" | "11";
+    unicodeVersion: '6' | '11';
     enablePersistentSessions: boolean;
     tabs: {
         enabled: boolean;
-        hideCondition: "never" | "singleTerminal" | "singleGroup";
-        showActiveTerminal: "always" | "singleTerminal" | "singleTerminalOrNarrow" | "singleGroup" | "never";
-        location: "left" | "right";
-        focusMode: "singleClick" | "doubleClick";
+        hideCondition: 'never' | 'singleTerminal' | 'singleGroup';
+        showActiveTerminal: 'always' | 'singleTerminal' | 'singleTerminalOrNarrow' | 'singleGroup' | 'never';
+        location: 'left' | 'right';
+        focusMode: 'singleClick' | 'doubleClick';
         title: string;
         description: string;
         separator: string;
@@ -176,14 +176,14 @@ export interface ITerminalConfiguration {
     bellDuration: number;
     defaultLocation: TerminalLocationString;
     customGlyphs: boolean;
-    persistentSessionReviveProcess: "onExit" | "onExitAndWindowClose" | "never";
+    persistentSessionReviveProcess: 'onExit' | 'onExitAndWindowClose' | 'never';
     ignoreProcessNames: string[];
     autoReplies: {
         [key: string]: string;
     };
     shellIntegration?: {
         enabled: boolean;
-        decorationsEnabled: "both" | "gutter" | "overviewRuler" | "never";
+        decorationsEnabled: 'both' | 'gutter' | 'overviewRuler' | 'never';
     };
     enableImages: boolean;
     smoothScrolling: boolean;
@@ -278,7 +278,7 @@ export interface ITerminalProcessManager extends IDisposable, ITerminalProcessIn
     setDimensions(cols: number, rows: number, sync: false): Promise<void>;
     setDimensions(cols: number, rows: number, sync: true): void;
     clearBuffer(): Promise<void>;
-    setUnicodeVersion(version: "6" | "11"): Promise<void>;
+    setUnicodeVersion(version: '6' | '11'): Promise<void>;
     acknowledgeDataEvent(charCount: number): void;
     processBinary(data: string): void;
     refreshProperty<T extends ProcessPropertyType>(type: T): Promise<IProcessPropertyMap[T]>;

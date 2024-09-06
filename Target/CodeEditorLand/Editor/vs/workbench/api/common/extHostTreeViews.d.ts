@@ -1,11 +1,11 @@
-import type * as vscode from "vscode";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { ITreeItem } from "../../common/views.js";
-import { CheckboxUpdate, DataTransferDTO, ExtHostTreeViewsShape, MainThreadTreeViewsShape } from "./extHost.protocol.js";
-import { ExtHostCommands } from "./extHostCommands.js";
+import type * as vscode from 'vscode';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { CheckboxUpdate, DataTransferDTO, ExtHostTreeViewsShape, MainThreadTreeViewsShape } from './extHost.protocol.js';
+import { ITreeItem } from '../../common/views.js';
+import { ExtHostCommands } from './extHostCommands.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
 export declare class ExtHostTreeViews extends Disposable implements ExtHostTreeViewsShape {
     private _proxy;
     private commands;

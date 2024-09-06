@@ -1,5 +1,5 @@
-import { MessageEvent } from "../../sandbox/node/electronTypes.js";
-import { IPCServer } from "../common/ipc.js";
+import { MessageEvent } from '../../sandbox/node/electronTypes.js';
+import { IPCServer } from '../common/ipc.js';
 export interface IClientConnectionFilter {
     /**
      * Allows to filter incoming messages to the
@@ -20,8 +20,8 @@ export declare class Server extends IPCServer {
     constructor(filter?: IClientConnectionFilter);
 }
 interface INodeMessagePortFragment {
-    on(event: "message", listener: (messageEvent: MessageEvent) => void): this;
-    removeListener(event: "message", listener: (messageEvent: MessageEvent) => void): this;
+    on(event: 'message', listener: (messageEvent: MessageEvent) => void): this;
+    removeListener(event: 'message', listener: (messageEvent: MessageEvent) => void): this;
 }
 export declare function once(port: INodeMessagePortFragment, message: unknown, callback: () => void): void;
 export {};

@@ -1,8 +1,8 @@
-import { Event } from "../../../common/event.js";
-import { IDragAndDropData } from "../../dnd.js";
-import { IMouseEvent } from "../../mouseEvent.js";
-import { IListDragAndDrop, IListDragOverReaction, IListRenderer } from "../list/list.js";
-import { ListViewTargetSector } from "../list/listView.js";
+import { IDragAndDropData } from '../../dnd.js';
+import { IMouseEvent } from '../../mouseEvent.js';
+import { IListDragAndDrop, IListDragOverReaction, IListRenderer } from '../list/list.js';
+import { ListViewTargetSector } from '../list/listView.js';
+import { Event } from '../../../common/event.js';
 export declare const enum TreeVisibility {
     /**
      * The tree node should be hidden.

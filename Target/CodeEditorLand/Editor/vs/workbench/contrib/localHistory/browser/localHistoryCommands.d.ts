@@ -1,6 +1,6 @@
-import { URI } from "../../../../base/common/uri.js";
-import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { IWorkingCopyHistoryEntry, IWorkingCopyHistoryService } from "../../../services/workingCopy/common/workingCopyHistory.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IWorkingCopyHistoryEntry, IWorkingCopyHistoryService } from '../../../services/workingCopy/common/workingCopyHistory.js';
+import { IEditorOptions } from '../../../../platform/editor/common/editor.js';
 export interface ITimelineCommandArgument {
     uri: URI;
     handle: string;

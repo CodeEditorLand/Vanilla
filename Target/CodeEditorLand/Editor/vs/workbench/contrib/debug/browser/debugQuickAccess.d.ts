@@ -1,9 +1,9 @@
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
-import { IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IDebugService } from "../common/debug.js";
+import { IQuickPickSeparator } from '../../../../platform/quickinput/common/quickInput.js';
+import { PickerQuickAccessProvider, IPickerQuickAccessItem } from '../../../../platform/quickinput/browser/pickerQuickAccess.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IDebugService } from '../common/debug.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
 export declare class StartDebugQuickAccessProvider extends PickerQuickAccessProvider<IPickerQuickAccessItem> {
     private readonly debugService;
     private readonly contextService;

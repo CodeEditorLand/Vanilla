@@ -1,17 +1,17 @@
-import type * as vscode from "vscode";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { UriComponents } from "../../../base/common/uri.js";
-import { IPosition } from "../../../editor/common/core/position.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { CoverageDetails, ISerializedTestResults, IStartControllerTests, IStartControllerTestsResult, TestMessageFollowupRequest, TestMessageFollowupResponse, TestsDiffOp } from "../../contrib/testing/common/testTypes.js";
-import { ExtHostTestingShape, ILocationDto, MainThreadTestingShape } from "./extHost.protocol.js";
-import { IExtHostCommands } from "./extHostCommands.js";
-import { IExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
-import { ExtHostTestItemCollection } from "./extHostTestItem.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { UriComponents } from '../../../base/common/uri.js';
+import { IPosition } from '../../../editor/common/core/position.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { ExtHostTestingShape, ILocationDto, MainThreadTestingShape } from './extHost.protocol.js';
+import { IExtHostCommands } from './extHostCommands.js';
+import { IExtHostDocumentsAndEditors } from './extHostDocumentsAndEditors.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { ExtHostTestItemCollection } from './extHostTestItem.js';
+import { CoverageDetails, ISerializedTestResults, IStartControllerTests, IStartControllerTestsResult, TestMessageFollowupRequest, TestMessageFollowupResponse, TestsDiffOp } from '../../contrib/testing/common/testTypes.js';
+import type * as vscode from 'vscode';
 interface ControllerInfo {
     controller: vscode.TestController;
     profiles: Map<number, vscode.TestRunProfile>;
@@ -20,7 +20,7 @@ interface ControllerInfo {
     relatedCodeProvider?: vscode.TestRelatedCodeProvider;
     activeProfiles: Set<number>;
 }
-type DefaultProfileChangeEvent = Map<string, Map</* profileId */ number, boolean>>;
+type DefaultProfileChangeEvent = Map</* controllerId */ string, Map</* profileId */ number, boolean>>;
 export declare const IExtHostTesting: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostTesting>;
 export interface IExtHostTesting extends ExtHostTesting {
     readonly _serviceBrand: undefined;

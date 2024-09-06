@@ -1,13 +1,13 @@
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { Event } from "../../../../../base/common/event.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { IOutlineModelService } from "../../../../../editor/contrib/documentSymbols/browser/outlineModel.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IMarkerService } from "../../../../../platform/markers/common/markers.js";
-import { OutlineChangeEvent } from "../../../../services/outline/browser/outline.js";
-import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";
-import { INotebookEditor } from "../notebookBrowser.js";
-import { OutlineEntry } from "./OutlineEntry.js";
+import { Event } from '../../../../../base/common/event.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IMarkerService } from '../../../../../platform/markers/common/markers.js';
+import { INotebookEditor } from '../notebookBrowser.js';
+import { INotebookExecutionStateService } from '../../common/notebookExecutionStateService.js';
+import { OutlineChangeEvent } from '../../../../services/outline/browser/outline.js';
+import { OutlineEntry } from './OutlineEntry.js';
+import { IOutlineModelService } from '../../../../../editor/contrib/documentSymbols/browser/outlineModel.js';
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
 export interface INotebookCellOutlineDataSource {
     readonly activeElement: OutlineEntry | undefined;
     readonly entries: OutlineEntry[];

@@ -1,7 +1,7 @@
-import { IProcessEnvironment } from "../../../base/common/platform.js";
-import { ILogService } from "../../log/common/log.js";
-import { IProductService } from "../../product/common/productService.js";
-import { IShellLaunchConfig, ITerminalEnvironment, ITerminalProcessOptions } from "../common/terminal.js";
+import { IProcessEnvironment } from '../../../base/common/platform.js';
+import { ILogService } from '../../log/common/log.js';
+import { IProductService } from '../../product/common/productService.js';
+import { IShellLaunchConfig, ITerminalEnvironment, ITerminalProcessOptions } from '../common/terminal.js';
 export declare function getWindowsBuildNumber(): number;
 export declare function findExecutable(command: string, cwd?: string, paths?: string[], env?: IProcessEnvironment, exists?: (path: string) => Promise<boolean>): Promise<string | undefined>;
 export interface IShellIntegrationConfigInjection {

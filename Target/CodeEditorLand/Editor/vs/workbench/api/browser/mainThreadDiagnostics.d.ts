@@ -1,8 +1,8 @@
-import { UriComponents } from "../../../base/common/uri.js";
-import { IMarkerData, IMarkerService } from "../../../platform/markers/common/markers.js";
-import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { MainThreadDiagnosticsShape } from "../common/extHost.protocol.js";
+import { IMarkerService, IMarkerData } from '../../../platform/markers/common/markers.js';
+import { UriComponents } from '../../../base/common/uri.js';
+import { MainThreadDiagnosticsShape } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IUriIdentityService } from '../../../platform/uriIdentity/common/uriIdentity.js';
 export declare class MainThreadDiagnostics implements MainThreadDiagnosticsShape {
     private readonly _markerService;
     private readonly _uriIdentService;

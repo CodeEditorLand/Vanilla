@@ -1,6 +1,6 @@
-import { URI } from "../../../../../base/common/uri.js";
-import { ITestResult } from "../../common/testResult.js";
-import { IRichLocation, ITestItem, ITestMessage, ITestMessageMenuArgs, ITestRunTask, ITestTaskState, TestResultItem } from "../../common/testTypes.js";
+import { URI } from '../../../../../base/common/uri.js';
+import { ITestResult } from '../../common/testResult.js';
+import { IRichLocation, ITestItem, ITestMessage, ITestMessageMenuArgs, ITestRunTask, ITestTaskState, TestResultItem } from '../../common/testTypes.js';
 export declare const getMessageArgs: (test: TestResultItem, message: ITestMessage) => ITestMessageMenuArgs;
 interface ISubjectCommon {
     controllerId: string;

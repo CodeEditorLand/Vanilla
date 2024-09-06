@@ -1,15 +1,15 @@
-import type * as vscode from "vscode";
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { ThemeColor } from "../../../base/common/themables.js";
-import { URI } from "../../../base/common/uri.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { IEnvironmentVariableCollectionDescription, IEnvironmentVariableMutator, ISerializableEnvironmentVariableCollection } from "../../../platform/terminal/common/environmentVariable.js";
-import { ICreateContributedTerminalProfileOptions, IShellLaunchConfigDto, ITerminalChildProcess, ITerminalLaunchError, ITerminalProfile, TerminalIcon, TerminalLocation } from "../../../platform/terminal/common/terminal.js";
-import { ExtHostTerminalIdentifier, ExtHostTerminalServiceShape, ICommandDto, ITerminalCommandDto, ITerminalDimensionsDto, ITerminalLinkDto, ITerminalQuickFixOpenerDto, ITerminalQuickFixTerminalCommandDto, MainThreadTerminalServiceShape, TerminalCommandMatchResultDto } from "./extHost.protocol.js";
-import { IExtHostCommands } from "./extHostCommands.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
-import { TerminalExitReason } from "./extHostTypes.js";
+import type * as vscode from 'vscode';
+import { Event, Emitter } from '../../../base/common/event.js';
+import { ExtHostTerminalServiceShape, MainThreadTerminalServiceShape, ITerminalDimensionsDto, ITerminalLinkDto, ExtHostTerminalIdentifier, ICommandDto, ITerminalQuickFixOpenerDto, ITerminalQuickFixTerminalCommandDto, TerminalCommandMatchResultDto, ITerminalCommandDto } from './extHost.protocol.js';
+import { URI } from '../../../base/common/uri.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { IDisposable, Disposable } from '../../../base/common/lifecycle.js';
+import { TerminalExitReason } from './extHostTypes.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { IEnvironmentVariableCollectionDescription, IEnvironmentVariableMutator, ISerializableEnvironmentVariableCollection } from '../../../platform/terminal/common/environmentVariable.js';
+import { ICreateContributedTerminalProfileOptions, IShellLaunchConfigDto, ITerminalChildProcess, ITerminalLaunchError, ITerminalProfile, TerminalIcon, TerminalLocation } from '../../../platform/terminal/common/terminal.js';
+import { ThemeColor } from '../../../base/common/themables.js';
+import { IExtHostCommands } from './extHostCommands.js';
 export interface IExtHostTerminalService extends ExtHostTerminalServiceShape, IDisposable {
     readonly _serviceBrand: undefined;
     activeTerminal: vscode.Terminal | undefined;

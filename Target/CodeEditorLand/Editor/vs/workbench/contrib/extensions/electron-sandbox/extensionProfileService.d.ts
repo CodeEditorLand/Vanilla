@@ -1,14 +1,14 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IExtensionHostProfile, IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
-import { IExtensionHostProfileService, ProfileSessionState } from "./runtimeExtensionsEditor.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { INativeHostService } from '../../../../platform/native/common/native.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IExtensionHostProfileService, ProfileSessionState } from './runtimeExtensionsEditor.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IExtensionHostProfile, IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { IStatusbarService } from '../../../services/statusbar/browser/statusbar.js';
 export declare class ExtensionHostProfileService extends Disposable implements IExtensionHostProfileService {
     private readonly _extensionService;
     private readonly _editorService;

@@ -1,6 +1,6 @@
-import { UriComponents } from "../../../../base/common/uri.js";
-import { IWorkerClient, IWorkerServer } from "../../../../base/common/worker/simpleWorker.js";
-import { IFileMatch, IFileQueryProps, IFolderQuery, ITextQueryProps } from "./search.js";
+import { UriComponents } from '../../../../base/common/uri.js';
+import { IWorkerClient, IWorkerServer } from '../../../../base/common/worker/simpleWorker.js';
+import { IFileMatch, IFileQueryProps, IFolderQuery, ITextQueryProps } from './search.js';
 export interface IWorkerTextSearchComplete {
     results: IFileMatch<UriComponents>[];
     limitHit?: boolean;
@@ -9,24 +9,21 @@ export interface IWorkerFileSearchComplete {
     results: string[];
     limitHit?: boolean;
 }
-type IWorkerFileSystemHandleKind = "directory" | "file";
+type IWorkerFileSystemHandleKind = 'directory' | 'file';
 export interface IWorkerFileSystemHandle {
     readonly kind: IWorkerFileSystemHandleKind;
     readonly name: string;
     isSameEntry(other: IWorkerFileSystemHandle): Promise<boolean>;
 }
 export interface IWorkerFileSystemDirectoryHandle extends IWorkerFileSystemHandle {
-    readonly kind: "directory";
+    readonly kind: 'directory';
     getDirectoryHandle(name: string): Promise<IWorkerFileSystemDirectoryHandle>;
     getFileHandle(name: string): Promise<IWorkerFileSystemFileHandle>;
     resolve(possibleDescendant: IWorkerFileSystemHandle): Promise<string[] | null>;
-    entries(): AsyncIterableIterator<[
-        string,
-        IWorkerFileSystemDirectoryHandle | IWorkerFileSystemFileHandle
-    ]>;
+    entries(): AsyncIterableIterator<[string, IWorkerFileSystemDirectoryHandle | IWorkerFileSystemFileHandle]>;
 }
 export interface IWorkerFileSystemFileHandle extends IWorkerFileSystemHandle {
-    readonly kind: "file";
+    readonly kind: 'file';
     getFile(): Promise<{
         arrayBuffer(): Promise<ArrayBuffer>;
     }>;

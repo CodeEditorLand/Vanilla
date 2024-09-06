@@ -1,4 +1,4 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
 export declare class TextModelPart extends Disposable {
     private _isDisposed;
     dispose(): void;

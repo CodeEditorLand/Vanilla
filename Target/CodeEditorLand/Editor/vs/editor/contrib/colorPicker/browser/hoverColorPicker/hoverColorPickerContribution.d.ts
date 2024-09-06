@@ -1,6 +1,6 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ICodeEditor } from "../../../../browser/editorBrowser.js";
-import { IEditorContribution } from "../../../../common/editorCommon.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../../browser/editorBrowser.js';
+import { IEditorContribution } from '../../../../common/editorCommon.js';
 export declare class HoverColorPickerContribution extends Disposable implements IEditorContribution {
     private readonly _editor;
     static readonly ID: string;

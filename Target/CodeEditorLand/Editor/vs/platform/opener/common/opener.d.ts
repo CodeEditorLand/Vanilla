@@ -1,7 +1,7 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IEditorOptions, ITextEditorSelection } from "../../editor/common/editor.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IEditorOptions, ITextEditorSelection } from '../../editor/common/editor.js';
 export declare const IOpenerService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IOpenerService>;
 export type OpenInternalOptions = {
     /**

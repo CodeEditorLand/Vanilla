@@ -1,5 +1,5 @@
-import * as monarchCommon from "./monarchCommon.js";
-import { IMonarchLanguage } from "./monarchTypes.js";
+import * as monarchCommon from './monarchCommon.js';
+import { IMonarchLanguage } from './monarchTypes.js';
 /**
  * Compiles a json description function into json where all regular expressions,
  * case matches etc, are compiled and all include rules are expanded.

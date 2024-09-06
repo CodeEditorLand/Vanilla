@@ -1,7 +1,7 @@
-import { Event } from "../../../base/common/event.js";
-import { URI } from "../../../base/common/uri.js";
-import { ConfigurationTarget, IConfigurationValue } from "../../../platform/configuration/common/configuration.js";
-import { IPosition } from "../core/position.js";
+import { Event } from '../../../base/common/event.js';
+import { URI } from '../../../base/common/uri.js';
+import { IPosition } from '../core/position.js';
+import { ConfigurationTarget, IConfigurationValue } from '../../../platform/configuration/common/configuration.js';
 export declare const ITextResourceConfigurationService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITextResourceConfigurationService>;
 export interface ITextResourceConfigurationChangeEvent {
     /**

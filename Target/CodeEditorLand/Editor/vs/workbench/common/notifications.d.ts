@@ -1,8 +1,8 @@
-import { Action } from "../../base/common/actions.js";
-import { Event } from "../../base/common/event.js";
-import { Disposable, IDisposable } from "../../base/common/lifecycle.js";
-import { LinkedText } from "../../base/common/linkedText.js";
-import { INotification, INotificationActions, INotificationHandle, INotificationProgress, IPromptChoice, IStatusMessageOptions, NotificationMessage, NotificationPriority, NotificationsFilter, Severity } from "../../platform/notification/common/notification.js";
+import { INotification, INotificationHandle, INotificationActions, INotificationProgress, Severity, NotificationMessage, IPromptChoice, IStatusMessageOptions, NotificationsFilter, NotificationPriority } from '../../platform/notification/common/notification.js';
+import { Event } from '../../base/common/event.js';
+import { Disposable, IDisposable } from '../../base/common/lifecycle.js';
+import { Action } from '../../base/common/actions.js';
+import { LinkedText } from '../../base/common/linkedText.js';
 export interface INotificationsModel {
     readonly notifications: INotificationViewItem[];
     readonly onDidChangeNotification: Event<INotificationChangeEvent>;

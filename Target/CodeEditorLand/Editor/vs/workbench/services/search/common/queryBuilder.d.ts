@@ -1,13 +1,13 @@
-import * as glob from "../../../../base/common/glob.js";
-import { URI, URI as uri } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkspaceContextService, IWorkspaceFolderData } from "../../../../platform/workspace/common/workspace.js";
-import { IEditorGroupsService } from "../../editor/common/editorGroupsService.js";
-import { IPathService } from "../../path/common/pathService.js";
-import { IFileQuery, IPatternInfo, ITextQuery, ITextSearchPreviewOptions } from "./search.js";
-import { GlobPattern } from "./searchExtTypes.js";
+import * as glob from '../../../../base/common/glob.js';
+import { URI, URI as uri, UriComponents } from '../../../../base/common/uri.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IWorkspaceContextService, IWorkspaceFolderData } from '../../../../platform/workspace/common/workspace.js';
+import { IEditorGroupsService } from '../../editor/common/editorGroupsService.js';
+import { IPathService } from '../../path/common/pathService.js';
+import { IFileQuery, IPatternInfo, ITextQuery, ITextSearchPreviewOptions } from './search.js';
+import { GlobPattern } from './searchExtTypes.js';
 /**
  * One folder to search and a set of glob expressions that should be applied.
  */
@@ -16,12 +16,12 @@ export interface ISearchPathPattern {
     pattern?: glob.IExpression;
 }
 type ISearchPathPatternBuilder = string | string[];
-export interface ISearchPatternBuilder {
-    uri?: uri;
+export interface ISearchPatternBuilder<U extends UriComponents> {
+    uri?: U;
     pattern: ISearchPathPatternBuilder;
 }
-export declare function isISearchPatternBuilder(object: ISearchPatternBuilder | ISearchPathPatternBuilder): object is ISearchPatternBuilder;
-export declare function globPatternToISearchPatternBuilder(globPattern: GlobPattern): ISearchPatternBuilder;
+export declare function isISearchPatternBuilder<U extends UriComponents>(object: ISearchPatternBuilder<U> | ISearchPathPatternBuilder): object is ISearchPatternBuilder<U>;
+export declare function globPatternToISearchPatternBuilder(globPattern: GlobPattern): ISearchPatternBuilder<URI>;
 /**
  * A set of search paths and a set of glob expressions that should be applied.
  */
@@ -29,11 +29,11 @@ export interface ISearchPathsInfo {
     searchPaths?: ISearchPathPattern[];
     pattern?: glob.IExpression;
 }
-interface ICommonQueryBuilderOptions {
+interface ICommonQueryBuilderOptions<U extends UriComponents = URI> {
     _reason?: string;
-    excludePattern?: ISearchPatternBuilder[];
+    excludePattern?: ISearchPatternBuilder<U>[];
     includePattern?: ISearchPathPatternBuilder;
-    extraFileResources?: uri[];
+    extraFileResources?: U[];
     /** Parse the special ./ syntax supported by the searchview, and expand foo to ** /foo */
     expandPatterns?: boolean;
     maxResults?: number;
@@ -47,14 +47,14 @@ interface ICommonQueryBuilderOptions {
     onlyOpenEditors?: boolean;
     onlyFileScheme?: boolean;
 }
-export interface IFileQueryBuilderOptions extends ICommonQueryBuilderOptions {
+export interface IFileQueryBuilderOptions<U extends UriComponents = URI> extends ICommonQueryBuilderOptions<U> {
     filePattern?: string;
     exists?: boolean;
     sortByScore?: boolean;
     cacheKey?: string;
     shouldGlobSearch?: boolean;
 }
-export interface ITextQueryBuilderOptions extends ICommonQueryBuilderOptions {
+export interface ITextQueryBuilderOptions<U extends UriComponents = URI> extends ICommonQueryBuilderOptions<U> {
     previewOptions?: ITextSearchPreviewOptions;
     fileEncoding?: string;
     surroundingContext?: number;

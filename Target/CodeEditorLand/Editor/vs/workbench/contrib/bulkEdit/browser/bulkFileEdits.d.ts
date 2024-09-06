@@ -1,9 +1,9 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ResourceFileEdit } from "../../../../editor/browser/services/bulkEditService.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IProgress } from "../../../../platform/progress/common/progress.js";
-import { IUndoRedoService, UndoRedoGroup, UndoRedoSource } from "../../../../platform/undoRedo/common/undoRedo.js";
+import { IProgress } from '../../../../platform/progress/common/progress.js';
+import { IUndoRedoService, UndoRedoGroup, UndoRedoSource } from '../../../../platform/undoRedo/common/undoRedo.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ResourceFileEdit } from '../../../../editor/browser/services/bulkEditService.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
 export declare class BulkFileEdits {
     private readonly _label;
     private readonly _code;

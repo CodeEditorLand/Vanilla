@@ -1,4 +1,4 @@
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 export declare const enum SearchCommandIds {
     FindInFilesActionId = "workbench.action.findInFiles",
     FocusActiveEditorCommandId = "search.action.focusActiveEditor",

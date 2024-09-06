@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ResolvedKeybindingItem } from "../../../../platform/keybinding/common/resolvedKeybindingItem.js";
-import { ITextFileService } from "../../textfile/common/textfiles.js";
-import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ITextModelService } from '../../../../editor/common/services/resolverService.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { ResolvedKeybindingItem } from '../../../../platform/keybinding/common/resolvedKeybindingItem.js';
+import { ITextFileService } from '../../textfile/common/textfiles.js';
+import { IUserDataProfileService } from '../../userDataProfile/common/userDataProfile.js';
 export declare const IKeybindingEditingService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IKeybindingEditingService>;
 export interface IKeybindingEditingService {
     readonly _serviceBrand: undefined;

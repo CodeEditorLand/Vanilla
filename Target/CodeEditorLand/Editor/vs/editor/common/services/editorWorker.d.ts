@@ -1,12 +1,12 @@
-import { URI } from "../../../base/common/uri.js";
-import { IRange } from "../core/range.js";
-import { IDocumentDiff, IDocumentDiffProviderOptions } from "../diff/documentDiffProvider.js";
-import { IChange } from "../diff/legacyLinesDiffComputer.js";
-import { IColorInformation, IInplaceReplaceSupportResult, TextEdit } from "../languages.js";
-import { FindSectionHeaderOptions, SectionHeader } from "./findSectionHeaders.js";
-import { UnicodeHighlighterOptions } from "./unicodeTextModelHighlighter.js";
+import { URI } from '../../../base/common/uri.js';
+import { IRange } from '../core/range.js';
+import { IDocumentDiff, IDocumentDiffProviderOptions } from '../diff/documentDiffProvider.js';
+import { IChange } from '../diff/legacyLinesDiffComputer.js';
+import { IColorInformation, IInplaceReplaceSupportResult, TextEdit } from '../languages.js';
+import { UnicodeHighlighterOptions } from './unicodeTextModelHighlighter.js';
+import { SectionHeader, FindSectionHeaderOptions } from './findSectionHeaders.js';
 export declare const IEditorWorkerService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditorWorkerService>;
-export type DiffAlgorithmName = "legacy" | "advanced";
+export type DiffAlgorithmName = 'legacy' | 'advanced';
 export interface IEditorWorkerService {
     readonly _serviceBrand: undefined;
     canComputeUnicodeHighlights(uri: URI): boolean;

@@ -1,25 +1,25 @@
-import { Dimension } from "../../../../base/browser/dom.js";
-import { IBoundarySashes } from "../../../../base/browser/ui/sash/sash.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ICodeEditor, IDiffEditor } from "../../../../editor/browser/editorBrowser.js";
-import { IEditorOptions as ICodeEditorOptions, IDiffEditorOptions } from "../../../../editor/common/config/editorOptions.js";
-import { IDiffEditorModel, IDiffEditorViewState } from "../../../../editor/common/editorCommon.js";
-import { ITextResourceConfigurationChangeEvent, ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IEditorOpenContext, ITextDiffEditorPane } from "../../../common/editor.js";
-import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
-import { AbstractTextEditor, IEditorConfiguration } from "./textEditor.js";
+import { ICodeEditor, IDiffEditor } from '../../../../editor/browser/editorBrowser.js';
+import { IDiffEditorOptions, IEditorOptions as ICodeEditorOptions } from '../../../../editor/common/config/editorOptions.js';
+import { AbstractTextEditor, IEditorConfiguration } from './textEditor.js';
+import { ITextDiffEditorPane, IEditorOpenContext } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { DiffEditorInput } from '../../../common/editor/diffEditorInput.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { ITextResourceConfigurationChangeEvent, ITextResourceConfigurationService } from '../../../../editor/common/services/textResourceConfiguration.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IDiffEditorViewState, IDiffEditorModel } from '../../../../editor/common/editorCommon.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IEditorGroup, IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ITextEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { Dimension } from '../../../../base/browser/dom.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IBoundarySashes } from '../../../../base/browser/ui/sash/sash.js';
+import { IPreferencesService } from '../../../services/preferences/common/preferences.js';
 /**
  * The text editor that leverages the diff text editor for the editing experience.
  */

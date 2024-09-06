@@ -1,13 +1,13 @@
-import { CallbackIterable } from "../../base/common/arrays.js";
-import { Event } from "../../base/common/event.js";
-import { IPosition } from "./core/position.js";
-import { IRange, Range } from "./core/range.js";
-import { ClosingBracketKind, OpeningBracketKind } from "./languages/supports/languageBracketsConfiguration.js";
-import { PairAstNode } from "./model/bracketPairsTextModelPart/bracketPairsTree/ast.js";
+import { CallbackIterable } from '../../base/common/arrays.js';
+import { Event } from '../../base/common/event.js';
+import { IPosition } from './core/position.js';
+import { IRange, Range } from './core/range.js';
+import { ClosingBracketKind, OpeningBracketKind } from './languages/supports/languageBracketsConfiguration.js';
+import { PairAstNode } from './model/bracketPairsTextModelPart/bracketPairsTree/ast.js';
 export interface IBracketPairsTextModelPart {
     /**
      * Is fired when bracket pairs change, either due to a text or a settings change.
-     */
+    */
     onDidChange: Event<void>;
     /**
      * Gets all bracket pairs that intersect the given position.
@@ -82,15 +82,15 @@ export declare class BracketPairInfo {
 export declare class BracketPairWithMinIndentationInfo extends BracketPairInfo {
     /**
      * -1 if not requested, otherwise the size of the minimum indentation in the bracket pair in terms of visible columns.
-     */
+    */
     readonly minVisibleColumnIndentation: number;
     constructor(range: Range, openingBracketRange: Range, closingBracketRange: Range | undefined, 
     /**
      * 0-based
-     */
+    */
     nestingLevel: number, nestingLevelOfEqualBracketType: number, bracketPairNode: PairAstNode, 
     /**
      * -1 if not requested, otherwise the size of the minimum indentation in the bracket pair in terms of visible columns.
-     */
+    */
     minVisibleColumnIndentation: number);
 }

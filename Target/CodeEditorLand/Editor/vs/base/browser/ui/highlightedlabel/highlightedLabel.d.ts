@@ -1,5 +1,5 @@
-import { Disposable } from "../../../common/lifecycle.js";
-import { IHoverDelegate } from "../hover/hoverDelegate.js";
+import { IHoverDelegate } from '../hover/hoverDelegate.js';
+import { Disposable } from '../../../common/lifecycle.js';
 /**
  * A range to be highlighted.
  */

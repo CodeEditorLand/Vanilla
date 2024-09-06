@@ -1,12 +1,12 @@
-import { Dimension } from "../../../../base/browser/dom.js";
-import { AsyncIterableObject } from "../../../../base/common/async.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { BrandedService, IConstructorSignature } from "../../../../platform/instantiation/common/instantiation.js";
-import { ICodeEditor, IEditorMouseEvent } from "../../../browser/editorBrowser.js";
-import { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import { IModelDecoration } from "../../../common/model.js";
+import { Dimension } from '../../../../base/browser/dom.js';
+import { AsyncIterableObject } from '../../../../base/common/async.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor, IEditorMouseEvent } from '../../../browser/editorBrowser.js';
+import { Position } from '../../../common/core/position.js';
+import { Range } from '../../../common/core/range.js';
+import { IModelDecoration } from '../../../common/model.js';
+import { BrandedService, IConstructorSignature } from '../../../../platform/instantiation/common/instantiation.js';
 export interface IHoverPart {
     /**
      * The creator of this hover part.
@@ -130,9 +130,7 @@ export interface IEditorHoverParticipant<T extends IHoverPart = IHoverPart> {
     getAccessibleContent(hoverPart: T): string;
     handleResize?(): void;
 }
-export type IEditorHoverParticipantCtor = IConstructorSignature<IEditorHoverParticipant, [
-    ICodeEditor
-]>;
+export type IEditorHoverParticipantCtor = IConstructorSignature<IEditorHoverParticipant, [ICodeEditor]>;
 export declare const HoverParticipantRegistry: {
     _participants: IEditorHoverParticipantCtor[];
     register<Services extends BrandedService[]>(ctor: {

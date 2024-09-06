@@ -1,9 +1,9 @@
-import { Event } from "../../../common/event.js";
-import { IIdentityProvider, IKeyboardNavigationLabelProvider, IListVirtualDelegate } from "../list/list.js";
-import { AbstractTree, IAbstractTreeOptions, IAbstractTreeOptionsUpdate } from "./abstractTree.js";
-import { CompressibleObjectTreeModel, ElementMapper, ICompressedTreeElement, ICompressedTreeNode } from "./compressedObjectTreeModel.js";
-import { IObjectTreeModel } from "./objectTreeModel.js";
-import { ICollapseStateChangeEvent, IObjectTreeElement, ITreeModel, ITreeNode, ITreeRenderer, ITreeSorter } from "./tree.js";
+import { IIdentityProvider, IKeyboardNavigationLabelProvider, IListVirtualDelegate } from '../list/list.js';
+import { AbstractTree, IAbstractTreeOptions, IAbstractTreeOptionsUpdate } from './abstractTree.js';
+import { CompressibleObjectTreeModel, ElementMapper, ICompressedTreeElement, ICompressedTreeNode } from './compressedObjectTreeModel.js';
+import { IObjectTreeModel } from './objectTreeModel.js';
+import { ICollapseStateChangeEvent, IObjectTreeElement, ITreeModel, ITreeNode, ITreeRenderer, ITreeSorter } from './tree.js';
+import { Event } from '../../../common/event.js';
 export interface IObjectTreeOptions<T, TFilterData = void> extends IAbstractTreeOptions<T, TFilterData> {
     readonly sorter?: ITreeSorter<T>;
 }

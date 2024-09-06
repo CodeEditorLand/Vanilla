@@ -1,9 +1,9 @@
-import type { Terminal } from "@xterm/headless";
-import { ITerminalOutputMatch, ITerminalOutputMatcher } from "../../terminal.js";
-import { IMarker, IMarkProperties, ISerializedTerminalCommand, ITerminalCommand, IXtermMarker } from "../capabilities.js";
+import { IMarkProperties, IMarker, ISerializedTerminalCommand, ITerminalCommand, IXtermMarker } from '../capabilities.js';
+import { ITerminalOutputMatcher, ITerminalOutputMatch } from '../../terminal.js';
+import type { Terminal } from '@xterm/headless';
 export interface ITerminalCommandProperties {
     command: string;
-    commandLineConfidence: "low" | "medium" | "high";
+    commandLineConfidence: 'low' | 'medium' | 'high';
     isTrusted: boolean;
     timestamp: number;
     duration: number;
@@ -42,7 +42,7 @@ export declare class TerminalCommand implements ITerminalCommand {
     get executedX(): number | undefined;
     get startX(): number | undefined;
     constructor(_xterm: Terminal, _properties: ITerminalCommandProperties);
-    static deserialize(xterm: Terminal, serialized: ISerializedTerminalCommand & Required<Pick<ISerializedTerminalCommand, "endLine">>, isCommandStorageDisabled: boolean): TerminalCommand | undefined;
+    static deserialize(xterm: Terminal, serialized: ISerializedTerminalCommand & Required<Pick<ISerializedTerminalCommand, 'endLine'>>, isCommandStorageDisabled: boolean): TerminalCommand | undefined;
     serialize(isCommandStorageDisabled: boolean): ISerializedTerminalCommand;
     extractCommandLine(): string;
     getOutput(): string | undefined;
@@ -101,7 +101,7 @@ export declare class PartialTerminalCommand implements ICurrentPartialCommand {
     }[];
     cwd?: string;
     command?: string;
-    commandLineConfidence?: "low" | "medium" | "high";
+    commandLineConfidence?: 'low' | 'medium' | 'high';
     isTrusted?: boolean;
     isInvalid?: boolean;
     constructor(_xterm: Terminal);

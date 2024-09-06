@@ -1,1 +1,1 @@
-import"../../../../../base/common/lifecycle.js";import"../../common/chatViewModel.js";import"../chat.js";
+import"../../../../../base/common/lifecycle.js";import"../chat.js";import"../../common/chatViewModel.js";

@@ -1,12 +1,12 @@
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IFormatterChangeEvent, ILabelService, ResourceLabelFormatter, ResourceLabelFormatting, Verbosity } from "../../../../platform/label/common/label.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ISingleFolderWorkspaceIdentifier, IWorkspace, IWorkspaceContextService, IWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
-import { IPathService } from "../../path/common/pathService.js";
-import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IDisposable, Disposable } from '../../../../base/common/lifecycle.js';
+import { IWorkbenchEnvironmentService } from '../../environment/common/environmentService.js';
+import { IWorkspaceContextService, IWorkspace, ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from '../../../../platform/workspace/common/workspace.js';
+import { ILabelService, ResourceLabelFormatter, ResourceLabelFormatting, IFormatterChangeEvent, Verbosity } from '../../../../platform/label/common/label.js';
+import { ILifecycleService } from '../../lifecycle/common/lifecycle.js';
+import { IPathService } from '../../path/common/pathService.js';
+import { IRemoteAgentService } from '../../remote/common/remoteAgentService.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
 export declare class LabelService extends Disposable implements ILabelService {
     private readonly environmentService;
     private readonly contextService;
@@ -26,7 +26,7 @@ export declare class LabelService extends Disposable implements ILabelService {
     getUriLabel(resource: URI, options?: {
         relative?: boolean;
         noPrefix?: boolean;
-        separator?: "/" | "\\";
+        separator?: '/' | '\\';
     }): string;
     private doGetUriLabel;
     getUriBasenameLabel(resource: URI): string;
@@ -35,7 +35,7 @@ export declare class LabelService extends Disposable implements ILabelService {
     }): string;
     private doGetWorkspaceLabel;
     private doGetSingleFolderWorkspaceLabel;
-    getSeparator(scheme: string, authority?: string): "/" | "\\";
+    getSeparator(scheme: string, authority?: string): '/' | '\\';
     getHostLabel(scheme: string, authority?: string): string;
     getHostTooltip(scheme: string, authority?: string): string | undefined;
     registerCachedFormatter(formatter: ResourceLabelFormatter): IDisposable;

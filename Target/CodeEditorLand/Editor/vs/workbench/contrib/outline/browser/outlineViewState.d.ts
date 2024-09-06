@@ -1,5 +1,5 @@
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IOutlineViewState, OutlineSortOrder } from "./outline.js";
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IOutlineViewState, OutlineSortOrder } from './outline.js';
 export declare class OutlineViewState implements IOutlineViewState {
     private _followCursor;
     private _filterOnType;

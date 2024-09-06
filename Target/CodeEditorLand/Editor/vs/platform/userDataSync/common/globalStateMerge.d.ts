@@ -1,6 +1,6 @@
-import { IStringDictionary } from "../../../base/common/collections.js";
-import { ILogService } from "../../log/common/log.js";
-import { IStorageValue } from "./userDataSync.js";
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { ILogService } from '../../log/common/log.js';
+import { IStorageValue } from './userDataSync.js';
 export interface IMergeResult {
     local: {
         added: IStringDictionary<IStorageValue>;

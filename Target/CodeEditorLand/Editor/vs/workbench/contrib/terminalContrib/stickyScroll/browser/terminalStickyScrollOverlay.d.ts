@@ -1,14 +1,14 @@
-import type { Terminal as RawXtermTerminal, Terminal as XTermTerminal } from "@xterm/xterm";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import "./media/stickyScroll.css";
-import { IMenuService } from "../../../../../platform/actions/common/actions.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import { ICommandDetectionCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { ITerminalConfigurationService, ITerminalInstance, IXtermColorProvider, IXtermTerminal } from "../../../terminal/browser/terminal.js";
+import type { Terminal as RawXtermTerminal, Terminal as XTermTerminal } from '@xterm/xterm';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import './media/stickyScroll.css';
+import { IMenuService } from '../../../../../platform/actions/common/actions.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IContextMenuService } from '../../../../../platform/contextview/browser/contextView.js';
+import { IKeybindingService } from '../../../../../platform/keybinding/common/keybinding.js';
+import { ICommandDetectionCapability } from '../../../../../platform/terminal/common/capabilities/capabilities.js';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { ITerminalConfigurationService, ITerminalInstance, IXtermColorProvider, IXtermTerminal } from '../../../terminal/browser/terminal.js';
 export declare class TerminalStickyScrollOverlay extends Disposable {
     private readonly _instance;
     private readonly _xterm;

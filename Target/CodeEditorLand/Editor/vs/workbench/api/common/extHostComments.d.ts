@@ -1,8 +1,8 @@
-import type * as vscode from "vscode";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ExtHostCommentsShape, IMainContext } from "./extHost.protocol.js";
-import { ExtHostCommands } from "./extHostCommands.js";
-import { ExtHostDocuments } from "./extHostDocuments.js";
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ExtHostDocuments } from './extHostDocuments.js';
+import type * as vscode from 'vscode';
+import { ExtHostCommentsShape, IMainContext } from './extHost.protocol.js';
+import { ExtHostCommands } from './extHostCommands.js';
 interface ExtHostComments {
     createCommentController(extension: IExtensionDescription, id: string, label: string): vscode.CommentController;
 }

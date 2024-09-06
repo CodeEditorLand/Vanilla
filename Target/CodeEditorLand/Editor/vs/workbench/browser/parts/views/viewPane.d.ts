@@ -1,27 +1,27 @@
-import "./media/paneviewlet.css";
-import { IActionViewItem } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { IDropdownMenuActionViewItemOptions } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
-import { IListStyles } from "../../../../base/browser/ui/list/listWidget.js";
-import { IPaneOptions, IPaneStyles, Pane } from "../../../../base/browser/ui/splitview/paneview.js";
-import { Action, IAction, IActionRunner } from "../../../../base/common/actions.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { PartialExcept } from "../../../../base/common/types.js";
-import { Action2, IAction2Options, MenuId } from "../../../../platform/actions/common/actions.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IProgressIndicator } from "../../../../platform/progress/common/progress.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IView, IViewDescriptorService, ViewContainerLocation } from "../../../common/views.js";
-import { IAccessibleViewInformationService } from "../../../services/accessibility/common/accessibleViewInformationService.js";
-import { CompositeMenuActions } from "../../actions.js";
-import { FilterWidget, IFilterWidgetOptions } from "./viewFilter.js";
+import './media/paneviewlet.css';
+import { Event, Emitter } from '../../../../base/common/event.js';
+import { Action, IAction, IActionRunner } from '../../../../base/common/actions.js';
+import { IActionViewItem } from '../../../../base/browser/ui/actionbar/actionbar.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { IPaneOptions, Pane, IPaneStyles } from '../../../../base/browser/ui/splitview/paneview.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IView, IViewDescriptorService, ViewContainerLocation } from '../../../common/views.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { PartialExcept } from '../../../../base/common/types.js';
+import { IInstantiationService, ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { MenuId, Action2, IAction2Options } from '../../../../platform/actions/common/actions.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IProgressIndicator } from '../../../../platform/progress/common/progress.js';
+import { CompositeMenuActions } from '../../actions.js';
+import { IDropdownMenuActionViewItemOptions } from '../../../../base/browser/ui/dropdown/dropdownActionViewItem.js';
+import { FilterWidget, IFilterWidgetOptions } from './viewFilter.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+import { IListStyles } from '../../../../base/browser/ui/list/listWidget.js';
+import { IAccessibleViewInformationService } from '../../../services/accessibility/common/accessibleViewInformationService.js';
 export declare enum ViewPaneShowActions {
     /** Show the actions when the view is hovered. This is the default behavior. */
     Default = 0,
@@ -139,7 +139,7 @@ export declare abstract class FilterViewPane extends ViewPane {
 }
 export interface IViewPaneLocationColors {
     background: string;
-    listOverrideStyles: PartialExcept<IListStyles, "listBackground" | "treeStickyScrollBackground">;
+    listOverrideStyles: PartialExcept<IListStyles, 'listBackground' | 'treeStickyScrollBackground'>;
 }
 export declare function getLocationBasedViewColors(location: ViewContainerLocation | null): IViewPaneLocationColors;
 export declare abstract class ViewAction<T extends IView> extends Action2 {

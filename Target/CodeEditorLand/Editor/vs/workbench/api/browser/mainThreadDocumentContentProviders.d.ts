@@ -1,10 +1,10 @@
-import { UriComponents } from "../../../base/common/uri.js";
-import { ILanguageService } from "../../../editor/common/languages/language.js";
-import { IEditorWorkerService } from "../../../editor/common/services/editorWorker.js";
-import { IModelService } from "../../../editor/common/services/model.js";
-import { ITextModelService } from "../../../editor/common/services/resolverService.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { MainThreadDocumentContentProvidersShape } from "../common/extHost.protocol.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import { IEditorWorkerService } from '../../../editor/common/services/editorWorker.js';
+import { IModelService } from '../../../editor/common/services/model.js';
+import { ILanguageService } from '../../../editor/common/languages/language.js';
+import { ITextModelService } from '../../../editor/common/services/resolverService.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { MainThreadDocumentContentProvidersShape } from '../common/extHost.protocol.js';
 export declare class MainThreadDocumentContentProviders implements MainThreadDocumentContentProvidersShape {
     private readonly _textModelResolverService;
     private readonly _languageService;

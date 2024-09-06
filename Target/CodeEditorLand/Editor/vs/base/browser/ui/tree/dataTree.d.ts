@@ -1,7 +1,7 @@
-import { IListVirtualDelegate } from "../list/list.js";
-import { AbstractTree, AbstractTreeViewState, IAbstractTreeOptions } from "./abstractTree.js";
-import { ObjectTreeModel } from "./objectTreeModel.js";
-import { IDataSource, ITreeModel, ITreeRenderer, ITreeSorter } from "./tree.js";
+import { IListVirtualDelegate } from '../list/list.js';
+import { AbstractTree, AbstractTreeViewState, IAbstractTreeOptions } from './abstractTree.js';
+import { ObjectTreeModel } from './objectTreeModel.js';
+import { IDataSource, ITreeModel, ITreeRenderer, ITreeSorter } from './tree.js';
 export interface IDataTreeOptions<T, TFilterData = void> extends IAbstractTreeOptions<T, TFilterData> {
     readonly sorter?: ITreeSorter<T>;
 }

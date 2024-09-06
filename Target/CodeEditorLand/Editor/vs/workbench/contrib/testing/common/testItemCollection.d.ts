@@ -1,8 +1,8 @@
-import { Barrier } from "../../../../base/common/async.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { TestId } from "./testId.js";
-import { ITestItem, ITestTag, TestItemExpandState, TestsDiff, TestsDiffOp } from "./testTypes.js";
+import { Barrier } from '../../../../base/common/async.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ITestItem, ITestTag, TestItemExpandState, TestsDiff, TestsDiffOp } from './testTypes.js';
+import { TestId } from './testId.js';
+import { URI } from '../../../../base/common/uri.js';
 /**
  * @private
  */

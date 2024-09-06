@@ -1,14 +1,14 @@
-import { IAction } from "../../../../base/common/actions.js";
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { Range } from "../../../../editor/common/core/range.js";
-import { IModelDecorationOptions, ITextModel } from "../../../../editor/common/model.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { BreakpointWidgetContext, IBreakpoint, IBreakpointEditorContribution, IDebugService, State } from "../common/debug.js";
+import { IAction } from '../../../../base/common/actions.js';
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { Range } from '../../../../editor/common/core/range.js';
+import { IModelDecorationOptions, ITextModel } from '../../../../editor/common/model.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IInstantiationService, ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { BreakpointWidgetContext, IBreakpoint, IBreakpointEditorContribution, IDebugService, State } from '../common/debug.js';
 export declare function createBreakpointDecorations(accessor: ServicesAccessor, model: ITextModel, breakpoints: ReadonlyArray<IBreakpoint>, state: State, breakpointsActivated: boolean, showBreakpointsInOverviewRuler: boolean): {
     range: Range;
     options: IModelDecorationOptions;

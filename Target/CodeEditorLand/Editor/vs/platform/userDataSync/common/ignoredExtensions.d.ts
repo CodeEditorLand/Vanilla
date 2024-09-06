@@ -1,5 +1,5 @@
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { ILocalExtension } from "../../extensionManagement/common/extensionManagement.js";
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { ILocalExtension } from '../../extensionManagement/common/extensionManagement.js';
 export declare const IIgnoredExtensionsManagementService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IIgnoredExtensionsManagementService>;
 export interface IIgnoredExtensionsManagementService {
     readonly _serviceBrand: any;

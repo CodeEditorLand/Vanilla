@@ -1,5 +1,5 @@
-import { IPosition } from "../core/position.js";
-import { IColorInformation } from "../languages.js";
+import { IPosition } from '../core/position.js';
+import { IColorInformation } from '../languages.js';
 export interface IDocumentColorComputerTarget {
     getValue(): string;
     positionAt(offset: number): IPosition;

@@ -1,13 +1,13 @@
-import { MarkdownString } from "../../../../base/common/htmlContent.js";
-import { Position } from "../../../../editor/common/core/position.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { Command, CompletionContext, CompletionItem, CompletionItemInsertTextRule, CompletionItemKind, CompletionItemLabel, CompletionItemProvider, CompletionList } from "../../../../editor/common/languages.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { ILanguageConfigurationService } from "../../../../editor/common/languages/languageConfigurationRegistry.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { ISnippetsService } from "./snippets.js";
-import { Snippet } from "./snippetsFile.js";
+import { MarkdownString } from '../../../../base/common/htmlContent.js';
+import { Position } from '../../../../editor/common/core/position.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { ITextModel } from '../../../../editor/common/model.js';
+import { CompletionItem, CompletionItemKind, CompletionItemProvider, CompletionList, CompletionItemInsertTextRule, CompletionContext, CompletionItemLabel, Command } from '../../../../editor/common/languages.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { ISnippetsService } from './snippets.js';
+import { Snippet } from './snippetsFile.js';
+import { ILanguageConfigurationService } from '../../../../editor/common/languages/languageConfigurationRegistry.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
 export declare class SnippetCompletion implements CompletionItem {
     readonly snippet: Snippet;
     label: CompletionItemLabel;

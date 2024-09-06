@@ -1,13 +1,13 @@
-import { URI } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IFileService } from "../../files/common/files.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { ISyncResourceHandle, ISyncUserDataProfile, IUserDataSyncLocalStoreService, IUserDataSyncLogService, IUserDataSyncResource, IUserDataSyncResourceProviderService, IUserDataSyncStoreService, SyncResource } from "./userDataSync.js";
-import { IUserDataSyncMachine } from "./userDataSyncMachines.js";
+import { URI } from '../../../base/common/uri.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IFileService } from '../../files/common/files.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { IUriIdentityService } from '../../uriIdentity/common/uriIdentity.js';
+import { ISyncResourceHandle, IUserDataSyncLocalStoreService, IUserDataSyncLogService, IUserDataSyncStoreService, SyncResource, IUserDataSyncResourceProviderService, ISyncUserDataProfile, IUserDataSyncResource } from './userDataSync.js';
+import { IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IInstantiationService } from '../../instantiation/common/instantiation.js';
+import { IUserDataSyncMachine } from './userDataSyncMachines.js';
 export declare class UserDataSyncResourceProviderService implements IUserDataSyncResourceProviderService {
     private readonly userDataSyncStoreService;
     private readonly userDataSyncLocalStoreService;
@@ -29,12 +29,12 @@ export declare class UserDataSyncResourceProviderService implements IUserDataSyn
     getLocalSyncedMachines(location?: URI): Promise<IUserDataSyncMachine[]>;
     getRemoteSyncResourceHandles(syncResource: SyncResource, profile?: ISyncUserDataProfile): Promise<ISyncResourceHandle[]>;
     getLocalSyncResourceHandles(syncResource: SyncResource, profile?: ISyncUserDataProfile, location?: URI): Promise<ISyncResourceHandle[]>;
-    resolveUserDataSyncResource({ uri, }: ISyncResourceHandle): IUserDataSyncResource | undefined;
-    getAssociatedResources({ uri, }: ISyncResourceHandle): Promise<{
+    resolveUserDataSyncResource({ uri }: ISyncResourceHandle): IUserDataSyncResource | undefined;
+    getAssociatedResources({ uri }: ISyncResourceHandle): Promise<{
         resource: URI;
         comparableResource: URI;
     }[]>;
-    getMachineId({ uri, }: ISyncResourceHandle): Promise<string | undefined>;
+    getMachineId({ uri }: ISyncResourceHandle): Promise<string | undefined>;
     resolveContent(uri: URI): Promise<string | null>;
     private getContentFromStore;
     private resolveNodeContent;

@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationNode, IConfigurationPropertySchema } from "../../../../platform/configuration/common/configurationRegistry.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { AccessibilityVoiceSettingId, ISpeechService } from "../../speech/common/speechService.js";
+import { IConfigurationNode, IConfigurationPropertySchema } from '../../../../platform/configuration/common/configurationRegistry.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { AccessibilityVoiceSettingId, ISpeechService } from '../../speech/common/speechService.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
 export declare const accessibilityHelpIsShown: RawContextKey<boolean>;
 export declare const accessibleViewIsShown: RawContextKey<boolean>;
 export declare const accessibleViewSupportsNavigation: RawContextKey<boolean>;
@@ -46,7 +46,8 @@ export declare const enum AccessibilityVerbositySettingId {
     ReplInputHint = "accessibility.verbosity.replInputHint",
     Comments = "accessibility.verbosity.comments",
     DiffEditorActive = "accessibility.verbosity.diffEditorActive",
-    Debug = "accessibility.verbosity.debug"
+    Debug = "accessibility.verbosity.debug",
+    Walkthrough = "accessibility.verbosity.walkthrough"
 }
 export declare const accessibilityConfigurationNodeBase: Readonly<IConfigurationNode>;
 export declare const soundFeatureBase: IConfigurationPropertySchema;

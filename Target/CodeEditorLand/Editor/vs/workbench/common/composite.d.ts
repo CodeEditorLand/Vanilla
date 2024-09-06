@@ -1,4 +1,4 @@
-import { Event } from "../../base/common/event.js";
+import { Event } from '../../base/common/event.js';
 export interface IComposite {
     /**
      * An event when the composite gained focus.

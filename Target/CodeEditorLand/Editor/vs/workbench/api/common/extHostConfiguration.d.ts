@@ -1,11 +1,11 @@
-import type * as vscode from "vscode";
-import { Event } from "../../../base/common/event.js";
-import { IConfigurationChange } from "../../../platform/configuration/common/configuration.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { ExtHostConfigurationShape, IConfigurationInitData, MainThreadConfigurationShape } from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
-import { ExtHostWorkspace, IExtHostWorkspace } from "./extHostWorkspace.js";
+import { Event } from '../../../base/common/event.js';
+import type * as vscode from 'vscode';
+import { ExtHostWorkspace, IExtHostWorkspace } from './extHostWorkspace.js';
+import { ExtHostConfigurationShape, MainThreadConfigurationShape, IConfigurationInitData } from './extHost.protocol.js';
+import { IConfigurationChange } from '../../../platform/configuration/common/configuration.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { ILogService } from '../../../platform/log/common/log.js';
 export declare class ExtHostConfiguration implements ExtHostConfigurationShape {
     readonly _serviceBrand: undefined;
     private readonly _proxy;

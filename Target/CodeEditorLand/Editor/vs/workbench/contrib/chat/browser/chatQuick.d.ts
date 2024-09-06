@@ -1,9 +1,9 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { IChatService } from "../common/chatService.js";
-import { IQuickChatOpenOptions, IQuickChatService } from "./chat.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
+import { IQuickChatOpenOptions, IQuickChatService } from './chat.js';
+import { IChatService } from '../common/chatService.js';
 export declare class QuickChatService extends Disposable implements IQuickChatService {
     private readonly quickInputService;
     private readonly chatService;

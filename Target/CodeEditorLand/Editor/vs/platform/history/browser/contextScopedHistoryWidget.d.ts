@@ -1,10 +1,10 @@
-import { IHistoryNavigationWidget } from "../../../base/browser/history.js";
-import { IContextViewProvider } from "../../../base/browser/ui/contextview/contextview.js";
-import { FindInput, IFindInputOptions } from "../../../base/browser/ui/findinput/findInput.js";
-import { IReplaceInputOptions, ReplaceInput } from "../../../base/browser/ui/findinput/replaceInput.js";
-import { HistoryInputBox, IHistoryInputOptions } from "../../../base/browser/ui/inputbox/inputBox.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { IContextKey, IContextKeyService, RawContextKey } from "../../contextkey/common/contextkey.js";
+import { IHistoryNavigationWidget } from '../../../base/browser/history.js';
+import { IContextViewProvider } from '../../../base/browser/ui/contextview/contextview.js';
+import { FindInput, IFindInputOptions } from '../../../base/browser/ui/findinput/findInput.js';
+import { IReplaceInputOptions, ReplaceInput } from '../../../base/browser/ui/findinput/replaceInput.js';
+import { HistoryInputBox, IHistoryInputOptions } from '../../../base/browser/ui/inputbox/inputBox.js';
+import { IContextKey, IContextKeyService, RawContextKey } from '../../contextkey/common/contextkey.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
 export declare const historyNavigationVisible: RawContextKey<boolean>;
 export interface IHistoryNavigationContext extends IDisposable {
     historyNavigationForwardsEnablement: IContextKey<boolean>;

@@ -1,6 +1,6 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ILogService } from "../../log/common/log.js";
-import { ITerminalChildProcess } from "./terminal.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { ILogService } from '../../log/common/log.js';
+import { ITerminalChildProcess } from './terminal.js';
 /**
  * Tracks a terminal process's data stream and responds immediately when a matching string is
  * received. This is done in a low overhead way and is ideally run on the same process as the

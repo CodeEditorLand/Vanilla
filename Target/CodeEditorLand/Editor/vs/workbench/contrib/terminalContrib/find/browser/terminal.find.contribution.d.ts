@@ -1,1 +1,1 @@
-import "./media/terminalFind.css";
+import './media/terminalFind.css';

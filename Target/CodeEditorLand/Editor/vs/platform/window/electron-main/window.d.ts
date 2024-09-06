@@ -1,12 +1,12 @@
-import electron from "electron";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { ISerializableCommandAction } from "../../action/common/action.js";
-import { NativeParsedArgs } from "../../environment/common/argv.js";
-import { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
-import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
-import { INativeWindowConfiguration } from "../common/window.js";
+import electron from 'electron';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ISerializableCommandAction } from '../../action/common/action.js';
+import { NativeParsedArgs } from '../../environment/common/argv.js';
+import { IUserDataProfile } from '../../userDataProfile/common/userDataProfile.js';
+import { INativeWindowConfiguration } from '../common/window.js';
+import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 export interface IBaseWindow extends IDisposable {
     readonly onDidMaximize: Event<void>;
     readonly onDidUnmaximize: Event<void>;

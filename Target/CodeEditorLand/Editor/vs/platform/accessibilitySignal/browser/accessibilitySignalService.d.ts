@@ -1,8 +1,8 @@
-import { Event, IValueWithChangeEvent } from "../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { IAccessibilityService } from "../../accessibility/common/accessibility.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { Event, IValueWithChangeEvent } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { IAccessibilityService } from '../../accessibility/common/accessibility.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 export declare const IAccessibilitySignalService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IAccessibilitySignalService>;
 export interface IAccessibilitySignalService {
     readonly _serviceBrand: undefined;
@@ -13,7 +13,7 @@ export interface IAccessibilitySignalService {
     })[]): Promise<void>;
     playSignalLoop(signal: AccessibilitySignal, milliseconds: number): IDisposable;
     getEnabledState(signal: AccessibilitySignal, userGesture: boolean, modality?: AccessibilityModality | undefined): IValueWithChangeEvent<boolean>;
-    getDelayMs(signal: AccessibilitySignal, modality: AccessibilityModality, mode: "line" | "positional"): number;
+    getDelayMs(signal: AccessibilitySignal, modality: AccessibilityModality, mode: 'line' | 'positional'): number;
     /**
      * Avoid this method and prefer `.playSignal`!
      * Only use it when you want to play the sound regardless of enablement, e.g. in the settings quick pick.
@@ -28,7 +28,7 @@ export interface IAccessibilitySignalService {
 }
 /** Make sure you understand the doc comments of the method you want to call when using this token! */
 export declare const AcknowledgeDocCommentsToken: unique symbol;
-export type AccessibilityModality = "sound" | "announcement";
+export type AccessibilityModality = 'sound' | 'announcement';
 export interface IAccessbilitySignalOptions {
     allowManyInParallel?: boolean;
     modality?: AccessibilityModality;
@@ -68,11 +68,11 @@ export declare class AccessibilitySignalService extends Disposable implements IA
     isAnnouncementEnabled(signal: AccessibilitySignal, userGesture?: boolean): boolean;
     isSoundEnabled(signal: AccessibilitySignal, userGesture?: boolean): boolean;
     onSoundEnabledChanged(signal: AccessibilitySignal): Event<void>;
-    getDelayMs(signal: AccessibilitySignal, modality: AccessibilityModality, mode: "line" | "positional"): number;
+    getDelayMs(signal: AccessibilitySignal, modality: AccessibilityModality, mode: 'line' | 'positional'): number;
 }
 /**
  * Corresponds to the audio files in ./media.
- */
+*/
 export declare class Sound {
     readonly fileName: string;
     private static register;

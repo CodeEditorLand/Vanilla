@@ -1,7 +1,7 @@
-import { Keybinding } from "../../../base/common/keybindings.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { ICommandHandler, ICommandMetadata } from "../../commands/common/commands.js";
-import { ContextKeyExpression } from "../../contextkey/common/contextkey.js";
+import { Keybinding } from '../../../base/common/keybindings.js';
+import { ICommandHandler, ICommandMetadata } from '../../commands/common/commands.js';
+import { ContextKeyExpression } from '../../contextkey/common/contextkey.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
 export interface IKeybindingItem {
     keybinding: Keybinding | null;
     command: string | null;

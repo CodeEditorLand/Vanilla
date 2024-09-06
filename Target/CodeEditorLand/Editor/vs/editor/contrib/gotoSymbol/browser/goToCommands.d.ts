@@ -1,14 +1,14 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IAction2F1RequiredOptions, IAction2Options } from "../../../../platform/actions/common/actions.js";
-import { IActiveCodeEditor, ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction2, ServicesAccessor } from "../../../browser/editorExtensions.js";
-import { GoToLocationValues } from "../../../common/config/editorOptions.js";
-import * as corePosition from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import { IWordAtPosition } from "../../../common/core/wordHelper.js";
-import { ITextModel } from "../../../common/model.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { ReferencesModel } from "./referencesModel.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IActiveCodeEditor, ICodeEditor } from '../../../browser/editorBrowser.js';
+import { EditorAction2, ServicesAccessor } from '../../../browser/editorExtensions.js';
+import { GoToLocationValues } from '../../../common/config/editorOptions.js';
+import * as corePosition from '../../../common/core/position.js';
+import { Range } from '../../../common/core/range.js';
+import { ITextModel } from '../../../common/model.js';
+import { ReferencesModel } from './referencesModel.js';
+import { IAction2F1RequiredOptions, IAction2Options } from '../../../../platform/actions/common/actions.js';
+import { IWordAtPosition } from '../../../common/core/wordHelper.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
 export interface SymbolNavigationActionConfig {
     openToSide: boolean;
     openInPeek: boolean;

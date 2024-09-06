@@ -1,7 +1,7 @@
-import { IProductService } from "../../product/common/productService.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { IWorkspace } from "../../workspace/common/workspace.js";
-import { IDiagnosticsService, IMachineInfo, IMainProcessDiagnostics, IRemoteDiagnosticError, IRemoteDiagnosticInfo, IWorkspaceInformation, PerformanceInfo, SystemInfo, WorkspaceStatItem, WorkspaceStats } from "../common/diagnostics.js";
+import { IDiagnosticsService, IMachineInfo, IMainProcessDiagnostics, IRemoteDiagnosticError, IRemoteDiagnosticInfo, IWorkspaceInformation, PerformanceInfo, SystemInfo, WorkspaceStatItem, WorkspaceStats } from '../common/diagnostics.js';
+import { IProductService } from '../../product/common/productService.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+import { IWorkspace } from '../../workspace/common/workspace.js';
 export declare function collectWorkspaceStats(folder: string, filter: string[]): Promise<WorkspaceStats>;
 export declare function getMachineInfo(): IMachineInfo;
 export declare function collectLaunchConfigs(folder: string): Promise<WorkspaceStatItem[]>;

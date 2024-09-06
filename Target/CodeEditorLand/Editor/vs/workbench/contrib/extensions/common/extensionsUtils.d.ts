@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IExtensionIdentifier, ILocalExtension } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
-import { IExtensionRecommendationsService } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
-import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ILocalExtension, IExtensionIdentifier } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { IWorkbenchExtensionEnablementService } from '../../../services/extensionManagement/common/extensionManagement.js';
+import { IExtensionRecommendationsService } from '../../../services/extensionRecommendations/common/extensionRecommendations.js';
+import { ILifecycleService } from '../../../services/lifecycle/common/lifecycle.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { ServicesAccessor, IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
 export interface IExtensionStatus {
     identifier: IExtensionIdentifier;
     local: ILocalExtension;

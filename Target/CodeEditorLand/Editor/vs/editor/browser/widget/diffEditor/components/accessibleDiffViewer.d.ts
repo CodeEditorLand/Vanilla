@@ -1,13 +1,13 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IObservable, ITransaction } from "../../../../../base/common/observable.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IComputedEditorOptions } from "../../../../common/config/editorOptions.js";
-import { Position } from "../../../../common/core/position.js";
-import { Range } from "../../../../common/core/range.js";
-import { DetailedLineRangeMapping } from "../../../../common/diff/rangeMapping.js";
-import { ITextModel } from "../../../../common/model.js";
-import "./accessibleDiffViewer.css";
-import { DiffEditorEditors } from "./diffEditorEditors.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable, ITransaction } from '../../../../../base/common/observable.js';
+import { IComputedEditorOptions } from '../../../../common/config/editorOptions.js';
+import { Position } from '../../../../common/core/position.js';
+import { Range } from '../../../../common/core/range.js';
+import { DetailedLineRangeMapping } from '../../../../common/diff/rangeMapping.js';
+import { ITextModel } from '../../../../common/model.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import './accessibleDiffViewer.css';
+import { DiffEditorEditors } from './diffEditorEditors.js';
 export interface IAccessibleDiffViewerModel {
     getOriginalModel(): ITextModel;
     getOriginalOptions(): IComputedEditorOptions;

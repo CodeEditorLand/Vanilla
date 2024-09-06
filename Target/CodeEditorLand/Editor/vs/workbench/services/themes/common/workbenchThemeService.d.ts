@@ -1,9 +1,9 @@
-import { Color } from "../../../../base/common/color.js";
-import { Event } from "../../../../base/common/event.js";
-import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
-import { IconContribution, IconDefinition } from "../../../../platform/theme/common/iconRegistry.js";
-import { ColorScheme } from "../../../../platform/theme/common/theme.js";
-import { IColorTheme, IFileIconTheme, IProductIconTheme, IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { Event } from '../../../../base/common/event.js';
+import { Color } from '../../../../base/common/color.js';
+import { IColorTheme, IThemeService, IFileIconTheme, IProductIconTheme } from '../../../../platform/theme/common/themeService.js';
+import { ConfigurationTarget } from '../../../../platform/configuration/common/configuration.js';
+import { IconContribution, IconDefinition } from '../../../../platform/theme/common/iconRegistry.js';
+import { ColorScheme } from '../../../../platform/theme/common/theme.js';
 export declare const IWorkbenchThemeService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkbenchThemeService>;
 export declare const VS_LIGHT_THEME = "vs";
 export declare const VS_DARK_THEME = "vs-dark";
@@ -22,7 +22,7 @@ export declare enum ThemeSettings {
     SEMANTIC_TOKEN_COLOR_CUSTOMIZATIONS = "editor.semanticTokenColorCustomizations",
     PREFERRED_DARK_THEME = "workbench.preferredDarkColorTheme",
     PREFERRED_LIGHT_THEME = "workbench.preferredLightColorTheme",
-    PREFERRED_HC_DARK_THEME = "workbench.preferredHighContrastColorTheme",
+    PREFERRED_HC_DARK_THEME = "workbench.preferredHighContrastColorTheme",/* id kept for compatibility reasons */
     PREFERRED_HC_LIGHT_THEME = "workbench.preferredHighContrastLightColorTheme",
     DETECT_COLOR_SCHEME = "window.autoDetectColorScheme",
     DETECT_HC = "window.autoDetectHighContrast",
@@ -39,56 +39,56 @@ export declare enum ThemeSettingDefaults {
     PRODUCT_ICON_THEME = "Default"
 }
 export declare const COLOR_THEME_DARK_INITIAL_COLORS: {
-    "activityBar.activeBorder": string;
-    "activityBar.background": string;
-    "activityBar.border": string;
-    "activityBar.foreground": string;
-    "activityBar.inactiveForeground": string;
-    "editorGroup.border": string;
-    "editorGroupHeader.tabsBackground": string;
-    "editorGroupHeader.tabsBorder": string;
-    "statusBar.background": string;
-    "statusBar.border": string;
-    "statusBar.foreground": string;
-    "statusBar.noFolderBackground": string;
-    "tab.activeBackground": string;
-    "tab.activeBorder": string;
-    "tab.activeBorderTop": string;
-    "tab.activeForeground": string;
-    "tab.border": string;
-    "textLink.foreground": string;
-    "titleBar.activeBackground": string;
-    "titleBar.activeForeground": string;
-    "titleBar.border": string;
-    "titleBar.inactiveBackground": string;
-    "titleBar.inactiveForeground": string;
-    "welcomePage.tileBackground": string;
+    'activityBar.activeBorder': string;
+    'activityBar.background': string;
+    'activityBar.border': string;
+    'activityBar.foreground': string;
+    'activityBar.inactiveForeground': string;
+    'editorGroup.border': string;
+    'editorGroupHeader.tabsBackground': string;
+    'editorGroupHeader.tabsBorder': string;
+    'statusBar.background': string;
+    'statusBar.border': string;
+    'statusBar.foreground': string;
+    'statusBar.noFolderBackground': string;
+    'tab.activeBackground': string;
+    'tab.activeBorder': string;
+    'tab.activeBorderTop': string;
+    'tab.activeForeground': string;
+    'tab.border': string;
+    'textLink.foreground': string;
+    'titleBar.activeBackground': string;
+    'titleBar.activeForeground': string;
+    'titleBar.border': string;
+    'titleBar.inactiveBackground': string;
+    'titleBar.inactiveForeground': string;
+    'welcomePage.tileBackground': string;
 };
 export declare const COLOR_THEME_LIGHT_INITIAL_COLORS: {
-    "activityBar.activeBorder": string;
-    "activityBar.background": string;
-    "activityBar.border": string;
-    "activityBar.foreground": string;
-    "activityBar.inactiveForeground": string;
-    "editorGroup.border": string;
-    "editorGroupHeader.tabsBackground": string;
-    "editorGroupHeader.tabsBorder": string;
-    "statusBar.background": string;
-    "statusBar.border": string;
-    "statusBar.foreground": string;
-    "statusBar.noFolderBackground": string;
-    "tab.activeBackground": string;
-    "tab.activeBorder": string;
-    "tab.activeBorderTop": string;
-    "tab.activeForeground": string;
-    "tab.border": string;
-    "textLink.foreground": string;
-    "titleBar.activeBackground": string;
-    "titleBar.activeForeground": string;
-    "titleBar.border": string;
-    "titleBar.inactiveBackground": string;
-    "titleBar.inactiveForeground": string;
-    "welcomePage.tileBackground": string;
+    'activityBar.activeBorder': string;
+    'activityBar.background': string;
+    'activityBar.border': string;
+    'activityBar.foreground': string;
+    'activityBar.inactiveForeground': string;
+    'editorGroup.border': string;
+    'editorGroupHeader.tabsBackground': string;
+    'editorGroupHeader.tabsBorder': string;
+    'statusBar.background': string;
+    'statusBar.border': string;
+    'statusBar.foreground': string;
+    'statusBar.noFolderBackground': string;
+    'tab.activeBackground': string;
+    'tab.activeBorder': string;
+    'tab.activeBorderTop': string;
+    'tab.activeForeground': string;
+    'tab.border': string;
+    'textLink.foreground': string;
+    'titleBar.activeBackground': string;
+    'titleBar.activeForeground': string;
+    'titleBar.border': string;
+    'titleBar.inactiveBackground': string;
+    'titleBar.inactiveForeground': string;
+    'welcomePage.tileBackground': string;
 };
 export interface IWorkbenchTheme {
     readonly id: string;
@@ -110,7 +110,7 @@ export interface IWorkbenchProductIconTheme extends IWorkbenchTheme, IProductIco
     readonly settingsId: string;
     getIcon(icon: IconContribution): IconDefinition | undefined;
 }
-export type ThemeSettingTarget = ConfigurationTarget | undefined | "auto" | "preview";
+export type ThemeSettingTarget = ConfigurationTarget | undefined | 'auto' | 'preview';
 export interface IWorkbenchThemeService extends IThemeService {
     readonly _serviceBrand: undefined;
     setColorTheme(themeId: string | undefined | IWorkbenchColorTheme, settingsTarget: ThemeSettingTarget): Promise<IWorkbenchColorTheme | null>;

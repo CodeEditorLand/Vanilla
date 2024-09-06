@@ -1,7 +1,7 @@
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { ViewContainer } from "../../../common/views.js";
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { Event } from '../../../../base/common/event.js';
+import { ViewContainer } from '../../../common/views.js';
 export interface IActivity {
     readonly badge: IBadge;
     readonly priority?: number;

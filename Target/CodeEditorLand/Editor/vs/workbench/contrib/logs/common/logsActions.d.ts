@@ -1,12 +1,12 @@
-import { Action } from "../../../../base/common/actions.js";
-import * as nls from "../../../../nls.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILoggerService } from "../../../../platform/log/common/log.js";
-import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { IOutputChannelDescriptor, IOutputService } from "../../../services/output/common/output.js";
-import { IDefaultLogLevelsService } from "./defaultLogLevels.js";
+import * as nls from '../../../../nls.js';
+import { Action } from '../../../../base/common/actions.js';
+import { ILoggerService } from '../../../../platform/log/common/log.js';
+import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IOutputChannelDescriptor, IOutputService } from '../../../services/output/common/output.js';
+import { IDefaultLogLevelsService } from './defaultLogLevels.js';
 export declare class SetLogLevelAction extends Action {
     private readonly quickInputService;
     private readonly loggerService;

@@ -1,5 +1,5 @@
-import { GroupDirection, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { IResolvedEditorCommandsContext } from "./editorCommandsContext.js";
+import { GroupDirection, IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { IResolvedEditorCommandsContext } from './editorCommandsContext.js';
 export declare const CLOSE_SAVED_EDITORS_COMMAND_ID = "workbench.action.closeUnmodifiedEditors";
 export declare const CLOSE_EDITORS_IN_GROUP_COMMAND_ID = "workbench.action.closeEditorsInGroup";
 export declare const CLOSE_EDITORS_AND_GROUP_COMMAND_ID = "workbench.action.closeEditorsAndGroup";
@@ -48,8 +48,8 @@ export declare const API_OPEN_DIFF_EDITOR_COMMAND_ID = "_workbench.diff";
 export declare const API_OPEN_WITH_EDITOR_COMMAND_ID = "_workbench.openWith";
 export declare const EDITOR_CORE_NAVIGATION_COMMANDS: string[];
 export interface ActiveEditorMoveCopyArguments {
-    to?: "first" | "last" | "left" | "right" | "up" | "down" | "center" | "position" | "previous" | "next";
-    by?: "tab" | "group";
+    to?: 'first' | 'last' | 'left' | 'right' | 'up' | 'down' | 'center' | 'position' | 'previous' | 'next';
+    by?: 'tab' | 'group';
     value?: number;
 }
 export declare function splitEditor(editorGroupsService: IEditorGroupsService, direction: GroupDirection, resolvedContext: IResolvedEditorCommandsContext): void;

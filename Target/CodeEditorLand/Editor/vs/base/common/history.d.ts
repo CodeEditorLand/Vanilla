@@ -1,4 +1,4 @@
-import { INavigator } from "./navigator.js";
+import { INavigator } from './navigator.js';
 export declare class HistoryNavigator<T> implements INavigator<T> {
     private _history;
     private _limit;

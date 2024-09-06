@@ -1,10 +1,10 @@
-import { RunOnceWorker } from "../../../../../base/common/async.js";
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
-import { IFileChange } from "../../../common/files.js";
-import { IRecursiveWatcherWithSubscribe, IRecursiveWatchRequest, IWatcherErrorEvent } from "../../../common/watcher.js";
-import { BaseWatcher } from "../baseWatcher.js";
+import { RunOnceWorker } from '../../../../../base/common/async.js';
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { Event } from '../../../../../base/common/event.js';
+import { BaseWatcher } from '../baseWatcher.js';
+import { IFileChange } from '../../../common/files.js';
+import { IRecursiveWatchRequest, IRecursiveWatcherWithSubscribe, IWatcherErrorEvent } from '../../../common/watcher.js';
+import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js';
 export declare class ParcelWatcherInstance extends Disposable {
     /**
      * Signals when the watcher is ready to watch.

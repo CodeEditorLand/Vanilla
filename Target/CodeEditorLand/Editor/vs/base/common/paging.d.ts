@@ -1,4 +1,4 @@
-import { CancellationToken } from "./cancellation.js";
+import { CancellationToken } from './cancellation.js';
 /**
  * A Pager is a stateless abstraction over a paged collection.
  */

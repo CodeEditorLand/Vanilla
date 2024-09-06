@@ -1,4 +1,4 @@
-import { TestResultState } from "./testTypes.js";
+import { TestResultState } from './testTypes.js';
 /**
  * Accessor for nodes in get and refresh computed state.
  */

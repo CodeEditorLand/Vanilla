@@ -1,4 +1,4 @@
-import { ExtensionHostKind } from "./extensionHostKind.js";
+import { ExtensionHostKind } from './extensionHostKind.js';
 export declare class LocalProcessRunningLocation {
     readonly affinity: number;
     readonly kind = ExtensionHostKind.LocalProcess;

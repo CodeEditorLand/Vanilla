@@ -1,5 +1,5 @@
-import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import { Readable, ReadableStream } from "../../../../base/common/stream.js";
+import { Readable, ReadableStream } from '../../../../base/common/stream.js';
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from '../../../../base/common/buffer.js';
 export declare const UTF8 = "utf8";
 export declare const UTF8_with_bom = "utf8bom";
 export declare const UTF16be = "utf16be";

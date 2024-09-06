@@ -1,10 +1,10 @@
-import { MarkdownRenderOptions, MarkedOptions } from "../../../../../base/browser/markdownRenderer.js";
-import { IMarkdownString, MarkdownStringTrustedOptions } from "../../../../../base/common/htmlContent.js";
-import { DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
-import "./renderedMarkdown.css";
-import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
-import { ILanguageService } from "../../../../common/languages/language.js";
-import { ICodeEditor } from "../../../editorBrowser.js";
+import { MarkdownRenderOptions, MarkedOptions } from '../../../../../base/browser/markdownRenderer.js';
+import { IMarkdownString, MarkdownStringTrustedOptions } from '../../../../../base/common/htmlContent.js';
+import { DisposableStore, IDisposable } from '../../../../../base/common/lifecycle.js';
+import './renderedMarkdown.css';
+import { ICodeEditor } from '../../../editorBrowser.js';
+import { ILanguageService } from '../../../../common/languages/language.js';
+import { IOpenerService } from '../../../../../platform/opener/common/opener.js';
 export interface IMarkdownRenderResult extends IDisposable {
     readonly element: HTMLElement;
 }

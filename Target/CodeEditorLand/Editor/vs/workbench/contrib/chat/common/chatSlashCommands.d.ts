@@ -1,11 +1,11 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { IProgress } from "../../../../platform/progress/common/progress.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { ChatAgentLocation } from "./chatAgents.js";
-import { IChatFollowup, IChatProgress, IChatResponseProgressFileTreeData } from "./chatService.js";
-import { IChatMessage } from "./languageModels.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IProgress } from '../../../../platform/progress/common/progress.js';
+import { IChatMessage } from './languageModels.js';
+import { IChatFollowup, IChatProgress, IChatResponseProgressFileTreeData } from './chatService.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { ChatAgentLocation } from './chatAgents.js';
 export interface IChatSlashData {
     command: string;
     detail: string;

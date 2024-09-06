@@ -1,9 +1,9 @@
-import type { IGrammar, StateStack } from "vscode-textmate";
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { LanguageId } from "../../../../../editor/common/encodedTokenAttributes.js";
-import { EncodedTokenizationResult, IBackgroundTokenizationStore, IBackgroundTokenizer, IState, ITokenizationSupport, TokenizationResult } from "../../../../../editor/common/languages.js";
-import { ITextModel } from "../../../../../editor/common/model.js";
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { LanguageId } from '../../../../../editor/common/encodedTokenAttributes.js';
+import { EncodedTokenizationResult, IBackgroundTokenizationStore, IBackgroundTokenizer, IState, ITokenizationSupport, TokenizationResult } from '../../../../../editor/common/languages.js';
+import { ITextModel } from '../../../../../editor/common/model.js';
+import type { IGrammar, StateStack } from 'vscode-textmate';
 export declare class TextMateTokenizationSupport extends Disposable implements ITokenizationSupport {
     private readonly _grammar;
     private readonly _initialState;

@@ -1,5 +1,5 @@
-import { Event } from "../../../../base/common/event.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { Event } from '../../../../base/common/event.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
 export interface ISearchHistoryService {
     readonly _serviceBrand: undefined;
     onDidClearHistory: Event<void>;

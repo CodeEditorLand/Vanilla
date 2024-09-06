@@ -1,10 +1,10 @@
-import { Event } from "../../../../base/common/event.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { FileKind } from "../../../../platform/files/common/files.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IEditorPane } from "../../../common/editor.js";
-import { IOutline, IOutlineService } from "../../../services/outline/browser/outline.js";
+import { Event } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { FileKind } from '../../../../platform/files/common/files.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IEditorPane } from '../../../common/editor.js';
+import { IOutline, IOutlineService } from '../../../services/outline/browser/outline.js';
 export declare class FileElement {
     readonly uri: URI;
     readonly kind: FileKind;

@@ -1,14 +1,14 @@
-import { ITextModel } from "../../../../../editor/common/model.js";
-import { LineRangeEdit } from "./editing.js";
-import { LineRange } from "./lineRange.js";
-import { DetailedLineRangeMapping } from "./mapping.js";
+import { ITextModel } from '../../../../../editor/common/model.js';
+import { LineRangeEdit } from './editing.js';
+import { LineRange } from './lineRange.js';
+import { DetailedLineRangeMapping } from './mapping.js';
 /**
  * Describes modifications in input 1 and input 2 for a specific range in base.
  *
  * The UI offers a mechanism to either apply all changes from input 1 or input 2 or both.
  *
  * Immutable.
- */
+*/
 export declare class ModifiedBaseRange {
     readonly baseRange: LineRange;
     readonly baseTextModel: ITextModel;
@@ -16,13 +16,13 @@ export declare class ModifiedBaseRange {
     readonly input1TextModel: ITextModel;
     /**
      * From base to input1
-     */
+    */
     readonly input1Diffs: readonly DetailedLineRangeMapping[];
     readonly input2Range: LineRange;
     readonly input2TextModel: ITextModel;
     /**
      * From base to input2
-     */
+    */
     readonly input2Diffs: readonly DetailedLineRangeMapping[];
     static fromDiffs(diffs1: readonly DetailedLineRangeMapping[], diffs2: readonly DetailedLineRangeMapping[], baseTextModel: ITextModel, input1TextModel: ITextModel, input2TextModel: ITextModel): ModifiedBaseRange[];
     readonly input1CombinedDiff: DetailedLineRangeMapping | undefined;
@@ -31,11 +31,11 @@ export declare class ModifiedBaseRange {
     constructor(baseRange: LineRange, baseTextModel: ITextModel, input1Range: LineRange, input1TextModel: ITextModel, 
     /**
      * From base to input1
-     */
+    */
     input1Diffs: readonly DetailedLineRangeMapping[], input2Range: LineRange, input2TextModel: ITextModel, 
     /**
      * From base to input2
-     */
+    */
     input2Diffs: readonly DetailedLineRangeMapping[]);
     getInputRange(inputNumber: 1 | 2): LineRange;
     getInputCombinedDiff(inputNumber: 1 | 2): DetailedLineRangeMapping | undefined;

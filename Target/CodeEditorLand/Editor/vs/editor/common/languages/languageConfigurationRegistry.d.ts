@@ -1,15 +1,15 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { EditorAutoIndentStrategy } from "../config/editorOptions.js";
-import { ITextModel } from "../model.js";
-import { ILanguageService } from "./language.js";
-import { AutoClosingPairs, EnterAction, FoldingRules, IAutoClosingPair, IndentationRule, LanguageConfiguration } from "./languageConfiguration.js";
-import { CharacterPairSupport } from "./supports/characterPair.js";
-import { BracketElectricCharacterSupport } from "./supports/electricCharacter.js";
-import { IndentRulesSupport } from "./supports/indentRules.js";
-import { LanguageBracketsConfiguration } from "./supports/languageBracketsConfiguration.js";
-import { RichEditBrackets } from "./supports/richEditBrackets.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { ITextModel } from '../model.js';
+import { EnterAction, FoldingRules, IAutoClosingPair, IndentationRule, LanguageConfiguration, AutoClosingPairs } from './languageConfiguration.js';
+import { CharacterPairSupport } from './supports/characterPair.js';
+import { BracketElectricCharacterSupport } from './supports/electricCharacter.js';
+import { IndentRulesSupport } from './supports/indentRules.js';
+import { RichEditBrackets } from './supports/richEditBrackets.js';
+import { EditorAutoIndentStrategy } from '../config/editorOptions.js';
+import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
+import { ILanguageService } from './language.js';
+import { LanguageBracketsConfiguration } from './supports/languageBracketsConfiguration.js';
 /**
  * Interface used to support insertion of mode specific comments.
  */
@@ -63,7 +63,7 @@ export declare class LanguageConfigurationRegistry extends Disposable {
 }
 /**
  * Immutable.
- */
+*/
 export declare class ResolvedLanguageConfiguration {
     readonly languageId: string;
     readonly underlyingConfig: LanguageConfiguration;

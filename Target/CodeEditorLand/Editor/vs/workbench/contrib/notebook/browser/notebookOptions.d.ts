@@ -1,11 +1,11 @@
-import { CodeWindow } from "../../../../base/browser/window.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { InteractiveWindowCollapseCodeCells, NotebookCellDefaultCollapseConfig, NotebookCellInternalMetadata, ShowCellStatusBarType } from "../common/notebookCommon.js";
-import { INotebookExecutionStateService } from "../common/notebookExecutionStateService.js";
+import { CodeWindow } from '../../../../base/browser/window.js';
+import { Emitter } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { InteractiveWindowCollapseCodeCells, NotebookCellDefaultCollapseConfig, NotebookCellInternalMetadata, ShowCellStatusBarType } from '../common/notebookCommon.js';
+import { INotebookExecutionStateService } from '../common/notebookExecutionStateService.js';
 export declare const OutputInnerContainerTopPadding = 4;
 export interface NotebookDisplayOptions {
     showCellStatusBar: ShowCellStatusBarType;
@@ -14,15 +14,15 @@ export interface NotebookDisplayOptions {
     };
     cellToolbarInteraction: string;
     compactView: boolean;
-    focusIndicator: "border" | "gutter";
-    insertToolbarPosition: "betweenCells" | "notebookToolbar" | "both" | "hidden";
-    insertToolbarAlignment: "left" | "center";
+    focusIndicator: 'border' | 'gutter';
+    insertToolbarPosition: 'betweenCells' | 'notebookToolbar' | 'both' | 'hidden';
+    insertToolbarAlignment: 'left' | 'center';
     globalToolbar: boolean;
     stickyScrollEnabled: boolean;
-    stickyScrollMode: "flat" | "indented";
+    stickyScrollMode: 'flat' | 'indented';
     consolidatedOutputButton: boolean;
     consolidatedRunButton: boolean;
-    showFoldingControls: "always" | "never" | "mouseover";
+    showFoldingControls: 'always' | 'never' | 'mouseover';
     dragAndDropEnabled: boolean;
     interactiveWindowCollapseCodeCells: InteractiveWindowCollapseCodeCells;
     outputScrolling: boolean;
@@ -37,9 +37,9 @@ export interface NotebookDisplayOptions {
     markupFontSize: number;
     markdownLineHeight: number;
     editorOptionsCustomizations: Partial<{
-        "editor.indentSize": "tabSize" | number;
-        "editor.tabSize": number;
-        "editor.insertSpaces": boolean;
+        'editor.indentSize': 'tabSize' | number;
+        'editor.tabSize': number;
+        'editor.insertSpaces': boolean;
     }> | undefined;
 }
 export interface NotebookLayoutConfiguration {
@@ -135,7 +135,7 @@ export declare class NotebookOptions extends Disposable {
         bottomToolbarGap: number;
         bottomToolbarHeight: number;
     };
-    computeCellToolbarLocation(viewType?: string): "right" | "left" | "hidden";
+    computeCellToolbarLocation(viewType?: string): 'right' | 'left' | 'hidden';
     computeTopInsertToolbarHeight(viewType?: string): number;
     computeEditorPadding(internalMetadata: NotebookCellInternalMetadata, cellUri: URI): {
         top: number;

@@ -740,23 +740,23 @@ export declare enum PartialAcceptTriggerKind {
 export declare enum PositionAffinity {
     /**
      * Prefers the left most position.
-     */
+    */
     Left = 0,
     /**
      * Prefers the right most position.
-     */
+    */
     Right = 1,
     /**
      * No preference.
-     */
+    */
     None = 2,
     /**
      * If the given position is on injected text, prefers the position left of it.
-     */
+    */
     LeftOfInjectedText = 3,
     /**
      * If the given position is on injected text, prefers the position right of it.
-     */
+    */
     RightOfInjectedText = 4
 }
 export declare enum RenderLineNumbersType {

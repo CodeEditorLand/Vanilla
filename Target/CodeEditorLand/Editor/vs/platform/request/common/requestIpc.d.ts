@@ -1,8 +1,8 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { IRequestContext, IRequestOptions } from "../../../base/parts/request/common/request.js";
-import { AuthInfo, Credentials, IRequestService } from "./request.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { IChannel, IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { IRequestContext, IRequestOptions } from '../../../base/parts/request/common/request.js';
+import { AuthInfo, Credentials, IRequestService } from './request.js';
 export declare class RequestChannel implements IServerChannel {
     private readonly service;
     constructor(service: IRequestService);

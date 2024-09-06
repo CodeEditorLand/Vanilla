@@ -1,9 +1,9 @@
-import { FastDomNode } from "../../../../base/browser/fastDomNode.js";
-import "./blockDecorations.css";
-import * as viewEvents from "../../../common/viewEvents.js";
-import { ViewContext } from "../../../common/viewModel/viewContext.js";
-import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
-import { ViewPart } from "../../view/viewPart.js";
+import { FastDomNode } from '../../../../base/browser/fastDomNode.js';
+import './blockDecorations.css';
+import { RenderingContext, RestrictedRenderingContext } from '../../view/renderingContext.js';
+import { ViewPart } from '../../view/viewPart.js';
+import * as viewEvents from '../../../common/viewEvents.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
 export declare class BlockDecorations extends ViewPart {
     domNode: FastDomNode<HTMLElement>;
     private readonly blocks;

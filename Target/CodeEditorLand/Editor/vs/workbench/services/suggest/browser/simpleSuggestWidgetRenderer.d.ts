@@ -1,8 +1,8 @@
-import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
-import { IListRenderer } from "../../../../base/browser/ui/list/list.js";
-import { Event } from "../../../../base/common/event.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { SimpleCompletionItem } from "./simpleCompletionItem.js";
+import { IconLabel } from '../../../../base/browser/ui/iconLabel/iconLabel.js';
+import { IListRenderer } from '../../../../base/browser/ui/list/list.js';
+import { SimpleCompletionItem } from './simpleCompletionItem.js';
+import { Event } from '../../../../base/common/event.js';
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
 export declare function getAriaId(index: number): string;
 export interface ISimpleSuggestionTemplateData {
     readonly root: HTMLElement;

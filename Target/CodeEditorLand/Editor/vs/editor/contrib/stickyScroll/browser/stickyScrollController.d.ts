@@ -1,14 +1,14 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IEditorContribution } from "../../../common/editorCommon.js";
-import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { IStickyLineCandidateProvider } from "./stickyScrollProvider.js";
-import { StickyScrollWidgetState } from "./stickyScrollWidget.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { StickyScrollWidgetState } from './stickyScrollWidget.js';
+import { IStickyLineCandidateProvider } from './stickyScrollProvider.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { ILanguageConfigurationService } from '../../../common/languages/languageConfigurationRegistry.js';
+import { ILanguageFeatureDebounceService } from '../../../common/services/languageFeatureDebounce.js';
 export interface IStickyScrollController {
     get stickyScrollCandidateProvider(): IStickyLineCandidateProvider;
     get stickyScrollWidgetState(): StickyScrollWidgetState;

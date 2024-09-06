@@ -1,8 +1,8 @@
-import { IProcessMainService } from "../../../../platform/issue/common/issue.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
-import { IWorkbenchProcessService } from "../common/issue.js";
+import { IProcessMainService } from '../../../../platform/issue/common/issue.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { INativeWorkbenchEnvironmentService } from '../../../services/environment/electron-sandbox/environmentService.js';
+import { IWorkbenchProcessService } from '../common/issue.js';
 export declare class ProcessService implements IWorkbenchProcessService {
     private readonly processMainService;
     private readonly themeService;

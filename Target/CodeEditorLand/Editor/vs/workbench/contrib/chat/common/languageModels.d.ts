@@ -1,20 +1,20 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
 export declare const enum ChatMessageRole {
     System = 0,
     User = 1,
     Assistant = 2
 }
 export interface IChatMessageTextPart {
-    type: "text";
+    type: 'text';
     value: string;
 }
 export interface IChatMessageToolResultPart {
-    type: "tool_result";
+    type: 'tool_result';
     toolCallId: string;
     value: any;
     isError?: boolean;
@@ -26,11 +26,11 @@ export interface IChatMessage {
     readonly content: IChatMessagePart[];
 }
 export interface IChatResponseTextPart {
-    type: "text";
+    type: 'text';
     value: string;
 }
 export interface IChatResponseToolUsePart {
-    type: "tool_use";
+    type: 'tool_use';
     name: string;
     toolCallId: string;
     parameters: any;

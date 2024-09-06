@@ -1,8 +1,8 @@
-import "./media/editordroptarget.css";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
-import { IEditorDropTargetDelegate, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import './media/editordroptarget.css';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IThemeService, Themable } from '../../../../platform/theme/common/themeService.js';
+import { IEditorDropTargetDelegate, IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
 export declare class EditorDropTarget extends Themable {
     private readonly container;
     private readonly delegate;

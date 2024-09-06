@@ -1,8 +1,8 @@
-import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IProgressIndicator, IProgressRunner } from "../../../../platform/progress/common/progress.js";
-import { IEditorGroupView } from "../../../browser/parts/editor/editor.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ProgressBar } from '../../../../base/browser/ui/progressbar/progressbar.js';
+import { IProgressRunner, IProgressIndicator } from '../../../../platform/progress/common/progress.js';
+import { IEditorGroupView } from '../../../browser/parts/editor/editor.js';
 export declare class EditorProgressIndicator extends Disposable implements IProgressIndicator {
     private readonly progressBar;
     private readonly group;

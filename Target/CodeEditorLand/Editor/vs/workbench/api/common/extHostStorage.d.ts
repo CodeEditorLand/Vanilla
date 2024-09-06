@@ -1,7 +1,7 @@
-import { IExtensionIdWithVersion } from "../../../platform/extensionManagement/common/extensionStorage.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { ExtHostStorageShape } from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import { ExtHostStorageShape } from './extHost.protocol.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { IExtensionIdWithVersion } from '../../../platform/extensionManagement/common/extensionStorage.js';
+import { ILogService } from '../../../platform/log/common/log.js';
 export interface IStorageChangeEvent {
     shared: boolean;
     key: string;

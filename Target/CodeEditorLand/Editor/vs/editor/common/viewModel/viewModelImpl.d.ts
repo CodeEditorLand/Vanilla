@@ -1,23 +1,23 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { IThemeService } from "../../../platform/theme/common/themeService.js";
-import { IEditorConfiguration } from "../config/editorConfiguration.js";
-import { IPosition, Position } from "../core/position.js";
-import { Range } from "../core/range.js";
-import { ISelection, Selection } from "../core/selection.js";
-import { CursorConfiguration, CursorState, EditOperationType, IColumnSelectData, PartialCursorState } from "../cursorCommon.js";
-import { CursorChangeReason } from "../cursorEvents.js";
-import { ICommand, ICursorState, IViewState, ScrollType } from "../editorCommon.js";
-import { EditorTheme } from "../editorTheme.js";
-import { ILanguageConfigurationService } from "../languages/languageConfigurationRegistry.js";
-import { EndOfLinePreference, IAttachedView, ICursorStateComputer, IGlyphMarginLanesModel, IIdentifiedSingleEditOperation, ITextModel, PositionAffinity } from "../model.js";
-import { ILineBreaksComputer, ILineBreaksComputerFactory, InjectedText } from "../modelLineProjectionData.js";
-import { BracketGuideOptions, IActiveIndentGuideInfo, IndentGuide } from "../textModelGuides.js";
-import { ViewEventHandler } from "../viewEventHandler.js";
-import * as viewEvents from "../viewEvents.js";
-import { ViewLayout } from "../viewLayout/viewLayout.js";
-import { ICoordinatesConverter, IViewModel, IWhitespaceChangeAccessor, MinimapLinesRenderingData, OverviewRulerDecorationsGroup, ViewLineData, ViewLineRenderingData, ViewModelDecoration } from "../viewModel.js";
-import { OutgoingViewModelEvent } from "../viewModelEventDispatcher.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { CursorConfiguration, CursorState, EditOperationType, IColumnSelectData, PartialCursorState } from '../cursorCommon.js';
+import { CursorChangeReason } from '../cursorEvents.js';
+import { IPosition, Position } from '../core/position.js';
+import { Range } from '../core/range.js';
+import { ISelection, Selection } from '../core/selection.js';
+import { ICommand, ICursorState, IViewState, ScrollType } from '../editorCommon.js';
+import { IEditorConfiguration } from '../config/editorConfiguration.js';
+import { EndOfLinePreference, IAttachedView, ICursorStateComputer, IGlyphMarginLanesModel, IIdentifiedSingleEditOperation, ITextModel, PositionAffinity } from '../model.js';
+import { IActiveIndentGuideInfo, BracketGuideOptions, IndentGuide } from '../textModelGuides.js';
+import { ILanguageConfigurationService } from '../languages/languageConfigurationRegistry.js';
+import { EditorTheme } from '../editorTheme.js';
+import * as viewEvents from '../viewEvents.js';
+import { ViewLayout } from '../viewLayout/viewLayout.js';
+import { ILineBreaksComputer, ILineBreaksComputerFactory, InjectedText } from '../modelLineProjectionData.js';
+import { ViewEventHandler } from '../viewEventHandler.js';
+import { ICoordinatesConverter, IViewModel, IWhitespaceChangeAccessor, MinimapLinesRenderingData, OverviewRulerDecorationsGroup, ViewLineData, ViewLineRenderingData, ViewModelDecoration } from '../viewModel.js';
+import { OutgoingViewModelEvent } from '../viewModelEventDispatcher.js';
+import { IThemeService } from '../../../platform/theme/common/themeService.js';
 export declare class ViewModel extends Disposable implements IViewModel {
     private readonly languageConfigurationService;
     private readonly _themeService;
@@ -141,12 +141,12 @@ export declare class ViewModel extends Disposable implements IViewModel {
     /**
      * Gets the column at which indentation stops at a given line.
      * @internal
-     */
+    */
     getLineIndentColumn(lineNumber: number): number;
 }
 export interface IBatchableTarget {
     /**
      * Allows the target to apply the changes introduced by the callback in a batch.
-     */
+    */
     batchChanges<T>(cb: () => T): T;
 }

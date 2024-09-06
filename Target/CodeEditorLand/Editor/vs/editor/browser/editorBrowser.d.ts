@@ -1,25 +1,25 @@
-import { IKeyboardEvent } from "../../base/browser/keyboardEvent.js";
-import { IMouseEvent, IMouseWheelEvent } from "../../base/browser/mouseEvent.js";
-import { IBoundarySashes } from "../../base/browser/ui/sash/sash.js";
-import { Event } from "../../base/common/event.js";
-import { MenuId } from "../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
-import { ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
-import { ConfigurationChangedEvent, EditorLayoutInfo, EditorOption, FindComputedEditorOptionValueById, IComputedEditorOptions, IDiffEditorOptions, IEditorOptions, OverviewRulerPosition } from "../common/config/editorOptions.js";
-import { IDimension } from "../common/core/dimension.js";
-import { IPosition, Position } from "../common/core/position.js";
-import { IRange, Range } from "../common/core/range.js";
-import { Selection } from "../common/core/selection.js";
-import { IWordAtPosition } from "../common/core/wordHelper.js";
-import { ICursorPositionChangedEvent, ICursorSelectionChangedEvent } from "../common/cursorEvents.js";
-import { IDiffComputationResult, ILineChange } from "../common/diff/legacyLinesDiffComputer.js";
-import * as editorCommon from "../common/editorCommon.js";
-import { GlyphMarginLane, ICursorStateComputer, IIdentifiedSingleEditOperation, IModelDecoration, IModelDeltaDecoration, ITextModel, PositionAffinity } from "../common/model.js";
-import { InjectedText } from "../common/modelLineProjectionData.js";
-import { IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelLanguageChangedEvent, IModelLanguageConfigurationChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from "../common/textModelEvents.js";
-import { IEditorWhitespace, IViewModel } from "../common/viewModel.js";
-import { OverviewRulerZone } from "../common/viewModel/overviewZoneManager.js";
-import { IEditorConstructionOptions } from "./config/editorConfiguration.js";
+import { IKeyboardEvent } from '../../base/browser/keyboardEvent.js';
+import { IMouseEvent, IMouseWheelEvent } from '../../base/browser/mouseEvent.js';
+import { IBoundarySashes } from '../../base/browser/ui/sash/sash.js';
+import { Event } from '../../base/common/event.js';
+import { IEditorConstructionOptions } from './config/editorConfiguration.js';
+import { ConfigurationChangedEvent, EditorLayoutInfo, EditorOption, FindComputedEditorOptionValueById, IComputedEditorOptions, IDiffEditorOptions, IEditorOptions, OverviewRulerPosition } from '../common/config/editorOptions.js';
+import { IDimension } from '../common/core/dimension.js';
+import { IPosition, Position } from '../common/core/position.js';
+import { IRange, Range } from '../common/core/range.js';
+import { Selection } from '../common/core/selection.js';
+import { IWordAtPosition } from '../common/core/wordHelper.js';
+import { ICursorPositionChangedEvent, ICursorSelectionChangedEvent } from '../common/cursorEvents.js';
+import { IDiffComputationResult, ILineChange } from '../common/diff/legacyLinesDiffComputer.js';
+import * as editorCommon from '../common/editorCommon.js';
+import { GlyphMarginLane, ICursorStateComputer, IIdentifiedSingleEditOperation, IModelDecoration, IModelDeltaDecoration, ITextModel, PositionAffinity } from '../common/model.js';
+import { InjectedText } from '../common/modelLineProjectionData.js';
+import { IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelLanguageChangedEvent, IModelLanguageConfigurationChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from '../common/textModelEvents.js';
+import { IEditorWhitespace, IViewModel } from '../common/viewModel.js';
+import { OverviewRulerZone } from '../common/viewModel/overviewZoneManager.js';
+import { MenuId } from '../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../platform/contextkey/common/contextkey.js';
+import { ServicesAccessor } from '../../platform/instantiation/common/instantiation.js';
 /**
  * A view zone is a full horizontal rectangle that 'pushes' text down.
  * The editor reserves space for view zones when rendering.
@@ -38,7 +38,7 @@ export interface IViewZone {
     afterColumn?: number;
     /**
      * If the `afterColumn` has multiple view columns, the affinity specifies which one to use. Defaults to `none`.
-     */
+    */
     afterColumnAffinity?: PositionAffinity;
     /**
      * Render the zone even when its line is hidden.
@@ -157,7 +157,7 @@ export interface IContentWidgetPosition {
     /**
      * Placement preference when multiple view positions refer to the same (model) position.
      * This plays a role when injected text is involved.
-     */
+    */
     positionAffinity?: PositionAffinity;
 }
 /**
@@ -466,13 +466,13 @@ export interface IMouseTargetOverviewRuler extends IBaseMouseTarget {
 }
 export interface IMouseTargetOutsideEditor extends IBaseMouseTarget {
     readonly type: MouseTargetType.OUTSIDE_EDITOR;
-    readonly outsidePosition: "above" | "below" | "left" | "right";
+    readonly outsidePosition: 'above' | 'below' | 'left' | 'right';
     readonly outsideDistance: number;
 }
 /**
  * Target hit with the mouse in the editor.
  */
-export type IMouseTarget = IMouseTargetUnknown | IMouseTargetTextarea | IMouseTargetMargin | IMouseTargetViewZone | IMouseTargetContentText | IMouseTargetContentEmpty | IMouseTargetContentWidget | IMouseTargetOverlayWidget | IMouseTargetScrollbar | IMouseTargetOverviewRuler | IMouseTargetOutsideEditor;
+export type IMouseTarget = (IMouseTargetUnknown | IMouseTargetTextarea | IMouseTargetMargin | IMouseTargetViewZone | IMouseTargetContentText | IMouseTargetContentEmpty | IMouseTargetContentWidget | IMouseTargetOverlayWidget | IMouseTargetScrollbar | IMouseTargetOverviewRuler | IMouseTargetOutsideEditor);
 /**
  * A mouse event originating from the editor.
  */
@@ -753,11 +753,11 @@ export interface ICodeEditor extends editorCommon.IEditor {
      * the editor fires a begin update before the operation and an end update after the operation.
      * Whenever the editor fires `onBeginUpdate`, it will also fire `onEndUpdate` once the operation finishes.
      * Note that not all operations are bracketed by `onBeginUpdate` and `onEndUpdate`.
-     */
+    */
     readonly onBeginUpdate: Event<void>;
     /**
      * Fires after the editor completes the operation it fired `onBeginUpdate` for.
-     */
+    */
     readonly onEndUpdate: Event<void>;
     /**
      * Saves current view state of the editor in a serializable object.
@@ -1226,7 +1226,7 @@ export interface IDiffEditor extends editorCommon.IEditor {
     /**
      * Jumps to the next or previous diff.
      */
-    goToDiff(target: "next" | "previous"): void;
+    goToDiff(target: 'next' | 'previous'): void;
     /**
      * Scrolls to the first diff.
      * (Waits until the diff computation finished.)

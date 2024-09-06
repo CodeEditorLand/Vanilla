@@ -1,13 +1,9 @@
-import { UriComponents } from "../../../../../base/common/uri.js";
-import { ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from "../../../../../platform/terminal/common/environmentVariable.js";
-import { IShellLaunchConfigDto, ITerminalProcessOptions } from "../../../../../platform/terminal/common/terminal.js";
-import { ICompleteTerminalConfiguration } from "../terminal.js";
+import { UriComponents } from '../../../../../base/common/uri.js';
+import { IShellLaunchConfigDto, ITerminalProcessOptions } from '../../../../../platform/terminal/common/terminal.js';
+import { ICompleteTerminalConfiguration } from '../terminal.js';
+import { ISerializableEnvironmentDescriptionMap as ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from '../../../../../platform/terminal/common/environmentVariable.js';
 export declare const REMOTE_TERMINAL_CHANNEL_NAME = "remoteterminal";
-export type ITerminalEnvironmentVariableCollections = [
-    string,
-    ISerializableEnvironmentVariableCollection,
-    ISerializableEnvironmentDescriptionMap
-][];
+export type ITerminalEnvironmentVariableCollections = [string, ISerializableEnvironmentVariableCollection, ISerializableEnvironmentDescriptionMap][];
 export interface IWorkspaceFolderData {
     uri: UriComponents;
     name: string;
@@ -29,7 +25,7 @@ export interface ICreateTerminalProcessArguments {
     options: ITerminalProcessOptions;
     cols: number;
     rows: number;
-    unicodeVersion: "6" | "11";
+    unicodeVersion: '6' | '11';
     resolverEnv: {
         [key: string]: string | null;
     } | undefined;

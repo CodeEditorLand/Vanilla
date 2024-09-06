@@ -1,7 +1,7 @@
-import Severity from "../../../base/common/severity.js";
-import { URI } from "../../../base/common/uri.js";
-import { ILocalizedString } from "../../action/common/action.js";
-import { ExtensionKind } from "../../environment/common/environment.js";
+import Severity from '../../../base/common/severity.js';
+import { URI } from '../../../base/common/uri.js';
+import { ILocalizedString } from '../../action/common/action.js';
+import { ExtensionKind } from '../../environment/common/environment.js';
 export declare const USER_MANIFEST_CACHE_FILE = "extensions.user.cache";
 export declare const BUILTIN_MANIFEST_CACHE_FILE = "extensions.builtin.cache";
 export declare const UNDEFINED_PUBLISHER = "undefined_publisher";
@@ -128,7 +128,7 @@ export interface IStartEntry {
     readonly description: string;
     readonly command: string;
     readonly when?: string;
-    readonly category: "file" | "folder" | "notebook";
+    readonly category: 'file' | 'folder' | 'notebook';
 }
 export interface INotebookEntry {
     readonly type: string;
@@ -196,7 +196,7 @@ export interface IExtensionCapabilities {
     readonly untrustedWorkspaces?: ExtensionUntrustedWorkspaceSupport;
 }
 export declare const ALL_EXTENSION_KINDS: readonly ExtensionKind[];
-export type LimitedWorkspaceSupportType = "limited";
+export type LimitedWorkspaceSupportType = 'limited';
 export type ExtensionUntrustedWorkspaceSupportType = boolean | LimitedWorkspaceSupportType;
 export type ExtensionUntrustedWorkspaceSupport = {
     supported: true;

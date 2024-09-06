@@ -1,26 +1,22 @@
-import { Event } from "../../../../../base/common/event.js";
-import type * as performance from "../../../../../base/common/performance.js";
-import { IProcessEnvironment, OperatingSystem } from "../../../../../base/common/platform.js";
-import { URI, UriComponents } from "../../../../../base/common/uri.js";
-import { IChannel } from "../../../../../base/parts/ipc/common/ipc.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { IRemoteAuthorityResolverService } from "../../../../../platform/remote/common/remoteAuthorityResolver.js";
-import { IPtyHostProcessReplayEvent } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from "../../../../../platform/terminal/common/environmentVariable.js";
-import { IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IPtyHostController, IPtyHostLatencyMeasurement, IRequestResolveVariablesEvent, ISerializedTerminalState, IShellLaunchConfigDto, ITerminalLaunchError, ITerminalLogService, ITerminalProcessOptions, ITerminalProfile, ITerminalsLayoutInfo, ITerminalsLayoutInfoById, ProcessPropertyType, TerminalIcon, TitleEventSource } from "../../../../../platform/terminal/common/terminal.js";
-import { IProcessDetails } from "../../../../../platform/terminal/common/terminalProcess.js";
-import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
-import { IWorkbenchConfigurationService } from "../../../../services/configuration/common/configuration.js";
-import { IConfigurationResolverService } from "../../../../services/configurationResolver/common/configurationResolver.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { IEnvironmentVariableService } from "../environmentVariable.js";
-import { ICompleteTerminalConfiguration } from "../terminal.js";
+import { Event } from '../../../../../base/common/event.js';
+import { URI, UriComponents } from '../../../../../base/common/uri.js';
+import { IChannel } from '../../../../../base/parts/ipc/common/ipc.js';
+import { IWorkbenchConfigurationService } from '../../../../services/configuration/common/configuration.js';
+import { IRemoteAuthorityResolverService } from '../../../../../platform/remote/common/remoteAuthorityResolver.js';
+import { IWorkspaceContextService } from '../../../../../platform/workspace/common/workspace.js';
+import { IConfigurationResolverService } from '../../../../services/configurationResolver/common/configurationResolver.js';
+import { IEditorService } from '../../../../services/editor/common/editorService.js';
+import { ILabelService } from '../../../../../platform/label/common/label.js';
+import { IEnvironmentVariableService } from '../environmentVariable.js';
+import { IProcessDataEvent, IRequestResolveVariablesEvent, IShellLaunchConfigDto, ITerminalLaunchError, ITerminalProfile, ITerminalsLayoutInfo, ITerminalsLayoutInfoById, TerminalIcon, IProcessProperty, ProcessPropertyType, IProcessPropertyMap, TitleEventSource, ISerializedTerminalState, IPtyHostController, ITerminalProcessOptions, IProcessReadyEvent, ITerminalLogService, IPtyHostLatencyMeasurement } from '../../../../../platform/terminal/common/terminal.js';
+import { IProcessDetails } from '../../../../../platform/terminal/common/terminalProcess.js';
+import { IProcessEnvironment, OperatingSystem } from '../../../../../base/common/platform.js';
+import { ICompleteTerminalConfiguration } from '../terminal.js';
+import { IPtyHostProcessReplayEvent } from '../../../../../platform/terminal/common/capabilities/capabilities.js';
+import { ISerializableEnvironmentDescriptionMap as ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from '../../../../../platform/terminal/common/environmentVariable.js';
+import type * as performance from '../../../../../base/common/performance.js';
 export declare const REMOTE_TERMINAL_CHANNEL_NAME = "remoteterminal";
-export type ITerminalEnvironmentVariableCollections = [
-    string,
-    ISerializableEnvironmentVariableCollection,
-    ISerializableEnvironmentDescriptionMap
-][];
+export type ITerminalEnvironmentVariableCollections = [string, ISerializableEnvironmentVariableCollection, ISerializableEnvironmentDescriptionMap][];
 export interface IWorkspaceFolderData {
     uri: UriComponents;
     name: string;
@@ -42,7 +38,7 @@ export interface ICreateTerminalProcessArguments {
     options: ITerminalProcessOptions;
     cols: number;
     rows: number;
-    unicodeVersion: "6" | "11";
+    unicodeVersion: '6' | '11';
     resolverEnv: {
         [key: string]: string | null;
     } | undefined;
@@ -103,7 +99,7 @@ export declare class RemoteTerminalChannelClient implements IPtyHostController {
     }>;
     constructor(_remoteAuthority: string, _channel: IChannel, _configurationService: IWorkbenchConfigurationService, _workspaceContextService: IWorkspaceContextService, _resolverService: IConfigurationResolverService, _environmentVariableService: IEnvironmentVariableService, _remoteAuthorityResolverService: IRemoteAuthorityResolverService, _logService: ITerminalLogService, _editorService: IEditorService, _labelService: ILabelService);
     restartPtyHost(): Promise<void>;
-    createProcess(shellLaunchConfig: IShellLaunchConfigDto, configuration: ICompleteTerminalConfiguration, activeWorkspaceRootUri: URI | undefined, options: ITerminalProcessOptions, shouldPersistTerminal: boolean, cols: number, rows: number, unicodeVersion: "6" | "11"): Promise<ICreateTerminalProcessResult>;
+    createProcess(shellLaunchConfig: IShellLaunchConfigDto, configuration: ICompleteTerminalConfiguration, activeWorkspaceRootUri: URI | undefined, options: ITerminalProcessOptions, shouldPersistTerminal: boolean, cols: number, rows: number, unicodeVersion: '6' | '11'): Promise<ICreateTerminalProcessResult>;
     requestDetachInstance(workspaceId: string, instanceId: number): Promise<IProcessDetails | undefined>;
     acceptDetachInstanceReply(requestId: number, persistentProcessId: number): Promise<void>;
     attachToProcess(id: number): Promise<void>;
@@ -118,7 +114,7 @@ export declare class RemoteTerminalChannelClient implements IPtyHostController {
     } | undefined>;
     input(id: number, data: string): Promise<void>;
     acknowledgeDataEvent(id: number, charCount: number): Promise<void>;
-    setUnicodeVersion(id: number, version: "6" | "11"): Promise<void>;
+    setUnicodeVersion(id: number, version: '6' | '11'): Promise<void>;
     shutdown(id: number, immediate: boolean): Promise<void>;
     resize(id: number, cols: number, rows: number): Promise<void>;
     clearBuffer(id: number): Promise<void>;
@@ -136,7 +132,7 @@ export declare class RemoteTerminalChannelClient implements IPtyHostController {
     getProfiles(profiles: unknown, defaultProfile: unknown, includeDetectedProfiles?: boolean): Promise<ITerminalProfile[]>;
     acceptPtyHostResolvedVariables(requestId: number, resolved: string[]): Promise<void>;
     getEnvironment(): Promise<IProcessEnvironment>;
-    getWslPath(original: string, direction: "unix-to-win" | "win-to-unix"): Promise<string>;
+    getWslPath(original: string, direction: 'unix-to-win' | 'win-to-unix'): Promise<string>;
     setTerminalLayoutInfo(layout?: ITerminalsLayoutInfoById): Promise<void>;
     updateTitle(id: number, title: string, titleSource: TitleEventSource): Promise<string>;
     updateIcon(id: number, userInitiated: boolean, icon: TerminalIcon, color?: string): Promise<string>;

@@ -1,16 +1,16 @@
-import { IScrollPosition, Scrollable } from "../../base/common/scrollable.js";
-import { IPosition, Position } from "./core/position.js";
-import { Range } from "./core/range.js";
-import { CursorConfiguration, CursorState, EditOperationType, IColumnSelectData, ICursorSimpleModel, PartialCursorState } from "./cursorCommon.js";
-import { CursorChangeReason } from "./cursorEvents.js";
-import { INewScrollPosition, ScrollType } from "./editorCommon.js";
-import { EditorTheme } from "./editorTheme.js";
-import { EndOfLinePreference, IGlyphMarginLanesModel, IModelDecorationOptions, ITextModel, PositionAffinity } from "./model.js";
-import { ILineBreaksComputer, InjectedText } from "./modelLineProjectionData.js";
-import { BracketGuideOptions, IActiveIndentGuideInfo, IndentGuide } from "./textModelGuides.js";
-import { IViewLineTokens } from "./tokens/lineTokens.js";
-import { ViewEventHandler } from "./viewEventHandler.js";
-import { VerticalRevealType } from "./viewEvents.js";
+import { IScrollPosition, Scrollable } from '../../base/common/scrollable.js';
+import { IPosition, Position } from './core/position.js';
+import { Range } from './core/range.js';
+import { CursorConfiguration, CursorState, EditOperationType, IColumnSelectData, ICursorSimpleModel, PartialCursorState } from './cursorCommon.js';
+import { CursorChangeReason } from './cursorEvents.js';
+import { INewScrollPosition, ScrollType } from './editorCommon.js';
+import { EditorTheme } from './editorTheme.js';
+import { EndOfLinePreference, IGlyphMarginLanesModel, IModelDecorationOptions, ITextModel, PositionAffinity } from './model.js';
+import { ILineBreaksComputer, InjectedText } from './modelLineProjectionData.js';
+import { BracketGuideOptions, IActiveIndentGuideInfo, IndentGuide } from './textModelGuides.js';
+import { IViewLineTokens } from './tokens/lineTokens.js';
+import { ViewEventHandler } from './viewEventHandler.js';
+import { VerticalRevealType } from './viewEvents.js';
 export interface IViewModel extends ICursorSimpleModel {
     readonly model: ITextModel;
     readonly coordinatesConverter: ICoordinatesConverter;
@@ -176,7 +176,7 @@ export interface ICoordinatesConverter {
     convertModelPositionToViewPosition(modelPosition: Position, affinity?: PositionAffinity, allowZeroLineNumber?: boolean, belowHiddenRanges?: boolean): Position;
     /**
      * @param affinity Only has an effect if the range is empty.
-     */
+    */
     convertModelRangeToViewRange(modelRange: Range, affinity?: PositionAffinity): Range;
     modelPositionIsVisible(modelPosition: Position): boolean;
     getModelLineViewLineCount(modelLineNumber: number): number;
@@ -215,7 +215,7 @@ export declare class ViewLineData {
     readonly tokens: IViewLineTokens;
     /**
      * Additional inline decorations for this line.
-     */
+    */
     readonly inlineDecorations: readonly SingleLineInlineDecoration[] | null;
     constructor(content: string, continuesWithWrappedLine: boolean, minColumn: number, maxColumn: number, startVisibleColumn: number, tokens: IViewLineTokens, inlineDecorations: readonly SingleLineInlineDecoration[] | null);
 }

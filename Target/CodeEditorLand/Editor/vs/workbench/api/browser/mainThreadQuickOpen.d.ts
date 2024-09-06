@@ -1,7 +1,7 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IPickOptions, IQuickInputService } from "../../../platform/quickinput/common/quickInput.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { IInputBoxOptions, MainThreadQuickOpenShape, TransferQuickInput, TransferQuickPickItem, TransferQuickPickItemOrSeparator } from "../common/extHost.protocol.js";
+import { IPickOptions, IQuickInputService } from '../../../platform/quickinput/common/quickInput.js';
+import { MainThreadQuickOpenShape, TransferQuickPickItem, TransferQuickInput, IInputBoxOptions, TransferQuickPickItemOrSeparator } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
 export declare class MainThreadQuickOpen implements MainThreadQuickOpenShape {
     private readonly _proxy;
     private readonly _quickInputService;

@@ -1,5 +1,5 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { BareFontInfo, FontInfo } from "../../common/config/fontInfo.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { BareFontInfo, FontInfo } from '../../common/config/fontInfo.js';
 /**
  * Serializable font information.
  */

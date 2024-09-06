@@ -1,10 +1,10 @@
-import type { IBufferRange, IMarker, ITerminalAddon, Terminal } from "@xterm/xterm";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { ITerminalCapabilityStore, ITerminalCommand } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { ICurrentPartialCommand } from "../../../../../platform/terminal/common/capabilities/commandDetection/terminalCommand.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { IMarkTracker } from "../terminal.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IMarkTracker } from '../terminal.js';
+import { ITerminalCapabilityStore, ITerminalCommand } from '../../../../../platform/terminal/common/capabilities/capabilities.js';
+import type { Terminal, IMarker, ITerminalAddon, IBufferRange } from '@xterm/xterm';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { ICurrentPartialCommand } from '../../../../../platform/terminal/common/capabilities/commandDetection/terminalCommand.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
 declare enum Boundary {
     Top = 0,
     Bottom = 1

@@ -1,8 +1,8 @@
-import { Server as NetServer, Socket } from "net";
-import { VSBuffer } from "../../../common/buffer.js";
-import { Disposable, IDisposable } from "../../../common/lifecycle.js";
-import { IPCServer } from "../common/ipc.js";
-import { Client, ISocket, SocketCloseEvent, SocketDiagnosticsEventType } from "../common/ipc.net.js";
+import { Server as NetServer, Socket } from 'net';
+import { VSBuffer } from '../../../common/buffer.js';
+import { Disposable, IDisposable } from '../../../common/lifecycle.js';
+import { IPCServer } from '../common/ipc.js';
+import { Client, ISocket, SocketCloseEvent, SocketDiagnosticsEventType } from '../common/ipc.net.js';
 export declare class NodeSocket implements ISocket {
     readonly debugLabel: string;
     readonly socket: Socket;

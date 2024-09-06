@@ -1,4 +1,4 @@
-import { Comparator } from "./arrays.js";
+import { Comparator } from './arrays.js';
 export declare function findLast<T>(array: readonly T[], predicate: (item: T) => boolean): T | undefined;
 export declare function findLastIdx<T>(array: readonly T[], predicate: (item: T) => boolean, fromIndex?: number): number;
 /**
@@ -50,15 +50,15 @@ export declare class MonotonousArray<T> {
 }
 /**
  * Returns the first item that is equal to or greater than every other item.
- */
+*/
 export declare function findFirstMax<T>(array: readonly T[], comparator: Comparator<T>): T | undefined;
 /**
  * Returns the last item that is equal to or greater than every other item.
- */
+*/
 export declare function findLastMax<T>(array: readonly T[], comparator: Comparator<T>): T | undefined;
 /**
  * Returns the first item that is equal to or less than every other item.
- */
+*/
 export declare function findFirstMin<T>(array: readonly T[], comparator: Comparator<T>): T | undefined;
 export declare function findMaxIdx<T>(array: readonly T[], comparator: Comparator<T>): number;
 /**

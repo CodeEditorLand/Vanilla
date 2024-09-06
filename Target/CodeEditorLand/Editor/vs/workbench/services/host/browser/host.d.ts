@@ -1,5 +1,5 @@
-import { Event } from "../../../../base/common/event.js";
-import { IOpenEmptyWindowOptions, IOpenWindowOptions, IPoint, IRectangle, IWindowOpenable } from "../../../../platform/window/common/window.js";
+import { Event } from '../../../../base/common/event.js';
+import { IWindowOpenable, IOpenWindowOptions, IOpenEmptyWindowOptions, IPoint, IRectangle } from '../../../../platform/window/common/window.js';
 export declare const IHostService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IHostService>;
 /**
  * A set of methods supported in both web and native environments.

@@ -1,4 +1,4 @@
-import { SelectedLines } from "./folding.js";
+import { SelectedLines } from './folding.js';
 export interface ILineRange {
     startLineNumber: number;
     endLineNumber: number;

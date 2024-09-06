@@ -1,12 +1,12 @@
-import { IJSONSchemaMap } from "../../../../base/common/jsonSchema.js";
-import { URI, UriComponents } from "../../../../base/common/uri.js";
-import * as nls from "../../../../nls.js";
-import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
-import { ContextKeyExpression, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import { TerminalExitReason } from "../../../../platform/terminal/common/terminal.js";
-import { IWorkspace, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import { ProblemMatcher } from "./problemMatcher.js";
+import * as nls from '../../../../nls.js';
+import { IJSONSchemaMap } from '../../../../base/common/jsonSchema.js';
+import { UriComponents, URI } from '../../../../base/common/uri.js';
+import { ProblemMatcher } from './problemMatcher.js';
+import { IWorkspaceFolder, IWorkspace } from '../../../../platform/workspace/common/workspace.js';
+import { RawContextKey, ContextKeyExpression } from '../../../../platform/contextkey/common/contextkey.js';
+import { IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { ConfigurationTarget } from '../../../../platform/configuration/common/configuration.js';
+import { TerminalExitReason } from '../../../../platform/terminal/common/terminal.js';
 export declare const USER_TASKS_GROUP_KEY = "settings";
 export declare const TASK_RUNNING_STATE: RawContextKey<boolean>;
 export declare const TASKS_CATEGORY: nls.ILocalizedString;
@@ -247,11 +247,11 @@ export declare const enum TaskScope {
     Folder = 3
 }
 export declare namespace TaskSourceKind {
-    const Workspace: "workspace";
-    const Extension: "extension";
-    const InMemory: "inMemory";
-    const WorkspaceFile: "workspaceFile";
-    const User: "user";
+    const Workspace: 'workspace';
+    const Extension: 'extension';
+    const InMemory: 'inMemory';
+    const WorkspaceFile: 'workspaceFile';
+    const User: 'user';
     function toConfigurationTarget(kind: string): ConfigurationTarget;
 }
 export interface ITaskSourceConfigElement {
@@ -266,12 +266,12 @@ interface IBaseTaskSource {
     readonly label: string;
 }
 export interface IWorkspaceTaskSource extends IBaseTaskSource {
-    readonly kind: "workspace";
+    readonly kind: 'workspace';
     readonly config: ITaskSourceConfigElement;
     readonly customizes?: KeyedTaskIdentifier;
 }
 export interface IExtensionTaskSource extends IBaseTaskSource {
-    readonly kind: "extension";
+    readonly kind: 'extension';
     readonly extension?: string;
     readonly scope: TaskScope;
     readonly workspaceFolder: IWorkspaceFolder | undefined;
@@ -284,15 +284,15 @@ export interface IExtensionTaskSourceTransfer {
     };
 }
 export interface IInMemoryTaskSource extends IBaseTaskSource {
-    readonly kind: "inMemory";
+    readonly kind: 'inMemory';
 }
 export interface IUserTaskSource extends IBaseTaskSource {
-    readonly kind: "user";
+    readonly kind: 'user';
     readonly config: ITaskSourceConfigElement;
     readonly customizes?: KeyedTaskIdentifier;
 }
 export interface WorkspaceFileTaskSource extends IBaseTaskSource {
-    readonly kind: "workspaceFile";
+    readonly kind: 'workspaceFile';
     readonly config: ITaskSourceConfigElement;
     readonly customizes?: KeyedTaskIdentifier;
 }
@@ -420,7 +420,7 @@ export declare abstract class CommonTask {
  * resolving a ConfiguringTask.
  */
 export declare class CustomTask extends CommonTask {
-    type: "$customized";
+    type: '$customized';
     instance: number | undefined;
     /**
      * Indicated the source of the task (e.g. tasks.json or extension)
@@ -512,7 +512,7 @@ export declare class InMemoryTask extends CommonTask {
      */
     _source: IInMemoryTaskSource;
     instance: number | undefined;
-    type: "inMemory";
+    type: 'inMemory';
     constructor(id: string, source: IInMemoryTaskSource, label: string, type: string, runOptions: IRunOptions, configurationProperties: IConfigurationProperties);
     clone(): InMemoryTask;
     static is(value: any): value is InMemoryTask;

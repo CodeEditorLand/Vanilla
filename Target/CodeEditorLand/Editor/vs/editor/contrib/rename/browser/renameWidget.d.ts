@@ -1,14 +1,14 @@
-import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import "./renameWidget.css";
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../browser/editorBrowser.js";
-import { IDimension } from "../../../common/core/dimension.js";
-import { IRange } from "../../../common/core/range.js";
-import { NewSymbolName, NewSymbolNameTriggerKind, ProviderResult } from "../../../common/languages.js";
+import { CancellationToken, CancellationTokenSource } from '../../../../base/common/cancellation.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import './renameWidget.css';
+import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from '../../../browser/editorBrowser.js';
+import { IDimension } from '../../../common/core/dimension.js';
+import { IRange } from '../../../common/core/range.js';
+import { NewSymbolName, NewSymbolNameTriggerKind, ProviderResult } from '../../../common/languages.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
 export declare const CONTEXT_RENAME_INPUT_VISIBLE: RawContextKey<boolean>;
 export declare const CONTEXT_RENAME_INPUT_FOCUSED: RawContextKey<boolean>;
 /**
@@ -18,11 +18,11 @@ export declare const CONTEXT_RENAME_INPUT_FOCUSED: RawContextKey<boolean>;
  * - 'userEditedRenameSuggestion' - user _likely_ edited a rename suggestion ("likely" because when input started being edited, a rename suggestion had focus)
  */
 export type NewNameSource = {
-    k: "inputField";
+    k: 'inputField';
 } | {
-    k: "renameSuggestion";
+    k: 'renameSuggestion';
 } | {
-    k: "userEditedRenameSuggestion";
+    k: 'userEditedRenameSuggestion';
 };
 /**
  * Various statistics regarding rename input field

@@ -1,13 +1,13 @@
-import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
-import { IObservable, IReader } from "../../../../../base/common/observable.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { LineRange } from "../../../../common/core/lineRange.js";
-import { SymbolKind } from "../../../../common/languages.js";
-import { ITextModel } from "../../../../common/model.js";
-import { DiffEditorEditors } from "../components/diffEditorEditors.js";
-import { DiffEditorOptions } from "../diffEditorOptions.js";
-import { DiffEditorViewModel } from "../diffEditorViewModel.js";
-import { IObservableViewZone } from "../utils.js";
+import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable, IReader } from '../../../../../base/common/observable.js';
+import { DiffEditorEditors } from '../components/diffEditorEditors.js';
+import { DiffEditorOptions } from '../diffEditorOptions.js';
+import { DiffEditorViewModel } from '../diffEditorViewModel.js';
+import { IObservableViewZone } from '../utils.js';
+import { LineRange } from '../../../../common/core/lineRange.js';
+import { SymbolKind } from '../../../../common/languages.js';
+import { ITextModel } from '../../../../common/model.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
 /**
  * Make sure to add the view zones to the editor!
  */

@@ -1,6 +1,6 @@
-import { URI } from "../../../../base/common/uri.js";
-import { IMainThreadTestCollection } from "./testService.js";
-import { AbstractIncrementalTestCollection, IncrementalChangeCollector, IncrementalTestCollectionItem, InternalTestItem, ITestUriCanonicalizer, TestsDiff } from "./testTypes.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IMainThreadTestCollection } from './testService.js';
+import { AbstractIncrementalTestCollection, ITestUriCanonicalizer, IncrementalChangeCollector, IncrementalTestCollectionItem, InternalTestItem, TestsDiff } from './testTypes.js';
 export declare class MainThreadTestCollection extends AbstractIncrementalTestCollection<IncrementalTestCollectionItem> implements IMainThreadTestCollection {
     private readonly expandActual;
     private testsByUrl;

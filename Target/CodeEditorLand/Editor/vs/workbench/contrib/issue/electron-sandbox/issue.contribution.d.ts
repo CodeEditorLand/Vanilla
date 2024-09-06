@@ -1,2 +1,2 @@
-import "./issueMainService.js";
-import "../browser/issueTroubleshoot.js";
+import './issueMainService.js';
+import '../browser/issueTroubleshoot.js';

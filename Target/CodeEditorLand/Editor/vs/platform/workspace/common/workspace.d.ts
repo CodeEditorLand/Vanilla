@@ -1,6 +1,6 @@
-import { Event } from "../../../base/common/event.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
+import { Event } from '../../../base/common/event.js';
+import { URI, UriComponents } from '../../../base/common/uri.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
 export declare const IWorkspaceContextService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWorkspaceContextService>;
 export interface IWorkspaceContextService {
     readonly _serviceBrand: undefined;

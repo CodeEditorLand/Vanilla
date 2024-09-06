@@ -1,13 +1,13 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IExtension, IExtensionIdentifier } from "../../extensions/common/extensions.js";
-import { IFileService } from "../../files/common/files.js";
-import { ILogService } from "../../log/common/log.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { Metadata } from "./extensionManagement.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { Event } from '../../../base/common/event.js';
+import { URI } from '../../../base/common/uri.js';
+import { Metadata } from './extensionManagement.js';
+import { IExtension, IExtensionIdentifier } from '../../extensions/common/extensions.js';
+import { IFileService } from '../../files/common/files.js';
+import { ILogService } from '../../log/common/log.js';
+import { IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
+import { IUriIdentityService } from '../../uriIdentity/common/uriIdentity.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 export declare const enum ExtensionsProfileScanningErrorCode {
     /**
      * Error when trying to scan extensions from a profile that does not exist.

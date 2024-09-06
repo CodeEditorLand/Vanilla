@@ -1,17 +1,17 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IMessagePassingProtocol } from "../../../../base/parts/ipc/common/ipc.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import { ILoggerService, ILogService } from "../../../../platform/log/common/log.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
-import { LocalWebWorkerRunningLocation } from "../common/extensionRunningLocation.js";
-import { ExtensionHostExtensions, ExtensionHostStartup, IExtensionHost } from "../common/extensions.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IMessagePassingProtocol } from '../../../../base/parts/ipc/common/ipc.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { ILayoutService } from '../../../../platform/layout/browser/layoutService.js';
+import { ILogService, ILoggerService } from '../../../../platform/log/common/log.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IUserDataProfilesService } from '../../../../platform/userDataProfile/common/userDataProfile.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IBrowserWorkbenchEnvironmentService } from '../../environment/browser/environmentService.js';
+import { LocalWebWorkerRunningLocation } from '../common/extensionRunningLocation.js';
+import { ExtensionHostExtensions, ExtensionHostStartup, IExtensionHost } from '../common/extensions.js';
 export interface IWebWorkerExtensionHostInitData {
     readonly extensions: ExtensionHostExtensions;
 }

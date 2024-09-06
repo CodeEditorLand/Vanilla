@@ -1,6 +1,6 @@
-import { Position } from "../core/position.js";
-import { CursorConfiguration, ICursorSimpleModel, SingleCursorState } from "../cursorCommon.js";
-import { PositionAffinity } from "../model.js";
+import { Position } from '../core/position.js';
+import { CursorConfiguration, ICursorSimpleModel, SingleCursorState } from '../cursorCommon.js';
+import { PositionAffinity } from '../model.js';
 export declare class CursorPosition {
     _cursorPositionBrand: void;
     readonly lineNumber: number;
@@ -15,11 +15,11 @@ export declare class MoveOperations {
     /**
      * @param noOfColumns Must be either `1`
      * or `Math.round(viewModel.getLineContent(viewLineNumber).length / 2)` (for half lines).
-     */
+    */
     static moveLeft(config: CursorConfiguration, model: ICursorSimpleModel, cursor: SingleCursorState, inSelectionMode: boolean, noOfColumns: number): SingleCursorState;
     /**
      * Adjusts the column so that it is within min/max of the line.
-     */
+    */
     private static clipPositionColumn;
     private static clipRange;
     static rightPosition(model: ICursorSimpleModel, lineNumber: number, column: number): Position;

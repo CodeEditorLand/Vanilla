@@ -1,8 +1,8 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { ICommonMenubarService, IMenubarData } from "../common/menubar.js";
+import { IInstantiationService } from '../../instantiation/common/instantiation.js';
+import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
+import { ILogService } from '../../log/common/log.js';
+import { ICommonMenubarService, IMenubarData } from '../common/menubar.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
 export declare const IMenubarMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IMenubarMainService>;
 export interface IMenubarMainService extends ICommonMenubarService {
     readonly _serviceBrand: undefined;

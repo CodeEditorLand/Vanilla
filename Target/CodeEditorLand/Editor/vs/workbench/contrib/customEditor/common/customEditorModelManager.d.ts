@@ -1,6 +1,6 @@
-import { IReference } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ICustomEditorModel, ICustomEditorModelManager } from "./customEditor.js";
+import { IReference } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ICustomEditorModel, ICustomEditorModelManager } from './customEditor.js';
 export declare class CustomEditorModelManager implements ICustomEditorModelManager {
     private readonly _references;
     getAllModels(resource: URI): Promise<ICustomEditorModel[]>;

@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IObservable } from "../../../../../base/common/observable.js";
-import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
-import { MergeEditorViewModel } from "../view/viewModel.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../../base/common/observable.js';
+import { ICodeEditor } from '../../../../../editor/browser/editorBrowser.js';
+import { MergeEditorViewModel } from '../view/viewModel.js';
 export declare const conflictMarkers: {
     start: string;
     end: string;

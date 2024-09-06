@@ -1,4 +1,4 @@
-import { URI } from "../../../../base/common/uri.js";
+import { URI } from '../../../../base/common/uri.js';
 export interface WebviewRemoteInfo {
     readonly isRemote: boolean;
     readonly authority: string | undefined;

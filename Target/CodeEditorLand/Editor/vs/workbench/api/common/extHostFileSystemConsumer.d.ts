@@ -1,9 +1,9 @@
-import type * as vscode from "vscode";
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { IExtUri } from "../../../base/common/resources.js";
-import { IExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import type * as vscode from 'vscode';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { IExtHostFileSystemInfo } from './extHostFileSystemInfo.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { IExtUri } from '../../../base/common/resources.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
 export declare class ExtHostConsumerFileSystem {
     readonly _serviceBrand: undefined;
     readonly value: vscode.FileSystem;

@@ -1,7 +1,7 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IObservableValue, MutableObservableValue } from "./observableValue.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IObservableValue, MutableObservableValue } from './observableValue.js';
 export interface ITestExplorerFilterState {
     _serviceBrand: undefined;
     /** Current filter text */

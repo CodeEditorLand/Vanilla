@@ -1,15 +1,15 @@
-import { URI } from "../../../base/common/uri.js";
-import { ITextEditorModel, ITextModelService } from "../../../editor/common/services/resolverService.js";
-import { ITextResourceConfigurationService } from "../../../editor/common/services/textResourceConfiguration.js";
-import { IFileService } from "../../../platform/files/common/files.js";
-import { ILabelService } from "../../../platform/label/common/label.js";
-import { ICustomEditorLabelService } from "../../services/editor/common/customEditorLabelService.js";
-import { IEditorService } from "../../services/editor/common/editorService.js";
-import { IFilesConfigurationService } from "../../services/filesConfiguration/common/filesConfigurationService.js";
-import { ILanguageSupport, ITextFileSaveOptions, ITextFileService } from "../../services/textfile/common/textfiles.js";
-import { GroupIdentifier, IRevertOptions, IUntypedEditorInput } from "../editor.js";
-import { EditorInput } from "./editorInput.js";
-import { AbstractResourceEditorInput } from "./resourceEditorInput.js";
+import { GroupIdentifier, IRevertOptions, IUntypedEditorInput } from '../editor.js';
+import { EditorInput } from './editorInput.js';
+import { AbstractResourceEditorInput } from './resourceEditorInput.js';
+import { URI } from '../../../base/common/uri.js';
+import { ITextFileService, ITextFileSaveOptions, ILanguageSupport } from '../../services/textfile/common/textfiles.js';
+import { IEditorService } from '../../services/editor/common/editorService.js';
+import { IFileService } from '../../../platform/files/common/files.js';
+import { ILabelService } from '../../../platform/label/common/label.js';
+import { ITextEditorModel, ITextModelService } from '../../../editor/common/services/resolverService.js';
+import { IFilesConfigurationService } from '../../services/filesConfiguration/common/filesConfigurationService.js';
+import { ITextResourceConfigurationService } from '../../../editor/common/services/textResourceConfiguration.js';
+import { ICustomEditorLabelService } from '../../services/editor/common/customEditorLabelService.js';
 /**
  * The base class for all editor inputs that open in text editors.
  */

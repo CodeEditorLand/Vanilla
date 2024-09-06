@@ -1,5 +1,5 @@
-import { OffsetRange } from "../../core/offsetRange.js";
-import { ISequence } from "./algorithms/diffAlgorithm.js";
+import { OffsetRange } from '../../core/offsetRange.js';
+import { ISequence } from './algorithms/diffAlgorithm.js';
 export declare class LineSequence implements ISequence {
     private readonly trimmedHash;
     private readonly lines;

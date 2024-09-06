@@ -1,5 +1,5 @@
-import { Event } from "../../../common/event.js";
-import { Disposable, IDisposable } from "../../../common/lifecycle.js";
+import { Event } from '../../../common/event.js';
+import { Disposable, IDisposable } from '../../../common/lifecycle.js';
 export declare enum StorageHint {
     STORAGE_DOES_NOT_EXIST = 0,
     STORAGE_IN_MEMORY = 1

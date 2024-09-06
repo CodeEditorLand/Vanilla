@@ -1,6 +1,6 @@
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { ILanguageExtensionPoint } from "./language.js";
+import { Event } from '../../../base/common/event.js';
+import { ILanguageExtensionPoint } from './language.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
 export declare const Extensions: {
     ModesRegistry: string;
 };

@@ -1,12 +1,12 @@
-import { Event } from "../../../../../../base/common/event.js";
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { ILanguageConfigurationService } from "../../../../../../editor/common/languages/languageConfigurationRegistry.js";
-import { ITextModelService } from "../../../../../../editor/common/services/resolverService.js";
-import { IAccessibilityService } from "../../../../../../platform/accessibility/common/accessibility.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService, RawContextKey } from "../../../../../../platform/contextkey/common/contextkey.js";
-import { IUndoRedoService } from "../../../../../../platform/undoRedo/common/undoRedo.js";
-import { ICellViewModel, INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
+import { Event } from '../../../../../../base/common/event.js';
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { ILanguageConfigurationService } from '../../../../../../editor/common/languages/languageConfigurationRegistry.js';
+import { ITextModelService } from '../../../../../../editor/common/services/resolverService.js';
+import { IAccessibilityService } from '../../../../../../platform/accessibility/common/accessibility.js';
+import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService, RawContextKey } from '../../../../../../platform/contextkey/common/contextkey.js';
+import { IUndoRedoService } from '../../../../../../platform/undoRedo/common/undoRedo.js';
+import { ICellViewModel, INotebookEditor, INotebookEditorContribution } from '../../notebookBrowser.js';
 declare enum NotebookMultiCursorState {
     Idle = 0,
     Selecting = 1,

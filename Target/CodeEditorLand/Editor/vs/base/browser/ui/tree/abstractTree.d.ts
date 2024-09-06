@@ -1,16 +1,16 @@
-import { Event } from "../../../common/event.js";
-import { FuzzyScore } from "../../../common/filters.js";
-import { Disposable, DisposableStore, IDisposable } from "../../../common/lifecycle.js";
-import { SetMap } from "../../../common/map.js";
-import { ScrollEvent } from "../../../common/scrollable.js";
-import { IContextViewProvider } from "../contextview/contextview.js";
-import { IInputBoxStyles } from "../inputbox/inputBox.js";
-import { IIdentityProvider, IListRenderer, IListVirtualDelegate } from "../list/list.js";
-import { IListOptions, IListStyles, List, MouseController, TypeNavigationMode } from "../list/listWidget.js";
-import { IToggleStyles, Toggle } from "../toggle/toggle.js";
-import { ICollapseStateChangeEvent, ITreeContextMenuEvent, ITreeDragAndDrop, ITreeEvent, ITreeFilter, ITreeModel, ITreeModelSpliceEvent, ITreeMouseEvent, ITreeNavigator, ITreeNode, ITreeRenderer, TreeVisibility } from "./tree.js";
-import "./media/tree.css";
-import { IHoverDelegate } from "../hover/hoverDelegate.js";
+import { IContextViewProvider } from '../contextview/contextview.js';
+import { IInputBoxStyles } from '../inputbox/inputBox.js';
+import { IIdentityProvider, IListRenderer, IListVirtualDelegate } from '../list/list.js';
+import { IListOptions, IListStyles, List, MouseController, TypeNavigationMode } from '../list/listWidget.js';
+import { IToggleStyles, Toggle } from '../toggle/toggle.js';
+import { ICollapseStateChangeEvent, ITreeContextMenuEvent, ITreeDragAndDrop, ITreeEvent, ITreeFilter, ITreeModel, ITreeModelSpliceEvent, ITreeMouseEvent, ITreeNavigator, ITreeNode, ITreeRenderer, TreeVisibility } from './tree.js';
+import { SetMap } from '../../../common/map.js';
+import { Event } from '../../../common/event.js';
+import { FuzzyScore } from '../../../common/filters.js';
+import { Disposable, DisposableStore, IDisposable } from '../../../common/lifecycle.js';
+import { ScrollEvent } from '../../../common/scrollable.js';
+import './media/tree.css';
+import { IHoverDelegate } from '../hover/hoverDelegate.js';
 export declare class ComposedTreeDelegate<T, N extends {
     element: T;
 }> implements IListVirtualDelegate<N> {
@@ -88,6 +88,7 @@ export declare class TreeRenderer<T, TFilterData, TRef, TTemplateData> implement
     private renderTreeElement;
     private _renderIndentGuides;
     private _onDidChangeActiveNodes;
+    setModel(model: ITreeModel<T, TFilterData, TRef>): void;
     dispose(): void;
 }
 export type LabelFuzzyScore = {
@@ -139,7 +140,7 @@ export interface IStickyScrollDelegate<T, TFilterData> {
 }
 declare class StickyScrollController<T, TFilterData, TRef> extends Disposable {
     private readonly tree;
-    private readonly model;
+    private model;
     private readonly view;
     private readonly treeDelegate;
     readonly onDidChangeHasFocus: Event<boolean>;
@@ -174,6 +175,7 @@ declare class StickyScrollController<T, TFilterData, TRef> extends Disposable {
     validateStickySettings(options: IAbstractTreeOptionsUpdate): {
         stickyScrollMaxItemCount: number;
     };
+    setModel(model: ITreeModel<T, TFilterData, TRef>): void;
 }
 export interface IAbstractTreeOptionsUpdate extends ITreeRendererOptions {
     readonly multipleSelectionSupport?: boolean;
@@ -223,7 +225,7 @@ declare class Trait<T> {
     get(): T[];
     getNodes(): readonly ITreeNode<T, any>[];
     has(node: ITreeNode<T, any>): boolean;
-    onDidModelSplice({ insertedNodes, deletedNodes, }: ITreeModelSpliceEvent<T, any>): void;
+    onDidModelSplice({ insertedNodes, deletedNodes }: ITreeModelSpliceEvent<T, any>): void;
     private createNodeSet;
 }
 interface ITreeNodeListOptions<T, TFilterData, TRef> extends IListOptions<ITreeNode<T, TFilterData>> {
@@ -282,6 +284,12 @@ export declare abstract class AbstractTree<T, TFilterData, TRef> implements IDis
     get onKeyPress(): Event<KeyboardEvent>;
     get onDidFocus(): Event<void>;
     get onDidBlur(): Event<void>;
+    private readonly onDidSwapModel;
+    private readonly onDidChangeModelRelay;
+    private readonly onDidSpliceModelRelay;
+    private readonly onDidChangeCollapseStateRelay;
+    private readonly onDidChangeRenderNodeCountRelay;
+    private readonly onDidChangeActiveNodesRelay;
     get onDidChangeModel(): Event<void>;
     get onDidChangeCollapseState(): Event<ICollapseStateChangeEvent<T, TFilterData>>;
     get onDidChangeRenderNodeCount(): Event<ITreeNode<T, TFilterData>>;
@@ -366,6 +374,10 @@ export declare abstract class AbstractTree<T, TFilterData, TRef> implements IDis
     private onRightArrow;
     private onSpace;
     protected abstract createModel(user: string, options: IAbstractTreeOptions<T, TFilterData>): ITreeModel<T, TFilterData, TRef>;
+    private readonly modelDisposables;
+    private setupModel;
+    setModel(newModel: ITreeModel<T, TFilterData, TRef>): void;
+    getModel(): ITreeModel<T, TFilterData, TRef>;
     navigate(start?: TRef): ITreeNavigator<T>;
     dispose(): void;
 }

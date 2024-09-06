@@ -1,12 +1,12 @@
-import { Event as CommonEvent } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
-import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { IApplicationStorageMainService } from "../../storage/electron-main/storageMainService.js";
-import { IRecent, IRecentlyOpened } from "../common/workspaces.js";
-import { IWorkspacesManagementMainService } from "./workspacesManagementMainService.js";
+import { Event as CommonEvent } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
+import { ILogService } from '../../log/common/log.js';
+import { IApplicationStorageMainService } from '../../storage/electron-main/storageMainService.js';
+import { IRecent, IRecentlyOpened } from '../common/workspaces.js';
+import { IWorkspacesManagementMainService } from './workspacesManagementMainService.js';
+import { IDialogMainService } from '../../dialogs/electron-main/dialogMainService.js';
 export declare const IWorkspacesHistoryMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWorkspacesHistoryMainService>;
 export interface IWorkspacesHistoryMainService {
     readonly _serviceBrand: undefined;

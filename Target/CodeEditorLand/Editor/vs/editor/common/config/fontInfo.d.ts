@@ -1,4 +1,4 @@
-import { EditorOption, FindComputedEditorOptionValueById } from "./editorOptions.js";
+import { EditorOption, FindComputedEditorOptionValueById } from './editorOptions.js';
 /**
  * @internal
  */

@@ -1,17 +1,17 @@
-import { Event } from "../../../../base/common/event.js";
-import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
-import { DeepPartial } from "../../../../base/common/types.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IDimension } from "../../../../editor/common/core/dimension.js";
-import { IMenuChangeEvent } from "../../../../platform/actions/common/actions.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ContextKeyValue, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IRectangle } from "../../../../platform/window/common/window.js";
-import { CloseDirection, EditorInputWithOptions, EditorsOrder, GroupIdentifier, IActiveEditorChangeEvent, IEditorCloseEvent, IEditorPane, IEditorPartOptions, IEditorPartOptionsChangeEvent, IEditorWillMoveEvent, IFindEditorOptions, IMatchEditorOptions, IToolbarActions, IUntypedEditorInput, IVisibleEditorPane } from "../../../common/editor.js";
-import { IGroupModelChangeEvent } from "../../../common/editor/editorGroupModel.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
+import { Event } from '../../../../base/common/event.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IEditorPane, GroupIdentifier, EditorInputWithOptions, CloseDirection, IEditorPartOptions, IEditorPartOptionsChangeEvent, EditorsOrder, IVisibleEditorPane, IEditorCloseEvent, IUntypedEditorInput, IEditorWillMoveEvent, IMatchEditorOptions, IActiveEditorChangeEvent, IFindEditorOptions, IToolbarActions } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IDimension } from '../../../../editor/common/core/dimension.js';
+import { DisposableStore, IDisposable } from '../../../../base/common/lifecycle.js';
+import { ContextKeyValue, IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IGroupModelChangeEvent } from '../../../common/editor/editorGroupModel.js';
+import { IRectangle } from '../../../../platform/window/common/window.js';
+import { IMenuChangeEvent } from '../../../../platform/actions/common/actions.js';
+import { DeepPartial } from '../../../../base/common/types.js';
 export declare const IEditorGroupsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditorGroupsService>;
 export declare const enum GroupDirection {
     UP = 0,
@@ -484,7 +484,7 @@ export interface IEditorGroupsService extends IEditorGroupsContainer {
      *
      * @returns `true` when the working set as applied.
      */
-    applyWorkingSet(workingSet: IEditorWorkingSet | "empty", options?: IEditorWorkingSetOptions): Promise<boolean>;
+    applyWorkingSet(workingSet: IEditorWorkingSet | 'empty', options?: IEditorWorkingSetOptions): Promise<boolean>;
     /**
      * Deletes a working set.
      */

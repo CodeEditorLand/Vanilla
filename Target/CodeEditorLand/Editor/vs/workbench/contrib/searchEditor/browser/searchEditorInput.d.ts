@@ -1,22 +1,22 @@
-import "./media/searchEditor.css";
-import { Event } from "../../../../base/common/event.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import { Range } from "../../../../editor/common/core/range.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IResourceEditorInput } from "../../../../platform/editor/common/editor.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { EditorInputCapabilities, GroupIdentifier, IMoveResult, IRevertOptions, IUntypedEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IPathService } from "../../../services/path/common/pathService.js";
-import { ISearchComplete } from "../../../services/search/common/search.js";
-import { ITextFileSaveOptions, ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import { IWorkingCopySaveEvent } from "../../../services/workingCopy/common/workingCopy.js";
-import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
-import { SearchEditorModel } from "./searchEditorModel.js";
+import './media/searchEditor.css';
+import { Event } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { Range } from '../../../../editor/common/core/range.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { IFileDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IInstantiationService, ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { GroupIdentifier, IRevertOptions, IMoveResult, EditorInputCapabilities, IUntypedEditorInput } from '../../../common/editor.js';
+import { SearchEditorModel } from './searchEditorModel.js';
+import { IPathService } from '../../../services/path/common/pathService.js';
+import { ITextFileSaveOptions, ITextFileService } from '../../../services/textfile/common/textfiles.js';
+import { IWorkingCopyService } from '../../../services/workingCopy/common/workingCopyService.js';
+import { IWorkingCopySaveEvent } from '../../../services/workingCopy/common/workingCopy.js';
+import { ISearchComplete } from '../../../services/search/common/search.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IResourceEditorInput } from '../../../../platform/editor/common/editor.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
 export type SearchConfiguration = {
     query: string;
     filesToInclude: string;
@@ -85,7 +85,7 @@ export declare class SearchEditorInput extends EditorInput {
     private suggestFileName;
     toUntyped(): IResourceEditorInput | undefined;
 }
-export declare const getOrMakeSearchEditorInput: (accessor: ServicesAccessor, existingData: {
+export declare const getOrMakeSearchEditorInput: (accessor: ServicesAccessor, existingData: ({
     from: "model";
     config?: Partial<SearchConfiguration>;
     modelUri: URI;
@@ -97,4 +97,4 @@ export declare const getOrMakeSearchEditorInput: (accessor: ServicesAccessor, ex
 } | {
     from: "existingFile";
     fileUri: URI;
-}) => SearchEditorInput;
+})) => SearchEditorInput;

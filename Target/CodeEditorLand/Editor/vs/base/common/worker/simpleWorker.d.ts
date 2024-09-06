@@ -1,5 +1,5 @@
-import { Disposable, IDisposable } from "../lifecycle.js";
-import { URI } from "../uri.js";
+import { Disposable, IDisposable } from '../lifecycle.js';
+import { URI } from '../uri.js';
 export interface IWorker extends IDisposable {
     getId(): number;
     postMessage(message: Message, transfer: ArrayBuffer[]): void;
@@ -63,9 +63,9 @@ declare class UnsubscribeEventMessage {
     constructor(vsWorker: number, req: string);
 }
 type Message = RequestMessage | ReplyMessage | SubscribeEventMessage | EventMessage | UnsubscribeEventMessage;
-type ProxiedMethodName = `$${string}` | `on${string}`;
+type ProxiedMethodName = (`$${string}` | `on${string}`);
 export type Proxied<T> = {
-    [K in keyof T]: T[K] extends (...args: infer A) => infer R ? K extends ProxiedMethodName ? (...args: A) => Promise<Awaited<R>> : never : never;
+    [K in keyof T]: T[K] extends (...args: infer A) => infer R ? (K extends ProxiedMethodName ? (...args: A) => Promise<Awaited<R>> : never) : never;
 };
 export interface IWorkerClient<W> {
     proxy: Proxied<W>;

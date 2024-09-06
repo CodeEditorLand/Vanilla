@@ -1,8 +1,8 @@
-import "./findOptionsWidget.css";
-import { Widget } from "../../../../base/browser/ui/widget.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "../../../browser/editorBrowser.js";
-import { FindReplaceState } from "./findState.js";
+import './findOptionsWidget.css';
+import { Widget } from '../../../../base/browser/ui/widget.js';
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from '../../../browser/editorBrowser.js';
+import { FindReplaceState } from './findState.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 export declare class FindOptionsWidget extends Widget implements IOverlayWidget {
     private static readonly ID;
     private readonly _editor;

@@ -1,11 +1,11 @@
-import { MessagePortMain } from "electron";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { ILoggerMainService } from "../../log/electron-main/loggerService.js";
-import { IPolicyService } from "../../policy/common/policy.js";
-import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { MessagePortMain } from 'electron';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IEnvironmentMainService } from '../../environment/electron-main/environmentMainService.js';
+import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
+import { ILogService } from '../../log/common/log.js';
+import { IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
+import { IPolicyService } from '../../policy/common/policy.js';
+import { ILoggerMainService } from '../../log/electron-main/loggerService.js';
 export declare class SharedProcess extends Disposable {
     private readonly machineId;
     private readonly sqmId;

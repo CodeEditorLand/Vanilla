@@ -1,14 +1,14 @@
-import { Orientation } from "../../../../base/browser/ui/sash/sash.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { IShellLaunchConfig } from "../../../../platform/terminal/common/terminal.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { ITerminalGroup, ITerminalGroupService, ITerminalInstance } from "./terminal.js";
+import { Orientation } from '../../../../base/browser/ui/sash/sash.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IShellLaunchConfig } from '../../../../platform/terminal/common/terminal.js';
+import { IViewDescriptorService } from '../../../common/views.js';
+import { IViewsService } from '../../../services/views/common/viewsService.js';
+import { ITerminalGroup, ITerminalGroupService, ITerminalInstance } from './terminal.js';
+import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
 export declare class TerminalGroupService extends Disposable implements ITerminalGroupService {
     private _contextKeyService;
     private readonly _instantiationService;
@@ -19,7 +19,7 @@ export declare class TerminalGroupService extends Disposable implements ITermina
     groups: ITerminalGroup[];
     activeGroupIndex: number;
     get instances(): ITerminalInstance[];
-    lastAccessedMenu: "inline-tab" | "tab-list";
+    lastAccessedMenu: 'inline-tab' | 'tab-list';
     private _terminalGroupCountContextKey;
     private _container;
     private _isQuickInputOpened;
@@ -71,7 +71,7 @@ export declare class TerminalGroupService extends Disposable implements ITermina
     private _getValidTerminalGroups;
     moveGroup(source: ITerminalInstance | ITerminalInstance[], target: ITerminalInstance): void;
     moveGroupToEnd(source: ITerminalInstance | ITerminalInstance[]): void;
-    moveInstance(source: ITerminalInstance, target: ITerminalInstance, side: "before" | "after"): void;
+    moveInstance(source: ITerminalInstance, target: ITerminalInstance, side: 'before' | 'after'): void;
     unsplitInstance(instance: ITerminalInstance): void;
     joinInstances(instances: ITerminalInstance[]): void;
     instanceIsSplit(instance: ITerminalInstance): boolean;

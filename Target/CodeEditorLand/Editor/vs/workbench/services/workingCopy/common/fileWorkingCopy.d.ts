@@ -1,9 +1,9 @@
-import { VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IWorkingCopy } from "./workingCopy.js";
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { Event } from '../../../../base/common/event.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { VSBufferReadableStream } from '../../../../base/common/buffer.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IWorkingCopy } from './workingCopy.js';
 export interface IFileWorkingCopyModelFactory<M extends IFileWorkingCopyModel> {
     /**
      * Create a model for the untitled or stored working copy

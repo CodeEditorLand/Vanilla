@@ -1,5 +1,5 @@
-import { Modifiers } from "./keybindings.js";
-import { OperatingSystem } from "./platform.js";
+import { Modifiers } from './keybindings.js';
+import { OperatingSystem } from './platform.js';
 export interface ModifierLabels {
     readonly ctrlKey: string;
     readonly shiftKey: string;

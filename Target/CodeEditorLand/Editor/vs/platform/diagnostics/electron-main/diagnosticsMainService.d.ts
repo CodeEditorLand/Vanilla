@@ -1,7 +1,7 @@
-import { ILogService } from "../../log/common/log.js";
-import { IWindowsMainService } from "../../windows/electron-main/windows.js";
-import { IWorkspacesManagementMainService } from "../../workspaces/electron-main/workspacesManagementMainService.js";
-import { IMainProcessDiagnostics, IRemoteDiagnosticError, IRemoteDiagnosticInfo } from "../common/diagnostics.js";
+import { IMainProcessDiagnostics, IRemoteDiagnosticError, IRemoteDiagnosticInfo } from '../common/diagnostics.js';
+import { IWindowsMainService } from '../../windows/electron-main/windows.js';
+import { IWorkspacesManagementMainService } from '../../workspaces/electron-main/workspacesManagementMainService.js';
+import { ILogService } from '../../log/common/log.js';
 export declare const ID = "diagnosticsMainService";
 export declare const IDiagnosticsMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IDiagnosticsMainService>;
 export interface IRemoteDiagnosticOptions {

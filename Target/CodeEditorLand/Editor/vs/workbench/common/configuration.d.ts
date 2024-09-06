@@ -1,10 +1,10 @@
-import { Disposable } from "../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
-import { IConfigurationNode } from "../../platform/configuration/common/configurationRegistry.js";
-import { IUserDataProfilesService } from "../../platform/userDataProfile/common/userDataProfile.js";
-import { IWorkspaceContextService } from "../../platform/workspace/common/workspace.js";
-import { IRemoteAgentService } from "../services/remote/common/remoteAgentService.js";
-import { IWorkbenchContribution } from "./contributions.js";
+import { IConfigurationNode } from '../../platform/configuration/common/configurationRegistry.js';
+import { IWorkbenchContribution } from './contributions.js';
+import { IWorkspaceContextService } from '../../platform/workspace/common/workspace.js';
+import { IConfigurationService } from '../../platform/configuration/common/configuration.js';
+import { Disposable } from '../../base/common/lifecycle.js';
+import { IRemoteAgentService } from '../services/remote/common/remoteAgentService.js';
+import { IUserDataProfilesService } from '../../platform/userDataProfile/common/userDataProfile.js';
 export declare const applicationConfigurationNodeBase: Readonly<IConfigurationNode>;
 export declare const workbenchConfigurationNodeBase: Readonly<IConfigurationNode>;
 export declare const securityConfigurationNodeBase: Readonly<IConfigurationNode>;

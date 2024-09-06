@@ -1,16 +1,16 @@
-import { Position } from "../../../core/position.js";
-import { Range } from "../../../core/range.js";
-import { TextLength } from "../../../core/textLength.js";
+import { Position } from '../../../core/position.js';
+import { Range } from '../../../core/range.js';
+import { TextLength } from '../../../core/textLength.js';
 /**
  * The end must be greater than or equal to the start.
- */
+*/
 export declare function lengthDiff(startLineCount: number, startColumnCount: number, endLineCount: number, endColumnCount: number): Length;
 /**
  * Represents a non-negative length in terms of line and column count.
  * Does not allocate.
- */
+*/
 export type Length = {
-    _brand: "Length";
+    _brand: 'Length';
 };
 export declare const lengthZero: Length;
 export declare function lengthIsZero(length: Length): boolean;
@@ -19,7 +19,7 @@ export declare function lengthToObj(length: Length): TextLength;
 export declare function lengthGetLineCount(length: Length): number;
 /**
  * Returns the amount of columns of the given length, assuming that it does not span any line.
- */
+*/
 export declare function lengthGetColumnCountIfZeroLineCount(length: Length): number;
 export declare function lengthAdd(length1: Length, length2: Length): Length;
 export declare function sumLengths<T>(items: readonly T[], lengthFn: (item: T) => Length): Length;
@@ -40,6 +40,6 @@ export declare function lengthOfString(str: string): Length;
 export declare function lengthOfStringObj(str: string): TextLength;
 /**
  * Computes a numeric hash of the given length.
- */
+*/
 export declare function lengthHash(length: Length): number;
 export declare function lengthMax(length1: Length, length2: Length): Length;

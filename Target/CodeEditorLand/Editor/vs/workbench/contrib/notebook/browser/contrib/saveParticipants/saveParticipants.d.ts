@@ -1,14 +1,14 @@
-import { CancellationToken } from "../../../../../../base/common/cancellation.js";
-import { HierarchicalKind } from "../../../../../../base/common/hierarchicalKind.js";
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { CodeActionProvider } from "../../../../../../editor/common/languages.js";
-import { ITextModel } from "../../../../../../editor/common/model.js";
-import { ILanguageFeaturesService } from "../../../../../../editor/common/services/languageFeatures.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { IProgress, IProgressStep } from "../../../../../../platform/progress/common/progress.js";
-import { IWorkbenchContribution } from "../../../../../common/contributions.js";
-import { IWorkingCopyFileService } from "../../../../../services/workingCopy/common/workingCopyFileService.js";
-import { NotebookTextModel } from "../../../common/model/notebookTextModel.js";
+import { CancellationToken } from '../../../../../../base/common/cancellation.js';
+import { HierarchicalKind } from '../../../../../../base/common/hierarchicalKind.js';
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { CodeActionProvider } from '../../../../../../editor/common/languages.js';
+import { ITextModel } from '../../../../../../editor/common/model.js';
+import { ILanguageFeaturesService } from '../../../../../../editor/common/services/languageFeatures.js';
+import { IInstantiationService, ServicesAccessor } from '../../../../../../platform/instantiation/common/instantiation.js';
+import { IProgress, IProgressStep } from '../../../../../../platform/progress/common/progress.js';
+import { IWorkbenchContribution } from '../../../../../common/contributions.js';
+import { NotebookTextModel } from '../../../common/model/notebookTextModel.js';
+import { IWorkingCopyFileService } from '../../../../../services/workingCopy/common/workingCopyFileService.js';
 export declare class CodeActionParticipantUtils {
     static checkAndRunFormatCodeAction(accessor: ServicesAccessor, notebookModel: NotebookTextModel, progress: IProgress<IProgressStep>, token: CancellationToken): Promise<boolean>;
     static applyOnSaveGenericCodeActions(accessor: ServicesAccessor, model: ITextModel, codeActionsOnSave: readonly HierarchicalKind[], excludes: readonly HierarchicalKind[], progress: IProgress<IProgressStep>, token: CancellationToken): Promise<void>;

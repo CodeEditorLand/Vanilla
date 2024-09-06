@@ -1,10 +1,10 @@
-import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
-import * as nls from "../../../../nls.js";
-import { WorkbenchCompressibleObjectTree } from "../../../../platform/list/browser/listService.js";
-import { ISearchConfigurationProperties } from "../../../services/search/common/search.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { RenderableMatch } from "./searchModel.js";
-import { SearchView } from "./searchView.js";
+import { ResolvedKeybinding } from '../../../../base/common/keybindings.js';
+import * as nls from '../../../../nls.js';
+import { WorkbenchCompressibleObjectTree } from '../../../../platform/list/browser/listService.js';
+import { IViewsService } from '../../../services/views/common/viewsService.js';
+import { SearchView } from './searchView.js';
+import { RenderableMatch } from './searchModel.js';
+import { ISearchConfigurationProperties } from '../../../services/search/common/search.js';
 export declare const category: nls.ILocalizedString;
 export declare function isSearchViewFocused(viewsService: IViewsService): boolean;
 export declare function appendKeyBindingLabel(label: string, inputKeyBinding: ResolvedKeybinding | undefined): string;

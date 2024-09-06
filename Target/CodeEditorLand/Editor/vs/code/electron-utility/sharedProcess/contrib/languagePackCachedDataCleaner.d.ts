@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { INativeEnvironmentService } from '../../../../platform/environment/common/environment.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
 export declare class LanguagePackCachedDataCleaner extends Disposable {
     private readonly environmentService;
     private readonly logService;

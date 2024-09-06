@@ -1,15 +1,15 @@
-import type { IRawTheme } from "vscode-textmate";
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
-import { IObservable } from "../../../../../base/common/observable.js";
-import { IBackgroundTokenizationStore, IBackgroundTokenizer } from "../../../../../editor/common/languages.js";
-import { ILanguageService } from "../../../../../editor/common/languages/language.js";
-import { ITextModel } from "../../../../../editor/common/model.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IEnvironmentService } from "../../../../../platform/environment/common/environment.js";
-import { IExtensionResourceLoaderService } from "../../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
-import { INotificationService } from "../../../../../platform/notification/common/notification.js";
-import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import { IValidGrammarDefinition } from "../../common/TMScopeRegistry.js";
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../../base/common/observable.js';
+import { IBackgroundTokenizationStore, IBackgroundTokenizer } from '../../../../../editor/common/languages.js';
+import { ILanguageService } from '../../../../../editor/common/languages/language.js';
+import { ITextModel } from '../../../../../editor/common/model.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IEnvironmentService } from '../../../../../platform/environment/common/environment.js';
+import { IExtensionResourceLoaderService } from '../../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js';
+import { INotificationService } from '../../../../../platform/notification/common/notification.js';
+import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
+import { IValidGrammarDefinition } from '../../common/TMScopeRegistry.js';
+import type { IRawTheme } from 'vscode-textmate';
 export declare class ThreadedBackgroundTokenizerFactory implements IDisposable {
     private readonly _reportTokenizationTime;
     private readonly _shouldTokenizeAsync;

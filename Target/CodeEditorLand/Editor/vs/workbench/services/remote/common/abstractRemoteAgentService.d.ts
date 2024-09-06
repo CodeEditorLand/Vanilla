@@ -1,15 +1,15 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IDiagnosticInfo, IDiagnosticInfoOptions } from "../../../../platform/diagnostics/common/diagnostics.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IRemoteAgentEnvironment } from "../../../../platform/remote/common/remoteAgentEnvironment.js";
-import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
-import { IRemoteSocketFactoryService } from "../../../../platform/remote/common/remoteSocketFactoryService.js";
-import { ISignService } from "../../../../platform/sign/common/sign.js";
-import { ITelemetryData, TelemetryLevel } from "../../../../platform/telemetry/common/telemetry.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
-import { IExtensionHostExitInfo, IRemoteAgentConnection, IRemoteAgentService } from "./remoteAgentService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IWorkbenchEnvironmentService } from '../../environment/common/environmentService.js';
+import { IExtensionHostExitInfo, IRemoteAgentConnection, IRemoteAgentService } from './remoteAgentService.js';
+import { IRemoteAuthorityResolverService } from '../../../../platform/remote/common/remoteAuthorityResolver.js';
+import { IRemoteAgentEnvironment } from '../../../../platform/remote/common/remoteAgentEnvironment.js';
+import { IDiagnosticInfoOptions, IDiagnosticInfo } from '../../../../platform/diagnostics/common/diagnostics.js';
+import { ISignService } from '../../../../platform/sign/common/sign.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { ITelemetryData, TelemetryLevel } from '../../../../platform/telemetry/common/telemetry.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IUserDataProfileService } from '../../userDataProfile/common/userDataProfile.js';
+import { IRemoteSocketFactoryService } from '../../../../platform/remote/common/remoteSocketFactoryService.js';
 export declare abstract class AbstractRemoteAgentService extends Disposable implements IRemoteAgentService {
     private readonly remoteSocketFactoryService;
     private readonly userDataProfileService;

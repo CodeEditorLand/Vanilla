@@ -1,10 +1,10 @@
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { IStateService } from "../../state/node/state.js";
-import { IFolderBackupInfo, IWorkspaceBackupInfo } from "../common/backup.js";
-import { IEmptyWindowBackupInfo } from "../node/backup.js";
-import { IBackupMainService } from "./backup.js";
+import { IBackupMainService } from './backup.js';
+import { IEmptyWindowBackupInfo } from '../node/backup.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IEnvironmentMainService } from '../../environment/electron-main/environmentMainService.js';
+import { IStateService } from '../../state/node/state.js';
+import { ILogService } from '../../log/common/log.js';
+import { IFolderBackupInfo, IWorkspaceBackupInfo } from '../common/backup.js';
 export declare class BackupMainService implements IBackupMainService {
     private readonly environmentMainService;
     private readonly configurationService;

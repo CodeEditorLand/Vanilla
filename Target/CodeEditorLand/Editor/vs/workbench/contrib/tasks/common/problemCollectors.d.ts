@@ -1,10 +1,10 @@
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { Disposable, DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IMarkerData, IMarkerService, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
-import { ApplyToKind, IProblemMatch, ProblemMatcher } from "./problemMatcher.js";
+import { URI } from '../../../../base/common/uri.js';
+import { Event, Emitter } from '../../../../base/common/event.js';
+import { IDisposable, DisposableStore, Disposable } from '../../../../base/common/lifecycle.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ProblemMatcher, IProblemMatch, ApplyToKind } from './problemMatcher.js';
+import { IMarkerService, IMarkerData, MarkerSeverity } from '../../../../platform/markers/common/markers.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
 export declare const enum ProblemCollectorEventKind {
     BackgroundProcessingBegins = "backgroundProcessingBegins",
     BackgroundProcessingEnds = "backgroundProcessingEnds"

@@ -1,17 +1,17 @@
-import { FastDomNode } from "../../../../../../base/browser/fastDomNode.js";
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { IMenuService } from "../../../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
-import { IQuickInputService } from "../../../../../../platform/quickinput/common/quickInput.js";
-import { IPaneCompositePartService } from "../../../../../services/panecomposite/browser/panecomposite.js";
-import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
-import { INotebookService } from "../../../common/notebookService.js";
-import { ICellOutputViewModel, IInsetRenderOutput, INotebookEditorDelegate } from "../../notebookBrowser.js";
-import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
-import { CellContentPart } from "../cellPart.js";
-import { CodeCellRenderTemplate } from "../notebookRenderingCommon.js";
+import { FastDomNode } from '../../../../../../base/browser/fastDomNode.js';
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { IMenuService } from '../../../../../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
+import { IOpenerService } from '../../../../../../platform/opener/common/opener.js';
+import { IQuickInputService } from '../../../../../../platform/quickinput/common/quickInput.js';
+import { ICellOutputViewModel, IInsetRenderOutput, INotebookEditorDelegate } from '../../notebookBrowser.js';
+import { CellContentPart } from '../cellPart.js';
+import { CodeCellRenderTemplate } from '../notebookRenderingCommon.js';
+import { CodeCellViewModel } from '../../viewModel/codeCellViewModel.js';
+import { INotebookExecutionStateService } from '../../../common/notebookExecutionStateService.js';
+import { INotebookService } from '../../../common/notebookService.js';
+import { IPaneCompositePartService } from '../../../../../services/panecomposite/browser/panecomposite.js';
 interface IRenderResult {
     initRenderIsSynchronous: false;
 }

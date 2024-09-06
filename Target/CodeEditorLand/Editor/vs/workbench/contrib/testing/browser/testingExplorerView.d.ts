@@ -1,37 +1,37 @@
-import { IActionViewItem } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { IActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import { IAction } from "../../../../base/common/actions.js";
-import { Event } from "../../../../base/common/event.js";
-import { FuzzyScore } from "../../../../base/common/filters.js";
-import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
-import "./media/testing.css";
-import { IMenuService } from "../../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { ViewPane } from "../../../browser/parts/views/viewPane.js";
-import { IViewletViewOptions } from "../../../browser/parts/views/viewsViewlet.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { TestExplorerViewMode, TestExplorerViewSorting } from "../common/constants.js";
-import { TestExplorerFilterState } from "../common/testExplorerFilterState.js";
-import { ITestingContinuousRunService } from "../common/testingContinuousRunService.js";
-import { ITestingPeekOpener } from "../common/testingPeekOpener.js";
-import { ITestProfileService } from "../common/testProfileService.js";
-import { ITestResultService } from "../common/testResultService.js";
-import { ITestService } from "../common/testService.js";
-import { InternalTestItem, ITestRunProfile } from "../common/testTypes.js";
-import { ITestTreeProjection, TestExplorerTreeElement, TestItemTreeElement, TestTreeErrorMessage } from "./explorerProjections/index.js";
-import { TestingObjectTree } from "./explorerProjections/testingObjectTree.js";
+import { IActionViewItemOptions } from '../../../../base/browser/ui/actionbar/actionViewItems.js';
+import { IActionViewItem } from '../../../../base/browser/ui/actionbar/actionbar.js';
+import { IAction } from '../../../../base/common/actions.js';
+import { Event } from '../../../../base/common/event.js';
+import { FuzzyScore } from '../../../../base/common/filters.js';
+import { Disposable, MutableDisposable } from '../../../../base/common/lifecycle.js';
+import './media/testing.css';
+import { IMenuService } from '../../../../platform/actions/common/actions.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { ViewPane } from '../../../browser/parts/views/viewPane.js';
+import { IViewletViewOptions } from '../../../browser/parts/views/viewsViewlet.js';
+import { IViewDescriptorService } from '../../../common/views.js';
+import { ITestTreeProjection, TestExplorerTreeElement, TestItemTreeElement, TestTreeErrorMessage } from './explorerProjections/index.js';
+import { TestingObjectTree } from './explorerProjections/testingObjectTree.js';
+import { TestExplorerViewMode, TestExplorerViewSorting } from '../common/constants.js';
+import { TestExplorerFilterState } from '../common/testExplorerFilterState.js';
+import { ITestProfileService } from '../common/testProfileService.js';
+import { ITestResultService } from '../common/testResultService.js';
+import { ITestService } from '../common/testService.js';
+import { ITestRunProfile, InternalTestItem } from '../common/testTypes.js';
+import { ITestingContinuousRunService } from '../common/testingContinuousRunService.js';
+import { ITestingPeekOpener } from '../common/testingPeekOpener.js';
+import { IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
 export declare class TestingExplorerView extends ViewPane {
     private readonly testService;
     private readonly testProfileService;
@@ -54,7 +54,7 @@ export declare class TestingExplorerView extends ViewPane {
      * Gets include/exclude items in the tree, based either on visible tests
      * or a use selection.
      */
-    getTreeIncludeExclude(withinItems?: InternalTestItem[], profile?: ITestRunProfile, filterToType?: "visible" | "selected"): {
+    getTreeIncludeExclude(withinItems?: InternalTestItem[], profile?: ITestRunProfile, filterToType?: 'visible' | 'selected'): {
         include: InternalTestItem[];
         exclude: InternalTestItem[];
     };

@@ -1,1 +1,1 @@
-import "./issueTroubleshoot.js";
+import './issueTroubleshoot.js';

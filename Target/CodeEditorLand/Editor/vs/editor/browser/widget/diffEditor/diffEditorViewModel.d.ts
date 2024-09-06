@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IObservable, IReader, ISettableObservable, ITransaction } from "../../../../base/common/observable.js";
-import { ISerializedLineRange, LineRange } from "../../../common/core/lineRange.js";
-import { IDocumentDiff } from "../../../common/diff/documentDiffProvider.js";
-import { MovedText } from "../../../common/diff/linesDiffComputer.js";
-import { DetailedLineRangeMapping, LineRangeMapping } from "../../../common/diff/rangeMapping.js";
-import { IDiffEditorModel, IDiffEditorViewModel } from "../../../common/editorCommon.js";
-import { DiffEditorOptions } from "./diffEditorOptions.js";
-import { IDiffProviderFactoryService } from "./diffProviderFactoryService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IObservable, IReader, ISettableObservable, ITransaction } from '../../../../base/common/observable.js';
+import { IDiffProviderFactoryService } from './diffProviderFactoryService.js';
+import { ISerializedLineRange, LineRange } from '../../../common/core/lineRange.js';
+import { IDocumentDiff } from '../../../common/diff/documentDiffProvider.js';
+import { MovedText } from '../../../common/diff/linesDiffComputer.js';
+import { DetailedLineRangeMapping, LineRangeMapping } from '../../../common/diff/rangeMapping.js';
+import { IDiffEditorModel, IDiffEditorViewModel } from '../../../common/editorCommon.js';
+import { DiffEditorOptions } from './diffEditorOptions.js';
 export declare class DiffEditorViewModel extends Disposable implements IDiffEditorViewModel {
     readonly model: IDiffEditorModel;
     private readonly _options;

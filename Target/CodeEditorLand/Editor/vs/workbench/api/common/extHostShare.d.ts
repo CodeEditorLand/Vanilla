@@ -1,8 +1,8 @@
-import type * as vscode from "vscode";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { UriComponents } from "../../../base/common/uri.js";
-import { IURITransformer } from "../../../base/common/uriIpc.js";
-import { ExtHostShareShape, IMainContext, IShareableItemDto } from "./extHost.protocol.js";
+import type * as vscode from 'vscode';
+import { ExtHostShareShape, IMainContext, IShareableItemDto } from './extHost.protocol.js';
+import { IURITransformer } from '../../../base/common/uriIpc.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { UriComponents } from '../../../base/common/uri.js';
 export declare class ExtHostShare implements ExtHostShareShape {
     private readonly uriTransformer;
     private static handlePool;

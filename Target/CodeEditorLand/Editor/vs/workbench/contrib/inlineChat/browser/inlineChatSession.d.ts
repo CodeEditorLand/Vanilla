@@ -1,17 +1,17 @@
-import { Event } from "../../../../base/common/event.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { IRange, Range } from "../../../../editor/common/core/range.js";
-import { IDocumentDiff } from "../../../../editor/common/diff/documentDiffProvider.js";
-import { DetailedLineRangeMapping, LineRangeMapping } from "../../../../editor/common/diff/rangeMapping.js";
-import { ITextModel, IValidEditOperation } from "../../../../editor/common/model.js";
-import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IChatAgent } from "../../chat/common/chatAgents.js";
-import { ChatModel, IChatRequestModel, IChatTextEditGroupState } from "../../chat/common/chatModel.js";
-import { EditMode } from "../common/inlineChat.js";
-import { IInlineChatSessionService } from "./inlineChatSessionService.js";
+import { URI } from '../../../../base/common/uri.js';
+import { Event } from '../../../../base/common/event.js';
+import { ITextModel, IValidEditOperation } from '../../../../editor/common/model.js';
+import { EditMode } from '../common/inlineChat.js';
+import { IRange, Range } from '../../../../editor/common/core/range.js';
+import { DetailedLineRangeMapping, LineRangeMapping } from '../../../../editor/common/diff/rangeMapping.js';
+import { IInlineChatSessionService } from './inlineChatSessionService.js';
+import { IEditorWorkerService } from '../../../../editor/common/services/editorWorker.js';
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { ChatModel, IChatRequestModel, IChatTextEditGroupState } from '../../chat/common/chatModel.js';
+import { IChatAgent } from '../../chat/common/chatAgents.js';
+import { IDocumentDiff } from '../../../../editor/common/diff/documentDiffProvider.js';
 export type TelemetryData = {
     extension: string;
     rounds: string;
@@ -27,67 +27,67 @@ export type TelemetryData = {
     responseTypes: string;
 };
 export type TelemetryDataClassification = {
-    owner: "jrieken";
-    comment: "Data about an interaction editor session";
+    owner: 'jrieken';
+    comment: 'Data about an interaction editor session';
     extension: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "The extension providing the data";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'The extension providing the data';
     };
     rounds: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "Number of request that were made";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'Number of request that were made';
     };
     undos: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "Requests that have been undone";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'Requests that have been undone';
     };
     edits: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "Did edits happen while the session was active";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'Did edits happen while the session was active';
     };
     unstashed: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "How often did this session become stashed and resumed";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'How often did this session become stashed and resumed';
     };
     finishedByEdit: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "Did edits cause the session to terminate";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'Did edits cause the session to terminate';
     };
     startTime: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "When the session started";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'When the session started';
     };
     endTime: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "When the session ended";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'When the session ended';
     };
     editMode: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "What edit mode was choosen: live, livePreview, preview";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'What edit mode was choosen: live, livePreview, preview';
     };
     acceptedHunks: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "Number of accepted hunks";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'Number of accepted hunks';
     };
     discardedHunks: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "Number of discarded hunks";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'Number of discarded hunks';
     };
     responseTypes: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "Comma separated list of response types like edits, message, mixed";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'Comma separated list of response types like edits, message, mixed';
     };
 };
 export declare class SessionWholeRange {

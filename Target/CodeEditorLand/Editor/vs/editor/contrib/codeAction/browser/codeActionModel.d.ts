@@ -1,15 +1,15 @@
-import { CancelablePromise } from "../../../../base/common/async.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IMarkerService } from "../../../../platform/markers/common/markers.js";
-import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { Position } from "../../../common/core/position.js";
-import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
-import { CodeActionProvider } from "../../../common/languages.js";
-import { CodeActionSet, CodeActionTrigger } from "../common/types.js";
+import { CancelablePromise } from '../../../../base/common/async.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { Position } from '../../../common/core/position.js';
+import { LanguageFeatureRegistry } from '../../../common/languageFeatureRegistry.js';
+import { CodeActionProvider } from '../../../common/languages.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IMarkerService } from '../../../../platform/markers/common/markers.js';
+import { IEditorProgressService } from '../../../../platform/progress/common/progress.js';
+import { CodeActionSet, CodeActionTrigger } from '../common/types.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
 export declare const SUPPORTED_CODE_ACTIONS: RawContextKey<string>;
 export declare const APPLY_FIX_ALL_COMMAND_ID = "_typescript.applyFixAllCodeAction";
 export declare namespace CodeActionsState {

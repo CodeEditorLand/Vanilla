@@ -1,10 +1,10 @@
-import type { ITerminalAddon, Terminal } from "@xterm/headless";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ILogService } from "../../../log/common/log.js";
-import { ITelemetryService } from "../../../telemetry/common/telemetry.js";
-import { IBufferMarkCapability, ICommandDetectionCapability, ICwdDetectionCapability, ISerializedCommandDetectionCapability } from "../capabilities/capabilities.js";
-import { TerminalCapabilityStore } from "../capabilities/terminalCapabilityStore.js";
-import { IShellIntegration, ShellIntegrationStatus } from "../terminal.js";
+import { IShellIntegration, ShellIntegrationStatus } from '../terminal.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { TerminalCapabilityStore } from '../capabilities/terminalCapabilityStore.js';
+import { IBufferMarkCapability, ICommandDetectionCapability, ICwdDetectionCapability, ISerializedCommandDetectionCapability } from '../capabilities/capabilities.js';
+import { ILogService } from '../../../log/common/log.js';
+import { ITelemetryService } from '../../../telemetry/common/telemetry.js';
+import type { ITerminalAddon, Terminal } from '@xterm/headless';
 /**
  * Shell integration is a feature that enhances the terminal's understanding of what's happening
  * in the shell by injecting special sequences into the shell's prompt using the "Set Text

@@ -1,11 +1,11 @@
-import { IHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegate.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IStatusbarEntry } from "../../../services/statusbar/browser/statusbar.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IStatusbarEntry } from '../../../services/statusbar/browser/statusbar.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IHoverDelegate } from '../../../../base/browser/ui/hover/hoverDelegate.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 export declare class StatusbarEntryItem extends Disposable {
     private container;
     private readonly hoverDelegate;

@@ -1,6 +1,6 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare const IAiEmbeddingVectorService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IAiEmbeddingVectorService>;
 export interface IAiEmbeddingVectorService {
     readonly _serviceBrand: undefined;

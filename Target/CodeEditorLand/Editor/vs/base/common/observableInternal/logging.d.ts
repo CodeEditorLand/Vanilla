@@ -1,7 +1,7 @@
-import { AutorunObserver } from "./autorun.js";
-import { IObservable, ObservableValue, TransactionImpl } from "./base.js";
-import { Derived } from "./derived.js";
-import { FromEventObservable } from "./utils.js";
+import { AutorunObserver } from './autorun.js';
+import { IObservable, ObservableValue, TransactionImpl } from './base.js';
+import { Derived } from './derived.js';
+import { FromEventObservable } from './utils.js';
 export declare function setLogger(logger: IObservableLogger): void;
 export declare function getLogger(): IObservableLogger | undefined;
 interface IChangeInformation {

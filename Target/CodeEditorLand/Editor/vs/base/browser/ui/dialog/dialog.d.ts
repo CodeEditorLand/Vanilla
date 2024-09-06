@@ -1,13 +1,13 @@
-import { Disposable } from "../../../common/lifecycle.js";
-import { ThemeIcon } from "../../../common/themables.js";
-import { StandardKeyboardEvent } from "../../keyboardEvent.js";
-import { IButtonStyles } from "../button/button.js";
-import { IInputBoxStyles } from "../inputbox/inputBox.js";
-import { ICheckboxStyles } from "../toggle/toggle.js";
-import "./dialog.css";
+import { StandardKeyboardEvent } from '../../keyboardEvent.js';
+import { IButtonStyles } from '../button/button.js';
+import { ICheckboxStyles } from '../toggle/toggle.js';
+import { IInputBoxStyles } from '../inputbox/inputBox.js';
+import { ThemeIcon } from '../../../common/themables.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import './dialog.css';
 export interface IDialogInputOptions {
     readonly placeholder?: string;
-    readonly type?: "text" | "password";
+    readonly type?: 'text' | 'password';
     readonly value?: string;
 }
 export interface IDialogOptions {
@@ -15,7 +15,7 @@ export interface IDialogOptions {
     readonly detail?: string;
     readonly checkboxLabel?: string;
     readonly checkboxChecked?: boolean;
-    readonly type?: "none" | "info" | "error" | "question" | "warning" | "pending";
+    readonly type?: 'none' | 'info' | 'error' | 'question' | 'warning' | 'pending';
     readonly inputs?: IDialogInputOptions[];
     readonly keyEventProcessor?: (event: StandardKeyboardEvent) => void;
     readonly renderBody?: (container: HTMLElement) => void;

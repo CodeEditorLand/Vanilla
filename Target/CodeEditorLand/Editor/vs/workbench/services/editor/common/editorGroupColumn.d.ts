@@ -1,7 +1,7 @@
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { GroupIdentifier } from "../../../common/editor.js";
-import { IEditorGroup, IEditorGroupsService } from "./editorGroupsService.js";
-import { ACTIVE_GROUP_TYPE, SIDE_GROUP_TYPE } from "./editorService.js";
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { GroupIdentifier } from '../../../common/editor.js';
+import { IEditorGroupsService, IEditorGroup } from './editorGroupsService.js';
+import { ACTIVE_GROUP_TYPE, SIDE_GROUP_TYPE } from './editorService.js';
 /**
  * A way to address editor groups through a column based system
  * where `0` is the first column. Will fallback to `SIDE_GROUP`

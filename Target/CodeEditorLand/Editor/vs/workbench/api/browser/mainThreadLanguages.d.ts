@@ -1,13 +1,13 @@
-import { UriComponents } from "../../../base/common/uri.js";
-import { IPosition } from "../../../editor/common/core/position.js";
-import { IRange } from "../../../editor/common/core/range.js";
-import { StandardTokenType } from "../../../editor/common/encodedTokenAttributes.js";
-import { ILanguageService } from "../../../editor/common/languages/language.js";
-import { IModelService } from "../../../editor/common/services/model.js";
-import { ITextModelService } from "../../../editor/common/services/resolverService.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { ILanguageStatus, ILanguageStatusService } from "../../services/languageStatus/common/languageStatusService.js";
-import { MainThreadLanguagesShape } from "../common/extHost.protocol.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import { ILanguageService } from '../../../editor/common/languages/language.js';
+import { IModelService } from '../../../editor/common/services/model.js';
+import { MainThreadLanguagesShape } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IPosition } from '../../../editor/common/core/position.js';
+import { IRange } from '../../../editor/common/core/range.js';
+import { StandardTokenType } from '../../../editor/common/encodedTokenAttributes.js';
+import { ITextModelService } from '../../../editor/common/services/resolverService.js';
+import { ILanguageStatus, ILanguageStatusService } from '../../services/languageStatus/common/languageStatusService.js';
 export declare class MainThreadLanguages implements MainThreadLanguagesShape {
     private readonly _languageService;
     private readonly _modelService;

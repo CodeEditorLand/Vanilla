@@ -1,10 +1,10 @@
-import * as vscode from "vscode";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { ISignService } from "../../../platform/sign/common/sign.js";
-import { CandidatePort } from "../../services/remote/common/tunnelModel.js";
-import { IExtHostInitDataService } from "../common/extHostInitDataService.js";
-import { IExtHostRpcService } from "../common/extHostRpcService.js";
-import { ExtHostTunnelService } from "../common/extHostTunnelService.js";
+import { ILogService } from '../../../platform/log/common/log.js';
+import { ISignService } from '../../../platform/sign/common/sign.js';
+import { IExtHostInitDataService } from '../common/extHostInitDataService.js';
+import { IExtHostRpcService } from '../common/extHostRpcService.js';
+import { ExtHostTunnelService } from '../common/extHostTunnelService.js';
+import { CandidatePort } from '../../services/remote/common/tunnelModel.js';
+import * as vscode from 'vscode';
 export declare function getSockets(stdout: string): Record<string, {
     pid: number;
     socket: number;
@@ -53,5 +53,5 @@ export declare class NodeExtHostTunnelService extends ExtHostTunnelService {
     private calculateDelay;
     private setInitialCandidates;
     private findCandidatePorts;
-    protected makeManagedTunnelFactory(authority: vscode.ManagedResolvedAuthority): vscode.RemoteAuthorityResolver["tunnelFactory"];
+    protected makeManagedTunnelFactory(authority: vscode.ManagedResolvedAuthority): vscode.RemoteAuthorityResolver['tunnelFactory'];
 }

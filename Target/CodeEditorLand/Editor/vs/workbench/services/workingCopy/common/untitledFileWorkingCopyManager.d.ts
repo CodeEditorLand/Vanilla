@@ -1,12 +1,12 @@
-import { Event } from "../../../../base/common/event.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { BaseFileWorkingCopyManager, IBaseFileWorkingCopyManager } from "./abstractFileWorkingCopyManager.js";
-import { IUntitledFileWorkingCopy, IUntitledFileWorkingCopyInitialContents, IUntitledFileWorkingCopyModel, IUntitledFileWorkingCopyModelFactory, IUntitledFileWorkingCopySaveDelegate } from "./untitledFileWorkingCopy.js";
-import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
-import { IWorkingCopyService } from "./workingCopyService.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IUntitledFileWorkingCopy, IUntitledFileWorkingCopyInitialContents, IUntitledFileWorkingCopyModel, IUntitledFileWorkingCopyModelFactory, IUntitledFileWorkingCopySaveDelegate } from './untitledFileWorkingCopy.js';
+import { Event } from '../../../../base/common/event.js';
+import { IWorkingCopyService } from './workingCopyService.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IWorkingCopyBackupService } from './workingCopyBackup.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { BaseFileWorkingCopyManager, IBaseFileWorkingCopyManager } from './abstractFileWorkingCopyManager.js';
 /**
  * The only one that should be dealing with `IUntitledFileWorkingCopy` and
  * handle all operations that are working copy related, such as save/revert,

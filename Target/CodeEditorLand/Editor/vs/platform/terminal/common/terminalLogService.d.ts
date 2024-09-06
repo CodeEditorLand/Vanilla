@@ -1,9 +1,9 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { ILoggerService, LogLevel } from "../../log/common/log.js";
-import { IWorkspaceContextService } from "../../workspace/common/workspace.js";
-import { ITerminalLogService } from "./terminal.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { Event } from '../../../base/common/event.js';
+import { ILoggerService, LogLevel } from '../../log/common/log.js';
+import { ITerminalLogService } from './terminal.js';
+import { IWorkspaceContextService } from '../../workspace/common/workspace.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
 export declare class TerminalLogService extends Disposable implements ITerminalLogService {
     private readonly _loggerService;
     _serviceBrand: undefined;

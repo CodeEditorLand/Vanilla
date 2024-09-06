@@ -1,7 +1,7 @@
-import type { CancellationToken, EmbeddingVectorProvider } from "vscode";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ExtHostAiEmbeddingVectorShape, IMainContext } from "./extHost.protocol.js";
-import { Disposable } from "./extHostTypes.js";
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ExtHostAiEmbeddingVectorShape, IMainContext } from './extHost.protocol.js';
+import type { CancellationToken, EmbeddingVectorProvider } from 'vscode';
+import { Disposable } from './extHostTypes.js';
 export declare class ExtHostAiEmbeddingVector implements ExtHostAiEmbeddingVectorShape {
     private _AiEmbeddingVectorProviders;
     private _nextHandle;

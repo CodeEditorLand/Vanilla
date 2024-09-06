@@ -1,7 +1,7 @@
-import { IStringDictionary } from "../../../base/common/collections.js";
-import { Event } from "../../../base/common/event.js";
-import { IJSONSchema } from "../../../base/common/jsonSchema.js";
-import { PolicyName } from "../../policy/common/policy.js";
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { Event } from '../../../base/common/event.js';
+import { IJSONSchema } from '../../../base/common/jsonSchema.js';
+import { PolicyName } from '../../policy/common/policy.js';
 export declare enum EditPresentationTypes {
     Multiline = "multilineText",
     Singleline = "singlelineText"

@@ -1,4 +1,4 @@
-import { IAddress } from "./remoteAgentConnection.js";
+import { IAddress } from './remoteAgentConnection.js';
 export declare const ISharedProcessTunnelService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ISharedProcessTunnelService>;
 export declare const ipcSharedProcessTunnelChannelName = "sharedProcessTunnel";
 export interface ISharedProcessTunnel {

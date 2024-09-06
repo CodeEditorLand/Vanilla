@@ -1,9 +1,9 @@
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
-import { IURLService } from "../../../platform/url/common/url.js";
-import { IExtensionUrlHandler } from "../../services/extensions/browser/extensionUrlHandler.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { MainThreadUrlsShape } from "../common/extHost.protocol.js";
+import { MainThreadUrlsShape } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IURLService } from '../../../platform/url/common/url.js';
+import { URI, UriComponents } from '../../../base/common/uri.js';
+import { IExtensionUrlHandler } from '../../services/extensions/browser/extensionUrlHandler.js';
+import { ExtensionIdentifier } from '../../../platform/extensions/common/extensions.js';
 export declare class MainThreadUrls implements MainThreadUrlsShape {
     private readonly urlService;
     private readonly extensionUrlHandler;

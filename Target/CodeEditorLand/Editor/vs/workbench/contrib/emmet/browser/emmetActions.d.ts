@@ -1,5 +1,5 @@
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { EditorAction, IActionOptions, ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { EditorAction, ServicesAccessor, IActionOptions } from '../../../../editor/browser/editorExtensions.js';
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
 export interface IGrammarContributions {
     getGrammar(mode: string): string;
 }

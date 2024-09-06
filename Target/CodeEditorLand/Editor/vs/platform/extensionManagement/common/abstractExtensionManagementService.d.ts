@@ -1,14 +1,14 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { ExtensionType, IExtensionManifest, TargetPlatform } from "../../extensions/common/extensions.js";
-import { ILogService } from "../../log/common/log.js";
-import { IProductService } from "../../product/common/productService.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { DidUninstallExtensionEvent, DidUpdateExtensionMetadata, ExtensionManagementError, ExtensionManagementErrorCode, IExtensionGalleryService, IExtensionIdentifier, IExtensionManagementParticipant, IExtensionManagementService, IExtensionsControlManifest, IGalleryExtension, ILocalExtension, InstallExtensionEvent, InstallExtensionInfo, InstallExtensionResult, InstallOperation, InstallOptions, IProductVersion, Metadata, UninstallExtensionEvent, UninstallExtensionInfo, UninstallOptions } from "./extensionManagement.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Emitter, Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { ExtensionManagementError, IExtensionGalleryService, IExtensionIdentifier, IExtensionManagementParticipant, IGalleryExtension, ILocalExtension, InstallOperation, IExtensionsControlManifest, ExtensionManagementErrorCode, InstallOptions, UninstallOptions, Metadata, InstallExtensionEvent, DidUninstallExtensionEvent, InstallExtensionResult, UninstallExtensionEvent, IExtensionManagementService, InstallExtensionInfo, IProductVersion, DidUpdateExtensionMetadata, UninstallExtensionInfo } from './extensionManagement.js';
+import { ExtensionType, IExtensionManifest, TargetPlatform } from '../../extensions/common/extensions.js';
+import { ILogService } from '../../log/common/log.js';
+import { IProductService } from '../../product/common/productService.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+import { IUriIdentityService } from '../../uriIdentity/common/uriIdentity.js';
+import { IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
 export type ExtensionVerificationStatus = boolean | string;
 export type InstallableExtension = {
     readonly manifest: IExtensionManifest;

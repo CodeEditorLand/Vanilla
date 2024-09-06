@@ -1,7 +1,7 @@
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
-import { ILogService } from "../../../../../platform/log/common/log.js";
-import { ITerminalCommandSelector } from "../../../../../platform/terminal/common/terminal.js";
-import { ITerminalQuickFixProvider, ITerminalQuickFixProviderSelector, ITerminalQuickFixService } from "./quickFix.js";
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { ILogService } from '../../../../../platform/log/common/log.js';
+import { ITerminalCommandSelector } from '../../../../../platform/terminal/common/terminal.js';
+import { ITerminalQuickFixService, ITerminalQuickFixProvider, ITerminalQuickFixProviderSelector } from './quickFix.js';
 export declare class TerminalQuickFixService implements ITerminalQuickFixService {
     private readonly _logService;
     _serviceBrand: undefined;

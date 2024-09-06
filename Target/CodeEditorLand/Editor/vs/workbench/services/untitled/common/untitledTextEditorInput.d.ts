@@ -1,17 +1,17 @@
-import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { IUntitledTextResourceEditorInput, IUntypedEditorInput, Verbosity } from "../../../common/editor.js";
-import { EditorInput, IUntypedEditorOptions } from "../../../common/editor/editorInput.js";
-import { AbstractTextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
-import { ICustomEditorLabelService } from "../../editor/common/customEditorLabelService.js";
-import { IEditorService } from "../../editor/common/editorService.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
-import { IPathService } from "../../path/common/pathService.js";
-import { EncodingMode, IEncodingSupport, ILanguageSupport, ITextFileService } from "../../textfile/common/textfiles.js";
-import { IUntitledTextEditorModel } from "./untitledTextEditorModel.js";
+import { IUntitledTextResourceEditorInput, IUntypedEditorInput, Verbosity } from '../../../common/editor.js';
+import { EditorInput, IUntypedEditorOptions } from '../../../common/editor/editorInput.js';
+import { AbstractTextResourceEditorInput } from '../../../common/editor/textResourceEditorInput.js';
+import { IUntitledTextEditorModel } from './untitledTextEditorModel.js';
+import { EncodingMode, IEncodingSupport, ILanguageSupport, ITextFileService } from '../../textfile/common/textfiles.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { IEditorService } from '../../editor/common/editorService.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IWorkbenchEnvironmentService } from '../../environment/common/environmentService.js';
+import { IPathService } from '../../path/common/pathService.js';
+import { IFilesConfigurationService } from '../../filesConfiguration/common/filesConfigurationService.js';
+import { ITextModelService } from '../../../../editor/common/services/resolverService.js';
+import { ITextResourceConfigurationService } from '../../../../editor/common/services/textResourceConfiguration.js';
+import { ICustomEditorLabelService } from '../../editor/common/customEditorLabelService.js';
 /**
  * An editor input to be used for untitled text buffers.
  */

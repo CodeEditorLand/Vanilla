@@ -1,6 +1,6 @@
 /**
  * Prevents code from being re-entrant.
- */
+*/
 export declare class ReentrancyBarrier {
     private _isOccupied;
     /**
@@ -15,7 +15,7 @@ export declare class ReentrancyBarrier {
     runExclusivelyOrThrow(runner: () => void): void;
     /**
      * Indicates if some runner occupies this barrier.
-     */
+    */
     get isOccupied(): boolean;
     makeExclusiveOrSkip<TFunction extends Function>(fn: TFunction): TFunction;
 }

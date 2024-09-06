@@ -1,7 +1,7 @@
-import { ISingleEditOperation } from "./editOperation.js";
-import { Position } from "./position.js";
-import { Range } from "./range.js";
-import { TextLength } from "./textLength.js";
+import { ISingleEditOperation } from './editOperation.js';
+import { Position } from './position.js';
+import { Range } from './range.js';
+import { TextLength } from './textLength.js';
 export declare class TextEdit {
     readonly edits: readonly SingleTextEdit[];
     static single(originalRange: Range, newText: string): TextEdit;

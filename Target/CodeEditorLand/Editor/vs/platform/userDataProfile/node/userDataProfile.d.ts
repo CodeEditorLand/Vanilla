@@ -1,10 +1,10 @@
-import { URI } from "../../../base/common/uri.js";
-import { INativeEnvironmentService } from "../../environment/common/environment.js";
-import { IFileService } from "../../files/common/files.js";
-import { ILogService } from "../../log/common/log.js";
-import { IStateReadService, IStateService } from "../../state/node/state.js";
-import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import { UserDataProfilesService as BaseUserDataProfilesService, IUserDataProfilesService, StoredProfileAssociations, StoredUserDataProfile } from "../common/userDataProfile.js";
+import { URI } from '../../../base/common/uri.js';
+import { INativeEnvironmentService } from '../../environment/common/environment.js';
+import { IFileService } from '../../files/common/files.js';
+import { ILogService } from '../../log/common/log.js';
+import { IStateReadService, IStateService } from '../../state/node/state.js';
+import { IUriIdentityService } from '../../uriIdentity/common/uriIdentity.js';
+import { IUserDataProfilesService, UserDataProfilesService as BaseUserDataProfilesService, StoredUserDataProfile, StoredProfileAssociations } from '../common/userDataProfile.js';
 export declare class UserDataProfilesReadonlyService extends BaseUserDataProfilesService implements IUserDataProfilesService {
     private readonly stateReadonlyService;
     private readonly nativeEnvironmentService;

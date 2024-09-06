@@ -1,15 +1,15 @@
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { WorkbenchCompressibleAsyncDataTree } from "../../../../../platform/list/browser/listService.js";
-import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { IChatProgressRenderableResponseContent } from "../../common/chatModel.js";
-import { IChatResponseProgressFileTreeData } from "../../common/chatService.js";
-import { ChatTreeItem } from "../chat.js";
-import { IDisposableReference } from "./chatCollections.js";
-import { IChatContentPart } from "./chatContentParts.js";
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { WorkbenchCompressibleAsyncDataTree } from '../../../../../platform/list/browser/listService.js';
+import { IOpenerService } from '../../../../../platform/opener/common/opener.js';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { ChatTreeItem } from '../chat.js';
+import { IDisposableReference } from './chatCollections.js';
+import { IChatContentPart } from './chatContentParts.js';
+import { IChatProgressRenderableResponseContent } from '../../common/chatModel.js';
+import { IChatResponseProgressFileTreeData } from '../../common/chatService.js';
 export declare class ChatTreeContentPart extends Disposable implements IChatContentPart {
     private readonly openerService;
     readonly domNode: HTMLElement;

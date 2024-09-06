@@ -1,9 +1,9 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { ILogService } from "../../log/common/log.js";
-import { IBaseSerializableStorageRequest } from "../common/storageIpc.js";
-import { IStorageMainService } from "./storageMainService.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { ILogService } from '../../log/common/log.js';
+import { IBaseSerializableStorageRequest } from '../common/storageIpc.js';
+import { IStorageMainService } from './storageMainService.js';
 export declare class StorageDatabaseChannel extends Disposable implements IServerChannel {
     private readonly logService;
     private readonly storageMainService;

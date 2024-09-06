@@ -1,8 +1,8 @@
-import * as dom from "../../../../base/browser/dom.js";
-import { ResizableHTMLElement } from "../../../../base/browser/ui/resizable/resizable.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../browser/editorBrowser.js";
-import { IPosition, Position } from "../../../common/core/position.js";
+import { ResizableHTMLElement } from '../../../../base/browser/ui/resizable/resizable.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from '../../../browser/editorBrowser.js';
+import { IPosition, Position } from '../../../common/core/position.js';
+import * as dom from '../../../../base/browser/dom.js';
 export declare abstract class ResizableContentWidget extends Disposable implements IContentWidget {
     protected readonly _editor: ICodeEditor;
     readonly allowEditorOverflow: boolean;

@@ -17,7 +17,7 @@ export interface IPath {
     format(pathObject: ParsedPath): string;
     parse(path: string): ParsedPath;
     toNamespacedPath(path: string): string;
-    sep: "\\" | "/";
+    sep: '\\' | '/';
     delimiter: string;
     win32: IPath | null;
     posix: IPath | null;

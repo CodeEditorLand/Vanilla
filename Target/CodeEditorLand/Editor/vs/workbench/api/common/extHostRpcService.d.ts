@@ -1,4 +1,4 @@
-import { IRPCProtocol, Proxied, ProxyIdentifier } from "../../services/extensions/common/proxyIdentifier.js";
+import { ProxyIdentifier, IRPCProtocol, Proxied } from '../../services/extensions/common/proxyIdentifier.js';
 export declare const IExtHostRpcService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostRpcService>;
 export interface IExtHostRpcService extends IRPCProtocol {
     readonly _serviceBrand: undefined;

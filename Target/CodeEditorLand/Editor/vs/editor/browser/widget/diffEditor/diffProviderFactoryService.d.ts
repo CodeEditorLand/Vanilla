@@ -1,14 +1,14 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IDocumentDiff, IDocumentDiffProvider, IDocumentDiffProviderOptions } from "../../../common/diff/documentDiffProvider.js";
-import { ITextModel } from "../../../common/model.js";
-import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IDocumentDiff, IDocumentDiffProvider, IDocumentDiffProviderOptions } from '../../../common/diff/documentDiffProvider.js';
+import { ITextModel } from '../../../common/model.js';
+import { IEditorWorkerService } from '../../../common/services/editorWorker.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
 export declare const IDiffProviderFactoryService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IDiffProviderFactoryService>;
 export interface IDocumentDiffFactoryOptions {
-    readonly diffAlgorithm?: "legacy" | "advanced";
+    readonly diffAlgorithm?: 'legacy' | 'advanced';
 }
 export interface IDiffProviderFactoryService {
     readonly _serviceBrand: undefined;
@@ -34,6 +34,6 @@ export declare class WorkerBasedDocumentDiffProvider implements IDocumentDiffPro
     setOptions(newOptions: IWorkerBasedDocumentDiffProviderOptions): void;
 }
 interface IWorkerBasedDocumentDiffProviderOptions {
-    readonly diffAlgorithm?: "legacy" | "advanced" | IDocumentDiffProvider;
+    readonly diffAlgorithm?: 'legacy' | 'advanced' | IDocumentDiffProvider;
 }
 export {};

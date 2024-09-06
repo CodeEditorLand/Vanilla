@@ -1,14 +1,14 @@
-import { Event } from "../../base/common/event.js";
-import { Disposable } from "../../base/common/lifecycle.js";
-import { IServerChannel } from "../../base/parts/ipc/common/ipc.js";
-import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
-import { IExtensionManagementService } from "../../platform/extensionManagement/common/extensionManagement.js";
-import { ILogService } from "../../platform/log/common/log.js";
-import { IProductService } from "../../platform/product/common/productService.js";
-import { RemoteAgentConnectionContext } from "../../platform/remote/common/remoteAgentEnvironment.js";
-import { IPtyHostService } from "../../platform/terminal/common/terminal.js";
-import { RemoteTerminalChannelEvent, RemoteTerminalChannelRequest } from "../../workbench/contrib/terminal/common/remote/terminal.js";
-import { IServerEnvironmentService } from "./serverEnvironmentService.js";
+import { Event } from '../../base/common/event.js';
+import { Disposable } from '../../base/common/lifecycle.js';
+import { IServerChannel } from '../../base/parts/ipc/common/ipc.js';
+import { RemoteAgentConnectionContext } from '../../platform/remote/common/remoteAgentEnvironment.js';
+import { IPtyHostService } from '../../platform/terminal/common/terminal.js';
+import { RemoteTerminalChannelEvent, RemoteTerminalChannelRequest } from '../../workbench/contrib/terminal/common/remote/terminal.js';
+import { IServerEnvironmentService } from './serverEnvironmentService.js';
+import { IProductService } from '../../platform/product/common/productService.js';
+import { IExtensionManagementService } from '../../platform/extensionManagement/common/extensionManagement.js';
+import { IConfigurationService } from '../../platform/configuration/common/configuration.js';
+import { ILogService } from '../../platform/log/common/log.js';
 export declare class RemoteTerminalChannel extends Disposable implements IServerChannel<RemoteAgentConnectionContext> {
     private readonly _environmentService;
     private readonly _logService;

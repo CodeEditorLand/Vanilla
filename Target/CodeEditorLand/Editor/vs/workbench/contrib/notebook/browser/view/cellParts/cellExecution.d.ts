@@ -1,7 +1,7 @@
-import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
-import { ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
-import { CellViewModelStateChangeEvent } from "../../notebookViewEvents.js";
-import { CellContentPart } from "../cellPart.js";
+import { ICellViewModel, INotebookEditorDelegate } from '../../notebookBrowser.js';
+import { CellViewModelStateChangeEvent } from '../../notebookViewEvents.js';
+import { CellContentPart } from '../cellPart.js';
+import { INotebookExecutionStateService } from '../../../common/notebookExecutionStateService.js';
 export declare class CellExecutionPart extends CellContentPart {
     private readonly _notebookEditor;
     private readonly _executionOrderLabel;

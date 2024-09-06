@@ -1,4 +1,4 @@
-import { IKeymapInfo } from "../../common/keymapInfo.js";
+import { IKeymapInfo } from '../../common/keymapInfo.js';
 export declare class KeyboardLayoutContribution {
     static readonly INSTANCE: KeyboardLayoutContribution;
     private _layoutInfos;

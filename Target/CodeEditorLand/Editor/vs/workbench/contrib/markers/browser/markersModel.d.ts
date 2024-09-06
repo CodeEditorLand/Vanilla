@@ -1,8 +1,8 @@
-import { Event } from "../../../../base/common/event.js";
-import { IMatch } from "../../../../base/common/filters.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { IMarker, IRelatedInformation } from "../../../../platform/markers/common/markers.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { IMarker, IRelatedInformation } from '../../../../platform/markers/common/markers.js';
+import { Event } from '../../../../base/common/event.js';
+import { IMatch } from '../../../../base/common/filters.js';
 export type MarkerElement = ResourceMarkers | Marker | RelatedInformation;
 export declare function compareMarkersByUri(a: IMarker, b: IMarker): number;
 export declare class ResourceMarkers {

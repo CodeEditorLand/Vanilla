@@ -1,6 +1,6 @@
-import { Event } from "../../../../base/common/event.js";
-import { URI } from "../../../../base/common/uri.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { Event } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 /**
  * Mime type used by the output editor.
  */

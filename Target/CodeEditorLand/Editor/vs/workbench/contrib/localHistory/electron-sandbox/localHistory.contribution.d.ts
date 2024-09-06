@@ -1,1 +1,1 @@
-import "./localHistoryCommands.js";
+import './localHistoryCommands.js';

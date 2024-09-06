@@ -1,8 +1,8 @@
-import { Event } from "../../../../base/common/event.js";
-import severity from "../../../../base/common/severity.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IDebugSession, IExpression, INestingReplElement, IReplElement, IReplElementSource, IStackFrame } from "./debug.js";
-import { ExpressionContainer } from "./debugModel.js";
+import { Event } from '../../../../base/common/event.js';
+import severity from '../../../../base/common/severity.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IDebugSession, IExpression, INestingReplElement, IReplElement, IReplElementSource, IStackFrame } from './debug.js';
+import { ExpressionContainer } from './debugModel.js';
 /**
  * General case of data from DAP the `output` event. {@link ReplVariableElement}
  * is used instead only if there is a `variablesReference` with no `output` text.

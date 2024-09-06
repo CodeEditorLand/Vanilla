@@ -1,8 +1,8 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { IServerTelemetryService } from "./serverTelemetryService.js";
-import { ITelemetryAppender } from "./telemetryUtils.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { ITelemetryAppender } from './telemetryUtils.js';
+import { IServerTelemetryService } from './serverTelemetryService.js';
 export declare class ServerTelemetryChannel extends Disposable implements IServerChannel {
     private readonly telemetryService;
     private readonly telemetryAppender;

@@ -1,7 +1,7 @@
-import { KeyCode } from "../../../common/keyCodes.js";
-import { Disposable } from "../../../common/lifecycle.js";
-import { DomScrollableElement } from "../scrollbar/scrollableElement.js";
-import "./hoverWidget.css";
+import { DomScrollableElement } from '../scrollbar/scrollableElement.js';
+import { KeyCode } from '../../../common/keyCodes.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import './hoverWidget.css';
 export declare const enum HoverPosition {
     LEFT = 0,
     RIGHT = 1,

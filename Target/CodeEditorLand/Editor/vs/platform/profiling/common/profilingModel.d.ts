@@ -1,4 +1,4 @@
-import type { IV8Profile, IV8ProfileNode } from "./profiling.js";
+import type { IV8Profile, IV8ProfileNode } from './profiling.js';
 export interface IProfileModel {
     nodes: ReadonlyArray<IComputedNode>;
     locations: ReadonlyArray<ILocation>;

@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IStorageService } from "../../../../../platform/storage/common/storage.js";
-import { INotebookKernel, INotebookKernelHistoryService, INotebookKernelService, INotebookTextModelLike } from "../../common/notebookKernelService.js";
-import { INotebookLoggingService } from "../../common/notebookLoggingService.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IStorageService } from '../../../../../platform/storage/common/storage.js';
+import { INotebookKernel, INotebookKernelHistoryService, INotebookKernelService, INotebookTextModelLike } from '../../common/notebookKernelService.js';
+import { INotebookLoggingService } from '../../common/notebookLoggingService.js';
 export declare class NotebookKernelHistoryService extends Disposable implements INotebookKernelHistoryService {
     private readonly _storageService;
     private readonly _notebookKernelService;

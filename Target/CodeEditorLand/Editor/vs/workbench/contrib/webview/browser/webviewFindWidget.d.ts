@@ -1,9 +1,9 @@
-import { Event } from "../../../../base/common/event.js";
-import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { SimpleFindWidget } from "../../codeEditor/browser/find/simpleFindWidget.js";
+import { Event } from '../../../../base/common/event.js';
+import { IContextKey, IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IContextViewService } from '../../../../platform/contextview/browser/contextView.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { SimpleFindWidget } from '../../codeEditor/browser/find/simpleFindWidget.js';
 export interface WebviewFindDelegate {
     readonly hasFindResult: Event<boolean>;
     readonly onDidStopFind: Event<void>;

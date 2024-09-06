@@ -1,10 +1,10 @@
-import { IDimension } from "../../../../base/browser/dom.js";
-import { Direction } from "../../../../base/browser/ui/grid/grid.js";
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import { Part } from "../../../browser/part.js";
+import { Event } from '../../../../base/common/event.js';
+import { ILayoutService } from '../../../../platform/layout/browser/layoutService.js';
+import { Part } from '../../../browser/part.js';
+import { IDimension } from '../../../../base/browser/dom.js';
+import { Direction } from '../../../../base/browser/ui/grid/grid.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
 export declare const IWorkbenchLayoutService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkbenchLayoutService>;
 export declare const enum Parts {
     TITLEBAR_PART = "workbench.parts.titlebar",
@@ -61,7 +61,7 @@ export declare const enum PanelOpensMaximizedOptions {
     NEVER = 1,
     REMEMBER_LAST = 2
 }
-export type PanelAlignment = "left" | "center" | "right" | "justify";
+export type PanelAlignment = 'left' | 'center' | 'right' | 'justify';
 export declare function positionToString(position: Position): string;
 export declare function positionFromString(str: string): Position;
 export declare function panelOpensMaximizedFromString(str: string): PanelOpensMaximizedOptions;

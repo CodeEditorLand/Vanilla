@@ -1,8 +1,8 @@
-import * as glob from "../../../../base/common/glob.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
-import { INotebookExclusiveDocumentFilter, TransientOptions } from "./notebookCommon.js";
+import * as glob from '../../../../base/common/glob.js';
+import { URI } from '../../../../base/common/uri.js';
+import { INotebookExclusiveDocumentFilter, TransientOptions } from './notebookCommon.js';
+import { RegisteredEditorPriority } from '../../../services/editor/common/editorResolverService.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
 type NotebookSelector = string | glob.IRelativePattern | INotebookExclusiveDocumentFilter;
 export interface NotebookEditorDescriptor {
     readonly extension?: ExtensionIdentifier;

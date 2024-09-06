@@ -1,13 +1,13 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
-import { IQuickPickItemWithResource } from "../../../../platform/quickinput/common/quickInput.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IWorkspaceSymbol } from "../common/search.js";
+import { IPickerQuickAccessItem, PickerQuickAccessProvider } from '../../../../platform/quickinput/browser/pickerQuickAccess.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
+import { IWorkspaceSymbol } from '../common/search.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IQuickPickItemWithResource } from '../../../../platform/quickinput/common/quickInput.js';
+import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
 export interface ISymbolQuickPickItem extends IPickerQuickAccessItem, IQuickPickItemWithResource {
     score?: number;
     symbol?: IWorkspaceSymbol;

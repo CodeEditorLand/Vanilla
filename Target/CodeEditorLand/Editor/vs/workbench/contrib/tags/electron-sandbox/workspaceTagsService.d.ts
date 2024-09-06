@@ -1,9 +1,9 @@
-import { URI } from "../../../../base/common/uri.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IWorkspace, IWorkspaceContextService, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import { IWorkspaceTagsService, Tags } from "../common/workspaceTags.js";
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IWorkspaceContextService, WorkbenchState, IWorkspace } from '../../../../platform/workspace/common/workspace.js';
+import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
+import { ITextFileService } from '../../../services/textfile/common/textfiles.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IWorkspaceTagsService, Tags } from '../common/workspaceTags.js';
 export declare class WorkspaceTagsService implements IWorkspaceTagsService {
     private readonly fileService;
     private readonly contextService;

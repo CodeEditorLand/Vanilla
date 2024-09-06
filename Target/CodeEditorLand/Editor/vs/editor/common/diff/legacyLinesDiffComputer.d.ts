@@ -1,5 +1,5 @@
-import { ILinesDiffComputer, ILinesDiffComputerOptions, LinesDiff } from "./linesDiffComputer.js";
-import { DetailedLineRangeMapping } from "./rangeMapping.js";
+import { ILinesDiffComputer, ILinesDiffComputerOptions, LinesDiff } from './linesDiffComputer.js';
+import { DetailedLineRangeMapping } from './rangeMapping.js';
 export declare class LegacyLinesDiffComputer implements ILinesDiffComputer {
     computeDiff(originalLines: string[], modifiedLines: string[], options: ILinesDiffComputerOptions): LinesDiff;
 }

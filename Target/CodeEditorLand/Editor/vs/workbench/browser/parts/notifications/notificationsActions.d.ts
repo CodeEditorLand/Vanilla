@@ -1,8 +1,8 @@
-import "./media/notificationsActions.css";
-import { Action } from "../../../../base/common/actions.js";
-import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { INotificationViewItem } from "../../../common/notifications.js";
+import './media/notificationsActions.css';
+import { INotificationViewItem } from '../../../common/notifications.js';
+import { Action } from '../../../../base/common/actions.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IClipboardService } from '../../../../platform/clipboard/common/clipboardService.js';
 export declare class ClearNotificationAction extends Action {
     private readonly commandService;
     static readonly ID = "notification.clear";

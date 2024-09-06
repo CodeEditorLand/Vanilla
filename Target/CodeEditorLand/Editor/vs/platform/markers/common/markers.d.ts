@@ -1,6 +1,6 @@
-import { Event } from "../../../base/common/event.js";
-import Severity from "../../../base/common/severity.js";
-import { URI } from "../../../base/common/uri.js";
+import { Event } from '../../../base/common/event.js';
+import Severity from '../../../base/common/severity.js';
+import { URI } from '../../../base/common/uri.js';
 export interface IMarkerService {
     readonly _serviceBrand: undefined;
     getStatistics(): MarkerStatistics;

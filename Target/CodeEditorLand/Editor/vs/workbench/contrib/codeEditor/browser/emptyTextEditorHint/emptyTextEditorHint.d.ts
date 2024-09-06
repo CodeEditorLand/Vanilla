@@ -1,17 +1,17 @@
-import "./emptyTextEditorHint.css";
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
-import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
-import { IEditorContribution } from "../../../../../editor/common/editorCommon.js";
-import { ICommandService } from "../../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import { IProductService } from "../../../../../platform/product/common/productService.js";
-import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
-import { IChatAgentService } from "../../../chat/common/chatAgents.js";
-import { IInlineChatSessionService } from "../../../inlineChat/browser/inlineChatSessionService.js";
+import './emptyTextEditorHint.css';
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../../../editor/browser/editorBrowser.js';
+import { ICommandService } from '../../../../../platform/commands/common/commands.js';
+import { IEditorContribution } from '../../../../../editor/common/editorCommon.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IKeybindingService } from '../../../../../platform/keybinding/common/keybinding.js';
+import { IEditorGroupsService } from '../../../../services/editor/common/editorGroupsService.js';
+import { IInlineChatSessionService } from '../../../inlineChat/browser/inlineChatSessionService.js';
+import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
+import { IProductService } from '../../../../../platform/product/common/productService.js';
+import { IHoverService } from '../../../../../platform/hover/browser/hover.js';
+import { IChatAgentService } from '../../../chat/common/chatAgents.js';
+import { IContextMenuService } from '../../../../../platform/contextview/browser/contextView.js';
 export interface IEmptyTextEditorHintOptions {
     readonly clickable?: boolean;
 }

@@ -1,17 +1,17 @@
-import { Event } from "../../../../base/common/event.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IAddedViewDescriptorRef, IView, IViewDescriptor, IViewDescriptorService } from "../../../common/views.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import { IViewPaneOptions, ViewPane } from "./viewPane.js";
-import { ViewPaneContainer } from "./viewPaneContainer.js";
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IViewDescriptor, IViewDescriptorService, IAddedViewDescriptorRef, IView } from '../../../common/views.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { ViewPaneContainer } from './viewPaneContainer.js';
+import { ViewPane, IViewPaneOptions } from './viewPane.js';
+import { Event } from '../../../../base/common/event.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IWorkbenchLayoutService } from '../../../services/layout/browser/layoutService.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
 export interface IViewletViewOptions extends IViewPaneOptions {
     readonly fromExtensionId?: ExtensionIdentifier;
 }

@@ -1,21 +1,21 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { ITextEditorModel } from "../../../../editor/common/services/resolverService.js";
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { ISaveOptions } from "../../../common/editor.js";
-import { BaseTextEditorModel } from "../../../common/editor/textEditorModel.js";
-import { IEditorService } from "../../editor/common/editorService.js";
-import { ILanguageDetectionService } from "../../languageDetection/common/languageDetectionWorkerService.js";
-import { IEncodingSupport, ILanguageSupport, ITextFileService } from "../../textfile/common/textfiles.js";
-import { IWorkingCopy, IWorkingCopyBackup, IWorkingCopySaveEvent, WorkingCopyCapabilities } from "../../workingCopy/common/workingCopy.js";
-import { IWorkingCopyBackupService } from "../../workingCopy/common/workingCopyBackup.js";
-import { IWorkingCopyService } from "../../workingCopy/common/workingCopyService.js";
+import { ISaveOptions } from '../../../common/editor.js';
+import { BaseTextEditorModel } from '../../../common/editor/textEditorModel.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { Event } from '../../../../base/common/event.js';
+import { IWorkingCopyBackupService } from '../../workingCopy/common/workingCopyBackup.js';
+import { ITextResourceConfigurationService } from '../../../../editor/common/services/textResourceConfiguration.js';
+import { ITextModel } from '../../../../editor/common/model.js';
+import { ITextEditorModel } from '../../../../editor/common/services/resolverService.js';
+import { IWorkingCopyService } from '../../workingCopy/common/workingCopyService.js';
+import { IWorkingCopy, WorkingCopyCapabilities, IWorkingCopyBackup, IWorkingCopySaveEvent } from '../../workingCopy/common/workingCopy.js';
+import { IEncodingSupport, ILanguageSupport, ITextFileService } from '../../textfile/common/textfiles.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { IEditorService } from '../../editor/common/editorService.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ILanguageDetectionService } from '../../languageDetection/common/languageDetectionWorkerService.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
 export interface IUntitledTextEditorModel extends ITextEditorModel, ILanguageSupport, IEncodingSupport, IWorkingCopy {
     /**
      * Emits an event when the encoding of this untitled model changes.

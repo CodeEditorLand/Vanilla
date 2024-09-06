@@ -1,6 +1,6 @@
-import * as nls from "../../../../nls.js";
-import { Action2 } from "../../../../platform/actions/common/actions.js";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import * as nls from '../../../../nls.js';
+import { Action2 } from '../../../../platform/actions/common/actions.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 export declare class ShowWebViewEditorFindWidgetAction extends Action2 {
     static readonly ID = "editor.action.webvieweditor.showFind";
     static readonly LABEL: string;

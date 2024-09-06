@@ -1,11 +1,11 @@
-import * as vscode from "vscode";
-import { Event } from "../../../base/common/event.js";
-import { URI } from "../../../base/common/uri.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { ExtHostDocumentsAndEditorsShape, IDocumentsAndEditorsDelta } from "./extHost.protocol.js";
-import { ExtHostDocumentData } from "./extHostDocumentData.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
-import { ExtHostTextEditor } from "./extHostTextEditor.js";
+import * as vscode from 'vscode';
+import { Event } from '../../../base/common/event.js';
+import { URI } from '../../../base/common/uri.js';
+import { ExtHostDocumentsAndEditorsShape, IDocumentsAndEditorsDelta } from './extHost.protocol.js';
+import { ExtHostDocumentData } from './extHostDocumentData.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { ExtHostTextEditor } from './extHostTextEditor.js';
+import { ILogService } from '../../../platform/log/common/log.js';
 export declare class ExtHostDocumentsAndEditors implements ExtHostDocumentsAndEditorsShape {
     private readonly _extHostRpc;
     private readonly _logService;

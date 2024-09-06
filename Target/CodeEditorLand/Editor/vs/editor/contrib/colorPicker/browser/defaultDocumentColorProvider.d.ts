@@ -1,9 +1,9 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { DocumentColorProvider, IColorInformation, IColorPresentation } from "../../../common/languages.js";
-import { ITextModel } from "../../../common/model.js";
-import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ITextModel } from '../../../common/model.js';
+import { DocumentColorProvider, IColorInformation, IColorPresentation } from '../../../common/languages.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { IEditorWorkerService } from '../../../common/services/editorWorker.js';
 export declare class DefaultDocumentColorProvider implements DocumentColorProvider {
     private readonly _editorWorkerService;
     constructor(_editorWorkerService: IEditorWorkerService);

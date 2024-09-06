@@ -1,6 +1,6 @@
-import { StandardTokenType } from "../encodedTokenAttributes.js";
-import { ILanguageIdCodec } from "../languages.js";
-import { IViewLineTokens, LineTokens } from "../tokens/lineTokens.js";
+import { IViewLineTokens, LineTokens } from '../tokens/lineTokens.js';
+import { StandardTokenType } from '../encodedTokenAttributes.js';
+import { ILanguageIdCodec } from '../languages.js';
 export declare function createScopedLineTokens(context: LineTokens, offset: number): ScopedLineTokens;
 export declare class ScopedLineTokens {
     _scopedLineTokensBrand: void;

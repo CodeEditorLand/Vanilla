@@ -1,1 +1,1 @@
-import{bootstrapSimpleWorker as r}from"../../../../../../base/common/worker/simpleWorkerBootstrap.js";import{create as o}from"./textMateTokenizationWorker.worker.js";r(o);
+import{create as r}from"./textMateTokenizationWorker.worker.js";import{bootstrapSimpleWorker as o}from"../../../../../../base/common/worker/simpleWorkerBootstrap.js";o(r);

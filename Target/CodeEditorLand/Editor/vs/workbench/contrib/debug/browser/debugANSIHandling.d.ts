@@ -1,7 +1,7 @@
-import { RGBA } from "../../../../base/common/color.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import { ILinkDetector } from "./linkDetector.js";
+import { RGBA } from '../../../../base/common/color.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IWorkspaceFolder } from '../../../../platform/workspace/common/workspace.js';
+import { ILinkDetector } from './linkDetector.js';
 /**
  * @param text The content to stylize.
  * @returns An {@link HTMLSpanElement} that contains the potentially stylized text.

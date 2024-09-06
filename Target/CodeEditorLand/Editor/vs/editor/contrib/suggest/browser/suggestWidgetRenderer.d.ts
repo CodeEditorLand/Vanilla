@@ -1,12 +1,12 @@
-import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
-import { IListRenderer } from "../../../../base/browser/ui/list/list.js";
-import { Event } from "../../../../base/common/event.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { ILanguageService } from "../../../common/languages/language.js";
-import { IModelService } from "../../../common/services/model.js";
-import { CompletionItem } from "./suggest.js";
+import { IconLabel } from '../../../../base/browser/ui/iconLabel/iconLabel.js';
+import { IListRenderer } from '../../../../base/browser/ui/list/list.js';
+import { Event } from '../../../../base/common/event.js';
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IModelService } from '../../../common/services/model.js';
+import { ILanguageService } from '../../../common/languages/language.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { CompletionItem } from './suggest.js';
 export declare function getAriaId(index: number): string;
 export interface ISuggestionTemplateData {
     readonly root: HTMLElement;

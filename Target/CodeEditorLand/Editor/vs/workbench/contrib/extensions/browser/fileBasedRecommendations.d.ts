@@ -1,12 +1,12 @@
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { IExtensionRecommendationNotificationService } from "../../../../platform/extensionRecommendations/common/extensionRecommendations.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IExtensionIgnoredRecommendationsService } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
-import { IExtensionsWorkbenchService } from "../common/extensions.js";
-import { ExtensionRecommendations, GalleryExtensionRecommendation } from "./extensionRecommendations.js";
+import { ExtensionRecommendations, GalleryExtensionRecommendation } from './extensionRecommendations.js';
+import { IExtensionIgnoredRecommendationsService } from '../../../services/extensionRecommendations/common/extensionRecommendations.js';
+import { IExtensionsWorkbenchService } from '../common/extensions.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { IExtensionRecommendationNotificationService } from '../../../../platform/extensionRecommendations/common/extensionRecommendations.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
 export declare class FileBasedRecommendations extends ExtensionRecommendations {
     private readonly extensionsWorkbenchService;
     private readonly modelService;

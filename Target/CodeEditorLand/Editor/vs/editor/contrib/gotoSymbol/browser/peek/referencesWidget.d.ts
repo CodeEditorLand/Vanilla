@@ -1,24 +1,24 @@
-import { IMouseEvent } from "../../../../../base/browser/mouseEvent.js";
-import { Event } from "../../../../../base/common/event.js";
-import "./referencesWidget.css";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { ICodeEditor } from "../../../../browser/editorBrowser.js";
-import { IRange } from "../../../../common/core/range.js";
-import { Location } from "../../../../common/languages.js";
-import { ITextModelService } from "../../../../common/services/resolverService.js";
-import * as peekView from "../../../peekView/browser/peekView.js";
-import { OneReference, ReferencesModel } from "../referencesModel.js";
+import { IMouseEvent } from '../../../../../base/browser/mouseEvent.js';
+import { Event } from '../../../../../base/common/event.js';
+import './referencesWidget.css';
+import { ICodeEditor } from '../../../../browser/editorBrowser.js';
+import { IRange } from '../../../../common/core/range.js';
+import { Location } from '../../../../common/languages.js';
+import { ITextModelService } from '../../../../common/services/resolverService.js';
+import * as peekView from '../../../peekView/browser/peekView.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../../../platform/keybinding/common/keybinding.js';
+import { ILabelService } from '../../../../../platform/label/common/label.js';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { OneReference, ReferencesModel } from '../referencesModel.js';
 export declare class LayoutData {
     ratio: number;
     heightInLines: number;
     static fromJSON(raw: string): LayoutData;
 }
 export interface SelectionEvent {
-    readonly kind: "goto" | "show" | "side" | "open";
-    readonly source: "editor" | "tree" | "title";
+    readonly kind: 'goto' | 'show' | 'side' | 'open';
+    readonly source: 'editor' | 'tree' | 'title';
     readonly element?: Location;
 }
 /**

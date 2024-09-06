@@ -1,30 +1,30 @@
-import { VSBuffer } from "../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IDiffResult } from "../../../../base/common/diff/diff.js";
-import { Event } from "../../../../base/common/event.js";
-import * as glob from "../../../../base/common/glob.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { ISplice } from "../../../../base/common/sequence.js";
-import { ThemeColor } from "../../../../base/common/themables.js";
-import { URI, UriComponents } from "../../../../base/common/uri.js";
-import { Range } from "../../../../editor/common/core/range.js";
-import { ILineChange } from "../../../../editor/common/diff/legacyLinesDiffComputer.js";
-import * as editorCommon from "../../../../editor/common/editorCommon.js";
-import { Command, WorkspaceEditMetadata } from "../../../../editor/common/languages.js";
-import { IReadonlyTextBuffer } from "../../../../editor/common/model.js";
-import { IAccessibilityInformation } from "../../../../platform/accessibility/common/accessibility.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { IFileReadLimits } from "../../../../platform/files/common/files.js";
-import { UndoRedoGroup } from "../../../../platform/undoRedo/common/undoRedo.js";
-import { IRevertOptions, ISaveOptions, IUntypedEditorInput } from "../../../common/editor.js";
-import { RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
-import { IWorkingCopyBackupMeta, IWorkingCopySaveEvent } from "../../../services/workingCopy/common/workingCopy.js";
-import { NotebookTextModel } from "./model/notebookTextModel.js";
-import { ICellExecutionError } from "./notebookExecutionStateService.js";
-import { INotebookTextModelLike } from "./notebookKernelService.js";
-import { ICellRange } from "./notebookRange.js";
+import { VSBuffer } from '../../../../base/common/buffer.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IDiffResult } from '../../../../base/common/diff/diff.js';
+import { Event } from '../../../../base/common/event.js';
+import * as glob from '../../../../base/common/glob.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ISplice } from '../../../../base/common/sequence.js';
+import { ThemeColor } from '../../../../base/common/themables.js';
+import { URI, UriComponents } from '../../../../base/common/uri.js';
+import { Range } from '../../../../editor/common/core/range.js';
+import { ILineChange } from '../../../../editor/common/diff/legacyLinesDiffComputer.js';
+import * as editorCommon from '../../../../editor/common/editorCommon.js';
+import { Command, WorkspaceEditMetadata } from '../../../../editor/common/languages.js';
+import { IReadonlyTextBuffer } from '../../../../editor/common/model.js';
+import { IAccessibilityInformation } from '../../../../platform/accessibility/common/accessibility.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { IFileReadLimits } from '../../../../platform/files/common/files.js';
+import { UndoRedoGroup } from '../../../../platform/undoRedo/common/undoRedo.js';
+import { IRevertOptions, ISaveOptions, IUntypedEditorInput } from '../../../common/editor.js';
+import { NotebookTextModel } from './model/notebookTextModel.js';
+import { ICellExecutionError } from './notebookExecutionStateService.js';
+import { INotebookTextModelLike } from './notebookKernelService.js';
+import { ICellRange } from './notebookRange.js';
+import { RegisteredEditorPriority } from '../../../services/editor/common/editorResolverService.js';
+import { IWorkingCopyBackupMeta, IWorkingCopySaveEvent } from '../../../services/workingCopy/common/workingCopy.js';
 export declare const NOTEBOOK_EDITOR_ID = "workbench.editor.notebook";
 export declare const NOTEBOOK_DIFF_EDITOR_ID = "workbench.editor.notebookTextDiffEditor";
 export declare const NOTEBOOK_MULTI_DIFF_EDITOR_ID = "workbench.editor.notebookMultiTextDiffEditor";
@@ -95,7 +95,7 @@ export interface NotebookCellDefaultCollapseConfig {
     codeCell?: NotebookCellCollapseState;
     markupCell?: NotebookCellCollapseState;
 }
-export type InteractiveWindowCollapseCodeCells = "always" | "never" | "fromEditor";
+export type InteractiveWindowCollapseCodeCells = 'always' | 'never' | 'fromEditor';
 export type TransientCellMetadata = {
     readonly [K in keyof NotebookCellMetadata]?: boolean;
 };
@@ -625,7 +625,7 @@ export interface INotebookCellStatusBarItemList {
     items: INotebookCellStatusBarItem[];
     dispose?(): void;
 }
-export type ShowCellStatusBarType = "hidden" | "visible" | "visibleAfterExecute";
+export type ShowCellStatusBarType = 'hidden' | 'visible' | 'visibleAfterExecute';
 export declare const NotebookSetting: {
     readonly displayOrder: "notebook.displayOrder";
     readonly cellToolbarLocation: "notebook.cellToolbarLocation";

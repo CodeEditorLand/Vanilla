@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IObservable } from "../../../../base/common/observable.js";
-import "./inlineEdit.css";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IRange } from "../../../common/core/range.js";
-import { ILanguageService } from "../../../common/languages/language.js";
-import { ITextModel } from "../../../common/model.js";
-import { GhostText } from "../../inlineCompletions/browser/model/ghostText.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../base/common/observable.js';
+import './inlineEdit.css';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IRange } from '../../../common/core/range.js';
+import { ILanguageService } from '../../../common/languages/language.js';
+import { ITextModel } from '../../../common/model.js';
+import { GhostText } from '../../inlineCompletions/browser/model/ghostText.js';
 export declare const INLINE_EDIT_DESCRIPTION = "inline-edit";
 export interface IGhostTextWidgetModel {
     readonly targetTextModel: IObservable<ITextModel | undefined>;

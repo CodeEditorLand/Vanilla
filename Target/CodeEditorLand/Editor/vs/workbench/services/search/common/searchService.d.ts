@@ -1,14 +1,14 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { ResourceSet } from "../../../../base/common/map.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IEditorService } from "../../editor/common/editorService.js";
-import { IExtensionService } from "../../extensions/common/extensions.js";
-import { IAITextQuery, IFileQuery, ISearchComplete, ISearchProgressItem, ISearchResultProvider, ISearchService, ITextQuery, SearchProviderType } from "./search.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { ResourceSet } from '../../../../base/common/map.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IEditorService } from '../../editor/common/editorService.js';
+import { IExtensionService } from '../../extensions/common/extensions.js';
+import { IAITextQuery, IFileQuery, ISearchComplete, ISearchProgressItem, ISearchResultProvider, ISearchService, ITextQuery, SearchProviderType } from './search.js';
 export declare class SearchService extends Disposable implements ISearchService {
     private readonly modelService;
     private readonly editorService;

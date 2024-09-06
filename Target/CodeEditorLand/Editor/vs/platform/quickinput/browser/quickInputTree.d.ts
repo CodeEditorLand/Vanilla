@@ -1,11 +1,11 @@
-import { StandardKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
-import { IHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegate.js";
-import { IListStyles } from "../../../base/browser/ui/list/listWidget.js";
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IAccessibilityService } from "../../accessibility/common/accessibility.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { IQuickPickItem, IQuickPickItemButtonEvent, IQuickPickSeparatorButtonEvent, QuickPickFocus, QuickPickItem } from "../common/quickInput.js";
+import { Event } from '../../../base/common/event.js';
+import { IHoverDelegate } from '../../../base/browser/ui/hover/hoverDelegate.js';
+import { IInstantiationService } from '../../instantiation/common/instantiation.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IQuickPickItem, IQuickPickItemButtonEvent, IQuickPickSeparatorButtonEvent, QuickPickItem, QuickPickFocus } from '../common/quickInput.js';
+import { IListStyles } from '../../../base/browser/ui/list/listWidget.js';
+import { StandardKeyboardEvent } from '../../../base/browser/keyboardEvent.js';
+import { IAccessibilityService } from '../../accessibility/common/accessibility.js';
 export declare class QuickInputTree extends Disposable {
     private parent;
     private hoverDelegate;
@@ -14,12 +14,12 @@ export declare class QuickInputTree extends Disposable {
     private readonly _onKeyDown;
     /**
      * Event that is fired when the tree receives a keydown.
-     */
+    */
     readonly onKeyDown: Event<StandardKeyboardEvent>;
     private readonly _onLeave;
     /**
      * Event that is fired when the tree would no longer have focus.
-     */
+    */
     readonly onLeave: Event<void>;
     private readonly _visibleCountObservable;
     onChangedVisibleCount: Event<number>;
@@ -69,8 +69,8 @@ export declare class QuickInputTree extends Disposable {
     get matchOnLabel(): boolean;
     set matchOnLabel(value: boolean);
     private _matchOnLabelMode;
-    get matchOnLabelMode(): "fuzzy" | "contiguous";
-    set matchOnLabelMode(value: "fuzzy" | "contiguous");
+    get matchOnLabelMode(): 'fuzzy' | 'contiguous';
+    set matchOnLabelMode(value: 'fuzzy' | 'contiguous');
     private _matchOnMeta;
     get matchOnMeta(): boolean;
     set matchOnMeta(value: boolean);

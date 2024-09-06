@@ -1,6 +1,6 @@
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { ISocket } from "../../../base/parts/ipc/common/ipc.net.js";
-import { RemoteConnection, RemoteConnectionOfType, RemoteConnectionType } from "./remoteAuthorityResolver.js";
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ISocket } from '../../../base/parts/ipc/common/ipc.net.js';
+import { RemoteConnectionOfType, RemoteConnectionType, RemoteConnection } from './remoteAuthorityResolver.js';
 export declare const IRemoteSocketFactoryService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IRemoteSocketFactoryService>;
 export interface IRemoteSocketFactoryService {
     readonly _serviceBrand: undefined;

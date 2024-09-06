@@ -1,8 +1,8 @@
-import { VSBuffer } from "../../../base/common/buffer.js";
-import { Event } from "../../../base/common/event.js";
-import { ISocket, SocketDiagnosticsEventType } from "../../../base/parts/ipc/common/ipc.net.js";
-import { RemoteConnectionType, WebSocketRemoteConnection } from "../common/remoteAuthorityResolver.js";
-import { ISocketFactory } from "../common/remoteSocketFactoryService.js";
+import { VSBuffer } from '../../../base/common/buffer.js';
+import { Event } from '../../../base/common/event.js';
+import { ISocket, SocketDiagnosticsEventType } from '../../../base/parts/ipc/common/ipc.net.js';
+import { ISocketFactory } from '../common/remoteSocketFactoryService.js';
+import { RemoteConnectionType, WebSocketRemoteConnection } from '../common/remoteAuthorityResolver.js';
 export interface IWebSocketFactory {
     create(url: string, debugLabel: string): IWebSocket;
 }

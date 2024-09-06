@@ -1,7 +1,7 @@
-import { IProcessPropertyMap, ITerminalChildProcess, ITerminalLaunchError, ITerminalLogService, ProcessPropertyType } from "../../../../platform/terminal/common/terminal.js";
-import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
-import { BasePty } from "../common/basePty.js";
-import { RemoteTerminalChannelClient } from "../common/remote/remoteTerminalChannel.js";
+import { IProcessPropertyMap, ITerminalChildProcess, ITerminalLaunchError, ITerminalLogService, ProcessPropertyType } from '../../../../platform/terminal/common/terminal.js';
+import { BasePty } from '../common/basePty.js';
+import { RemoteTerminalChannelClient } from '../common/remote/remoteTerminalChannel.js';
+import { IRemoteAgentService } from '../../../services/remote/common/remoteAgentService.js';
 export declare class RemotePty extends BasePty implements ITerminalChildProcess {
     private readonly _remoteTerminalChannel;
     private readonly _remoteAgentService;
@@ -22,7 +22,7 @@ export declare class RemotePty extends BasePty implements ITerminalChildProcess 
         processId: string;
     }>;
     acknowledgeDataEvent(charCount: number): void;
-    setUnicodeVersion(version: "6" | "11"): Promise<void>;
+    setUnicodeVersion(version: '6' | '11'): Promise<void>;
     refreshProperty<T extends ProcessPropertyType>(type: T): Promise<IProcessPropertyMap[T]>;
     updateProperty<T extends ProcessPropertyType>(type: T, value: IProcessPropertyMap[T]): Promise<void>;
     handleOrphanQuestion(): void;

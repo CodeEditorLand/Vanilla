@@ -1,12 +1,12 @@
-import type { Terminal as RawXtermTerminal } from "@xterm/xterm";
-import { IFocusTracker } from "../../../../../base/browser/dom.js";
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import "./media/terminalChatWidget.css";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { InlineChatWidget } from "../../../inlineChat/browser/inlineChatWidget.js";
-import { ITerminalInstance, type IXtermTerminal } from "../../../terminal/browser/terminal.js";
+import type { Terminal as RawXtermTerminal } from '@xterm/xterm';
+import { IFocusTracker } from '../../../../../base/browser/dom.js';
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import './media/terminalChatWidget.css';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { InlineChatWidget } from '../../../inlineChat/browser/inlineChatWidget.js';
+import { ITerminalInstance, type IXtermTerminal } from '../../../terminal/browser/terminal.js';
 export declare class TerminalChatWidget extends Disposable {
     private readonly _terminalElement;
     private readonly _instance;

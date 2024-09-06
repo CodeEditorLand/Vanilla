@@ -1,9 +1,9 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IURITransformer } from "../../../base/common/uriIpc.js";
-import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { AbstractLoggerService, ILogger, ILoggerOptions, ILoggerResource, ILoggerService, LogLevel } from "./log.js";
+import { URI } from '../../../base/common/uri.js';
+import { Event } from '../../../base/common/event.js';
+import { IChannel, IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { AbstractLoggerService, ILogger, ILoggerOptions, ILoggerResource, ILoggerService, LogLevel } from './log.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IURITransformer } from '../../../base/common/uriIpc.js';
 export declare class LoggerChannelClient extends AbstractLoggerService implements ILoggerService {
     private readonly windowId;
     private readonly channel;

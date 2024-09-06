@@ -1,10 +1,10 @@
-import { IAction } from "../../../../../base/common/actions.js";
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { Event } from "../../../../../base/common/event.js";
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { ITerminalCommand } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { ITerminalCommandSelector, ITerminalOutputMatch, ITerminalOutputMatcher } from "../../../../../platform/terminal/common/terminal.js";
+import { Event } from '../../../../../base/common/event.js';
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { IAction } from '../../../../../base/common/actions.js';
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { ITerminalCommandSelector, ITerminalOutputMatch, ITerminalOutputMatcher } from '../../../../../platform/terminal/common/terminal.js';
+import { ITerminalCommand } from '../../../../../platform/terminal/common/capabilities/capabilities.js';
 export declare const ITerminalQuickFixService: import("../../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITerminalQuickFixService>;
 export interface ITerminalQuickFixService {
     onDidRegisterProvider: Event<ITerminalQuickFixProviderSelector>;
@@ -39,12 +39,12 @@ export declare enum TerminalQuickFixType {
     VscodeCommand = 3
 }
 export interface ITerminalQuickFixOptions {
-    type: "internal" | "resolved" | "unresolved";
+    type: 'internal' | 'resolved' | 'unresolved';
     id: string;
     commandLineMatcher: string | RegExp;
     outputMatcher?: ITerminalOutputMatcher;
-    commandExitResult: "success" | "error";
-    kind?: "fix" | "explain";
+    commandExitResult: 'success' | 'error';
+    kind?: 'fix' | 'explain';
 }
 export interface ITerminalQuickFix {
     type: TerminalQuickFixType;
@@ -69,13 +69,13 @@ export interface ITerminalCommandMatchResult {
     outputMatch?: ITerminalOutputMatch;
 }
 export interface ITerminalQuickFixInternalOptions extends ITerminalQuickFixOptions {
-    type: "internal";
+    type: 'internal';
     getQuickFixes: TerminalQuickFixCallback;
 }
 export interface ITerminalQuickFixResolvedExtensionOptions extends ITerminalQuickFixOptions {
-    type: "resolved";
+    type: 'resolved';
     getQuickFixes: TerminalQuickFixCallbackExtension;
 }
 export interface ITerminalQuickFixUnresolvedExtensionOptions extends ITerminalQuickFixOptions {
-    type: "unresolved";
+    type: 'unresolved';
 }

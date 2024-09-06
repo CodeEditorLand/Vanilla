@@ -1,7 +1,7 @@
-import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
-import { INotebookEditor } from "../../notebookBrowser.js";
-import { MarkupCellViewModel } from "../../viewModel/markupCellViewModel.js";
-import { CellContentPart } from "../cellPart.js";
+import { INotebookEditor } from '../../notebookBrowser.js';
+import { CellContentPart } from '../cellPart.js';
+import { MarkupCellViewModel } from '../../viewModel/markupCellViewModel.js';
+import { INotebookExecutionStateService } from '../../../common/notebookExecutionStateService.js';
 export declare class FoldedCellHint extends CellContentPart {
     private readonly _notebookEditor;
     private readonly _container;

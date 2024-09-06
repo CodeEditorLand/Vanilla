@@ -1,13 +1,13 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IFileService } from "../../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IWorkbenchContribution } from "../../../../common/contributions.js";
-import { IEditorSerializer } from "../../../../common/editor.js";
-import { EditorInput } from "../../../../common/editor/editorInput.js";
-import { ITextEditorService } from "../../../../services/textfile/common/textEditorService.js";
-import { IWorkingCopyIdentifier } from "../../../../services/workingCopy/common/workingCopy.js";
-import { IWorkingCopyEditorHandler, IWorkingCopyEditorService } from "../../../../services/workingCopy/common/workingCopyEditorService.js";
-import { FileEditorInput } from "./fileEditorInput.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IEditorSerializer } from '../../../../common/editor.js';
+import { EditorInput } from '../../../../common/editor/editorInput.js';
+import { ITextEditorService } from '../../../../services/textfile/common/textEditorService.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IWorkbenchContribution } from '../../../../common/contributions.js';
+import { IWorkingCopyIdentifier } from '../../../../services/workingCopy/common/workingCopy.js';
+import { IWorkingCopyEditorHandler, IWorkingCopyEditorService } from '../../../../services/workingCopy/common/workingCopyEditorService.js';
+import { FileEditorInput } from './fileEditorInput.js';
+import { IFileService } from '../../../../../platform/files/common/files.js';
 export declare class FileEditorInputSerializer implements IEditorSerializer {
     canSerialize(editorInput: EditorInput): boolean;
     serialize(editorInput: EditorInput): string;

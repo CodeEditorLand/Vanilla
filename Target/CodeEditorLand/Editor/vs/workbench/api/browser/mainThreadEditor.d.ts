@@ -1,15 +1,15 @@
-import { Event } from "../../../base/common/event.js";
-import { ICodeEditor } from "../../../editor/browser/editorBrowser.js";
-import { ISingleEditOperation } from "../../../editor/common/core/editOperation.js";
-import { IRange, Range } from "../../../editor/common/core/range.js";
-import { ISelection, Selection } from "../../../editor/common/core/selection.js";
-import { IDecorationOptions } from "../../../editor/common/editorCommon.js";
-import { ITextModel } from "../../../editor/common/model.js";
-import { IModelService } from "../../../editor/common/services/model.js";
-import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
-import { IEditorPane } from "../../common/editor.js";
-import { IApplyEditsOptions, IEditorPropertiesChangeData, IResolvedTextEditorConfiguration, ITextEditorConfigurationUpdate, IUndoStopOptions, TextEditorRevealType } from "../common/extHost.protocol.js";
-import { MainThreadDocuments } from "./mainThreadDocuments.js";
+import { Event } from '../../../base/common/event.js';
+import { ICodeEditor } from '../../../editor/browser/editorBrowser.js';
+import { IRange, Range } from '../../../editor/common/core/range.js';
+import { ISelection, Selection } from '../../../editor/common/core/selection.js';
+import { IDecorationOptions } from '../../../editor/common/editorCommon.js';
+import { ITextModel } from '../../../editor/common/model.js';
+import { ISingleEditOperation } from '../../../editor/common/core/editOperation.js';
+import { IModelService } from '../../../editor/common/services/model.js';
+import { IApplyEditsOptions, IEditorPropertiesChangeData, IResolvedTextEditorConfiguration, ITextEditorConfigurationUpdate, IUndoStopOptions, TextEditorRevealType } from '../common/extHost.protocol.js';
+import { IEditorPane } from '../../common/editor.js';
+import { IClipboardService } from '../../../platform/clipboard/common/clipboardService.js';
+import { MainThreadDocuments } from './mainThreadDocuments.js';
 export interface IFocusTracker {
     onGainedFocus(): void;
     onLostFocus(): void;

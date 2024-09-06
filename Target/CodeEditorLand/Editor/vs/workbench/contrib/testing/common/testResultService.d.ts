@@ -1,12 +1,12 @@
-import { RunOnceScheduler } from "../../../../base/common/async.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { ITestProfileService } from "./testProfileService.js";
-import { ITestResult, LiveTestResult, TestResultItemChange } from "./testResult.js";
-import { ITestResultStorage } from "./testResultStorage.js";
-import { ExtensionRunTestsRequest, ResolvedTestRunRequest, TestResultItem } from "./testTypes.js";
+import { RunOnceScheduler } from '../../../../base/common/async.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { ITestProfileService } from './testProfileService.js';
+import { ITestResult, LiveTestResult, TestResultItemChange } from './testResult.js';
+import { ITestResultStorage } from './testResultStorage.js';
+import { ExtensionRunTestsRequest, ResolvedTestRunRequest, TestResultItem } from './testTypes.js';
 export type ResultChangeEvent = {
     completed: LiveTestResult;
 } | {

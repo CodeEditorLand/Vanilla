@@ -1,10 +1,10 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IProgress, IProgressStep } from "../../../platform/progress/common/progress.js";
-import { UndoRedoSource } from "../../../platform/undoRedo/common/undoRedo.js";
-import { IWorkspaceFileEdit, IWorkspaceTextEdit, TextEdit, WorkspaceEdit, WorkspaceEditMetadata, WorkspaceFileEditOptions } from "../../common/languages.js";
-import { ICodeEditor } from "../editorBrowser.js";
+import { ICodeEditor } from '../editorBrowser.js';
+import { TextEdit, WorkspaceEdit, WorkspaceEditMetadata, IWorkspaceFileEdit, WorkspaceFileEditOptions, IWorkspaceTextEdit } from '../../common/languages.js';
+import { IProgress, IProgressStep } from '../../../platform/progress/common/progress.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { UndoRedoSource } from '../../../platform/undoRedo/common/undoRedo.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
 export declare const IBulkEditService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IBulkEditService>;
 export declare class ResourceEdit {
     readonly metadata?: WorkspaceEditMetadata | undefined;

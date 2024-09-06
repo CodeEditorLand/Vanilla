@@ -1,10 +1,10 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { ISpeechService, ISpeechToTextEvent } from "../../speech/common/speechService.js";
-import { IChatAgentService } from "./chatAgents.js";
-import { IChatModel } from "./chatModel.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IChatAgentService } from './chatAgents.js';
+import { IChatModel } from './chatModel.js';
+import { ISpeechService, ISpeechToTextEvent } from '../../speech/common/speechService.js';
 export declare const IVoiceChatService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IVoiceChatService>;
 export interface IVoiceChatSessionOptions {
     readonly usesAgents?: boolean;

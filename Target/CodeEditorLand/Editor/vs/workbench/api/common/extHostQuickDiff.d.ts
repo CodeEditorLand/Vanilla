@@ -1,8 +1,8 @@
-import type * as vscode from "vscode";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { UriComponents } from "../../../base/common/uri.js";
-import { IURITransformer } from "../../../base/common/uriIpc.js";
-import { ExtHostQuickDiffShape, IMainContext } from "./extHost.protocol.js";
+import type * as vscode from 'vscode';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { UriComponents } from '../../../base/common/uri.js';
+import { ExtHostQuickDiffShape, IMainContext } from './extHost.protocol.js';
+import { IURITransformer } from '../../../base/common/uriIpc.js';
 export declare class ExtHostQuickDiff implements ExtHostQuickDiffShape {
     private readonly uriTransformer;
     private static handlePool;

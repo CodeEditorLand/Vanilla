@@ -1,4 +1,4 @@
-import"./media/style.css";import{isSafari as m,isStandalone as c}from"../../base/browser/browser.js";import{createMetaElement as d}from"../../base/browser/dom.js";import{mainWindow as l}from"../../base/browser/window.js";import{isIOS as s,isWeb as u}from"../../base/common/platform.js";import{selectionBackground as f}from"../../platform/theme/common/colorRegistry.js";import{registerThemingParticipant as b}from"../../platform/theme/common/themeService.js";import{TITLE_BAR_ACTIVE_BACKGROUND as g,WORKBENCH_BACKGROUND as k}from"../common/theme.js";b((t,e)=>{const n=k(t);e.addRule(`.monaco-workbench { background-color: ${n}; }`);const r=t.getColor(f);if(r&&e.addRule(`.monaco-workbench ::selection { background-color: ${r}; }`),u){const i=t.getColor(g);if(i){const a="monaco-workbench-meta-theme-color";let o=l.document.getElementById(a);o||(o=d(),o.name="theme-color",o.id=a),o.content=i.toString()}}m&&e.addRule(`
+import"./media/style.css";import{registerThemingParticipant as m}from"../../platform/theme/common/themeService.js";import{WORKBENCH_BACKGROUND as c,TITLE_BAR_ACTIVE_BACKGROUND as d}from"../common/theme.js";import{isWeb as l,isIOS as s}from"../../base/common/platform.js";import{createMetaElement as u}from"../../base/browser/dom.js";import{isSafari as f,isStandalone as b}from"../../base/browser/browser.js";import{selectionBackground as g}from"../../platform/theme/common/colorRegistry.js";import{mainWindow as k}from"../../base/browser/window.js";m((t,e)=>{const n=c(t);e.addRule(`.monaco-workbench { background-color: ${n}; }`);const r=t.getColor(g);if(r&&e.addRule(`.monaco-workbench ::selection { background-color: ${r}; }`),l){const i=t.getColor(d);if(i){const a="monaco-workbench-meta-theme-color";let o=k.document.getElementById(a);o||(o=u(),o.name="theme-color",o.id=a),o.content=i.toString()}}f&&e.addRule(`
 			body.web {
 				touch-action: none;
 			}
@@ -6,4 +6,4 @@ import"./media/style.css";import{isSafari as m,isStandalone as c}from"../../base
 				user-select: text;
 				-webkit-user-select: text;
 			}
-		`),s&&c()&&e.addRule(`body { background-color: ${n}; }`)});
+		`),s&&b()&&e.addRule(`body { background-color: ${n}; }`)});

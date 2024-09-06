@@ -1,4 +1,4 @@
-import { IPosition, Position } from "./position.js";
+import { IPosition, Position } from './position.js';
 /**
  * A range in the editor. This interface is suitable for serialization.
  */

@@ -1,7 +1,7 @@
-import { Event } from "../../../../base/common/event.js";
-import { URI } from "../../../../base/common/uri.js";
-import { DidUninstallExtensionEvent, IExtensionManagementService, IGalleryExtension, ILocalExtension, InstallExtensionEvent, InstallExtensionResult, InstallOptions, Metadata, UninstallExtensionEvent } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { ExtensionType, IExtension, IExtensionIdentifier, IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
+import { Event } from '../../../../base/common/event.js';
+import { IExtension, ExtensionType, IExtensionManifest, IExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { IExtensionManagementService, IGalleryExtension, ILocalExtension, InstallOptions, InstallExtensionEvent, DidUninstallExtensionEvent, InstallExtensionResult, Metadata, UninstallExtensionEvent } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { URI } from '../../../../base/common/uri.js';
 export type DidChangeProfileEvent = {
     readonly added: ILocalExtension[];
     readonly removed: ILocalExtension[];
@@ -31,7 +31,7 @@ export interface IExtensionManagementServerService {
 }
 export declare const DefaultIconPath: string;
 export interface IResourceExtension {
-    readonly type: "resource";
+    readonly type: 'resource';
     readonly identifier: IExtensionIdentifier;
     readonly location: URI;
     readonly manifest: IExtensionManifest;

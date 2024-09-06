@@ -1,12 +1,12 @@
-import "./simpleFindWidget.css";
-import * as dom from "../../../../../base/browser/dom.js";
-import { IVerticalSashLayoutProvider, Sash } from "../../../../../base/browser/ui/sash/sash.js";
-import { Widget } from "../../../../../base/browser/ui/widget.js";
-import { FindReplaceState, INewFindReplaceState } from "../../../../../editor/contrib/find/browser/findState.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IContextViewService } from "../../../../../platform/contextview/browser/contextView.js";
-import type { IHoverService } from "../../../../../platform/hover/browser/hover.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import './simpleFindWidget.css';
+import * as dom from '../../../../../base/browser/dom.js';
+import { Widget } from '../../../../../base/browser/ui/widget.js';
+import { FindReplaceState, INewFindReplaceState } from '../../../../../editor/contrib/find/browser/findState.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IContextViewService } from '../../../../../platform/contextview/browser/contextView.js';
+import { IKeybindingService } from '../../../../../platform/keybinding/common/keybinding.js';
+import { IVerticalSashLayoutProvider, Sash } from '../../../../../base/browser/ui/sash/sash.js';
+import type { IHoverService } from '../../../../../platform/hover/browser/hover.js';
 interface IFindOptions {
     showCommonFindToggles?: boolean;
     checkImeCompletionState?: boolean;
@@ -18,7 +18,7 @@ interface IFindOptions {
     nextMatchActionId?: string;
     closeWidgetActionId?: string;
     matchesLimit?: number;
-    type?: "Terminal" | "Webview";
+    type?: 'Terminal' | 'Webview';
     initialWidth?: number;
     enableSash?: boolean;
 }

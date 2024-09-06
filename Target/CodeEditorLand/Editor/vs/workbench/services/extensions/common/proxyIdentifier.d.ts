@@ -1,5 +1,5 @@
-import type { VSBuffer } from "../../../../base/common/buffer.js";
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
+import type { VSBuffer } from '../../../../base/common/buffer.js';
+import type { CancellationToken } from '../../../../base/common/cancellation.js';
 export interface IRPCProtocol {
     /**
      * Returns a proxy to an object addressable/named in the extension host process or in the renderer process.

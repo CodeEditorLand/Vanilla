@@ -1,4 +1,4 @@
-import { CustomEditorSelector } from "./customEditor.js";
+import { CustomEditorSelector } from './customEditor.js';
 declare const Fields: Readonly<{
     viewType: "viewType";
     displayName: "displayName";

@@ -1,13 +1,13 @@
-import { IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
-import { IDataSource, ITreeRenderer } from "../../../../base/browser/ui/tree/tree.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { FuzzyScore } from "../../../../base/common/filters.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { IWorkbenchDataTreeOptions } from "../../../../platform/list/browser/listService.js";
-import { IEditorPane } from "../../../common/editor.js";
+import { IListVirtualDelegate } from '../../../../base/browser/ui/list/list.js';
+import { IDataSource, ITreeRenderer } from '../../../../base/browser/ui/tree/tree.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { FuzzyScore } from '../../../../base/common/filters.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { IWorkbenchDataTreeOptions } from '../../../../platform/list/browser/listService.js';
+import { IEditorPane } from '../../../common/editor.js';
 export declare const IOutlineService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IOutlineService>;
 export declare const enum OutlineTarget {
     OutlinePane = 1,
@@ -68,11 +68,11 @@ export interface IOutline<E> {
     dispose(): void;
 }
 export declare const enum OutlineConfigKeys {
-    "icons" = "outline.icons",
-    "collapseItems" = "outline.collapseItems",
-    "problemsEnabled" = "outline.problems.enabled",
-    "problemsColors" = "outline.problems.colors",
-    "problemsBadges" = "outline.problems.badges"
+    'icons' = "outline.icons",
+    'collapseItems' = "outline.collapseItems",
+    'problemsEnabled' = "outline.problems.enabled",
+    'problemsColors' = "outline.problems.colors",
+    'problemsBadges' = "outline.problems.badges"
 }
 export declare const enum OutlineConfigCollapseItemsValues {
     Collapsed = "alwaysCollapse",

@@ -1,5 +1,5 @@
-import { IProcessEnvironment } from "../../../base/common/platform.js";
-import { IWorkspaceFolderData } from "../../workspace/common/workspace.js";
+import { IProcessEnvironment } from '../../../base/common/platform.js';
+import { IWorkspaceFolderData } from '../../workspace/common/workspace.js';
 export declare enum EnvironmentVariableMutatorType {
     Replace = 1,
     Append = 2,
@@ -28,23 +28,13 @@ export interface IEnvironmentVariableCollection {
     readonly descriptionMap?: ReadonlyMap<string, IEnvironmentVariableCollectionDescription>;
 }
 /** [variable, mutator] */
-export type ISerializableEnvironmentVariableCollection = [
-    string,
-    IEnvironmentVariableMutator
-][];
-export type ISerializableEnvironmentDescriptionMap = [
-    string,
-    IEnvironmentVariableCollectionDescription
-][];
+export type ISerializableEnvironmentVariableCollection = [string, IEnvironmentVariableMutator][];
+export type ISerializableEnvironmentDescriptionMap = [string, IEnvironmentVariableCollectionDescription][];
 export interface IExtensionOwnedEnvironmentDescriptionMutator extends IEnvironmentVariableCollectionDescription {
     readonly extensionIdentifier: string;
 }
 /** [extension, collection, description] */
-export type ISerializableEnvironmentVariableCollections = [
-    string,
-    ISerializableEnvironmentVariableCollection,
-    ISerializableEnvironmentDescriptionMap
-][];
+export type ISerializableEnvironmentVariableCollections = [string, ISerializableEnvironmentVariableCollection, ISerializableEnvironmentDescriptionMap][];
 export interface IExtensionOwnedEnvironmentVariableMutator extends IEnvironmentVariableMutator {
     readonly extensionIdentifier: string;
 }

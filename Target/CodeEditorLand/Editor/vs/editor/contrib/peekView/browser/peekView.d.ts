@@ -1,11 +1,11 @@
-import { IMouseEvent } from "../../../../base/browser/mouseEvent.js";
-import { ActionBar, IActionBarOptions } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { Color } from "../../../../base/common/color.js";
-import "./media/peekViewWidget.css";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IOptions, IStyles, ZoneWidget } from "../../zoneWidget/browser/zoneWidget.js";
+import { IMouseEvent } from '../../../../base/browser/mouseEvent.js';
+import { ActionBar, IActionBarOptions } from '../../../../base/browser/ui/actionbar/actionbar.js';
+import { Color } from '../../../../base/common/color.js';
+import './media/peekViewWidget.css';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IOptions, IStyles, ZoneWidget } from '../../zoneWidget/browser/zoneWidget.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService, ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 export declare const IPeekViewService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IPeekViewService>;
 export interface IPeekViewService {
     readonly _serviceBrand: undefined;

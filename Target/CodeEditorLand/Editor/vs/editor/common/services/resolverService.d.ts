@@ -1,9 +1,9 @@
-import { Event } from "../../../base/common/event.js";
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { IDisposable, IReference } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IResolvableEditorModel } from "../../../platform/editor/common/editor.js";
-import { ITextModel, ITextSnapshot } from "../model.js";
+import { Event } from '../../../base/common/event.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { IDisposable, IReference } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { ITextModel, ITextSnapshot } from '../model.js';
+import { IResolvableEditorModel } from '../../../platform/editor/common/editor.js';
 export declare const ITextModelService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITextModelService>;
 export interface ITextModelService {
     readonly _serviceBrand: undefined;

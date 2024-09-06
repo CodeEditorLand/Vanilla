@@ -1,6 +1,6 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ILogger, ILogService, LogLevel } from "./log.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { Event } from '../../../base/common/event.js';
+import { ILogger, ILogService, LogLevel } from './log.js';
 export declare class LogService extends Disposable implements ILogService {
     readonly _serviceBrand: undefined;
     private readonly logger;

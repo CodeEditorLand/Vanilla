@@ -1,11 +1,11 @@
-import { Event } from "../../../base/common/event.js";
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
-import Severity from "../../../base/common/severity.js";
-import { ThemeIcon } from "../../../base/common/themables.js";
-import { URI } from "../../../base/common/uri.js";
-import { MessageBoxOptions } from "../../../base/parts/sandbox/common/electronTypes.js";
-import { IProductService } from "../../product/common/productService.js";
-import { ITelemetryData } from "../../telemetry/common/telemetry.js";
+import { Event } from '../../../base/common/event.js';
+import { ThemeIcon } from '../../../base/common/themables.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import Severity from '../../../base/common/severity.js';
+import { URI } from '../../../base/common/uri.js';
+import { ITelemetryData } from '../../telemetry/common/telemetry.js';
+import { MessageBoxOptions } from '../../../base/parts/sandbox/common/electronTypes.js';
+import { IProductService } from '../../product/common/productService.js';
 export interface IDialogArgs {
     readonly confirmArgs?: IConfirmDialogArgs;
     readonly inputArgs?: IInputDialogArgs;
@@ -52,7 +52,7 @@ export interface IInput extends IConfirmation {
     readonly primaryButton?: string;
 }
 export interface IInputElement {
-    readonly type?: "text" | "password";
+    readonly type?: 'text' | 'password';
     readonly value?: string;
     readonly placeholder?: string;
 }
@@ -119,7 +119,7 @@ export interface IAsyncPromptResultWithCancel<T> extends IAsyncPromptResult<T> {
     readonly result: Promise<T>;
 }
 export type IDialogResult = IConfirmationResult | IInputResult | IAsyncPromptResult<unknown>;
-export type DialogType = "none" | "info" | "error" | "question" | "warning";
+export type DialogType = 'none' | 'info' | 'error' | 'question' | 'warning';
 export interface ICheckbox {
     readonly label: string;
     readonly checked?: boolean;

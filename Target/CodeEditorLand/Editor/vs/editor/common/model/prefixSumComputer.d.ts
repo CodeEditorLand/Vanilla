@@ -29,7 +29,7 @@ export declare class PrefixSumComputer {
  * {@link getIndexOf} has an amortized runtime complexity of O(1).
  *
  * ({@link PrefixSumComputer.getIndexOf} is just  O(log n))
- */
+*/
 export declare class ConstantTimePrefixSumComputer {
     private _values;
     private _isValid;
@@ -40,7 +40,7 @@ export declare class ConstantTimePrefixSumComputer {
     private _prefixSum;
     /**
      * _indexBySum[sum] = idx => _prefixSum[idx - 1] <= sum < _prefixSum[idx]
-     */
+    */
     private _indexBySum;
     constructor(values: number[]);
     /**

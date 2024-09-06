@@ -1,7 +1,7 @@
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IModelDecorationOptions, IModelDecorationsChangeAccessor } from "../../../common/model.js";
-import { IDecorationProvider } from "./foldingModel.js";
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IModelDecorationOptions, IModelDecorationsChangeAccessor } from '../../../common/model.js';
+import { IDecorationProvider } from './foldingModel.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
 export declare const foldingExpandedIcon: ThemeIcon;
 export declare const foldingCollapsedIcon: ThemeIcon;
 export declare const foldingManualCollapsedIcon: ThemeIcon;
@@ -20,7 +20,7 @@ export declare class FoldingDecorationProvider implements IDecorationProvider {
     private static readonly MANUALLY_EXPANDED_AUTO_HIDE_VISUAL_DECORATION;
     private static readonly NO_CONTROLS_EXPANDED_RANGE_DECORATION;
     private static readonly HIDDEN_RANGE_DECORATION;
-    showFoldingControls: "always" | "never" | "mouseover";
+    showFoldingControls: 'always' | 'never' | 'mouseover';
     showFoldingHighlights: boolean;
     constructor(editor: ICodeEditor);
     getDecorationOption(isCollapsed: boolean, isHidden: boolean, isManual: boolean): IModelDecorationOptions;

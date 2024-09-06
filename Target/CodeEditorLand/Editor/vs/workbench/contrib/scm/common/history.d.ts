@@ -1,9 +1,9 @@
-import { IObservable } from "../../../../base/common/observable.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IMenu } from "../../../../platform/actions/common/actions.js";
-import { ColorIdentifier } from "../../../../platform/theme/common/colorUtils.js";
-import { ISCMRepository } from "./scm.js";
+import { IObservable } from '../../../../base/common/observable.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IMenu } from '../../../../platform/actions/common/actions.js';
+import { ColorIdentifier } from '../../../../platform/theme/common/colorUtils.js';
+import { ISCMRepository } from './scm.js';
 export interface ISCMHistoryProviderMenus {
     getHistoryItemMenu(historyItem: SCMHistoryItemViewModelTreeElement): IMenu;
 }
@@ -25,8 +25,8 @@ export interface ISCMHistoryItemGroup {
     readonly id: string;
     readonly name: string;
     readonly revision?: string;
-    readonly base?: Omit<Omit<ISCMHistoryItemGroup, "base">, "remote">;
-    readonly remote?: Omit<Omit<ISCMHistoryItemGroup, "base">, "remote">;
+    readonly base?: Omit<Omit<ISCMHistoryItemGroup, 'base'>, 'remote'>;
+    readonly remote?: Omit<Omit<ISCMHistoryItemGroup, 'base'>, 'remote'>;
 }
 export interface ISCMHistoryItemStatistics {
     readonly files: number;
@@ -64,12 +64,12 @@ export interface ISCMHistoryItemViewModel {
 export interface SCMHistoryItemViewModelTreeElement {
     readonly repository: ISCMRepository;
     readonly historyItemViewModel: ISCMHistoryItemViewModel;
-    readonly type: "historyItemViewModel";
+    readonly type: 'historyItemViewModel';
 }
 export interface SCMHistoryItemLoadMoreTreeElement {
     readonly repository: ISCMRepository;
     readonly graphColumns: ISCMHistoryItemGraphNode[];
-    readonly type: "historyItemLoadMore";
+    readonly type: 'historyItemLoadMore';
 }
 export interface ISCMHistoryItemChange {
     readonly uri: URI;

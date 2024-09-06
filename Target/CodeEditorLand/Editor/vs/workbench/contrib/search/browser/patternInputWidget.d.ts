@@ -1,11 +1,11 @@
-import * as dom from "../../../../base/browser/dom.js";
-import { IContextViewProvider } from "../../../../base/browser/ui/contextview/contextview.js";
-import { HistoryInputBox, IInputBoxStyles } from "../../../../base/browser/ui/inputbox/inputBox.js";
-import { Widget } from "../../../../base/browser/ui/widget.js";
-import { Event as CommonEvent } from "../../../../base/common/event.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import * as dom from '../../../../base/browser/dom.js';
+import { IContextViewProvider } from '../../../../base/browser/ui/contextview/contextview.js';
+import { HistoryInputBox, IInputBoxStyles } from '../../../../base/browser/ui/inputbox/inputBox.js';
+import { Widget } from '../../../../base/browser/ui/widget.js';
+import { Event as CommonEvent } from '../../../../base/common/event.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 export interface IOptions {
     placeholder?: string;
     showPlaceholderOnFocus?: boolean;

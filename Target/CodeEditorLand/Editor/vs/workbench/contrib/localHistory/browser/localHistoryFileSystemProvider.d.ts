@@ -1,7 +1,7 @@
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileService, IFileSystemProvider, IFileSystemProviderWithFileReadWriteCapability, IFileWriteOptions, IStat, IWatchOptions } from "../../../../platform/files/common/files.js";
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IFileDeleteOptions, IFileOverwriteOptions, FileType, IFileWriteOptions, IFileService, IFileSystemProvider, IFileSystemProviderWithFileReadWriteCapability, IStat, IWatchOptions } from '../../../../platform/files/common/files.js';
 interface ILocalHistoryResource {
     /**
      * The location of the local history entry to read from.

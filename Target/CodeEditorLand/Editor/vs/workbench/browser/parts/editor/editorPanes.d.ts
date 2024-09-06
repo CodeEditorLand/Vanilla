@@ -1,18 +1,18 @@
-import { IDomNodePagePosition } from "../../../../base/browser/dom.js";
-import { IBoundarySashes } from "../../../../base/browser/ui/sash/sash.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
-import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
-import { IEditorOpenContext, IVisibleEditorPane } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IHostService } from "../../../services/host/browser/host.js";
-import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import { IEditorGroupView, IInternalEditorOpenOptions } from "./editor.js";
-import { EditorPane } from "./editorPane.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IEditorOpenContext, IVisibleEditorPane } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IDomNodePagePosition } from '../../../../base/browser/dom.js';
+import { IWorkbenchLayoutService } from '../../../services/layout/browser/layoutService.js';
+import { EditorPane } from './editorPane.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IEditorProgressService } from '../../../../platform/progress/common/progress.js';
+import { IEditorGroupView, IInternalEditorOpenOptions } from './editor.js';
+import { IWorkspaceTrustManagementService } from '../../../../platform/workspace/common/workspaceTrust.js';
+import { IEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IBoundarySashes } from '../../../../base/browser/ui/sash/sash.js';
+import { IHostService } from '../../../services/host/browser/host.js';
 export interface IOpenEditorResult {
     /**
      * The editor pane used for opening. This can be a generic
@@ -67,6 +67,7 @@ export declare class EditorPanes extends Disposable {
     private _activeEditorPane;
     get activeEditorPane(): IVisibleEditorPane | null;
     private readonly editorPanes;
+    private readonly mapEditorPaneToPendingSetInput;
     private readonly activeEditorPaneDisposables;
     private pagePosition;
     private boundarySashes;

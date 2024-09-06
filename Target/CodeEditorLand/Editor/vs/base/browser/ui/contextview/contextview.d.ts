@@ -1,7 +1,7 @@
-import { Disposable, IDisposable } from "../../../common/lifecycle.js";
-import { OmitOptional } from "../../../common/types.js";
-import { StandardMouseEvent } from "../../mouseEvent.js";
-import "./contextview.css";
+import { StandardMouseEvent } from '../../mouseEvent.js';
+import { Disposable, IDisposable } from '../../../common/lifecycle.js';
+import { OmitOptional } from '../../../common/types.js';
+import './contextview.css';
 export declare const enum ContextViewDOMPosition {
     ABSOLUTE = 1,
     FIXED = 2,

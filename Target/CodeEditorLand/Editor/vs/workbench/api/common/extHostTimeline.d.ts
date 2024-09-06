@@ -1,10 +1,10 @@
-import * as vscode from "vscode";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { UriComponents } from "../../../base/common/uri.js";
-import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
-import { Timeline } from "../../contrib/timeline/common/timeline.js";
-import { ExtHostTimelineShape, IMainContext } from "./extHost.protocol.js";
-import { CommandsConverter, ExtHostCommands } from "./extHostCommands.js";
+import * as vscode from 'vscode';
+import { UriComponents } from '../../../base/common/uri.js';
+import { ExtHostTimelineShape, IMainContext } from './extHost.protocol.js';
+import { Timeline } from '../../contrib/timeline/common/timeline.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { CommandsConverter, ExtHostCommands } from './extHostCommands.js';
+import { ExtensionIdentifier } from '../../../platform/extensions/common/extensions.js';
 export interface IExtHostTimeline extends ExtHostTimelineShape {
     readonly _serviceBrand: undefined;
     $getTimeline(id: string, uri: UriComponents, options: vscode.TimelineOptions, token: vscode.CancellationToken): Promise<Timeline | undefined>;

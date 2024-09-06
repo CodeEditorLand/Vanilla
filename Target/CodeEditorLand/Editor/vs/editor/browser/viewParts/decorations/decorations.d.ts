@@ -1,8 +1,8 @@
-import "./decorations.css";
-import * as viewEvents from "../../../common/viewEvents.js";
-import { ViewContext } from "../../../common/viewModel/viewContext.js";
-import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
-import { RenderingContext } from "../../view/renderingContext.js";
+import './decorations.css';
+import { DynamicViewOverlay } from '../../view/dynamicViewOverlay.js';
+import { RenderingContext } from '../../view/renderingContext.js';
+import * as viewEvents from '../../../common/viewEvents.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
 export declare class DecorationsOverlay extends DynamicViewOverlay {
     private readonly _context;
     private _typicalHalfwidthCharacterWidth;

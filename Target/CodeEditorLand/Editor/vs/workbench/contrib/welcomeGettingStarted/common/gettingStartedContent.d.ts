@@ -1,4 +1,4 @@
-import { ThemeIcon } from "../../../../base/common/themables.js";
+import { ThemeIcon } from '../../../../base/common/themables.js';
 export type BuiltinGettingStartedStep = {
     id: string;
     title: string;
@@ -6,7 +6,7 @@ export type BuiltinGettingStartedStep = {
     completionEvents?: string[];
     when?: string;
     media: {
-        type: "image";
+        type: 'image';
         path: string | {
             hc: string;
             hcLight?: string;
@@ -15,11 +15,11 @@ export type BuiltinGettingStartedStep = {
         };
         altText: string;
     } | {
-        type: "svg";
+        type: 'svg';
         path: string;
         altText: string;
     } | {
-        type: "markdown";
+        type: 'markdown';
         path: string;
     };
 };
@@ -32,7 +32,7 @@ export type BuiltinGettingStartedCategory = {
     icon: ThemeIcon;
     when?: string;
     content: {
-        type: "steps";
+        type: 'steps';
         steps: BuiltinGettingStartedStep[];
     };
 };
@@ -43,7 +43,7 @@ export type BuiltinGettingStartedStartEntry = {
     icon: ThemeIcon;
     when?: string;
     content: {
-        type: "startEntry";
+        type: 'startEntry';
         command: string;
     };
 };

@@ -1,11 +1,11 @@
-import { Dimension } from "../../../../../base/browser/dom.js";
-import { CodeWindow } from "../../../../../base/browser/window.js";
-import { Event } from "../../../../../base/common/event.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
-import { NotebookEditorInput } from "../../common/notebookEditorInput.js";
-import { INotebookEditor, INotebookEditorCreationOptions } from "../notebookBrowser.js";
-import { NotebookEditorWidget } from "../notebookEditorWidget.js";
+import { CodeWindow } from '../../../../../base/browser/window.js';
+import { ServicesAccessor } from '../../../../../platform/instantiation/common/instantiation.js';
+import { NotebookEditorInput } from '../../common/notebookEditorInput.js';
+import { INotebookEditor, INotebookEditorCreationOptions } from '../notebookBrowser.js';
+import { Event } from '../../../../../base/common/event.js';
+import { Dimension } from '../../../../../base/browser/dom.js';
+import { NotebookEditorWidget } from '../notebookEditorWidget.js';
+import { URI } from '../../../../../base/common/uri.js';
 export declare const INotebookEditorService: import("../../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INotebookEditorService>;
 export interface IBorrowValue<T> {
     readonly value: T | undefined;

@@ -1,84 +1,84 @@
-import type { TerminalShellExecutionCommandLineConfidence } from "vscode";
-import { VSBuffer } from "../../../base/common/buffer.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IRemoteConsoleLog } from "../../../base/common/console.js";
-import { SerializedError } from "../../../base/common/errors.js";
-import { IRelativePattern } from "../../../base/common/glob.js";
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import * as performance from "../../../base/common/performance.js";
-import Severity from "../../../base/common/severity.js";
-import { ThemeColor, ThemeIcon } from "../../../base/common/themables.js";
-import { URI, UriComponents, UriDto } from "../../../base/common/uri.js";
-import { RenderLineNumbersType, TextEditorCursorStyle } from "../../../editor/common/config/editorOptions.js";
-import { ISingleEditOperation } from "../../../editor/common/core/editOperation.js";
-import { IPosition } from "../../../editor/common/core/position.js";
-import { IRange } from "../../../editor/common/core/range.js";
-import { ISelection, Selection } from "../../../editor/common/core/selection.js";
-import { IChange } from "../../../editor/common/diff/legacyLinesDiffComputer.js";
-import * as editorCommon from "../../../editor/common/editorCommon.js";
-import { StandardTokenType } from "../../../editor/common/encodedTokenAttributes.js";
-import * as languages from "../../../editor/common/languages.js";
-import { CharacterPair, CommentRule, EnterAction } from "../../../editor/common/languages/languageConfiguration.js";
-import { EndOfLineSequence } from "../../../editor/common/model.js";
-import { IModelChangedEvent } from "../../../editor/common/model/mirrorTextModel.js";
-import { IAccessibilityInformation } from "../../../platform/accessibility/common/accessibility.js";
-import { ILocalizedString } from "../../../platform/action/common/action.js";
-import { ConfigurationTarget, IConfigurationChange, IConfigurationData, IConfigurationOverrides } from "../../../platform/configuration/common/configuration.js";
-import { ConfigurationScope } from "../../../platform/configuration/common/configurationRegistry.js";
-import { IExtensionIdWithVersion } from "../../../platform/extensionManagement/common/extensionStorage.js";
-import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import * as files from "../../../platform/files/common/files.js";
-import { ResourceLabelFormatter } from "../../../platform/label/common/label.js";
-import { ILoggerOptions, ILoggerResource, LogLevel } from "../../../platform/log/common/log.js";
-import { IMarkerData } from "../../../platform/markers/common/markers.js";
-import { IProgressOptions, IProgressStep } from "../../../platform/progress/common/progress.js";
-import * as quickInput from "../../../platform/quickinput/common/quickInput.js";
-import { IRemoteConnectionData, TunnelDescription } from "../../../platform/remote/common/remoteAuthorityResolver.js";
-import { AuthInfo, Credentials } from "../../../platform/request/common/request.js";
-import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "../../../platform/telemetry/common/gdprTypings.js";
-import { TelemetryLevel } from "../../../platform/telemetry/common/telemetry.js";
-import { ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from "../../../platform/terminal/common/environmentVariable.js";
-import { ICreateContributedTerminalProfileOptions, IProcessProperty, IProcessReadyWindowsPty, IShellLaunchConfigDto, ITerminalEnvironment, ITerminalLaunchError, ITerminalProfile, TerminalExitReason, TerminalLocation } from "../../../platform/terminal/common/terminal.js";
-import { ProvidedPortAttributes, TunnelCreationOptions, TunnelOptions, TunnelPrivacyId, TunnelProviderFeatures } from "../../../platform/tunnel/common/tunnel.js";
-import { EditSessionIdentityMatch } from "../../../platform/workspace/common/editSessions.js";
-import { WorkspaceTrustRequestOptions } from "../../../platform/workspace/common/workspaceTrust.js";
-import { SaveReason } from "../../common/editor.js";
-import { IRevealOptions, ITreeItem, IViewBadge } from "../../common/views.js";
-import { CallHierarchyItem } from "../../contrib/callHierarchy/common/callHierarchy.js";
-import { ChatAgentLocation, IChatAgentMetadata, IChatAgentRequest, IChatAgentResult } from "../../contrib/chat/common/chatAgents.js";
-import { IChatProgressResponseContent } from "../../contrib/chat/common/chatModel.js";
-import { IChatFollowup, IChatProgress, IChatResponseErrorDetails, IChatTask, IChatTaskDto, IChatUserActionEvent, IChatVoteAction } from "../../contrib/chat/common/chatService.js";
-import { IChatRequestVariableValue, IChatVariableData, IChatVariableResolverProgress } from "../../contrib/chat/common/chatVariables.js";
-import { IChatMessage, IChatResponseFragment, ILanguageModelChatMetadata, ILanguageModelChatSelector, ILanguageModelsChangeEvent } from "../../contrib/chat/common/languageModels.js";
-import { IToolData, IToolInvocation, IToolResult } from "../../contrib/chat/common/languageModelToolsService.js";
-import { DebugConfigurationProviderTriggerKind, IAdapterDescriptor, IConfig, IDebugSessionReplMode, IDebugTestRunReference, IDebugVisualization, IDebugVisualizationContext, IDebugVisualizationTreeItem, MainThreadDebugVisualization } from "../../contrib/debug/common/debug.js";
-import * as notebookCommon from "../../contrib/notebook/common/notebookCommon.js";
-import { CellExecutionUpdateType } from "../../contrib/notebook/common/notebookExecutionService.js";
-import { ICellExecutionComplete, ICellExecutionStateUpdate } from "../../contrib/notebook/common/notebookExecutionStateService.js";
-import { ICellRange } from "../../contrib/notebook/common/notebookRange.js";
-import { InputValidationType } from "../../contrib/scm/common/scm.js";
-import { IWorkspaceSymbol, NotebookPriorityInfo } from "../../contrib/search/common/search.js";
-import { IRawClosedNotebookFileMatch } from "../../contrib/search/common/searchNotebookHelpers.js";
-import { IKeywordRecognitionEvent, ISpeechProviderMetadata, ISpeechToTextEvent, ITextToSpeechEvent } from "../../contrib/speech/common/speechService.js";
-import { CoverageDetails, ExtensionRunTestsRequest, ICallProfileRunHandler, IFileCoverage, ISerializedTestResults, IStartControllerTests, ITestItem, ITestMessage, ITestRunProfile, ITestRunTask, ResolvedTestRunRequest, TestControllerCapability, TestMessageFollowupRequest, TestMessageFollowupResponse, TestResultState, TestsDiffOp } from "../../contrib/testing/common/testTypes.js";
-import { Timeline, TimelineChangeEvent, TimelineOptions, TimelineProviderDescriptor } from "../../contrib/timeline/common/timeline.js";
-import { TypeHierarchyItem } from "../../contrib/typeHierarchy/common/typeHierarchy.js";
-import { RelatedInformationResult, RelatedInformationType } from "../../services/aiRelatedInformation/common/aiRelatedInformation.js";
-import { AuthenticationSession, AuthenticationSessionAccount, AuthenticationSessionsChangeEvent, IAuthenticationCreateSessionOptions, IAuthenticationProviderSessionOptions } from "../../services/authentication/common/authentication.js";
-import { EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
-import { IExtensionDescriptionDelta, IStaticWorkspaceData } from "../../services/extensions/common/extensionHostProtocol.js";
-import { IResolveAuthorityResult } from "../../services/extensions/common/extensionHostProxy.js";
-import { ActivationKind, ExtensionActivationReason, MissingExtensionDependency } from "../../services/extensions/common/extensions.js";
-import { Dto, IRPCProtocol, SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
-import { ILanguageStatus } from "../../services/languageStatus/common/languageStatusService.js";
-import { OutputChannelUpdateMode } from "../../services/output/common/output.js";
-import { CandidatePort } from "../../services/remote/common/tunnelModel.js";
-import { IFileQueryBuilderOptions, ITextQueryBuilderOptions } from "../../services/search/common/queryBuilder.js";
-import * as search from "../../services/search/common/search.js";
-import { TextSearchCompleteMessage } from "../../services/search/common/searchExtTypes.js";
-import { ISaveProfileResult } from "../../services/userDataProfile/common/userDataProfile.js";
-import * as tasks from "./shared/tasks.js";
+import { VSBuffer } from '../../../base/common/buffer.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IRemoteConsoleLog } from '../../../base/common/console.js';
+import { SerializedError } from '../../../base/common/errors.js';
+import { IRelativePattern } from '../../../base/common/glob.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import * as performance from '../../../base/common/performance.js';
+import Severity from '../../../base/common/severity.js';
+import { ThemeColor, ThemeIcon } from '../../../base/common/themables.js';
+import { URI, UriComponents, UriDto } from '../../../base/common/uri.js';
+import { RenderLineNumbersType, TextEditorCursorStyle } from '../../../editor/common/config/editorOptions.js';
+import { ISingleEditOperation } from '../../../editor/common/core/editOperation.js';
+import { IPosition } from '../../../editor/common/core/position.js';
+import { IRange } from '../../../editor/common/core/range.js';
+import { ISelection, Selection } from '../../../editor/common/core/selection.js';
+import { IChange } from '../../../editor/common/diff/legacyLinesDiffComputer.js';
+import * as editorCommon from '../../../editor/common/editorCommon.js';
+import { StandardTokenType } from '../../../editor/common/encodedTokenAttributes.js';
+import * as languages from '../../../editor/common/languages.js';
+import { CharacterPair, CommentRule, EnterAction } from '../../../editor/common/languages/languageConfiguration.js';
+import { EndOfLineSequence } from '../../../editor/common/model.js';
+import { IModelChangedEvent } from '../../../editor/common/model/mirrorTextModel.js';
+import { IAccessibilityInformation } from '../../../platform/accessibility/common/accessibility.js';
+import { ILocalizedString } from '../../../platform/action/common/action.js';
+import { ConfigurationTarget, IConfigurationChange, IConfigurationData, IConfigurationOverrides } from '../../../platform/configuration/common/configuration.js';
+import { ConfigurationScope } from '../../../platform/configuration/common/configurationRegistry.js';
+import { IExtensionIdWithVersion } from '../../../platform/extensionManagement/common/extensionStorage.js';
+import { ExtensionIdentifier, IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import * as files from '../../../platform/files/common/files.js';
+import { ResourceLabelFormatter } from '../../../platform/label/common/label.js';
+import { ILoggerOptions, ILoggerResource, LogLevel } from '../../../platform/log/common/log.js';
+import { IMarkerData } from '../../../platform/markers/common/markers.js';
+import { IProgressOptions, IProgressStep } from '../../../platform/progress/common/progress.js';
+import * as quickInput from '../../../platform/quickinput/common/quickInput.js';
+import { IRemoteConnectionData, TunnelDescription } from '../../../platform/remote/common/remoteAuthorityResolver.js';
+import { AuthInfo, Credentials } from '../../../platform/request/common/request.js';
+import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from '../../../platform/telemetry/common/gdprTypings.js';
+import { TelemetryLevel } from '../../../platform/telemetry/common/telemetry.js';
+import { ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from '../../../platform/terminal/common/environmentVariable.js';
+import { ICreateContributedTerminalProfileOptions, IProcessProperty, IProcessReadyWindowsPty, IShellLaunchConfigDto, ITerminalEnvironment, ITerminalLaunchError, ITerminalProfile, TerminalExitReason, TerminalLocation } from '../../../platform/terminal/common/terminal.js';
+import { ProvidedPortAttributes, TunnelCreationOptions, TunnelOptions, TunnelPrivacyId, TunnelProviderFeatures } from '../../../platform/tunnel/common/tunnel.js';
+import { EditSessionIdentityMatch } from '../../../platform/workspace/common/editSessions.js';
+import { WorkspaceTrustRequestOptions } from '../../../platform/workspace/common/workspaceTrust.js';
+import * as tasks from './shared/tasks.js';
+import { SaveReason } from '../../common/editor.js';
+import { IRevealOptions, ITreeItem, IViewBadge } from '../../common/views.js';
+import { CallHierarchyItem } from '../../contrib/callHierarchy/common/callHierarchy.js';
+import { ChatAgentLocation, IChatAgentMetadata, IChatAgentRequest, IChatAgentResult } from '../../contrib/chat/common/chatAgents.js';
+import { IChatProgressResponseContent } from '../../contrib/chat/common/chatModel.js';
+import { IChatFollowup, IChatProgress, IChatResponseErrorDetails, IChatTask, IChatTaskDto, IChatUserActionEvent, IChatVoteAction } from '../../contrib/chat/common/chatService.js';
+import { IChatRequestVariableValue, IChatVariableData, IChatVariableResolverProgress } from '../../contrib/chat/common/chatVariables.js';
+import { IChatMessage, IChatResponseFragment, ILanguageModelChatMetadata, ILanguageModelChatSelector, ILanguageModelsChangeEvent } from '../../contrib/chat/common/languageModels.js';
+import { IToolData, IToolInvocation, IToolResult } from '../../contrib/chat/common/languageModelToolsService.js';
+import { DebugConfigurationProviderTriggerKind, IAdapterDescriptor, IConfig, IDebugSessionReplMode, IDebugTestRunReference, IDebugVisualization, IDebugVisualizationContext, IDebugVisualizationTreeItem, MainThreadDebugVisualization } from '../../contrib/debug/common/debug.js';
+import * as notebookCommon from '../../contrib/notebook/common/notebookCommon.js';
+import { CellExecutionUpdateType } from '../../contrib/notebook/common/notebookExecutionService.js';
+import { ICellExecutionComplete, ICellExecutionStateUpdate } from '../../contrib/notebook/common/notebookExecutionStateService.js';
+import { ICellRange } from '../../contrib/notebook/common/notebookRange.js';
+import { InputValidationType } from '../../contrib/scm/common/scm.js';
+import { IWorkspaceSymbol, NotebookPriorityInfo } from '../../contrib/search/common/search.js';
+import { IRawClosedNotebookFileMatch } from '../../contrib/search/common/searchNotebookHelpers.js';
+import { IKeywordRecognitionEvent, ISpeechProviderMetadata, ISpeechToTextEvent, ITextToSpeechEvent } from '../../contrib/speech/common/speechService.js';
+import { CoverageDetails, ExtensionRunTestsRequest, ICallProfileRunHandler, IFileCoverage, ISerializedTestResults, IStartControllerTests, ITestItem, ITestMessage, ITestRunProfile, ITestRunTask, ResolvedTestRunRequest, TestControllerCapability, TestMessageFollowupRequest, TestMessageFollowupResponse, TestResultState, TestsDiffOp } from '../../contrib/testing/common/testTypes.js';
+import { Timeline, TimelineChangeEvent, TimelineOptions, TimelineProviderDescriptor } from '../../contrib/timeline/common/timeline.js';
+import { TypeHierarchyItem } from '../../contrib/typeHierarchy/common/typeHierarchy.js';
+import { RelatedInformationResult, RelatedInformationType } from '../../services/aiRelatedInformation/common/aiRelatedInformation.js';
+import { AuthenticationSession, AuthenticationSessionAccount, AuthenticationSessionsChangeEvent, IAuthenticationCreateSessionOptions, IAuthenticationProviderSessionOptions } from '../../services/authentication/common/authentication.js';
+import { EditorGroupColumn } from '../../services/editor/common/editorGroupColumn.js';
+import { IExtensionDescriptionDelta, IStaticWorkspaceData } from '../../services/extensions/common/extensionHostProtocol.js';
+import { IResolveAuthorityResult } from '../../services/extensions/common/extensionHostProxy.js';
+import { ActivationKind, ExtensionActivationReason, MissingExtensionDependency } from '../../services/extensions/common/extensions.js';
+import { Dto, IRPCProtocol, SerializableObjectWithBuffers } from '../../services/extensions/common/proxyIdentifier.js';
+import { ILanguageStatus } from '../../services/languageStatus/common/languageStatusService.js';
+import { OutputChannelUpdateMode } from '../../services/output/common/output.js';
+import { CandidatePort } from '../../services/remote/common/tunnelModel.js';
+import { IFileQueryBuilderOptions, ITextQueryBuilderOptions } from '../../services/search/common/queryBuilder.js';
+import * as search from '../../services/search/common/search.js';
+import { TextSearchCompleteMessage } from '../../services/search/common/searchExtTypes.js';
+import { ISaveProfileResult } from '../../services/userDataProfile/common/userDataProfile.js';
+import type { TerminalShellExecutionCommandLineConfidence } from 'vscode';
 export interface IWorkspaceData extends IStaticWorkspaceData {
     folders: {
         uri: UriComponents;
@@ -214,16 +214,16 @@ export interface MainThreadDocumentsShape extends IDisposable {
     $trySaveDocument(uri: UriComponents): Promise<boolean>;
 }
 export interface ITextEditorConfigurationUpdate {
-    tabSize?: number | "auto";
-    indentSize?: number | "tabSize";
-    insertSpaces?: boolean | "auto";
+    tabSize?: number | 'auto';
+    indentSize?: number | 'tabSize';
+    insertSpaces?: boolean | 'auto';
     cursorStyle?: TextEditorCursorStyle;
     lineNumbers?: RenderLineNumbersType;
 }
 export interface IResolvedTextEditorConfiguration {
     tabSize: number;
     indentSize: number;
-    originalIndentSize: number | "tabSize";
+    originalIndentSize: number | 'tabSize';
     insertSpaces: boolean;
     cursorStyle: TextEditorCursorStyle;
     lineNumbers: RenderLineNumbersType;
@@ -363,8 +363,14 @@ export interface IDocumentContextItemDto {
     readonly version: number;
     readonly ranges: IRange[];
 }
+export interface IConversationItemDto {
+    readonly type: 'request' | 'response';
+    readonly message: string;
+    readonly references?: IDocumentContextItemDto[];
+}
 export interface IMappedEditsContextDto {
     documents: IDocumentContextItemDto[][];
+    conversation?: IConversationItemDto[];
 }
 export interface ISignatureHelpProviderMetadataDto {
     readonly triggerCharacters: readonly string[];
@@ -531,7 +537,7 @@ export interface MainThreadTerminalShellIntegrationShape extends IDisposable {
 export type TransferQuickPickItemOrSeparator = TransferQuickPickItem | quickInput.IQuickPickSeparator;
 export interface TransferQuickPickItem {
     handle: number;
-    type?: "item";
+    type?: 'item';
     label: string;
     iconPath?: {
         light?: URI;
@@ -552,13 +558,13 @@ export interface BaseTransferQuickInput {
     [key: string]: any;
     id: number;
     title?: string;
-    type?: "quickPick" | "inputBox";
+    type?: 'quickPick' | 'inputBox';
     enabled?: boolean;
     busy?: boolean;
     visible?: boolean;
 }
 export interface TransferQuickPick extends BaseTransferQuickInput {
-    type?: "quickPick";
+    type?: 'quickPick';
     value?: string;
     placeholder?: string;
     buttons?: TransferQuickInputButton[];
@@ -572,7 +578,7 @@ export interface TransferQuickPick extends BaseTransferQuickInput {
     sortByLabel?: boolean;
 }
 export interface TransferInputBox extends BaseTransferQuickInput {
-    type?: "inputBox";
+    type?: 'inputBox';
     value?: string;
     valueSelection?: Readonly<[number, number]>;
     placeholder?: string;
@@ -1069,9 +1075,9 @@ export interface ExtHostLanguageModelsShape {
 export interface MainThreadEmbeddingsShape extends IDisposable {
     $registerEmbeddingProvider(handle: number, identifier: string): void;
     $unregisterEmbeddingProvider(handle: number): void;
-    $computeEmbeddings(embeddingsModel: string, input: string[], token: CancellationToken): Promise<{
+    $computeEmbeddings(embeddingsModel: string, input: string[], token: CancellationToken): Promise<({
         values: number[];
-    }[]>;
+    }[])>;
 }
 export interface ExtHostEmbeddingsShape {
     $provideEmbeddings(handle: number, input: string[], token: CancellationToken): Promise<{
@@ -1156,7 +1162,7 @@ export interface MainThreadChatVariablesShape extends IDisposable {
     $handleProgressChunk(requestId: string, progress: IChatVariableResolverProgressDto): Promise<number | void>;
     $unregisterVariable(handle: number): void;
 }
-export type IToolDataDto = Omit<IToolData, "when">;
+export type IToolDataDto = Omit<IToolData, 'when'>;
 export interface MainThreadLanguageModelToolsShape extends IDisposable {
     $getTools(): Promise<Dto<IToolDataDto>[]>;
     $invokeTool(dto: IToolInvocation, token: CancellationToken): Promise<IToolResult>;
@@ -1350,13 +1356,16 @@ export type SCMRawResourceSplice = [
     number,
     SCMRawResource[]
 ];
-export type SCMRawResourceSplices = [number, SCMRawResourceSplice[]];
+export type SCMRawResourceSplices = [
+    number,
+    SCMRawResourceSplice[]
+];
 export interface SCMHistoryItemGroupDto {
     readonly id: string;
     readonly name: string;
     readonly revision?: string;
-    readonly base?: Omit<Omit<SCMHistoryItemGroupDto, "base">, "remote">;
-    readonly remote?: Omit<Omit<SCMHistoryItemGroupDto, "base">, "remote">;
+    readonly base?: Omit<Omit<SCMHistoryItemGroupDto, 'base'>, 'remote'>;
+    readonly remote?: Omit<Omit<SCMHistoryItemGroupDto, 'base'>, 'remote'>;
 }
 export interface SCMHistoryItemDto {
     readonly id: string;
@@ -1388,13 +1397,7 @@ export interface MainThreadSCMShape extends IDisposable {
     $registerSourceControl(handle: number, id: string, label: string, rootUri: UriComponents | undefined, inputBoxDocumentUri: UriComponents): Promise<void>;
     $updateSourceControl(handle: number, features: SCMProviderFeatures): Promise<void>;
     $unregisterSourceControl(handle: number): Promise<void>;
-    $registerGroups(sourceControlHandle: number, groups: [
-        number,
-        string,
-        string,
-        SCMGroupFeatures,
-        boolean
-    ][], splices: SCMRawResourceSplices[]): Promise<void>;
+    $registerGroups(sourceControlHandle: number, groups: [number, string, string, SCMGroupFeatures, /* multiDiffEditorEnableViewChanges */ boolean][], splices: SCMRawResourceSplices[]): Promise<void>;
     $updateGroup(sourceControlHandle: number, handle: number, features: SCMGroupFeatures): Promise<void>;
     $updateGroupLabel(sourceControlHandle: number, handle: number, label: string): Promise<void>;
     $unregisterGroup(sourceControlHandle: number, handle: number): Promise<void>;
@@ -1826,16 +1829,16 @@ export type ICellEditOperationDto = notebookCommon.ICellPartialMetadataEdit | no
     count: number;
     cells: NotebookCellDataDto[];
 };
-export type IWorkspaceCellEditDto = Dto<Omit<notebookCommon.IWorkspaceNotebookCellEdit, "cellEdit">> & {
+export type IWorkspaceCellEditDto = Dto<Omit<notebookCommon.IWorkspaceNotebookCellEdit, 'cellEdit'>> & {
     cellEdit: ICellEditOperationDto;
 };
-export type IWorkspaceFileEditDto = Dto<Omit<languages.IWorkspaceFileEdit, "options"> & {
-    options?: Omit<languages.WorkspaceFileEditOptions, "contents"> & {
+export type IWorkspaceFileEditDto = Dto<Omit<languages.IWorkspaceFileEdit, 'options'> & {
+    options?: Omit<languages.WorkspaceFileEditOptions, 'contents'> & {
         contents?: {
-            type: "base64";
+            type: 'base64';
             value: string;
         } | {
-            type: "dataTransferItem";
+            type: 'dataTransferItem';
             id: string;
         };
     };
@@ -1985,9 +1988,9 @@ export interface ExtHostLanguageFeaturesShape {
     $provideWorkspaceSymbols(handle: number, search: string, token: CancellationToken): Promise<IWorkspaceSymbolsDto>;
     $resolveWorkspaceSymbol(handle: number, symbol: IWorkspaceSymbolDto, token: CancellationToken): Promise<IWorkspaceSymbolDto | undefined>;
     $releaseWorkspaceSymbols(handle: number, id: number): void;
-    $provideRenameEdits(handle: number, resource: UriComponents, position: IPosition, newName: string, token: CancellationToken): Promise<(IWorkspaceEditDto & {
+    $provideRenameEdits(handle: number, resource: UriComponents, position: IPosition, newName: string, token: CancellationToken): Promise<IWorkspaceEditDto & {
         rejectReason?: string;
-    }) | undefined>;
+    } | undefined>;
     $resolveRenameLocation(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<languages.RenameLocation | undefined>;
     $supportsAutomaticNewSymbolNamesTriggerKind(handle: number): Promise<boolean | undefined>;
     $provideNewSymbolNames(handle: number, resource: UriComponents, range: IRange, triggerKind: languages.NewSymbolNameTriggerKind, token: CancellationToken): Promise<languages.NewSymbolName[] | undefined>;
@@ -2172,12 +2175,12 @@ export interface IBreakpointDto {
     mode?: string;
 }
 export interface IFunctionBreakpointDto extends IBreakpointDto {
-    type: "function";
+    type: 'function';
     functionName: string;
     mode?: string;
 }
 export interface IDataBreakpointDto extends IBreakpointDto {
-    type: "data";
+    type: 'data';
     dataId: string;
     canPersist: boolean;
     label: string;
@@ -2186,7 +2189,7 @@ export interface IDataBreakpointDto extends IBreakpointDto {
     mode?: string;
 }
 export interface ISourceBreakpointDto extends IBreakpointDto {
-    type: "source";
+    type: 'source';
     uri: UriComponents;
     line: number;
     character: number;
@@ -2197,7 +2200,7 @@ export interface IBreakpointsDeltaDto {
     changed?: Array<ISourceBreakpointDto | IFunctionBreakpointDto | IDataBreakpointDto>;
 }
 export interface ISourceMultiBreakpointDto {
-    type: "sourceMulti";
+    type: 'sourceMulti';
     uri: UriComponents;
     lines: {
         id: string;
@@ -2220,12 +2223,12 @@ export interface IDebugSessionFullDto {
 }
 export type IDebugSessionDto = IDebugSessionFullDto | DebugSessionUUID;
 export interface IThreadFocusDto {
-    kind: "thread";
+    kind: 'thread';
     sessionId: string;
     threadId: number;
 }
 export interface IStackFrameFocusDto {
-    kind: "stackFrame";
+    kind: 'stackFrame';
     sessionId: string;
     threadId: number;
     frameId: number;
@@ -2371,7 +2374,7 @@ export interface NotebookCellDto {
     metadata?: notebookCommon.NotebookCellMetadata;
     internalMetadata?: notebookCommon.NotebookCellInternalMetadata;
 }
-export type INotebookPartialFileStatsWithMetadata = Omit<files.IFileStatWithMetadata, "resource" | "children">;
+export type INotebookPartialFileStatsWithMetadata = Omit<files.IFileStatWithMetadata, 'resource' | 'children'>;
 export interface ExtHostNotebookShape extends ExtHostNotebookDocumentsAndEditorsShape {
     $provideNotebookCellStatusBarItems(handle: number, uri: UriComponents, index: number, token: CancellationToken): Promise<INotebookCellStatusBarListDto | undefined>;
     $releaseNotebookCellStatusBarItems(id: number): void;
@@ -2432,7 +2435,7 @@ export interface ExtHostNotebookKernelsShape {
     $acceptKernelMessageFromRenderer(handle: number, editorId: string, message: any): void;
     $cellExecutionChanged(uri: UriComponents, cellHandle: number, state: notebookCommon.NotebookCellExecutionState | undefined): void;
     $provideKernelSourceActions(handle: number, token: CancellationToken): Promise<notebookCommon.INotebookKernelSourceAction[]>;
-    $provideVariables(handle: number, requestId: string, notebookUri: UriComponents, parentId: number | undefined, kind: "named" | "indexed", start: number, token: CancellationToken): Promise<void>;
+    $provideVariables(handle: number, requestId: string, notebookUri: UriComponents, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): Promise<void>;
 }
 export interface ExtHostInteractiveShape {
     $willAddInteractiveDocument(uri: UriComponents, eol: string, languageId: string, notebookUri: UriComponents): void;

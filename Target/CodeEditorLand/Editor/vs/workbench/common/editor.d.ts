@@ -1,25 +1,25 @@
-import { IAction } from "../../base/common/actions.js";
-import { IErrorWithActions } from "../../base/common/errorMessage.js";
-import { Event } from "../../base/common/event.js";
-import { Disposable, IDisposable } from "../../base/common/lifecycle.js";
-import { IExtUri } from "../../base/common/resources.js";
-import Severity from "../../base/common/severity.js";
-import { DeepRequiredNonNullable } from "../../base/common/types.js";
-import { URI } from "../../base/common/uri.js";
-import { IDiffEditor, IEditor, IEditorViewState } from "../../editor/common/editorCommon.js";
-import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
-import { IBaseTextResourceEditorInput, IBaseUntypedEditorInput, IEditorOptions, IResourceEditorInput, ITextEditorOptions, ITextResourceEditorInput } from "../../platform/editor/common/editor.js";
-import { IFileReadLimits, IFileService } from "../../platform/files/common/files.js";
-import { BrandedService, IInstantiationService, ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../platform/log/common/log.js";
-import { IPathData } from "../../platform/window/common/window.js";
-import { IEditorGroup } from "../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../services/editor/common/editorService.js";
-import { IPreferencesService } from "../services/preferences/common/preferences.js";
-import { IEncodingSupport, ILanguageSupport } from "../services/textfile/common/textfiles.js";
-import { IComposite, ICompositeControl } from "./composite.js";
-import { IReadonlyEditorGroupModel } from "./editor/editorGroupModel.js";
-import type { EditorInput } from "./editor/editorInput.js";
+import { Event } from '../../base/common/event.js';
+import { DeepRequiredNonNullable } from '../../base/common/types.js';
+import { URI } from '../../base/common/uri.js';
+import { Disposable, IDisposable } from '../../base/common/lifecycle.js';
+import { IDiffEditor, IEditor, IEditorViewState } from '../../editor/common/editorCommon.js';
+import { IEditorOptions, IResourceEditorInput, ITextResourceEditorInput, IBaseTextResourceEditorInput, IBaseUntypedEditorInput, ITextEditorOptions } from '../../platform/editor/common/editor.js';
+import type { EditorInput } from './editor/editorInput.js';
+import { IInstantiationService, ServicesAccessor, BrandedService } from '../../platform/instantiation/common/instantiation.js';
+import { IContextKeyService } from '../../platform/contextkey/common/contextkey.js';
+import { IEncodingSupport, ILanguageSupport } from '../services/textfile/common/textfiles.js';
+import { IEditorGroup } from '../services/editor/common/editorGroupsService.js';
+import { ICompositeControl, IComposite } from './composite.js';
+import { IFileReadLimits, IFileService } from '../../platform/files/common/files.js';
+import { IPathData } from '../../platform/window/common/window.js';
+import { IExtUri } from '../../base/common/resources.js';
+import { IEditorService } from '../services/editor/common/editorService.js';
+import { ILogService } from '../../platform/log/common/log.js';
+import { IErrorWithActions } from '../../base/common/errorMessage.js';
+import { IAction } from '../../base/common/actions.js';
+import Severity from '../../base/common/severity.js';
+import { IPreferencesService } from '../services/preferences/common/preferences.js';
+import { IReadonlyEditorGroupModel } from './editor/editorGroupModel.js';
 export declare const EditorExtensions: {
     EditorPane: string;
     EditorFactory: string;
@@ -864,43 +864,43 @@ interface IEditorPartDecorationsConfiguration {
 export interface IEditorPartDecorationOptions extends Required<IEditorPartDecorationsConfiguration> {
 }
 interface IEditorPartConfiguration {
-    showTabs?: "multiple" | "single" | "none";
+    showTabs?: 'multiple' | 'single' | 'none';
     wrapTabs?: boolean;
     scrollToSwitchTabs?: boolean;
     highlightModifiedTabs?: boolean;
-    tabActionLocation?: "left" | "right";
+    tabActionLocation?: 'left' | 'right';
     tabActionCloseVisibility?: boolean;
     tabActionUnpinVisibility?: boolean;
     alwaysShowEditorActions?: boolean;
-    tabSizing?: "fit" | "shrink" | "fixed";
+    tabSizing?: 'fit' | 'shrink' | 'fixed';
     tabSizingFixedMinWidth?: number;
     tabSizingFixedMaxWidth?: number;
-    pinnedTabSizing?: "normal" | "compact" | "shrink";
+    pinnedTabSizing?: 'normal' | 'compact' | 'shrink';
     pinnedTabsOnSeparateRow?: boolean;
-    tabHeight?: "default" | "compact";
+    tabHeight?: 'default' | 'compact';
     preventPinnedEditorClose?: PreventPinnedEditorClose;
-    titleScrollbarSizing?: "default" | "large";
+    titleScrollbarSizing?: 'default' | 'large';
     focusRecentEditorAfterClose?: boolean;
     showIcons?: boolean;
     enablePreview?: boolean;
     enablePreviewFromQuickOpen?: boolean;
     enablePreviewFromCodeNavigation?: boolean;
     closeOnFileDelete?: boolean;
-    openPositioning?: "left" | "right" | "first" | "last";
-    openSideBySideDirection?: "right" | "down";
+    openPositioning?: 'left' | 'right' | 'first' | 'last';
+    openSideBySideDirection?: 'right' | 'down';
     closeEmptyGroups?: boolean;
     autoLockGroups?: Set<string>;
     revealIfOpen?: boolean;
     mouseBackForwardToNavigate?: boolean;
-    labelFormat?: "default" | "short" | "medium" | "long";
+    labelFormat?: 'default' | 'short' | 'medium' | 'long';
     restoreViewState?: boolean;
-    splitInGroupLayout?: "vertical" | "horizontal";
-    splitSizing?: "auto" | "split" | "distribute";
+    splitInGroupLayout?: 'vertical' | 'horizontal';
+    splitSizing?: 'auto' | 'split' | 'distribute';
     splitOnDragAndDrop?: boolean;
     dragToOpenWindow?: boolean;
     centeredLayoutFixedWidth?: boolean;
-    doubleClickTabToToggleEditorGroupSizes?: "maximize" | "expand" | "off";
-    editorActionsLocation?: "default" | "titleBar" | "hidden";
+    doubleClickTabToToggleEditorGroupSizes?: 'maximize' | 'expand' | 'off';
+    editorActionsLocation?: 'default' | 'titleBar' | 'hidden';
     limit?: IEditorPartLimitConfiguration;
     decorations?: IEditorPartDecorationsConfiguration;
 }
@@ -1013,7 +1013,7 @@ declare class EditorResourceAccessorImpl {
     } | undefined;
     private filterUri;
 }
-export type PreventPinnedEditorClose = "keyboardAndMouse" | "keyboard" | "mouse" | "never" | undefined;
+export type PreventPinnedEditorClose = 'keyboardAndMouse' | 'keyboard' | 'mouse' | 'never' | undefined;
 export declare enum EditorCloseMethod {
     UNKNOWN = 0,
     KEYBOARD = 1,

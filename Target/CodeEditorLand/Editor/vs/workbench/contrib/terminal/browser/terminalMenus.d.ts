@@ -1,7 +1,7 @@
-import { IAction } from "../../../../base/common/actions.js";
-import { IMenu } from "../../../../platform/actions/common/actions.js";
-import { IExtensionTerminalProfile, ITerminalProfile } from "../../../../platform/terminal/common/terminal.js";
-import { ITerminalLocationOptions, ITerminalService } from "./terminal.js";
+import { IAction } from '../../../../base/common/actions.js';
+import { IMenu } from '../../../../platform/actions/common/actions.js';
+import { IExtensionTerminalProfile, ITerminalProfile } from '../../../../platform/terminal/common/terminal.js';
+import { ITerminalLocationOptions, ITerminalService } from './terminal.js';
 export declare const enum TerminalMenuBarGroup {
     Create = "1_create",
     Run = "3_run",

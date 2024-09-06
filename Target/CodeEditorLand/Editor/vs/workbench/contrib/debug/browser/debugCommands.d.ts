@@ -1,5 +1,5 @@
-import * as nls from "../../../../nls.js";
-import { ILocalizedString } from "../../../../platform/action/common/action.js";
+import * as nls from '../../../../nls.js';
+import { ILocalizedString } from '../../../../platform/action/common/action.js';
 export declare const ADD_CONFIGURATION_ID = "debug.addConfiguration";
 export declare const TOGGLE_INLINE_BREAKPOINT_ID = "editor.debug.action.toggleInlineBreakpoint";
 export declare const COPY_STACK_TRACE_ID = "debug.copyStackTrace";

@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ITransaction } from "../../../../base/common/observable.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IExplorerFileContribution } from "../../files/browser/explorerFileContrib.js";
-import { AbstractFileCoverage } from "../common/testCoverage.js";
-import { ITestCoverageService } from "../common/testCoverageService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ITransaction } from '../../../../base/common/observable.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+import { IExplorerFileContribution } from '../../files/browser/explorerFileContrib.js';
+import { AbstractFileCoverage } from '../common/testCoverage.js';
+import { ITestCoverageService } from '../common/testCoverageService.js';
 export interface TestCoverageBarsOptions {
     /**
      * Whether the bars should be shown in a more compact way, where only the
@@ -22,7 +22,7 @@ export interface TestCoverageBarsOptions {
     container: HTMLElement;
 }
 /** Type that can be used to render coverage bars */
-export type CoverageBarSource = Pick<AbstractFileCoverage, "statement" | "branch" | "declaration">;
+export type CoverageBarSource = Pick<AbstractFileCoverage, 'statement' | 'branch' | 'declaration'>;
 export declare class ManagedTestCoverageBars extends Disposable {
     protected readonly options: TestCoverageBarsOptions;
     private readonly configurationService;

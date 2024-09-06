@@ -1,7 +1,7 @@
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IQuickDiffService, QuickDiff, QuickDiffProvider } from "./quickDiff.js";
+import { URI } from '../../../../base/common/uri.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IQuickDiffService, QuickDiff, QuickDiffProvider } from './quickDiff.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
 export declare class QuickDiffService extends Disposable implements IQuickDiffService {
     private readonly uriIdentityService;
     readonly _serviceBrand: undefined;

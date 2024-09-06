@@ -1,7 +1,7 @@
-import { IBoundarySashes } from "../../../../../base/browser/ui/sash/sash.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IObservable, ISettableObservable } from "../../../../../base/common/observable.js";
-import { DiffEditorOptions } from "../diffEditorOptions.js";
+import { IBoundarySashes } from '../../../../../base/browser/ui/sash/sash.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable, ISettableObservable } from '../../../../../base/common/observable.js';
+import { DiffEditorOptions } from '../diffEditorOptions.js';
 export declare class SashLayout {
     private readonly _options;
     readonly dimensions: {
