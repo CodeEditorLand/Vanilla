@@ -39,7 +39,10 @@ export default {
                     if ([
                         "Source/vs/base/test/common/filters.perf.data.d.ts",
                     ].some((Search) => path.split(sep).join(posix.sep).includes(Search))) {
-                        return { contents: "", loader: "js" };
+                        return {
+                            contents: "",
+                            loader: "copy",
+                        };
                     }
                     return null;
                 });
@@ -49,11 +52,16 @@ export default {
             resolveFrom: "out",
             assets: [
                 {
-                    from: ["./Source/**/*.js"],
+                    from: ["./CodeEditorLand/Editor/Source/**/*.js"],
                     to: ["./JavaScript/"],
+                },
+                {
+                    from: ["./CodeEditorLand/Editor/Source/**/*.css"],
+                    to: ["./StyleSheet/"],
                 },
             ],
         }),
     ],
 };
 export const { sep, posix } = await import("path");
+export const { readFile } = await import("node:fs");
