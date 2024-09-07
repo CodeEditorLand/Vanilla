@@ -53,6 +53,15 @@ export default {
 				});
 			},
 		},
+		(await import("esbuild-plugin-copy")).copy({
+			resolveFrom: "out",
+			assets: [
+				{
+					from: ["./Source/**/*.js"],
+					to: ["./JavaScript/"],
+				},
+			],
+		}),
 	],
 } satisfies BuildOptions as BuildOptions;
 
