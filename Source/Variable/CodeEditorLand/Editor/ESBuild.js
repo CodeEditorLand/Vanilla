@@ -13,6 +13,7 @@ export default {
     target: "esnext",
     tsconfig: "Source/Notation/CodeEditorLand/Editor/tsconfig.json",
     write: true,
+    legalComments: "none",
     plugins: [
         {
             name: "Target",
@@ -38,9 +39,19 @@ export default {
                 onLoad({ filter: /.*/ }, async ({ path }) => {
                     if ([
                         "Source/vs/base/test/common/filters.perf.data.d.ts",
+                        "Source/vs/workbench/services/textfile/test/node/encoding/fixtures",
+                        "Source/vs/workbench/services/search/test/node/fixtures",
+                        "Source/vs/platform/files/test/node/fixtures/service",
+                        "Source/vs/workbench/contrib/codeEditor/test/node",
+                        "Source/tsconfig.vscode-dts.json",
+                        "Source/tsconfig.vscode-proposed-dts.json",
+                        "Source/vs/platform/files/test/node/fixtures/resolver/examples",
+                        "Source/vs/platform/files/test/node/fixtures/resolver/other/deep",
                     ].some((Search) => path.split(sep).join(posix.sep).includes(Search))) {
                         return {
-                            contents: await readFile(path, "utf8"),
+                            contents: await readFile(path, {
+                                encoding: "utf-8",
+                            }),
                             loader: "text",
                         };
                     }

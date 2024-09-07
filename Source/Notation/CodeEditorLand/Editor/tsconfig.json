@@ -4,7 +4,9 @@
 		"outDir": "../../../../Target/CodeEditorLand/Editor",
 		"rootDir": "../../../../CodeEditorLand/Editor/Source",
 
-		"experimentalDecorators": true
+		"experimentalDecorators": true,
+
+		"noEmit": true
 	},
 	"extends": "@playform/build/tsconfig",
 	"include": ["../../../../CodeEditorLand/Editor/Source"]
