@@ -45,6 +45,15 @@ export default {
                 });
             },
         },
+        (await import("esbuild-plugin-copy")).copy({
+            resolveFrom: "out",
+            assets: [
+                {
+                    from: ["./Source/**/*.js"],
+                    to: ["./JavaScript/"],
+                },
+            ],
+        }),
     ],
 };
 export const { sep, posix } = await import("path");
