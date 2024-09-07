@@ -4,10 +4,21 @@
 		"outDir": "../../../../Target/CodeEditorLand/Editor",
 		"rootDir": "../../../../CodeEditorLand/Editor/Source",
 
-		"experimentalDecorators": true,
+		"experimentalDecorators": true
 
-		"noEmit": true
+		/**
+		 * Useful if you don't want to emit any types:
+		 */
+		// "noEmit": true,
+		// "skipLibCheck": true,
+		// "noImplicitAny": false,
+		// "strict": false,
+		// "allowJs": true,
+		// "checkJs": false,
+		// "noEmitOnError": false,
 	},
 	"extends": "@playform/build/tsconfig",
-	"include": ["../../../../CodeEditorLand/Editor/Source"]
+	"include": ["../../../../CodeEditorLand/Editor/Source"],
+
+	"exclude": ["Target", "node_modules"]
 }
