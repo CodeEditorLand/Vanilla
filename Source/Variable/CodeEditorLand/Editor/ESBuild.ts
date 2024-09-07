@@ -38,7 +38,7 @@ export default {
 			name: "Exclude",
 			setup({ onLoad }) {
 				// biome-ignore lint/nursery/useTopLevelRegex:
-				onLoad({ filter: /.*/ }, ({ path }) => {
+				onLoad({ filter: /.*/ }, async ({ path }) => {
 					if (
 						[
 							"Source/vs/base/test/common/filters.perf.data.d.ts",
@@ -47,8 +47,8 @@ export default {
 						)
 					) {
 						return {
-							contents: "",
-							loader: "copy",
+							contents: await readFile(path, "utf8"),
+							loader: "text",
 						};
 					}
 
@@ -61,11 +61,11 @@ export default {
 			assets: [
 				{
 					from: ["./CodeEditorLand/Editor/Source/**/*.js"],
-					to: ["./JavaScript/"],
+					to: ["./CodeEditorLand/Editor/"],
 				},
 				{
 					from: ["./CodeEditorLand/Editor/Source/**/*.css"],
-					to: ["./StyleSheet/"],
+					to: ["./CodeEditorLand/Editor/"],
 				},
 			],
 		}),
@@ -73,4 +73,4 @@ export default {
 } satisfies BuildOptions as BuildOptions;
 
 export const { sep, posix } = await import("path");
-export const { readFile } = await import("node:fs");
+export const { readFile } = await import("node:fs/promises");
