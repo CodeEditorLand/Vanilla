@@ -41,13 +41,23 @@ let ExtensionManifestPropertiesService = class extends Disposable {
     this.logService = logService;
     this._configuredExtensionWorkspaceTrustRequestMap = new ExtensionIdentifierMap();
     const configuredExtensionWorkspaceTrustRequests = configurationService.inspect(WORKSPACE_TRUST_EXTENSION_SUPPORT).userValue || {};
-    for (const id of Object.keys(configuredExtensionWorkspaceTrustRequests)) {
-      this._configuredExtensionWorkspaceTrustRequestMap.set(id, configuredExtensionWorkspaceTrustRequests[id]);
+    for (const id of Object.keys(
+      configuredExtensionWorkspaceTrustRequests
+    )) {
+      this._configuredExtensionWorkspaceTrustRequestMap.set(
+        id,
+        configuredExtensionWorkspaceTrustRequests[id]
+      );
     }
     this._productExtensionWorkspaceTrustRequestMap = /* @__PURE__ */ new Map();
     if (productService.extensionUntrustedWorkspaceSupport) {
-      for (const id of Object.keys(productService.extensionUntrustedWorkspaceSupport)) {
-        this._productExtensionWorkspaceTrustRequestMap.set(id, productService.extensionUntrustedWorkspaceSupport[id]);
+      for (const id of Object.keys(
+        productService.extensionUntrustedWorkspaceSupport
+      )) {
+        this._productExtensionWorkspaceTrustRequestMap.set(
+          id,
+          productService.extensionUntrustedWorkspaceSupport[id]
+        );
       }
     }
   }

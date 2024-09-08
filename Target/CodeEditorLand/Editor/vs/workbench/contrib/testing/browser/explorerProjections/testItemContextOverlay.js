@@ -1,6 +1,6 @@
 import { TestId } from "../../common/testId.js";
-import { capabilityContextKeys } from "../../common/testProfileService.js";
 import { TestingContextKeys } from "../../common/testingContextKeys.js";
+import { capabilityContextKeys } from "../../common/testProfileService.js";
 const getTestItemContextOverlay = (test, capabilities) => {
   if (!test) {
     return [];

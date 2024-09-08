@@ -25,18 +25,18 @@ import {
 } from "./getComputedState.js";
 import { TestId } from "./testId.js";
 import {
-  TestItemExpandState,
-  TestMessageType,
-  TestResultItem,
-  TestResultState,
-  getMarkId
-} from "./testTypes.js";
-import {
   makeEmptyCounts,
   maxPriority,
   statesInOrder,
   terminalStatePriorities
 } from "./testingStates.js";
+import {
+  getMarkId,
+  TestItemExpandState,
+  TestMessageType,
+  TestResultItem,
+  TestResultState
+} from "./testTypes.js";
 const emptyRawOutput = {
   buffers: [],
   length: 0,

@@ -16,9 +16,9 @@ import { disposableTimeout } from "../../../../../../base/common/async.js";
 import { Emitter } from "../../../../../../base/common/event.js";
 import { MarshalledId } from "../../../../../../base/common/marshallingIds.js";
 import {
-  MenuEntryActionViewItem,
   createActionViewItem,
-  createAndFillInActionBarActions
+  createAndFillInActionBarActions,
+  MenuEntryActionViewItem
 } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
 import { WorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
 import {

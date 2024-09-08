@@ -1,7 +1,7 @@
 import { registerAction2 } from "../../../../platform/actions/common/actions.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   HoldToVoiceChatInChatViewAction,

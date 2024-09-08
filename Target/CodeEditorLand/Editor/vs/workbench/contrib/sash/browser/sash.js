@@ -26,11 +26,21 @@ let SashSettingsController = class {
   constructor(configurationService, layoutService) {
     this.configurationService = configurationService;
     this.layoutService = layoutService;
-    const onDidChangeSize = Event.filter(configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration("workbench.sash.size"));
+    const onDidChangeSize = Event.filter(
+      configurationService.onDidChangeConfiguration,
+      (e) => e.affectsConfiguration("workbench.sash.size")
+    );
     onDidChangeSize(this.onDidChangeSize, this, this.disposables);
     this.onDidChangeSize();
-    const onDidChangeHoverDelay = Event.filter(configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration("workbench.sash.hoverDelay"));
-    onDidChangeHoverDelay(this.onDidChangeHoverDelay, this, this.disposables);
+    const onDidChangeHoverDelay = Event.filter(
+      configurationService.onDidChangeConfiguration,
+      (e) => e.affectsConfiguration("workbench.sash.hoverDelay")
+    );
+    onDidChangeHoverDelay(
+      this.onDidChangeHoverDelay,
+      this,
+      this.disposables
+    );
     this.onDidChangeHoverDelay();
   }
   disposables = new DisposableStore();

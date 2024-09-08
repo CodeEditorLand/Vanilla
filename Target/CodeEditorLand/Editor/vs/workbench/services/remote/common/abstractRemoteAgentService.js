@@ -12,8 +12,8 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import {
-  IPCLogger,
-  getDelayedChannel
+  getDelayedChannel,
+  IPCLogger
 } from "../../../../base/parts/ipc/common/ipc.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
@@ -34,7 +34,17 @@ let AbstractRemoteAgentService = class extends Disposable {
     this._environmentService = _environmentService;
     this._remoteAuthorityResolverService = _remoteAuthorityResolverService;
     if (this._environmentService.remoteAuthority) {
-      this._connection = this._register(new RemoteAgentConnection(this._environmentService.remoteAuthority, productService.commit, productService.quality, this.remoteSocketFactoryService, this._remoteAuthorityResolverService, signService, logService));
+      this._connection = this._register(
+        new RemoteAgentConnection(
+          this._environmentService.remoteAuthority,
+          productService.commit,
+          productService.quality,
+          this.remoteSocketFactoryService,
+          this._remoteAuthorityResolverService,
+          signService,
+          logService
+        )
+      );
     } else {
       this._connection = null;
     }

@@ -31,7 +31,9 @@ let NotebookCellOutlineDataSource = class {
     this._outlineModelService = _outlineModelService;
     this._markerService = _markerService;
     this._configurationService = _configurationService;
-    this._outlineEntryFactory = new NotebookOutlineEntryFactory(this._notebookExecutionStateService);
+    this._outlineEntryFactory = new NotebookOutlineEntryFactory(
+      this._notebookExecutionStateService
+    );
     this.recomputeState();
   }
   _disposables = new DisposableStore();

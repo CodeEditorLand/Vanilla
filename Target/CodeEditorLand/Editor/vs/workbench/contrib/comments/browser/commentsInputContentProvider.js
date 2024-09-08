@@ -27,19 +27,32 @@ let CommentsInputContentProvider = class extends Disposable {
     super();
     this._modelService = _modelService;
     this._languageService = _languageService;
-    this._register(textModelService.registerTextModelContentProvider(Schemas.commentsInput, this));
-    this._register(codeEditorService.registerCodeEditorOpenHandler(async (input, editor, _sideBySide) => {
-      if (!(editor instanceof SimpleCommentEditor)) {
-        return null;
-      }
-      if (editor.getModel()?.uri.toString() !== input.resource.toString()) {
-        return null;
-      }
-      if (input.options) {
-        applyTextEditorOptions(input.options, editor, ScrollType.Immediate);
-      }
-      return editor;
-    }));
+    this._register(
+      textModelService.registerTextModelContentProvider(
+        Schemas.commentsInput,
+        this
+      )
+    );
+    this._register(
+      codeEditorService.registerCodeEditorOpenHandler(
+        async (input, editor, _sideBySide) => {
+          if (!(editor instanceof SimpleCommentEditor)) {
+            return null;
+          }
+          if (editor.getModel()?.uri.toString() !== input.resource.toString()) {
+            return null;
+          }
+          if (input.options) {
+            applyTextEditorOptions(
+              input.options,
+              editor,
+              ScrollType.Immediate
+            );
+          }
+          return editor;
+        }
+      )
+    );
   }
   static ID = "comments.input.contentProvider";
   async provideTextContent(resource) {

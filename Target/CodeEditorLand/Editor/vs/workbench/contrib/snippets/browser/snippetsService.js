@@ -11,8 +11,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { insertInto } from "../../../../base/common/arrays.js";
 import {
-  DisposableStore,
-  combinedDisposable
+  combinedDisposable,
+  DisposableStore
 } from "../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../base/common/map.js";
 import * as resources from "../../../../base/common/resources.js";
@@ -163,7 +163,11 @@ function watch(service, resource, callback) {
 let SnippetEnablement = class {
   constructor(_storageService) {
     this._storageService = _storageService;
-    const raw = _storageService.get(SnippetEnablement._key, StorageScope.PROFILE, "");
+    const raw = _storageService.get(
+      SnippetEnablement._key,
+      StorageScope.PROFILE,
+      ""
+    );
     let data;
     try {
       data = JSON.parse(raw);
@@ -201,7 +205,11 @@ SnippetEnablement = __decorateClass([
 let SnippetUsageTimestamps = class {
   constructor(_storageService) {
     this._storageService = _storageService;
-    const raw = _storageService.get(SnippetUsageTimestamps._key, StorageScope.PROFILE, "");
+    const raw = _storageService.get(
+      SnippetUsageTimestamps._key,
+      StorageScope.PROFILE,
+      ""
+    );
     let data;
     try {
       data = JSON.parse(raw);
@@ -240,14 +248,26 @@ let SnippetsService = class {
     this._fileService = _fileService;
     this._textfileService = _textfileService;
     this._extensionResourceLoaderService = _extensionResourceLoaderService;
-    this._pendingWork.push(Promise.resolve(lifecycleService.when(LifecyclePhase.Restored).then(() => {
-      this._initExtensionSnippets();
-      this._initUserSnippets();
-      this._initWorkspaceSnippets();
-    })));
-    setSnippetSuggestSupport(new SnippetCompletionProvider(this._languageService, this, languageConfigurationService));
+    this._pendingWork.push(
+      Promise.resolve(
+        lifecycleService.when(LifecyclePhase.Restored).then(() => {
+          this._initExtensionSnippets();
+          this._initUserSnippets();
+          this._initWorkspaceSnippets();
+        })
+      )
+    );
+    setSnippetSuggestSupport(
+      new SnippetCompletionProvider(
+        this._languageService,
+        this,
+        languageConfigurationService
+      )
+    );
     this._enablement = instantiationService.createInstance(SnippetEnablement);
-    this._usageTimestamps = instantiationService.createInstance(SnippetUsageTimestamps);
+    this._usageTimestamps = instantiationService.createInstance(
+      SnippetUsageTimestamps
+    );
   }
   _disposables = new DisposableStore();
   _pendingWork = [];

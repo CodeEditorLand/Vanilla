@@ -92,16 +92,37 @@ let ConfigurationManager = class {
     this.initLaunches();
     this.setCompoundSchemaValues();
     this.registerListeners();
-    const previousSelectedRoot = this.storageService.get(DEBUG_SELECTED_ROOT, StorageScope.WORKSPACE);
-    const previousSelectedType = this.storageService.get(DEBUG_SELECTED_TYPE, StorageScope.WORKSPACE);
-    const previousSelectedLaunch = this.launches.find((l) => l.uri.toString() === previousSelectedRoot);
-    const previousSelectedName = this.storageService.get(DEBUG_SELECTED_CONFIG_NAME_KEY, StorageScope.WORKSPACE);
+    const previousSelectedRoot = this.storageService.get(
+      DEBUG_SELECTED_ROOT,
+      StorageScope.WORKSPACE
+    );
+    const previousSelectedType = this.storageService.get(
+      DEBUG_SELECTED_TYPE,
+      StorageScope.WORKSPACE
+    );
+    const previousSelectedLaunch = this.launches.find(
+      (l) => l.uri.toString() === previousSelectedRoot
+    );
+    const previousSelectedName = this.storageService.get(
+      DEBUG_SELECTED_CONFIG_NAME_KEY,
+      StorageScope.WORKSPACE
+    );
     this.debugConfigurationTypeContext = CONTEXT_DEBUG_CONFIGURATION_TYPE.bindTo(contextKeyService);
     const dynamicConfig = previousSelectedType ? { type: previousSelectedType } : void 0;
     if (previousSelectedLaunch && previousSelectedLaunch.getConfigurationNames().length) {
-      this.selectConfiguration(previousSelectedLaunch, previousSelectedName, void 0, dynamicConfig);
+      this.selectConfiguration(
+        previousSelectedLaunch,
+        previousSelectedName,
+        void 0,
+        dynamicConfig
+      );
     } else if (this.launches.length > 0) {
-      this.selectConfiguration(void 0, previousSelectedName, void 0, dynamicConfig);
+      this.selectConfiguration(
+        void 0,
+        previousSelectedName,
+        void 0,
+        dynamicConfig
+      );
     }
   }
   launches;

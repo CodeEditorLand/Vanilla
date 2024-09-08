@@ -51,7 +51,13 @@ let CellContextKeyPart = class extends CellContentPart {
   constructor(notebookEditor, instantiationService) {
     super();
     this.instantiationService = instantiationService;
-    this.cellContextKeyManager = this._register(this.instantiationService.createInstance(CellContextKeyManager, notebookEditor, void 0));
+    this.cellContextKeyManager = this._register(
+      this.instantiationService.createInstance(
+        CellContextKeyManager,
+        notebookEditor,
+        void 0
+      )
+    );
   }
   cellContextKeyManager;
   didRenderCell(element) {
@@ -70,28 +76,56 @@ let CellContextKeyManager = class extends Disposable {
     this._notebookExecutionStateService = _notebookExecutionStateService;
     this._contextKeyService.bufferChangeEvents(() => {
       this.cellType = NOTEBOOK_CELL_TYPE.bindTo(this._contextKeyService);
-      this.cellEditable = NOTEBOOK_CELL_EDITABLE.bindTo(this._contextKeyService);
-      this.cellFocused = NOTEBOOK_CELL_FOCUSED.bindTo(this._contextKeyService);
-      this.cellEditorFocused = NOTEBOOK_CELL_EDITOR_FOCUSED.bindTo(this._contextKeyService);
-      this.markdownEditMode = NOTEBOOK_CELL_MARKDOWN_EDIT_MODE.bindTo(this._contextKeyService);
-      this.cellRunState = NOTEBOOK_CELL_EXECUTION_STATE.bindTo(this._contextKeyService);
-      this.cellExecuting = NOTEBOOK_CELL_EXECUTING.bindTo(this._contextKeyService);
-      this.cellHasOutputs = NOTEBOOK_CELL_HAS_OUTPUTS.bindTo(this._contextKeyService);
-      this.cellContentCollapsed = NOTEBOOK_CELL_INPUT_COLLAPSED.bindTo(this._contextKeyService);
-      this.cellOutputCollapsed = NOTEBOOK_CELL_OUTPUT_COLLAPSED.bindTo(this._contextKeyService);
-      this.cellLineNumbers = NOTEBOOK_CELL_LINE_NUMBERS.bindTo(this._contextKeyService);
-      this.cellGeneratedByChat = NOTEBOOK_CELL_GENERATED_BY_CHAT.bindTo(this._contextKeyService);
-      this.cellResource = NOTEBOOK_CELL_RESOURCE.bindTo(this._contextKeyService);
-      this.cellHasErrorDiagnostics = NOTEBOOK_CELL_HAS_ERROR_DIAGNOSTICS.bindTo(this._contextKeyService);
+      this.cellEditable = NOTEBOOK_CELL_EDITABLE.bindTo(
+        this._contextKeyService
+      );
+      this.cellFocused = NOTEBOOK_CELL_FOCUSED.bindTo(
+        this._contextKeyService
+      );
+      this.cellEditorFocused = NOTEBOOK_CELL_EDITOR_FOCUSED.bindTo(
+        this._contextKeyService
+      );
+      this.markdownEditMode = NOTEBOOK_CELL_MARKDOWN_EDIT_MODE.bindTo(
+        this._contextKeyService
+      );
+      this.cellRunState = NOTEBOOK_CELL_EXECUTION_STATE.bindTo(
+        this._contextKeyService
+      );
+      this.cellExecuting = NOTEBOOK_CELL_EXECUTING.bindTo(
+        this._contextKeyService
+      );
+      this.cellHasOutputs = NOTEBOOK_CELL_HAS_OUTPUTS.bindTo(
+        this._contextKeyService
+      );
+      this.cellContentCollapsed = NOTEBOOK_CELL_INPUT_COLLAPSED.bindTo(
+        this._contextKeyService
+      );
+      this.cellOutputCollapsed = NOTEBOOK_CELL_OUTPUT_COLLAPSED.bindTo(
+        this._contextKeyService
+      );
+      this.cellLineNumbers = NOTEBOOK_CELL_LINE_NUMBERS.bindTo(
+        this._contextKeyService
+      );
+      this.cellGeneratedByChat = NOTEBOOK_CELL_GENERATED_BY_CHAT.bindTo(
+        this._contextKeyService
+      );
+      this.cellResource = NOTEBOOK_CELL_RESOURCE.bindTo(
+        this._contextKeyService
+      );
+      this.cellHasErrorDiagnostics = NOTEBOOK_CELL_HAS_ERROR_DIAGNOSTICS.bindTo(
+        this._contextKeyService
+      );
       if (element) {
         this.updateForElement(element);
       }
     });
-    this._register(this._notebookExecutionStateService.onDidChangeExecution((e) => {
-      if (e.type === NotebookExecutionType.cell && this.element && e.affectsCell(this.element.uri)) {
-        this.updateForExecutionState();
-      }
-    }));
+    this._register(
+      this._notebookExecutionStateService.onDidChangeExecution((e) => {
+        if (e.type === NotebookExecutionType.cell && this.element && e.affectsCell(this.element.uri)) {
+          this.updateForExecutionState();
+        }
+      })
+    );
   }
   cellType;
   cellEditable;

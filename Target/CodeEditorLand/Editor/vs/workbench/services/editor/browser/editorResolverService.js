@@ -52,14 +52,14 @@ import { ITelemetryService } from "../../../../platform/telemetry/common/telemet
 import {
   DEFAULT_EDITOR_ASSOCIATION,
   EditorResourceAccessor,
-  SideBySideEditor,
   isEditorInputWithOptions,
   isEditorInputWithOptionsAndGroup,
   isResourceDiffEditorInput,
   isResourceMergeEditorInput,
   isResourceMultiDiffEditorInput,
   isResourceSideBySideEditorInput,
-  isUntitledResourceEditorInput
+  isUntitledResourceEditorInput,
+  SideBySideEditor
 } from "../../../common/editor.js";
 import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
 import { IExtensionService } from "../../extensions/common/extensions.js";
@@ -68,12 +68,12 @@ import {
   IEditorGroupsService
 } from "../common/editorGroupsService.js";
 import {
-  IEditorResolverService,
-  RegisteredEditorPriority,
-  ResolvedStatus,
   editorsAssociationsSettingId,
   globMatchesResource,
-  priorityToRank
+  IEditorResolverService,
+  priorityToRank,
+  RegisteredEditorPriority,
+  ResolvedStatus
 } from "../common/editorResolverService.js";
 let EditorResolverService = class extends Disposable {
   constructor(editorGroupService, instantiationService, configurationService, quickInputService, notificationService, telemetryService, storageService, extensionService, logService) {
@@ -87,14 +87,29 @@ let EditorResolverService = class extends Disposable {
     this.storageService = storageService;
     this.extensionService = extensionService;
     this.logService = logService;
-    this.cache = new Set(JSON.parse(this.storageService.get(EditorResolverService.cacheStorageID, StorageScope.PROFILE, JSON.stringify([]))));
-    this.storageService.remove(EditorResolverService.cacheStorageID, StorageScope.PROFILE);
-    this._register(this.storageService.onWillSaveState(() => {
-      this.cacheEditors();
-    }));
-    this._register(this.extensionService.onDidRegisterExtensions(() => {
-      this.cache = void 0;
-    }));
+    this.cache = new Set(
+      JSON.parse(
+        this.storageService.get(
+          EditorResolverService.cacheStorageID,
+          StorageScope.PROFILE,
+          JSON.stringify([])
+        )
+      )
+    );
+    this.storageService.remove(
+      EditorResolverService.cacheStorageID,
+      StorageScope.PROFILE
+    );
+    this._register(
+      this.storageService.onWillSaveState(() => {
+        this.cacheEditors();
+      })
+    );
+    this._register(
+      this.extensionService.onDidRegisterExtensions(() => {
+        this.cache = void 0;
+      })
+    );
   }
   _serviceBrand;
   // Events

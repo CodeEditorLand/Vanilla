@@ -28,8 +28,8 @@ import {
   DEFAULT_MAX_SEARCH_RESULTS,
   SEARCH_EXCLUDE_CONFIG,
   SearchSortOrder,
-  VIEWLET_ID,
   VIEW_ID,
+  VIEWLET_ID,
   ViewMode
 } from "../../../services/search/common/search.js";
 import { GotoSymbolQuickAccessProvider } from "../../codeEditor/browser/quickaccess/gotoSymbolQuickAccess.js";

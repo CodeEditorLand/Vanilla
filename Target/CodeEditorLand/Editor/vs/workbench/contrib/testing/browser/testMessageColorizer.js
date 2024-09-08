@@ -3,8 +3,8 @@ import {
   toDisposable
 } from "../../../../base/common/lifecycle.js";
 import {
-  GraphemeIterator,
   forAnsiStringParts,
+  GraphemeIterator,
   removeAnsiEscapeCodes
 } from "../../../../base/common/strings.js";
 import "./media/testMessageColorizer.css";

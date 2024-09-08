@@ -7,12 +7,12 @@ import {
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
 import { ViewAction } from "../../../browser/parts/views/viewPane.js";
 import {
-  IOutlinePane,
-  OutlineSortOrder,
   ctxAllCollapsed,
   ctxFilterOnType,
   ctxFollowsCursor,
-  ctxSortMode
+  ctxSortMode,
+  IOutlinePane,
+  OutlineSortOrder
 } from "./outline.js";
 registerAction2(
   class CollapseAll extends ViewAction {

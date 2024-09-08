@@ -64,8 +64,8 @@ import { IClipboardService } from "../../../../platform/clipboard/common/clipboa
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import {
   ConfigurationTarget,
-  IConfigurationService,
-  getLanguageTagSettingPlainKey
+  getLanguageTagSettingPlainKey,
+  IConfigurationService
 } from "../../../../platform/configuration/common/configuration.js";
 import { ConfigurationScope } from "../../../../platform/configuration/common/configurationRegistry.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
@@ -97,8 +97,8 @@ import { IThemeService } from "../../../../platform/theme/common/themeService.js
 import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { getIgnoredSettings } from "../../../../platform/userDataSync/common/settingsMerge.js";
 import {
-  IUserDataSyncEnablementService,
-  getDefaultIgnoredSettings
+  getDefaultIgnoredSettings,
+  IUserDataSyncEnablementService
 } from "../../../../platform/userDataSync/common/userDataSync.js";
 import {
   APPLY_ALL_PROFILES_SETTING,
@@ -113,9 +113,9 @@ import {
 import { getInvalidTypeError } from "../../../services/preferences/common/preferencesValidation.js";
 import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
 import {
+  compareTwoNullableNumbers,
   LANGUAGE_SETTING_TAG,
-  SETTINGS_EDITOR_COMMAND_SHOW_CONTEXT_MENU,
-  compareTwoNullableNumbers
+  SETTINGS_EDITOR_COMMAND_SHOW_CONTEXT_MENU
 } from "../common/preferences.js";
 import {
   settingsNumberInputBackground,
@@ -131,16 +131,16 @@ import {
 } from "../common/settingsEditorColorRegistry.js";
 import { settingsMoreActionIcon } from "./preferencesIcons.js";
 import {
-  SettingsTreeIndicatorsLabel,
-  getIndicatorsLabelAriaLabel
+  getIndicatorsLabelAriaLabel,
+  SettingsTreeIndicatorsLabel
 } from "./settingsEditorSettingIndicators.js";
 import {
-  SettingsTreeGroupElement,
-  SettingsTreeNewExtensionsElement,
-  SettingsTreeSettingElement,
   inspectSetting,
   objectSettingSupportsRemoveDefaultValue,
-  settingKeyToDisplayFormat
+  settingKeyToDisplayFormat,
+  SettingsTreeGroupElement,
+  SettingsTreeNewExtensionsElement,
+  SettingsTreeSettingElement
 } from "./settingsTreeModels.js";
 import {
   ExcludeSettingWidget,
@@ -705,12 +705,22 @@ let AbstractSettingRenderer = class extends Disposable {
     this._productService = _productService;
     this._telemetryService = _telemetryService;
     this._hoverService = _hoverService;
-    this.markdownRenderer = this._register(_instantiationService.createInstance(MarkdownRenderer, {}));
-    this.ignoredSettings = getIgnoredSettings(getDefaultIgnoredSettings(), this._configService);
-    this._register(this._configService.onDidChangeConfiguration((e) => {
-      this.ignoredSettings = getIgnoredSettings(getDefaultIgnoredSettings(), this._configService);
-      this._onDidChangeIgnoredSettings.fire();
-    }));
+    this.markdownRenderer = this._register(
+      _instantiationService.createInstance(MarkdownRenderer, {})
+    );
+    this.ignoredSettings = getIgnoredSettings(
+      getDefaultIgnoredSettings(),
+      this._configService
+    );
+    this._register(
+      this._configService.onDidChangeConfiguration((e) => {
+        this.ignoredSettings = getIgnoredSettings(
+          getDefaultIgnoredSettings(),
+          this._configService
+        );
+        this._onDidChangeIgnoredSettings.fire();
+      })
+    );
   }
   static CONTROL_CLASS = "setting-control-focus-target";
   static CONTROL_SELECTOR = "." + this.CONTROL_CLASS;
@@ -2065,19 +2075,25 @@ let SettingTreeRenderers = class extends Disposable {
     this._userDataProfilesService = _userDataProfilesService;
     this._userDataSyncEnablementService = _userDataSyncEnablementService;
     this.settingActions = [
-      new Action("settings.resetSetting", localize("resetSettingLabel", "Reset Setting"), void 0, void 0, async (context) => {
-        if (context instanceof SettingsTreeSettingElement) {
-          if (!context.isUntrusted) {
-            this._onDidChangeSetting.fire({
-              key: context.setting.key,
-              value: void 0,
-              type: context.setting.type,
-              manualReset: true,
-              scope: context.setting.scope
-            });
+      new Action(
+        "settings.resetSetting",
+        localize("resetSettingLabel", "Reset Setting"),
+        void 0,
+        void 0,
+        async (context) => {
+          if (context instanceof SettingsTreeSettingElement) {
+            if (!context.isUntrusted) {
+              this._onDidChangeSetting.fire({
+                key: context.setting.key,
+                value: void 0,
+                type: context.setting.type,
+                manualReset: true,
+                scope: context.setting.scope
+              });
+            }
           }
         }
-      }),
+      ),
       new Separator(),
       this._instantiationService.createInstance(CopySettingIdAction),
       this._instantiationService.createInstance(CopySettingAsJSONAction),
@@ -2085,36 +2101,98 @@ let SettingTreeRenderers = class extends Disposable {
     ];
     const actionFactory = (setting, settingTarget) => this.getActionsForSetting(setting, settingTarget);
     const emptyActionFactory = (_) => [];
-    const extensionRenderer = this._instantiationService.createInstance(SettingsExtensionToggleRenderer, [], emptyActionFactory);
+    const extensionRenderer = this._instantiationService.createInstance(
+      SettingsExtensionToggleRenderer,
+      [],
+      emptyActionFactory
+    );
     const settingRenderers = [
-      this._instantiationService.createInstance(SettingBoolRenderer, this.settingActions, actionFactory),
-      this._instantiationService.createInstance(SettingNumberRenderer, this.settingActions, actionFactory),
-      this._instantiationService.createInstance(SettingArrayRenderer, this.settingActions, actionFactory),
-      this._instantiationService.createInstance(SettingComplexRenderer, this.settingActions, actionFactory),
-      this._instantiationService.createInstance(SettingTextRenderer, this.settingActions, actionFactory),
-      this._instantiationService.createInstance(SettingMultilineTextRenderer, this.settingActions, actionFactory),
-      this._instantiationService.createInstance(SettingExcludeRenderer, this.settingActions, actionFactory),
-      this._instantiationService.createInstance(SettingIncludeRenderer, this.settingActions, actionFactory),
-      this._instantiationService.createInstance(SettingEnumRenderer, this.settingActions, actionFactory),
-      this._instantiationService.createInstance(SettingObjectRenderer, this.settingActions, actionFactory),
-      this._instantiationService.createInstance(SettingBoolObjectRenderer, this.settingActions, actionFactory),
+      this._instantiationService.createInstance(
+        SettingBoolRenderer,
+        this.settingActions,
+        actionFactory
+      ),
+      this._instantiationService.createInstance(
+        SettingNumberRenderer,
+        this.settingActions,
+        actionFactory
+      ),
+      this._instantiationService.createInstance(
+        SettingArrayRenderer,
+        this.settingActions,
+        actionFactory
+      ),
+      this._instantiationService.createInstance(
+        SettingComplexRenderer,
+        this.settingActions,
+        actionFactory
+      ),
+      this._instantiationService.createInstance(
+        SettingTextRenderer,
+        this.settingActions,
+        actionFactory
+      ),
+      this._instantiationService.createInstance(
+        SettingMultilineTextRenderer,
+        this.settingActions,
+        actionFactory
+      ),
+      this._instantiationService.createInstance(
+        SettingExcludeRenderer,
+        this.settingActions,
+        actionFactory
+      ),
+      this._instantiationService.createInstance(
+        SettingIncludeRenderer,
+        this.settingActions,
+        actionFactory
+      ),
+      this._instantiationService.createInstance(
+        SettingEnumRenderer,
+        this.settingActions,
+        actionFactory
+      ),
+      this._instantiationService.createInstance(
+        SettingObjectRenderer,
+        this.settingActions,
+        actionFactory
+      ),
+      this._instantiationService.createInstance(
+        SettingBoolObjectRenderer,
+        this.settingActions,
+        actionFactory
+      ),
       extensionRenderer
     ];
-    this.onDidClickOverrideElement = Event.any(...settingRenderers.map((r) => r.onDidClickOverrideElement));
+    this.onDidClickOverrideElement = Event.any(
+      ...settingRenderers.map((r) => r.onDidClickOverrideElement)
+    );
     this.onDidChangeSetting = Event.any(
       ...settingRenderers.map((r) => r.onDidChangeSetting),
       this._onDidChangeSetting.event
     );
     this.onDidDismissExtensionSetting = extensionRenderer.onDidDismissExtensionSetting;
-    this.onDidOpenSettings = Event.any(...settingRenderers.map((r) => r.onDidOpenSettings));
-    this.onDidClickSettingLink = Event.any(...settingRenderers.map((r) => r.onDidClickSettingLink));
-    this.onDidFocusSetting = Event.any(...settingRenderers.map((r) => r.onDidFocusSetting));
-    this.onDidChangeSettingHeight = Event.any(...settingRenderers.map((r) => r.onDidChangeSettingHeight));
-    this.onApplyFilter = Event.any(...settingRenderers.map((r) => r.onApplyFilter));
+    this.onDidOpenSettings = Event.any(
+      ...settingRenderers.map((r) => r.onDidOpenSettings)
+    );
+    this.onDidClickSettingLink = Event.any(
+      ...settingRenderers.map((r) => r.onDidClickSettingLink)
+    );
+    this.onDidFocusSetting = Event.any(
+      ...settingRenderers.map((r) => r.onDidFocusSetting)
+    );
+    this.onDidChangeSettingHeight = Event.any(
+      ...settingRenderers.map((r) => r.onDidChangeSettingHeight)
+    );
+    this.onApplyFilter = Event.any(
+      ...settingRenderers.map((r) => r.onApplyFilter)
+    );
     this.allRenderers = [
       ...settingRenderers,
       this._instantiationService.createInstance(SettingGroupRenderer),
-      this._instantiationService.createInstance(SettingNewExtensionsRenderer)
+      this._instantiationService.createInstance(
+        SettingNewExtensionsRenderer
+      )
     ];
   }
   onDidClickOverrideElement;
@@ -2620,7 +2698,12 @@ let SyncSettingAction = class extends Action {
     super(SyncSettingAction.ID, SyncSettingAction.LABEL);
     this.setting = setting;
     this.configService = configService;
-    this._register(Event.filter(configService.onDidChangeConfiguration, (e) => e.affectsConfiguration("settingsSync.ignoredSettings"))(() => this.update()));
+    this._register(
+      Event.filter(
+        configService.onDidChangeConfiguration,
+        (e) => e.affectsConfiguration("settingsSync.ignoredSettings")
+      )(() => this.update())
+    );
     this.update();
   }
   static ID = "settings.stopSyncingSetting";
@@ -2665,10 +2748,18 @@ SyncSettingAction = __decorateClass([
 ], SyncSettingAction);
 let ApplySettingToAllProfilesAction = class extends Action {
   constructor(setting, configService) {
-    super(ApplySettingToAllProfilesAction.ID, ApplySettingToAllProfilesAction.LABEL);
+    super(
+      ApplySettingToAllProfilesAction.ID,
+      ApplySettingToAllProfilesAction.LABEL
+    );
     this.setting = setting;
     this.configService = configService;
-    this._register(Event.filter(configService.onDidChangeConfiguration, (e) => e.affectsConfiguration(APPLY_ALL_PROFILES_SETTING))(() => this.update()));
+    this._register(
+      Event.filter(
+        configService.onDidChangeConfiguration,
+        (e) => e.affectsConfiguration(APPLY_ALL_PROFILES_SETTING)
+      )(() => this.update())
+    );
     this.update();
   }
   static ID = "settings.applyToAllProfiles";

@@ -24,8 +24,8 @@ import {
 import { Schemas } from "../../../../base/common/network.js";
 import { basename, extname, isAbsolute } from "../../../../base/common/path.js";
 import {
-  OS,
-  isWindows
+  isWindows,
+  OS
 } from "../../../../base/common/platform.js";
 import * as resources from "../../../../base/common/resources.js";
 import { rtrim, trim } from "../../../../base/common/strings.js";
@@ -49,8 +49,8 @@ import {
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import {
-  IDialogService,
-  getFileNamesMessage
+  getFileNamesMessage,
+  IDialogService
 } from "../../../../platform/dialogs/common/dialogs.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import {
@@ -89,8 +89,8 @@ import { IWorkingCopyService } from "../../../services/workingCopy/common/workin
 import { NewExplorerItem } from "../common/explorerModel.js";
 import {
   UndoConfirmLevel,
-  VIEWLET_ID,
-  VIEW_ID
+  VIEW_ID,
+  VIEWLET_ID
 } from "../common/files.js";
 import {
   NEW_UNTITLED_FILE_COMMAND_ID,

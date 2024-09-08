@@ -55,14 +55,25 @@ let PreferencesContribution = class extends Disposable {
     this.configurationService = configurationService;
     this.editorResolverService = editorResolverService;
     this.textEditorService = textEditorService;
-    this._register(this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(USE_SPLIT_JSON_SETTING) || e.affectsConfiguration(DEFAULT_SETTINGS_EDITOR_SETTING)) {
-        this.handleSettingsEditorRegistration();
-      }
-    }));
+    this._register(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(USE_SPLIT_JSON_SETTING) || e.affectsConfiguration(DEFAULT_SETTINGS_EDITOR_SETTING)) {
+          this.handleSettingsEditorRegistration();
+        }
+      })
+    );
     this.handleSettingsEditorRegistration();
-    const fileSystemProvider = this._register(this.instantiationService.createInstance(SettingsFileSystemProvider));
-    this._register(fileService.registerProvider(SettingsFileSystemProvider.SCHEMA, fileSystemProvider));
+    const fileSystemProvider = this._register(
+      this.instantiationService.createInstance(
+        SettingsFileSystemProvider
+      )
+    );
+    this._register(
+      fileService.registerProvider(
+        SettingsFileSystemProvider.SCHEMA,
+        fileSystemProvider
+      )
+    );
   }
   static ID = "workbench.contrib.preferences";
   editorOpeningListener;

@@ -47,15 +47,27 @@ import {
 } from "./extensionManagement.js";
 let WebExtensionManagementService = class extends AbstractExtensionManagementService {
   constructor(extensionGalleryService, telemetryService, logService, webExtensionsScannerService, extensionManifestPropertiesService, userDataProfileService, productService, userDataProfilesService, uriIdentityService) {
-    super(extensionGalleryService, telemetryService, uriIdentityService, logService, productService, userDataProfilesService);
+    super(
+      extensionGalleryService,
+      telemetryService,
+      uriIdentityService,
+      logService,
+      productService,
+      userDataProfilesService
+    );
     this.webExtensionsScannerService = webExtensionsScannerService;
     this.extensionManifestPropertiesService = extensionManifestPropertiesService;
     this.userDataProfileService = userDataProfileService;
-    this._register(userDataProfileService.onDidChangeCurrentProfile((e) => {
-      if (!this.uriIdentityService.extUri.isEqual(e.previous.extensionsResource, e.profile.extensionsResource)) {
-        e.join(this.whenProfileChanged(e));
-      }
-    }));
+    this._register(
+      userDataProfileService.onDidChangeCurrentProfile((e) => {
+        if (!this.uriIdentityService.extUri.isEqual(
+          e.previous.extensionsResource,
+          e.profile.extensionsResource
+        )) {
+          e.join(this.whenProfileChanged(e));
+        }
+      })
+    );
   }
   disposables = this._register(new DisposableStore());
   get onProfileAwareInstallExtension() {

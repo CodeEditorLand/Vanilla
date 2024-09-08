@@ -13,16 +13,16 @@ import { asArray } from "../../../../base/common/arrays.js";
 import { DeferredPromise } from "../../../../base/common/async.js";
 import { Emitter } from "../../../../base/common/event.js";
 import {
-  MarkdownString,
-  isMarkdownString
+  isMarkdownString,
+  MarkdownString
 } from "../../../../base/common/htmlContent.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { revive } from "../../../../base/common/marshalling.js";
 import { equals } from "../../../../base/common/objects.js";
 import { basename, isEqual } from "../../../../base/common/resources.js";
 import {
-  URI,
-  isUriComponents
+  isUriComponents,
+  URI
 } from "../../../../base/common/uri.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
 import {
@@ -453,7 +453,9 @@ let ChatModel = class extends Disposable {
     this._lastMessageDate = isSerializableSessionData(initialData) && initialData.lastMessageDate || this._creationDate;
     this._customTitle = isSerializableSessionData(initialData) ? initialData.customTitle : void 0;
     this._initialRequesterAvatarIconUri = initialData?.requesterAvatarIconUri && URI.revive(initialData.requesterAvatarIconUri);
-    this._initialResponderAvatarIconUri = isUriComponents(initialData?.responderAvatarIconUri) ? URI.revive(initialData.responderAvatarIconUri) : initialData?.responderAvatarIconUri;
+    this._initialResponderAvatarIconUri = isUriComponents(
+      initialData?.responderAvatarIconUri
+    ) ? URI.revive(initialData.responderAvatarIconUri) : initialData?.responderAvatarIconUri;
   }
   static getDefaultTitle(requests) {
     const firstRequestMessage = requests.at(0)?.message ?? "";

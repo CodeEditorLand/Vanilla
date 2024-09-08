@@ -35,8 +35,12 @@ let CellComments = class extends CellContentPart {
     this.configurationService = configurationService;
     this.instantiationService = instantiationService;
     this.container.classList.add("review-widget");
-    this._register(this._commentThreadWidget = new MutableDisposable());
-    this._register(this.themeService.onDidColorThemeChange(this._applyTheme, this));
+    this._register(
+      this._commentThreadWidget = new MutableDisposable()
+    );
+    this._register(
+      this.themeService.onDidColorThemeChange(this._applyTheme, this)
+    );
     this._applyTheme();
   }
   _commentThreadWidget;

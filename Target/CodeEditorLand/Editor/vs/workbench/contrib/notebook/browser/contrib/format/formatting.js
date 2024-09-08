@@ -28,8 +28,8 @@ import { IEditorWorkerService } from "../../../../../../editor/common/services/e
 import { ILanguageFeaturesService } from "../../../../../../editor/common/services/languageFeatures.js";
 import { ITextModelService } from "../../../../../../editor/common/services/resolverService.js";
 import {
-  FormattingMode,
   formatDocumentWithSelectedProvider,
+  FormattingMode,
   getDocumentFormattingEditsWithSelectedProvider
 } from "../../../../../../editor/contrib/format/browser/format.js";
 import { localize, localize2 } from "../../../../../../nls.js";

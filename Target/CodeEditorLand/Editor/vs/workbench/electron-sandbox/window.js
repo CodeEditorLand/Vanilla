@@ -17,15 +17,15 @@ import {
   setFullscreen
 } from "../../base/browser/browser.js";
 import {
+  addDisposableListener,
   EventHelper,
   EventType,
-  ModifierKeyEmitter,
-  addDisposableListener,
   getActiveElement,
   getWindow,
   getWindowById,
   getWindows,
-  hasWindow
+  hasWindow,
+  ModifierKeyEmitter
 } from "../../base/browser/dom.js";
 import { ActionBar } from "../../base/browser/ui/actionbar/actionbar.js";
 import { mainWindow } from "../../base/browser/window.js";
@@ -109,18 +109,18 @@ import {
 } from "../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../platform/telemetry/common/telemetry.js";
 import {
-  ITunnelService,
   extractLocalHostUriMetaDataForPortMapping,
-  extractQueryLocalHostUriMetaDataForPortMapping
+  extractQueryLocalHostUriMetaDataForPortMapping,
+  ITunnelService
 } from "../../platform/tunnel/common/tunnel.js";
 import { IUriIdentityService } from "../../platform/uriIdentity/common/uriIdentity.js";
 import {
-  WindowMinimumSize,
-  hasNativeTitlebar
+  hasNativeTitlebar,
+  WindowMinimumSize
 } from "../../platform/window/common/window.js";
 import {
-  ApplyZoomTarget,
-  applyZoom
+  applyZoom,
+  ApplyZoomTarget
 } from "../../platform/window/electron-sandbox/window.js";
 import {
   IWorkspaceContextService,
@@ -132,9 +132,9 @@ import { DynamicWorkbenchSecurityConfiguration } from "../common/configuration.j
 import { getWorkbenchContribution } from "../common/contributions.js";
 import {
   EditorResourceAccessor,
-  SideBySideEditor,
   isResourceEditorInput,
-  pathsToEditors
+  pathsToEditors,
+  SideBySideEditor
 } from "../common/editor.js";
 import { IBannerService } from "../services/banner/browser/bannerService.js";
 import { registerWindowDriver } from "../services/driver/electron-sandbox/driver.js";

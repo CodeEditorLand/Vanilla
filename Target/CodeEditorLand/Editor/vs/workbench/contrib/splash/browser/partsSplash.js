@@ -29,8 +29,8 @@ import {
   foreground
 } from "../../../../platform/theme/common/colorRegistry.js";
 import {
-  IThemeService,
-  getThemeTypeSelector
+  getThemeTypeSelector,
+  IThemeService
 } from "../../../../platform/theme/common/themeService.js";
 import { TitleBarSetting } from "../../../../platform/window/common/window.js";
 import { DEFAULT_EDITOR_MIN_DIMENSIONS } from "../../../browser/parts/editor/editor.js";
@@ -54,24 +54,43 @@ let PartsSplash = class {
     this._environmentService = _environmentService;
     this._configService = _configService;
     this._partSplashService = _partSplashService;
-    Event.once(_layoutService.onDidLayoutMainContainer)(() => {
-      this._removePartsSplash();
-      perf.mark("code/didRemovePartsSplash");
-    }, void 0, this._disposables);
+    Event.once(_layoutService.onDidLayoutMainContainer)(
+      () => {
+        this._removePartsSplash();
+        perf.mark("code/didRemovePartsSplash");
+      },
+      void 0,
+      this._disposables
+    );
     const lastIdleSchedule = this._disposables.add(new MutableDisposable());
     const savePartsSplashSoon = () => {
-      lastIdleSchedule.value = dom.runWhenWindowIdle(mainWindow, () => this._savePartsSplash(), 2500);
+      lastIdleSchedule.value = dom.runWhenWindowIdle(
+        mainWindow,
+        () => this._savePartsSplash(),
+        2500
+      );
     };
     lifecycleService.when(LifecyclePhase.Restored).then(() => {
-      Event.any(Event.filter(onDidChangeFullscreen, (windowId) => windowId === mainWindow.vscodeWindowId), editorGroupsService.mainPart.onDidLayout, _themeService.onDidColorThemeChange)(savePartsSplashSoon, void 0, this._disposables);
+      Event.any(
+        Event.filter(
+          onDidChangeFullscreen,
+          (windowId) => windowId === mainWindow.vscodeWindowId
+        ),
+        editorGroupsService.mainPart.onDidLayout,
+        _themeService.onDidColorThemeChange
+      )(savePartsSplashSoon, void 0, this._disposables);
       savePartsSplashSoon();
     });
-    _configService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(TitleBarSetting.TITLE_BAR_STYLE)) {
-        this._didChangeTitleBarStyle = true;
-        this._savePartsSplash();
-      }
-    }, this, this._disposables);
+    _configService.onDidChangeConfiguration(
+      (e) => {
+        if (e.affectsConfiguration(TitleBarSetting.TITLE_BAR_STYLE)) {
+          this._didChangeTitleBarStyle = true;
+          this._savePartsSplash();
+        }
+      },
+      this,
+      this._disposables
+    );
   }
   static ID = "workbench.contrib.partsSplash";
   static _splashElementId = "monaco-parts-splash";

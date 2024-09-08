@@ -25,8 +25,8 @@ import { IWorkbenchLayoutService } from "../../../services/layout/browser/layout
 import {
   HISTORY_VIEW_PANE_ID,
   REPOSITORIES_VIEW_PANE_ID,
-  VIEWLET_ID,
-  VIEW_PANE_ID
+  VIEW_PANE_ID,
+  VIEWLET_ID
 } from "../common/scm.js";
 let SCMViewPaneContainer = class extends ViewPaneContainer {
   constructor(layoutService, telemetryService, instantiationService, contextMenuService, themeService, storageService, configurationService, extensionService, contextService, viewDescriptorService) {

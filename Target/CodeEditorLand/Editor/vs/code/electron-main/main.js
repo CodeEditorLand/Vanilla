@@ -20,9 +20,9 @@ import { Schemas } from "../../base/common/network.js";
 import { basename, resolve } from "../../base/common/path.js";
 import { mark } from "../../base/common/performance.js";
 import {
-  OS,
   isMacintosh,
-  isWindows
+  isWindows,
+  OS
 } from "../../base/common/platform.js";
 import { cwd } from "../../base/common/process.js";
 import { rtrim, trim } from "../../base/common/strings.js";
@@ -31,9 +31,9 @@ import { Promises as FSPromises } from "../../base/node/pfs.js";
 import { addUNCHostToAllowlist, getUNCHost } from "../../base/node/unc.js";
 import { ProxyChannel } from "../../base/parts/ipc/common/ipc.js";
 import {
-  XDG_RUNTIME_DIR,
   connect as nodeIPCConnect,
-  serve as nodeIPCServe
+  serve as nodeIPCServe,
+  XDG_RUNTIME_DIR
 } from "../../base/parts/ipc/node/ipc.net.js";
 import { localize } from "../../nls.js";
 import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
@@ -49,8 +49,8 @@ import {
   parseMainProcessArgv
 } from "../../platform/environment/node/argvHelper.js";
 import { createWaitMarkerFileSync } from "../../platform/environment/node/wait.js";
-import { FileService } from "../../platform/files/common/fileService.js";
 import { IFileService } from "../../platform/files/common/files.js";
+import { FileService } from "../../platform/files/common/fileService.js";
 import { DiskFileSystemProvider } from "../../platform/files/node/diskFileSystemProvider.js";
 import { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
 import { InstantiationService } from "../../platform/instantiation/common/instantiationService.js";
@@ -62,9 +62,9 @@ import {
 import { BufferLogger } from "../../platform/log/common/bufferLog.js";
 import {
   ConsoleMainLogger,
-  ILogService,
+  getLogLevel,
   ILoggerService,
-  getLogLevel
+  ILogService
 } from "../../platform/log/common/log.js";
 import { LogService } from "../../platform/log/common/logService.js";
 import {

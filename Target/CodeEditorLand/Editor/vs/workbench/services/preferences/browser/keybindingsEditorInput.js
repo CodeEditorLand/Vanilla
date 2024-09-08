@@ -31,7 +31,10 @@ let KeybindingsEditorInput = class extends EditorInput {
   resource = void 0;
   constructor(instantiationService) {
     super();
-    this.keybindingsModel = instantiationService.createInstance(KeybindingsEditorModel, OS);
+    this.keybindingsModel = instantiationService.createInstance(
+      KeybindingsEditorModel,
+      OS
+    );
   }
   get typeId() {
     return KeybindingsEditorInput.ID;

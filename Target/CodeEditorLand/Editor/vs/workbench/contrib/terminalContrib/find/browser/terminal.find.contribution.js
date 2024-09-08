@@ -18,8 +18,8 @@ import { IInstantiationService } from "../../../../../platform/instantiation/com
 import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { findInFilesCommand } from "../../../search/browser/searchActionsFind.js";
 import {
-  ITerminalService,
-  isDetachedTerminalInstance
+  isDetachedTerminalInstance,
+  ITerminalService
 } from "../../../terminal/browser/terminal.js";
 import {
   registerActiveInstanceAction,

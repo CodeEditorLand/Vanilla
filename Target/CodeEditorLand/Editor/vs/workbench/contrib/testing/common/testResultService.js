@@ -25,6 +25,7 @@ import {
 } from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { TestingContextKeys } from "./testingContextKeys.js";
 import { ITestProfileService } from "./testProfileService.js";
 import {
   LiveTestResult,
@@ -35,7 +36,6 @@ import {
   TestResultState,
   TestRunProfileBitset
 } from "./testTypes.js";
-import { TestingContextKeys } from "./testingContextKeys.js";
 const isRunningTests = (service) => service.results.length > 0 && service.results[0].completedAt === void 0;
 const ITestResultService = createDecorator("testResultService");
 let TestResultService = class extends Disposable {

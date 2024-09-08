@@ -60,8 +60,8 @@ import {
   CONFIGURATION_KEY_PREVENT_SLEEP,
   INACTIVE_TUNNEL_MODE,
   IRemoteTunnelService,
-  LOGGER_NAME,
-  LOG_ID
+  LOG_ID,
+  LOGGER_NAME
 } from "../../../../platform/remoteTunnel/common/remoteTunnel.js";
 import {
   IStorageService,
@@ -69,8 +69,8 @@ import {
   StorageTarget
 } from "../../../../platform/storage/common/storage.js";
 import {
-  IWorkspaceContextService,
-  isUntitledWorkspace
+  isUntitledWorkspace,
+  IWorkspaceContextService
 } from "../../../../platform/workspace/common/workspace.js";
 import {
   Extensions as WorkbenchExtensions
@@ -150,16 +150,33 @@ let RemoteTunnelWorkbenchContribution = class extends Disposable {
     this.workspaceContextService = workspaceContextService;
     this.progressService = progressService;
     this.notificationService = notificationService;
-    this.logger = this._register(loggerService.createLogger(joinPath(environmentService.logsHome, `${LOG_ID}.log`), { id: LOG_ID, name: LOGGER_NAME }));
-    this.connectionStateContext = REMOTE_TUNNEL_CONNECTION_STATE.bindTo(this.contextKeyService);
+    this.logger = this._register(
+      loggerService.createLogger(
+        joinPath(environmentService.logsHome, `${LOG_ID}.log`),
+        { id: LOG_ID, name: LOGGER_NAME }
+      )
+    );
+    this.connectionStateContext = REMOTE_TUNNEL_CONNECTION_STATE.bindTo(
+      this.contextKeyService
+    );
     const serverConfiguration = productService.tunnelApplicationConfig;
     if (!serverConfiguration || !productService.tunnelApplicationName) {
-      this.logger.error("Missing 'tunnelApplicationConfig' or 'tunnelApplicationName' in product.json. Remote tunneling is not available.");
-      this.serverConfiguration = { authenticationProviders: {}, editorWebUrl: "", extension: { extensionId: "", friendlyName: "" } };
+      this.logger.error(
+        "Missing 'tunnelApplicationConfig' or 'tunnelApplicationName' in product.json. Remote tunneling is not available."
+      );
+      this.serverConfiguration = {
+        authenticationProviders: {},
+        editorWebUrl: "",
+        extension: { extensionId: "", friendlyName: "" }
+      };
       return;
     }
     this.serverConfiguration = serverConfiguration;
-    this._register(this.remoteTunnelService.onDidChangeTunnelStatus((s) => this.handleTunnelStatusUpdate(s)));
+    this._register(
+      this.remoteTunnelService.onDidChangeTunnelStatus(
+        (s) => this.handleTunnelStatusUpdate(s)
+      )
+    );
     this.registerCommands();
     this.initialize();
     this.recommendRemoteExtensionIfNeeded();

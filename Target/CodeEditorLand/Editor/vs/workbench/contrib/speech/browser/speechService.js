@@ -31,11 +31,11 @@ import {
   HasSpeechProvider,
   KeywordRecognitionStatus,
   SPEECH_LANGUAGE_CONFIG,
+  speechLanguageConfigToLanguage,
   SpeechToTextInProgress,
   SpeechToTextStatus,
   TextToSpeechInProgress,
-  TextToSpeechStatus,
-  speechLanguageConfigToLanguage
+  TextToSpeechStatus
 } from "../common/speechService.js";
 const speechProvidersExtensionPoint = ExtensionsRegistry.registerExtensionPoint({
   extensionPoint: "speechProviders",

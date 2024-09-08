@@ -116,8 +116,8 @@ import {
   ExplorerDataSource,
   ExplorerDelegate,
   FileDragAndDrop,
-  FileSorter,
   FilesFilter,
+  FileSorter,
   FilesRenderer,
   isCompressedFolderName
 } from "./explorerViewer.js";
@@ -192,7 +192,19 @@ function getContext(focus, selection, respectMultiSelection, compressedNavigatio
 }
 let ExplorerView = class extends ViewPane {
   constructor(options, contextMenuService, viewDescriptorService, instantiationService, contextService, progressService, editorService, editorResolverService, layoutService, keybindingService, contextKeyService, configurationService, decorationService, labelService, themeService, telemetryService, hoverService, explorerService, storageService, clipboardService, fileService, uriIdentityService, commandService, openerService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.contextService = contextService;
     this.progressService = progressService;
     this.editorService = editorService;

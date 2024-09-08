@@ -83,12 +83,26 @@ let TypeHierarchyController = class {
     this._storageService = _storageService;
     this._editorService = _editorService;
     this._instantiationService = _instantiationService;
-    this._ctxHasProvider = _ctxHasTypeHierarchyProvider.bindTo(this._contextKeyService);
-    this._ctxIsVisible = _ctxTypeHierarchyVisible.bindTo(this._contextKeyService);
-    this._ctxDirection = _ctxTypeHierarchyDirection.bindTo(this._contextKeyService);
-    this._disposables.add(Event.any(_editor.onDidChangeModel, _editor.onDidChangeModelLanguage, TypeHierarchyProviderRegistry.onDidChange)(() => {
-      this._ctxHasProvider.set(_editor.hasModel() && TypeHierarchyProviderRegistry.has(_editor.getModel()));
-    }));
+    this._ctxHasProvider = _ctxHasTypeHierarchyProvider.bindTo(
+      this._contextKeyService
+    );
+    this._ctxIsVisible = _ctxTypeHierarchyVisible.bindTo(
+      this._contextKeyService
+    );
+    this._ctxDirection = _ctxTypeHierarchyDirection.bindTo(
+      this._contextKeyService
+    );
+    this._disposables.add(
+      Event.any(
+        _editor.onDidChangeModel,
+        _editor.onDidChangeModelLanguage,
+        TypeHierarchyProviderRegistry.onDidChange
+      )(() => {
+        this._ctxHasProvider.set(
+          _editor.hasModel() && TypeHierarchyProviderRegistry.has(_editor.getModel())
+        );
+      })
+    );
     this._disposables.add(this._sessionDisposables);
   }
   static Id = "typeHierarchy";

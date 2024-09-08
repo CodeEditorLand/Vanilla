@@ -9,68 +9,68 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as nls from "../../../../nls.js";
+import { promiseWithResolvers } from "../../../../base/common/async.js";
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
+import { isString } from "../../../../base/common/types.js";
+import * as nls from "../../../../nls.js";
 import {
   MenuId,
   MenuRegistry,
   registerAction2
 } from "../../../../platform/actions/common/actions.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-import {
-  IProgressService,
-  ProgressLocation
-} from "../../../../platform/progress/common/progress.js";
-import { ProblemMatcherRegistry } from "../common/problemMatcher.js";
-import * as jsonContributionRegistry from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
-import {
-  IStatusbarService,
-  StatusbarAlignment
-} from "../../../services/statusbar/browser/statusbar.js";
-import {
-  Extensions as OutputExt
-} from "../../../services/output/common/output.js";
-import {
-  ITaskService,
-  TaskCommandsRegistered,
-  TaskExecutionSupportedContext
-} from "../common/taskService.js";
-import {
-  TASKS_CATEGORY,
-  TASK_RUNNING_STATE,
-  TaskEventKind,
-  TaskGroup,
-  TaskSettingId
-} from "../common/tasks.js";
-import { promiseWithResolvers } from "../../../../base/common/async.js";
-import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import { isString } from "../../../../base/common/types.js";
 import {
   Extensions as ConfigurationExtensions
 } from "../../../../platform/configuration/common/configurationRegistry.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import * as jsonContributionRegistry from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import {
+  IProgressService,
+  ProgressLocation
+} from "../../../../platform/progress/common/progress.js";
 import {
   Extensions as QuickAccessExtensions
 } from "../../../../platform/quickinput/common/quickAccess.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
 import { WorkbenchStateContext } from "../../../common/contextkeys.js";
 import {
+  registerWorkbenchContribution2,
   Extensions as WorkbenchExtensions,
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { tasksSchemaId } from "../../../services/configuration/common/configuration.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import {
+  Extensions as OutputExt
+} from "../../../services/output/common/output.js";
+import {
+  IStatusbarService,
+  StatusbarAlignment
+} from "../../../services/statusbar/browser/statusbar.js";
 import { TerminalMenuBarGroup } from "../../terminal/browser/terminalMenus.js";
 import schemaVersion1 from "../common/jsonSchema_v1.js";
 import schemaVersion2, {
   updateProblemMatchers,
   updateTaskDefinitions
 } from "../common/jsonSchema_v2.js";
+import { ProblemMatcherRegistry } from "../common/problemMatcher.js";
 import { TaskDefinitionRegistry } from "../common/taskDefinitionRegistry.js";
+import {
+  TASK_RUNNING_STATE,
+  TaskEventKind,
+  TaskGroup,
+  TASKS_CATEGORY,
+  TaskSettingId
+} from "../common/tasks.js";
+import {
+  ITaskService,
+  TaskCommandsRegistered,
+  TaskExecutionSupportedContext
+} from "../common/taskService.js";
 import {
   AbstractTaskService,
   ConfigureTaskAction

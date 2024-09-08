@@ -12,12 +12,12 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import * as DOM from "../../../../base/browser/dom.js";
 import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
 import {
-  BaseActionViewItem
-} from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import {
   ActionBar,
   ActionsOrientation
 } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import {
+  BaseActionViewItem
+} from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { Widget } from "../../../../base/browser/ui/widget.js";
 import { Action } from "../../../../base/common/actions.js";
@@ -58,9 +58,9 @@ import {
   contrastBorder
 } from "../../../../platform/theme/common/colorRegistry.js";
 import {
+  isWorkspaceFolder,
   IWorkspaceContextService,
-  WorkbenchState,
-  isWorkspaceFolder
+  WorkbenchState
 } from "../../../../platform/workspace/common/workspace.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
 import {
@@ -75,7 +75,11 @@ let FolderSettingsActionViewItem = class extends BaseActionViewItem {
     this.hoverService = hoverService;
     const workspace = this.contextService.getWorkspace();
     this._folder = workspace.folders.length === 1 ? workspace.folders[0] : null;
-    this._register(this.contextService.onDidChangeWorkspaceFolders(() => this.onWorkspaceFoldersChanged()));
+    this._register(
+      this.contextService.onDidChangeWorkspaceFolders(
+        () => this.onWorkspaceFoldersChanged()
+      )
+    );
   }
   _folder;
   _folderSettingCounts = /* @__PURE__ */ new Map();
@@ -266,8 +270,16 @@ let SettingsTargetsWidget = class extends Widget {
     this.languageService = languageService;
     this.options = options ?? {};
     this.create(parent);
-    this._register(this.contextService.onDidChangeWorkbenchState(() => this.onWorkbenchStateChanged()));
-    this._register(this.contextService.onDidChangeWorkspaceFolders(() => this.update()));
+    this._register(
+      this.contextService.onDidChangeWorkbenchState(
+        () => this.onWorkbenchStateChanged()
+      )
+    );
+    this._register(
+      this.contextService.onDidChangeWorkspaceFolders(
+        () => this.update()
+      )
+    );
   }
   settingsSwitcherBar;
   userLocalSettings;

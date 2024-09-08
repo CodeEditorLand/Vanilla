@@ -1,5 +1,5 @@
-import * as nls from "../../../../nls.js";
 import { Codicon } from "../../../../base/common/codicons.js";
+import * as nls from "../../../../nls.js";
 import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
 const getStartedIcon = registerIcon(
   "remote-explorer-get-started",

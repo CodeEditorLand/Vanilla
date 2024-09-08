@@ -95,18 +95,31 @@ let NotebookKernelService = class extends Disposable {
     this._storageService = _storageService;
     this._menuService = _menuService;
     this._contextKeyService = _contextKeyService;
-    this._register(_notebookService.onDidAddNotebookDocument(this._tryAutoBindNotebook, this));
-    this._register(_notebookService.onWillRemoveNotebookDocument((notebook) => {
-      const id = NotebookTextModelLikeId.str(notebook);
-      const kernelId = this._notebookBindings.get(id);
-      if (kernelId && notebook.uri.scheme === Schemas.untitled) {
-        this.selectKernelForNotebook(void 0, notebook);
-      }
-      this._kernelSourceActionsUpdates.get(id)?.dispose();
-      this._kernelSourceActionsUpdates.delete(id);
-    }));
+    this._register(
+      _notebookService.onDidAddNotebookDocument(
+        this._tryAutoBindNotebook,
+        this
+      )
+    );
+    this._register(
+      _notebookService.onWillRemoveNotebookDocument((notebook) => {
+        const id = NotebookTextModelLikeId.str(notebook);
+        const kernelId = this._notebookBindings.get(id);
+        if (kernelId && notebook.uri.scheme === Schemas.untitled) {
+          this.selectKernelForNotebook(void 0, notebook);
+        }
+        this._kernelSourceActionsUpdates.get(id)?.dispose();
+        this._kernelSourceActionsUpdates.delete(id);
+      })
+    );
     try {
-      const data = JSON.parse(this._storageService.get(NotebookKernelService._storageNotebookBinding, StorageScope.WORKSPACE, "[]"));
+      const data = JSON.parse(
+        this._storageService.get(
+          NotebookKernelService._storageNotebookBinding,
+          StorageScope.WORKSPACE,
+          "[]"
+        )
+      );
       this._notebookBindings.fromJSON(data);
     } catch {
     }

@@ -38,8 +38,8 @@ import {
 } from "../../platform/extensionManagement/node/extensionSignatureVerificationService.js";
 import { ExtensionsProfileScannerService } from "../../platform/extensionManagement/node/extensionsProfileScannerService.js";
 import { ExtensionsScannerService } from "../../platform/extensionManagement/node/extensionsScannerService.js";
-import { FileService } from "../../platform/files/common/fileService.js";
 import { IFileService } from "../../platform/files/common/files.js";
+import { FileService } from "../../platform/files/common/fileService.js";
 import { DiskFileSystemProvider } from "../../platform/files/node/diskFileSystemProvider.js";
 import { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
 import { InstantiationService } from "../../platform/instantiation/common/instantiationService.js";
@@ -48,11 +48,11 @@ import { ILanguagePackService } from "../../platform/languagePacks/common/langua
 import { NativeLanguagePackService } from "../../platform/languagePacks/node/languagePacks.js";
 import {
   ConsoleLogger,
-  ILogService,
+  getLogLevel,
   ILoggerService,
+  ILogService,
   LogLevel,
-  NullLogger,
-  getLogLevel
+  NullLogger
 } from "../../platform/log/common/log.js";
 import { LogService } from "../../platform/log/common/logService.js";
 import { LoggerService } from "../../platform/log/node/loggerService.js";
@@ -76,17 +76,17 @@ import {
   TelemetryService
 } from "../../platform/telemetry/common/telemetryService.js";
 import {
-  NullTelemetryService,
   getPiiPathsFromEnvironment,
   isInternalTelemetry,
+  NullTelemetryService,
   supportsTelemetry
 } from "../../platform/telemetry/common/telemetryUtils.js";
 import { OneDataSystemAppender } from "../../platform/telemetry/node/1dsAppender.js";
 import { buildTelemetryMessage } from "../../platform/telemetry/node/telemetry.js";
 import {
+  resolvedevDeviceId,
   resolveMachineId,
-  resolveSqmId,
-  resolvedevDeviceId
+  resolveSqmId
 } from "../../platform/telemetry/node/telemetryUtils.js";
 import { IUriIdentityService } from "../../platform/uriIdentity/common/uriIdentity.js";
 import { UriIdentityService } from "../../platform/uriIdentity/common/uriIdentityService.js";

@@ -90,7 +90,10 @@ let ExtensionBisectService = class {
   constructor(logService, _storageService, _envService) {
     this._storageService = _storageService;
     this._envService = _envService;
-    const raw = _storageService.get(ExtensionBisectService._storageKey, StorageScope.APPLICATION);
+    const raw = _storageService.get(
+      ExtensionBisectService._storageKey,
+      StorageScope.APPLICATION
+    );
     this._state = BisectState.fromJSON(raw);
     if (this._state) {
       const { mid, high } = this._state;

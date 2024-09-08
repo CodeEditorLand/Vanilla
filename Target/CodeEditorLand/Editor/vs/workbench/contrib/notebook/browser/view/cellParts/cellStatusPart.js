@@ -49,12 +49,27 @@ let CellEditorStatusBar = class extends CellContentPart {
     this._editor = _editor;
     this._instantiationService = _instantiationService;
     this._themeService = _themeService;
-    this.statusBarContainer = DOM.append(editorPart, $(".cell-statusbar-container"));
+    this.statusBarContainer = DOM.append(
+      editorPart,
+      $(".cell-statusbar-container")
+    );
     this.statusBarContainer.tabIndex = -1;
-    const leftItemsContainer = DOM.append(this.statusBarContainer, $(".cell-status-left"));
-    const rightItemsContainer = DOM.append(this.statusBarContainer, $(".cell-status-right"));
-    this.leftItemsContainer = DOM.append(leftItemsContainer, $(".cell-contributed-items.cell-contributed-items-left"));
-    this.rightItemsContainer = DOM.append(rightItemsContainer, $(".cell-contributed-items.cell-contributed-items-right"));
+    const leftItemsContainer = DOM.append(
+      this.statusBarContainer,
+      $(".cell-status-left")
+    );
+    const rightItemsContainer = DOM.append(
+      this.statusBarContainer,
+      $(".cell-status-right")
+    );
+    this.leftItemsContainer = DOM.append(
+      leftItemsContainer,
+      $(".cell-contributed-items.cell-contributed-items-left")
+    );
+    this.rightItemsContainer = DOM.append(
+      rightItemsContainer,
+      $(".cell-contributed-items.cell-contributed-items-right")
+    );
     this.itemsDisposable = this._register(new DisposableStore());
     this.hoverDelegate = new class {
       _lastHoverHideTime = 0;
@@ -65,31 +80,45 @@ let CellEditorStatusBar = class extends CellContentPart {
       };
       placement = "element";
       get delay() {
-        return Date.now() - this._lastHoverHideTime < 200 ? 0 : configurationService.getValue("workbench.hover.delay");
+        return Date.now() - this._lastHoverHideTime < 200 ? 0 : configurationService.getValue(
+          "workbench.hover.delay"
+        );
       }
       onDidHideHover() {
         this._lastHoverHideTime = Date.now();
       }
     }();
-    this._register(this._themeService.onDidColorThemeChange(() => this.currentContext && this.updateContext(this.currentContext)));
-    this._register(DOM.addDisposableListener(this.statusBarContainer, DOM.EventType.CLICK, (e) => {
-      if (e.target === leftItemsContainer || e.target === rightItemsContainer || e.target === this.statusBarContainer) {
-        this._onDidClick.fire({
-          type: ClickTargetType.Container,
-          event: e
-        });
-      } else if (e.target.classList.contains("cell-status-item-has-command")) {
-        this._onDidClick.fire({
-          type: ClickTargetType.ContributedCommandItem,
-          event: e
-        });
-      } else {
-        this._onDidClick.fire({
-          type: ClickTargetType.ContributedTextItem,
-          event: e
-        });
-      }
-    }));
+    this._register(
+      this._themeService.onDidColorThemeChange(
+        () => this.currentContext && this.updateContext(this.currentContext)
+      )
+    );
+    this._register(
+      DOM.addDisposableListener(
+        this.statusBarContainer,
+        DOM.EventType.CLICK,
+        (e) => {
+          if (e.target === leftItemsContainer || e.target === rightItemsContainer || e.target === this.statusBarContainer) {
+            this._onDidClick.fire({
+              type: ClickTargetType.Container,
+              event: e
+            });
+          } else if (e.target.classList.contains(
+            "cell-status-item-has-command"
+          )) {
+            this._onDidClick.fire({
+              type: ClickTargetType.ContributedCommandItem,
+              event: e
+            });
+          } else {
+            this._onDidClick.fire({
+              type: ClickTargetType.ContributedTextItem,
+              event: e
+            });
+          }
+        }
+      )
+    );
   }
   statusBarContainer;
   leftItemsContainer;

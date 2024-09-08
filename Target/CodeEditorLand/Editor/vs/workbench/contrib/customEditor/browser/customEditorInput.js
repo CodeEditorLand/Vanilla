@@ -23,9 +23,9 @@ import { IInstantiationService } from "../../../../platform/instantiation/common
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { IUndoRedoService } from "../../../../platform/undoRedo/common/undoRedo.js";
 import {
+  createEditorOpenError,
   EditorInputCapabilities,
-  Verbosity,
-  createEditorOpenError
+  Verbosity
 } from "../../../common/editor.js";
 import { ICustomEditorLabelService } from "../../../services/editor/common/customEditorLabelService.js";
 import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
@@ -44,7 +44,11 @@ import {
 } from "../common/customEditor.js";
 let CustomEditorInput = class extends LazilyResolvedWebviewEditorInput {
   constructor(init, webview, options, webviewWorkbenchService, instantiationService, labelService, customEditorService, fileDialogService, undoRedoService, fileService, filesConfigurationService, editorGroupsService, layoutService, customEditorLabelService) {
-    super({ providedId: init.viewType, viewType: init.viewType, name: "" }, webview, webviewWorkbenchService);
+    super(
+      { providedId: init.viewType, viewType: init.viewType, name: "" },
+      webview,
+      webviewWorkbenchService
+    );
     this.instantiationService = instantiationService;
     this.labelService = labelService;
     this.customEditorService = customEditorService;

@@ -51,13 +51,24 @@ import {
 } from "./notebookMultiDiffEditorInput.js";
 let NotebookMultiTextDiffEditor = class extends EditorPane {
   constructor(group, instantiationService, themeService, _parentContextKeyService, notebookEditorWorkerService, configurationService, telemetryService, storageService, notebookService) {
-    super(NotebookMultiTextDiffEditor.ID, group, telemetryService, themeService, storageService);
+    super(
+      NotebookMultiTextDiffEditor.ID,
+      group,
+      telemetryService,
+      themeService,
+      storageService
+    );
     this.instantiationService = instantiationService;
     this._parentContextKeyService = _parentContextKeyService;
     this.notebookEditorWorkerService = notebookEditorWorkerService;
     this.configurationService = configurationService;
     this.notebookService = notebookService;
-    this._notebookOptions = instantiationService.createInstance(NotebookOptions, this.window, false, void 0);
+    this._notebookOptions = instantiationService.createInstance(
+      NotebookOptions,
+      this.window,
+      false,
+      void 0
+    );
     this._register(this._notebookOptions);
   }
   _multiDiffEditorWidget;

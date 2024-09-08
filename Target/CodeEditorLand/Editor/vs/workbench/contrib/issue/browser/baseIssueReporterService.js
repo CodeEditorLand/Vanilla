@@ -63,7 +63,9 @@ let BaseIssueReporterService = class extends Disposable {
     this.isWeb = isWeb;
     this.issueFormService = issueFormService;
     this.themeService = themeService;
-    const targetExtension = data.extensionId ? data.enabledExtensions.find((extension) => extension.id.toLocaleLowerCase() === data.extensionId?.toLocaleLowerCase()) : void 0;
+    const targetExtension = data.extensionId ? data.enabledExtensions.find(
+      (extension) => extension.id.toLocaleLowerCase() === data.extensionId?.toLocaleLowerCase()
+    ) : void 0;
     this.issueReporterModel = new IssueReporterModel({
       ...data,
       issueType: data.issueType || IssueType.Bug,
@@ -80,7 +82,10 @@ let BaseIssueReporterService = class extends Disposable {
     this.issueReporterModel.update({ fileOnMarketplace, fileOnProduct });
     const issueReporterElement = this.getElementById("issue-reporter");
     if (issueReporterElement) {
-      this.previewButton = new Button(issueReporterElement, unthemedButtonStyles);
+      this.previewButton = new Button(
+        issueReporterElement,
+        unthemedButtonStyles
+      );
       const issueRepoName = document.createElement("a");
       issueReporterElement.appendChild(issueRepoName);
       issueRepoName.id = "show-repo-name";
@@ -107,7 +112,9 @@ let BaseIssueReporterService = class extends Disposable {
     }
     const codiconStyleSheet = createStyleSheet();
     codiconStyleSheet.id = "codiconStyles";
-    const iconsStyleSheet = this._register(getIconsStyleSheet(this.themeService));
+    const iconsStyleSheet = this._register(
+      getIconsStyleSheet(this.themeService)
+    );
     function updateAll() {
       codiconStyleSheet.textContent = iconsStyleSheet.getCSS();
     }

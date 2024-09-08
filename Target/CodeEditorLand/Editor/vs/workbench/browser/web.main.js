@@ -17,8 +17,8 @@ import {
   toDisposable
 } from "../../base/common/lifecycle.js";
 import {
-  Schemas,
-  connectionTokenCookieName
+  connectionTokenCookieName,
+  Schemas
 } from "../../base/common/network.js";
 import { mixin, safeStringify } from "../../base/common/objects.js";
 import { mark } from "../../base/common/performance.js";
@@ -40,8 +40,8 @@ import {
   IndexedDBFileSystemProvider
 } from "../../platform/files/browser/indexedDBFileSystemProvider.js";
 import { WebFileSystemAccess } from "../../platform/files/browser/webFileSystemAccess.js";
-import { FileService } from "../../platform/files/common/fileService.js";
 import { IFileService } from "../../platform/files/common/files.js";
+import { FileService } from "../../platform/files/common/fileService.js";
 import { InMemoryFileSystemProvider } from "../../platform/files/common/inMemoryFilesystemProvider.js";
 import {
   IInstantiationService
@@ -53,9 +53,9 @@ import { BufferLogger } from "../../platform/log/common/bufferLog.js";
 import { FileLoggerService } from "../../platform/log/common/fileLog.js";
 import {
   ConsoleLogger,
-  ILogService,
+  getLogLevel,
   ILoggerService,
-  getLogLevel
+  ILogService
 } from "../../platform/log/common/log.js";
 import { LogService } from "../../platform/log/common/logService.js";
 import {
@@ -100,10 +100,10 @@ import {
   isWorkspaceToOpen
 } from "../../platform/window/common/window.js";
 import {
-  IWorkspaceContextService,
-  UNKNOWN_EMPTY_WINDOW_WORKSPACE,
   isTemporaryWorkspace,
-  isWorkspaceIdentifier
+  isWorkspaceIdentifier,
+  IWorkspaceContextService,
+  UNKNOWN_EMPTY_WINDOW_WORKSPACE
 } from "../../platform/workspace/common/workspace.js";
 import {
   IWorkspaceTrustEnablementService,

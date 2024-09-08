@@ -16,7 +16,7 @@ import {
   AbstractTreeViewState,
   TreeFindMode
 } from "../../../../base/browser/ui/tree/abstractTree.js";
-import { TimeoutTimer, timeout } from "../../../../base/common/async.js";
+import { timeout, TimeoutTimer } from "../../../../base/common/async.js";
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { Event } from "../../../../base/common/event.js";
 import {
@@ -52,11 +52,11 @@ import {
   OutlineTarget
 } from "../../../services/outline/browser/outline.js";
 import {
-  OutlineSortOrder,
   ctxAllCollapsed,
   ctxFilterOnType,
   ctxFollowsCursor,
-  ctxSortMode
+  ctxSortMode,
+  OutlineSortOrder
 } from "./outline.js";
 import { OutlineViewState } from "./outlineViewState.js";
 class OutlineTreeSorter {
@@ -76,7 +76,19 @@ class OutlineTreeSorter {
 }
 let OutlinePane = class extends ViewPane {
   constructor(options, _outlineService, _instantiationService, viewDescriptorService, _storageService, _editorService, configurationService, keybindingService, contextKeyService, contextMenuService, openerService, themeService, telemetryService, hoverService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, _instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      _instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this._outlineService = _outlineService;
     this._instantiationService = _instantiationService;
     this._storageService = _storageService;
@@ -95,7 +107,9 @@ let OutlinePane = class extends ViewPane {
       this._ctxSortMode.set(this._outlineViewState.sortBy);
     };
     updateContext();
-    this._disposables.add(this._outlineViewState.onDidChange(updateContext));
+    this._disposables.add(
+      this._outlineViewState.onDidChange(updateContext)
+    );
   }
   static Id = "outline";
   _disposables = new DisposableStore();

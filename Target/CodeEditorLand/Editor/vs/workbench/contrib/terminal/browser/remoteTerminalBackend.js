@@ -79,7 +79,14 @@ RemoteTerminalBackendContribution = __decorateClass([
 ], RemoteTerminalBackendContribution);
 let RemoteTerminalBackend = class extends BaseTerminalBackend {
   constructor(remoteAuthority, _remoteTerminalChannel, _remoteAgentService, _instantiationService, logService, _commandService, _storageService, _remoteAuthorityResolverService, workspaceContextService, configurationResolverService, _historyService, _configurationService, statusBarService) {
-    super(_remoteTerminalChannel, logService, _historyService, configurationResolverService, statusBarService, workspaceContextService);
+    super(
+      _remoteTerminalChannel,
+      logService,
+      _historyService,
+      configurationResolverService,
+      statusBarService,
+      workspaceContextService
+    );
     this.remoteAuthority = remoteAuthority;
     this._remoteTerminalChannel = _remoteTerminalChannel;
     this._remoteAgentService = _remoteAgentService;
@@ -89,17 +96,30 @@ let RemoteTerminalBackend = class extends BaseTerminalBackend {
     this._remoteAuthorityResolverService = _remoteAuthorityResolverService;
     this._historyService = _historyService;
     this._configurationService = _configurationService;
-    this._remoteTerminalChannel.onProcessData((e) => this._ptys.get(e.id)?.handleData(e.event));
+    this._remoteTerminalChannel.onProcessData(
+      (e) => this._ptys.get(e.id)?.handleData(e.event)
+    );
     this._remoteTerminalChannel.onProcessReplay((e) => {
       this._ptys.get(e.id)?.handleReplay(e.event);
       if (e.event.commands.commands.length > 0) {
-        this._onRestoreCommands.fire({ id: e.id, commands: e.event.commands.commands });
+        this._onRestoreCommands.fire({
+          id: e.id,
+          commands: e.event.commands.commands
+        });
       }
     });
-    this._remoteTerminalChannel.onProcessOrphanQuestion((e) => this._ptys.get(e.id)?.handleOrphanQuestion());
-    this._remoteTerminalChannel.onDidRequestDetach((e) => this._onDidRequestDetach.fire(e));
-    this._remoteTerminalChannel.onProcessReady((e) => this._ptys.get(e.id)?.handleReady(e.event));
-    this._remoteTerminalChannel.onDidChangeProperty((e) => this._ptys.get(e.id)?.handleDidChangeProperty(e.property));
+    this._remoteTerminalChannel.onProcessOrphanQuestion(
+      (e) => this._ptys.get(e.id)?.handleOrphanQuestion()
+    );
+    this._remoteTerminalChannel.onDidRequestDetach(
+      (e) => this._onDidRequestDetach.fire(e)
+    );
+    this._remoteTerminalChannel.onProcessReady(
+      (e) => this._ptys.get(e.id)?.handleReady(e.event)
+    );
+    this._remoteTerminalChannel.onDidChangeProperty(
+      (e) => this._ptys.get(e.id)?.handleDidChangeProperty(e.property)
+    );
     this._remoteTerminalChannel.onProcessExit((e) => {
       const pty = this._ptys.get(e.id);
       if (pty) {
@@ -107,7 +127,12 @@ let RemoteTerminalBackend = class extends BaseTerminalBackend {
         this._ptys.delete(e.id);
       }
     });
-    const allowedCommands = ["_remoteCLI.openExternal", "_remoteCLI.windowOpen", "_remoteCLI.getSystemStatus", "_remoteCLI.manageExtensions"];
+    const allowedCommands = [
+      "_remoteCLI.openExternal",
+      "_remoteCLI.windowOpen",
+      "_remoteCLI.getSystemStatus",
+      "_remoteCLI.manageExtensions"
+    ];
     this._remoteTerminalChannel.onExecuteCommand(async (e) => {
       const pty = this._ptys.get(e.persistentProcessId);
       if (!pty) {
@@ -116,36 +141,56 @@ let RemoteTerminalBackend = class extends BaseTerminalBackend {
       const reqId = e.reqId;
       const commandId = e.commandId;
       if (!allowedCommands.includes(commandId)) {
-        this._remoteTerminalChannel.sendCommandResult(reqId, true, "Invalid remote cli command: " + commandId);
+        this._remoteTerminalChannel.sendCommandResult(
+          reqId,
+          true,
+          "Invalid remote cli command: " + commandId
+        );
         return;
       }
       const commandArgs = e.commandArgs.map((arg) => revive(arg));
       try {
-        const result = await this._commandService.executeCommand(e.commandId, ...commandArgs);
-        this._remoteTerminalChannel.sendCommandResult(reqId, false, result);
+        const result = await this._commandService.executeCommand(
+          e.commandId,
+          ...commandArgs
+        );
+        this._remoteTerminalChannel.sendCommandResult(
+          reqId,
+          false,
+          result
+        );
       } catch (err) {
         this._remoteTerminalChannel.sendCommandResult(reqId, true, err);
       }
     });
-    const initialConfig = this._configurationService.getValue(TERMINAL_CONFIG_SECTION);
+    const initialConfig = this._configurationService.getValue(
+      TERMINAL_CONFIG_SECTION
+    );
     for (const match of Object.keys(initialConfig.autoReplies)) {
       const reply = initialConfig.autoReplies[match];
       if (reply) {
         this._remoteTerminalChannel.installAutoReply(match, reply);
       }
     }
-    this._register(this._configurationService.onDidChangeConfiguration(async (e) => {
-      if (e.affectsConfiguration(TerminalSettingId.AutoReplies)) {
-        this._remoteTerminalChannel.uninstallAllAutoReplies();
-        const config = this._configurationService.getValue(TERMINAL_CONFIG_SECTION);
-        for (const match of Object.keys(config.autoReplies)) {
-          const reply = config.autoReplies[match];
-          if (reply) {
-            await this._remoteTerminalChannel.installAutoReply(match, reply);
+    this._register(
+      this._configurationService.onDidChangeConfiguration(async (e) => {
+        if (e.affectsConfiguration(TerminalSettingId.AutoReplies)) {
+          this._remoteTerminalChannel.uninstallAllAutoReplies();
+          const config = this._configurationService.getValue(
+            TERMINAL_CONFIG_SECTION
+          );
+          for (const match of Object.keys(config.autoReplies)) {
+            const reply = config.autoReplies[match];
+            if (reply) {
+              await this._remoteTerminalChannel.installAutoReply(
+                match,
+                reply
+              );
+            }
           }
         }
-      }
-    }));
+      })
+    );
     this._onPtyHostConnected.fire();
   }
   _ptys = /* @__PURE__ */ new Map();

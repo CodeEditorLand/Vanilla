@@ -81,9 +81,24 @@ let ignoreViewUpdates = false;
 let useCachedEvaluation = false;
 let WatchExpressionsView = class extends ViewPane {
   constructor(options, contextMenuService, debugService, keybindingService, instantiationService, viewDescriptorService, configurationService, contextKeyService, openerService, themeService, telemetryService, hoverService, menuService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.debugService = debugService;
-    this.menu = menuService.createMenu(MenuId.DebugWatchContext, contextKeyService);
+    this.menu = menuService.createMenu(
+      MenuId.DebugWatchContext,
+      contextKeyService
+    );
     this._register(this.menu);
     this.watchExpressionsUpdatedScheduler = new RunOnceScheduler(() => {
       this.needsRefresh = false;
@@ -91,7 +106,9 @@ let WatchExpressionsView = class extends ViewPane {
     }, 50);
     this.watchExpressionsExist = CONTEXT_WATCH_EXPRESSIONS_EXIST.bindTo(contextKeyService);
     this.variableReadonly = CONTEXT_VARIABLE_IS_READONLY.bindTo(contextKeyService);
-    this.watchExpressionsExist.set(this.debugService.getModel().getWatchExpressions().length > 0);
+    this.watchExpressionsExist.set(
+      this.debugService.getModel().getWatchExpressions().length > 0
+    );
     this.watchItemType = CONTEXT_WATCH_ITEM_TYPE.bindTo(contextKeyService);
   }
   watchExpressionsUpdatedScheduler;

@@ -167,13 +167,26 @@ let SCMRepositoryMenus = class {
       ["scmProviderRootUri", provider.rootUri?.toString()],
       ["scmProviderHasRootUri", !!provider.rootUri]
     ]);
-    const serviceCollection = new ServiceCollection([IContextKeyService, this.contextKeyService]);
-    instantiationService = instantiationService.createChild(serviceCollection, this.disposables);
+    const serviceCollection = new ServiceCollection([
+      IContextKeyService,
+      this.contextKeyService
+    ]);
+    instantiationService = instantiationService.createChild(
+      serviceCollection,
+      this.disposables
+    );
     this.titleMenu = instantiationService.createInstance(SCMTitleMenu);
     this.disposables.add(this.titleMenu);
-    this.repositoryMenu = menuService.createMenu(MenuId.SCMSourceControlInline, this.contextKeyService);
+    this.repositoryMenu = menuService.createMenu(
+      MenuId.SCMSourceControlInline,
+      this.contextKeyService
+    );
     this.disposables.add(this.repositoryMenu);
-    provider.onDidChangeResourceGroups(this.onDidChangeResourceGroups, this, this.disposables);
+    provider.onDidChangeResourceGroups(
+      this.onDidChangeResourceGroups,
+      this,
+      this.disposables
+    );
     this.onDidChangeResourceGroups();
   }
   contextKeyService;
@@ -240,7 +253,11 @@ let SCMMenus = class {
   constructor(scmService, instantiationService) {
     this.instantiationService = instantiationService;
     this.titleMenu = instantiationService.createInstance(SCMTitleMenu);
-    scmService.onDidRemoveRepository(this.onDidRemoveRepository, this, this.disposables);
+    scmService.onDidRemoveRepository(
+      this.onDidRemoveRepository,
+      this,
+      this.disposables
+    );
   }
   titleMenu;
   disposables = new DisposableStore();

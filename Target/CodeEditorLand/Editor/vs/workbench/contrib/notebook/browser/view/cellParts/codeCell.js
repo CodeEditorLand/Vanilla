@@ -53,9 +53,26 @@ let CodeCell = class extends Disposable {
     this.keybindingService = keybindingService;
     this.languageService = languageService;
     this.configurationService = configurationService;
-    this._cellEditorOptions = this._register(new CellEditorOptions(this.notebookEditor.getBaseCellEditorOptions(viewCell.language), this.notebookEditor.notebookOptions, this.configurationService));
-    this._outputContainerRenderer = this.instantiationService.createInstance(CellOutputContainer, notebookEditor, viewCell, templateData, { limit: outputDisplayLimit });
-    this.cellParts = this._register(templateData.cellParts.concatContentPart([this._cellEditorOptions, this._outputContainerRenderer], DOM.getWindow(notebookEditor.getDomNode())));
+    this._cellEditorOptions = this._register(
+      new CellEditorOptions(
+        this.notebookEditor.getBaseCellEditorOptions(viewCell.language),
+        this.notebookEditor.notebookOptions,
+        this.configurationService
+      )
+    );
+    this._outputContainerRenderer = this.instantiationService.createInstance(
+      CellOutputContainer,
+      notebookEditor,
+      viewCell,
+      templateData,
+      { limit: outputDisplayLimit }
+    );
+    this.cellParts = this._register(
+      templateData.cellParts.concatContentPart(
+        [this._cellEditorOptions, this._outputContainerRenderer],
+        DOM.getWindow(notebookEditor.getDomNode())
+      )
+    );
     const editorHeight = this.calculateInitEditorHeight();
     this.initializeEditor(editorHeight);
     this._renderedInputCollapseState = false;
@@ -64,36 +81,45 @@ let CodeCell = class extends Disposable {
     this.registerCellEditorEventListeners();
     this.registerDecorations();
     this.registerMouseListener();
-    this._register(Event.any(this.viewCell.onDidStartExecution, this.viewCell.onDidStopExecution)((e) => {
-      this.cellParts.updateForExecutionState(this.viewCell, e);
-    }));
-    this._register(this.viewCell.onDidChangeState((e) => {
-      this.cellParts.updateState(this.viewCell, e);
-      if (e.outputIsHoveredChanged) {
-        this.updateForOutputHover();
-      }
-      if (e.outputIsFocusedChanged) {
-        this.updateForOutputFocus();
-      }
-      if (e.metadataChanged || e.internalMetadataChanged) {
-        this.updateEditorOptions();
-      }
-      if (e.inputCollapsedChanged || e.outputCollapsedChanged) {
-        this.viewCell.pauseLayout();
-        const updated = this.updateForCollapseState();
-        this.viewCell.resumeLayout();
-        if (updated) {
-          this.relayoutCell();
+    this._register(
+      Event.any(
+        this.viewCell.onDidStartExecution,
+        this.viewCell.onDidStopExecution
+      )((e) => {
+        this.cellParts.updateForExecutionState(this.viewCell, e);
+      })
+    );
+    this._register(
+      this.viewCell.onDidChangeState((e) => {
+        this.cellParts.updateState(this.viewCell, e);
+        if (e.outputIsHoveredChanged) {
+          this.updateForOutputHover();
         }
-      }
-      if (e.focusModeChanged) {
-        this.updateEditorForFocusModeChange(true);
-      }
-    }));
+        if (e.outputIsFocusedChanged) {
+          this.updateForOutputFocus();
+        }
+        if (e.metadataChanged || e.internalMetadataChanged) {
+          this.updateEditorOptions();
+        }
+        if (e.inputCollapsedChanged || e.outputCollapsedChanged) {
+          this.viewCell.pauseLayout();
+          const updated = this.updateForCollapseState();
+          this.viewCell.resumeLayout();
+          if (updated) {
+            this.relayoutCell();
+          }
+        }
+        if (e.focusModeChanged) {
+          this.updateEditorForFocusModeChange(true);
+        }
+      })
+    );
     this.cellParts.scheduleRenderCell(this.viewCell);
-    this._register(toDisposable(() => {
-      this.cellParts.unrenderCell(this.viewCell);
-    }));
+    this._register(
+      toDisposable(() => {
+        this.cellParts.unrenderCell(this.viewCell);
+      })
+    );
     this.updateEditorOptions();
     this.updateEditorForFocusModeChange(false);
     this.updateForOutputHover();
@@ -102,19 +128,48 @@ let CodeCell = class extends Disposable {
     this._outputContainerRenderer.render();
     this._renderedOutputCollapseState = false;
     this.initialViewUpdateExpanded();
-    this._register(this.viewCell.onLayoutInfoRead(() => {
-      this.cellParts.prepareLayout();
-    }));
-    const executionItemElement = DOM.append(this.templateData.cellInputCollapsedContainer, DOM.$(".collapsed-execution-icon"));
-    this._register(toDisposable(() => {
-      executionItemElement.remove();
-    }));
-    this._collapsedExecutionIcon = this._register(this.instantiationService.createInstance(CollapsedCodeCellExecutionIcon, this.notebookEditor, this.viewCell, executionItemElement));
+    this._register(
+      this.viewCell.onLayoutInfoRead(() => {
+        this.cellParts.prepareLayout();
+      })
+    );
+    const executionItemElement = DOM.append(
+      this.templateData.cellInputCollapsedContainer,
+      DOM.$(".collapsed-execution-icon")
+    );
+    this._register(
+      toDisposable(() => {
+        executionItemElement.remove();
+      })
+    );
+    this._collapsedExecutionIcon = this._register(
+      this.instantiationService.createInstance(
+        CollapsedCodeCellExecutionIcon,
+        this.notebookEditor,
+        this.viewCell,
+        executionItemElement
+      )
+    );
     this.updateForCollapseState();
-    this._register(Event.runAndSubscribe(viewCell.onDidChangeOutputs, this.updateForOutputs.bind(this)));
-    this._register(Event.runAndSubscribe(viewCell.onDidChangeLayout, this.updateForLayout.bind(this)));
+    this._register(
+      Event.runAndSubscribe(
+        viewCell.onDidChangeOutputs,
+        this.updateForOutputs.bind(this)
+      )
+    );
+    this._register(
+      Event.runAndSubscribe(
+        viewCell.onDidChangeLayout,
+        this.updateForLayout.bind(this)
+      )
+    );
     this._cellEditorOptions.setLineNumbers(this.viewCell.lineNumbers);
-    templateData.editor.updateOptions(this._cellEditorOptions.getUpdatedValue(this.viewCell.internalMetadata, this.viewCell.uri));
+    templateData.editor.updateOptions(
+      this._cellEditorOptions.getUpdatedValue(
+        this.viewCell.internalMetadata,
+        this.viewCell.uri
+      )
+    );
   }
   _outputContainerRenderer;
   _inputCollapseElement;

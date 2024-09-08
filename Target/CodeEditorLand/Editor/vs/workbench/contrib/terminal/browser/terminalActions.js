@@ -191,7 +191,10 @@ const terminalSendSequenceCommand = async (accessor, args) => {
 };
 let TerminalLaunchHelpAction = class extends Action {
   constructor(_openerService) {
-    super("workbench.action.terminal.launchHelp", localize("terminalLaunchHelp", "Open Help"));
+    super(
+      "workbench.action.terminal.launchHelp",
+      localize("terminalLaunchHelp", "Open Help")
+    );
     this._openerService = _openerService;
   }
   async run() {

@@ -10,8 +10,8 @@ import {
   StorageTarget
 } from "../../../../platform/storage/common/storage.js";
 import {
-  IconFontDefinition,
-  getIconRegistry
+  getIconRegistry,
+  IconFontDefinition
 } from "../../../../platform/theme/common/iconRegistry.js";
 import {
   fontFormatRegex,

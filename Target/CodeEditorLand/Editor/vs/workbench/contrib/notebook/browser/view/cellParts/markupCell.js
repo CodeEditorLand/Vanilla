@@ -59,18 +59,33 @@ let MarkupCell = class extends Disposable {
     this.keybindingService = keybindingService;
     this.constructDOM();
     this.editorPart = templateData.editorPart;
-    this.cellEditorOptions = this._register(new CellEditorOptions(this.notebookEditor.getBaseCellEditorOptions(viewCell.language), this.notebookEditor.notebookOptions, this.configurationService));
+    this.cellEditorOptions = this._register(
+      new CellEditorOptions(
+        this.notebookEditor.getBaseCellEditorOptions(viewCell.language),
+        this.notebookEditor.notebookOptions,
+        this.configurationService
+      )
+    );
     this.cellEditorOptions.setLineNumbers(this.viewCell.lineNumbers);
-    this.editorOptions = this.cellEditorOptions.getValue(this.viewCell.internalMetadata, this.viewCell.uri);
-    this._register(toDisposable(() => renderedEditors.delete(this.viewCell)));
+    this.editorOptions = this.cellEditorOptions.getValue(
+      this.viewCell.internalMetadata,
+      this.viewCell.uri
+    );
+    this._register(
+      toDisposable(() => renderedEditors.delete(this.viewCell))
+    );
     this.registerListeners();
     this.templateData.cellParts.scheduleRenderCell(this.viewCell);
-    this._register(toDisposable(() => {
-      this.templateData.cellParts.unrenderCell(this.viewCell);
-    }));
-    this._register(this.accessibilityService.onDidChangeScreenReaderOptimized(() => {
-      this.viewUpdate();
-    }));
+    this._register(
+      toDisposable(() => {
+        this.templateData.cellParts.unrenderCell(this.viewCell);
+      })
+    );
+    this._register(
+      this.accessibilityService.onDidChangeScreenReaderOptimized(() => {
+        this.viewUpdate();
+      })
+    );
     this.updateForHover();
     this.updateForFocusModeChange();
     this.foldingState = viewCell.foldingState;
@@ -82,9 +97,11 @@ let MarkupCell = class extends Disposable {
     this.applyDecorations();
     this.viewUpdate();
     this.layoutCellParts();
-    this._register(this.viewCell.onDidChangeLayout(() => {
-      this.layoutCellParts();
-    }));
+    this._register(
+      this.viewCell.onDidChangeLayout(() => {
+        this.layoutCellParts();
+      })
+    );
   }
   editor = null;
   markdownAccessibilityContainer;

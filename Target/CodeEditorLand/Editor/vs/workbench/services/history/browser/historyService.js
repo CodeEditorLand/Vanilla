@@ -10,10 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
+  addDisposableListener,
   EventHelper,
   EventType,
-  WindowIdleValue,
-  addDisposableListener
+  WindowIdleValue
 } from "../../../../base/browser/dom.js";
 import { mainWindow } from "../../../../base/browser/window.js";
 import { coalesce, remove } from "../../../../base/common/arrays.js";
@@ -33,11 +33,11 @@ import {
   RawContextKey
 } from "../../../../platform/contextkey/common/contextkey.js";
 import {
-  FILES_EXCLUDE_CONFIG,
-  FileChangeType,
   FileChangesEvent,
+  FileChangeType,
   FileOperation,
   FileOperationEvent,
+  FILES_EXCLUDE_CONFIG,
   IFileService
 } from "../../../../platform/files/common/files.js";
 import {
@@ -61,11 +61,11 @@ import {
   EditorResourceAccessor,
   EditorsOrder,
   GroupModelChangeKind,
-  SideBySideEditor,
   isEditorInput,
   isEditorPaneWithSelection,
   isResourceEditorInput,
-  isSideBySideEditorInput
+  isSideBySideEditorInput,
+  SideBySideEditor
 } from "../../../common/editor.js";
 import { ResourceGlobMatcher } from "../../../common/resources.js";
 import {
@@ -79,8 +79,8 @@ import {
 } from "../../lifecycle/common/lifecycle.js";
 import { IPathService } from "../../path/common/pathService.js";
 import {
-  SEARCH_EXCLUDE_CONFIG,
-  getExcludes
+  getExcludes,
+  SEARCH_EXCLUDE_CONFIG
 } from "../../search/common/search.js";
 import { GoFilter, GoScope, IHistoryService } from "../common/history.js";
 let HistoryService = class extends Disposable {

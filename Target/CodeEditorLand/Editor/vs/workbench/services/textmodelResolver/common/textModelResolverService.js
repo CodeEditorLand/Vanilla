@@ -20,8 +20,8 @@ import { URI } from "../../../../base/common/uri.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
 import { ModelUndoRedoParticipant } from "../../../../editor/common/services/modelUndoRedoParticipant.js";
 import {
-  ITextModelService,
-  isResolvedTextEditorModel
+  isResolvedTextEditorModel,
+  ITextModelService
 } from "../../../../editor/common/services/resolverService.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import {
@@ -185,7 +185,13 @@ let TextModelResolverService = class extends Disposable {
     this.undoRedoService = undoRedoService;
     this.modelService = modelService;
     this.uriIdentityService = uriIdentityService;
-    this._register(new ModelUndoRedoParticipant(this.modelService, this, this.undoRedoService));
+    this._register(
+      new ModelUndoRedoParticipant(
+        this.modelService,
+        this,
+        this.undoRedoService
+      )
+    );
   }
   _resourceModelCollection = void 0;
   get resourceModelCollection() {

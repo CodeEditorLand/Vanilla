@@ -1,0 +1,12 @@
+import type { IStringDictionary } from "../../../base/common/collections.js";
+import { ILogService } from "../../log/common/log.js";
+import { AbstractPolicyService, type IPolicyService, type PolicyDefinition } from "../common/policy.js";
+export declare class NativePolicyService extends AbstractPolicyService implements IPolicyService {
+    private readonly logService;
+    private readonly productName;
+    private throttler;
+    private readonly watcher;
+    constructor(logService: ILogService, productName: string);
+    protected _updatePolicyDefinitions(policyDefinitions: IStringDictionary<PolicyDefinition>): Promise<void>;
+    private _onDidPolicyChange;
+}

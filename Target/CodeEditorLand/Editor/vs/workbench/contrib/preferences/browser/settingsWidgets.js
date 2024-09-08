@@ -121,22 +121,42 @@ let AbstractListSettingWidget = class extends Disposable {
     this.contextViewService = contextViewService;
     this.listElement = DOM.append(container, $("div"));
     this.listElement.setAttribute("role", "list");
-    this.getContainerClasses().forEach((c) => this.listElement.classList.add(c));
+    this.getContainerClasses().forEach(
+      (c) => this.listElement.classList.add(c)
+    );
     DOM.append(container, this.renderAddButton());
     this.renderList();
-    this._register(DOM.addDisposableListener(this.listElement, DOM.EventType.POINTER_DOWN, (e) => this.onListClick(e)));
-    this._register(DOM.addDisposableListener(this.listElement, DOM.EventType.DBLCLICK, (e) => this.onListDoubleClick(e)));
-    this._register(DOM.addStandardDisposableListener(this.listElement, "keydown", (e) => {
-      if (e.equals(KeyCode.UpArrow)) {
-        this.selectPreviousRow();
-      } else if (e.equals(KeyCode.DownArrow)) {
-        this.selectNextRow();
-      } else {
-        return;
-      }
-      e.preventDefault();
-      e.stopPropagation();
-    }));
+    this._register(
+      DOM.addDisposableListener(
+        this.listElement,
+        DOM.EventType.POINTER_DOWN,
+        (e) => this.onListClick(e)
+      )
+    );
+    this._register(
+      DOM.addDisposableListener(
+        this.listElement,
+        DOM.EventType.DBLCLICK,
+        (e) => this.onListDoubleClick(e)
+      )
+    );
+    this._register(
+      DOM.addStandardDisposableListener(
+        this.listElement,
+        "keydown",
+        (e) => {
+          if (e.equals(KeyCode.UpArrow)) {
+            this.selectPreviousRow();
+          } else if (e.equals(KeyCode.DownArrow)) {
+            this.selectNextRow();
+          } else {
+            return;
+          }
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      )
+    );
   }
   listElement;
   rowElements = [];

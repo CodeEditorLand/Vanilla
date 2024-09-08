@@ -40,7 +40,14 @@ import {
 } from "../browser/auxiliaryWindowService.js";
 let NativeAuxiliaryWindow = class extends AuxiliaryWindow {
   constructor(window, container, stylesHaveLoaded, configurationService, nativeHostService, instantiationService, hostService, environmentService, dialogService) {
-    super(window, container, stylesHaveLoaded, configurationService, hostService, environmentService);
+    super(
+      window,
+      container,
+      stylesHaveLoaded,
+      configurationService,
+      hostService,
+      environmentService
+    );
     this.nativeHostService = nativeHostService;
     this.instantiationService = instantiationService;
     this.dialogService = dialogService;
@@ -132,7 +139,14 @@ NativeAuxiliaryWindow = __decorateClass([
 ], NativeAuxiliaryWindow);
 let NativeAuxiliaryWindowService = class extends BrowserAuxiliaryWindowService {
   constructor(layoutService, configurationService, nativeHostService, dialogService, instantiationService, telemetryService, hostService, environmentService) {
-    super(layoutService, dialogService, configurationService, telemetryService, hostService, environmentService);
+    super(
+      layoutService,
+      dialogService,
+      configurationService,
+      telemetryService,
+      hostService,
+      environmentService
+    );
     this.nativeHostService = nativeHostService;
     this.instantiationService = instantiationService;
   }

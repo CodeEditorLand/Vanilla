@@ -45,54 +45,73 @@ let TerminalEditorService = class extends Disposable {
     this._terminalInstanceService = _terminalInstanceService;
     this._instantiationService = _instantiationService;
     this._terminalEditorActive = TerminalContextKeys.terminalEditorActive.bindTo(contextKeyService);
-    this._register(toDisposable(() => {
-      for (const d of this._instanceDisposables.values()) {
-        dispose(d);
-      }
-    }));
-    this._register(lifecycleService.onWillShutdown(() => this._isShuttingDown = true));
-    this._register(this._editorService.onDidActiveEditorChange(() => {
-      const activeEditor = this._editorService.activeEditor;
-      const instance = activeEditor instanceof TerminalEditorInput ? activeEditor?.terminalInstance : void 0;
-      const terminalEditorActive = !!instance && activeEditor instanceof TerminalEditorInput;
-      this._terminalEditorActive.set(terminalEditorActive);
-      if (terminalEditorActive) {
-        activeEditor?.setGroup(this._editorService.activeEditorPane?.group);
-        this.setActiveInstance(instance);
-      } else {
-        for (const instance2 of this.instances) {
-          instance2.resetFocusContextKey();
+    this._register(
+      toDisposable(() => {
+        for (const d of this._instanceDisposables.values()) {
+          dispose(d);
         }
-      }
-    }));
-    this._register(this._editorService.onDidVisibleEditorsChange(() => {
-      const knownIds = this.instances.map((i) => i.instanceId);
-      const terminalEditors = this._getActiveTerminalEditors();
-      const unknownEditor = terminalEditors.find((input) => {
-        const inputId = input instanceof TerminalEditorInput ? input.terminalInstance?.instanceId : void 0;
-        if (inputId === void 0) {
-          return false;
-        }
-        return !knownIds.includes(inputId);
-      });
-      if (unknownEditor instanceof TerminalEditorInput && unknownEditor.terminalInstance) {
-        this._editorInputs.set(unknownEditor.terminalInstance.resource.path, unknownEditor);
-        this.instances.push(unknownEditor.terminalInstance);
-      }
-    }));
-    this._register(this._editorService.onDidCloseEditor((e) => {
-      const instance = e.editor instanceof TerminalEditorInput ? e.editor.terminalInstance : void 0;
-      if (instance) {
-        const instanceIndex = this.instances.findIndex((e2) => e2 === instance);
-        if (instanceIndex !== -1) {
-          const wasActiveInstance = this.instances[instanceIndex] === this.activeInstance;
-          this._removeInstance(instance);
-          if (wasActiveInstance) {
-            this.setActiveInstance(void 0);
+      })
+    );
+    this._register(
+      lifecycleService.onWillShutdown(
+        () => this._isShuttingDown = true
+      )
+    );
+    this._register(
+      this._editorService.onDidActiveEditorChange(() => {
+        const activeEditor = this._editorService.activeEditor;
+        const instance = activeEditor instanceof TerminalEditorInput ? activeEditor?.terminalInstance : void 0;
+        const terminalEditorActive = !!instance && activeEditor instanceof TerminalEditorInput;
+        this._terminalEditorActive.set(terminalEditorActive);
+        if (terminalEditorActive) {
+          activeEditor?.setGroup(
+            this._editorService.activeEditorPane?.group
+          );
+          this.setActiveInstance(instance);
+        } else {
+          for (const instance2 of this.instances) {
+            instance2.resetFocusContextKey();
           }
         }
-      }
-    }));
+      })
+    );
+    this._register(
+      this._editorService.onDidVisibleEditorsChange(() => {
+        const knownIds = this.instances.map((i) => i.instanceId);
+        const terminalEditors = this._getActiveTerminalEditors();
+        const unknownEditor = terminalEditors.find((input) => {
+          const inputId = input instanceof TerminalEditorInput ? input.terminalInstance?.instanceId : void 0;
+          if (inputId === void 0) {
+            return false;
+          }
+          return !knownIds.includes(inputId);
+        });
+        if (unknownEditor instanceof TerminalEditorInput && unknownEditor.terminalInstance) {
+          this._editorInputs.set(
+            unknownEditor.terminalInstance.resource.path,
+            unknownEditor
+          );
+          this.instances.push(unknownEditor.terminalInstance);
+        }
+      })
+    );
+    this._register(
+      this._editorService.onDidCloseEditor((e) => {
+        const instance = e.editor instanceof TerminalEditorInput ? e.editor.terminalInstance : void 0;
+        if (instance) {
+          const instanceIndex = this.instances.findIndex(
+            (e2) => e2 === instance
+          );
+          if (instanceIndex !== -1) {
+            const wasActiveInstance = this.instances[instanceIndex] === this.activeInstance;
+            this._removeInstance(instance);
+            if (wasActiveInstance) {
+              this.setActiveInstance(void 0);
+            }
+          }
+        }
+      })
+    );
   }
   instances = [];
   _activeInstanceIndex = -1;

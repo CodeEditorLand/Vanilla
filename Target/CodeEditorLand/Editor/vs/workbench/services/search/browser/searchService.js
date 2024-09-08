@@ -47,11 +47,29 @@ import {
 import { SearchService } from "../common/searchService.js";
 let RemoteSearchService = class extends SearchService {
   constructor(modelService, editorService, telemetryService, logService, extensionService, fileService, instantiationService, uriIdentityService) {
-    super(modelService, editorService, telemetryService, logService, extensionService, fileService, uriIdentityService);
+    super(
+      modelService,
+      editorService,
+      telemetryService,
+      logService,
+      extensionService,
+      fileService,
+      uriIdentityService
+    );
     this.instantiationService = instantiationService;
-    const searchProvider = this.instantiationService.createInstance(LocalFileSearchWorkerClient);
-    this.registerSearchResultProvider(Schemas.file, SearchProviderType.file, searchProvider);
-    this.registerSearchResultProvider(Schemas.file, SearchProviderType.text, searchProvider);
+    const searchProvider = this.instantiationService.createInstance(
+      LocalFileSearchWorkerClient
+    );
+    this.registerSearchResultProvider(
+      Schemas.file,
+      SearchProviderType.file,
+      searchProvider
+    );
+    this.registerSearchResultProvider(
+      Schemas.file,
+      SearchProviderType.text,
+      searchProvider
+    );
   }
 };
 RemoteSearchService = __decorateClass([

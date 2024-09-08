@@ -13,7 +13,7 @@ import { DeferredPromise } from "../../base/common/async.js";
 import { Emitter } from "../../base/common/event.js";
 import { Disposable } from "../../base/common/lifecycle.js";
 import { equals } from "../../base/common/objects.js";
-import { OperatingSystem, isWindows } from "../../base/common/platform.js";
+import { isWindows, OperatingSystem } from "../../base/common/platform.js";
 import { localize } from "../../nls.js";
 import {
   ConfigurationTarget,
@@ -83,13 +83,22 @@ let ConfigurationMigrationWorkbenchContribution = class extends Disposable {
     super();
     this.configurationService = configurationService;
     this.workspaceService = workspaceService;
-    this._register(this.workspaceService.onDidChangeWorkspaceFolders(async (e) => {
-      for (const folder of e.added) {
-        await this.migrateConfigurationsForFolder(folder, configurationMigrationRegistry.migrations);
-      }
-    }));
+    this._register(
+      this.workspaceService.onDidChangeWorkspaceFolders(async (e) => {
+        for (const folder of e.added) {
+          await this.migrateConfigurationsForFolder(
+            folder,
+            configurationMigrationRegistry.migrations
+          );
+        }
+      })
+    );
     this.migrateConfigurations(configurationMigrationRegistry.migrations);
-    this._register(configurationMigrationRegistry.onDidRegisterConfigurationMigration((migration) => this.migrateConfigurations(migration)));
+    this._register(
+      configurationMigrationRegistry.onDidRegisterConfigurationMigration(
+        (migration) => this.migrateConfigurations(migration)
+      )
+    );
   }
   static ID = "workbench.contrib.configurationMigration";
   async migrateConfigurations(migrations) {
@@ -266,15 +275,25 @@ let DynamicWindowConfiguration = class extends Disposable {
     this.userDataProfilesService = userDataProfilesService;
     this.configurationService = configurationService;
     this.registerNewWindowProfileConfiguration();
-    this._register(this.userDataProfilesService.onDidChangeProfiles((e) => this.registerNewWindowProfileConfiguration()));
+    this._register(
+      this.userDataProfilesService.onDidChangeProfiles(
+        (e) => this.registerNewWindowProfileConfiguration()
+      )
+    );
     this.setNewWindowProfile();
     this.checkAndResetNewWindowProfileConfig();
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.source !== ConfigurationTarget.DEFAULT && e.affectsConfiguration(CONFIG_NEW_WINDOW_PROFILE)) {
-        this.setNewWindowProfile();
-      }
-    }));
-    this._register(this.userDataProfilesService.onDidChangeProfiles(() => this.checkAndResetNewWindowProfileConfig()));
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.source !== ConfigurationTarget.DEFAULT && e.affectsConfiguration(CONFIG_NEW_WINDOW_PROFILE)) {
+          this.setNewWindowProfile();
+        }
+      })
+    );
+    this._register(
+      this.userDataProfilesService.onDidChangeProfiles(
+        () => this.checkAndResetNewWindowProfileConfig()
+      )
+    );
   }
   static ID = "workbench.contrib.dynamicWindowConfiguration";
   configurationNode;

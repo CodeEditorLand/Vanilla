@@ -20,9 +20,13 @@ let CellProgressBar = class extends CellContentPart {
   constructor(editorContainer, collapsedInputContainer, _notebookExecutionStateService) {
     super();
     this._notebookExecutionStateService = _notebookExecutionStateService;
-    this._progressBar = this._register(new ProgressBar(editorContainer, defaultProgressBarStyles));
+    this._progressBar = this._register(
+      new ProgressBar(editorContainer, defaultProgressBarStyles)
+    );
     this._progressBar.hide();
-    this._collapsedProgressBar = this._register(new ProgressBar(collapsedInputContainer, defaultProgressBarStyles));
+    this._collapsedProgressBar = this._register(
+      new ProgressBar(collapsedInputContainer, defaultProgressBarStyles)
+    );
     this._collapsedProgressBar.hide();
   }
   _progressBar;

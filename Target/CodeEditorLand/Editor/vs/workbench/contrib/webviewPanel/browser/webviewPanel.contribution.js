@@ -22,8 +22,8 @@ import {
   EditorPaneDescriptor
 } from "../../../browser/editor.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   EditorExtensions
@@ -60,12 +60,14 @@ let WebviewPanelContribution = class extends Disposable {
   constructor(editorService, editorGroupService) {
     super();
     this.editorGroupService = editorGroupService;
-    this._register(editorService.onWillOpenEditor((e) => {
-      const group = editorGroupService.getGroup(e.groupId);
-      if (group) {
-        this.onEditorOpening(e.editor, group);
-      }
-    }));
+    this._register(
+      editorService.onWillOpenEditor((e) => {
+        const group = editorGroupService.getGroup(e.groupId);
+        if (group) {
+          this.onEditorOpening(e.editor, group);
+        }
+      })
+    );
   }
   static ID = "workbench.contrib.webviewPanel";
   onEditorOpening(editor, group) {

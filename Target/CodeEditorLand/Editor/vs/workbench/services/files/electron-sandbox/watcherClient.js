@@ -1,6 +1,6 @@
 import {
-  ProxyChannel,
-  getDelayedChannel
+  getDelayedChannel,
+  ProxyChannel
 } from "../../../../base/parts/ipc/common/ipc.js";
 import {
   AbstractUniversalWatcherClient

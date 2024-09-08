@@ -52,26 +52,30 @@ import {
   VIEWLET_ID as EXTENSIONS_VIEWLET_ID
 } from "../../extensions/common/extensions.js";
 import {
-  TestingConfigKeys,
-  getTestingConfiguration
+  getTestingConfiguration,
+  TestingConfigKeys
 } from "../common/configuration.js";
 import {
   TestCommandId,
+  testConfigurationGroupNames,
   TestExplorerViewMode,
   TestExplorerViewSorting,
-  Testing,
-  testConfigurationGroupNames
+  Testing
 } from "../common/constants.js";
 import { ITestCoverageService } from "../common/testCoverageService.js";
 import { TestId } from "../common/testId.js";
+import { TestingContextKeys } from "../common/testingContextKeys.js";
+import { ITestingContinuousRunService } from "../common/testingContinuousRunService.js";
+import { ITestingPeekOpener } from "../common/testingPeekOpener.js";
+import { isFailedState } from "../common/testingStates.js";
 import {
-  ITestProfileService,
-  canUseProfileWithTest
+  canUseProfileWithTest,
+  ITestProfileService
 } from "../common/testProfileService.js";
 import { ITestResultService } from "../common/testResultService.js";
 import {
-  ITestService,
   expandAndGetTestById,
+  ITestService,
   testsInFile,
   testsUnderUri
 } from "../common/testService.js";
@@ -80,10 +84,6 @@ import {
   TestItemExpandState,
   TestRunProfileBitset
 } from "../common/testTypes.js";
-import { TestingContextKeys } from "../common/testingContextKeys.js";
-import { ITestingContinuousRunService } from "../common/testingContinuousRunService.js";
-import { ITestingPeekOpener } from "../common/testingPeekOpener.js";
-import { isFailedState } from "../common/testingStates.js";
 import {
   TestItemTreeElement
 } from "./explorerProjections/index.js";

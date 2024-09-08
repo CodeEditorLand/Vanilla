@@ -24,7 +24,13 @@ import { IThemeService } from "../../../../platform/theme/common/themeService.js
 import { InQuickPickContextKey } from "../../../browser/quickaccess.js";
 let QuickInputService = class extends BaseQuickInputService {
   constructor(configurationService, instantiationService, keybindingService, contextKeyService, themeService, layoutService) {
-    super(instantiationService, contextKeyService, themeService, layoutService, configurationService);
+    super(
+      instantiationService,
+      contextKeyService,
+      themeService,
+      layoutService,
+      configurationService
+    );
     this.keybindingService = keybindingService;
     this.registerListeners();
   }

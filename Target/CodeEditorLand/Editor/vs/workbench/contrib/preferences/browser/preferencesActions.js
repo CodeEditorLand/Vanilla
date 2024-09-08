@@ -18,9 +18,9 @@ import { IModelService } from "../../../../editor/common/services/model.js";
 import * as nls from "../../../../nls.js";
 import { isLocalizedString } from "../../../../platform/action/common/action.js";
 import {
+  isIMenuItem,
   MenuId,
-  MenuRegistry,
-  isIMenuItem
+  MenuRegistry
 } from "../../../../platform/actions/common/actions.js";
 import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
 import {

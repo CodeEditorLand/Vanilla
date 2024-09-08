@@ -36,8 +36,16 @@ let CodeEditorService = class extends AbstractCodeEditorService {
     super(themeService);
     this.editorService = editorService;
     this.configurationService = configurationService;
-    this._register(this.registerCodeEditorOpenHandler(this.doOpenCodeEditor.bind(this)));
-    this._register(this.registerCodeEditorOpenHandler(this.doOpenCodeEditorFromDiff.bind(this)));
+    this._register(
+      this.registerCodeEditorOpenHandler(
+        this.doOpenCodeEditor.bind(this)
+      )
+    );
+    this._register(
+      this.registerCodeEditorOpenHandler(
+        this.doOpenCodeEditorFromDiff.bind(this)
+      )
+    );
   }
   getActiveCodeEditor() {
     const activeTextEditorControl = this.editorService.activeTextEditorControl;

@@ -23,22 +23,34 @@ let CellExecutionPart = class extends CellContentPart {
     this._notebookEditor = _notebookEditor;
     this._executionOrderLabel = _executionOrderLabel;
     this._notebookExecutionStateService = _notebookExecutionStateService;
-    this._register(this._notebookEditor.onDidChangeActiveKernel(() => {
-      if (this.currentCell) {
-        this.kernelDisposables.clear();
-        if (this._notebookEditor.activeKernel) {
-          this.kernelDisposables.add(this._notebookEditor.activeKernel.onDidChange(() => {
-            if (this.currentCell) {
-              this.updateExecutionOrder(this.currentCell.internalMetadata);
-            }
-          }));
+    this._register(
+      this._notebookEditor.onDidChangeActiveKernel(() => {
+        if (this.currentCell) {
+          this.kernelDisposables.clear();
+          if (this._notebookEditor.activeKernel) {
+            this.kernelDisposables.add(
+              this._notebookEditor.activeKernel.onDidChange(
+                () => {
+                  if (this.currentCell) {
+                    this.updateExecutionOrder(
+                      this.currentCell.internalMetadata
+                    );
+                  }
+                }
+              )
+            );
+          }
+          this.updateExecutionOrder(
+            this.currentCell.internalMetadata
+          );
         }
-        this.updateExecutionOrder(this.currentCell.internalMetadata);
-      }
-    }));
-    this._register(this._notebookEditor.onDidScroll(() => {
-      this._updatePosition();
-    }));
+      })
+    );
+    this._register(
+      this._notebookEditor.onDidScroll(() => {
+        this._updatePosition();
+      })
+    );
   }
   kernelDisposables = this._register(new DisposableStore());
   didRenderCell(element) {

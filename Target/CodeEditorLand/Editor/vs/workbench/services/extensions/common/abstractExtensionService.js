@@ -46,10 +46,10 @@ import {
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import {
+  getRemoteAuthorityPrefix,
   IRemoteAuthorityResolverService,
   RemoteAuthorityResolverError,
-  RemoteAuthorityResolverErrorCode,
-  getRemoteAuthorityPrefix
+  RemoteAuthorityResolverErrorCode
 } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
 import { IRemoteExtensionsScannerService } from "../../../../platform/remote/common/remoteExtensionsScanner.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
@@ -131,11 +131,13 @@ let AbstractExtensionService = class extends Disposable {
     this._lifecycleService = _lifecycleService;
     this._remoteAuthorityResolverService = _remoteAuthorityResolverService;
     this._dialogService = _dialogService;
-    this._register(this._fileService.onWillActivateFileSystemProvider((e) => {
-      if (e.scheme !== Schemas.vscodeRemote) {
-        e.join(this.activateByEvent(`onFileSystem:${e.scheme}`));
-      }
-    }));
+    this._register(
+      this._fileService.onWillActivateFileSystemProvider((e) => {
+        if (e.scheme !== Schemas.vscodeRemote) {
+          e.join(this.activateByEvent(`onFileSystem:${e.scheme}`));
+        }
+      })
+    );
     this._runningLocations = new ExtensionRunningLocationTracker(
       this._registry,
       this._extensionHostKindPicker,
@@ -144,78 +146,132 @@ let AbstractExtensionService = class extends Disposable {
       this._logService,
       this._extensionManifestPropertiesService
     );
-    this._register(this._extensionEnablementService.onEnablementChanged((extensions) => {
-      const toAdd = [];
-      const toRemove = [];
-      for (const extension of extensions) {
-        if (this._safeInvokeIsEnabled(extension)) {
-          toAdd.push(extension);
+    this._register(
+      this._extensionEnablementService.onEnablementChanged(
+        (extensions) => {
+          const toAdd = [];
+          const toRemove = [];
+          for (const extension of extensions) {
+            if (this._safeInvokeIsEnabled(extension)) {
+              toAdd.push(extension);
+            } else {
+              toRemove.push(extension);
+            }
+          }
+          if (isCI) {
+            this._logService.info(
+              `AbstractExtensionService.onEnablementChanged fired for ${extensions.map((e) => e.identifier.id).join(", ")}`
+            );
+          }
+          this._handleDeltaExtensions(
+            new DeltaExtensionsQueueItem(toAdd, toRemove)
+          );
+        }
+      )
+    );
+    this._register(
+      this._extensionManagementService.onDidChangeProfile(
+        ({ added, removed }) => {
+          if (added.length || removed.length) {
+            if (isCI) {
+              this._logService.info(
+                `AbstractExtensionService.onDidChangeProfile fired`
+              );
+            }
+            this._handleDeltaExtensions(
+              new DeltaExtensionsQueueItem(added, removed)
+            );
+          }
+        }
+      )
+    );
+    this._register(
+      this._extensionManagementService.onDidEnableExtensions(
+        (extensions) => {
+          if (extensions.length) {
+            if (isCI) {
+              this._logService.info(
+                `AbstractExtensionService.onDidEnableExtensions fired`
+              );
+            }
+            this._handleDeltaExtensions(
+              new DeltaExtensionsQueueItem(extensions, [])
+            );
+          }
+        }
+      )
+    );
+    this._register(
+      this._extensionManagementService.onDidInstallExtensions(
+        (result) => {
+          const extensions = [];
+          for (const { local, operation } of result) {
+            if (local && local.isValid && operation !== InstallOperation.Migrate && this._safeInvokeIsEnabled(local)) {
+              extensions.push(local);
+            }
+          }
+          if (extensions.length) {
+            if (isCI) {
+              this._logService.info(
+                `AbstractExtensionService.onDidInstallExtensions fired for ${extensions.map((e) => e.identifier.id).join(", ")}`
+              );
+            }
+            this._handleDeltaExtensions(
+              new DeltaExtensionsQueueItem(extensions, [])
+            );
+          }
+        }
+      )
+    );
+    this._register(
+      this._extensionManagementService.onDidUninstallExtension(
+        (event) => {
+          if (!event.error) {
+            if (isCI) {
+              this._logService.info(
+                `AbstractExtensionService.onDidUninstallExtension fired for ${event.identifier.id}`
+              );
+            }
+            this._handleDeltaExtensions(
+              new DeltaExtensionsQueueItem(
+                [],
+                [event.identifier.id]
+              )
+            );
+          }
+        }
+      )
+    );
+    this._register(
+      this._lifecycleService.onWillShutdown((event) => {
+        if (this._remoteAgentService.getConnection()) {
+          event.join(
+            async () => {
+              await this._remoteAgentService.endConnection();
+              await this._doStopExtensionHosts();
+              this._remoteAgentService.getConnection()?.dispose();
+            },
+            {
+              id: "join.disconnectRemote",
+              label: nls.localize(
+                "disconnectRemote",
+                "Disconnect Remote Agent"
+              ),
+              order: WillShutdownJoinerOrder.Last
+              // after others have joined that might depend on a remote connection
+            }
+          );
         } else {
-          toRemove.push(extension);
+          event.join(this._doStopExtensionHosts(), {
+            id: "join.stopExtensionHosts",
+            label: nls.localize(
+              "stopExtensionHosts",
+              "Stopping Extension Hosts"
+            )
+          });
         }
-      }
-      if (isCI) {
-        this._logService.info(`AbstractExtensionService.onEnablementChanged fired for ${extensions.map((e) => e.identifier.id).join(", ")}`);
-      }
-      this._handleDeltaExtensions(new DeltaExtensionsQueueItem(toAdd, toRemove));
-    }));
-    this._register(this._extensionManagementService.onDidChangeProfile(({ added, removed }) => {
-      if (added.length || removed.length) {
-        if (isCI) {
-          this._logService.info(`AbstractExtensionService.onDidChangeProfile fired`);
-        }
-        this._handleDeltaExtensions(new DeltaExtensionsQueueItem(added, removed));
-      }
-    }));
-    this._register(this._extensionManagementService.onDidEnableExtensions((extensions) => {
-      if (extensions.length) {
-        if (isCI) {
-          this._logService.info(`AbstractExtensionService.onDidEnableExtensions fired`);
-        }
-        this._handleDeltaExtensions(new DeltaExtensionsQueueItem(extensions, []));
-      }
-    }));
-    this._register(this._extensionManagementService.onDidInstallExtensions((result) => {
-      const extensions = [];
-      for (const { local, operation } of result) {
-        if (local && local.isValid && operation !== InstallOperation.Migrate && this._safeInvokeIsEnabled(local)) {
-          extensions.push(local);
-        }
-      }
-      if (extensions.length) {
-        if (isCI) {
-          this._logService.info(`AbstractExtensionService.onDidInstallExtensions fired for ${extensions.map((e) => e.identifier.id).join(", ")}`);
-        }
-        this._handleDeltaExtensions(new DeltaExtensionsQueueItem(extensions, []));
-      }
-    }));
-    this._register(this._extensionManagementService.onDidUninstallExtension((event) => {
-      if (!event.error) {
-        if (isCI) {
-          this._logService.info(`AbstractExtensionService.onDidUninstallExtension fired for ${event.identifier.id}`);
-        }
-        this._handleDeltaExtensions(new DeltaExtensionsQueueItem([], [event.identifier.id]));
-      }
-    }));
-    this._register(this._lifecycleService.onWillShutdown((event) => {
-      if (this._remoteAgentService.getConnection()) {
-        event.join(async () => {
-          await this._remoteAgentService.endConnection();
-          await this._doStopExtensionHosts();
-          this._remoteAgentService.getConnection()?.dispose();
-        }, {
-          id: "join.disconnectRemote",
-          label: nls.localize("disconnectRemote", "Disconnect Remote Agent"),
-          order: WillShutdownJoinerOrder.Last
-          // after others have joined that might depend on a remote connection
-        });
-      } else {
-        event.join(this._doStopExtensionHosts(), {
-          id: "join.stopExtensionHosts",
-          label: nls.localize("stopExtensionHosts", "Stopping Extension Hosts")
-        });
-      }
-    }));
+      })
+    );
   }
   _serviceBrand;
   _onDidRegisterExtensions = this._register(

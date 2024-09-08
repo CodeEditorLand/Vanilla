@@ -21,8 +21,8 @@ import {
   registerSingleton
 } from "../../../../platform/instantiation/common/extensions.js";
 import {
-  IInstantiationService,
-  createDecorator
+  createDecorator,
+  IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";

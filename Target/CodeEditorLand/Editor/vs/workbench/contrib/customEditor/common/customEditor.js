@@ -3,9 +3,9 @@ import * as nls from "../../../../nls.js";
 import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import {
-  RegisteredEditorPriority,
   globMatchesResource,
-  priorityToRank
+  priorityToRank,
+  RegisteredEditorPriority
 } from "../../../services/editor/common/editorResolverService.js";
 const ICustomEditorService = createDecorator(
   "customEditorService"

@@ -32,10 +32,10 @@ import {
 } from "../../../../../platform/list/browser/listService.js";
 import {
   CellKind,
+  diff,
   NOTEBOOK_EDITOR_CURSOR_BOUNDARY,
   NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY,
-  SelectionStateType,
-  diff
+  SelectionStateType
 } from "../../common/notebookCommon.js";
 import { NOTEBOOK_CELL_LIST_FOCUSED } from "../../common/notebookContextKeys.js";
 import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";

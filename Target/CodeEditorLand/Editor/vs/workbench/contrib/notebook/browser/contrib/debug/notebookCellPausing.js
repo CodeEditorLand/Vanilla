@@ -26,11 +26,15 @@ let NotebookCellPausing = class extends Disposable {
     super();
     this._debugService = _debugService;
     this._notebookExecutionStateService = _notebookExecutionStateService;
-    this._register(_debugService.getModel().onDidChangeCallStack(() => {
-      this.onDidChangeCallStack(true);
-      this._scheduler.schedule();
-    }));
-    this._scheduler = this._register(new RunOnceScheduler(() => this.onDidChangeCallStack(false), 2e3));
+    this._register(
+      _debugService.getModel().onDidChangeCallStack(() => {
+        this.onDidChangeCallStack(true);
+        this._scheduler.schedule();
+      })
+    );
+    this._scheduler = this._register(
+      new RunOnceScheduler(() => this.onDidChangeCallStack(false), 2e3)
+    );
   }
   _pausedCells = /* @__PURE__ */ new Set();
   _scheduler;

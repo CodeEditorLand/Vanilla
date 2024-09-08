@@ -51,18 +51,24 @@ let SwitchRemoteViewItem = class extends Disposable {
     this.storageService = storageService;
     this.workspaceContextService = workspaceContextService;
     this.selectedRemoteContext = SELECTED_REMOTE_IN_EXPLORER.bindTo(contextKeyService);
-    this.switchRemoteMenu = MenuId.for("workbench.remote.menu.switchRemoteMenu");
-    this._register(MenuRegistry.appendMenuItem(MenuId.ViewContainerTitle, {
-      submenu: this.switchRemoteMenu,
-      title: nls.localize("switchRemote.label", "Switch Remote"),
-      group: "navigation",
-      when: ContextKeyExpr.equals("viewContainer", VIEWLET_ID),
-      order: 1,
-      isSelection: true
-    }));
-    this._register(remoteExplorerService.onDidChangeTargetType((e) => {
-      this.select(e);
-    }));
+    this.switchRemoteMenu = MenuId.for(
+      "workbench.remote.menu.switchRemoteMenu"
+    );
+    this._register(
+      MenuRegistry.appendMenuItem(MenuId.ViewContainerTitle, {
+        submenu: this.switchRemoteMenu,
+        title: nls.localize("switchRemote.label", "Switch Remote"),
+        group: "navigation",
+        when: ContextKeyExpr.equals("viewContainer", VIEWLET_ID),
+        order: 1,
+        isSelection: true
+      })
+    );
+    this._register(
+      remoteExplorerService.onDidChangeTargetType((e) => {
+        this.select(e);
+      })
+    );
   }
   switchRemoteMenu;
   completedRemotes = this._register(new DisposableMap());

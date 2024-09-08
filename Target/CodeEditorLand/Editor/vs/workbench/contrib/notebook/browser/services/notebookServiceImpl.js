@@ -11,8 +11,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { toAction } from "../../../../../base/common/actions.js";
 import {
-  VSBuffer,
-  streamToBuffer
+  streamToBuffer,
+  VSBuffer
 } from "../../../../../base/common/buffer.js";
 import { createErrorWithActions } from "../../../../../base/common/errorMessage.js";
 import { Emitter } from "../../../../../base/common/event.js";
@@ -96,21 +96,31 @@ let NotebookProviderInfoStore = class extends Disposable {
     this._fileService = _fileService;
     this._notebookEditorModelResolverService = _notebookEditorModelResolverService;
     this.uriIdentService = uriIdentService;
-    this._memento = new Memento(NotebookProviderInfoStore.CUSTOM_EDITORS_STORAGE_ID, storageService);
-    const mementoObject = this._memento.getMemento(StorageScope.PROFILE, StorageTarget.MACHINE);
+    this._memento = new Memento(
+      NotebookProviderInfoStore.CUSTOM_EDITORS_STORAGE_ID,
+      storageService
+    );
+    const mementoObject = this._memento.getMemento(
+      StorageScope.PROFILE,
+      StorageTarget.MACHINE
+    );
     this._editorResolverService.bufferChangeEvents(() => {
       for (const info of mementoObject[NotebookProviderInfoStore.CUSTOM_EDITORS_ENTRY_ID] || []) {
         this.add(new NotebookProviderInfo(info), false);
       }
     });
-    this._register(extensionService.onDidRegisterExtensions(() => {
-      if (!this._handled) {
-        this._clear();
-        mementoObject[NotebookProviderInfoStore.CUSTOM_EDITORS_ENTRY_ID] = [];
-        this._memento.saveMemento();
-      }
-    }));
-    notebooksExtensionPoint.setHandler((extensions) => this._setupHandler(extensions));
+    this._register(
+      extensionService.onDidRegisterExtensions(() => {
+        if (!this._handled) {
+          this._clear();
+          mementoObject[NotebookProviderInfoStore.CUSTOM_EDITORS_ENTRY_ID] = [];
+          this._memento.saveMemento();
+        }
+      })
+    );
+    notebooksExtensionPoint.setHandler(
+      (extensions) => this._setupHandler(extensions)
+    );
   }
   static CUSTOM_EDITORS_STORAGE_ID = "notebookEditors";
   static CUSTOM_EDITORS_ENTRY_ID = "editors";
@@ -449,7 +459,10 @@ let NotebookOutputRendererInfoStore = class {
     )
   );
   constructor(storageService) {
-    this.preferredMimetypeMemento = new Memento("workbench.editor.notebook.preferredRenderer2", storageService);
+    this.preferredMimetypeMemento = new Memento(
+      "workbench.editor.notebook.preferredRenderer2",
+      storageService
+    );
   }
   clear() {
     this.contributedRenderers.clear();
@@ -553,24 +566,30 @@ let NotebookService = class extends Disposable {
       for (const extension of renderers) {
         for (const notebookContribution of extension.value) {
           if (!notebookContribution.entrypoint) {
-            extension.collector.error(`Notebook renderer does not specify entry point`);
+            extension.collector.error(
+              `Notebook renderer does not specify entry point`
+            );
             continue;
           }
           const id = notebookContribution.id;
           if (!id) {
-            extension.collector.error(`Notebook renderer does not specify id-property`);
+            extension.collector.error(
+              `Notebook renderer does not specify id-property`
+            );
             continue;
           }
-          this._notebookRenderersInfoStore.add(new NotebookOutputRendererInfo({
-            id,
-            extension: extension.description,
-            entrypoint: notebookContribution.entrypoint,
-            displayName: notebookContribution.displayName,
-            mimeTypes: notebookContribution.mimeTypes || [],
-            dependencies: notebookContribution.dependencies,
-            optionalDependencies: notebookContribution.optionalDependencies,
-            requiresMessaging: notebookContribution.requiresMessaging
-          }));
+          this._notebookRenderersInfoStore.add(
+            new NotebookOutputRendererInfo({
+              id,
+              extension: extension.description,
+              entrypoint: notebookContribution.entrypoint,
+              displayName: notebookContribution.displayName,
+              mimeTypes: notebookContribution.mimeTypes || [],
+              dependencies: notebookContribution.dependencies,
+              optionalDependencies: notebookContribution.optionalDependencies,
+              requiresMessaging: notebookContribution.requiresMessaging
+            })
+          );
         }
       }
       this._onDidChangeOutputRenderers.fire();
@@ -578,45 +597,66 @@ let NotebookService = class extends Disposable {
     notebookPreloadExtensionPoint.setHandler((extensions) => {
       this._notebookStaticPreloadInfoStore.clear();
       for (const extension of extensions) {
-        if (!isProposedApiEnabled(extension.description, "contribNotebookStaticPreloads")) {
+        if (!isProposedApiEnabled(
+          extension.description,
+          "contribNotebookStaticPreloads"
+        )) {
           continue;
         }
         for (const notebookContribution of extension.value) {
           if (!notebookContribution.entrypoint) {
-            extension.collector.error(`Notebook preload does not specify entry point`);
+            extension.collector.error(
+              `Notebook preload does not specify entry point`
+            );
             continue;
           }
           const type = notebookContribution.type;
           if (!type) {
-            extension.collector.error(`Notebook preload does not specify type-property`);
+            extension.collector.error(
+              `Notebook preload does not specify type-property`
+            );
             continue;
           }
-          this._notebookStaticPreloadInfoStore.add(new NotebookStaticPreloadInfo({
-            type,
-            extension: extension.description,
-            entrypoint: notebookContribution.entrypoint,
-            localResourceRoots: notebookContribution.localResourceRoots ?? []
-          }));
+          this._notebookStaticPreloadInfoStore.add(
+            new NotebookStaticPreloadInfo({
+              type,
+              extension: extension.description,
+              entrypoint: notebookContribution.entrypoint,
+              localResourceRoots: notebookContribution.localResourceRoots ?? []
+            })
+          );
         }
       }
     });
     const updateOrder = () => {
       this._displayOrder = new MimeTypeDisplayOrder(
-        this._configurationService.getValue(NotebookSetting.displayOrder) || [],
+        this._configurationService.getValue(
+          NotebookSetting.displayOrder
+        ) || [],
         this._accessibilityService.isScreenReaderOptimized() ? ACCESSIBLE_NOTEBOOK_DISPLAY_ORDER : NOTEBOOK_DISPLAY_ORDER
       );
     };
     updateOrder();
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(NotebookSetting.displayOrder)) {
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(NotebookSetting.displayOrder)) {
+          updateOrder();
+        }
+      })
+    );
+    this._register(
+      this._accessibilityService.onDidChangeScreenReaderOptimized(() => {
         updateOrder();
-      }
-    }));
-    this._register(this._accessibilityService.onDidChangeScreenReaderOptimized(() => {
-      updateOrder();
-    }));
-    this._memento = new Memento(NotebookService._storageNotebookViewTypeProvider, this._storageService);
-    this._viewTypeCache = this._memento.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE);
+      })
+    );
+    this._memento = new Memento(
+      NotebookService._storageNotebookViewTypeProvider,
+      this._storageService
+    );
+    this._viewTypeCache = this._memento.getMemento(
+      StorageScope.WORKSPACE,
+      StorageTarget.MACHINE
+    );
   }
   static _storageNotebookViewTypeProvider = "notebook.viewTypeProvider";
   _memento;

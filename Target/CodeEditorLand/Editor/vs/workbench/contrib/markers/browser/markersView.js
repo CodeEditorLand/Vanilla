@@ -83,12 +83,12 @@ import {
 } from "../common/markers.js";
 import { FilterOptions } from "./markersFilterOptions.js";
 import {
+  compareMarkersByUri,
   Marker,
-  MarkerTableItem,
   MarkersModel,
+  MarkerTableItem,
   RelatedInformation,
-  ResourceMarkers,
-  compareMarkersByUri
+  ResourceMarkers
 } from "./markersModel.js";
 import { MarkersTable } from "./markersTable.js";
 import {
@@ -115,48 +115,95 @@ function createResourceMarkersIterator(resourceMarkers) {
 }
 let MarkersView = class extends FilterViewPane {
   constructor(options, instantiationService, viewDescriptorService, editorService, configurationService, telemetryService, markerService, contextKeyService, workspaceContextService, contextMenuService, uriIdentityService, keybindingService, storageService, openerService, themeService, hoverService) {
-    const memento = new Memento(Markers.MARKERS_VIEW_STORAGE_ID, storageService);
-    const panelState = memento.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE);
-    super({
-      ...options,
-      filterOptions: {
-        ariaLabel: Messages.MARKERS_PANEL_FILTER_ARIA_LABEL,
-        placeholder: Messages.MARKERS_PANEL_FILTER_PLACEHOLDER,
-        focusContextKey: MarkersContextKeys.MarkerViewFilterFocusContextKey.key,
-        text: panelState["filter"] || "",
-        history: panelState["filterHistory"] || []
-      }
-    }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    const memento = new Memento(
+      Markers.MARKERS_VIEW_STORAGE_ID,
+      storageService
+    );
+    const panelState = memento.getMemento(
+      StorageScope.WORKSPACE,
+      StorageTarget.MACHINE
+    );
+    super(
+      {
+        ...options,
+        filterOptions: {
+          ariaLabel: Messages.MARKERS_PANEL_FILTER_ARIA_LABEL,
+          placeholder: Messages.MARKERS_PANEL_FILTER_PLACEHOLDER,
+          focusContextKey: MarkersContextKeys.MarkerViewFilterFocusContextKey.key,
+          text: panelState["filter"] || "",
+          history: panelState["filterHistory"] || []
+        }
+      },
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.editorService = editorService;
     this.markerService = markerService;
     this.workspaceContextService = workspaceContextService;
     this.uriIdentityService = uriIdentityService;
     this.memento = memento;
     this.panelState = panelState;
-    this.markersModel = this._register(instantiationService.createInstance(MarkersModel));
-    this.markersViewModel = this._register(instantiationService.createInstance(MarkersViewModel, this.panelState["multiline"], this.panelState["viewMode"] ?? this.getDefaultViewMode()));
-    this._register(this.onDidChangeVisibility((visible) => this.onDidChangeMarkersViewVisibility(visible)));
-    this._register(this.markersViewModel.onDidChangeViewMode((_) => this.onDidChangeViewMode()));
-    this.widgetAccessibilityProvider = instantiationService.createInstance(MarkersWidgetAccessibilityProvider);
-    this.widgetIdentityProvider = { getId(element) {
-      return element.id;
-    } };
+    this.markersModel = this._register(
+      instantiationService.createInstance(MarkersModel)
+    );
+    this.markersViewModel = this._register(
+      instantiationService.createInstance(
+        MarkersViewModel,
+        this.panelState["multiline"],
+        this.panelState["viewMode"] ?? this.getDefaultViewMode()
+      )
+    );
+    this._register(
+      this.onDidChangeVisibility(
+        (visible) => this.onDidChangeMarkersViewVisibility(visible)
+      )
+    );
+    this._register(
+      this.markersViewModel.onDidChangeViewMode(
+        (_) => this.onDidChangeViewMode()
+      )
+    );
+    this.widgetAccessibilityProvider = instantiationService.createInstance(
+      MarkersWidgetAccessibilityProvider
+    );
+    this.widgetIdentityProvider = {
+      getId(element) {
+        return element.id;
+      }
+    };
     this.setCurrentActiveEditor();
     this.filter = new Filter(FilterOptions.EMPTY(uriIdentityService));
-    this.rangeHighlightDecorations = this._register(this.instantiationService.createInstance(RangeHighlightDecorations));
-    this.filters = this._register(new MarkersFilters({
-      filterHistory: this.panelState["filterHistory"] || [],
-      showErrors: this.panelState["showErrors"] !== false,
-      showWarnings: this.panelState["showWarnings"] !== false,
-      showInfos: this.panelState["showInfos"] !== false,
-      excludedFiles: !!this.panelState["useFilesExclude"],
-      activeFile: !!this.panelState["activeFile"]
-    }, this.contextKeyService));
-    this._register(this.configurationService.onDidChangeConfiguration((e) => {
-      if (this.filters.excludedFiles && e.affectsConfiguration("files.exclude")) {
-        this.updateFilter();
-      }
-    }));
+    this.rangeHighlightDecorations = this._register(
+      this.instantiationService.createInstance(RangeHighlightDecorations)
+    );
+    this.filters = this._register(
+      new MarkersFilters(
+        {
+          filterHistory: this.panelState["filterHistory"] || [],
+          showErrors: this.panelState["showErrors"] !== false,
+          showWarnings: this.panelState["showWarnings"] !== false,
+          showInfos: this.panelState["showInfos"] !== false,
+          excludedFiles: !!this.panelState["useFilesExclude"],
+          activeFile: !!this.panelState["activeFile"]
+        },
+        this.contextKeyService
+      )
+    );
+    this._register(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (this.filters.excludedFiles && e.affectsConfiguration("files.exclude")) {
+          this.updateFilter();
+        }
+      })
+    );
   }
   lastSelectedRelativeTop = 0;
   currentActiveResource = null;

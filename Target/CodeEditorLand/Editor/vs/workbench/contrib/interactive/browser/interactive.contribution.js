@@ -63,8 +63,8 @@ import {
   EditorPaneDescriptor
 } from "../../../browser/editor.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   EditorExtensions,
@@ -131,12 +131,14 @@ let InteractiveDocumentContribution = class extends Disposable {
     this.instantiationService = instantiationService;
     const info = notebookService.getContributedNotebookType("interactive");
     if (!info) {
-      this._register(notebookService.registerContributedNotebookType("interactive", {
-        providerDisplayName: "Interactive Notebook",
-        displayName: "Interactive",
-        filenamePattern: ["*.interactive"],
-        priority: RegisteredEditorPriority.builtin
-      }));
+      this._register(
+        notebookService.registerContributedNotebookType("interactive", {
+          providerDisplayName: "Interactive Notebook",
+          displayName: "Interactive",
+          filenamePattern: ["*.interactive"],
+          priority: RegisteredEditorPriority.builtin
+        })
+      );
     }
     editorResolverService.registerEditor(
       `${Schemas.vscodeInteractiveInput}:/**`,
@@ -151,7 +153,9 @@ let InteractiveDocumentContribution = class extends Disposable {
       },
       {
         createEditorInput: ({ resource }) => {
-          const editorInput = editorService.getEditors(EditorsOrder.SEQUENTIAL).find((editor) => editor.editor instanceof InteractiveEditorInput && editor.editor.inputResource.toString() === resource.toString());
+          const editorInput = editorService.getEditors(EditorsOrder.SEQUENTIAL).find(
+            (editor) => editor.editor instanceof InteractiveEditorInput && editor.editor.inputResource.toString() === resource.toString()
+          );
           return editorInput;
         }
       }
@@ -185,7 +189,10 @@ let InteractiveDocumentContribution = class extends Disposable {
             viewState: void 0,
             indexedCellOptions: void 0
           };
-          const editorInput = createEditor(iwResource, this.instantiationService);
+          const editorInput = createEditor(
+            iwResource,
+            this.instantiationService
+          );
           return {
             editor: editorInput,
             options: notebookOptions
@@ -193,7 +200,9 @@ let InteractiveDocumentContribution = class extends Disposable {
         },
         createUntitledEditorInput: ({ resource, options }) => {
           if (!resource) {
-            throw new Error("Interactive window editors must have a resource name");
+            throw new Error(
+              "Interactive window editors must have a resource name"
+            );
           }
           const data = CellUri.parse(resource);
           let cellOptions;
@@ -209,7 +218,10 @@ let InteractiveDocumentContribution = class extends Disposable {
             viewState: void 0,
             indexedCellOptions: void 0
           };
-          const editorInput = createEditor(resource, this.instantiationService);
+          const editorInput = createEditor(
+            resource,
+            this.instantiationService
+          );
           return {
             editor: editorInput,
             options: notebookOptions
@@ -229,7 +241,10 @@ InteractiveDocumentContribution = __decorateClass([
 let InteractiveInputContentProvider = class {
   constructor(textModelService, _modelService) {
     this._modelService = _modelService;
-    this._registration = textModelService.registerTextModelContentProvider(Schemas.vscodeInteractiveInput, this);
+    this._registration = textModelService.registerTextModelContentProvider(
+      Schemas.vscodeInteractiveInput,
+      this
+    );
   }
   static ID = "workbench.contrib.interactiveInputContentProvider";
   _registration;

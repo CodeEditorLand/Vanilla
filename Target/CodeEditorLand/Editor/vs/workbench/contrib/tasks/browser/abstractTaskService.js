@@ -10,14 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Action } from "../../../../base/common/actions.js";
+import { raceTimeout } from "../../../../base/common/async.js";
+import {
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import * as glob from "../../../../base/common/glob.js";
 import * as json from "../../../../base/common/json.js";
+import { toFormattedString } from "../../../../base/common/jsonFormatter.js";
 import {
   Disposable,
   dispose
 } from "../../../../base/common/lifecycle.js";
 import { LRUCache, Touch } from "../../../../base/common/map.js";
+import { Schemas } from "../../../../base/common/network.js";
 import * as Objects from "../../../../base/common/objects.js";
 import {
   ValidationState,
@@ -27,9 +33,14 @@ import * as Platform from "../../../../base/common/platform.js";
 import { TerminateResponseCode } from "../../../../base/common/processes.js";
 import * as resources from "../../../../base/common/resources.js";
 import Severity from "../../../../base/common/severity.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import * as Types from "../../../../base/common/types.js";
 import { URI } from "../../../../base/common/uri.js";
 import * as UUID from "../../../../base/common/uuid.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import {
+  ITextModelService
+} from "../../../../editor/common/services/resolverService.js";
 import * as nls from "../../../../nls.js";
 import {
   CommandsRegistry,
@@ -40,58 +51,74 @@ import {
   IConfigurationService
 } from "../../../../platform/configuration/common/configuration.js";
 import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { TextEditorSelectionRevealType } from "../../../../platform/editor/common/editor.js";
+import {
   IFileService
 } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 import { IMarkerService } from "../../../../platform/markers/common/markers.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import {
   IProgressService,
   ProgressLocation
 } from "../../../../platform/progress/common/progress.js";
+import {
+  IQuickInputService
+} from "../../../../platform/quickinput/common/quickInput.js";
 import {
   IStorageService,
   StorageScope,
   StorageTarget
 } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import {
-  ProblemMatcherRegistry
-} from "../common/problemMatcher.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
+import { TerminalExitReason } from "../../../../platform/terminal/common/terminal.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import {
   IWorkspaceContextService,
   WorkbenchState,
   WorkspaceFolder
 } from "../../../../platform/workspace/common/workspace.js";
+import {
+  IWorkspaceTrustManagementService,
+  IWorkspaceTrustRequestService
+} from "../../../../platform/workspace/common/workspaceTrust.js";
+import { VirtualWorkspaceContext } from "../../../common/contextkeys.js";
+import { EditorResourceAccessor, SaveReason } from "../../../common/editor.js";
+import { IViewDescriptorService } from "../../../common/views.js";
 import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { Markers } from "../../markers/common/markers.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import {
+  ILifecycleService,
+  ShutdownReason,
+  StartupKind
+} from "../../../services/lifecycle/common/lifecycle.js";
 import {
   IOutputService
 } from "../../../services/output/common/output.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
 import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { Markers } from "../../markers/common/markers.js";
 import {
   ITerminalGroupService,
   ITerminalService
 } from "../../terminal/browser/terminal.js";
 import { ITerminalProfileResolverService } from "../../terminal/common/terminal.js";
 import {
-  CustomExecutionSupportedContext,
-  ProcessExecutionSupportedContext,
-  ServerlessWebContext,
-  ShellExecutionSupportedContext,
-  TaskCommandsRegistered,
-  TaskExecutionSupportedContext
-} from "../common/taskService.js";
-import {
-  TaskError,
-  TaskErrors,
-  TaskExecuteKind
-} from "../common/taskSystem.js";
-import { getTemplates as getTaskTemplates } from "../common/taskTemplates.js";
+  ProblemMatcherRegistry
+} from "../common/problemMatcher.js";
+import * as TaskConfig from "../common/taskConfiguration.js";
+import { TaskDefinitionRegistry } from "../common/taskDefinitionRegistry.js";
 import {
   ConfiguringTask,
   ContributedTask,
@@ -112,55 +139,28 @@ import {
   TasksSchemaProperties,
   USER_TASKS_GROUP_KEY
 } from "../common/tasks.js";
-import * as TaskConfig from "../common/taskConfiguration.js";
-import { TerminalTaskSystem } from "./terminalTaskSystem.js";
 import {
-  IQuickInputService
-} from "../../../../platform/quickinput/common/quickInput.js";
+  CustomExecutionSupportedContext,
+  ProcessExecutionSupportedContext,
+  ServerlessWebContext,
+  ShellExecutionSupportedContext,
+  TaskCommandsRegistered,
+  TaskExecutionSupportedContext
+} from "../common/taskService.js";
 import {
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
-import { TaskDefinitionRegistry } from "../common/taskDefinitionRegistry.js";
-import { raceTimeout } from "../../../../base/common/async.js";
+  TaskError,
+  TaskErrors,
+  TaskExecuteKind
+} from "../common/taskSystem.js";
+import { getTemplates as getTaskTemplates } from "../common/taskTemplates.js";
 import {
-  CancellationTokenSource
-} from "../../../../base/common/cancellation.js";
-import { toFormattedString } from "../../../../base/common/jsonFormatter.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import {
-  ITextModelService
-} from "../../../../editor/common/services/resolverService.js";
-import { TextEditorSelectionRevealType } from "../../../../platform/editor/common/editor.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { TerminalExitReason } from "../../../../platform/terminal/common/terminal.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import {
-  IWorkspaceTrustManagementService,
-  IWorkspaceTrustRequestService
-} from "../../../../platform/workspace/common/workspaceTrust.js";
-import { VirtualWorkspaceContext } from "../../../common/contextkeys.js";
-import { EditorResourceAccessor, SaveReason } from "../../../common/editor.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import {
-  ILifecycleService,
-  ShutdownReason,
-  StartupKind
-} from "../../../services/lifecycle/common/lifecycle.js";
-import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
-import { IPathService } from "../../../services/path/common/pathService.js";
-import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
-import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import {
+  configureTaskIcon,
+  isWorkspaceFolder,
   QUICKOPEN_DETAIL_CONFIG,
   QUICKOPEN_SKIP_CONFIG,
-  TaskQuickPick,
-  configureTaskIcon,
-  isWorkspaceFolder
+  TaskQuickPick
 } from "./taskQuickPick.js";
+import { TerminalTaskSystem } from "./terminalTaskSystem.js";
 const QUICKOPEN_HISTORY_LIMIT_CONFIG = "task.quickOpen.history";
 const PROBLEM_MATCHER_NEVER_CONFIG = "task.problemMatchers.neverPrompt";
 const USE_SLOW_PICKER = "task.quickOpen.showAll";
@@ -277,86 +277,123 @@ let AbstractTaskService = class extends Disposable {
     this._themeService = _themeService;
     this._lifecycleService = _lifecycleService;
     this._instantiationService = _instantiationService;
-    this._whenTaskSystemReady = Event.toPromise(this.onDidChangeTaskSystemInfo);
+    this._whenTaskSystemReady = Event.toPromise(
+      this.onDidChangeTaskSystemInfo
+    );
     this._workspaceTasksPromise = void 0;
     this._taskSystem = void 0;
     this._taskSystemListeners = void 0;
-    this._outputChannel = this._outputService.getChannel(AbstractTaskService.OutputChannelId);
+    this._outputChannel = this._outputService.getChannel(
+      AbstractTaskService.OutputChannelId
+    );
     this._providers = /* @__PURE__ */ new Map();
     this._providerTypes = /* @__PURE__ */ new Map();
     this._taskSystemInfos = /* @__PURE__ */ new Map();
-    this._register(this._contextService.onDidChangeWorkspaceFolders(() => {
-      const folderSetup = this._computeWorkspaceFolderSetup();
-      if (this.executionEngine !== folderSetup[2]) {
-        this._disposeTaskSystemListeners();
-        this._taskSystem = void 0;
-      }
-      this._updateSetup(folderSetup);
-      return this._updateWorkspaceTasks(TaskRunSource.FolderOpen);
-    }));
-    this._register(this._configurationService.onDidChangeConfiguration(async (e) => {
-      if (!e.affectsConfiguration("tasks") || !this._taskSystem && !this._workspaceTasksPromise) {
-        return;
-      }
-      if (!this._taskSystem || this._taskSystem instanceof TerminalTaskSystem) {
-        this._outputChannel.clear();
-      }
-      if (e.affectsConfiguration(TaskSettingId.Reconnection)) {
-        if (!this._configurationService.getValue(TaskSettingId.Reconnection)) {
-          this._persistentTasks?.clear();
-          this._storageService.remove(AbstractTaskService.PersistentTasks_Key, StorageScope.WORKSPACE);
+    this._register(
+      this._contextService.onDidChangeWorkspaceFolders(() => {
+        const folderSetup = this._computeWorkspaceFolderSetup();
+        if (this.executionEngine !== folderSetup[2]) {
+          this._disposeTaskSystemListeners();
+          this._taskSystem = void 0;
         }
-      }
-      this._setTaskLRUCacheLimit();
-      await this._updateWorkspaceTasks(TaskRunSource.ConfigurationChange);
-      this._onDidChangeTaskConfig.fire();
-    }));
+        this._updateSetup(folderSetup);
+        return this._updateWorkspaceTasks(TaskRunSource.FolderOpen);
+      })
+    );
+    this._register(
+      this._configurationService.onDidChangeConfiguration(async (e) => {
+        if (!e.affectsConfiguration("tasks") || !this._taskSystem && !this._workspaceTasksPromise) {
+          return;
+        }
+        if (!this._taskSystem || this._taskSystem instanceof TerminalTaskSystem) {
+          this._outputChannel.clear();
+        }
+        if (e.affectsConfiguration(TaskSettingId.Reconnection)) {
+          if (!this._configurationService.getValue(
+            TaskSettingId.Reconnection
+          )) {
+            this._persistentTasks?.clear();
+            this._storageService.remove(
+              AbstractTaskService.PersistentTasks_Key,
+              StorageScope.WORKSPACE
+            );
+          }
+        }
+        this._setTaskLRUCacheLimit();
+        await this._updateWorkspaceTasks(
+          TaskRunSource.ConfigurationChange
+        );
+        this._onDidChangeTaskConfig.fire();
+      })
+    );
     this._taskRunningState = TASK_RUNNING_STATE.bindTo(_contextKeyService);
     this._onDidStateChange = this._register(new Emitter());
-    this._registerCommands().then(() => TaskCommandsRegistered.bindTo(this._contextKeyService).set(true));
-    ServerlessWebContext.bindTo(this._contextKeyService).set(Platform.isWeb && !remoteAgentService.getConnection()?.remoteAuthority);
-    this._configurationResolverService.contributeVariable("defaultBuildTask", async () => {
-      let tasks = await this._getTasksForGroup(TaskGroup.Build, true);
-      if (tasks.length > 0) {
-        const defaults2 = this._getDefaultTasks(tasks);
-        if (defaults2.length === 1) {
-          return defaults2[0]._label;
+    this._registerCommands().then(
+      () => TaskCommandsRegistered.bindTo(this._contextKeyService).set(true)
+    );
+    ServerlessWebContext.bindTo(this._contextKeyService).set(
+      Platform.isWeb && !remoteAgentService.getConnection()?.remoteAuthority
+    );
+    this._configurationResolverService.contributeVariable(
+      "defaultBuildTask",
+      async () => {
+        let tasks = await this._getTasksForGroup(TaskGroup.Build, true);
+        if (tasks.length > 0) {
+          const defaults2 = this._getDefaultTasks(tasks);
+          if (defaults2.length === 1) {
+            return defaults2[0]._label;
+          }
         }
-      }
-      tasks = await this._getTasksForGroup(TaskGroup.Build);
-      const defaults = this._getDefaultTasks(tasks);
-      if (defaults.length === 1) {
-        return defaults[0]._label;
-      } else if (defaults.length) {
-        tasks = defaults;
-      }
-      let entry;
-      if (tasks && tasks.length > 0) {
-        entry = await this._showQuickPick(tasks, nls.localize("TaskService.pickBuildTaskForLabel", "Select the build task (there is no default build task defined)"));
-      }
-      const task = entry ? entry.task : void 0;
-      if (!task) {
-        return void 0;
-      }
-      return task._label;
-    });
-    this._register(this._lifecycleService.onBeforeShutdown((e) => {
-      this._willRestart = e.reason !== ShutdownReason.RELOAD;
-    }));
-    this._register(this.onDidStateChange((e) => {
-      this._log(nls.localize("taskEvent", "Task Event kind: {0}", e.kind), true);
-      if (e.kind === TaskEventKind.Changed) {
-      } else if ((this._willRestart || e.kind === TaskEventKind.Terminated && e.exitReason === TerminalExitReason.User) && e.taskId) {
-        const key = e.__task.getKey();
-        if (key) {
-          this.removePersistentTask(key);
+        tasks = await this._getTasksForGroup(TaskGroup.Build);
+        const defaults = this._getDefaultTasks(tasks);
+        if (defaults.length === 1) {
+          return defaults[0]._label;
+        } else if (defaults.length) {
+          tasks = defaults;
         }
-      } else if (e.kind === TaskEventKind.Start && e.__task && e.__task.getWorkspaceFolder()) {
-        this._setPersistentTask(e.__task);
+        let entry;
+        if (tasks && tasks.length > 0) {
+          entry = await this._showQuickPick(
+            tasks,
+            nls.localize(
+              "TaskService.pickBuildTaskForLabel",
+              "Select the build task (there is no default build task defined)"
+            )
+          );
+        }
+        const task = entry ? entry.task : void 0;
+        if (!task) {
+          return void 0;
+        }
+        return task._label;
       }
-    }));
+    );
+    this._register(
+      this._lifecycleService.onBeforeShutdown((e) => {
+        this._willRestart = e.reason !== ShutdownReason.RELOAD;
+      })
+    );
+    this._register(
+      this.onDidStateChange((e) => {
+        this._log(
+          nls.localize("taskEvent", "Task Event kind: {0}", e.kind),
+          true
+        );
+        if (e.kind === TaskEventKind.Changed) {
+        } else if ((this._willRestart || e.kind === TaskEventKind.Terminated && e.exitReason === TerminalExitReason.User) && e.taskId) {
+          const key = e.__task.getKey();
+          if (key) {
+            this.removePersistentTask(key);
+          }
+        } else if (e.kind === TaskEventKind.Start && e.__task && e.__task.getWorkspaceFolder()) {
+          this._setPersistentTask(e.__task);
+        }
+      })
+    );
     this._waitForAllSupportedExecutions = new Promise((resolve) => {
-      Event.once(this._onDidRegisterAllSupportedExecutions.event)(() => resolve());
+      Event.once(this._onDidRegisterAllSupportedExecutions.event)(
+        () => resolve()
+      );
     });
     if (this._terminalService.getReconnectedTerminals("Task")?.length) {
       this._attemptTaskReconnection();
@@ -4158,14 +4195,12 @@ let AbstractTaskService = class extends Disposable {
     } else {
       taskPromise = Promise.resolve(new TaskMap());
     }
-    const stats = this._contextService.getWorkspace().folders.map(
-      (folder) => {
-        return this._fileService.stat(folder.toResource(".vscode/tasks.json")).then(
-          (stat) => stat,
-          () => void 0
-        );
-      }
-    );
+    const stats = this._contextService.getWorkspace().folders.map((folder) => {
+      return this._fileService.stat(folder.toResource(".vscode/tasks.json")).then(
+        (stat) => stat,
+        () => void 0
+      );
+    });
     const createLabel = nls.localize(
       "TaskService.createJsonFile",
       "Create tasks.json file from template"

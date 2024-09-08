@@ -10,10 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
 import {
   BaseActionViewItem
 } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
 import { AnchorAlignment } from "../../../../base/browser/ui/contextview/contextview.js";
 import { DropdownMenuActionViewItem } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
 import {
@@ -71,7 +71,12 @@ let TestingExplorerFilter = class extends BaseActionViewItem {
     this.instantiationService = instantiationService;
     this.testService = testService;
     this.updateFilterActiveState();
-    this._register(testService.excluded.onTestExclusionsChanged(this.updateFilterActiveState, this));
+    this._register(
+      testService.excluded.onTestExclusionsChanged(
+        this.updateFilterActiveState,
+        this
+      )
+    );
   }
   input;
   wrapper;

@@ -72,20 +72,20 @@ import {
 } from "../../../services/editor/common/editorService.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
 import {
-  BREAKPOINTS_VIEW_ID,
   BREAKPOINT_EDITOR_CONTRIBUTION_ID,
-  CONTEXT_BREAKPOINTS_EXIST,
-  CONTEXT_BREAKPOINTS_FOCUSED,
+  BREAKPOINTS_VIEW_ID,
   CONTEXT_BREAKPOINT_HAS_MODES,
   CONTEXT_BREAKPOINT_INPUT_FOCUSED,
   CONTEXT_BREAKPOINT_ITEM_IS_DATA_BYTES,
   CONTEXT_BREAKPOINT_ITEM_TYPE,
   CONTEXT_BREAKPOINT_SUPPORTS_CONDITION,
+  CONTEXT_BREAKPOINTS_EXIST,
+  CONTEXT_BREAKPOINTS_FOCUSED,
   CONTEXT_DEBUGGERS_AVAILABLE,
   CONTEXT_IN_DEBUG_MODE,
   CONTEXT_SET_DATA_BREAKPOINT_BYTES_SUPPORTED,
-  DEBUG_SCHEME,
   DataBreakpointSetType,
+  DEBUG_SCHEME,
   DebuggerString,
   IDebugService,
   State
@@ -114,23 +114,46 @@ function getExpandedBodySize(model, sessionId, countLimit) {
 }
 let BreakpointsView = class extends ViewPane {
   constructor(options, contextMenuService, debugService, keybindingService, instantiationService, themeService, editorService, contextViewService, configurationService, viewDescriptorService, contextKeyService, openerService, telemetryService, labelService, menuService, hoverService, languageService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.debugService = debugService;
     this.editorService = editorService;
     this.contextViewService = contextViewService;
     this.labelService = labelService;
     this.languageService = languageService;
-    this.menu = menuService.createMenu(MenuId.DebugBreakpointsContext, contextKeyService);
+    this.menu = menuService.createMenu(
+      MenuId.DebugBreakpointsContext,
+      contextKeyService
+    );
     this._register(this.menu);
     this.breakpointItemType = CONTEXT_BREAKPOINT_ITEM_TYPE.bindTo(contextKeyService);
     this.breakpointIsDataBytes = CONTEXT_BREAKPOINT_ITEM_IS_DATA_BYTES.bindTo(contextKeyService);
     this.breakpointHasMultipleModes = CONTEXT_BREAKPOINT_HAS_MODES.bindTo(contextKeyService);
     this.breakpointSupportsCondition = CONTEXT_BREAKPOINT_SUPPORTS_CONDITION.bindTo(contextKeyService);
     this.breakpointInputFocused = CONTEXT_BREAKPOINT_INPUT_FOCUSED.bindTo(contextKeyService);
-    this._register(this.debugService.getModel().onDidChangeBreakpoints(() => this.onBreakpointsChange()));
-    this._register(this.debugService.getViewModel().onDidFocusSession(() => this.onBreakpointsChange()));
-    this._register(this.debugService.onDidChangeState(() => this.onStateChange()));
-    this.hintDelayer = this._register(new RunOnceScheduler(() => this.updateBreakpointsHint(true), 4e3));
+    this._register(
+      this.debugService.getModel().onDidChangeBreakpoints(() => this.onBreakpointsChange())
+    );
+    this._register(
+      this.debugService.getViewModel().onDidFocusSession(() => this.onBreakpointsChange())
+    );
+    this._register(
+      this.debugService.onDidChangeState(() => this.onStateChange())
+    );
+    this.hintDelayer = this._register(
+      new RunOnceScheduler(() => this.updateBreakpointsHint(true), 4e3)
+    );
   }
   list;
   needsRefresh = false;

@@ -39,7 +39,11 @@ let UserDataSyncReportIssueContribution = class extends Disposable {
     this.productService = productService;
     this.commandService = commandService;
     this.hostService = hostService;
-    this._register(userDataAutoSyncService.onError((error) => this.onAutoSyncError(error)));
+    this._register(
+      userDataAutoSyncService.onError(
+        (error) => this.onAutoSyncError(error)
+      )
+    );
   }
   onAutoSyncError(error) {
     switch (error.code) {

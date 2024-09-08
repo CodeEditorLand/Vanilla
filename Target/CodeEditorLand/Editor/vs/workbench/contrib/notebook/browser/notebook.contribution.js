@@ -52,9 +52,9 @@ import {
   EditorPaneDescriptor
 } from "../../../browser/editor.js";
 import {
+  registerWorkbenchContribution2,
   Extensions as WorkbenchExtensions,
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   EditorExtensions
@@ -296,13 +296,25 @@ let NotebookContribution = class extends Disposable {
   constructor(undoRedoService, configurationService, codeEditorService) {
     super();
     this.codeEditorService = codeEditorService;
-    this.updateCellUndoRedoComparisonKey(configurationService, undoRedoService);
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(NotebookSetting.undoRedoPerCell)) {
-        this.updateCellUndoRedoComparisonKey(configurationService, undoRedoService);
-      }
-    }));
-    this.codeEditorService.registerDecorationType("comment-controller", COMMENTEDITOR_DECORATION_KEY, {});
+    this.updateCellUndoRedoComparisonKey(
+      configurationService,
+      undoRedoService
+    );
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(NotebookSetting.undoRedoPerCell)) {
+          this.updateCellUndoRedoComparisonKey(
+            configurationService,
+            undoRedoService
+          );
+        }
+      })
+    );
+    this.codeEditorService.registerDecorationType(
+      "comment-controller",
+      COMMENTEDITOR_DECORATION_KEY,
+      {}
+    );
   }
   static ID = "workbench.contrib.notebook";
   _uriComparisonKeyComputer;
@@ -354,7 +366,10 @@ let CellContentProvider = class {
     this._modelService = _modelService;
     this._languageService = _languageService;
     this._notebookModelResolverService = _notebookModelResolverService;
-    this._registration = textModelService.registerTextModelContentProvider(CellUri.scheme, this);
+    this._registration = textModelService.registerTextModelContentProvider(
+      CellUri.scheme,
+      this
+    );
   }
   static ID = "workbench.contrib.cellContentProvider";
   _registration;
@@ -433,26 +448,40 @@ let CellInfoContentProvider = class {
     this._languageService = _languageService;
     this._labelService = _labelService;
     this._notebookModelResolverService = _notebookModelResolverService;
-    this._disposables.push(textModelService.registerTextModelContentProvider(Schemas.vscodeNotebookCellMetadata, {
-      provideTextContent: this.provideMetadataTextContent.bind(this)
-    }));
-    this._disposables.push(textModelService.registerTextModelContentProvider(Schemas.vscodeNotebookCellOutput, {
-      provideTextContent: this.provideOutputTextContent.bind(this)
-    }));
-    this._disposables.push(this._labelService.registerFormatter({
-      scheme: Schemas.vscodeNotebookCellMetadata,
-      formatting: {
-        label: "${path} (metadata)",
-        separator: "/"
-      }
-    }));
-    this._disposables.push(this._labelService.registerFormatter({
-      scheme: Schemas.vscodeNotebookCellOutput,
-      formatting: {
-        label: "${path} (output)",
-        separator: "/"
-      }
-    }));
+    this._disposables.push(
+      textModelService.registerTextModelContentProvider(
+        Schemas.vscodeNotebookCellMetadata,
+        {
+          provideTextContent: this.provideMetadataTextContent.bind(this)
+        }
+      )
+    );
+    this._disposables.push(
+      textModelService.registerTextModelContentProvider(
+        Schemas.vscodeNotebookCellOutput,
+        {
+          provideTextContent: this.provideOutputTextContent.bind(this)
+        }
+      )
+    );
+    this._disposables.push(
+      this._labelService.registerFormatter({
+        scheme: Schemas.vscodeNotebookCellMetadata,
+        formatting: {
+          label: "${path} (metadata)",
+          separator: "/"
+        }
+      })
+    );
+    this._disposables.push(
+      this._labelService.registerFormatter({
+        scheme: Schemas.vscodeNotebookCellOutput,
+        formatting: {
+          label: "${path} (output)",
+          separator: "/"
+        }
+      })
+    );
   }
   static ID = "workbench.contrib.cellInfoContentProvider";
   _disposables = [];
@@ -697,18 +726,24 @@ let NotebookEditorManager = class {
   constructor(_editorService, _notebookEditorModelService, editorGroups) {
     this._editorService = _editorService;
     this._notebookEditorModelService = _notebookEditorModelService;
-    this._disposables.add(Event.debounce(
-      this._notebookEditorModelService.onDidChangeDirty,
-      (last, current) => last ? [...last, current] : [current],
-      100
-    )(this._openMissingDirtyNotebookEditors, this));
-    this._disposables.add(_notebookEditorModelService.onWillFailWithConflict((e) => {
-      for (const group of editorGroups.groups) {
-        const conflictInputs = group.editors.filter((input) => input instanceof NotebookEditorInput && input.viewType !== e.viewType && isEqual(input.resource, e.resource));
-        const p = group.closeEditors(conflictInputs);
-        e.waitUntil(p);
-      }
-    }));
+    this._disposables.add(
+      Event.debounce(
+        this._notebookEditorModelService.onDidChangeDirty,
+        (last, current) => last ? [...last, current] : [current],
+        100
+      )(this._openMissingDirtyNotebookEditors, this)
+    );
+    this._disposables.add(
+      _notebookEditorModelService.onWillFailWithConflict((e) => {
+        for (const group of editorGroups.groups) {
+          const conflictInputs = group.editors.filter(
+            (input) => input instanceof NotebookEditorInput && input.viewType !== e.viewType && isEqual(input.resource, e.resource)
+          );
+          const p = group.closeEditors(conflictInputs);
+          e.waitUntil(p);
+        }
+      })
+    );
   }
   static ID = "workbench.contrib.notebookEditorManager";
   _disposables = new DisposableStore();
@@ -799,7 +834,9 @@ SimpleNotebookWorkingCopyEditorHandler = __decorateClass([
 let NotebookLanguageSelectorScoreRefine = class {
   constructor(_notebookService, languageFeaturesService) {
     this._notebookService = _notebookService;
-    languageFeaturesService.setNotebookTypeResolver(this._getNotebookInfo.bind(this));
+    languageFeaturesService.setNotebookTypeResolver(
+      this._getNotebookInfo.bind(this)
+    );
   }
   static ID = "workbench.contrib.notebookLanguageSelectorScoreRefine";
   _getNotebookInfo(uri) {

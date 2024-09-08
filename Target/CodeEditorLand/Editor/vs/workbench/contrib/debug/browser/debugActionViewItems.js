@@ -62,7 +62,18 @@ let StartDebugActionViewItem = class extends BaseActionViewItem {
     this.hoverService = hoverService;
     this.contextKeyService = contextKeyService;
     this.toDispose = [];
-    this.selectBox = new SelectBox([], -1, contextViewService, defaultSelectBoxStyles, { ariaLabel: nls.localize("debugLaunchConfigurations", "Debug Launch Configurations") });
+    this.selectBox = new SelectBox(
+      [],
+      -1,
+      contextViewService,
+      defaultSelectBoxStyles,
+      {
+        ariaLabel: nls.localize(
+          "debugLaunchConfigurations",
+          "Debug Launch Configurations"
+        )
+      }
+    );
     this.selectBox.setFocusable(false);
     this.toDispose.push(this.selectBox);
     this.registerListeners();
@@ -376,22 +387,38 @@ StartDebugActionViewItem = __decorateClass([
 ], StartDebugActionViewItem);
 let FocusSessionActionViewItem = class extends SelectActionViewItem {
   constructor(action, session, debugService, contextViewService, configurationService) {
-    super(null, action, [], -1, contextViewService, defaultSelectBoxStyles, { ariaLabel: nls.localize("debugSession", "Debug Session") });
+    super(
+      null,
+      action,
+      [],
+      -1,
+      contextViewService,
+      defaultSelectBoxStyles,
+      { ariaLabel: nls.localize("debugSession", "Debug Session") }
+    );
     this.debugService = debugService;
     this.configurationService = configurationService;
-    this._register(this.debugService.getViewModel().onDidFocusSession(() => {
-      const session2 = this.getSelectedSession();
-      if (session2) {
-        const index = this.getSessions().indexOf(session2);
-        this.select(index);
-      }
-    }));
-    this._register(this.debugService.onDidNewSession((session2) => {
-      const sessionListeners = [];
-      sessionListeners.push(session2.onDidChangeName(() => this.update()));
-      sessionListeners.push(session2.onDidEndAdapter(() => dispose(sessionListeners)));
-      this.update();
-    }));
+    this._register(
+      this.debugService.getViewModel().onDidFocusSession(() => {
+        const session2 = this.getSelectedSession();
+        if (session2) {
+          const index = this.getSessions().indexOf(session2);
+          this.select(index);
+        }
+      })
+    );
+    this._register(
+      this.debugService.onDidNewSession((session2) => {
+        const sessionListeners = [];
+        sessionListeners.push(
+          session2.onDidChangeName(() => this.update())
+        );
+        sessionListeners.push(
+          session2.onDidEndAdapter(() => dispose(sessionListeners))
+        );
+        this.update();
+      })
+    );
     this.getSessions().forEach((session2) => {
       this._register(session2.onDidChangeName(() => this.update()));
     });

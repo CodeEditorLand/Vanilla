@@ -30,7 +30,7 @@ import {
   DisposableStore,
   toDisposable
 } from "../../../../base/common/lifecycle.js";
-import { OS, isIOS } from "../../../../base/common/platform.js";
+import { isIOS, OS } from "../../../../base/common/platform.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
 import { isString } from "../../../../base/common/types.js";
 import { EditorExtensionsRegistry } from "../../../../editor/browser/editorExtensions.js";
@@ -38,9 +38,9 @@ import { CompletionItemKind } from "../../../../editor/common/languages.js";
 import { localize } from "../../../../nls.js";
 import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 import {
+  isIMenuItem,
   MenuId,
-  MenuRegistry,
-  isIMenuItem
+  MenuRegistry
 } from "../../../../platform/actions/common/actions.js";
 import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
@@ -101,9 +101,9 @@ import { AccessibilityVerbositySettingId } from "../../accessibility/browser/acc
 import { SuggestEnabledInput } from "../../codeEditor/browser/suggestEnabledInput/suggestEnabledInput.js";
 import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
 import {
+  CONTEXT_KEYBINDING_FOCUS,
   CONTEXT_KEYBINDINGS_EDITOR,
   CONTEXT_KEYBINDINGS_SEARCH_FOCUS,
-  CONTEXT_KEYBINDING_FOCUS,
   CONTEXT_WHEN_FOCUS,
   KEYBINDINGS_EDITOR_COMMAND_ADD,
   KEYBINDINGS_EDITOR_COMMAND_CLEAR_SEARCH_RESULTS,
@@ -133,7 +133,13 @@ import {
 const $ = DOM.$;
 let KeybindingsEditor = class extends EditorPane {
   constructor(group, telemetryService, themeService, keybindingsService, contextMenuService, keybindingEditingService, contextKeyService, notificationService, clipboardService, instantiationService, editorService, storageService, configurationService, accessibilityService) {
-    super(KeybindingsEditor.ID, group, telemetryService, themeService, storageService);
+    super(
+      KeybindingsEditor.ID,
+      group,
+      telemetryService,
+      themeService,
+      storageService
+    );
     this.keybindingsService = keybindingsService;
     this.contextMenuService = contextMenuService;
     this.keybindingEditingService = keybindingEditingService;
@@ -145,16 +151,39 @@ let KeybindingsEditor = class extends EditorPane {
     this.configurationService = configurationService;
     this.accessibilityService = accessibilityService;
     this.delayedFiltering = new Delayer(300);
-    this._register(keybindingsService.onDidUpdateKeybindings(() => this.render(!!this.keybindingFocusContextKey.get())));
-    this.keybindingsEditorContextKey = CONTEXT_KEYBINDINGS_EDITOR.bindTo(this.contextKeyService);
-    this.searchFocusContextKey = CONTEXT_KEYBINDINGS_SEARCH_FOCUS.bindTo(this.contextKeyService);
-    this.keybindingFocusContextKey = CONTEXT_KEYBINDING_FOCUS.bindTo(this.contextKeyService);
+    this._register(
+      keybindingsService.onDidUpdateKeybindings(
+        () => this.render(!!this.keybindingFocusContextKey.get())
+      )
+    );
+    this.keybindingsEditorContextKey = CONTEXT_KEYBINDINGS_EDITOR.bindTo(
+      this.contextKeyService
+    );
+    this.searchFocusContextKey = CONTEXT_KEYBINDINGS_SEARCH_FOCUS.bindTo(
+      this.contextKeyService
+    );
+    this.keybindingFocusContextKey = CONTEXT_KEYBINDING_FOCUS.bindTo(
+      this.contextKeyService
+    );
     this.searchHistoryDelayer = new Delayer(500);
-    this.recordKeysAction = new Action(KEYBINDINGS_EDITOR_COMMAND_RECORD_SEARCH_KEYS, localize("recordKeysLabel", "Record Keys"), ThemeIcon.asClassName(keybindingsRecordKeysIcon));
+    this.recordKeysAction = new Action(
+      KEYBINDINGS_EDITOR_COMMAND_RECORD_SEARCH_KEYS,
+      localize("recordKeysLabel", "Record Keys"),
+      ThemeIcon.asClassName(keybindingsRecordKeysIcon)
+    );
     this.recordKeysAction.checked = false;
-    this.sortByPrecedenceAction = new Action(KEYBINDINGS_EDITOR_COMMAND_SORTBY_PRECEDENCE, localize("sortByPrecedeneLabel", "Sort by Precedence (Highest first)"), ThemeIcon.asClassName(keybindingsSortIcon));
+    this.sortByPrecedenceAction = new Action(
+      KEYBINDINGS_EDITOR_COMMAND_SORTBY_PRECEDENCE,
+      localize(
+        "sortByPrecedeneLabel",
+        "Sort by Precedence (Highest first)"
+      ),
+      ThemeIcon.asClassName(keybindingsSortIcon)
+    );
     this.sortByPrecedenceAction.checked = false;
-    this.overflowWidgetsDomNode = $(".keybindings-overflow-widgets-container.monaco-editor");
+    this.overflowWidgetsDomNode = $(
+      ".keybindings-overflow-widgets-container.monaco-editor"
+    );
   }
   static ID = "workbench.editor.keybindings";
   _onDefineWhenExpression = this._register(new Emitter());

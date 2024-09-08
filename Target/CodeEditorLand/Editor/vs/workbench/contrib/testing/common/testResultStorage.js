@@ -10,9 +10,9 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  VSBuffer,
   bufferToStream,
-  newWriteableBufferStream
+  newWriteableBufferStream,
+  VSBuffer
 } from "../../../../base/common/buffer.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { isDefined } from "../../../../base/common/types.js";
@@ -165,7 +165,11 @@ let TestResultStorage = class extends BaseTestResultStorage {
   constructor(uriIdentityService, storageService, logService, workspaceContext, fileService, environmentService) {
     super(uriIdentityService, storageService, logService);
     this.fileService = fileService;
-    this.directory = URI.joinPath(environmentService.workspaceStorageHome, workspaceContext.getWorkspace().id, "testResults");
+    this.directory = URI.joinPath(
+      environmentService.workspaceStorageHome,
+      workspaceContext.getWorkspace().id,
+      "testResults"
+    );
   }
   directory;
   async readForResultId(id) {

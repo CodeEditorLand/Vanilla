@@ -33,9 +33,9 @@ import {
   ITimelineService
 } from "../../timeline/common/timeline.js";
 import {
+  getLocalHistoryDateFormatter,
   LOCAL_HISTORY_ICON_ENTRY,
-  LOCAL_HISTORY_MENU_CONTEXT_VALUE,
-  getLocalHistoryDateFormatter
+  LOCAL_HISTORY_MENU_CONTEXT_VALUE
 } from "./localHistory.js";
 import {
   COMPARE_WITH_FILE_LABEL,

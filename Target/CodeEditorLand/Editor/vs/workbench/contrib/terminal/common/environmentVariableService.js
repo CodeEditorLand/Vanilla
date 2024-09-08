@@ -31,19 +31,33 @@ let EnvironmentVariableService = class extends Disposable {
     super();
     this._extensionService = _extensionService;
     this._storageService = _storageService;
-    this._storageService.remove(TerminalStorageKeys.DeprecatedEnvironmentVariableCollections, StorageScope.WORKSPACE);
-    const serializedPersistedCollections = this._storageService.get(TerminalStorageKeys.EnvironmentVariableCollections, StorageScope.WORKSPACE);
+    this._storageService.remove(
+      TerminalStorageKeys.DeprecatedEnvironmentVariableCollections,
+      StorageScope.WORKSPACE
+    );
+    const serializedPersistedCollections = this._storageService.get(
+      TerminalStorageKeys.EnvironmentVariableCollections,
+      StorageScope.WORKSPACE
+    );
     if (serializedPersistedCollections) {
       const collectionsJson = JSON.parse(serializedPersistedCollections);
-      collectionsJson.forEach((c) => this.collections.set(c.extensionIdentifier, {
-        persistent: true,
-        map: deserializeEnvironmentVariableCollection(c.collection),
-        descriptionMap: deserializeEnvironmentDescriptionMap(c.description)
-      }));
+      collectionsJson.forEach(
+        (c) => this.collections.set(c.extensionIdentifier, {
+          persistent: true,
+          map: deserializeEnvironmentVariableCollection(c.collection),
+          descriptionMap: deserializeEnvironmentDescriptionMap(
+            c.description
+          )
+        })
+      );
       this._invalidateExtensionCollections();
     }
     this.mergedCollection = this._resolveMergedCollection();
-    this._register(this._extensionService.onDidChangeExtensions(() => this._invalidateExtensionCollections()));
+    this._register(
+      this._extensionService.onDidChangeExtensions(
+        () => this._invalidateExtensionCollections()
+      )
+    );
   }
   collections = /* @__PURE__ */ new Map();
   mergedCollection;

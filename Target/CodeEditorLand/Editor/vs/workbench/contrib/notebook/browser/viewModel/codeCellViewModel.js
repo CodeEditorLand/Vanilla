@@ -35,33 +35,67 @@ import { CellOutputViewModel } from "./cellOutputViewModel.js";
 const outputDisplayLimit = 500;
 let CodeCellViewModel = class extends BaseCellViewModel {
   constructor(viewType, model, initialNotebookLayoutInfo, viewContext, configurationService, _notebookService, modelService, undoRedoService, codeEditorService, instantiationService) {
-    super(viewType, model, UUID.generateUuid(), viewContext, configurationService, modelService, undoRedoService, codeEditorService);
+    super(
+      viewType,
+      model,
+      UUID.generateUuid(),
+      viewContext,
+      configurationService,
+      modelService,
+      undoRedoService,
+      codeEditorService
+    );
     this.viewContext = viewContext;
     this._notebookService = _notebookService;
-    this._outputViewModels = this.model.outputs.map((output) => new CellOutputViewModel(this, output, this._notebookService));
-    this._register(this.model.onDidChangeOutputs((splice) => {
-      const removedOutputs = [];
-      let outputLayoutChange = false;
-      for (let i = splice.start; i < splice.start + splice.deleteCount; i++) {
-        if (this._outputCollection[i] !== void 0 && this._outputCollection[i] !== 0) {
-          outputLayoutChange = true;
+    this._outputViewModels = this.model.outputs.map(
+      (output) => new CellOutputViewModel(this, output, this._notebookService)
+    );
+    this._register(
+      this.model.onDidChangeOutputs((splice) => {
+        const removedOutputs = [];
+        let outputLayoutChange = false;
+        for (let i = splice.start; i < splice.start + splice.deleteCount; i++) {
+          if (this._outputCollection[i] !== void 0 && this._outputCollection[i] !== 0) {
+            outputLayoutChange = true;
+          }
         }
-      }
-      this._outputCollection.splice(splice.start, splice.deleteCount, ...splice.newOutputs.map(() => 0));
-      removedOutputs.push(...this._outputViewModels.splice(splice.start, splice.deleteCount, ...splice.newOutputs.map((output) => new CellOutputViewModel(this, output, this._notebookService))));
-      this._outputsTop = null;
-      this._onDidChangeOutputs.fire(splice);
-      this._onDidRemoveOutputs.fire(removedOutputs);
-      if (outputLayoutChange) {
-        this.layoutChange({ outputHeight: true }, "CodeCellViewModel#model.onDidChangeOutputs");
-      }
-      dispose(removedOutputs);
-    }));
+        this._outputCollection.splice(
+          splice.start,
+          splice.deleteCount,
+          ...splice.newOutputs.map(() => 0)
+        );
+        removedOutputs.push(
+          ...this._outputViewModels.splice(
+            splice.start,
+            splice.deleteCount,
+            ...splice.newOutputs.map(
+              (output) => new CellOutputViewModel(
+                this,
+                output,
+                this._notebookService
+              )
+            )
+          )
+        );
+        this._outputsTop = null;
+        this._onDidChangeOutputs.fire(splice);
+        this._onDidRemoveOutputs.fire(removedOutputs);
+        if (outputLayoutChange) {
+          this.layoutChange(
+            { outputHeight: true },
+            "CodeCellViewModel#model.onDidChangeOutputs"
+          );
+        }
+        dispose(removedOutputs);
+      })
+    );
     this._outputCollection = new Array(this.model.outputs.length);
     this._layoutInfo = {
       fontInfo: initialNotebookLayoutInfo?.fontInfo || null,
       editorHeight: 0,
-      editorWidth: initialNotebookLayoutInfo ? this.viewContext.notebookOptions.computeCodeCellEditorWidth(initialNotebookLayoutInfo.width) : 0,
+      editorWidth: initialNotebookLayoutInfo ? this.viewContext.notebookOptions.computeCodeCellEditorWidth(
+        initialNotebookLayoutInfo.width
+      ) : 0,
       chatHeight: 0,
       statusBarHeight: 0,
       commentOffset: 0,

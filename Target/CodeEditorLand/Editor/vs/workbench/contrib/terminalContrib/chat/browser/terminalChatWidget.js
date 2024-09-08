@@ -49,8 +49,12 @@ let TerminalChatWidget = class extends Disposable {
     this._xterm = _xterm;
     this._instantiationService = _instantiationService;
     this._contextKeyService = _contextKeyService;
-    this._focusedContextKey = TerminalChatContextKeys.focused.bindTo(this._contextKeyService);
-    this._visibleContextKey = TerminalChatContextKeys.visible.bindTo(this._contextKeyService);
+    this._focusedContextKey = TerminalChatContextKeys.focused.bindTo(
+      this._contextKeyService
+    );
+    this._visibleContextKey = TerminalChatContextKeys.visible.bindTo(
+      this._contextKeyService
+    );
     this._container = document.createElement("div");
     this._container.classList.add("terminal-inline-chat");
     _terminalElement.appendChild(this._container);
@@ -85,25 +89,37 @@ let TerminalChatWidget = class extends Disposable {
         }
       }
     );
-    this._register(Event.any(
-      this._inlineChatWidget.onDidChangeHeight,
-      this._instance.onDimensionsChanged,
-      this._inlineChatWidget.chatWidget.onDidChangeContentHeight,
-      Event.debounce(this._xterm.raw.onCursorMove, () => void 0, MicrotaskDelay)
-    )(() => this._relayout()));
+    this._register(
+      Event.any(
+        this._inlineChatWidget.onDidChangeHeight,
+        this._instance.onDimensionsChanged,
+        this._inlineChatWidget.chatWidget.onDidChangeContentHeight,
+        Event.debounce(
+          this._xterm.raw.onCursorMove,
+          () => void 0,
+          MicrotaskDelay
+        )
+      )(() => this._relayout())
+    );
     const observer = new ResizeObserver(() => this._relayout());
     observer.observe(this._terminalElement);
     this._register(toDisposable(() => observer.disconnect()));
     this._reset();
     this._container.appendChild(this._inlineChatWidget.domNode);
     this._focusTracker = this._register(trackFocus(this._container));
-    this._register(this._focusTracker.onDidFocus(() => this._focusedContextKey.set(true)));
-    this._register(this._focusTracker.onDidBlur(() => {
-      this._focusedContextKey.set(false);
-      if (!this.inlineChatWidget.responseContent) {
-        this.hide();
-      }
-    }));
+    this._register(
+      this._focusTracker.onDidFocus(
+        () => this._focusedContextKey.set(true)
+      )
+    );
+    this._register(
+      this._focusTracker.onDidBlur(() => {
+        this._focusedContextKey.set(false);
+        if (!this.inlineChatWidget.responseContent) {
+          this.hide();
+        }
+      })
+    );
     this.hide();
   }
   _container;

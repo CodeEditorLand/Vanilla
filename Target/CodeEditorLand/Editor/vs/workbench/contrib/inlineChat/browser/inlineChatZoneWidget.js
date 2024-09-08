@@ -10,8 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  Dimension,
-  addDisposableListener
+  addDisposableListener,
+  Dimension
 } from "../../../../base/browser/dom.js";
 import * as aria from "../../../../base/browser/ui/aria/aria.js";
 import {
@@ -48,62 +48,102 @@ import {
 import { EditorBasedInlineChatWidget } from "./inlineChatWidget.js";
 let InlineChatZoneWidget = class extends ZoneWidget {
   constructor(location, editor, _instaService, _logService, contextKeyService, configurationService) {
-    super(editor, { showFrame: false, showArrow: false, isAccessible: true, className: "inline-chat-widget", keepEditorSelection: true, showInHiddenAreas: true, ordinal: 5e4 });
+    super(editor, {
+      showFrame: false,
+      showArrow: false,
+      isAccessible: true,
+      className: "inline-chat-widget",
+      keepEditorSelection: true,
+      showInHiddenAreas: true,
+      ordinal: 5e4
+    });
     this._instaService = _instaService;
     this._logService = _logService;
     this._ctxCursorPosition = CTX_INLINE_CHAT_OUTER_CURSOR_POSITION.bindTo(contextKeyService);
-    this._disposables.add(toDisposable(() => {
-      this._ctxCursorPosition.reset();
-    }));
-    this.widget = this._instaService.createInstance(EditorBasedInlineChatWidget, location, this.editor, {
-      statusMenuId: {
-        menu: MENU_INLINE_CHAT_WIDGET_STATUS,
-        options: {
-          buttonConfigProvider: (action, index) => {
-            const isSecondary = index > 0;
-            if ((/* @__PURE__ */ new Set([ACTION_REGENERATE_RESPONSE, ACTION_TOGGLE_DIFF, ACTION_REPORT_ISSUE])).has(action.id)) {
-              return { isSecondary, showIcon: true, showLabel: false };
-            } else {
-              return { isSecondary };
+    this._disposables.add(
+      toDisposable(() => {
+        this._ctxCursorPosition.reset();
+      })
+    );
+    this.widget = this._instaService.createInstance(
+      EditorBasedInlineChatWidget,
+      location,
+      this.editor,
+      {
+        statusMenuId: {
+          menu: MENU_INLINE_CHAT_WIDGET_STATUS,
+          options: {
+            buttonConfigProvider: (action, index) => {
+              const isSecondary = index > 0;
+              if ((/* @__PURE__ */ new Set([
+                ACTION_REGENERATE_RESPONSE,
+                ACTION_TOGGLE_DIFF,
+                ACTION_REPORT_ISSUE
+              ])).has(action.id)) {
+                return {
+                  isSecondary,
+                  showIcon: true,
+                  showLabel: false
+                };
+              } else {
+                return { isSecondary };
+              }
+            }
+          }
+        },
+        secondaryMenuId: MENU_INLINE_CHAT_WIDGET_SECONDARY,
+        chatWidgetViewOptions: {
+          menus: {
+            executeToolbar: MenuId.ChatExecute,
+            telemetrySource: "interactiveEditorWidget-toolbar"
+          },
+          rendererOptions: {
+            renderTextEditsAsSummary: (uri) => {
+              return isEqual(uri, editor.getModel()?.uri) && configurationService.getValue(
+                InlineChatConfigKeys.Mode
+              ) === EditMode.Live;
             }
           }
         }
-      },
-      secondaryMenuId: MENU_INLINE_CHAT_WIDGET_SECONDARY,
-      chatWidgetViewOptions: {
-        menus: {
-          executeToolbar: MenuId.ChatExecute,
-          telemetrySource: "interactiveEditorWidget-toolbar"
-        },
-        rendererOptions: {
-          renderTextEditsAsSummary: (uri) => {
-            return isEqual(uri, editor.getModel()?.uri) && configurationService.getValue(InlineChatConfigKeys.Mode) === EditMode.Live;
-          }
-        }
       }
-    });
+    );
     this._disposables.add(this.widget);
     let revealFn;
-    this._disposables.add(this.widget.chatWidget.onWillMaybeChangeHeight(() => {
-      if (this.position) {
-        revealFn = this._createZoneAndScrollRestoreFn(this.position);
-      }
-    }));
-    this._disposables.add(this.widget.onDidChangeHeight(() => {
-      if (this.position) {
-        revealFn ??= this._createZoneAndScrollRestoreFn(this.position);
-        const height = this._computeHeight();
-        this._relayout(height.linesValue);
-        revealFn();
-        revealFn = void 0;
-      }
-    }));
+    this._disposables.add(
+      this.widget.chatWidget.onWillMaybeChangeHeight(() => {
+        if (this.position) {
+          revealFn = this._createZoneAndScrollRestoreFn(
+            this.position
+          );
+        }
+      })
+    );
+    this._disposables.add(
+      this.widget.onDidChangeHeight(() => {
+        if (this.position) {
+          revealFn ??= this._createZoneAndScrollRestoreFn(
+            this.position
+          );
+          const height = this._computeHeight();
+          this._relayout(height.linesValue);
+          revealFn();
+          revealFn = void 0;
+        }
+      })
+    );
     this.create();
-    this._disposables.add(addDisposableListener(this.domNode, "click", (e) => {
-      if (!this.editor.hasWidgetFocus() && !this.widget.hasFocus()) {
-        this.editor.focus();
-      }
-    }, true));
+    this._disposables.add(
+      addDisposableListener(
+        this.domNode,
+        "click",
+        (e) => {
+          if (!this.editor.hasWidgetFocus() && !this.widget.hasFocus()) {
+            this.editor.focus();
+          }
+        },
+        true
+      )
+    );
     const updateCursorIsAboveContextKey = () => {
       if (!this.position || !this.editor.hasModel()) {
         this._ctxCursorPosition.reset();
@@ -115,8 +155,16 @@ let InlineChatZoneWidget = class extends ZoneWidget {
         this._ctxCursorPosition.reset();
       }
     };
-    this._disposables.add(this.editor.onDidChangeCursorPosition((e) => updateCursorIsAboveContextKey()));
-    this._disposables.add(this.editor.onDidFocusEditorText((e) => updateCursorIsAboveContextKey()));
+    this._disposables.add(
+      this.editor.onDidChangeCursorPosition(
+        (e) => updateCursorIsAboveContextKey()
+      )
+    );
+    this._disposables.add(
+      this.editor.onDidFocusEditorText(
+        (e) => updateCursorIsAboveContextKey()
+      )
+    );
     updateCursorIsAboveContextKey();
   }
   widget;

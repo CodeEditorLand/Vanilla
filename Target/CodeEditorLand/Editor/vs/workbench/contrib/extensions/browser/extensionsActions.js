@@ -32,8 +32,8 @@ import {
 } from "../../../../base/common/errors.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import {
-  MarkdownString,
-  escapeMarkdownSyntaxTokens
+  escapeMarkdownSyntaxTokens,
+  MarkdownString
 } from "../../../../base/common/htmlContent.js";
 import * as json from "../../../../base/common/json.js";
 import { disposeIfDisposable } from "../../../../base/common/lifecycle.js";
@@ -70,10 +70,10 @@ import {
 import {
   ExtensionIdentifier,
   ExtensionType,
-  TargetPlatform,
   getWorkspaceSupportTypeMessage,
   isApplicationScopedExtension,
-  isLanguagePackExtension
+  isLanguagePackExtension,
+  TargetPlatform
 } from "../../../../platform/extensions/common/extensions.js";
 import {
   IFileService
@@ -530,7 +530,12 @@ class ButtonWithDropdownExtensionActionViewItem extends ActionWithDropdownAction
 }
 let InstallAction = class extends ExtensionAction {
   constructor(options, extensionsWorkbenchService, instantiationService, runtimeExtensionService, workbenchThemeService, labelService, dialogService, preferencesService, telemetryService, contextService) {
-    super("extensions.install", localize("install", "Install"), InstallAction.CLASS, false);
+    super(
+      "extensions.install",
+      localize("install", "Install"),
+      InstallAction.CLASS,
+      false
+    );
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.instantiationService = instantiationService;
     this.runtimeExtensionService = runtimeExtensionService;
@@ -543,7 +548,12 @@ let InstallAction = class extends ExtensionAction {
     this.hideOnDisabled = false;
     this.options = { isMachineScoped: false, ...options };
     this.update();
-    this._register(this.labelService.onDidChangeFormatters(() => this.updateLabel(), this));
+    this._register(
+      this.labelService.onDidChangeFormatters(
+        () => this.updateLabel(),
+        this
+      )
+    );
   }
   static CLASS = `${this.LABEL_ACTION_CLASS} prominent install`;
   static HIDE = `${this.CLASS} hide`;
@@ -882,7 +892,12 @@ class InstallingLabelAction extends ExtensionAction {
 }
 let InstallInOtherServerAction = class extends ExtensionAction {
   constructor(id, server, canInstallAnyWhere, extensionsWorkbenchService, extensionManagementServerService, extensionManifestPropertiesService) {
-    super(id, InstallInOtherServerAction.INSTALL_LABEL, InstallInOtherServerAction.Class, false);
+    super(
+      id,
+      InstallInOtherServerAction.INSTALL_LABEL,
+      InstallInOtherServerAction.Class,
+      false
+    );
     this.server = server;
     this.canInstallAnyWhere = canInstallAnyWhere;
     this.extensionsWorkbenchService = extensionsWorkbenchService;
@@ -1056,7 +1071,12 @@ WebInstallAction = __decorateClass([
 ], WebInstallAction);
 let UninstallAction = class extends ExtensionAction {
   constructor(extensionsWorkbenchService, dialogService) {
-    super("extensions.uninstall", UninstallAction.UninstallLabel, UninstallAction.UninstallClass, false);
+    super(
+      "extensions.uninstall",
+      UninstallAction.UninstallLabel,
+      UninstallAction.UninstallClass,
+      false
+    );
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.dialogService = dialogService;
     this.update();
@@ -1126,7 +1146,12 @@ UninstallAction = __decorateClass([
 ], UninstallAction);
 let UpdateAction = class extends ExtensionAction {
   constructor(verbose, extensionsWorkbenchService, dialogService, openerService, instantiationService) {
-    super(`extensions.update`, localize("update", "Update"), UpdateAction.DisabledClass, false);
+    super(
+      `extensions.update`,
+      localize("update", "Update"),
+      UpdateAction.DisabledClass,
+      false
+    );
     this.verbose = verbose;
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.dialogService = dialogService;
@@ -1257,14 +1282,20 @@ UpdateAction = __decorateClass([
 ], UpdateAction);
 let ToggleAutoUpdateForExtensionAction = class extends ExtensionAction {
   constructor(extensionsWorkbenchService, extensionEnablementService, configurationService) {
-    super(ToggleAutoUpdateForExtensionAction.ID, ToggleAutoUpdateForExtensionAction.LABEL.value, ToggleAutoUpdateForExtensionAction.DisabledClass);
+    super(
+      ToggleAutoUpdateForExtensionAction.ID,
+      ToggleAutoUpdateForExtensionAction.LABEL.value,
+      ToggleAutoUpdateForExtensionAction.DisabledClass
+    );
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.extensionEnablementService = extensionEnablementService;
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(AutoUpdateConfigurationKey)) {
-        this.update();
-      }
-    }));
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(AutoUpdateConfigurationKey)) {
+          this.update();
+        }
+      })
+    );
     this.update();
   }
   static ID = "workbench.extensions.action.toggleAutoUpdateForExtension";
@@ -1331,7 +1362,10 @@ ToggleAutoUpdateForExtensionAction = __decorateClass([
 ], ToggleAutoUpdateForExtensionAction);
 let ToggleAutoUpdatesForPublisherAction = class extends ExtensionAction {
   constructor(extensionsWorkbenchService) {
-    super(ToggleAutoUpdatesForPublisherAction.ID, ToggleAutoUpdatesForPublisherAction.LABEL);
+    super(
+      ToggleAutoUpdatesForPublisherAction.ID,
+      ToggleAutoUpdatesForPublisherAction.LABEL
+    );
     this.extensionsWorkbenchService = extensionsWorkbenchService;
   }
   static ID = "workbench.extensions.action.toggleAutoUpdatesForPublisher";
@@ -1383,7 +1417,12 @@ ToggleAutoUpdatesForPublisherAction = __decorateClass([
 ], ToggleAutoUpdatesForPublisherAction);
 let MigrateDeprecatedExtensionAction = class extends ExtensionAction {
   constructor(small, extensionsWorkbenchService) {
-    super("extensionsAction.migrateDeprecatedExtension", localize("migrateExtension", "Migrate"), MigrateDeprecatedExtensionAction.DisabledClass, false);
+    super(
+      "extensionsAction.migrateDeprecatedExtension",
+      localize("migrateExtension", "Migrate"),
+      MigrateDeprecatedExtensionAction.DisabledClass,
+      false
+    );
     this.small = small;
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.update();
@@ -1868,7 +1907,11 @@ MenuItemExtensionAction = __decorateClass([
 ], MenuItemExtensionAction);
 let TogglePreReleaseExtensionAction = class extends ExtensionAction {
   constructor(extensionsWorkbenchService) {
-    super(TogglePreReleaseExtensionAction.ID, TogglePreReleaseExtensionAction.LABEL, TogglePreReleaseExtensionAction.DisabledClass);
+    super(
+      TogglePreReleaseExtensionAction.ID,
+      TogglePreReleaseExtensionAction.LABEL,
+      TogglePreReleaseExtensionAction.DisabledClass
+    );
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.update();
   }
@@ -1937,7 +1980,11 @@ TogglePreReleaseExtensionAction = __decorateClass([
 ], TogglePreReleaseExtensionAction);
 let InstallAnotherVersionAction = class extends ExtensionAction {
   constructor(extension, whenInstalled, extensionsWorkbenchService, extensionManagementService, extensionGalleryService, quickInputService, instantiationService, dialogService) {
-    super(InstallAnotherVersionAction.ID, InstallAnotherVersionAction.LABEL, ExtensionAction.LABEL_ACTION_CLASS);
+    super(
+      InstallAnotherVersionAction.ID,
+      InstallAnotherVersionAction.LABEL,
+      ExtensionAction.LABEL_ACTION_CLASS
+    );
     this.whenInstalled = whenInstalled;
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.extensionManagementService = extensionManagementService;
@@ -2026,10 +2073,17 @@ InstallAnotherVersionAction = __decorateClass([
 ], InstallAnotherVersionAction);
 let EnableForWorkspaceAction = class extends ExtensionAction {
   constructor(extensionsWorkbenchService, extensionEnablementService) {
-    super(EnableForWorkspaceAction.ID, EnableForWorkspaceAction.LABEL, ExtensionAction.LABEL_ACTION_CLASS);
+    super(
+      EnableForWorkspaceAction.ID,
+      EnableForWorkspaceAction.LABEL,
+      ExtensionAction.LABEL_ACTION_CLASS
+    );
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.extensionEnablementService = extensionEnablementService;
-    this.tooltip = localize("enableForWorkspaceActionToolTip", "Enable this extension only in this workspace");
+    this.tooltip = localize(
+      "enableForWorkspaceActionToolTip",
+      "Enable this extension only in this workspace"
+    );
     this.update();
   }
   static ID = "extensions.enableForWorkspace";
@@ -2063,10 +2117,17 @@ EnableForWorkspaceAction = __decorateClass([
 ], EnableForWorkspaceAction);
 let EnableGloballyAction = class extends ExtensionAction {
   constructor(extensionsWorkbenchService, extensionEnablementService) {
-    super(EnableGloballyAction.ID, EnableGloballyAction.LABEL, ExtensionAction.LABEL_ACTION_CLASS);
+    super(
+      EnableGloballyAction.ID,
+      EnableGloballyAction.LABEL,
+      ExtensionAction.LABEL_ACTION_CLASS
+    );
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.extensionEnablementService = extensionEnablementService;
-    this.tooltip = localize("enableGloballyActionToolTip", "Enable this extension");
+    this.tooltip = localize(
+      "enableGloballyActionToolTip",
+      "Enable this extension"
+    );
     this.update();
   }
   static ID = "extensions.enableGlobally";
@@ -2097,14 +2158,23 @@ EnableGloballyAction = __decorateClass([
 ], EnableGloballyAction);
 let DisableForWorkspaceAction = class extends ExtensionAction {
   constructor(workspaceContextService, extensionsWorkbenchService, extensionEnablementService, extensionService) {
-    super(DisableForWorkspaceAction.ID, DisableForWorkspaceAction.LABEL, ExtensionAction.LABEL_ACTION_CLASS);
+    super(
+      DisableForWorkspaceAction.ID,
+      DisableForWorkspaceAction.LABEL,
+      ExtensionAction.LABEL_ACTION_CLASS
+    );
     this.workspaceContextService = workspaceContextService;
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.extensionEnablementService = extensionEnablementService;
     this.extensionService = extensionService;
-    this.tooltip = localize("disableForWorkspaceActionToolTip", "Disable this extension only in this workspace");
+    this.tooltip = localize(
+      "disableForWorkspaceActionToolTip",
+      "Disable this extension only in this workspace"
+    );
     this.update();
-    this._register(this.extensionService.onDidChangeExtensions(() => this.update()));
+    this._register(
+      this.extensionService.onDidChangeExtensions(() => this.update())
+    );
   }
   static ID = "extensions.disableForWorkspace";
   static LABEL = localize(
@@ -2142,13 +2212,22 @@ DisableForWorkspaceAction = __decorateClass([
 ], DisableForWorkspaceAction);
 let DisableGloballyAction = class extends ExtensionAction {
   constructor(extensionsWorkbenchService, extensionEnablementService, extensionService) {
-    super(DisableGloballyAction.ID, DisableGloballyAction.LABEL, ExtensionAction.LABEL_ACTION_CLASS);
+    super(
+      DisableGloballyAction.ID,
+      DisableGloballyAction.LABEL,
+      ExtensionAction.LABEL_ACTION_CLASS
+    );
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.extensionEnablementService = extensionEnablementService;
     this.extensionService = extensionService;
-    this.tooltip = localize("disableGloballyActionToolTip", "Disable this extension");
+    this.tooltip = localize(
+      "disableGloballyActionToolTip",
+      "Disable this extension"
+    );
     this.update();
-    this._register(this.extensionService.onDidChangeExtensions(() => this.update()));
+    this._register(
+      this.extensionService.onDidChangeExtensions(() => this.update())
+    );
   }
   static ID = "extensions.disableGlobally";
   static LABEL = localize("disableGloballyAction", "Disable");
@@ -2195,10 +2274,12 @@ EnableDropDownAction = __decorateClass([
 ], EnableDropDownAction);
 let DisableDropDownAction = class extends ButtonWithDropDownExtensionAction {
   constructor(instantiationService) {
-    super("extensions.disable", ExtensionAction.LABEL_ACTION_CLASS, [[
-      instantiationService.createInstance(DisableGloballyAction),
-      instantiationService.createInstance(DisableForWorkspaceAction)
-    ]]);
+    super("extensions.disable", ExtensionAction.LABEL_ACTION_CLASS, [
+      [
+        instantiationService.createInstance(DisableGloballyAction),
+        instantiationService.createInstance(DisableForWorkspaceAction)
+      ]
+    ]);
   }
 };
 DisableDropDownAction = __decorateClass([
@@ -2206,14 +2287,21 @@ DisableDropDownAction = __decorateClass([
 ], DisableDropDownAction);
 let ExtensionRuntimeStateAction = class extends ExtensionAction {
   constructor(hostService, extensionsWorkbenchService, updateService, extensionService, productService, telemetryService) {
-    super("extensions.runtimeState", "", ExtensionRuntimeStateAction.DisabledClass, false);
+    super(
+      "extensions.runtimeState",
+      "",
+      ExtensionRuntimeStateAction.DisabledClass,
+      false
+    );
     this.hostService = hostService;
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.updateService = updateService;
     this.extensionService = extensionService;
     this.productService = productService;
     this.telemetryService = telemetryService;
-    this._register(this.extensionService.onDidChangeExtensions(() => this.update()));
+    this._register(
+      this.extensionService.onDidChangeExtensions(() => this.update())
+    );
     this.update();
   }
   static EnabledClass = `${ExtensionAction.LABEL_ACTION_CLASS} reload`;
@@ -2299,11 +2387,21 @@ function getQuickPickEntries(themes, currentTheme, extension, showCurrentTheme) 
 }
 let SetColorThemeAction = class extends ExtensionAction {
   constructor(extensionService, workbenchThemeService, quickInputService, extensionEnablementService) {
-    super(SetColorThemeAction.ID, SetColorThemeAction.TITLE.value, SetColorThemeAction.DisabledClass, false);
+    super(
+      SetColorThemeAction.ID,
+      SetColorThemeAction.TITLE.value,
+      SetColorThemeAction.DisabledClass,
+      false
+    );
     this.workbenchThemeService = workbenchThemeService;
     this.quickInputService = quickInputService;
     this.extensionEnablementService = extensionEnablementService;
-    this._register(Event.any(extensionService.onDidChangeExtensions, workbenchThemeService.onDidColorThemeChange)(() => this.update(), this));
+    this._register(
+      Event.any(
+        extensionService.onDidChangeExtensions,
+        workbenchThemeService.onDidColorThemeChange
+      )(() => this.update(), this)
+    );
     this.update();
   }
   static ID = "workbench.extensions.action.setColorTheme";
@@ -2367,11 +2465,21 @@ SetColorThemeAction = __decorateClass([
 ], SetColorThemeAction);
 let SetFileIconThemeAction = class extends ExtensionAction {
   constructor(extensionService, workbenchThemeService, quickInputService, extensionEnablementService) {
-    super(SetFileIconThemeAction.ID, SetFileIconThemeAction.TITLE.value, SetFileIconThemeAction.DisabledClass, false);
+    super(
+      SetFileIconThemeAction.ID,
+      SetFileIconThemeAction.TITLE.value,
+      SetFileIconThemeAction.DisabledClass,
+      false
+    );
     this.workbenchThemeService = workbenchThemeService;
     this.quickInputService = quickInputService;
     this.extensionEnablementService = extensionEnablementService;
-    this._register(Event.any(extensionService.onDidChangeExtensions, workbenchThemeService.onDidFileIconThemeChange)(() => this.update(), this));
+    this._register(
+      Event.any(
+        extensionService.onDidChangeExtensions,
+        workbenchThemeService.onDidFileIconThemeChange
+      )(() => this.update(), this)
+    );
     this.update();
   }
   static ID = "workbench.extensions.action.setFileIconTheme";
@@ -2440,11 +2548,21 @@ SetFileIconThemeAction = __decorateClass([
 ], SetFileIconThemeAction);
 let SetProductIconThemeAction = class extends ExtensionAction {
   constructor(extensionService, workbenchThemeService, quickInputService, extensionEnablementService) {
-    super(SetProductIconThemeAction.ID, SetProductIconThemeAction.TITLE.value, SetProductIconThemeAction.DisabledClass, false);
+    super(
+      SetProductIconThemeAction.ID,
+      SetProductIconThemeAction.TITLE.value,
+      SetProductIconThemeAction.DisabledClass,
+      false
+    );
     this.workbenchThemeService = workbenchThemeService;
     this.quickInputService = quickInputService;
     this.extensionEnablementService = extensionEnablementService;
-    this._register(Event.any(extensionService.onDidChangeExtensions, workbenchThemeService.onDidProductIconThemeChange)(() => this.update(), this));
+    this._register(
+      Event.any(
+        extensionService.onDidChangeExtensions,
+        workbenchThemeService.onDidProductIconThemeChange
+      )(() => this.update(), this)
+    );
     this.update();
   }
   static ID = "workbench.extensions.action.setProductIconTheme";
@@ -2513,7 +2631,12 @@ SetProductIconThemeAction = __decorateClass([
 ], SetProductIconThemeAction);
 let SetLanguageAction = class extends ExtensionAction {
   constructor(extensionsWorkbenchService) {
-    super(SetLanguageAction.ID, SetLanguageAction.TITLE.value, SetLanguageAction.DisabledClass, false);
+    super(
+      SetLanguageAction.ID,
+      SetLanguageAction.TITLE.value,
+      SetLanguageAction.DisabledClass,
+      false
+    );
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.update();
   }
@@ -2548,7 +2671,12 @@ SetLanguageAction = __decorateClass([
 ], SetLanguageAction);
 let ClearLanguageAction = class extends ExtensionAction {
   constructor(extensionsWorkbenchService, localeService) {
-    super(ClearLanguageAction.ID, ClearLanguageAction.TITLE.value, ClearLanguageAction.DisabledClass, false);
+    super(
+      ClearLanguageAction.ID,
+      ClearLanguageAction.TITLE.value,
+      ClearLanguageAction.DisabledClass,
+      false
+    );
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.localeService = localeService;
     this.update();
@@ -2585,7 +2713,12 @@ ClearLanguageAction = __decorateClass([
 ], ClearLanguageAction);
 let ShowRecommendedExtensionAction = class extends Action {
   constructor(extensionId, paneCompositeService, extensionWorkbenchService) {
-    super(ShowRecommendedExtensionAction.ID, ShowRecommendedExtensionAction.LABEL, void 0, false);
+    super(
+      ShowRecommendedExtensionAction.ID,
+      ShowRecommendedExtensionAction.LABEL,
+      void 0,
+      false
+    );
     this.paneCompositeService = paneCompositeService;
     this.extensionWorkbenchService = extensionWorkbenchService;
     this.extensionId = extensionId;
@@ -2622,7 +2755,12 @@ ShowRecommendedExtensionAction = __decorateClass([
 ], ShowRecommendedExtensionAction);
 let InstallRecommendedExtensionAction = class extends Action {
   constructor(extensionId, paneCompositeService, instantiationService, extensionWorkbenchService) {
-    super(InstallRecommendedExtensionAction.ID, InstallRecommendedExtensionAction.LABEL, void 0, false);
+    super(
+      InstallRecommendedExtensionAction.ID,
+      InstallRecommendedExtensionAction.LABEL,
+      void 0,
+      false
+    );
     this.paneCompositeService = paneCompositeService;
     this.instantiationService = instantiationService;
     this.extensionWorkbenchService = extensionWorkbenchService;
@@ -2675,7 +2813,10 @@ let IgnoreExtensionRecommendationAction = class extends Action {
     this.extension = extension;
     this.extensionRecommendationsManagementService = extensionRecommendationsManagementService;
     this.class = IgnoreExtensionRecommendationAction.Class;
-    this.tooltip = localize("ignoreExtensionRecommendation", "Do not recommend this extension again");
+    this.tooltip = localize(
+      "ignoreExtensionRecommendation",
+      "Do not recommend this extension again"
+    );
     this.enabled = true;
   }
   static ID = "extensions.ignore";
@@ -2715,7 +2856,12 @@ UndoIgnoreExtensionRecommendationAction = __decorateClass([
 ], UndoIgnoreExtensionRecommendationAction);
 let SearchExtensionsAction = class extends Action {
   constructor(searchValue, paneCompositeService) {
-    super("extensions.searchExtensions", localize("search recommendations", "Search Extensions"), void 0, true);
+    super(
+      "extensions.searchExtensions",
+      localize("search recommendations", "Search Extensions"),
+      void 0,
+      true
+    );
     this.searchValue = searchValue;
     this.paneCompositeService = paneCompositeService;
   }
@@ -2916,7 +3062,16 @@ ConfigureWorkspaceRecommendedExtensionsAction = __decorateClass([
 ], ConfigureWorkspaceRecommendedExtensionsAction);
 let ConfigureWorkspaceFolderRecommendedExtensionsAction = class extends AbstractConfigureRecommendedExtensionsAction {
   constructor(id, label, fileService, textFileService, contextService, editorService, jsonEditingService, textModelResolverService, commandService) {
-    super(id, label, contextService, fileService, textFileService, editorService, jsonEditingService, textModelResolverService);
+    super(
+      id,
+      label,
+      contextService,
+      fileService,
+      textFileService,
+      editorService,
+      jsonEditingService,
+      textModelResolverService
+    );
     this.commandService = commandService;
   }
   static ID = "workbench.extensions.action.configureWorkspaceFolderRecommendedExtensions";
@@ -2950,7 +3105,12 @@ ConfigureWorkspaceFolderRecommendedExtensionsAction = __decorateClass([
 ], ConfigureWorkspaceFolderRecommendedExtensionsAction);
 let ExtensionStatusLabelAction = class extends Action {
   constructor(extensionService, extensionManagementServerService, extensionEnablementService) {
-    super("extensions.action.statusLabel", "", ExtensionStatusLabelAction.DISABLED_CLASS, false);
+    super(
+      "extensions.action.statusLabel",
+      "",
+      ExtensionStatusLabelAction.DISABLED_CLASS,
+      false
+    );
     this.extensionService = extensionService;
     this.extensionManagementServerService = extensionManagementServerService;
     this.extensionEnablementService = extensionEnablementService;
@@ -3066,12 +3226,27 @@ ExtensionStatusLabelAction = __decorateClass([
 ], ExtensionStatusLabelAction);
 let ToggleSyncExtensionAction = class extends DropDownExtensionAction {
   constructor(configurationService, extensionsWorkbenchService, userDataSyncEnablementService, instantiationService) {
-    super("extensions.sync", "", ToggleSyncExtensionAction.SYNC_CLASS, false, instantiationService);
+    super(
+      "extensions.sync",
+      "",
+      ToggleSyncExtensionAction.SYNC_CLASS,
+      false,
+      instantiationService
+    );
     this.configurationService = configurationService;
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.userDataSyncEnablementService = userDataSyncEnablementService;
-    this._register(Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration("settingsSync.ignoredExtensions"))(() => this.update()));
-    this._register(userDataSyncEnablementService.onDidChangeEnablement(() => this.update()));
+    this._register(
+      Event.filter(
+        this.configurationService.onDidChangeConfiguration,
+        (e) => e.affectsConfiguration("settingsSync.ignoredExtensions")
+      )(() => this.update())
+    );
+    this._register(
+      userDataSyncEnablementService.onDidChangeEnablement(
+        () => this.update()
+      )
+    );
     this.update();
   }
   static IGNORED_SYNC_CLASS = `${ExtensionAction.ICON_ACTION_CLASS} extension-sync ${ThemeIcon.asClassName(syncIgnoredIcon)}`;
@@ -3118,7 +3293,12 @@ ToggleSyncExtensionAction = __decorateClass([
 ], ToggleSyncExtensionAction);
 let ExtensionStatusAction = class extends ExtensionAction {
   constructor(extensionManagementServerService, labelService, commandService, workspaceTrustEnablementService, workspaceTrustService, extensionsWorkbenchService, extensionService, extensionManifestPropertiesService, contextService, productService, workbenchExtensionEnablementService, extensionFeaturesManagementService) {
-    super("extensions.status", "", `${ExtensionStatusAction.CLASS} hide`, false);
+    super(
+      "extensions.status",
+      "",
+      `${ExtensionStatusAction.CLASS} hide`,
+      false
+    );
     this.extensionManagementServerService = extensionManagementServerService;
     this.labelService = labelService;
     this.commandService = commandService;
@@ -3131,9 +3311,17 @@ let ExtensionStatusAction = class extends ExtensionAction {
     this.productService = productService;
     this.workbenchExtensionEnablementService = workbenchExtensionEnablementService;
     this.extensionFeaturesManagementService = extensionFeaturesManagementService;
-    this._register(this.labelService.onDidChangeFormatters(() => this.update(), this));
-    this._register(this.extensionService.onDidChangeExtensions(() => this.update()));
-    this._register(this.extensionFeaturesManagementService.onDidChangeAccessData(() => this.update()));
+    this._register(
+      this.labelService.onDidChangeFormatters(() => this.update(), this)
+    );
+    this._register(
+      this.extensionService.onDidChangeExtensions(() => this.update())
+    );
+    this._register(
+      this.extensionFeaturesManagementService.onDidChangeAccessData(
+        () => this.update()
+      )
+    );
     this.update();
   }
   static CLASS = `${ExtensionAction.ICON_ACTION_CLASS} extension-status`;
@@ -3867,11 +4055,13 @@ let AbstractInstallExtensionsInServerAction = class extends Action {
     this.progressService = progressService;
     this.update();
     this.extensionsWorkbenchService.queryLocal().then(() => this.updateExtensions());
-    this._register(this.extensionsWorkbenchService.onChange(() => {
-      if (this.extensions) {
-        this.updateExtensions();
-      }
-    }));
+    this._register(
+      this.extensionsWorkbenchService.onChange(() => {
+        if (this.extensions) {
+          this.updateExtensions();
+        }
+      })
+    );
   }
   extensions = void 0;
   updateExtensions() {
@@ -3962,7 +4152,13 @@ AbstractInstallExtensionsInServerAction = __decorateClass([
 ], AbstractInstallExtensionsInServerAction);
 let InstallLocalExtensionsInRemoteAction = class extends AbstractInstallExtensionsInServerAction {
   constructor(extensionsWorkbenchService, quickInputService, progressService, notificationService, extensionManagementServerService, extensionGalleryService, instantiationService, fileService, logService) {
-    super("workbench.extensions.actions.installLocalExtensionsInRemote", extensionsWorkbenchService, quickInputService, notificationService, progressService);
+    super(
+      "workbench.extensions.actions.installLocalExtensionsInRemote",
+      extensionsWorkbenchService,
+      quickInputService,
+      notificationService,
+      progressService
+    );
     this.extensionManagementServerService = extensionManagementServerService;
     this.extensionGalleryService = extensionGalleryService;
     this.instantiationService = instantiationService;
@@ -4063,7 +4259,13 @@ InstallLocalExtensionsInRemoteAction = __decorateClass([
 ], InstallLocalExtensionsInRemoteAction);
 let InstallRemoteExtensionsInLocalAction = class extends AbstractInstallExtensionsInServerAction {
   constructor(id, extensionsWorkbenchService, quickInputService, progressService, notificationService, extensionManagementServerService, extensionGalleryService, fileService, logService) {
-    super(id, extensionsWorkbenchService, quickInputService, notificationService, progressService);
+    super(
+      id,
+      extensionsWorkbenchService,
+      quickInputService,
+      notificationService,
+      progressService
+    );
     this.extensionManagementServerService = extensionManagementServerService;
     this.extensionGalleryService = extensionGalleryService;
     this.fileService = fileService;

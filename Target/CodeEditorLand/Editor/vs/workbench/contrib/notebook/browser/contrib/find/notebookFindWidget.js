@@ -47,7 +47,14 @@ let NotebookFindContrib = class extends Disposable {
     super();
     this.notebookEditor = notebookEditor;
     this.instantiationService = instantiationService;
-    this.widget = new Lazy(() => this._register(this.instantiationService.createInstance(NotebookFindWidget, this.notebookEditor)));
+    this.widget = new Lazy(
+      () => this._register(
+        this.instantiationService.createInstance(
+          NotebookFindWidget,
+          this.notebookEditor
+        )
+      )
+    );
   }
   static id = "workbench.notebook.find";
   widget;

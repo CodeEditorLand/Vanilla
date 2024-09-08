@@ -27,22 +27,44 @@ let UserDataSyncTrigger = class extends Disposable {
     this.userDataProfilesService = userDataProfilesService;
     const event = Event.filter(
       Event.any(
-        Event.map(editorService.onDidActiveEditorChange, () => this.getUserDataEditorInputSource(editorService.activeEditor)),
-        Event.map(Event.filter(viewsService.onDidChangeViewContainerVisibility, (e) => e.id === VIEWLET_ID && e.visible), (e) => e.id)
+        Event.map(
+          editorService.onDidActiveEditorChange,
+          () => this.getUserDataEditorInputSource(
+            editorService.activeEditor
+          )
+        ),
+        Event.map(
+          Event.filter(
+            viewsService.onDidChangeViewContainerVisibility,
+            (e) => e.id === VIEWLET_ID && e.visible
+          ),
+          (e) => e.id
+        )
       ),
       (source) => source !== void 0
     );
     if (isWeb) {
-      this._register(Event.debounce(
-        Event.any(
-          Event.map(hostService.onDidChangeFocus, () => "windowFocus"),
-          Event.map(event, (source) => source)
-        ),
-        (last, source) => last ? [...last, source] : [source],
-        1e3
-      )((sources) => userDataAutoSyncService.triggerSync(sources, true, false)));
+      this._register(
+        Event.debounce(
+          Event.any(
+            Event.map(
+              hostService.onDidChangeFocus,
+              () => "windowFocus"
+            ),
+            Event.map(event, (source) => source)
+          ),
+          (last, source) => last ? [...last, source] : [source],
+          1e3
+        )(
+          (sources) => userDataAutoSyncService.triggerSync(sources, true, false)
+        )
+      );
     } else {
-      this._register(event((source) => userDataAutoSyncService.triggerSync([source], true, false)));
+      this._register(
+        event(
+          (source) => userDataAutoSyncService.triggerSync([source], true, false)
+        )
+      );
     }
   }
   getUserDataEditorInputSource(editorInput) {

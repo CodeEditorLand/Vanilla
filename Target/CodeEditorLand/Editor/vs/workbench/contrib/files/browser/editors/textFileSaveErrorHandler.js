@@ -74,8 +74,15 @@ let TextFileSaveErrorHandler = class extends Disposable {
     this.editorService = editorService;
     this.instantiationService = instantiationService;
     this.storageService = storageService;
-    const provider = this._register(instantiationService.createInstance(TextFileContentProvider));
-    this._register(textModelService.registerTextModelContentProvider(CONFLICT_RESOLUTION_SCHEME, provider));
+    const provider = this._register(
+      instantiationService.createInstance(TextFileContentProvider)
+    );
+    this._register(
+      textModelService.registerTextModelContentProvider(
+        CONFLICT_RESOLUTION_SCHEME,
+        provider
+      )
+    );
     this.textFileService.files.saveErrorHandler = this;
     this.registerListeners();
   }
@@ -302,7 +309,10 @@ function clearPendingResolveSaveConflictMessages() {
 }
 let ResolveConflictLearnMoreAction = class extends Action {
   constructor(openerService) {
-    super("workbench.files.action.resolveConflictLearnMore", localize("learnMore", "Learn More"));
+    super(
+      "workbench.files.action.resolveConflictLearnMore",
+      localize("learnMore", "Learn More")
+    );
     this.openerService = openerService;
   }
   async run() {
@@ -316,7 +326,10 @@ ResolveConflictLearnMoreAction = __decorateClass([
 ], ResolveConflictLearnMoreAction);
 let DoNotShowResolveConflictLearnMoreAction = class extends Action {
   constructor(storageService) {
-    super("workbench.files.action.resolveConflictLearnMoreDoNotShowAgain", localize("dontShowAgain", "Don't Show Again"));
+    super(
+      "workbench.files.action.resolveConflictLearnMoreDoNotShowAgain",
+      localize("dontShowAgain", "Don't Show Again")
+    );
     this.storageService = storageService;
   }
   async run(notification) {
@@ -334,7 +347,10 @@ DoNotShowResolveConflictLearnMoreAction = __decorateClass([
 ], DoNotShowResolveConflictLearnMoreAction);
 let ResolveSaveConflictAction = class extends Action {
   constructor(model, editorService, notificationService, instantiationService, productService) {
-    super("workbench.files.action.resolveConflict", localize("compareChanges", "Compare"));
+    super(
+      "workbench.files.action.resolveConflict",
+      localize("compareChanges", "Compare")
+    );
     this.model = model;
     this.editorService = editorService;
     this.notificationService = notificationService;
@@ -514,7 +530,10 @@ class SaveModelIgnoreModifiedSinceAction extends Action {
 }
 let ConfigureSaveConflictAction = class extends Action {
   constructor(preferencesService) {
-    super("workbench.files.action.configureSaveConflict", localize("configure", "Configure"));
+    super(
+      "workbench.files.action.configureSaveConflict",
+      localize("configure", "Configure")
+    );
     this.preferencesService = preferencesService;
   }
   async run() {

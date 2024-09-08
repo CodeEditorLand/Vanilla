@@ -1,6 +1,8 @@
 import { Lazy } from "../../../../../base/common/lazy.js";
 import { OperatingSystem } from "../../../../../base/common/platform.js";
-const linkSuffixRegexEol = new Lazy(() => generateLinkSuffixRegex(true));
+const linkSuffixRegexEol = new Lazy(
+  () => generateLinkSuffixRegex(true)
+);
 const linkSuffixRegex = new Lazy(() => generateLinkSuffixRegex(false));
 function generateLinkSuffixRegex(eolOnly) {
   let ri = 0;
@@ -108,8 +110,12 @@ function toLinkSuffix(match) {
   return {
     row: parseIntOptional(groups.row0 || groups.row1 || groups.row2),
     col: parseIntOptional(groups.col0 || groups.col1 || groups.col2),
-    rowEnd: parseIntOptional(groups.rowEnd0 || groups.rowEnd1 || groups.rowEnd2),
-    colEnd: parseIntOptional(groups.colEnd0 || groups.colEnd1 || groups.colEnd2),
+    rowEnd: parseIntOptional(
+      groups.rowEnd0 || groups.rowEnd1 || groups.rowEnd2
+    ),
+    colEnd: parseIntOptional(
+      groups.colEnd0 || groups.colEnd1 || groups.colEnd2
+    ),
     suffix: { index: match.index, text: match[0] }
   };
 }
@@ -160,7 +166,9 @@ function detectLinksViaSuffix(line) {
   const suffixes = detectLinkSuffixes(line);
   for (const suffix of suffixes) {
     const beforeSuffix = line.substring(0, suffix.suffix.index);
-    const possiblePathMatch = beforeSuffix.match(linkWithSuffixPathCharacters);
+    const possiblePathMatch = beforeSuffix.match(
+      linkWithSuffixPathCharacters
+    );
     if (possiblePathMatch && possiblePathMatch.index !== void 0 && possiblePathMatch.groups?.path) {
       let linkStartIndex = possiblePathMatch.index;
       let path = possiblePathMatch.groups.path;
@@ -212,7 +220,10 @@ const winDrivePrefix = "(?:\\\\\\\\\\?\\\\|file:\\/\\/\\/)?[a-zA-Z]:";
 const winLocalLinkClause = `(?:(?:(?:${winDrivePrefix}|${"\\.\\.?|\\~" /* WinOtherPathPrefix */})|(?:[^\\0<>\\?\\|\\/\\s!\`&*()\\[\\]'":;][^\\0<>\\?\\|\\/\\s!\`&*()'":;]*))?(?:(?:\\\\|\\/)(?:[^\\0<>\\?\\|\\/\\s!\`&*()'":;])+)+)`;
 function detectPathsNoSuffix(line, os) {
   const results = [];
-  const regex = new RegExp(os === OperatingSystem.Windows ? winLocalLinkClause : unixLocalLinkClause, "g");
+  const regex = new RegExp(
+    os === OperatingSystem.Windows ? winLocalLinkClause : unixLocalLinkClause,
+    "g"
+  );
   let match;
   while ((match = regex.exec(line)) !== null) {
     let text = match[0];

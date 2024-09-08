@@ -43,9 +43,23 @@ let RunToolbar = class extends CellContentPart {
     this.keybindingService = keybindingService;
     this.contextMenuService = contextMenuService;
     this.instantiationService = instantiationService;
-    this.primaryMenu = this._register(menuService.createMenu(this.notebookEditor.creationOptions.menuIds.cellExecutePrimary, contextKeyService));
-    this.secondaryMenu = this._register(menuService.createMenu(this.notebookEditor.creationOptions.menuIds.cellExecuteToolbar, contextKeyService));
-    this.createRunCellToolbar(runButtonContainer, cellContainer, contextKeyService);
+    this.primaryMenu = this._register(
+      menuService.createMenu(
+        this.notebookEditor.creationOptions.menuIds.cellExecutePrimary,
+        contextKeyService
+      )
+    );
+    this.secondaryMenu = this._register(
+      menuService.createMenu(
+        this.notebookEditor.creationOptions.menuIds.cellExecuteToolbar,
+        contextKeyService
+      )
+    );
+    this.createRunCellToolbar(
+      runButtonContainer,
+      cellContainer,
+      contextKeyService
+    );
     const updateActions = () => {
       const actions = this.getCellToolbarActions(this.primaryMenu);
       const primary = actions.primary[0];
@@ -54,7 +68,11 @@ let RunToolbar = class extends CellContentPart {
     updateActions();
     this._register(this.primaryMenu.onDidChange(updateActions));
     this._register(this.secondaryMenu.onDidChange(updateActions));
-    this._register(this.notebookEditor.notebookOptions.onDidChangeOptions(updateActions));
+    this._register(
+      this.notebookEditor.notebookOptions.onDidChangeOptions(
+        updateActions
+      )
+    );
   }
   toolbar;
   primaryMenu;

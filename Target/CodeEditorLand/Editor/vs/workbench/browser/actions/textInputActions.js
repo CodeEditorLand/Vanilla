@@ -10,8 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  EventHelper,
   addDisposableListener,
+  EventHelper,
   getActiveDocument,
   getWindow,
   isHTMLElement,
@@ -31,8 +31,8 @@ import { localize } from "../../../nls.js";
 import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
 import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../common/contributions.js";
 import { IWorkbenchLayoutService } from "../../services/layout/browser/layoutService.js";
 let TextInputActionsProvider = class extends Disposable {

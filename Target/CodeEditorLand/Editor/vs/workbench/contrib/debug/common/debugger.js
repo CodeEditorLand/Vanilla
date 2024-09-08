@@ -26,8 +26,8 @@ import * as ConfigurationResolverUtils from "../../../services/configurationReso
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
 import {
   DebugConfigurationProviderTriggerKind,
-  IDebugService,
-  debuggerDisabledMessage
+  debuggerDisabledMessage,
+  IDebugService
 } from "./debug.js";
 import { isDebuggerMainContribution } from "./debugUtils.js";
 let Debugger = class {
@@ -42,7 +42,9 @@ let Debugger = class {
     this.debuggerContribution = { type: dbgContribution.type };
     this.merge(dbgContribution, extensionDescription);
     this.debuggerWhen = typeof this.debuggerContribution.when === "string" ? ContextKeyExpr.deserialize(this.debuggerContribution.when) : void 0;
-    this.debuggerHiddenWhen = typeof this.debuggerContribution.hiddenWhen === "string" ? ContextKeyExpr.deserialize(this.debuggerContribution.hiddenWhen) : void 0;
+    this.debuggerHiddenWhen = typeof this.debuggerContribution.hiddenWhen === "string" ? ContextKeyExpr.deserialize(
+      this.debuggerContribution.hiddenWhen
+    ) : void 0;
   }
   debuggerContribution;
   mergedExtensionDescriptions = [];

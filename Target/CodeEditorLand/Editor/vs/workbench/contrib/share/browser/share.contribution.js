@@ -69,12 +69,18 @@ let ShareWorkbenchContribution = class {
   constructor(shareService, configurationService) {
     this.shareService = shareService;
     this.configurationService = configurationService;
-    if (this.configurationService.getValue(ShareWorkbenchContribution.SHARE_ENABLED_SETTING)) {
+    if (this.configurationService.getValue(
+      ShareWorkbenchContribution.SHARE_ENABLED_SETTING
+    )) {
       this.registerActions();
     }
     this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(ShareWorkbenchContribution.SHARE_ENABLED_SETTING)) {
-        const settingValue = this.configurationService.getValue(ShareWorkbenchContribution.SHARE_ENABLED_SETTING);
+      if (e.affectsConfiguration(
+        ShareWorkbenchContribution.SHARE_ENABLED_SETTING
+      )) {
+        const settingValue = this.configurationService.getValue(
+          ShareWorkbenchContribution.SHARE_ENABLED_SETTING
+        );
         if (settingValue === true && this._disposables === void 0) {
           this.registerActions();
         } else if (settingValue === false && this._disposables !== void 0) {

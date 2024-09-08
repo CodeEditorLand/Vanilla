@@ -23,11 +23,28 @@ let ContributedStatusBarItemController = class extends Disposable {
     super();
     this._notebookEditor = _notebookEditor;
     this._notebookCellStatusBarService = _notebookCellStatusBarService;
-    this._observer = this._register(new NotebookVisibleCellObserver(this._notebookEditor));
-    this._register(this._observer.onDidChangeVisibleCells(this._updateVisibleCells, this));
+    this._observer = this._register(
+      new NotebookVisibleCellObserver(this._notebookEditor)
+    );
+    this._register(
+      this._observer.onDidChangeVisibleCells(
+        this._updateVisibleCells,
+        this
+      )
+    );
     this._updateEverything();
-    this._register(this._notebookCellStatusBarService.onDidChangeProviders(this._updateEverything, this));
-    this._register(this._notebookCellStatusBarService.onDidChangeItems(this._updateEverything, this));
+    this._register(
+      this._notebookCellStatusBarService.onDidChangeProviders(
+        this._updateEverything,
+        this
+      )
+    );
+    this._register(
+      this._notebookCellStatusBarService.onDidChangeItems(
+        this._updateEverything,
+        this
+      )
+    );
   }
   static id = "workbench.notebook.statusBar.contributed";
   _visibleCells = /* @__PURE__ */ new Map();

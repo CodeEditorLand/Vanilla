@@ -39,7 +39,12 @@ let WorkspaceRecommendations = class extends ExtensionRecommendations {
     this.fileService = fileService;
     this.workbenchExtensionManagementService = workbenchExtensionManagementService;
     this.notificationService = notificationService;
-    this.onDidChangeWorkspaceExtensionsScheduler = this._register(new RunOnceScheduler(() => this.onDidChangeWorkspaceExtensionsFolders(), 1e3));
+    this.onDidChangeWorkspaceExtensionsScheduler = this._register(
+      new RunOnceScheduler(
+        () => this.onDidChangeWorkspaceExtensionsFolders(),
+        1e3
+      )
+    );
   }
   _recommendations = [];
   get recommendations() {

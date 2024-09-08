@@ -3,8 +3,8 @@ import {
   registerSingleton
 } from "../../../../platform/instantiation/common/extensions.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { IReplaceService } from "./replace.js";
 import {

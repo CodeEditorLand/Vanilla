@@ -17,7 +17,7 @@ import { getErrorMessage } from "../../../../base/common/errors.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../base/common/map.js";
 import { basename } from "../../../../base/common/path.js";
-import { Language, isWeb } from "../../../../base/common/platform.js";
+import { isWeb, Language } from "../../../../base/common/platform.js";
 import { joinPath } from "../../../../base/common/resources.js";
 import * as semver from "../../../../base/common/semver/semver.js";
 import Severity from "../../../../base/common/severity.js";
@@ -46,13 +46,13 @@ import {
   IExtensionResourceLoaderService,
   migratePlatformSpecificExtensionGalleryResourceURL
 } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
-import { validateExtensionManifest } from "../../../../platform/extensions/common/extensionValidator.js";
 import {
   ExtensionType,
   IBuiltinExtensionsScannerService,
-  TargetPlatform,
-  parseEnabledApiProposalNames
+  parseEnabledApiProposalNames,
+  TargetPlatform
 } from "../../../../platform/extensions/common/extensions.js";
+import { validateExtensionManifest } from "../../../../platform/extensions/common/extensionValidator.js";
 import {
   FileOperationResult,
   IFileService
@@ -107,11 +107,19 @@ let WebExtensionsScannerService = class extends Disposable {
     this.userDataProfilesService = userDataProfilesService;
     this.uriIdentityService = uriIdentityService;
     if (isWeb) {
-      this.systemExtensionsCacheResource = joinPath(environmentService.userRoamingDataHome, "systemExtensionsCache.json");
-      this.customBuiltinExtensionsCacheResource = joinPath(environmentService.userRoamingDataHome, "customBuiltinExtensionsCache.json");
+      this.systemExtensionsCacheResource = joinPath(
+        environmentService.userRoamingDataHome,
+        "systemExtensionsCache.json"
+      );
+      this.customBuiltinExtensionsCacheResource = joinPath(
+        environmentService.userRoamingDataHome,
+        "customBuiltinExtensionsCache.json"
+      );
       lifecycleService.when(LifecyclePhase.Eventually).then(() => this.updateCaches());
     }
-    this.extensionsEnabledWithApiProposalVersion = productService.extensionsEnabledWithApiProposalVersion?.map((id) => id.toLowerCase()) ?? [];
+    this.extensionsEnabledWithApiProposalVersion = productService.extensionsEnabledWithApiProposalVersion?.map(
+      (id) => id.toLowerCase()
+    ) ?? [];
   }
   systemExtensionsCacheResource = void 0;
   customBuiltinExtensionsCacheResource = void 0;

@@ -10,9 +10,9 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  VSBuffer,
   bufferToReadable,
-  bufferToStream
+  bufferToStream,
+  VSBuffer
 } from "../../../../base/common/buffer.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { getCharContainingOffset } from "../../../../base/common/strings.js";
@@ -45,7 +45,12 @@ import { IWorkingCopyService } from "../../workingCopy/common/workingCopyService
 let UntitledTextEditorModel = class extends BaseTextEditorModel {
   //#endregion
   constructor(resource, hasAssociatedFilePath, initialValue, preferredLanguageId, preferredEncoding, languageService, modelService, workingCopyBackupService, textResourceConfigurationService, workingCopyService, textFileService, labelService, editorService, languageDetectionService, accessibilityService) {
-    super(modelService, languageService, languageDetectionService, accessibilityService);
+    super(
+      modelService,
+      languageService,
+      languageDetectionService,
+      accessibilityService
+    );
     this.resource = resource;
     this.hasAssociatedFilePath = hasAssociatedFilePath;
     this.initialValue = initialValue;

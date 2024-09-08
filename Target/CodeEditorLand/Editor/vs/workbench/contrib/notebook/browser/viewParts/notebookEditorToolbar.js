@@ -301,11 +301,13 @@ let NotebookEditorWorkbenchToolbar = class extends Disposable {
     this._primaryActions = [];
     this._secondaryActions = [];
     this._buildBody();
-    this._register(Event.debounce(
-      this.editorService.onDidActiveEditorChange,
-      (last, _current) => last,
-      200
-    )(this._updatePerEditorChange, this));
+    this._register(
+      Event.debounce(
+        this.editorService.onDidActiveEditorChange,
+        (last, _current) => last,
+        200
+      )(this._updatePerEditorChange, this)
+    );
     this._registerNotebookActionsToolbar();
   }
   _leftToolbarScrollable;

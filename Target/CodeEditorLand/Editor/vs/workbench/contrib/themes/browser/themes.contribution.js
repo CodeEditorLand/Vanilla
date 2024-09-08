@@ -1161,15 +1161,26 @@ let DefaultThemeUpdatedNotificationContribution = class {
     this._commandService = _commandService;
     this._telemetryService = _telemetryService;
     this._hostService = _hostService;
-    if (_storageService.getBoolean(DefaultThemeUpdatedNotificationContribution.STORAGE_KEY, StorageScope.APPLICATION)) {
+    if (_storageService.getBoolean(
+      DefaultThemeUpdatedNotificationContribution.STORAGE_KEY,
+      StorageScope.APPLICATION
+    )) {
       return;
     }
     setTimeout(async () => {
-      if (_storageService.getBoolean(DefaultThemeUpdatedNotificationContribution.STORAGE_KEY, StorageScope.APPLICATION)) {
+      if (_storageService.getBoolean(
+        DefaultThemeUpdatedNotificationContribution.STORAGE_KEY,
+        StorageScope.APPLICATION
+      )) {
         return;
       }
       if (await this._hostService.hadLastFocus()) {
-        this._storageService.store(DefaultThemeUpdatedNotificationContribution.STORAGE_KEY, true, StorageScope.APPLICATION, StorageTarget.USER);
+        this._storageService.store(
+          DefaultThemeUpdatedNotificationContribution.STORAGE_KEY,
+          true,
+          StorageScope.APPLICATION,
+          StorageTarget.USER
+        );
         if (this._workbenchThemeService.hasUpdatedDefaultThemes()) {
           this._showYouGotMigratedNotification();
         } else {

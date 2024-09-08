@@ -25,12 +25,12 @@ import {
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { ITaskService } from "../common/taskService.js";
 import {
   ConfiguringTask,
   ContributedTask,
   CustomTask
 } from "../common/tasks.js";
+import { ITaskService } from "../common/taskService.js";
 import {
   TaskQuickPick
 } from "./taskQuickPick.js";

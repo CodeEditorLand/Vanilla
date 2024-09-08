@@ -50,7 +50,11 @@ let PreferencesSearchService = class extends Disposable {
     this.extensionManagementService = extensionManagementService;
     this.extensionEnablementService = extensionEnablementService;
     this._installedExtensions = this.extensionManagementService.getInstalled(ExtensionType.User).then((exts) => {
-      return exts.filter((ext) => this.extensionEnablementService.isEnabled(ext)).filter((ext) => ext.manifest && ext.manifest.contributes && ext.manifest.contributes.configuration).filter((ext) => !!ext.identifier.uuid);
+      return exts.filter(
+        (ext) => this.extensionEnablementService.isEnabled(ext)
+      ).filter(
+        (ext) => ext.manifest && ext.manifest.contributes && ext.manifest.contributes.configuration
+      ).filter((ext) => !!ext.identifier.uuid);
     });
   }
   // @ts-expect-error disable remote search for now, ref https://github.com/microsoft/vscode/issues/172411
@@ -146,7 +150,10 @@ let SettingMatches = class {
   constructor(searchString, setting, requireFullQueryMatch, searchDescription, valuesMatcher, configurationService) {
     this.searchDescription = searchDescription;
     this.configurationService = configurationService;
-    this.matches = distinct(this._findMatchesInSetting(searchString, setting), (match) => `${match.startLineNumber}_${match.startColumn}_${match.endLineNumber}_${match.endColumn}_`);
+    this.matches = distinct(
+      this._findMatchesInSetting(searchString, setting),
+      (match) => `${match.startLineNumber}_${match.startColumn}_${match.endLineNumber}_${match.endColumn}_`
+    );
   }
   matches;
   matchType = SettingMatchType.None;
@@ -353,7 +360,9 @@ class AiRelatedInformationSearchKeysProvider {
 let AiRelatedInformationSearchProvider = class {
   constructor(aiRelatedInformationService) {
     this.aiRelatedInformationService = aiRelatedInformationService;
-    this._keysProvider = new AiRelatedInformationSearchKeysProvider(aiRelatedInformationService);
+    this._keysProvider = new AiRelatedInformationSearchKeysProvider(
+      aiRelatedInformationService
+    );
   }
   static AI_RELATED_INFORMATION_THRESHOLD = 0.73;
   static AI_RELATED_INFORMATION_MAX_PICKS = 5;

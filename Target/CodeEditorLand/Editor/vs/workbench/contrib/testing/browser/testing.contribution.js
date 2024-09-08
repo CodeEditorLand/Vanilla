@@ -43,6 +43,14 @@ import {
   TestExplorerFilterState
 } from "../common/testExplorerFilterState.js";
 import { TestId, TestPosition } from "../common/testId.js";
+import { TestingContentProvider } from "../common/testingContentProvider.js";
+import { TestingContextKeys } from "../common/testingContextKeys.js";
+import {
+  ITestingContinuousRunService,
+  TestingContinuousRunService
+} from "../common/testingContinuousRunService.js";
+import { ITestingDecorationsService } from "../common/testingDecorations.js";
+import { ITestingPeekOpener } from "../common/testingPeekOpener.js";
 import {
   ITestProfileService,
   TestProfileService
@@ -57,21 +65,13 @@ import {
 } from "../common/testResultStorage.js";
 import { ITestService } from "../common/testService.js";
 import { TestService } from "../common/testServiceImpl.js";
-import { TestingContentProvider } from "../common/testingContentProvider.js";
-import { TestingContextKeys } from "../common/testingContextKeys.js";
-import {
-  ITestingContinuousRunService,
-  TestingContinuousRunService
-} from "../common/testingContinuousRunService.js";
-import { ITestingDecorationsService } from "../common/testingDecorations.js";
-import { ITestingPeekOpener } from "../common/testingPeekOpener.js";
 import { CodeCoverageDecorations } from "./codeCoverageDecorations.js";
 import { testingResultsIcon, testingViewIcon } from "./icons.js";
 import { TestCoverageView } from "./testCoverageView.js";
 import { allTestActions, discoverAndRunTests } from "./testExplorerActions.js";
 import {
-  TestingDecorationService,
-  TestingDecorations
+  TestingDecorations,
+  TestingDecorationService
 } from "./testingDecorations.js";
 import { TestingExplorerView } from "./testingExplorerView.js";
 import {
@@ -80,9 +80,9 @@ import {
   GoToNextMessageAction,
   GoToPreviousMessageAction,
   OpenMessageInEditorAction,
-  TestResultsView,
   TestingOutputPeekController,
   TestingPeekOpener,
+  TestResultsView,
   ToggleTestingPeekHistory
 } from "./testingOutputPeek.js";
 import { TestingProgressTrigger } from "./testingProgressUiService.js";

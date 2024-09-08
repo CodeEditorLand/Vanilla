@@ -22,8 +22,8 @@ import { IHistoryService } from "../../../services/history/common/history.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
 import { getSearchView } from "../../search/browser/searchActionsBase.js";
 import {
-  SearchEditorInput,
-  getOrMakeSearchEditorInput
+  getOrMakeSearchEditorInput,
+  SearchEditorInput
 } from "./searchEditorInput.js";
 import { serializeSearchResultForEditor } from "./searchEditorSerialization.js";
 const toggleSearchEditorCaseSensitiveCommand = (accessor) => {

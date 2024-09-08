@@ -83,7 +83,7 @@ import {
   ctxMergeResultUri
 } from "../../common/mergeEditor.js";
 import { MergeEditorInput } from "../mergeEditorInput.js";
-import { PersistentStore, deepMerge, thenIfNotDisposed } from "../utils.js";
+import { deepMerge, PersistentStore, thenIfNotDisposed } from "../utils.js";
 import { BaseCodeEditorView } from "./editors/baseCodeEditorView.js";
 import { ScrollSynchronizer } from "./scrollSynchronizer.js";
 import { MergeEditorViewModel } from "./viewModel.js";
@@ -93,7 +93,18 @@ import { InputCodeEditorView } from "./editors/inputCodeEditorView.js";
 import { ResultCodeEditorView } from "./editors/resultCodeEditorView.js";
 let MergeEditor = class extends AbstractTextEditor {
   constructor(group, instantiation, contextKeyService, telemetryService, storageService, themeService, textResourceConfigurationService, _configurationService, editorService, editorGroupService, fileService, _codeEditorService, configurationService) {
-    super(MergeEditor.ID, group, telemetryService, instantiation, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService, fileService);
+    super(
+      MergeEditor.ID,
+      group,
+      telemetryService,
+      instantiation,
+      storageService,
+      textResourceConfigurationService,
+      themeService,
+      editorService,
+      editorGroupService,
+      fileService
+    );
     this.contextKeyService = contextKeyService;
     this._configurationService = _configurationService;
     this._codeEditorService = _codeEditorService;
@@ -788,7 +799,11 @@ MergeEditor = __decorateClass([
 let MergeEditorLayoutStore = class {
   constructor(_storageService) {
     this._storageService = _storageService;
-    const value = _storageService.get(MergeEditorLayoutStore._key, StorageScope.PROFILE, "mixed");
+    const value = _storageService.get(
+      MergeEditorLayoutStore._key,
+      StorageScope.PROFILE,
+      "mixed"
+    );
     if (value === "mixed" || value === "columns") {
       this._value = { kind: value, showBase: false, showBaseAtTop: true };
     } else if (value) {
@@ -827,7 +842,11 @@ let MergeEditorOpenHandlerContribution = class extends Disposable {
   constructor(_editorService, codeEditorService) {
     super();
     this._editorService = _editorService;
-    this._store.add(codeEditorService.registerCodeEditorOpenHandler(this.openCodeEditorFromMergeEditor.bind(this)));
+    this._store.add(
+      codeEditorService.registerCodeEditorOpenHandler(
+        this.openCodeEditorFromMergeEditor.bind(this)
+      )
+    );
   }
   async openCodeEditorFromMergeEditor(input, _source, sideBySide) {
     const activePane = this._editorService.activeEditorPane;

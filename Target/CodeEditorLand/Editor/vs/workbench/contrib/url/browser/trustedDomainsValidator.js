@@ -9,7 +9,7 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Schemas, matchesScheme } from "../../../../base/common/network.js";
+import { matchesScheme, Schemas } from "../../../../base/common/network.js";
 import Severity from "../../../../base/common/severity.js";
 import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
@@ -27,13 +27,13 @@ import { ITelemetryService } from "../../../../platform/telemetry/common/telemet
 import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import {
-  ITrustedDomainService,
-  isURLDomainTrusted
-} from "./trustedDomainService.js";
-import {
   configureOpenerTrustedDomainsHandler,
   readStaticTrustedDomains
 } from "./trustedDomains.js";
+import {
+  isURLDomainTrusted,
+  ITrustedDomainService
+} from "./trustedDomainService.js";
 let OpenerValidatorContributions = class {
   constructor(_openerService, _storageService, _dialogService, _productService, _quickInputService, _editorService, _clipboardService, _telemetryService, _instantiationService, _configurationService, _workspaceTrustService, _trustedDomainService) {
     this._openerService = _openerService;
@@ -48,7 +48,9 @@ let OpenerValidatorContributions = class {
     this._configurationService = _configurationService;
     this._workspaceTrustService = _workspaceTrustService;
     this._trustedDomainService = _trustedDomainService;
-    this._openerService.registerValidator({ shouldOpen: (uri, options) => this.validateLink(uri, options) });
+    this._openerService.registerValidator({
+      shouldOpen: (uri, options) => this.validateLink(uri, options)
+    });
   }
   async validateLink(resource, openOptions) {
     if (!matchesScheme(resource, Schemas.http) && !matchesScheme(resource, Schemas.https)) {

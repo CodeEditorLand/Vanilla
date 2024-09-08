@@ -37,10 +37,10 @@ import { ResultKind } from "../../../../platform/keybinding/common/keybindingRes
 import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
 import {
   INotificationService,
+  isNotificationSource,
   NotificationPriority,
   NotificationsFilter,
-  Severity,
-  isNotificationSource
+  Severity
 } from "../../../../platform/notification/common/notification.js";
 import {
   IProgressService,

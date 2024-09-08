@@ -31,8 +31,8 @@ import {
   IConfigurationService
 } from "../../../../platform/configuration/common/configuration.js";
 import {
-  FileChangeType,
   FileChangesEvent,
+  FileChangeType,
   FileOperation,
   IFileService
 } from "../../../../platform/files/common/files.js";
@@ -51,14 +51,14 @@ import {
   EditorInputCapabilities,
   EditorResourceAccessor,
   EditorsOrder,
-  SaveReason,
-  SideBySideEditor,
   isEditorInput,
   isEditorInputWithOptions,
   isEditorInputWithOptionsAndGroup,
   isResourceDiffEditorInput,
   isResourceEditorInput,
-  isResourceMergeEditorInput
+  isResourceMergeEditorInput,
+  SaveReason,
+  SideBySideEditor
 } from "../../../common/editor.js";
 import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
 import { EditorInput } from "../../../common/editor/editorInput.js";
@@ -93,7 +93,12 @@ let EditorService = class extends Disposable {
     this.hostService = hostService;
     this.textEditorService = textEditorService;
     this.editorGroupsContainer = editorGroupsContainer ?? editorGroupService;
-    this.editorsObserver = this._register(this.instantiationService.createInstance(EditorsObserver, this.editorGroupsContainer));
+    this.editorsObserver = this._register(
+      this.instantiationService.createInstance(
+        EditorsObserver,
+        this.editorGroupsContainer
+      )
+    );
     this.onConfigurationUpdated();
     this.registerListeners();
   }

@@ -49,8 +49,8 @@ import {
 } from "../../../common/views.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import {
-  CONTEXT_DEBUGGERS_AVAILABLE,
   CONTEXT_DEBUG_EXTENSION_AVAILABLE,
+  CONTEXT_DEBUGGERS_AVAILABLE,
   IDebugService
 } from "../common/debug.js";
 import {
@@ -69,12 +69,29 @@ const CONTEXT_DEBUGGER_INTERESTED_IN_ACTIVE_EDITOR = new RawContextKey(
 );
 let WelcomeView = class extends ViewPane {
   constructor(options, themeService, keybindingService, contextMenuService, configurationService, contextKeyService, debugService, editorService, instantiationService, viewDescriptorService, openerService, storageSevice, telemetryService, hoverService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.debugService = debugService;
     this.editorService = editorService;
     this.debugStartLanguageContext = CONTEXT_DEBUG_START_LANGUAGE.bindTo(contextKeyService);
-    this.debuggerInterestedContext = CONTEXT_DEBUGGER_INTERESTED_IN_ACTIVE_EDITOR.bindTo(contextKeyService);
-    const lastSetLanguage = storageSevice.get(debugStartLanguageKey, StorageScope.WORKSPACE);
+    this.debuggerInterestedContext = CONTEXT_DEBUGGER_INTERESTED_IN_ACTIVE_EDITOR.bindTo(
+      contextKeyService
+    );
+    const lastSetLanguage = storageSevice.get(
+      debugStartLanguageKey,
+      StorageScope.WORKSPACE
+    );
     this.debugStartLanguageContext.set(lastSetLanguage);
     const setContextKey = () => {
       let editorControl = this.editorService.activeTextEditorControl;
@@ -87,7 +104,12 @@ let WelcomeView = class extends ViewPane {
         if (language && this.debugService.getAdapterManager().someDebuggerInterestedInLanguage(language)) {
           this.debugStartLanguageContext.set(language);
           this.debuggerInterestedContext.set(true);
-          storageSevice.store(debugStartLanguageKey, language, StorageScope.WORKSPACE, StorageTarget.MACHINE);
+          storageSevice.store(
+            debugStartLanguageKey,
+            language,
+            StorageScope.WORKSPACE,
+            StorageTarget.MACHINE
+          );
           return;
         }
       }
@@ -95,25 +117,35 @@ let WelcomeView = class extends ViewPane {
     };
     const disposables = new DisposableStore();
     this._register(disposables);
-    this._register(editorService.onDidActiveEditorChange(() => {
-      disposables.clear();
-      let editorControl = this.editorService.activeTextEditorControl;
-      if (isDiffEditor(editorControl)) {
-        editorControl = editorControl.getModifiedEditor();
-      }
-      if (isCodeEditor(editorControl)) {
-        disposables.add(editorControl.onDidChangeModelLanguage(setContextKey));
-      }
-      setContextKey();
-    }));
-    this._register(this.debugService.getAdapterManager().onDidRegisterDebugger(setContextKey));
-    this._register(this.onDidChangeBodyVisibility((visible) => {
-      if (visible) {
+    this._register(
+      editorService.onDidActiveEditorChange(() => {
+        disposables.clear();
+        let editorControl = this.editorService.activeTextEditorControl;
+        if (isDiffEditor(editorControl)) {
+          editorControl = editorControl.getModifiedEditor();
+        }
+        if (isCodeEditor(editorControl)) {
+          disposables.add(
+            editorControl.onDidChangeModelLanguage(setContextKey)
+          );
+        }
         setContextKey();
-      }
-    }));
+      })
+    );
+    this._register(
+      this.debugService.getAdapterManager().onDidRegisterDebugger(setContextKey)
+    );
+    this._register(
+      this.onDidChangeBodyVisibility((visible) => {
+        if (visible) {
+          setContextKey();
+        }
+      })
+    );
     setContextKey();
-    const debugKeybinding = this.keybindingService.lookupKeybinding(DEBUG_START_COMMAND_ID);
+    const debugKeybinding = this.keybindingService.lookupKeybinding(
+      DEBUG_START_COMMAND_ID
+    );
     debugKeybindingLabel = debugKeybinding ? ` (${debugKeybinding.getLabel()})` : "";
   }
   static ID = "workbench.debug.welcome";

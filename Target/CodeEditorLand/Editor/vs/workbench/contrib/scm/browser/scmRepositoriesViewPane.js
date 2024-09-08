@@ -50,7 +50,19 @@ class ListDelegate {
 }
 let SCMRepositoriesViewPane = class extends ViewPane {
   constructor(options, scmViewService, keybindingService, contextMenuService, instantiationService, viewDescriptorService, contextKeyService, configurationService, openerService, themeService, telemetryService, hoverService) {
-    super({ ...options, titleMenuId: MenuId.SCMSourceControlTitle }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      { ...options, titleMenuId: MenuId.SCMSourceControlTitle },
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.scmViewService = scmViewService;
   }
   list;

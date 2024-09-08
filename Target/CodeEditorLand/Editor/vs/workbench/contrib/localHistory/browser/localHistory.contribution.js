@@ -1,7 +1,7 @@
 import "./localHistoryCommands.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { LocalHistoryTimeline } from "./localHistoryTimeline.js";
 registerWorkbenchContribution2(

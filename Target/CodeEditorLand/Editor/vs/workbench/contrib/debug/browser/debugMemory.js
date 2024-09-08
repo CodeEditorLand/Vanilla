@@ -8,12 +8,12 @@ import {
 } from "../../../../base/common/lifecycle.js";
 import { clamp } from "../../../../base/common/numbers.js";
 import {
+  createFileSystemProviderError,
   FileChangeType,
   FilePermission,
   FileSystemProviderCapabilities,
   FileSystemProviderErrorCode,
-  FileType,
-  createFileSystemProviderError
+  FileType
 } from "../../../../platform/files/common/files.js";
 import {
   DEBUG_MEMORY_SCHEME,

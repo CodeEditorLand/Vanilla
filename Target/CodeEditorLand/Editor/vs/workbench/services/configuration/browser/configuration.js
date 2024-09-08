@@ -3,11 +3,11 @@ import * as errors from "../../../../base/common/errors.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import { hash } from "../../../../base/common/hash.js";
 import {
+  combinedDisposable,
   Disposable,
   DisposableStore,
-  MutableDisposable,
-  combinedDisposable,
   dispose,
+  MutableDisposable,
   toDisposable
 } from "../../../../base/common/lifecycle.js";
 import { equals } from "../../../../base/common/objects.js";

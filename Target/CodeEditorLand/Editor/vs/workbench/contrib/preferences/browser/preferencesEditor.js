@@ -30,8 +30,16 @@ let SettingsEditorContribution = class extends Disposable {
     this.preferencesService = preferencesService;
     this.workspaceContextService = workspaceContextService;
     this._createPreferencesRenderer();
-    this._register(this.editor.onDidChangeModel((e) => this._createPreferencesRenderer()));
-    this._register(this.workspaceContextService.onDidChangeWorkbenchState(() => this._createPreferencesRenderer()));
+    this._register(
+      this.editor.onDidChangeModel(
+        (e) => this._createPreferencesRenderer()
+      )
+    );
+    this._register(
+      this.workspaceContextService.onDidChangeWorkbenchState(
+        () => this._createPreferencesRenderer()
+      )
+    );
   }
   static ID = "editor.contrib.settings";
   currentRenderer;

@@ -24,10 +24,10 @@ import {
   WebviewContentPurpose
 } from "../../webview/browser/webview.js";
 import {
-  WebviewEditorInputSerializer,
   restoreWebviewContentOptions,
   restoreWebviewOptions,
-  reviveWebviewExtensionDescription
+  reviveWebviewExtensionDescription,
+  WebviewEditorInputSerializer
 } from "../../webviewPanel/browser/webviewEditorInputSerializer.js";
 import { IWebviewWorkbenchService } from "../../webviewPanel/browser/webviewWorkbenchService.js";
 import { ICustomEditorService } from "../common/customEditor.js";

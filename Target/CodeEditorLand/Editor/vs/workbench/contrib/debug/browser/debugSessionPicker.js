@@ -1,15 +1,15 @@
 import { matchesFuzzy } from "../../../../base/common/filters.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import * as nls from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import {
   IQuickInputService
 } from "../../../../platform/quickinput/common/quickInput.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
 import {
   IDebugService,
   REPL_VIEW_ID
 } from "../common/debug.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
 async function showDebugSessionMenu(accessor, selectAndStartID) {
   const quickInputService = accessor.get(IQuickInputService);
   const debugService = accessor.get(IDebugService);

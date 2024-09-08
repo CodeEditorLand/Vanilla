@@ -32,33 +32,40 @@ let DebugStatusContribution = class {
         "status.debug",
         StatusbarAlignment.LEFT,
         30
-        /* Low Priority */
       );
     };
     const setShowInStatusBar = () => {
-      this.showInStatusBar = configurationService.getValue("debug").showInStatusBar;
+      this.showInStatusBar = configurationService.getValue(
+        "debug"
+      ).showInStatusBar;
       if (this.showInStatusBar === "always" && !this.entryAccessor) {
         addStatusBarEntry();
       }
     };
     setShowInStatusBar();
-    this.toDispose.push(this.debugService.onDidChangeState((state) => {
-      if (state !== State.Inactive && this.showInStatusBar === "onFirstSessionStart" && !this.entryAccessor) {
-        addStatusBarEntry();
-      }
-    }));
-    this.toDispose.push(configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("debug.showInStatusBar")) {
-        setShowInStatusBar();
-        if (this.entryAccessor && this.showInStatusBar === "never") {
-          this.entryAccessor.dispose();
-          this.entryAccessor = void 0;
+    this.toDispose.push(
+      this.debugService.onDidChangeState((state) => {
+        if (state !== State.Inactive && this.showInStatusBar === "onFirstSessionStart" && !this.entryAccessor) {
+          addStatusBarEntry();
         }
-      }
-    }));
-    this.toDispose.push(this.debugService.getConfigurationManager().onDidSelectConfiguration((e) => {
-      this.entryAccessor?.update(this.entry);
-    }));
+      })
+    );
+    this.toDispose.push(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("debug.showInStatusBar")) {
+          setShowInStatusBar();
+          if (this.entryAccessor && this.showInStatusBar === "never") {
+            this.entryAccessor.dispose();
+            this.entryAccessor = void 0;
+          }
+        }
+      })
+    );
+    this.toDispose.push(
+      this.debugService.getConfigurationManager().onDidSelectConfiguration((e) => {
+        this.entryAccessor?.update(this.entry);
+      })
+    );
   }
   showInStatusBar;
   toDispose = [];

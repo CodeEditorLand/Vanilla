@@ -51,8 +51,8 @@ import {
   IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
@@ -71,9 +71,9 @@ import {
   WorkbenchStateContext
 } from "../../../common/contextkeys.js";
 import {
+  registerWorkbenchContribution2,
   Extensions as WorkbenchExtensions,
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   EditorExtensions
@@ -97,9 +97,9 @@ import {
   ExplorerRootContext
 } from "../../files/common/files.js";
 import {
+  CONTEXT_KEYBINDING_FOCUS,
   CONTEXT_KEYBINDINGS_EDITOR,
   CONTEXT_KEYBINDINGS_SEARCH_FOCUS,
-  CONTEXT_KEYBINDING_FOCUS,
   CONTEXT_SETTINGS_EDITOR,
   CONTEXT_SETTINGS_JSON_EDITOR,
   CONTEXT_SETTINGS_ROW_FOCUS,
@@ -254,8 +254,16 @@ let PreferencesActionsContribution = class extends Disposable {
     this.registerSettingsActions();
     this.registerKeybindingsActions();
     this.updatePreferencesEditorMenuItem();
-    this._register(workspaceContextService.onDidChangeWorkbenchState(() => this.updatePreferencesEditorMenuItem()));
-    this._register(workspaceContextService.onDidChangeWorkspaceFolders(() => this.updatePreferencesEditorMenuItemForWorkspaceFolders()));
+    this._register(
+      workspaceContextService.onDidChangeWorkbenchState(
+        () => this.updatePreferencesEditorMenuItem()
+      )
+    );
+    this._register(
+      workspaceContextService.onDidChangeWorkspaceFolders(
+        () => this.updatePreferencesEditorMenuItemForWorkspaceFolders()
+      )
+    );
   }
   static ID = "workbench.contrib.preferencesActions";
   registerSettingsActions() {

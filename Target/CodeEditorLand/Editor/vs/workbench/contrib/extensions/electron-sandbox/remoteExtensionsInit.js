@@ -147,7 +147,16 @@ RemoteExtensionsInitializerContribution = __decorateClass([
 ], RemoteExtensionsInitializerContribution);
 let RemoteExtensionsInitializer = class extends AbstractExtensionsInitializer {
   constructor(extensionManagementService, ignoredExtensionsManagementService, fileService, userDataProfilesService, environmentService, logService, uriIdentityService, extensionGalleryService, storageService, extensionManifestPropertiesService) {
-    super(extensionManagementService, ignoredExtensionsManagementService, fileService, userDataProfilesService, environmentService, logService, storageService, uriIdentityService);
+    super(
+      extensionManagementService,
+      ignoredExtensionsManagementService,
+      fileService,
+      userDataProfilesService,
+      environmentService,
+      logService,
+      storageService,
+      uriIdentityService
+    );
     this.extensionGalleryService = extensionGalleryService;
     this.extensionManifestPropertiesService = extensionManifestPropertiesService;
   }

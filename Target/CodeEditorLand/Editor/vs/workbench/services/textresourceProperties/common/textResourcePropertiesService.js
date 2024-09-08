@@ -10,7 +10,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Schemas } from "../../../../base/common/network.js";
-import { OS, OperatingSystem } from "../../../../base/common/platform.js";
+import { OperatingSystem, OS } from "../../../../base/common/platform.js";
 import { ITextResourcePropertiesService } from "../../../../editor/common/services/textResourceConfiguration.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import {

@@ -10,9 +10,9 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
+  isESM,
   LoaderEventType,
-  LoaderStats,
-  isESM
+  LoaderStats
 } from "../../../../base/common/amd.js";
 import {
   dispose
@@ -36,8 +36,8 @@ import { ILabelService } from "../../../../platform/label/common/label.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import {
-  Extensions as WorkbenchExtensions,
-  getWorkbenchContribution
+  getWorkbenchContribution,
+  Extensions as WorkbenchExtensions
 } from "../../../common/contributions.js";
 import { TextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
 import { ICustomEditorLabelService } from "../../../services/editor/common/customEditorLabelService.js";
@@ -56,7 +56,10 @@ import { ITerminalService } from "../../terminal/browser/terminal.js";
 let PerfviewContrib = class {
   constructor(_instaService, textModelResolverService) {
     this._instaService = _instaService;
-    this._registration = textModelResolverService.registerTextModelContentProvider("perf", _instaService.createInstance(PerfModelContentProvider));
+    this._registration = textModelResolverService.registerTextModelContentProvider(
+      "perf",
+      _instaService.createInstance(PerfModelContentProvider)
+    );
   }
   static get() {
     return getWorkbenchContribution(PerfviewContrib.ID);

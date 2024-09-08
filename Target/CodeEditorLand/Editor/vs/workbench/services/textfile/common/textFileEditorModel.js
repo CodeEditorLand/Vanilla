@@ -64,7 +64,12 @@ import {
 } from "./textfiles.js";
 let TextFileEditorModel = class extends BaseTextEditorModel {
   constructor(resource, preferredEncoding, preferredLanguageId, languageService, modelService, fileService, textFileService, workingCopyBackupService, logService, workingCopyService, filesConfigurationService, labelService, languageDetectionService, accessibilityService, pathService, extensionService, progressService) {
-    super(modelService, languageService, languageDetectionService, accessibilityService);
+    super(
+      modelService,
+      languageService,
+      languageDetectionService,
+      accessibilityService
+    );
     this.resource = resource;
     this.preferredEncoding = preferredEncoding;
     this.preferredLanguageId = preferredLanguageId;

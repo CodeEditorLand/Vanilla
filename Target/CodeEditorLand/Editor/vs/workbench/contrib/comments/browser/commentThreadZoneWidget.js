@@ -104,10 +104,17 @@ let ReviewZoneWidget = class extends ZoneWidget {
     this.commentService = commentService;
     this.configurationService = configurationService;
     this._contextKeyService = contextKeyService.createScoped(this.domNode);
-    this._scopedInstantiationService = this._globalToDispose.add(instantiationService.createChild(new ServiceCollection(
-      [IContextKeyService, this._contextKeyService]
-    )));
-    const controller = this.commentService.getCommentController(this._uniqueOwner);
+    this._scopedInstantiationService = this._globalToDispose.add(
+      instantiationService.createChild(
+        new ServiceCollection([
+          IContextKeyService,
+          this._contextKeyService
+        ])
+      )
+    );
+    const controller = this.commentService.getCommentController(
+      this._uniqueOwner
+    );
     if (controller) {
       this._commentOptions = controller.options;
     }
@@ -115,12 +122,16 @@ let ReviewZoneWidget = class extends ZoneWidget {
     _commentThread.initialCollapsibleState = this._initialCollapsibleState;
     this._commentThreadDisposables = [];
     this.create();
-    this._globalToDispose.add(this.themeService.onDidColorThemeChange(this._applyTheme, this));
-    this._globalToDispose.add(this.editor.onDidChangeConfiguration((e) => {
-      if (e.hasChanged(EditorOption.fontInfo)) {
-        this._applyTheme(this.themeService.getColorTheme());
-      }
-    }));
+    this._globalToDispose.add(
+      this.themeService.onDidColorThemeChange(this._applyTheme, this)
+    );
+    this._globalToDispose.add(
+      this.editor.onDidChangeConfiguration((e) => {
+        if (e.hasChanged(EditorOption.fontInfo)) {
+          this._applyTheme(this.themeService.getColorTheme());
+        }
+      })
+    );
     this._applyTheme(this.themeService.getColorTheme());
   }
   _commentThreadWidget;

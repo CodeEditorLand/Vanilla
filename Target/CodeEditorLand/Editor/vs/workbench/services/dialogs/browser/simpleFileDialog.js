@@ -23,8 +23,8 @@ import {
 import { Schemas } from "../../../../base/common/network.js";
 import * as objects from "../../../../base/common/objects.js";
 import {
-  OperatingSystem,
-  isWindows
+  isWindows,
+  OperatingSystem
 } from "../../../../base/common/platform.js";
 import * as resources from "../../../../base/common/resources.js";
 import {

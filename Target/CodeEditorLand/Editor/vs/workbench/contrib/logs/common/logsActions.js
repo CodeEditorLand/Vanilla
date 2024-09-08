@@ -23,9 +23,9 @@ import * as nls from "../../../../nls.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import {
   ILoggerService,
+  isLogLevel,
   LogLevel,
-  LogLevelToLocalizedString,
-  isLogLevel
+  LogLevelToLocalizedString
 } from "../../../../platform/log/common/log.js";
 import {
   IQuickInputService

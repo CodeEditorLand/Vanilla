@@ -11,10 +11,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
 import { renderMarkdown } from "../../../../base/browser/markdownRenderer.js";
-import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import {
   ActionBar
 } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import {
   TreeVisibility
@@ -492,12 +492,22 @@ class Filter {
 let CommentsList = class extends WorkbenchObjectTree {
   constructor(labels, container, options, contextKeyService, listService, instantiationService, configurationService, contextMenuService, keybindingService) {
     const delegate = new CommentsModelVirtualDelegate();
-    const actionViewItemProvider = createActionViewItem.bind(void 0, instantiationService);
+    const actionViewItemProvider = createActionViewItem.bind(
+      void 0,
+      instantiationService
+    );
     const menus = instantiationService.createInstance(CommentsMenus);
     menus.setContextKeyService(contextKeyService);
     const renderers = [
-      instantiationService.createInstance(ResourceWithCommentsRenderer, labels),
-      instantiationService.createInstance(CommentNodeRenderer, actionViewItemProvider, menus)
+      instantiationService.createInstance(
+        ResourceWithCommentsRenderer,
+        labels
+      ),
+      instantiationService.createInstance(
+        CommentNodeRenderer,
+        actionViewItemProvider,
+        menus
+      )
     ];
     super(
       "CommentsTree",
@@ -536,7 +546,9 @@ let CommentsList = class extends WorkbenchObjectTree {
     this.contextMenuService = contextMenuService;
     this.keybindingService = keybindingService;
     this.menus = menus;
-    this.disposables.add(this.onContextMenu((e) => this.commentsOnContextMenu(e)));
+    this.disposables.add(
+      this.onContextMenu((e) => this.commentsOnContextMenu(e))
+    );
   }
   menus;
   commentsOnContextMenu(treeEvent) {

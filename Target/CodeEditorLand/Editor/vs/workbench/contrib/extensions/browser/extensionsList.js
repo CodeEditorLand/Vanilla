@@ -60,14 +60,14 @@ import {
   ExtensionActivationStatusWidget,
   ExtensionHoverWidget,
   ExtensionPackCountWidget as ExtensionPackBadgeWidget,
+  extensionVerifiedPublisherIconColor,
   InstallCountWidget,
   PreReleaseBookmarkWidget,
   RatingsWidget,
   RecommendationWidget,
   RemoteBadgeWidget,
   SyncIgnoredWidget,
-  VerifiedPublisherWidget,
-  extensionVerifiedPublisherIconColor
+  VerifiedPublisherWidget
 } from "./extensionsWidgets.js";
 const EXTENSION_LIST_ELEMENT_HEIGHT = 72;
 class Delegate {

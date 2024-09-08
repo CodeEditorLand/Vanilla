@@ -12,10 +12,10 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import "./media/timelinePane.css";
 import * as DOM from "../../../../base/browser/dom.js";
 import { renderMarkdownAsPlaintext } from "../../../../base/browser/markdownRenderer.js";
-import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import {
   ActionBar
 } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
 import { ActionRunner } from "../../../../base/common/actions.js";
@@ -242,7 +242,19 @@ const TimelineExcludeSources = new RawContextKey(
 );
 let TimelinePane = class extends ViewPane {
   constructor(options, keybindingService, contextMenuService, contextKeyService, configurationService, storageService, viewDescriptorService, instantiationService, editorService, commandService, progressService, timelineService, openerService, themeService, telemetryService, hoverService, labelService, uriIdentityService, extensionService) {
-    super({ ...options, titleMenuId: MenuId.TimelineTitle }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      { ...options, titleMenuId: MenuId.TimelineTitle },
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.storageService = storageService;
     this.editorService = editorService;
     this.commandService = commandService;
@@ -251,17 +263,45 @@ let TimelinePane = class extends ViewPane {
     this.labelService = labelService;
     this.uriIdentityService = uriIdentityService;
     this.extensionService = extensionService;
-    this.commands = this._register(this.instantiationService.createInstance(TimelinePaneCommands, this));
+    this.commands = this._register(
+      this.instantiationService.createInstance(
+        TimelinePaneCommands,
+        this
+      )
+    );
     this.followActiveEditorContext = TimelineFollowActiveEditorContext.bindTo(this.contextKeyService);
-    this.timelineExcludeSourcesContext = TimelineExcludeSources.bindTo(this.contextKeyService);
-    const excludedSourcesString = storageService.get("timeline.excludeSources", StorageScope.PROFILE, "[]");
+    this.timelineExcludeSourcesContext = TimelineExcludeSources.bindTo(
+      this.contextKeyService
+    );
+    const excludedSourcesString = storageService.get(
+      "timeline.excludeSources",
+      StorageScope.PROFILE,
+      "[]"
+    );
     this.timelineExcludeSourcesContext.set(excludedSourcesString);
     this.excludedSources = new Set(JSON.parse(excludedSourcesString));
-    this._register(storageService.onDidChangeValue(StorageScope.PROFILE, "timeline.excludeSources", this._register(new DisposableStore()))(this.onStorageServiceChanged, this));
-    this._register(configurationService.onDidChangeConfiguration(this.onConfigurationChanged, this));
-    this._register(timelineService.onDidChangeProviders(this.onProvidersChanged, this));
-    this._register(timelineService.onDidChangeTimeline(this.onTimelineChanged, this));
-    this._register(timelineService.onDidChangeUri((uri) => this.setUri(uri), this));
+    this._register(
+      storageService.onDidChangeValue(
+        StorageScope.PROFILE,
+        "timeline.excludeSources",
+        this._register(new DisposableStore())
+      )(this.onStorageServiceChanged, this)
+    );
+    this._register(
+      configurationService.onDidChangeConfiguration(
+        this.onConfigurationChanged,
+        this
+      )
+    );
+    this._register(
+      timelineService.onDidChangeProviders(this.onProvidersChanged, this)
+    );
+    this._register(
+      timelineService.onDidChangeTimeline(this.onTimelineChanged, this)
+    );
+    this._register(
+      timelineService.onDidChangeUri((uri) => this.setUri(uri), this)
+    );
   }
   static TITLE = localize2("timeline", "Timeline");
   $container;
@@ -1102,7 +1142,10 @@ let TimelineTreeRenderer = class {
     this.commands = commands;
     this.instantiationService = instantiationService;
     this.themeService = themeService;
-    this.actionViewItemProvider = createActionViewItem.bind(void 0, this.instantiationService);
+    this.actionViewItemProvider = createActionViewItem.bind(
+      void 0,
+      this.instantiationService
+    );
     this._hoverDelegate = getDefaultHoverDelegate("mouse");
   }
   _onDidScrollToEnd = new Emitter();
@@ -1205,51 +1248,71 @@ let TimelinePaneCommands = class extends Disposable {
     this.contextKeyService = contextKeyService;
     this.menuService = menuService;
     this._register(this.sourceDisposables = new DisposableStore());
-    this._register(registerAction2(class extends Action2 {
-      constructor() {
-        super({
-          id: "timeline.refresh",
-          title: localize2("refresh", "Refresh"),
-          icon: timelineRefresh,
-          category: localize2("timeline", "Timeline"),
-          menu: {
-            id: MenuId.TimelineTitle,
-            group: "navigation",
-            order: 99
+    this._register(
+      registerAction2(
+        class extends Action2 {
+          constructor() {
+            super({
+              id: "timeline.refresh",
+              title: localize2("refresh", "Refresh"),
+              icon: timelineRefresh,
+              category: localize2("timeline", "Timeline"),
+              menu: {
+                id: MenuId.TimelineTitle,
+                group: "navigation",
+                order: 99
+              }
+            });
           }
-        });
-      }
-      run(accessor, ...args) {
-        pane.reset();
-      }
-    }));
-    this._register(CommandsRegistry.registerCommand(
-      "timeline.toggleFollowActiveEditor",
-      (accessor, ...args) => pane.followActiveEditor = !pane.followActiveEditor
-    ));
-    this._register(MenuRegistry.appendMenuItem(MenuId.TimelineTitle, {
-      command: {
-        id: "timeline.toggleFollowActiveEditor",
-        title: localize2("timeline.toggleFollowActiveEditorCommand.follow", "Pin the Current Timeline"),
-        icon: timelinePin,
-        category: localize2("timeline", "Timeline")
-      },
-      group: "navigation",
-      order: 98,
-      when: TimelineFollowActiveEditorContext
-    }));
-    this._register(MenuRegistry.appendMenuItem(MenuId.TimelineTitle, {
-      command: {
-        id: "timeline.toggleFollowActiveEditor",
-        title: localize2("timeline.toggleFollowActiveEditorCommand.unfollow", "Unpin the Current Timeline"),
-        icon: timelineUnpin,
-        category: localize2("timeline", "Timeline")
-      },
-      group: "navigation",
-      order: 98,
-      when: TimelineFollowActiveEditorContext.toNegated()
-    }));
-    this._register(timelineService.onDidChangeProviders(() => this.updateTimelineSourceFilters()));
+          run(accessor, ...args) {
+            pane.reset();
+          }
+        }
+      )
+    );
+    this._register(
+      CommandsRegistry.registerCommand(
+        "timeline.toggleFollowActiveEditor",
+        (accessor, ...args) => pane.followActiveEditor = !pane.followActiveEditor
+      )
+    );
+    this._register(
+      MenuRegistry.appendMenuItem(MenuId.TimelineTitle, {
+        command: {
+          id: "timeline.toggleFollowActiveEditor",
+          title: localize2(
+            "timeline.toggleFollowActiveEditorCommand.follow",
+            "Pin the Current Timeline"
+          ),
+          icon: timelinePin,
+          category: localize2("timeline", "Timeline")
+        },
+        group: "navigation",
+        order: 98,
+        when: TimelineFollowActiveEditorContext
+      })
+    );
+    this._register(
+      MenuRegistry.appendMenuItem(MenuId.TimelineTitle, {
+        command: {
+          id: "timeline.toggleFollowActiveEditor",
+          title: localize2(
+            "timeline.toggleFollowActiveEditorCommand.unfollow",
+            "Unpin the Current Timeline"
+          ),
+          icon: timelineUnpin,
+          category: localize2("timeline", "Timeline")
+        },
+        group: "navigation",
+        order: 98,
+        when: TimelineFollowActiveEditorContext.toNegated()
+      })
+    );
+    this._register(
+      timelineService.onDidChangeProviders(
+        () => this.updateTimelineSourceFilters()
+      )
+    );
     this.updateTimelineSourceFilters();
   }
   sourceDisposables;

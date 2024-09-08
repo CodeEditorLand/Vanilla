@@ -12,12 +12,12 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import "./media/userDataProfilesEditor.css";
 import {
   $,
-  Dimension,
-  EventHelper,
-  EventType,
   addDisposableListener,
   append,
   clearNode,
+  Dimension,
+  EventHelper,
+  EventType,
   trackFocus
 } from "../../../../base/browser/dom.js";
 import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
@@ -115,9 +115,9 @@ import { EditorInput } from "../../../common/editor/editorInput.js";
 import { PANEL_BORDER } from "../../../common/theme.js";
 import { WorkbenchIconSelectBox } from "../../../services/userDataProfile/browser/iconSelectBox.js";
 import {
+  defaultUserDataProfileIcon,
   IUserDataProfileService,
-  PROFILE_FILTER,
-  defaultUserDataProfileIcon
+  PROFILE_FILTER
 } from "../../../services/userDataProfile/common/userDataProfile.js";
 import {
   DEFAULT_ICON,
@@ -126,11 +126,11 @@ import {
 import { settingsTextInputBorder } from "../../preferences/common/settingsEditorColorRegistry.js";
 import {
   AbstractUserDataProfileElement,
+  isProfileResourceChildElement,
+  isProfileResourceTypeElement,
   NewProfileElement,
   UserDataProfileElement,
-  UserDataProfilesEditorModel,
-  isProfileResourceChildElement,
-  isProfileResourceTypeElement
+  UserDataProfilesEditorModel
 } from "./userDataProfilesEditorModel.js";
 const profilesSashBorder = registerColor(
   "profiles.sashBorder",
@@ -160,7 +160,13 @@ const listStyles = getListStyles({
 });
 let UserDataProfilesEditor = class extends EditorPane {
   constructor(group, telemetryService, themeService, storageService, quickInputService, fileDialogService, contextMenuService, instantiationService) {
-    super(UserDataProfilesEditor.ID, group, telemetryService, themeService, storageService);
+    super(
+      UserDataProfilesEditor.ID,
+      group,
+      telemetryService,
+      themeService,
+      storageService
+    );
     this.quickInputService = quickInputService;
     this.fileDialogService = fileDialogService;
     this.contextMenuService = contextMenuService;
@@ -664,67 +670,102 @@ let ProfileWidget = class extends Disposable {
     this.profileTitle = append(title, $(""));
     const body = append(parent, $(".profile-body"));
     const delegate = new ProfileTreeDelegate();
-    const contentsRenderer = this._register(this.instantiationService.createInstance(ContentsProfileRenderer));
-    this.copyFromProfileRenderer = this._register(this.instantiationService.createInstance(CopyFromProfileRenderer));
+    const contentsRenderer = this._register(
+      this.instantiationService.createInstance(ContentsProfileRenderer)
+    );
+    this.copyFromProfileRenderer = this._register(
+      this.instantiationService.createInstance(CopyFromProfileRenderer)
+    );
     this.profileTreeContainer = append(body, $(".profile-tree"));
-    this.profileTree = this._register(this.instantiationService.createInstance(
-      WorkbenchAsyncDataTree,
-      "ProfileEditor-Tree",
-      this.profileTreeContainer,
-      delegate,
-      [
-        this._register(this.instantiationService.createInstance(ProfileNameRenderer)),
-        this._register(this.instantiationService.createInstance(ProfileIconRenderer)),
-        this._register(this.instantiationService.createInstance(UseForCurrentWindowPropertyRenderer)),
-        this._register(this.instantiationService.createInstance(UseAsDefaultProfileRenderer)),
-        this.copyFromProfileRenderer,
-        contentsRenderer
-      ],
-      this.instantiationService.createInstance(ProfileTreeDataSource),
-      {
-        multipleSelectionSupport: false,
-        horizontalScrolling: false,
-        accessibilityProvider: {
-          getAriaLabel(element) {
-            return element?.element ?? "";
+    this.profileTree = this._register(
+      this.instantiationService.createInstance(
+        WorkbenchAsyncDataTree,
+        "ProfileEditor-Tree",
+        this.profileTreeContainer,
+        delegate,
+        [
+          this._register(
+            this.instantiationService.createInstance(
+              ProfileNameRenderer
+            )
+          ),
+          this._register(
+            this.instantiationService.createInstance(
+              ProfileIconRenderer
+            )
+          ),
+          this._register(
+            this.instantiationService.createInstance(
+              UseForCurrentWindowPropertyRenderer
+            )
+          ),
+          this._register(
+            this.instantiationService.createInstance(
+              UseAsDefaultProfileRenderer
+            )
+          ),
+          this.copyFromProfileRenderer,
+          contentsRenderer
+        ],
+        this.instantiationService.createInstance(ProfileTreeDataSource),
+        {
+          multipleSelectionSupport: false,
+          horizontalScrolling: false,
+          accessibilityProvider: {
+            getAriaLabel(element) {
+              return element?.element ?? "";
+            },
+            getWidgetAriaLabel() {
+              return "";
+            }
           },
-          getWidgetAriaLabel() {
-            return "";
-          }
-        },
-        identityProvider: {
-          getId(element) {
-            return element.element;
-          }
-        },
-        expandOnlyOnTwistieClick: true,
-        renderIndentGuides: RenderIndentGuides.None,
-        enableStickyScroll: false,
-        openOnSingleClick: false,
-        setRowLineHeight: false,
-        supportDynamicHeights: true,
-        alwaysConsumeMouseWheel: false
-      }
-    ));
+          identityProvider: {
+            getId(element) {
+              return element.element;
+            }
+          },
+          expandOnlyOnTwistieClick: true,
+          renderIndentGuides: RenderIndentGuides.None,
+          enableStickyScroll: false,
+          openOnSingleClick: false,
+          setRowLineHeight: false,
+          supportDynamicHeights: true,
+          alwaysConsumeMouseWheel: false
+        }
+      )
+    );
     this.profileTree.style(listStyles);
-    this._register(contentsRenderer.onDidChangeContentHeight((e) => this.profileTree.updateElementHeight(e, void 0)));
-    this._register(contentsRenderer.onDidChangeSelection((e) => {
-      if (e.selected) {
-        this.profileTree.setFocus([]);
-        this.profileTree.setSelection([]);
-      }
-    }));
-    this._register(this.profileTree.onDidChangeContentHeight((e) => {
-      if (this.dimension) {
-        this.layout(this.dimension);
-      }
-    }));
-    this._register(this.profileTree.onDidChangeSelection((e) => {
-      if (e.elements.length) {
-        contentsRenderer.clearSelection();
-      }
-    }));
-    this.buttonContainer = append(body, $(".profile-row-container.profile-button-container"));
+    this._register(
+      contentsRenderer.onDidChangeContentHeight(
+        (e) => this.profileTree.updateElementHeight(e, void 0)
+      )
+    );
+    this._register(
+      contentsRenderer.onDidChangeSelection((e) => {
+        if (e.selected) {
+          this.profileTree.setFocus([]);
+          this.profileTree.setSelection([]);
+        }
+      })
+    );
+    this._register(
+      this.profileTree.onDidChangeContentHeight((e) => {
+        if (this.dimension) {
+          this.layout(this.dimension);
+        }
+      })
+    );
+    this._register(
+      this.profileTree.onDidChangeSelection((e) => {
+        if (e.elements.length) {
+          contentsRenderer.clearSelection();
+        }
+      })
+    );
+    this.buttonContainer = append(
+      body,
+      $(".profile-row-container.profile-button-container")
+    );
   }
   profileTitle;
   profileTreeContainer;
@@ -2106,8 +2147,18 @@ let ProfileResourceChildTreeItemRenderer = class extends AbstractProfileResource
   constructor(instantiationService) {
     super();
     this.instantiationService = instantiationService;
-    this.labels = instantiationService.createInstance(ResourceLabels, DEFAULT_LABELS_CONTAINER);
-    this.hoverDelegate = this._register(instantiationService.createInstance(WorkbenchHoverDelegate, "mouse", false, {}));
+    this.labels = instantiationService.createInstance(
+      ResourceLabels,
+      DEFAULT_LABELS_CONTAINER
+    );
+    this.hoverDelegate = this._register(
+      instantiationService.createInstance(
+        WorkbenchHoverDelegate,
+        "mouse",
+        false,
+        {}
+      )
+    );
   }
   static TEMPLATE_ID = "ProfileResourceChildTreeItemTemplate";
   templateId = ProfileResourceChildTreeItemRenderer.TEMPLATE_ID;
@@ -2195,8 +2246,16 @@ let UserDataProfilesEditorInput = class extends EditorInput {
   constructor(instantiationService) {
     super();
     this.instantiationService = instantiationService;
-    this.model = UserDataProfilesEditorModel.getInstance(this.instantiationService);
-    this._register(this.model.onDidChange((e) => this.dirty = this.model.profiles.some((profile) => profile instanceof NewProfileElement)));
+    this.model = UserDataProfilesEditorModel.getInstance(
+      this.instantiationService
+    );
+    this._register(
+      this.model.onDidChange(
+        (e) => this.dirty = this.model.profiles.some(
+          (profile) => profile instanceof NewProfileElement
+        )
+      )
+    );
   }
   static ID = "workbench.input.userDataProfiles";
   resource = void 0;

@@ -3,8 +3,8 @@ import {
   InstantiationType,
   registerSingleton
 } from "../../../../platform/instantiation/common/extensions.js";
-import { ITaskService } from "../common/taskService.js";
 import { ExecutionEngine } from "../common/tasks.js";
+import { ITaskService } from "../common/taskService.js";
 import {
   AbstractTaskService
 } from "./abstractTaskService.js";

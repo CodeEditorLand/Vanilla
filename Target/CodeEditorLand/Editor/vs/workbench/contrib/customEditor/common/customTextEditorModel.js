@@ -31,15 +31,25 @@ let CustomTextEditorModel = class extends Disposable {
     this._register(_model);
     this._textFileModel = this.textFileService.files.get(_resource);
     if (this._textFileModel) {
-      this._register(this._textFileModel.onDidChangeOrphaned(() => this._onDidChangeOrphaned.fire()));
-      this._register(this._textFileModel.onDidChangeReadonly(() => this._onDidChangeReadonly.fire()));
+      this._register(
+        this._textFileModel.onDidChangeOrphaned(
+          () => this._onDidChangeOrphaned.fire()
+        )
+      );
+      this._register(
+        this._textFileModel.onDidChangeReadonly(
+          () => this._onDidChangeReadonly.fire()
+        )
+      );
     }
-    this._register(this.textFileService.files.onDidChangeDirty((e) => {
-      if (isEqual(this.resource, e.resource)) {
-        this._onDidChangeDirty.fire();
-        this._onDidChangeContent.fire();
-      }
-    }));
+    this._register(
+      this.textFileService.files.onDidChangeDirty((e) => {
+        if (isEqual(this.resource, e.resource)) {
+          this._onDidChangeDirty.fire();
+          this._onDidChangeContent.fire();
+        }
+      })
+    );
   }
   static async create(instantiationService, viewType, resource) {
     return instantiationService.invokeFunction(async (accessor) => {

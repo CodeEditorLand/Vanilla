@@ -31,16 +31,16 @@ import {
   IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import {
   EditorPaneDescriptor
 } from "../../../browser/editor.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   EditorExtensions
@@ -136,17 +136,37 @@ let ReplDocumentContribution = class extends Disposable {
       },
       {
         createUntitledEditorInput: async ({ resource, options }) => {
-          const scratchpad = this.configurationService.getValue(NotebookSetting.InteractiveWindowPromptToSave) !== true;
-          const ref = await this.notebookEditorModelResolverService.resolve({ untitledResource: resource }, "jupyter-notebook", { scratchpad });
+          const scratchpad = this.configurationService.getValue(
+            NotebookSetting.InteractiveWindowPromptToSave
+          ) !== true;
+          const ref = await this.notebookEditorModelResolverService.resolve(
+            { untitledResource: resource },
+            "jupyter-notebook",
+            { scratchpad }
+          );
           ref.object.notebook.onWillDispose(() => {
             ref.dispose();
           });
           const label = options?.label ?? void 0;
-          return { editor: this.instantiationService.createInstance(ReplEditorInput, resource, label), options };
+          return {
+            editor: this.instantiationService.createInstance(
+              ReplEditorInput,
+              resource,
+              label
+            ),
+            options
+          };
         },
         createEditorInput: async ({ resource, options }) => {
           const label = options?.label ?? void 0;
-          return { editor: this.instantiationService.createInstance(ReplEditorInput, resource, label), options };
+          return {
+            editor: this.instantiationService.createInstance(
+              ReplEditorInput,
+              resource,
+              label
+            ),
+            options
+          };
         }
       }
     );

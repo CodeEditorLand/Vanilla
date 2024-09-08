@@ -21,8 +21,8 @@ import {
 } from "../../../../base/common/platform.js";
 import { StopWatch } from "../../../../base/common/stopwatch.js";
 import {
-  ProxyChannel,
-  getDelayedChannel
+  getDelayedChannel,
+  ProxyChannel
 } from "../../../../base/parts/ipc/common/ipc.js";
 import { Client as MessagePortClient } from "../../../../base/parts/ipc/common/ipc.mp.js";
 import { acquirePort } from "../../../../base/parts/ipc/electron-sandbox/ipc.mp.js";
@@ -81,7 +81,14 @@ LocalTerminalBackendContribution = __decorateClass([
 ], LocalTerminalBackendContribution);
 let LocalTerminalBackend = class extends BaseTerminalBackend {
   constructor(workspaceContextService, _lifecycleService, logService, _localPtyService, _labelService, _shellEnvironmentService, _storageService, _configurationResolverService, _configurationService, _productService, _historyService, _terminalProfileResolverService, _environmentVariableService, historyService, _nativeHostService, statusBarService, _remoteAgentService) {
-    super(_localPtyService, logService, historyService, _configurationResolverService, statusBarService, workspaceContextService);
+    super(
+      _localPtyService,
+      logService,
+      historyService,
+      _configurationResolverService,
+      statusBarService,
+      workspaceContextService
+    );
     this._lifecycleService = _lifecycleService;
     this._localPtyService = _localPtyService;
     this._labelService = _labelService;
@@ -95,11 +102,13 @@ let LocalTerminalBackend = class extends BaseTerminalBackend {
     this._environmentVariableService = _environmentVariableService;
     this._nativeHostService = _nativeHostService;
     this._remoteAgentService = _remoteAgentService;
-    this._register(this.onPtyHostRestart(() => {
-      this._directProxy = void 0;
-      this._directProxyClientEventually = void 0;
-      this._connectToDirectProxy();
-    }));
+    this._register(
+      this.onPtyHostRestart(() => {
+        this._directProxy = void 0;
+        this._directProxyClientEventually = void 0;
+        this._connectToDirectProxy();
+      })
+    );
   }
   remoteAuthority = void 0;
   _ptys = /* @__PURE__ */ new Map();

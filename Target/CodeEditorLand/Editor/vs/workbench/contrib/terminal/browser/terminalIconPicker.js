@@ -43,11 +43,14 @@ let TerminalIconPicker = class extends Disposable {
   constructor(instantiationService, _hoverService) {
     super();
     this._hoverService = _hoverService;
-    this._iconSelectBox = instantiationService.createInstance(WorkbenchIconSelectBox, {
-      icons: icons.value,
-      inputBoxStyles: defaultInputBoxStyles,
-      showIconInfo: true
-    });
+    this._iconSelectBox = instantiationService.createInstance(
+      WorkbenchIconSelectBox,
+      {
+        icons: icons.value,
+        inputBoxStyles: defaultInputBoxStyles,
+        showIconInfo: true
+      }
+    );
   }
   _iconSelectBox;
   async pickIcons() {

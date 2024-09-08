@@ -22,8 +22,8 @@ import {
 } from "../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import {
-  ILogService,
   ILoggerService,
+  ILogService,
   LogLevelToString
 } from "../../../../platform/log/common/log.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
@@ -102,38 +102,68 @@ let OutputService = class extends Disposable {
     this.lifecycleService = lifecycleService;
     this.viewsService = viewsService;
     this.defaultLogLevelsService = defaultLogLevelsService;
-    this.activeChannelIdInStorage = this.storageService.get(OUTPUT_ACTIVE_CHANNEL_KEY, StorageScope.WORKSPACE, "");
+    this.activeChannelIdInStorage = this.storageService.get(
+      OUTPUT_ACTIVE_CHANNEL_KEY,
+      StorageScope.WORKSPACE,
+      ""
+    );
     this.activeOutputChannelContext = ACTIVE_OUTPUT_CHANNEL_CONTEXT.bindTo(contextKeyService);
     this.activeOutputChannelContext.set(this.activeChannelIdInStorage);
-    this._register(this.onActiveOutputChannel((channel) => this.activeOutputChannelContext.set(channel)));
+    this._register(
+      this.onActiveOutputChannel(
+        (channel) => this.activeOutputChannelContext.set(channel)
+      )
+    );
     this.activeFileOutputChannelContext = CONTEXT_ACTIVE_FILE_OUTPUT.bindTo(contextKeyService);
     this.activeOutputChannelLevelSettableContext = CONTEXT_ACTIVE_OUTPUT_LEVEL_SETTABLE.bindTo(contextKeyService);
     this.activeOutputChannelLevelContext = CONTEXT_ACTIVE_OUTPUT_LEVEL.bindTo(contextKeyService);
     this.activeOutputChannelLevelIsDefaultContext = CONTEXT_ACTIVE_OUTPUT_LEVEL_IS_DEFAULT.bindTo(contextKeyService);
-    this._register(textModelResolverService.registerTextModelContentProvider(Schemas.outputChannel, this));
+    this._register(
+      textModelResolverService.registerTextModelContentProvider(
+        Schemas.outputChannel,
+        this
+      )
+    );
     this._register(instantiationService.createInstance(OutputLinkProvider));
-    const registry = Registry.as(Extensions.OutputChannels);
+    const registry = Registry.as(
+      Extensions.OutputChannels
+    );
     for (const channelIdentifier of registry.getChannels()) {
       this.onDidRegisterChannel(channelIdentifier.id);
     }
-    this._register(registry.onDidRegisterChannel(this.onDidRegisterChannel, this));
+    this._register(
+      registry.onDidRegisterChannel(this.onDidRegisterChannel, this)
+    );
     if (!this.activeChannel) {
       const channels = this.getChannelDescriptors();
-      this.setActiveChannel(channels && channels.length > 0 ? this.getChannel(channels[0].id) : void 0);
+      this.setActiveChannel(
+        channels && channels.length > 0 ? this.getChannel(channels[0].id) : void 0
+      );
     }
-    this._register(Event.filter(this.viewsService.onDidChangeViewVisibility, (e) => e.id === OUTPUT_VIEW_ID && e.visible)(() => {
-      if (this.activeChannel) {
-        this.viewsService.getActiveViewWithId(OUTPUT_VIEW_ID)?.showChannel(this.activeChannel, true);
-      }
-    }));
-    this._register(this.loggerService.onDidChangeLogLevel((_level) => {
-      this.setLevelContext();
-      this.setLevelIsDefaultContext();
-    }));
-    this._register(this.defaultLogLevelsService.onDidChangeDefaultLogLevels(() => {
-      this.setLevelIsDefaultContext();
-    }));
-    this._register(this.lifecycleService.onDidShutdown(() => this.dispose()));
+    this._register(
+      Event.filter(
+        this.viewsService.onDidChangeViewVisibility,
+        (e) => e.id === OUTPUT_VIEW_ID && e.visible
+      )(() => {
+        if (this.activeChannel) {
+          this.viewsService.getActiveViewWithId(OUTPUT_VIEW_ID)?.showChannel(this.activeChannel, true);
+        }
+      })
+    );
+    this._register(
+      this.loggerService.onDidChangeLogLevel((_level) => {
+        this.setLevelContext();
+        this.setLevelIsDefaultContext();
+      })
+    );
+    this._register(
+      this.defaultLogLevelsService.onDidChangeDefaultLogLevels(() => {
+        this.setLevelIsDefaultContext();
+      })
+    );
+    this._register(
+      this.lifecycleService.onDidShutdown(() => this.dispose())
+    );
   }
   channels = /* @__PURE__ */ new Map();
   activeChannelIdInStorage;

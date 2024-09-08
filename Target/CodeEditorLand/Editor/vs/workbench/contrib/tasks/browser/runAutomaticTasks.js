@@ -24,14 +24,14 @@ import {
 } from "../../../../platform/quickinput/common/quickInput.js";
 import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
 import {
-  ITaskService
-} from "../common/taskService.js";
-import {
   RunOnOptions,
-  TASKS_CATEGORY,
   TaskRunSource,
+  TASKS_CATEGORY,
   TaskSourceKind
 } from "../common/tasks.js";
+import {
+  ITaskService
+} from "../common/taskService.js";
 const ALLOW_AUTOMATIC_TASKS = "task.allowAutomaticTasks";
 let RunAutomaticTasks = class extends Disposable {
   constructor(_taskService, _configurationService, _workspaceTrustManagementService, _logService) {
@@ -43,9 +43,17 @@ let RunAutomaticTasks = class extends Disposable {
     if (this._taskService.isReconnected) {
       this._tryRunTasks();
     } else {
-      this._register(Event.once(this._taskService.onDidReconnectToTasks)(async () => await this._tryRunTasks()));
+      this._register(
+        Event.once(this._taskService.onDidReconnectToTasks)(
+          async () => await this._tryRunTasks()
+        )
+      );
     }
-    this._register(this._workspaceTrustManagementService.onDidChangeTrust(async () => await this._tryRunTasks()));
+    this._register(
+      this._workspaceTrustManagementService.onDidChangeTrust(
+        async () => await this._tryRunTasks()
+      )
+    );
   }
   _hasRunTasks = false;
   async _tryRunTasks() {

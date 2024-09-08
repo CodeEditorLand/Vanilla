@@ -42,8 +42,8 @@ import {
   registerSingleton
 } from "../../../../platform/instantiation/common/extensions.js";
 import {
-  IInstantiationService,
-  createDecorator
+  createDecorator,
+  IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import {
   IStorageService,
@@ -90,11 +90,21 @@ let WalkthroughsService = class extends Disposable {
     this.tasExperimentService = tasExperimentService;
     this.metadata = new Map(
       JSON.parse(
-        this.storageService.get(walkthroughMetadataConfigurationKey, StorageScope.PROFILE, "[]")
+        this.storageService.get(
+          walkthroughMetadataConfigurationKey,
+          StorageScope.PROFILE,
+          "[]"
+        )
       )
     );
-    this.memento = new Memento("gettingStartedService", this.storageService);
-    this.stepProgress = this.memento.getMemento(StorageScope.PROFILE, StorageTarget.USER);
+    this.memento = new Memento(
+      "gettingStartedService",
+      this.storageService
+    );
+    this.stepProgress = this.memento.getMemento(
+      StorageScope.PROFILE,
+      StorageTarget.USER
+    );
     this.initCompletionEventListeners();
     HasMultipleNewFileEntries.bindTo(this.contextService).set(false);
     this.registerWalkthroughs();

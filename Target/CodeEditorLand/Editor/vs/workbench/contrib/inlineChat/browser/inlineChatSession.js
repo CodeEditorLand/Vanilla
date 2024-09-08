@@ -211,7 +211,14 @@ let StashedSession = class {
     this._ctxHasStashedSession = CTX_INLINE_CHAT_HAS_STASHED_SESSION.bindTo(contextKeyService);
     this._session = session;
     this._ctxHasStashedSession.set(true);
-    this._listener = Event.once(Event.any(editor.onDidChangeCursorSelection, editor.onDidChangeModelContent, editor.onDidChangeModel, editor.onDidBlurEditorWidget))(() => {
+    this._listener = Event.once(
+      Event.any(
+        editor.onDidChangeCursorSelection,
+        editor.onDidChangeModelContent,
+        editor.onDidChangeModel,
+        editor.onDidBlurEditorWidget
+      )
+    )(() => {
       this._session = void 0;
       this._sessionService.releaseSession(session);
       this._ctxHasStashedSession.reset();
@@ -269,11 +276,13 @@ let HunkData = class {
     this._editorWorkerService = _editorWorkerService;
     this._textModel0 = _textModel0;
     this._textModelN = _textModelN;
-    this._store.add(_textModelN.onDidChangeContent((e) => {
-      if (!this._ignoreChanges) {
-        this._mirrorChanges(e);
-      }
-    }));
+    this._store.add(
+      _textModelN.onDidChangeContent((e) => {
+        if (!this._ignoreChanges) {
+          this._mirrorChanges(e);
+        }
+      })
+    );
   }
   static _HUNK_TRACKED_RANGE = ModelDecorationOptions.register({
     description: "inline-chat-hunk-tracked-range",

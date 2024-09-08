@@ -36,10 +36,18 @@ let TerminalInstanceService = class extends Disposable {
     this._instantiationService = _instantiationService;
     this._contextKeyService = _contextKeyService;
     this._terminalShellTypeContextKey = TerminalContextKeys.shellType.bindTo(this._contextKeyService);
-    this._terminalInRunCommandPicker = TerminalContextKeys.inTerminalRunCommandPicker.bindTo(this._contextKeyService);
-    for (const remoteAuthority of [void 0, environmentService.remoteAuthority]) {
+    this._terminalInRunCommandPicker = TerminalContextKeys.inTerminalRunCommandPicker.bindTo(
+      this._contextKeyService
+    );
+    for (const remoteAuthority of [
+      void 0,
+      environmentService.remoteAuthority
+    ]) {
       const { promise, resolve } = promiseWithResolvers();
-      this._backendRegistration.set(remoteAuthority, { promise, resolve });
+      this._backendRegistration.set(remoteAuthority, {
+        promise,
+        resolve
+      });
     }
   }
   _terminalShellTypeContextKey;

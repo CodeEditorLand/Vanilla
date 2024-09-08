@@ -37,13 +37,13 @@ import {
   getColorClass
 } from "../../terminal/browser/terminalIcon.js";
 import {
-  ITaskService
-} from "../common/taskService.js";
-import {
   ConfiguringTask,
   ContributedTask,
   CustomTask
 } from "../common/tasks.js";
+import {
+  ITaskService
+} from "../common/taskService.js";
 const QUICKOPEN_DETAIL_CONFIG = "task.quickOpen.detail";
 const QUICKOPEN_SKIP_CONFIG = "task.quickOpen.skip";
 function isWorkspaceFolder(folder) {

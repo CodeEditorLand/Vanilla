@@ -29,7 +29,10 @@ let OutputLinkProvider = class extends Disposable {
     this.contextService = contextService;
     this.modelService = modelService;
     this.languageFeaturesService = languageFeaturesService;
-    this.disposeWorkerScheduler = new RunOnceScheduler(() => this.disposeWorker(), OutputLinkProvider.DISPOSE_WORKER_TIME);
+    this.disposeWorkerScheduler = new RunOnceScheduler(
+      () => this.disposeWorker(),
+      OutputLinkProvider.DISPOSE_WORKER_TIME
+    );
     this.registerListeners();
     this.updateLinkProviderWorker();
   }
@@ -100,11 +103,16 @@ let OutputLinkWorkerClient = class extends Disposable {
   constructor(contextService, modelService) {
     super();
     this.contextService = contextService;
-    this._workerClient = this._register(createWebWorker(
-      "vs/workbench/contrib/output/common/outputLinkComputer",
-      "OutputLinkDetectionWorker"
-    ));
-    this._workerTextModelSyncClient = WorkerTextModelSyncClient.create(this._workerClient, modelService);
+    this._workerClient = this._register(
+      createWebWorker(
+        "vs/workbench/contrib/output/common/outputLinkComputer",
+        "OutputLinkDetectionWorker"
+      )
+    );
+    this._workerTextModelSyncClient = WorkerTextModelSyncClient.create(
+      this._workerClient,
+      modelService
+    );
     this._initializeBarrier = this._ensureWorkspaceFolders();
   }
   _workerClient;

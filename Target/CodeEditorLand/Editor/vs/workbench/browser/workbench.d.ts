@@ -1,0 +1,36 @@
+import "./style.js";
+import { Event } from "../../base/common/event.js";
+import type { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
+import type { ServiceCollection } from "../../platform/instantiation/common/serviceCollection.js";
+import type { ILogService } from "../../platform/log/common/log.js";
+import { type WillShutdownEvent } from "../services/lifecycle/common/lifecycle.js";
+import { Layout } from "./layout.js";
+export interface IWorkbenchOptions {
+    /**
+     * Extra classes to be added to the workbench container.
+     */
+    extraClasses?: string[];
+}
+export declare class Workbench extends Layout {
+    private readonly options;
+    private readonly serviceCollection;
+    private readonly _onWillShutdown;
+    readonly onWillShutdown: Event<WillShutdownEvent>;
+    private readonly _onDidShutdown;
+    readonly onDidShutdown: Event<void>;
+    constructor(parent: HTMLElement, options: IWorkbenchOptions | undefined, serviceCollection: ServiceCollection, logService: ILogService);
+    private registerErrorHandler;
+    private previousUnexpectedError;
+    private handleUnexpectedError;
+    startup(): IInstantiationService;
+    private initServices;
+    private registerListeners;
+    private fontAliasing;
+    private updateFontAliasing;
+    private restoreFontInfo;
+    private storeFontInfo;
+    private renderWorkbench;
+    private createPart;
+    private createNotificationsHandlers;
+    private restore;
+}

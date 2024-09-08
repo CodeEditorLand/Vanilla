@@ -42,8 +42,8 @@ import {
 } from "./modifiedBaseRange.js";
 import {
   TextModelDiffChangeReason,
-  TextModelDiffState,
-  TextModelDiffs
+  TextModelDiffs,
+  TextModelDiffState
 } from "./textModelDiffs.js";
 let MergeEditorModel = class extends EditorModel {
   constructor(base, input1, input2, resultTextModel, diffComputer, options, telemetry, languageService, undoRedoService) {
@@ -70,10 +70,17 @@ let MergeEditorModel = class extends EditorModel {
         autorunHandleChanges(
           {
             handleChange: (ctx) => {
-              if (ctx.didChange(this.modifiedBaseRangeResultStates)) {
+              if (ctx.didChange(
+                this.modifiedBaseRangeResultStates
+              )) {
                 shouldRecomputeHandledFromAccepted = true;
               }
-              return ctx.didChange(this.resultTextModelDiffs.diffs) ? ctx.change === TextModelDiffChangeReason.textChange : true;
+              return ctx.didChange(
+                this.resultTextModelDiffs.diffs
+              ) ? (
+                // Ignore non-text changes as we update the state directly
+                ctx.change === TextModelDiffChangeReason.textChange
+              ) : true;
             }
           },
           (reader) => {
@@ -83,14 +90,27 @@ let MergeEditorModel = class extends EditorModel {
             }
             const resultDiffs = this.resultTextModelDiffs.diffs.read(reader);
             transaction((tx) => {
-              this.updateBaseRangeAcceptedState(resultDiffs, states, tx);
+              this.updateBaseRangeAcceptedState(
+                resultDiffs,
+                states,
+                tx
+              );
               if (shouldRecomputeHandledFromAccepted) {
                 shouldRecomputeHandledFromAccepted = false;
-                for (const [_range, observableState] of states) {
+                for (const [
+                  _range,
+                  observableState
+                ] of states) {
                   const state = observableState.accepted.get();
                   const handled = !(state.kind === ModifiedBaseRangeStateKind.base || state.kind === ModifiedBaseRangeStateKind.unrecognized);
-                  observableState.handledInput1.set(handled, tx);
-                  observableState.handledInput2.set(handled, tx);
+                  observableState.handledInput1.set(
+                    handled,
+                    tx
+                  );
+                  observableState.handledInput2.set(
+                    handled,
+                    tx
+                  );
                 }
               }
             });
@@ -124,10 +144,7 @@ let MergeEditorModel = class extends EditorModel {
   );
   modifiedBaseRangeResultStates = derived(this, (reader) => {
     const map = new Map(
-      this.modifiedBaseRanges.read(reader).map((s) => [
-        s,
-        new ModifiedBaseRangeData(s)
-      ])
+      this.modifiedBaseRanges.read(reader).map((s) => [s, new ModifiedBaseRangeData(s)])
     );
     return map;
   });

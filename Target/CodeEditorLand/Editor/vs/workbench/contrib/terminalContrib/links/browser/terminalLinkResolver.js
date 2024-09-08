@@ -13,9 +13,9 @@ import { mainWindow } from "../../../../../base/browser/window.js";
 import { Schemas } from "../../../../../base/common/network.js";
 import { posix, win32 } from "../../../../../base/common/path.js";
 import {
-  OS,
+  isWindows,
   OperatingSystem,
-  isWindows
+  OS
 } from "../../../../../base/common/platform.js";
 import { URI } from "../../../../../base/common/uri.js";
 import { IFileService } from "../../../../../platform/files/common/files.js";

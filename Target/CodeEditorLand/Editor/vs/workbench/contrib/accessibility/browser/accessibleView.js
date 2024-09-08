@@ -10,8 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  EventType,
   addDisposableListener,
+  EventType,
   getActiveWindow,
   isActiveElement
 } from "../../../../base/browser/dom.js";
@@ -80,8 +80,8 @@ import { IChatCodeBlockContextProviderService } from "../../chat/browser/chat.js
 import { getSimpleEditorOptions } from "../../codeEditor/browser/simpleEditorOptions.js";
 import { AccessibilityCommandId } from "../common/accessibilityCommands.js";
 import {
-  AccessibilityWorkbenchSettingId,
   accessibilityHelpIsShown,
+  AccessibilityWorkbenchSettingId,
   accessibleViewContainsCodeBlocks,
   accessibleViewCurrentProviderId,
   accessibleViewGoToSymbolSupported,
@@ -115,24 +115,40 @@ let AccessibleView = class extends Disposable {
     this._codeBlockContextProviderService = _codeBlockContextProviderService;
     this._storageService = _storageService;
     this._quickInputService = _quickInputService;
-    this._accessiblityHelpIsShown = accessibilityHelpIsShown.bindTo(this._contextKeyService);
-    this._accessibleViewIsShown = accessibleViewIsShown.bindTo(this._contextKeyService);
+    this._accessiblityHelpIsShown = accessibilityHelpIsShown.bindTo(
+      this._contextKeyService
+    );
+    this._accessibleViewIsShown = accessibleViewIsShown.bindTo(
+      this._contextKeyService
+    );
     this._accessibleViewSupportsNavigation = accessibleViewSupportsNavigation.bindTo(this._contextKeyService);
     this._accessibleViewVerbosityEnabled = accessibleViewVerbosityEnabled.bindTo(this._contextKeyService);
     this._accessibleViewGoToSymbolSupported = accessibleViewGoToSymbolSupported.bindTo(this._contextKeyService);
     this._accessibleViewCurrentProviderId = accessibleViewCurrentProviderId.bindTo(this._contextKeyService);
-    this._accessibleViewInCodeBlock = accessibleViewInCodeBlock.bindTo(this._contextKeyService);
+    this._accessibleViewInCodeBlock = accessibleViewInCodeBlock.bindTo(
+      this._contextKeyService
+    );
     this._accessibleViewContainsCodeBlocks = accessibleViewContainsCodeBlocks.bindTo(this._contextKeyService);
-    this._onLastLine = accessibleViewOnLastLine.bindTo(this._contextKeyService);
-    this._hasUnassignedKeybindings = accessibleViewHasUnassignedKeybindings.bindTo(this._contextKeyService);
-    this._hasAssignedKeybindings = accessibleViewHasAssignedKeybindings.bindTo(this._contextKeyService);
+    this._onLastLine = accessibleViewOnLastLine.bindTo(
+      this._contextKeyService
+    );
+    this._hasUnassignedKeybindings = accessibleViewHasUnassignedKeybindings.bindTo(
+      this._contextKeyService
+    );
+    this._hasAssignedKeybindings = accessibleViewHasAssignedKeybindings.bindTo(
+      this._contextKeyService
+    );
     this._container = document.createElement("div");
     this._container.classList.add("accessible-view");
-    if (this._configurationService.getValue(AccessibilityWorkbenchSettingId.HideAccessibleView)) {
+    if (this._configurationService.getValue(
+      AccessibilityWorkbenchSettingId.HideAccessibleView
+    )) {
       this._container.classList.add("hide");
     }
     const codeEditorWidgetOptions = {
-      contributions: EditorExtensionsRegistry.getEditorContributions().filter((c) => c.id !== CodeActionController.ID)
+      contributions: EditorExtensionsRegistry.getEditorContributions().filter(
+        (c) => c.id !== CodeActionController.ID
+      )
     };
     const titleBar = document.createElement("div");
     titleBar.classList.add("accessible-view-title-bar");
@@ -143,7 +159,11 @@ let AccessibleView = class extends Disposable {
     actionBar.classList.add("accessible-view-action-bar");
     titleBar.appendChild(actionBar);
     this._container.appendChild(titleBar);
-    this._toolbar = this._register(_instantiationService.createInstance(WorkbenchToolBar, actionBar, { orientation: ActionsOrientation.HORIZONTAL }));
+    this._toolbar = this._register(
+      _instantiationService.createInstance(WorkbenchToolBar, actionBar, {
+        orientation: ActionsOrientation.HORIZONTAL
+      })
+    );
     this._toolbar.context = { viewId: "accessibleView" };
     const toolbarElt = this._toolbar.getElement();
     toolbarElt.tabIndex = 0;
@@ -162,35 +182,72 @@ let AccessibleView = class extends Disposable {
       readOnly: true,
       fontFamily: "var(--monaco-monospace-font)"
     };
-    this._editorWidget = this._register(this._instantiationService.createInstance(CodeEditorWidget, this._container, editorOptions, codeEditorWidgetOptions));
-    this._register(this._accessibilityService.onDidChangeScreenReaderOptimized(() => {
-      if (this._currentProvider && this._accessiblityHelpIsShown.get()) {
-        this.show(this._currentProvider);
-      }
-    }));
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (this._currentProvider instanceof AccessibleContentProvider && e.affectsConfiguration(this._currentProvider.verbositySettingKey)) {
-        if (this._accessiblityHelpIsShown.get()) {
+    this._editorWidget = this._register(
+      this._instantiationService.createInstance(
+        CodeEditorWidget,
+        this._container,
+        editorOptions,
+        codeEditorWidgetOptions
+      )
+    );
+    this._register(
+      this._accessibilityService.onDidChangeScreenReaderOptimized(() => {
+        if (this._currentProvider && this._accessiblityHelpIsShown.get()) {
           this.show(this._currentProvider);
         }
-        this._accessibleViewVerbosityEnabled.set(this._configurationService.getValue(this._currentProvider.verbositySettingKey));
-        this._updateToolbar(this._currentProvider.actions, this._currentProvider.options.type);
-      }
-      if (e.affectsConfiguration(AccessibilityWorkbenchSettingId.HideAccessibleView)) {
-        this._container.classList.toggle("hide", this._configurationService.getValue(AccessibilityWorkbenchSettingId.HideAccessibleView));
-      }
-    }));
-    this._register(this._editorWidget.onDidDispose(() => this._resetContextKeys()));
-    this._register(this._editorWidget.onDidChangeCursorPosition(() => {
-      this._onLastLine.set(this._editorWidget.getPosition()?.lineNumber === this._editorWidget.getModel()?.getLineCount());
-    }));
-    this._register(this._editorWidget.onDidChangeCursorPosition(() => {
-      const cursorPosition = this._editorWidget.getPosition()?.lineNumber;
-      if (this._codeBlocks && cursorPosition !== void 0) {
-        const inCodeBlock = this._codeBlocks.find((c) => c.startLine <= cursorPosition && c.endLine >= cursorPosition) !== void 0;
-        this._accessibleViewInCodeBlock.set(inCodeBlock);
-      }
-    }));
+      })
+    );
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (this._currentProvider instanceof AccessibleContentProvider && e.affectsConfiguration(
+          this._currentProvider.verbositySettingKey
+        )) {
+          if (this._accessiblityHelpIsShown.get()) {
+            this.show(this._currentProvider);
+          }
+          this._accessibleViewVerbosityEnabled.set(
+            this._configurationService.getValue(
+              this._currentProvider.verbositySettingKey
+            )
+          );
+          this._updateToolbar(
+            this._currentProvider.actions,
+            this._currentProvider.options.type
+          );
+        }
+        if (e.affectsConfiguration(
+          AccessibilityWorkbenchSettingId.HideAccessibleView
+        )) {
+          this._container.classList.toggle(
+            "hide",
+            this._configurationService.getValue(
+              AccessibilityWorkbenchSettingId.HideAccessibleView
+            )
+          );
+        }
+      })
+    );
+    this._register(
+      this._editorWidget.onDidDispose(() => this._resetContextKeys())
+    );
+    this._register(
+      this._editorWidget.onDidChangeCursorPosition(() => {
+        this._onLastLine.set(
+          this._editorWidget.getPosition()?.lineNumber === this._editorWidget.getModel()?.getLineCount()
+        );
+      })
+    );
+    this._register(
+      this._editorWidget.onDidChangeCursorPosition(() => {
+        const cursorPosition = this._editorWidget.getPosition()?.lineNumber;
+        if (this._codeBlocks && cursorPosition !== void 0) {
+          const inCodeBlock = this._codeBlocks.find(
+            (c) => c.startLine <= cursorPosition && c.endLine >= cursorPosition
+          ) !== void 0;
+          this._accessibleViewInCodeBlock.set(inCodeBlock);
+        }
+      })
+    );
   }
   _editorWidget;
   _accessiblityHelpIsShown;

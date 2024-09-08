@@ -13,8 +13,8 @@ import { Action } from "../../../../base/common/actions.js";
 import { coalesce } from "../../../../base/common/arrays.js";
 import { findFirstIdxMonotonousOrArrLen } from "../../../../base/common/arraysFind.js";
 import {
-  Delayer,
-  createCancelablePromise
+  createCancelablePromise,
+  Delayer
 } from "../../../../base/common/async.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import {
@@ -68,15 +68,15 @@ import {
 import { CommentGlyphWidget } from "./commentGlyphWidget.js";
 import { COMMENTEDITOR_DECORATION_KEY } from "./commentReply.js";
 import { ICommentService } from "./commentService.js";
+import { threadHasMeaningfulComments } from "./commentsModel.js";
+import { COMMENTS_VIEW_ID } from "./commentsTreeViewer.js";
 import { CommentThreadRangeDecorator } from "./commentThreadRangeDecorator.js";
 import {
   CommentWidgetFocus,
-  ReviewZoneWidget,
   isMouseUpEventDragFromMouseDown,
-  parseMouseDownInfoFromEvent
+  parseMouseDownInfoFromEvent,
+  ReviewZoneWidget
 } from "./commentThreadZoneWidget.js";
-import { threadHasMeaningfulComments } from "./commentsModel.js";
-import { COMMENTS_VIEW_ID } from "./commentsTreeViewer.js";
 const ID = "editor.contrib.review";
 class CommentingRangeDecoration {
   constructor(_editor, _ownerId, _extensionId, _label, _range, options, commentingRangesInfo, isHover = false) {
@@ -576,61 +576,99 @@ let CommentController = class {
     this._pendingNewCommentCache = {};
     this._pendingEditsCache = {};
     this._computePromise = null;
-    this._activeCursorHasCommentingRange = CommentContextKeys.activeCursorHasCommentingRange.bindTo(contextKeyService);
-    this._activeEditorHasCommentingRange = CommentContextKeys.activeEditorHasCommentingRange.bindTo(contextKeyService);
+    this._activeCursorHasCommentingRange = CommentContextKeys.activeCursorHasCommentingRange.bindTo(
+      contextKeyService
+    );
+    this._activeEditorHasCommentingRange = CommentContextKeys.activeEditorHasCommentingRange.bindTo(
+      contextKeyService
+    );
     if (editor instanceof EmbeddedCodeEditorWidget) {
       return;
     }
     this.editor = editor;
     this._commentingRangeDecorator = new CommentingRangeDecorator();
-    this.globalToDispose.add(this._commentingRangeDecorator.onDidChangeDecorationsCount((count) => {
-      if (count === 0) {
-        this.clearEditorListeners();
-      } else if (this._editorDisposables.length === 0) {
-        this.registerEditorListeners();
-      }
-    }));
-    this.globalToDispose.add(this._commentThreadRangeDecorator = new CommentThreadRangeDecorator(this.commentService));
-    this.globalToDispose.add(this.commentService.onDidDeleteDataProvider((ownerId) => {
-      if (ownerId) {
-        delete this._pendingNewCommentCache[ownerId];
-        delete this._pendingEditsCache[ownerId];
-      } else {
-        this._pendingNewCommentCache = {};
-        this._pendingEditsCache = {};
-      }
-      this.beginCompute();
-    }));
-    this.globalToDispose.add(this.commentService.onDidSetDataProvider((_) => this.beginComputeAndHandleEditorChange()));
-    this.globalToDispose.add(this.commentService.onDidUpdateCommentingRanges((_) => this.beginComputeAndHandleEditorChange()));
-    this.globalToDispose.add(this.commentService.onDidSetResourceCommentInfos(async (e) => {
-      const editorURI = this.editor && this.editor.hasModel() && this.editor.getModel().uri;
-      if (editorURI && editorURI.toString() === e.resource.toString()) {
-        await this.setComments(e.commentInfos.filter((commentInfo) => commentInfo !== null));
-      }
-    }));
-    this.globalToDispose.add(this.commentService.onDidChangeCommentingEnabled((e) => {
-      if (e) {
-        this.registerEditorListeners();
+    this.globalToDispose.add(
+      this._commentingRangeDecorator.onDidChangeDecorationsCount(
+        (count) => {
+          if (count === 0) {
+            this.clearEditorListeners();
+          } else if (this._editorDisposables.length === 0) {
+            this.registerEditorListeners();
+          }
+        }
+      )
+    );
+    this.globalToDispose.add(
+      this._commentThreadRangeDecorator = new CommentThreadRangeDecorator(this.commentService)
+    );
+    this.globalToDispose.add(
+      this.commentService.onDidDeleteDataProvider((ownerId) => {
+        if (ownerId) {
+          delete this._pendingNewCommentCache[ownerId];
+          delete this._pendingEditsCache[ownerId];
+        } else {
+          this._pendingNewCommentCache = {};
+          this._pendingEditsCache = {};
+        }
         this.beginCompute();
-      } else {
-        this.tryUpdateReservedSpace();
-        this.clearEditorListeners();
-        this._commentingRangeDecorator.update(this.editor, []);
-        this._commentThreadRangeDecorator.update(this.editor, []);
-        dispose(this._commentWidgets);
-        this._commentWidgets = [];
-      }
-    }));
-    this.globalToDispose.add(this.editor.onWillChangeModel((e) => this.onWillChangeModel(e)));
-    this.globalToDispose.add(this.editor.onDidChangeModel((_) => this.onModelChanged()));
-    this.globalToDispose.add(this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("diffEditor.renderSideBySide")) {
-        this.beginCompute();
-      }
-    }));
+      })
+    );
+    this.globalToDispose.add(
+      this.commentService.onDidSetDataProvider(
+        (_) => this.beginComputeAndHandleEditorChange()
+      )
+    );
+    this.globalToDispose.add(
+      this.commentService.onDidUpdateCommentingRanges(
+        (_) => this.beginComputeAndHandleEditorChange()
+      )
+    );
+    this.globalToDispose.add(
+      this.commentService.onDidSetResourceCommentInfos(async (e) => {
+        const editorURI = this.editor && this.editor.hasModel() && this.editor.getModel().uri;
+        if (editorURI && editorURI.toString() === e.resource.toString()) {
+          await this.setComments(
+            e.commentInfos.filter(
+              (commentInfo) => commentInfo !== null
+            )
+          );
+        }
+      })
+    );
+    this.globalToDispose.add(
+      this.commentService.onDidChangeCommentingEnabled((e) => {
+        if (e) {
+          this.registerEditorListeners();
+          this.beginCompute();
+        } else {
+          this.tryUpdateReservedSpace();
+          this.clearEditorListeners();
+          this._commentingRangeDecorator.update(this.editor, []);
+          this._commentThreadRangeDecorator.update(this.editor, []);
+          dispose(this._commentWidgets);
+          this._commentWidgets = [];
+        }
+      })
+    );
+    this.globalToDispose.add(
+      this.editor.onWillChangeModel((e) => this.onWillChangeModel(e))
+    );
+    this.globalToDispose.add(
+      this.editor.onDidChangeModel((_) => this.onModelChanged())
+    );
+    this.globalToDispose.add(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("diffEditor.renderSideBySide")) {
+          this.beginCompute();
+        }
+      })
+    );
     this.onModelChanged();
-    this.codeEditorService.registerDecorationType("comment-controller", COMMENTEDITOR_DECORATION_KEY, {});
+    this.codeEditorService.registerDecorationType(
+      "comment-controller",
+      COMMENTEDITOR_DECORATION_KEY,
+      {}
+    );
     this.globalToDispose.add(
       this.commentService.registerContinueOnCommentProvider({
         provideContinueOnComments: () => {

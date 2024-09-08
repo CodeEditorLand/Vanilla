@@ -57,9 +57,19 @@ let ExplorerService = class {
     this.filesConfigurationService = filesConfigurationService;
     this.telemetryService = telemetryService;
     this.config = this.configurationService.getValue("explorer");
-    this.model = new ExplorerModel(this.contextService, this.uriIdentityService, this.fileService, this.configurationService, this.filesConfigurationService);
+    this.model = new ExplorerModel(
+      this.contextService,
+      this.uriIdentityService,
+      this.fileService,
+      this.configurationService,
+      this.filesConfigurationService
+    );
     this.disposables.add(this.model);
-    this.disposables.add(this.fileService.onDidRunOperation((e) => this.onDidRunOperation(e)));
+    this.disposables.add(
+      this.fileService.onDidRunOperation(
+        (e) => this.onDidRunOperation(e)
+      )
+    );
     this.onFileChangesScheduler = new RunOnceScheduler(async () => {
       const events = this.fileChangeEvents;
       this.fileChangeEvents = [];
@@ -70,13 +80,20 @@ let ExplorerService = class {
       let shouldRefresh = false;
       this.roots.forEach((r) => {
         if (this.view && !shouldRefresh) {
-          shouldRefresh = doesFileEventAffect(r, this.view, events, types);
+          shouldRefresh = doesFileEventAffect(
+            r,
+            this.view,
+            events,
+            types
+          );
         }
       });
       events.forEach((e) => {
         if (!shouldRefresh) {
           for (const resource of e.rawAdded) {
-            const parent = this.model.findClosest(dirname(resource));
+            const parent = this.model.findClosest(
+              dirname(resource)
+            );
             if (parent && !parent.getChild(basename(resource))) {
               shouldRefresh = true;
               break;
@@ -88,40 +105,59 @@ let ExplorerService = class {
         await this.refresh(false);
       }
     }, ExplorerService.EXPLORER_FILE_CHANGES_REACT_DELAY);
-    this.disposables.add(this.fileService.onDidFilesChange((e) => {
-      this.fileChangeEvents.push(e);
-      if (this.editable) {
-        return;
-      }
-      if (!this.onFileChangesScheduler.isScheduled()) {
-        this.onFileChangesScheduler.schedule();
-      }
-    }));
-    this.disposables.add(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationUpdated(e)));
-    this.disposables.add(Event.any(this.fileService.onDidChangeFileSystemProviderRegistrations, this.fileService.onDidChangeFileSystemProviderCapabilities)(async (e) => {
-      let affected = false;
-      this.model.roots.forEach((r) => {
-        if (r.resource.scheme === e.scheme) {
-          affected = true;
-          r.forgetChildren();
+    this.disposables.add(
+      this.fileService.onDidFilesChange((e) => {
+        this.fileChangeEvents.push(e);
+        if (this.editable) {
+          return;
         }
-      });
-      if (affected) {
-        if (this.view) {
-          await this.view.setTreeInput();
+        if (!this.onFileChangesScheduler.isScheduled()) {
+          this.onFileChangesScheduler.schedule();
         }
-      }
-    }));
-    this.disposables.add(this.model.onDidChangeRoots(() => {
-      this.view?.setTreeInput();
-    }));
-    this.disposables.add(hostService.onDidChangeFocus((hasFocus) => {
-      if (hasFocus) {
-        this.refresh(false);
-      }
-    }));
+      })
+    );
+    this.disposables.add(
+      this.configurationService.onDidChangeConfiguration(
+        (e) => this.onConfigurationUpdated(e)
+      )
+    );
+    this.disposables.add(
+      Event.any(
+        this.fileService.onDidChangeFileSystemProviderRegistrations,
+        this.fileService.onDidChangeFileSystemProviderCapabilities
+      )(async (e) => {
+        let affected = false;
+        this.model.roots.forEach((r) => {
+          if (r.resource.scheme === e.scheme) {
+            affected = true;
+            r.forgetChildren();
+          }
+        });
+        if (affected) {
+          if (this.view) {
+            await this.view.setTreeInput();
+          }
+        }
+      })
+    );
+    this.disposables.add(
+      this.model.onDidChangeRoots(() => {
+        this.view?.setTreeInput();
+      })
+    );
+    this.disposables.add(
+      hostService.onDidChangeFocus((hasFocus) => {
+        if (hasFocus) {
+          this.refresh(false);
+        }
+      })
+    );
     this.revealExcludeMatcher = new ResourceGlobMatcher(
-      (uri) => getRevealExcludes(configurationService.getValue({ resource: uri })),
+      (uri) => getRevealExcludes(
+        configurationService.getValue({
+          resource: uri
+        })
+      ),
       (event) => event.affectsConfiguration("explorer.autoRevealExclude"),
       contextService,
       configurationService

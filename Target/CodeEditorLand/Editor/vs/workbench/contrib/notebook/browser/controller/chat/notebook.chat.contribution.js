@@ -14,8 +14,8 @@ import {
   IContextKeyService
 } from "../../../../../../platform/contextkey/common/contextkey.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../../../common/contributions.js";
 import {
   ChatAgentLocation,

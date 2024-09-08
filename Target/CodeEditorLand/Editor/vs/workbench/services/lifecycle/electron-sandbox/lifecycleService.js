@@ -10,8 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  Promises,
   disposableTimeout,
+  Promises,
   raceCancellation
 } from "../../../../base/common/async.js";
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";

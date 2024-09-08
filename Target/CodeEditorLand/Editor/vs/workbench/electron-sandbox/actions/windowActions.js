@@ -27,10 +27,10 @@ import {
   isOpenedAuxiliaryWindow
 } from "../../../platform/window/common/window.js";
 import {
+  applyZoom,
   ApplyZoomTarget,
   MAX_ZOOM_LEVEL,
-  MIN_ZOOM_LEVEL,
-  applyZoom
+  MIN_ZOOM_LEVEL
 } from "../../../platform/window/electron-sandbox/window.js";
 import {
   isSingleFolderWorkspaceIdentifier,

@@ -63,11 +63,11 @@ import {
 import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";
 import { INotebookKernelService } from "../../common/notebookKernelService.js";
 import {
-  CHANGE_CELL_LANGUAGE,
   CellEditState,
+  CHANGE_CELL_LANGUAGE,
   DETECT_CELL_LANGUAGE,
-  QUIT_EDIT_CELL_COMMAND_ID,
-  getNotebookEditorFromEditorPane
+  getNotebookEditorFromEditorPane,
+  QUIT_EDIT_CELL_COMMAND_ID
 } from "../notebookBrowser.js";
 import * as icons from "../notebookIcons.js";
 import { changeCellToKind, runDeleteAction } from "./cellOperations.js";
@@ -75,19 +75,19 @@ import {
   CELL_TITLE_CELL_GROUP_ID,
   CELL_TITLE_OUTPUT_GROUP_ID,
   CellToolbarOrder,
+  executeNotebookCondition,
+  findTargetCellEditor,
   NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT,
   NotebookAction,
   NotebookCellAction,
-  NotebookMultiCellAction,
-  executeNotebookCondition,
-  findTargetCellEditor
+  NotebookMultiCellAction
 } from "./coreActions.js";
 import {
   NotebookChangeTabDisplaySize,
-  NotebookIndentUsingSpaces,
-  NotebookIndentUsingTabs,
   NotebookIndentationToSpacesAction,
-  NotebookIndentationToTabsAction
+  NotebookIndentationToTabsAction,
+  NotebookIndentUsingSpaces,
+  NotebookIndentUsingTabs
 } from "./notebookIndentationActions.js";
 const CLEAR_ALL_CELLS_OUTPUTS_COMMAND_ID = "notebook.clearAllCellsOutputs";
 const EDIT_CELL_COMMAND_ID = "notebook.cell.edit";

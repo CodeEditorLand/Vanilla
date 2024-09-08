@@ -6,9 +6,9 @@ import { DeferredPromise } from "../../base/common/async.js";
 import { dirname, extname, join, resolve } from "../../base/common/path.js";
 import { cwd } from "../../base/common/process.js";
 import {
-  OPTIONS,
   buildHelpMessage,
   buildVersionMessage,
+  OPTIONS,
   parseArgs
 } from "../../platform/environment/node/argv.js";
 import {

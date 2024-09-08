@@ -35,44 +35,53 @@ let MergeEditorViewModel = class extends Disposable {
     this.showNonConflictingChanges = showNonConflictingChanges;
     this.configurationService = configurationService;
     this.notificationService = notificationService;
-    this._register(resultCodeEditorView.editor.onDidChangeModelContent((e) => {
-      if (this.model.isApplyingEditInResult || e.isRedoing || e.isUndoing) {
-        return;
-      }
-      const baseRangeStates = [];
-      for (const change of e.changes) {
-        const rangeInBase = this.model.translateResultRangeToBase(Range.lift(change.range));
-        const baseRanges = this.model.findModifiedBaseRangesInRange(new LineRange(rangeInBase.startLineNumber, rangeInBase.endLineNumber - rangeInBase.startLineNumber));
-        if (baseRanges.length === 1) {
-          const isHandled = this.model.isHandled(baseRanges[0]).get();
-          if (!isHandled) {
-            baseRangeStates.push(baseRanges[0]);
+    this._register(
+      resultCodeEditorView.editor.onDidChangeModelContent((e) => {
+        if (this.model.isApplyingEditInResult || e.isRedoing || e.isUndoing) {
+          return;
+        }
+        const baseRangeStates = [];
+        for (const change of e.changes) {
+          const rangeInBase = this.model.translateResultRangeToBase(
+            Range.lift(change.range)
+          );
+          const baseRanges = this.model.findModifiedBaseRangesInRange(
+            new LineRange(
+              rangeInBase.startLineNumber,
+              rangeInBase.endLineNumber - rangeInBase.startLineNumber
+            )
+          );
+          if (baseRanges.length === 1) {
+            const isHandled = this.model.isHandled(baseRanges[0]).get();
+            if (!isHandled) {
+              baseRangeStates.push(baseRanges[0]);
+            }
           }
         }
-      }
-      if (baseRangeStates.length === 0) {
-        return;
-      }
-      const element = {
-        model: this.model,
-        redo() {
-          transaction((tx) => {
-            for (const r of baseRangeStates) {
-              this.model.setHandled(r, true, tx);
-            }
-          });
-        },
-        undo() {
-          transaction((tx) => {
-            for (const r of baseRangeStates) {
-              this.model.setHandled(r, false, tx);
-            }
-          });
+        if (baseRangeStates.length === 0) {
+          return;
         }
-      };
-      this.attachedHistory.pushAttachedHistoryElement(element);
-      element.redo();
-    }));
+        const element = {
+          model: this.model,
+          redo() {
+            transaction((tx) => {
+              for (const r of baseRangeStates) {
+                this.model.setHandled(r, true, tx);
+              }
+            });
+          },
+          undo() {
+            transaction((tx) => {
+              for (const r of baseRangeStates) {
+                this.model.setHandled(r, false, tx);
+              }
+            });
+          }
+        };
+        this.attachedHistory.pushAttachedHistoryElement(element);
+        element.redo();
+      })
+    );
   }
   manuallySetActiveModifiedBaseRange = observableValue(this, { range: void 0, counter: 0 });
   attachedHistory = this._register(

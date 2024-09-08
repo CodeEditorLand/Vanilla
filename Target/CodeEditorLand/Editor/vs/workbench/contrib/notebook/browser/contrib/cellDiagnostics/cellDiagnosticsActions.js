@@ -15,8 +15,8 @@ import {
   NOTEBOOK_CELL_HAS_ERROR_DIAGNOSTICS
 } from "../../../common/notebookContextKeys.js";
 import {
-  NotebookCellAction,
-  findTargetCellEditor
+  findTargetCellEditor,
+  NotebookCellAction
 } from "../../controller/coreActions.js";
 import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
 const OPEN_CELL_FAILURE_ACTIONS_COMMAND_ID = "notebook.cell.openFailureActions";

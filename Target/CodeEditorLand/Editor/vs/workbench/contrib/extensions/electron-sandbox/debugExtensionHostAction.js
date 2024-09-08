@@ -32,7 +32,11 @@ import { IHostService } from "../../../services/host/browser/host.js";
 import { IDebugService } from "../../debug/common/debug.js";
 let DebugExtensionHostAction = class extends Action {
   constructor(_nativeHostService, _dialogService, _extensionService, productService, _instantiationService, _hostService) {
-    super(DebugExtensionHostAction.ID, DebugExtensionHostAction.LABEL, DebugExtensionHostAction.CSS_CLASS);
+    super(
+      DebugExtensionHostAction.ID,
+      DebugExtensionHostAction.LABEL,
+      DebugExtensionHostAction.CSS_CLASS
+    );
     this._nativeHostService = _nativeHostService;
     this._dialogService = _dialogService;
     this._extensionService = _extensionService;
@@ -126,27 +130,36 @@ let DebugExtensionsContribution = class extends Disposable {
     const storage = this._instantiationService.createInstance(Storage);
     const port = storage.getAndDeleteDebugPortIfSet();
     if (port !== void 0) {
-      _progressService.withProgress({
-        location: ProgressLocation.Notification,
-        title: nls.localize("debugExtensionHost.progress", "Attaching Debugger To Extension Host")
-      }, async (p) => {
-        await this._debugService.startDebugging(void 0, {
-          type: "node",
-          name: nls.localize("debugExtensionHost.launch.name", "Attach Extension Host"),
-          request: "attach",
-          port,
-          trace: true,
-          // resolve source maps everywhere:
-          resolveSourceMapLocations: null,
-          // announces sources eagerly for the loaded scripts view:
-          eagerSources: true,
-          // source maps of published VS Code are on the CDN and can take a while to load
-          timeouts: {
-            sourceMapMinPause: 3e4,
-            sourceMapCumulativePause: 3e5
-          }
-        });
-      });
+      _progressService.withProgress(
+        {
+          location: ProgressLocation.Notification,
+          title: nls.localize(
+            "debugExtensionHost.progress",
+            "Attaching Debugger To Extension Host"
+          )
+        },
+        async (p) => {
+          await this._debugService.startDebugging(void 0, {
+            type: "node",
+            name: nls.localize(
+              "debugExtensionHost.launch.name",
+              "Attach Extension Host"
+            ),
+            request: "attach",
+            port,
+            trace: true,
+            // resolve source maps everywhere:
+            resolveSourceMapLocations: null,
+            // announces sources eagerly for the loaded scripts view:
+            eagerSources: true,
+            // source maps of published VS Code are on the CDN and can take a while to load
+            timeouts: {
+              sourceMapMinPause: 3e4,
+              sourceMapCumulativePause: 3e5
+            }
+          });
+        }
+      );
     }
   }
 };

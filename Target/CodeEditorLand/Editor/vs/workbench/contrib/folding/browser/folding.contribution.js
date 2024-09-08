@@ -28,8 +28,17 @@ let DefaultFoldingRangeProvider = class extends Disposable {
     super();
     this._extensionService = _extensionService;
     this._configurationService = _configurationService;
-    this._store.add(this._extensionService.onDidChangeExtensions(this._updateConfigValues, this));
-    this._store.add(FoldingController.setFoldingRangeProviderSelector(this._selectFoldingRangeProvider.bind(this)));
+    this._store.add(
+      this._extensionService.onDidChangeExtensions(
+        this._updateConfigValues,
+        this
+      )
+    );
+    this._store.add(
+      FoldingController.setFoldingRangeProviderSelector(
+        this._selectFoldingRangeProvider.bind(this)
+      )
+    );
     this._updateConfigValues();
   }
   static configName = "editor.defaultFoldingRangeProvider";

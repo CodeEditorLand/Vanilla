@@ -36,17 +36,24 @@ let DeprecatedExtensionsChecker = class extends Disposable {
     this.notificationService = notificationService;
     this.instantiationService = instantiationService;
     this.checkForDeprecatedExtensions();
-    this._register(extensionManagementService.onDidInstallExtensions((e) => {
-      const ids = [];
-      for (const { local } of e) {
-        if (local && extensionsWorkbenchService.local.find((extension) => areSameExtensions(extension.identifier, local.identifier))?.deprecationInfo) {
-          ids.push(local.identifier.id.toLowerCase());
+    this._register(
+      extensionManagementService.onDidInstallExtensions((e) => {
+        const ids = [];
+        for (const { local } of e) {
+          if (local && extensionsWorkbenchService.local.find(
+            (extension) => areSameExtensions(
+              extension.identifier,
+              local.identifier
+            )
+          )?.deprecationInfo) {
+            ids.push(local.identifier.id.toLowerCase());
+          }
         }
-      }
-      if (ids.length) {
-        this.setNotifiedDeprecatedExtensions(ids);
-      }
-    }));
+        if (ids.length) {
+          this.setNotifiedDeprecatedExtensions(ids);
+        }
+      })
+    );
   }
   async checkForDeprecatedExtensions() {
     if (this.storageService.getBoolean(

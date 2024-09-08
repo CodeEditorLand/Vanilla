@@ -28,7 +28,12 @@ let ExtensionsScannerService = class extends AbstractExtensionsScannerService {
     super(
       URI.file(nativeEnvironmentService.builtinExtensionsPath),
       URI.file(nativeEnvironmentService.extensionsPath),
-      joinPath(nativeEnvironmentService.userHome, ".vscode-oss-dev", "extensions", "control.json"),
+      joinPath(
+        nativeEnvironmentService.userHome,
+        ".vscode-oss-dev",
+        "extensions",
+        "control.json"
+      ),
       userDataProfilesService.defaultProfile,
       userDataProfilesService,
       extensionsProfileScannerService,

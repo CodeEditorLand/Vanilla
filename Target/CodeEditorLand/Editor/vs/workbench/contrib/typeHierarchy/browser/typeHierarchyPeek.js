@@ -96,7 +96,16 @@ class TypeHierarchyTree extends WorkbenchAsyncDataTree {
 }
 let TypeHierarchyTreePeekWidget = class extends peekView.PeekViewWidget {
   constructor(editor, _where, _direction, themeService, _peekViewService, _editorService, _textModelService, _storageService, _menuService, _contextKeyService, _instantiationService) {
-    super(editor, { showFrame: true, showArrow: true, isResizeable: true, isAccessible: true }, _instantiationService);
+    super(
+      editor,
+      {
+        showFrame: true,
+        showArrow: true,
+        isResizeable: true,
+        isAccessible: true
+      },
+      _instantiationService
+    );
     this._where = _where;
     this._direction = _direction;
     this._peekViewService = _peekViewService;
@@ -109,7 +118,9 @@ let TypeHierarchyTreePeekWidget = class extends peekView.PeekViewWidget {
     this.create();
     this._peekViewService.addExclusiveWidget(editor, this);
     this._applyTheme(themeService.getColorTheme());
-    this._disposables.add(themeService.onDidColorThemeChange(this._applyTheme, this));
+    this._disposables.add(
+      themeService.onDidColorThemeChange(this._applyTheme, this)
+    );
     this._disposables.add(this._previewDisposable);
   }
   static TitleMenu = new MenuId("typehierarchy/title");

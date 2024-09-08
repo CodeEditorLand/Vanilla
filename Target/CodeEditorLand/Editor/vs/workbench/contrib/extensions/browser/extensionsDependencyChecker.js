@@ -34,12 +34,18 @@ let ExtensionDependencyChecker = class extends Disposable {
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.notificationService = notificationService;
     this.hostService = hostService;
-    CommandsRegistry.registerCommand("workbench.extensions.installMissingDependencies", () => this.installMissingDependencies());
+    CommandsRegistry.registerCommand(
+      "workbench.extensions.installMissingDependencies",
+      () => this.installMissingDependencies()
+    );
     MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
       command: {
         id: "workbench.extensions.installMissingDependencies",
         category: localize("extensions", "Extensions"),
-        title: localize("auto install missing deps", "Install Missing Dependencies")
+        title: localize(
+          "auto install missing deps",
+          "Install Missing Dependencies"
+        )
       }
     });
   }

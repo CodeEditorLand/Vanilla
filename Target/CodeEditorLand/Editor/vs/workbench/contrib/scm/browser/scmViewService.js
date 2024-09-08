@@ -71,22 +71,44 @@ let SCMViewService = class {
     this.workspaceContextService = workspaceContextService;
     this.menus = instantiationService.createInstance(SCMMenus);
     try {
-      this.previousState = JSON.parse(storageService.get("scm:view:visibleRepositories", StorageScope.WORKSPACE, ""));
+      this.previousState = JSON.parse(
+        storageService.get(
+          "scm:view:visibleRepositories",
+          StorageScope.WORKSPACE,
+          ""
+        )
+      );
     } catch {
     }
     this._repositoriesSortKey = this.previousState?.sortKey ?? this.getViewSortOrder();
     this._sortKeyContextKey = RepositoryContextKeys.RepositorySortKey.bindTo(contextKeyService);
     this._sortKeyContextKey.set(this._repositoriesSortKey);
-    scmService.onDidAddRepository(this.onDidAddRepository, this, this.disposables);
-    scmService.onDidRemoveRepository(this.onDidRemoveRepository, this, this.disposables);
+    scmService.onDidAddRepository(
+      this.onDidAddRepository,
+      this,
+      this.disposables
+    );
+    scmService.onDidRemoveRepository(
+      this.onDidRemoveRepository,
+      this,
+      this.disposables
+    );
     for (const repository of scmService.repositories) {
       this.onDidAddRepository(repository);
     }
-    storageService.onWillSaveState(this.onWillSaveState, this, this.disposables);
-    extensionService.onWillStop(() => {
-      this.onWillSaveState();
-      this.didFinishLoading = false;
-    }, this, this.disposables);
+    storageService.onWillSaveState(
+      this.onWillSaveState,
+      this,
+      this.disposables
+    );
+    extensionService.onWillStop(
+      () => {
+        this.onWillSaveState();
+        this.didFinishLoading = false;
+      },
+      this,
+      this.disposables
+    );
   }
   menus;
   didFinishLoading = false;

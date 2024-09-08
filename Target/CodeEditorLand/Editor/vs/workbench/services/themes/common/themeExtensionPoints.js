@@ -1,6 +1,18 @@
-import * as nls from "../../../../nls.js";
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  MarkdownString
+} from "../../../../base/common/htmlContent.js";
+import {
+  Disposable
+} from "../../../../base/common/lifecycle.js";
 import * as resources from "../../../../base/common/resources.js";
 import * as types from "../../../../base/common/types.js";
+import * as nls from "../../../../nls.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  Extensions
+} from "../../extensionManagement/common/extensionFeatures.js";
 import {
   ExtensionsRegistry
 } from "../../extensions/common/extensionsRegistry.js";
@@ -11,18 +23,6 @@ import {
   VS_HC_THEME,
   VS_LIGHT_THEME
 } from "./workbenchThemeService.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  MarkdownString
-} from "../../../../base/common/htmlContent.js";
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
-import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  Extensions
-} from "../../extensionManagement/common/extensionFeatures.js";
 function registerColorThemeExtensionPoint() {
   return ExtensionsRegistry.registerExtensionPoint({
     extensionPoint: "themes",

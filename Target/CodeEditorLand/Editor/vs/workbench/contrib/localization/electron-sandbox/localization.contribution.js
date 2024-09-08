@@ -54,8 +54,16 @@ let NativeLocalizationWorkbenchContribution = class extends BaseLocalizationWork
     this.paneCompositeService = paneCompositeService;
     this.telemetryService = telemetryService;
     this.checkAndInstall();
-    this._register(this.extensionManagementService.onDidInstallExtensions((e) => this.onDidInstallExtensions(e)));
-    this._register(this.extensionManagementService.onDidUninstallExtension((e) => this.onDidUninstallExtension(e)));
+    this._register(
+      this.extensionManagementService.onDidInstallExtensions(
+        (e) => this.onDidInstallExtensions(e)
+      )
+    );
+    this._register(
+      this.extensionManagementService.onDidUninstallExtension(
+        (e) => this.onDidUninstallExtension(e)
+      )
+    );
   }
   static LANGUAGEPACK_SUGGESTION_IGNORE_STORAGE_KEY = "extensionsAssistant/languagePackSuggestionIgnore";
   async onDidInstallExtensions(results) {

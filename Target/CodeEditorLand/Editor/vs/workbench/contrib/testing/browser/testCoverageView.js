@@ -84,11 +84,11 @@ import {
 } from "../common/testCoverage.js";
 import { ITestCoverageService } from "../common/testCoverageService.js";
 import { TestId } from "../common/testId.js";
+import { TestingContextKeys } from "../common/testingContextKeys.js";
 import {
   DetailType,
   TestResultState
 } from "../common/testTypes.js";
-import { TestingContextKeys } from "../common/testingContextKeys.js";
 import * as coverUtils from "./codeCoverageDisplayUtils.js";
 import { testingStatesToIcons, testingWasCovered } from "./icons.js";
 import {
@@ -102,7 +102,19 @@ var CoverageSortOrder = /* @__PURE__ */ ((CoverageSortOrder2) => {
 })(CoverageSortOrder || {});
 let TestCoverageView = class extends ViewPane {
   constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService, coverageService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.coverageService = coverageService;
   }
   tree = new MutableDisposable();

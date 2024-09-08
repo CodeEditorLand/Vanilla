@@ -45,10 +45,10 @@ import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { PersistentConnectionEventType } from "../../../../platform/remote/common/remoteAgentConnection.js";
 import {
+  getRemoteAuthorityPrefix,
   IRemoteAuthorityResolverService,
   RemoteAuthorityResolverError,
-  RemoteConnectionType,
-  getRemoteAuthorityPrefix
+  RemoteConnectionType
 } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
 import { IRemoteExtensionsScannerService } from "../../../../platform/remote/common/remoteExtensionsScanner.js";
 import {
@@ -77,16 +77,16 @@ import {
 } from "../browser/webWorkerExtensionHost.js";
 import {
   AbstractExtensionService,
-  ExtensionHostCrashTracker,
-  ResolvedExtensions,
   checkEnabledAndProposedAPI,
-  extensionIsEnabled
+  ExtensionHostCrashTracker,
+  extensionIsEnabled,
+  ResolvedExtensions
 } from "../common/abstractExtensionService.js";
 import { parseExtensionDevOptions } from "../common/extensionDevOptions.js";
 import {
   ExtensionHostKind,
-  ExtensionRunningPreference,
   extensionHostKindToString,
+  ExtensionRunningPreference,
   extensionRunningPreferenceToString
 } from "../common/extensionHostKind.js";
 import { ExtensionHostExitCode } from "../common/extensionHostProtocol.js";
@@ -111,8 +111,12 @@ import {
 } from "./localProcessExtensionHost.js";
 let NativeExtensionService = class extends AbstractExtensionService {
   constructor(instantiationService, notificationService, environmentService, telemetryService, extensionEnablementService, fileService, productService, extensionManagementService, contextService, configurationService, extensionManifestPropertiesService, logService, remoteAgentService, remoteExtensionsScannerService, lifecycleService, remoteAuthorityResolverService, _nativeHostService, _hostService, _remoteExplorerService, _extensionGalleryService, _workspaceTrustManagementService, dialogService) {
-    const extensionsProposedApi = instantiationService.createInstance(ExtensionsProposedApi);
-    const extensionScanner = instantiationService.createInstance(CachedExtensionScanner);
+    const extensionsProposedApi = instantiationService.createInstance(
+      ExtensionsProposedApi
+    );
+    const extensionScanner = instantiationService.createInstance(
+      CachedExtensionScanner
+    );
     const extensionHostFactory = new NativeExtensionHostFactory(
       extensionsProposedApi,
       extensionScanner,
@@ -128,7 +132,11 @@ let NativeExtensionService = class extends AbstractExtensionService {
     super(
       extensionsProposedApi,
       extensionHostFactory,
-      new NativeExtensionHostKindPicker(environmentService, configurationService, logService),
+      new NativeExtensionHostKindPicker(
+        environmentService,
+        configurationService,
+        logService
+      ),
       instantiationService,
       notificationService,
       environmentService,
@@ -160,7 +168,6 @@ let NativeExtensionService = class extends AbstractExtensionService {
           this._initialize();
         },
         50
-        /*max delay*/
       );
     });
   }
@@ -596,7 +603,10 @@ let NativeExtensionHostFactory = class {
     this._remoteAgentService = _remoteAgentService;
     this._remoteAuthorityResolverService = _remoteAuthorityResolverService;
     this._logService = _logService;
-    this._webWorkerExtHostEnablement = determineLocalWebWorkerExtHostEnablement(environmentService, configurationService);
+    this._webWorkerExtHostEnablement = determineLocalWebWorkerExtHostEnablement(
+      environmentService,
+      configurationService
+    );
   }
   _webWorkerExtHostEnablement;
   createExtensionHost(runningLocations, runningLocation, isInitialStart) {
@@ -798,7 +808,10 @@ let NativeExtensionHostKindPicker = class {
   constructor(environmentService, configurationService, _logService) {
     this._logService = _logService;
     this._hasRemoteExtHost = Boolean(environmentService.remoteAuthority);
-    const webWorkerExtHostEnablement = determineLocalWebWorkerExtHostEnablement(environmentService, configurationService);
+    const webWorkerExtHostEnablement = determineLocalWebWorkerExtHostEnablement(
+      environmentService,
+      configurationService
+    );
     this._hasWebWorkerExtHost = webWorkerExtHostEnablement !== 0 /* Disabled */;
   }
   _hasRemoteExtHost;

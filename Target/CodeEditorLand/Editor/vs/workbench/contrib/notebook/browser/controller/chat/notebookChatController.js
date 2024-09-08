@@ -11,16 +11,16 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
   Dimension,
-  WindowIntervalTimer,
   getWindow,
   scheduleAtNextAnimationFrame,
-  trackFocus
+  trackFocus,
+  WindowIntervalTimer
 } from "../../../../../../base/browser/dom.js";
 import {
-  DeferredPromise,
-  Queue,
   createCancelablePromise,
-  disposableTimeout
+  DeferredPromise,
+  disposableTimeout,
+  Queue
 } from "../../../../../../base/common/async.js";
 import {
   CancellationTokenSource
@@ -285,12 +285,26 @@ let NotebookChatController = class extends Disposable {
     this._executionStateService = _executionStateService;
     this._storageService = _storageService;
     this._chatService = _chatService;
-    this._ctxHasActiveRequest = CTX_NOTEBOOK_CHAT_HAS_ACTIVE_REQUEST.bindTo(this._contextKeyService);
-    this._ctxCellWidgetFocused = CTX_NOTEBOOK_CELL_CHAT_FOCUSED.bindTo(this._contextKeyService);
-    this._ctxUserDidEdit = CTX_NOTEBOOK_CHAT_USER_DID_EDIT.bindTo(this._contextKeyService);
-    this._ctxOuterFocusPosition = CTX_NOTEBOOK_CHAT_OUTER_FOCUS_POSITION.bindTo(this._contextKeyService);
+    this._ctxHasActiveRequest = CTX_NOTEBOOK_CHAT_HAS_ACTIVE_REQUEST.bindTo(
+      this._contextKeyService
+    );
+    this._ctxCellWidgetFocused = CTX_NOTEBOOK_CELL_CHAT_FOCUSED.bindTo(
+      this._contextKeyService
+    );
+    this._ctxUserDidEdit = CTX_NOTEBOOK_CHAT_USER_DID_EDIT.bindTo(
+      this._contextKeyService
+    );
+    this._ctxOuterFocusPosition = CTX_NOTEBOOK_CHAT_OUTER_FOCUS_POSITION.bindTo(
+      this._contextKeyService
+    );
     this._registerFocusTracker();
-    NotebookChatController._promptHistory = JSON.parse(this._storageService.get(NotebookChatController._storageKey, StorageScope.PROFILE, "[]"));
+    NotebookChatController._promptHistory = JSON.parse(
+      this._storageService.get(
+        NotebookChatController._storageKey,
+        StorageScope.PROFILE,
+        "[]"
+      )
+    );
     this._historyUpdate = (prompt) => {
       const idx = NotebookChatController._promptHistory.indexOf(prompt);
       if (idx >= 0) {
@@ -299,7 +313,12 @@ let NotebookChatController = class extends Disposable {
       NotebookChatController._promptHistory.unshift(prompt);
       this._historyOffset = -1;
       this._historyCandidate = "";
-      this._storageService.store(NotebookChatController._storageKey, JSON.stringify(NotebookChatController._promptHistory), StorageScope.PROFILE, StorageTarget.USER);
+      this._storageService.store(
+        NotebookChatController._storageKey,
+        JSON.stringify(NotebookChatController._promptHistory),
+        StorageScope.PROFILE,
+        StorageTarget.USER
+      );
     };
   }
   static id = "workbench.notebook.chatController";

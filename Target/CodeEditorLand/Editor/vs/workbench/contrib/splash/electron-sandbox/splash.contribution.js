@@ -15,8 +15,8 @@ import {
 } from "../../../../platform/instantiation/common/extensions.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { PartsSplash } from "../browser/partsSplash.js";
 import { ISplashStorageService } from "../browser/splash.js";

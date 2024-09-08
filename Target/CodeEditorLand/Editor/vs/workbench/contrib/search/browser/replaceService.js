@@ -66,7 +66,10 @@ let ReplacePreviewContentProvider = class {
   constructor(instantiationService, textModelResolverService) {
     this.instantiationService = instantiationService;
     this.textModelResolverService = textModelResolverService;
-    this.textModelResolverService.registerTextModelContentProvider(network.Schemas.internal, this);
+    this.textModelResolverService.registerTextModelContentProvider(
+      network.Schemas.internal,
+      this
+    );
   }
   static ID = "workbench.contrib.replacePreviewContentProvider";
   provideTextContent(uri) {

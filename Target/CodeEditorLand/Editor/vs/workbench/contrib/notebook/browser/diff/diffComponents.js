@@ -71,12 +71,12 @@ import {
 } from "./diffCellEditorOptions.js";
 import { OutputContainer } from "./diffElementOutputs.js";
 import {
+  getFormattedOutputJSON,
   OUTPUT_EDITOR_HEIGHT_MAGIC,
   OutputComparison,
+  outputEqual,
   PropertyFoldingState,
-  SideBySideDiffElementViewModel,
-  getFormattedOutputJSON,
-  outputEqual
+  SideBySideDiffElementViewModel
 } from "./diffElementViewModel.js";
 import {
   DIFF_CELL_MARGIN,

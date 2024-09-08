@@ -46,10 +46,10 @@ import {
 } from "../../../../platform/instantiation/common/instantiation.js";
 import {
   CONTEXT_LOG_LEVEL,
-  ILogService,
   ILoggerService,
-  LogLevelToString,
-  isLogLevel
+  ILogService,
+  isLogLevel,
+  LogLevelToString
 } from "../../../../platform/log/common/log.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
@@ -113,28 +113,41 @@ let LogOutputChannels = class extends Disposable {
     this.uriIdentityService = uriIdentityService;
     const contextKey = CONTEXT_LOG_LEVEL.bindTo(contextKeyService);
     contextKey.set(LogLevelToString(loggerService.getLogLevel()));
-    this._register(loggerService.onDidChangeLogLevel((e) => {
-      if (isLogLevel(e)) {
-        contextKey.set(LogLevelToString(loggerService.getLogLevel()));
-      }
-    }));
-    this.onDidAddLoggers(loggerService.getRegisteredLoggers());
-    this._register(loggerService.onDidChangeLoggers(({ added, removed }) => {
-      this.onDidAddLoggers(added);
-      this.onDidRemoveLoggers(removed);
-    }));
-    this._register(loggerService.onDidChangeVisibility(([resource, visibility]) => {
-      const logger = loggerService.getRegisteredLogger(resource);
-      if (logger) {
-        if (visibility) {
-          this.registerLogChannel(logger);
-        } else {
-          this.deregisterLogChannel(logger);
+    this._register(
+      loggerService.onDidChangeLogLevel((e) => {
+        if (isLogLevel(e)) {
+          contextKey.set(
+            LogLevelToString(loggerService.getLogLevel())
+          );
         }
-      }
-    }));
+      })
+    );
+    this.onDidAddLoggers(loggerService.getRegisteredLoggers());
+    this._register(
+      loggerService.onDidChangeLoggers(({ added, removed }) => {
+        this.onDidAddLoggers(added);
+        this.onDidRemoveLoggers(removed);
+      })
+    );
+    this._register(
+      loggerService.onDidChangeVisibility(([resource, visibility]) => {
+        const logger = loggerService.getRegisteredLogger(resource);
+        if (logger) {
+          if (visibility) {
+            this.registerLogChannel(logger);
+          } else {
+            this.deregisterLogChannel(logger);
+          }
+        }
+      })
+    );
     this.registerShowWindowLogAction();
-    this._register(Event.filter(contextKeyService.onDidChangeContext, (e) => e.affectsSome(this.contextKeys))(() => this.onDidChangeContext()));
+    this._register(
+      Event.filter(
+        contextKeyService.onDidChangeContext,
+        (e) => e.affectsSome(this.contextKeys)
+      )(() => this.onDidChangeContext())
+    );
   }
   contextKeys = new CounterSet();
   outputChannelRegistry = Registry.as(Extensions.OutputChannels);

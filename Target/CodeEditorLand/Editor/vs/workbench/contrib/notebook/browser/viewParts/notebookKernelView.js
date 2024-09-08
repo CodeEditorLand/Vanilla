@@ -170,19 +170,46 @@ let NotebooKernelActionViewItem = class extends ActionViewItem {
   constructor(actualAction, _editor, options, _notebookKernelService, _notebookKernelHistoryService) {
     super(
       void 0,
-      new Action("fakeAction", void 0, ThemeIcon.asClassName(selectKernelIcon), true, (event) => actualAction.run(event)),
+      new Action(
+        "fakeAction",
+        void 0,
+        ThemeIcon.asClassName(selectKernelIcon),
+        true,
+        (event) => actualAction.run(event)
+      ),
       { ...options, label: false, icon: true }
     );
     this._editor = _editor;
     this._notebookKernelService = _notebookKernelService;
     this._notebookKernelHistoryService = _notebookKernelHistoryService;
     this._register(_editor.onDidChangeModel(this._update, this));
-    this._register(_notebookKernelService.onDidAddKernel(this._update, this));
-    this._register(_notebookKernelService.onDidRemoveKernel(this._update, this));
-    this._register(_notebookKernelService.onDidChangeNotebookAffinity(this._update, this));
-    this._register(_notebookKernelService.onDidChangeSelectedNotebooks(this._update, this));
-    this._register(_notebookKernelService.onDidChangeSourceActions(this._update, this));
-    this._register(_notebookKernelService.onDidChangeKernelDetectionTasks(this._update, this));
+    this._register(
+      _notebookKernelService.onDidAddKernel(this._update, this)
+    );
+    this._register(
+      _notebookKernelService.onDidRemoveKernel(this._update, this)
+    );
+    this._register(
+      _notebookKernelService.onDidChangeNotebookAffinity(
+        this._update,
+        this
+      )
+    );
+    this._register(
+      _notebookKernelService.onDidChangeSelectedNotebooks(
+        this._update,
+        this
+      )
+    );
+    this._register(
+      _notebookKernelService.onDidChangeSourceActions(this._update, this)
+    );
+    this._register(
+      _notebookKernelService.onDidChangeKernelDetectionTasks(
+        this._update,
+        this
+      )
+    );
   }
   _kernelLabel;
   render(container) {

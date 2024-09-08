@@ -29,7 +29,11 @@ let NativeHostColorSchemeService = class extends Disposable {
     super();
     this.nativeHostService = nativeHostService;
     this.storageService = storageService;
-    this._register(this.nativeHostService.onDidChangeColorScheme((scheme) => this.update(scheme)));
+    this._register(
+      this.nativeHostService.onDidChangeColorScheme(
+        (scheme) => this.update(scheme)
+      )
+    );
     const initial = this.getStoredValue() ?? environmentService.window.colorScheme;
     this.dark = initial.dark;
     this.highContrast = initial.highContrast;

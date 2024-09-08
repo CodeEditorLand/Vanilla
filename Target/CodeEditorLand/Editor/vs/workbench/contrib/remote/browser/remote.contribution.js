@@ -1,8 +1,8 @@
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import {
+  registerWorkbenchContribution2,
   Extensions as WorkbenchExtensions,
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
 import {

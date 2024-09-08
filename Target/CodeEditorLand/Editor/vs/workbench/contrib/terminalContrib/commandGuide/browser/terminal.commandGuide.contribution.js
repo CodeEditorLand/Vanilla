@@ -11,9 +11,9 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { addDisposableListener } from "../../../../../base/browser/dom.js";
 import {
+  combinedDisposable,
   Disposable,
   MutableDisposable,
-  combinedDisposable,
   toDisposable
 } from "../../../../../base/common/lifecycle.js";
 import { localize } from "../../../../../nls.js";
@@ -27,8 +27,8 @@ import {
 import { PANEL_BORDER } from "../../../../common/theme.js";
 import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
 import {
-  TerminalCommandGuideSettingId,
-  terminalCommandGuideConfigSection
+  terminalCommandGuideConfigSection,
+  TerminalCommandGuideSettingId
 } from "../common/terminalCommandGuideConfiguration.js";
 let TerminalCommandGuideContribution = class extends Disposable {
   constructor(_instance, processManager, widgetManager, _configurationService) {

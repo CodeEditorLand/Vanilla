@@ -63,8 +63,8 @@ import {
 import { ITerminalProfileResolverService } from "../../terminal/common/terminal.js";
 import { AbstractTaskService } from "../browser/abstractTaskService.js";
 import { TerminalTaskSystem } from "../browser/terminalTaskSystem.js";
-import { ITaskService } from "../common/taskService.js";
 import { ExecutionEngine } from "../common/tasks.js";
+import { ITaskService } from "../common/taskService.js";
 let TaskService = class extends AbstractTaskService {
   constructor(configurationService, markerService, outputService, paneCompositeService, viewsService, commandService, editorService, fileService, contextService, telemetryService, textFileService, lifecycleService, modelService, extensionService, quickInputService, configurationResolverService, terminalService, terminalGroupService, storageService, progressService, openerService, dialogService, notificationService, contextKeyService, environmentService, terminalProfileResolverService, pathService, textModelResolverService, preferencesService, viewDescriptorService, workspaceTrustRequestService, workspaceTrustManagementService, logService, themeService, instantiationService, remoteAgentService, accessibilitySignalService) {
     super(

@@ -11,7 +11,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { OS, OperatingSystem } from "../../../../base/common/platform.js";
+import { OperatingSystem, OS } from "../../../../base/common/platform.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import {
   InstantiationType,
@@ -37,16 +37,22 @@ let KeyboardLayoutService = class extends Disposable {
     this._nativeKeyboardLayoutService = _nativeKeyboardLayoutService;
     this._configurationService = _configurationService;
     this._keyboardMapper = null;
-    this._register(this._nativeKeyboardLayoutService.onDidChangeKeyboardLayout(async () => {
-      this._keyboardMapper = null;
-      this._onDidChangeKeyboardLayout.fire();
-    }));
-    this._register(_configurationService.onDidChangeConfiguration(async (e) => {
-      if (e.affectsConfiguration("keyboard")) {
-        this._keyboardMapper = null;
-        this._onDidChangeKeyboardLayout.fire();
-      }
-    }));
+    this._register(
+      this._nativeKeyboardLayoutService.onDidChangeKeyboardLayout(
+        async () => {
+          this._keyboardMapper = null;
+          this._onDidChangeKeyboardLayout.fire();
+        }
+      )
+    );
+    this._register(
+      _configurationService.onDidChangeConfiguration(async (e) => {
+        if (e.affectsConfiguration("keyboard")) {
+          this._keyboardMapper = null;
+          this._onDidChangeKeyboardLayout.fire();
+        }
+      })
+    );
   }
   _onDidChangeKeyboardLayout = this._register(
     new Emitter()

@@ -54,9 +54,9 @@ import {
 } from "../../../services/workingCopy/common/workingCopyHistory.js";
 import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
 import {
+  getLocalHistoryDateFormatter,
   LOCAL_HISTORY_ICON_RESTORE,
-  LOCAL_HISTORY_MENU_CONTEXT_KEY,
-  getLocalHistoryDateFormatter
+  LOCAL_HISTORY_MENU_CONTEXT_KEY
 } from "./localHistory.js";
 import { LocalHistoryFileSystemProvider } from "./localHistoryFileSystemProvider.js";
 const LOCAL_HISTORY_CATEGORY = localize2(

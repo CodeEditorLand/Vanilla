@@ -29,13 +29,13 @@ import {
 import { IEditorService } from "../../../../services/editor/common/editorService.js";
 import { InteractiveWindowOpen } from "../../common/notebookContextKeys.js";
 import {
-  NotebookEditorInput,
   isCompositeNotebookEditorInput,
-  isNotebookEditorInput
+  isNotebookEditorInput,
+  NotebookEditorInput
 } from "../../common/notebookEditorInput.js";
 import {
-  NotebookEditorWidget,
-  getDefaultNotebookCreationOptions
+  getDefaultNotebookCreationOptions,
+  NotebookEditorWidget
 } from "../notebookEditorWidget.js";
 let NotebookEditorWidgetService = class {
   constructor(editorGroupService, editorService, contextKeyService, instantiationService) {
@@ -44,67 +44,83 @@ let NotebookEditorWidgetService = class {
     const onNewGroup = (group) => {
       const { id } = group;
       const listeners = [];
-      listeners.push(group.onDidCloseEditor((e) => {
-        const widgetMap = this._borrowableEditors.get(group.id);
-        if (!widgetMap) {
-          return;
-        }
-        const inputs = e.editor instanceof NotebookEditorInput ? [e.editor] : isCompositeNotebookEditorInput(e.editor) ? e.editor.editorInputs : [];
-        inputs.forEach((input) => {
-          const widgets = widgetMap.get(input.resource);
-          const index = widgets?.findIndex((widget) => widget.editorType === input.typeId);
-          if (!widgets || index === void 0 || index === -1) {
+      listeners.push(
+        group.onDidCloseEditor((e) => {
+          const widgetMap = this._borrowableEditors.get(group.id);
+          if (!widgetMap) {
             return;
           }
-          const value = widgets.splice(index, 1)[0];
-          value.token = void 0;
-          this._disposeWidget(value.widget);
-          value.widget = void 0;
-        });
-      }));
-      listeners.push(group.onWillMoveEditor((e) => {
-        if (isNotebookEditorInput(e.editor)) {
-          this._allowWidgetMove(e.editor, e.groupId, e.target);
-        }
-        if (isCompositeNotebookEditorInput(e.editor)) {
-          e.editor.editorInputs.forEach((input) => {
-            this._allowWidgetMove(input, e.groupId, e.target);
+          const inputs = e.editor instanceof NotebookEditorInput ? [e.editor] : isCompositeNotebookEditorInput(e.editor) ? e.editor.editorInputs : [];
+          inputs.forEach((input) => {
+            const widgets = widgetMap.get(input.resource);
+            const index = widgets?.findIndex(
+              (widget) => widget.editorType === input.typeId
+            );
+            if (!widgets || index === void 0 || index === -1) {
+              return;
+            }
+            const value = widgets.splice(index, 1)[0];
+            value.token = void 0;
+            this._disposeWidget(value.widget);
+            value.widget = void 0;
           });
-        }
-      }));
+        })
+      );
+      listeners.push(
+        group.onWillMoveEditor((e) => {
+          if (isNotebookEditorInput(e.editor)) {
+            this._allowWidgetMove(e.editor, e.groupId, e.target);
+          }
+          if (isCompositeNotebookEditorInput(e.editor)) {
+            e.editor.editorInputs.forEach((input) => {
+              this._allowWidgetMove(input, e.groupId, e.target);
+            });
+          }
+        })
+      );
       this.groupListener.set(id, listeners);
     };
     this._disposables.add(editorGroupService.onDidAddGroup(onNewGroup));
-    editorGroupService.whenReady.then(() => editorGroupService.groups.forEach(onNewGroup));
-    this._disposables.add(editorGroupService.onDidRemoveGroup((group) => {
-      const listeners = this.groupListener.get(group.id);
-      if (listeners) {
-        listeners.forEach((listener) => listener.dispose());
-        this.groupListener.delete(group.id);
-      }
-      const widgets = this._borrowableEditors.get(group.id);
-      this._borrowableEditors.delete(group.id);
-      if (widgets) {
-        for (const values of widgets.values()) {
-          for (const value of values) {
-            value.token = void 0;
-            this._disposeWidget(value.widget);
+    editorGroupService.whenReady.then(
+      () => editorGroupService.groups.forEach(onNewGroup)
+    );
+    this._disposables.add(
+      editorGroupService.onDidRemoveGroup((group) => {
+        const listeners = this.groupListener.get(group.id);
+        if (listeners) {
+          listeners.forEach((listener) => listener.dispose());
+          this.groupListener.delete(group.id);
+        }
+        const widgets = this._borrowableEditors.get(group.id);
+        this._borrowableEditors.delete(group.id);
+        if (widgets) {
+          for (const values of widgets.values()) {
+            for (const value of values) {
+              value.token = void 0;
+              this._disposeWidget(value.widget);
+            }
           }
         }
-      }
-    }));
+      })
+    );
     const interactiveWindowOpen = InteractiveWindowOpen.bindTo(contextKeyService);
-    this._disposables.add(editorService.onDidEditorsChange((e) => {
-      if (e.event.kind === GroupModelChangeKind.EDITOR_OPEN && !interactiveWindowOpen.get()) {
-        if (editorService.editors.find((editor) => editor.editorId === "interactive")) {
-          interactiveWindowOpen.set(true);
+    this._disposables.add(
+      editorService.onDidEditorsChange((e) => {
+        if (e.event.kind === GroupModelChangeKind.EDITOR_OPEN && !interactiveWindowOpen.get()) {
+          if (editorService.editors.find(
+            (editor) => editor.editorId === "interactive"
+          )) {
+            interactiveWindowOpen.set(true);
+          }
+        } else if (e.event.kind === GroupModelChangeKind.EDITOR_CLOSE && interactiveWindowOpen.get()) {
+          if (!editorService.editors.find(
+            (editor) => editor.editorId === "interactive"
+          )) {
+            interactiveWindowOpen.set(false);
+          }
         }
-      } else if (e.event.kind === GroupModelChangeKind.EDITOR_CLOSE && interactiveWindowOpen.get()) {
-        if (!editorService.editors.find((editor) => editor.editorId === "interactive")) {
-          interactiveWindowOpen.set(false);
-        }
-      }
-    }));
+      })
+    );
   }
   _serviceBrand;
   _tokenPool = 1;

@@ -26,8 +26,8 @@ import { ICommandService } from "../../../../platform/commands/common/commands.j
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import {
   ConfirmResult,
-  IDialogService,
-  getFileNamesMessage
+  getFileNamesMessage,
+  IDialogService
 } from "../../../../platform/dialogs/common/dialogs.js";
 import { EditorOpenSource } from "../../../../platform/editor/common/editor.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
@@ -40,11 +40,11 @@ import {
   isWorkspaceToOpen
 } from "../../../../platform/window/common/window.js";
 import {
-  IWorkspaceContextService,
-  WORKSPACE_EXTENSION,
-  WorkbenchState,
   isSavedWorkspace,
-  isTemporaryWorkspace
+  isTemporaryWorkspace,
+  IWorkspaceContextService,
+  WorkbenchState,
+  WORKSPACE_EXTENSION
 } from "../../../../platform/workspace/common/workspace.js";
 import { IWorkspacesService } from "../../../../platform/workspaces/common/workspaces.js";
 import { IEditorService } from "../../editor/common/editorService.js";

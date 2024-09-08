@@ -40,7 +40,9 @@ let TerminalLinkQuickpick = class extends DisposableStore {
     this._labelService = _labelService;
     this._quickInputService = _quickInputService;
     this._accessibleViewService = _accessibleViewService;
-    this._editorViewState = this.add(instantiationService.createInstance(PickerEditorState));
+    this._editorViewState = this.add(
+      instantiationService.createInstance(PickerEditorState)
+    );
   }
   _editorSequencer = new Sequencer();
   _editorViewState;

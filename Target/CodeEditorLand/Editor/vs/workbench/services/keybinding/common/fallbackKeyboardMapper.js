@@ -1,6 +1,6 @@
 import {
-  KeyCodeChord,
-  Keybinding
+  Keybinding,
+  KeyCodeChord
 } from "../../../../base/common/keybindings.js";
 import { USLayoutResolvedKeybinding } from "../../../../platform/keybinding/common/usLayoutResolvedKeybinding.js";
 class FallbackKeyboardMapper {

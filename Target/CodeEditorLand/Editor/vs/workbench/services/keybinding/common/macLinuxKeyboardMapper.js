@@ -1,5 +1,9 @@
 import { CharCode } from "../../../../base/common/charCode.js";
 import {
+  KeyCodeChord,
+  ScanCodeChord
+} from "../../../../base/common/keybindings.js";
+import {
   IMMUTABLE_CODE_TO_KEY_CODE,
   IMMUTABLE_KEY_CODE_TO_CODE,
   KeyCode,
@@ -7,10 +11,6 @@ import {
   ScanCode,
   ScanCodeUtils
 } from "../../../../base/common/keyCodes.js";
-import {
-  KeyCodeChord,
-  ScanCodeChord
-} from "../../../../base/common/keybindings.js";
 import { OperatingSystem } from "../../../../base/common/platform.js";
 import { BaseResolvedKeybinding } from "../../../../platform/keybinding/common/baseResolvedKeybinding.js";
 const CHAR_CODE_TO_KEY_CODE = [];

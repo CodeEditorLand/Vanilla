@@ -11,10 +11,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { mainWindow } from "../../../../base/browser/window.js";
 import {
-  FileAccess,
-  builtinExtensionsPath
+  builtinExtensionsPath,
+  FileAccess
 } from "../../../../base/common/network.js";
-import { Language, isWeb } from "../../../../base/common/platform.js";
+import { isWeb, Language } from "../../../../base/common/platform.js";
 import { URI } from "../../../../base/common/uri.js";
 import { getGalleryExtensionId } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
 import {
@@ -41,9 +41,16 @@ let BuiltinExtensionsScannerService = class {
     if (isWeb) {
       const nlsBaseUrl = productService.extensionsGallery?.nlsBaseUrl;
       if (nlsBaseUrl && productService.commit && !Language.isDefaultVariant()) {
-        this.nlsUrl = URI.joinPath(URI.parse(nlsBaseUrl), productService.commit, productService.version, Language.value());
+        this.nlsUrl = URI.joinPath(
+          URI.parse(nlsBaseUrl),
+          productService.commit,
+          productService.version,
+          Language.value()
+        );
       }
-      const builtinExtensionsServiceUrl = FileAccess.asBrowserUri(builtinExtensionsPath);
+      const builtinExtensionsServiceUrl = FileAccess.asBrowserUri(
+        builtinExtensionsPath
+      );
       if (builtinExtensionsServiceUrl) {
         let bundledExtensions = [];
         if (environmentService.isBuilt) {
@@ -51,30 +58,54 @@ let BuiltinExtensionsScannerService = class {
             /*BUILD->INSERT_BUILTIN_EXTENSIONS*/
           ];
         } else {
-          const builtinExtensionsElement = mainWindow.document.getElementById("vscode-workbench-builtin-extensions");
-          const builtinExtensionsElementAttribute = builtinExtensionsElement ? builtinExtensionsElement.getAttribute("data-settings") : void 0;
+          const builtinExtensionsElement = mainWindow.document.getElementById(
+            "vscode-workbench-builtin-extensions"
+          );
+          const builtinExtensionsElementAttribute = builtinExtensionsElement ? builtinExtensionsElement.getAttribute(
+            "data-settings"
+          ) : void 0;
           if (builtinExtensionsElementAttribute) {
             try {
-              bundledExtensions = JSON.parse(builtinExtensionsElementAttribute);
+              bundledExtensions = JSON.parse(
+                builtinExtensionsElementAttribute
+              );
             } catch (error) {
             }
           }
         }
-        this.builtinExtensionsPromises = bundledExtensions.map(async (e) => {
-          const id = getGalleryExtensionId(e.packageJSON.publisher, e.packageJSON.name);
-          return {
-            identifier: { id },
-            location: uriIdentityService.extUri.joinPath(builtinExtensionsServiceUrl, e.extensionPath),
-            type: ExtensionType.System,
-            isBuiltin: true,
-            manifest: e.packageNLS ? await this.localizeManifest(id, e.packageJSON, e.packageNLS) : e.packageJSON,
-            readmeUrl: e.readmePath ? uriIdentityService.extUri.joinPath(builtinExtensionsServiceUrl, e.readmePath) : void 0,
-            changelogUrl: e.changelogPath ? uriIdentityService.extUri.joinPath(builtinExtensionsServiceUrl, e.changelogPath) : void 0,
-            targetPlatform: TargetPlatform.WEB,
-            validations: [],
-            isValid: true
-          };
-        });
+        this.builtinExtensionsPromises = bundledExtensions.map(
+          async (e) => {
+            const id = getGalleryExtensionId(
+              e.packageJSON.publisher,
+              e.packageJSON.name
+            );
+            return {
+              identifier: { id },
+              location: uriIdentityService.extUri.joinPath(
+                builtinExtensionsServiceUrl,
+                e.extensionPath
+              ),
+              type: ExtensionType.System,
+              isBuiltin: true,
+              manifest: e.packageNLS ? await this.localizeManifest(
+                id,
+                e.packageJSON,
+                e.packageNLS
+              ) : e.packageJSON,
+              readmeUrl: e.readmePath ? uriIdentityService.extUri.joinPath(
+                builtinExtensionsServiceUrl,
+                e.readmePath
+              ) : void 0,
+              changelogUrl: e.changelogPath ? uriIdentityService.extUri.joinPath(
+                builtinExtensionsServiceUrl,
+                e.changelogPath
+              ) : void 0,
+              targetPlatform: TargetPlatform.WEB,
+              validations: [],
+              isValid: true
+            };
+          }
+        );
       }
     }
   }

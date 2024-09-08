@@ -58,14 +58,30 @@ let ExtensionRecommendationsService = class extends Disposable {
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.remoteExtensionsScannerService = remoteExtensionsScannerService;
     this.userDataInitializationService = userDataInitializationService;
-    this.workspaceRecommendations = this._register(instantiationService.createInstance(WorkspaceRecommendations));
-    this.fileBasedRecommendations = this._register(instantiationService.createInstance(FileBasedRecommendations));
-    this.configBasedRecommendations = this._register(instantiationService.createInstance(ConfigBasedRecommendations));
-    this.exeBasedRecommendations = this._register(instantiationService.createInstance(ExeBasedRecommendations));
-    this.keymapRecommendations = this._register(instantiationService.createInstance(KeymapRecommendations));
-    this.webRecommendations = this._register(instantiationService.createInstance(WebRecommendations));
-    this.languageRecommendations = this._register(instantiationService.createInstance(LanguageRecommendations));
-    this.remoteRecommendations = this._register(instantiationService.createInstance(RemoteRecommendations));
+    this.workspaceRecommendations = this._register(
+      instantiationService.createInstance(WorkspaceRecommendations)
+    );
+    this.fileBasedRecommendations = this._register(
+      instantiationService.createInstance(FileBasedRecommendations)
+    );
+    this.configBasedRecommendations = this._register(
+      instantiationService.createInstance(ConfigBasedRecommendations)
+    );
+    this.exeBasedRecommendations = this._register(
+      instantiationService.createInstance(ExeBasedRecommendations)
+    );
+    this.keymapRecommendations = this._register(
+      instantiationService.createInstance(KeymapRecommendations)
+    );
+    this.webRecommendations = this._register(
+      instantiationService.createInstance(WebRecommendations)
+    );
+    this.languageRecommendations = this._register(
+      instantiationService.createInstance(LanguageRecommendations)
+    );
+    this.remoteRecommendations = this._register(
+      instantiationService.createInstance(RemoteRecommendations)
+    );
     if (!this.isEnabled()) {
       this.sessionSeed = 0;
       this.activationPromise = Promise.resolve();
@@ -73,7 +89,11 @@ let ExtensionRecommendationsService = class extends Disposable {
     }
     this.sessionSeed = +/* @__PURE__ */ new Date();
     this.activationPromise = this.activate();
-    this._register(this.extensionManagementService.onDidInstallExtensions((e) => this.onDidInstallExtensions(e)));
+    this._register(
+      this.extensionManagementService.onDidInstallExtensions(
+        (e) => this.onDidInstallExtensions(e)
+      )
+    );
   }
   // Recommendations
   fileBasedRecommendations;

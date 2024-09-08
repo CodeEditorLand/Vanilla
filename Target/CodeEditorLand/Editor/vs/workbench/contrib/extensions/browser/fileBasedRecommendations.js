@@ -23,8 +23,8 @@ import { localize } from "../../../../nls.js";
 import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
 import {
   IExtensionRecommendationNotificationService,
-  RecommendationSource,
-  RecommendationsNotificationResult
+  RecommendationsNotificationResult,
+  RecommendationSource
 } from "../../../../platform/extensionRecommendations/common/extensionRecommendations.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import {
@@ -60,7 +60,9 @@ let FileBasedRecommendations = class extends ExtensionRecommendations {
     this.workspaceContextService = workspaceContextService;
     this.fileOpenRecommendations = {};
     if (productService.extensionRecommendations) {
-      for (const [extensionId, recommendation] of Object.entries(productService.extensionRecommendations)) {
+      for (const [extensionId, recommendation] of Object.entries(
+        productService.extensionRecommendations
+      )) {
         if (recommendation.onFileOpen) {
           this.fileOpenRecommendations[extensionId.toLowerCase()] = recommendation.onFileOpen;
         }

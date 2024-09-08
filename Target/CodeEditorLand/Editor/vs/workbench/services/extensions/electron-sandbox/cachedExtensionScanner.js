@@ -35,10 +35,12 @@ let CachedExtensionScanner = class {
     this._extensionManagementService = _extensionManagementService;
     this._environmentService = _environmentService;
     this._logService = _logService;
-    this.scannedExtensions = new Promise((resolve, reject) => {
-      this._scannedExtensionsResolve = resolve;
-      this._scannedExtensionsReject = reject;
-    });
+    this.scannedExtensions = new Promise(
+      (resolve, reject) => {
+        this._scannedExtensionsResolve = resolve;
+        this._scannedExtensionsReject = reject;
+      }
+    );
   }
   scannedExtensions;
   _scannedExtensionsResolve;

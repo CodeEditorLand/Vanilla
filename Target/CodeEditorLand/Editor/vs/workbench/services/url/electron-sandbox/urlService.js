@@ -33,8 +33,13 @@ let RelayURLService = class extends NativeURLService {
     super(productService);
     this.nativeHostService = nativeHostService;
     this.logService = logService;
-    this.urlService = ProxyChannel.toService(mainProcessService.getChannel("url"));
-    mainProcessService.registerChannel("urlHandler", new URLHandlerChannel(this));
+    this.urlService = ProxyChannel.toService(
+      mainProcessService.getChannel("url")
+    );
+    mainProcessService.registerChannel(
+      "urlHandler",
+      new URLHandlerChannel(this)
+    );
     openerService.registerOpener(this);
   }
   urlService;

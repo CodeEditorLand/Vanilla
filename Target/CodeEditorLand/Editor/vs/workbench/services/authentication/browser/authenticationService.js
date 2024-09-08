@@ -57,17 +57,21 @@ let AuthenticationService = class extends Disposable {
     super();
     this._extensionService = _extensionService;
     this._environmentService = _environmentService;
-    this._register(authenticationAccessService.onDidChangeExtensionSessionAccess((e) => {
-      this._onDidChangeSessions.fire({
-        providerId: e.providerId,
-        label: e.accountName,
-        event: {
-          added: [],
-          changed: [],
-          removed: []
+    this._register(
+      authenticationAccessService.onDidChangeExtensionSessionAccess(
+        (e) => {
+          this._onDidChangeSessions.fire({
+            providerId: e.providerId,
+            label: e.accountName,
+            event: {
+              added: [],
+              changed: [],
+              removed: []
+            }
+          });
         }
-      });
-    }));
+      )
+    );
     this._registerEnvContributedAuthenticationProviders();
   }
   _onDidRegisterAuthenticationProvider = this._register(new Emitter());

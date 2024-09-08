@@ -50,7 +50,13 @@ let DiagnosticCellStatusBarItem = class extends Disposable {
     this._notebookViewModel = _notebookViewModel;
     this.cell = cell;
     this.keybindingService = keybindingService;
-    this._register(autorun((reader) => this.updateSparkleItem(reader.readObservable(cell.excecutionError))));
+    this._register(
+      autorun(
+        (reader) => this.updateSparkleItem(
+          reader.readObservable(cell.excecutionError)
+        )
+      )
+    );
   }
   _currentItemIds = [];
   async updateSparkleItem(error) {

@@ -1,14 +1,14 @@
+import { isWeb } from "../../../../base/common/platform.js";
 import * as types from "../../../../base/common/types.js";
 import * as nls from "../../../../nls.js";
+import {
+  ConfigurationTarget
+} from "../../../../platform/configuration/common/configuration.js";
 import {
   Extensions as ConfigurationExtensions,
   ConfigurationScope
 } from "../../../../platform/configuration/common/configurationRegistry.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import { isWeb } from "../../../../base/common/platform.js";
-import {
-  ConfigurationTarget
-} from "../../../../platform/configuration/common/configuration.js";
 import { workbenchColorsSchemaId } from "../../../../platform/theme/common/colorRegistry.js";
 import { ColorScheme } from "../../../../platform/theme/common/theme.js";
 import { tokenStylingSchemaId } from "../../../../platform/theme/common/tokenClassificationRegistry.js";

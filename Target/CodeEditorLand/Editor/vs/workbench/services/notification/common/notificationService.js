@@ -22,11 +22,11 @@ import {
 } from "../../../../platform/instantiation/common/extensions.js";
 import {
   INotificationService,
+  isNotificationSource,
   NeverShowAgainScope,
   NoOpNotification,
   NotificationsFilter,
-  Severity,
-  isNotificationSource
+  Severity
 } from "../../../../platform/notification/common/notification.js";
 import {
   IStorageService,

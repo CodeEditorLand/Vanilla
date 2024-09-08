@@ -122,14 +122,22 @@ let NotebookStickyScroll = class extends Disposable {
     if (this.notebookEditor.notebookOptions.getDisplayOptions().stickyScrollEnabled) {
       this.init();
     }
-    this._register(this.notebookEditor.notebookOptions.onDidChangeOptions((e) => {
-      if (e.stickyScrollEnabled || e.stickyScrollMode) {
-        this.updateConfig(e);
-      }
-    }));
-    this._register(DOM.addDisposableListener(this.domNode, DOM.EventType.CONTEXT_MENU, async (event) => {
-      this.onContextMenu(event);
-    }));
+    this._register(
+      this.notebookEditor.notebookOptions.onDidChangeOptions((e) => {
+        if (e.stickyScrollEnabled || e.stickyScrollMode) {
+          this.updateConfig(e);
+        }
+      })
+    );
+    this._register(
+      DOM.addDisposableListener(
+        this.domNode,
+        DOM.EventType.CONTEXT_MENU,
+        async (event) => {
+          this.onContextMenu(event);
+        }
+      )
+    );
   }
   _disposables = new DisposableStore();
   currentStickyLines = /* @__PURE__ */ new Map();

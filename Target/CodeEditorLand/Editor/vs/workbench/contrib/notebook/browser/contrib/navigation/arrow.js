@@ -32,10 +32,10 @@ import {
 } from "../../../common/notebookContextKeys.js";
 import { CTX_NOTEBOOK_CHAT_OUTER_FOCUS_POSITION } from "../../controller/chat/notebookChatContext.js";
 import {
+  findTargetCellEditor,
   NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT,
   NotebookAction,
-  NotebookCellAction,
-  findTargetCellEditor
+  NotebookCellAction
 } from "../../controller/coreActions.js";
 import { CellEditState } from "../../notebookBrowser.js";
 const NOTEBOOK_FOCUS_TOP = "notebook.focusTop";

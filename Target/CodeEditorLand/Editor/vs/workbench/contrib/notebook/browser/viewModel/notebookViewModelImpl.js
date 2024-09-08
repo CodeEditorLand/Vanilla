@@ -160,13 +160,31 @@ let NotebookViewModel = class extends Disposable {
     this.replView = !!this.options.inRepl;
     const compute = (changes, synchronous) => {
       const diffs = changes.map((splice) => {
-        return [splice[0], splice[1], splice[2].map((cell) => {
-          return createCellViewModel(this._instantiationService, this, cell, this._viewContext);
-        })];
+        return [
+          splice[0],
+          splice[1],
+          splice[2].map((cell) => {
+            return createCellViewModel(
+              this._instantiationService,
+              this,
+              cell,
+              this._viewContext
+            );
+          })
+        ];
       });
       diffs.reverse().forEach((diff) => {
-        const deletedCells = this._viewCells.splice(diff[0], diff[1], ...diff[2]);
-        this._decorationsTree.acceptReplace(diff[0], diff[1], diff[2].length, true);
+        const deletedCells = this._viewCells.splice(
+          diff[0],
+          diff[1],
+          ...diff[2]
+        );
+        this._decorationsTree.acceptReplace(
+          diff[0],
+          diff[1],
+          diff[2].length,
+          true
+        );
         deletedCells.forEach((cell) => {
           this._handleToViewCellMapping.delete(cell.handle);
           cell.dispose();
@@ -184,7 +202,9 @@ let NotebookViewModel = class extends Disposable {
       let endSelectionHandles = [];
       if (selectionHandles.length) {
         const primaryHandle = selectionHandles[0];
-        const primarySelectionIndex = this._viewCells.indexOf(this.getCellByHandle(primaryHandle));
+        const primarySelectionIndex = this._viewCells.indexOf(
+          this.getCellByHandle(primaryHandle)
+        );
         endSelectionHandles = [primaryHandle];
         let delta = 0;
         for (let i = 0; i < diffs.length; i++) {
@@ -198,74 +218,120 @@ let NotebookViewModel = class extends Disposable {
             break;
           }
           if (diff[0] + diff[1] > primarySelectionIndex) {
-            endSelectionHandles = [this._viewCells[diff[0] + delta].handle];
+            endSelectionHandles = [
+              this._viewCells[diff[0] + delta].handle
+            ];
             break;
           }
         }
       }
-      const selectionIndexes = endSelectionHandles.map((handle) => this._viewCells.findIndex((cell) => cell.handle === handle));
-      this._selectionCollection.setState(cellIndexesToRanges([selectionIndexes[0]])[0], cellIndexesToRanges(selectionIndexes), true, "model");
+      const selectionIndexes = endSelectionHandles.map(
+        (handle) => this._viewCells.findIndex((cell) => cell.handle === handle)
+      );
+      this._selectionCollection.setState(
+        cellIndexesToRanges([selectionIndexes[0]])[0],
+        cellIndexesToRanges(selectionIndexes),
+        true,
+        "model"
+      );
     };
-    this._register(this._notebook.onDidChangeContent((e) => {
-      for (let i = 0; i < e.rawEvents.length; i++) {
-        const change = e.rawEvents[i];
-        let changes = [];
-        const synchronous = e.synchronous ?? true;
-        if (change.kind === NotebookCellsChangeType.ModelChange || change.kind === NotebookCellsChangeType.Initialize) {
-          changes = change.changes;
-          compute(changes, synchronous);
-          continue;
-        } else if (change.kind === NotebookCellsChangeType.Move) {
-          compute([[change.index, change.length, []]], synchronous);
-          compute([[change.newIdx, 0, change.cells]], synchronous);
-        } else {
-          continue;
-        }
-      }
-    }));
-    this._register(this._notebook.onDidChangeContent((contentChanges) => {
-      contentChanges.rawEvents.forEach((e) => {
-        if (e.kind === NotebookCellsChangeType.ChangeDocumentMetadata) {
-          this._viewContext.eventDispatcher.emit([new NotebookMetadataChangedEvent(this._notebook.metadata)]);
-        }
-      });
-      if (contentChanges.endSelectionState) {
-        this.updateSelectionsState(contentChanges.endSelectionState);
-      }
-    }));
-    this._register(this._viewContext.eventDispatcher.onDidChangeLayout((e) => {
-      this._layoutInfo = e.value;
-      this._viewCells.forEach((cell) => {
-        if (cell.cellKind === CellKind.Markup) {
-          if (e.source.width || e.source.fontInfo) {
-            cell.layoutChange({ outerWidth: e.value.width, font: e.value.fontInfo });
+    this._register(
+      this._notebook.onDidChangeContent((e) => {
+        for (let i = 0; i < e.rawEvents.length; i++) {
+          const change = e.rawEvents[i];
+          let changes = [];
+          const synchronous = e.synchronous ?? true;
+          if (change.kind === NotebookCellsChangeType.ModelChange || change.kind === NotebookCellsChangeType.Initialize) {
+            changes = change.changes;
+            compute(changes, synchronous);
+            continue;
+          } else if (change.kind === NotebookCellsChangeType.Move) {
+            compute(
+              [[change.index, change.length, []]],
+              synchronous
+            );
+            compute(
+              [[change.newIdx, 0, change.cells]],
+              synchronous
+            );
+          } else {
+            continue;
           }
-        } else if (e.source.width !== void 0) {
-          cell.layoutChange({ outerWidth: e.value.width, font: e.value.fontInfo });
         }
-      });
-    }));
-    this._register(this._viewContext.notebookOptions.onDidChangeOptions((e) => {
-      for (let i = 0; i < this.length; i++) {
-        const cell = this._viewCells[i];
-        cell.updateOptions(e);
-      }
-    }));
-    this._register(notebookExecutionStateService.onDidChangeExecution((e) => {
-      if (e.type !== NotebookExecutionType.cell) {
-        return;
-      }
-      const cell = this.getCellByHandle(e.cellHandle);
-      if (cell instanceof CodeCellViewModel) {
-        cell.updateExecutionState(e);
-      }
-    }));
-    this._register(this._selectionCollection.onDidChangeSelection((e) => {
-      this._onDidChangeSelection.fire(e);
-    }));
+      })
+    );
+    this._register(
+      this._notebook.onDidChangeContent((contentChanges) => {
+        contentChanges.rawEvents.forEach((e) => {
+          if (e.kind === NotebookCellsChangeType.ChangeDocumentMetadata) {
+            this._viewContext.eventDispatcher.emit([
+              new NotebookMetadataChangedEvent(
+                this._notebook.metadata
+              )
+            ]);
+          }
+        });
+        if (contentChanges.endSelectionState) {
+          this.updateSelectionsState(
+            contentChanges.endSelectionState
+          );
+        }
+      })
+    );
+    this._register(
+      this._viewContext.eventDispatcher.onDidChangeLayout((e) => {
+        this._layoutInfo = e.value;
+        this._viewCells.forEach((cell) => {
+          if (cell.cellKind === CellKind.Markup) {
+            if (e.source.width || e.source.fontInfo) {
+              cell.layoutChange({
+                outerWidth: e.value.width,
+                font: e.value.fontInfo
+              });
+            }
+          } else if (e.source.width !== void 0) {
+            cell.layoutChange({
+              outerWidth: e.value.width,
+              font: e.value.fontInfo
+            });
+          }
+        });
+      })
+    );
+    this._register(
+      this._viewContext.notebookOptions.onDidChangeOptions((e) => {
+        for (let i = 0; i < this.length; i++) {
+          const cell = this._viewCells[i];
+          cell.updateOptions(e);
+        }
+      })
+    );
+    this._register(
+      notebookExecutionStateService.onDidChangeExecution((e) => {
+        if (e.type !== NotebookExecutionType.cell) {
+          return;
+        }
+        const cell = this.getCellByHandle(e.cellHandle);
+        if (cell instanceof CodeCellViewModel) {
+          cell.updateExecutionState(e);
+        }
+      })
+    );
+    this._register(
+      this._selectionCollection.onDidChangeSelection((e) => {
+        this._onDidChangeSelection.fire(e);
+      })
+    );
     const viewCellCount = this.replView ? this._notebook.cells.length - 1 : this._notebook.cells.length;
     for (let i = 0; i < viewCellCount; i++) {
-      this._viewCells.push(createCellViewModel(this._instantiationService, this, this._notebook.cells[i], this._viewContext));
+      this._viewCells.push(
+        createCellViewModel(
+          this._instantiationService,
+          this,
+          this._notebook.cells[i],
+          this._viewContext
+        )
+      );
     }
     this._viewCells.forEach((cell) => {
       this._handleToViewCellMapping.set(cell.handle, cell);

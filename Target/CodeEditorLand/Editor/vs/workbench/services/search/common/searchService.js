@@ -36,15 +36,15 @@ import { IEditorService } from "../../editor/common/editorService.js";
 import { IExtensionService } from "../../extensions/common/extensions.js";
 import {
   DEFAULT_MAX_SEARCH_RESULTS,
+  deserializeSearchError,
   FileMatch,
+  isFileMatch,
+  isProgressMessage,
+  pathIncludedInQuery,
   QueryType,
   SEARCH_RESULT_LANGUAGE_ID,
   SearchErrorCode,
-  SearchProviderType,
-  deserializeSearchError,
-  isFileMatch,
-  isProgressMessage,
-  pathIncludedInQuery
+  SearchProviderType
 } from "./search.js";
 import {
   editorMatchesToTextSearchResults,

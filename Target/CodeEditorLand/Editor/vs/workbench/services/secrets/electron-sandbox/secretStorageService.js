@@ -16,10 +16,10 @@ import { localize } from "../../../../nls.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
 import {
   IEncryptionService,
-  KnownStorageProvider,
-  PasswordStoreCLIOption,
   isGnome,
-  isKwallet
+  isKwallet,
+  KnownStorageProvider,
+  PasswordStoreCLIOption
 } from "../../../../platform/encryption/common/encryptionService.js";
 import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
 import {

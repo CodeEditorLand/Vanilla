@@ -210,24 +210,32 @@ let SCMInputHistory = class {
     if (this.migrateStorage()) {
       this.saveToStorage();
     }
-    this.disposables.add(this.storageService.onDidChangeValue(StorageScope.WORKSPACE, "scm.history", this.disposables)((e) => {
-      if (e.external && e.key === "scm.history") {
-        const raw = this.storageService.getObject("scm.history", StorageScope.WORKSPACE, []);
-        for (const [providerLabel, uri, rawHistory] of raw) {
-          const history = this.getHistory(providerLabel, uri);
-          for (const value of Iterable.reverse(rawHistory)) {
-            history.prepend(value);
+    this.disposables.add(
+      this.storageService.onDidChangeValue(
+        StorageScope.WORKSPACE,
+        "scm.history",
+        this.disposables
+      )((e) => {
+        if (e.external && e.key === "scm.history") {
+          const raw = this.storageService.getObject("scm.history", StorageScope.WORKSPACE, []);
+          for (const [providerLabel, uri, rawHistory] of raw) {
+            const history = this.getHistory(providerLabel, uri);
+            for (const value of Iterable.reverse(rawHistory)) {
+              history.prepend(value);
+            }
           }
         }
-      }
-    }));
-    this.disposables.add(this.storageService.onWillSaveState((_) => {
-      const event = new WillSaveHistoryEvent();
-      this._onWillSaveHistory.fire(event);
-      if (event.didChangeHistory) {
-        this.saveToStorage();
-      }
-    }));
+      })
+    );
+    this.disposables.add(
+      this.storageService.onWillSaveState((_) => {
+        const event = new WillSaveHistoryEvent();
+        this._onWillSaveHistory.fire(event);
+        if (event.didChangeHistory) {
+          this.saveToStorage();
+        }
+      })
+    );
   }
   disposables = new DisposableStore();
   histories = /* @__PURE__ */ new Map();
@@ -315,8 +323,14 @@ let SCMService = class {
   constructor(logService, workspaceContextService, contextKeyService, storageService, uriIdentityService) {
     this.logService = logService;
     this.uriIdentityService = uriIdentityService;
-    this.inputHistory = new SCMInputHistory(storageService, workspaceContextService);
-    this.providerCount = contextKeyService.createKey("scm.providerCount", 0);
+    this.inputHistory = new SCMInputHistory(
+      storageService,
+      workspaceContextService
+    );
+    this.providerCount = contextKeyService.createKey(
+      "scm.providerCount",
+      0
+    );
   }
   _repositories = /* @__PURE__ */ new Map();
   // used in tests

@@ -30,7 +30,9 @@ let TimelineService = class {
     this.viewsService = viewsService;
     this.configurationService = configurationService;
     this.contextKeyService = contextKeyService;
-    this.hasProviderContext = TimelineHasProviderContext.bindTo(this.contextKeyService);
+    this.hasProviderContext = TimelineHasProviderContext.bindTo(
+      this.contextKeyService
+    );
     this.updateHasProviderContext();
   }
   _onDidChangeProviders = new Emitter();

@@ -78,7 +78,9 @@ let NativeIssueService = class {
     this.configurationService = configurationService;
     ipcRenderer.on("vscode:triggerReporterMenu", async (event, arg) => {
       const extensionId = arg.extensionId;
-      const actions = this.menuService.getMenuActions(MenuId.IssueReporter, this.contextKeyService, { renderShortTitle: true }).flatMap((entry) => entry[1]);
+      const actions = this.menuService.getMenuActions(MenuId.IssueReporter, this.contextKeyService, {
+        renderShortTitle: true
+      }).flatMap((entry) => entry[1]);
       actions.forEach(async (action) => {
         try {
           if (action.item && "source" in action.item && action.item.source?.id === extensionId) {
@@ -90,7 +92,10 @@ let NativeIssueService = class {
         }
       });
       if (!this.extensionIdentifierSet.has(extensionId)) {
-        ipcRenderer.send(`vscode:triggerReporterMenuResponse:${extensionId}`, void 0);
+        ipcRenderer.send(
+          `vscode:triggerReporterMenuResponse:${extensionId}`,
+          void 0
+        );
       }
     });
   }

@@ -1,12 +1,12 @@
 import { MarshalledId } from "../../../../../base/common/marshallingIds.js";
 import { Range } from "../../../../../editor/common/core/range.js";
 import { TestId } from "../../common/testId.js";
+import { buildTestUri, TestUriType } from "../../common/testingUri.js";
 import {
-  ITestMessage,
   InternalTestItem,
+  ITestMessage,
   TestMessageType
 } from "../../common/testTypes.js";
-import { TestUriType, buildTestUri } from "../../common/testingUri.js";
 const getMessageArgs = (test, message) => ({
   $mid: MarshalledId.TestMessageMenuArgs,
   test: InternalTestItem.serialize(test),

@@ -25,8 +25,8 @@ import { ILayoutService } from "../../../../platform/layout/browser/layoutServic
 import { INativeHostService } from "../../../../platform/native/common/native.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { IJSONEditingService } from "../../configuration/common/jsonEditing.js";
 import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
@@ -35,7 +35,9 @@ let NativeAccessibilityService = class extends AccessibilityService {
     super(contextKeyService, _layoutService, configurationService);
     this._telemetryService = _telemetryService;
     this.nativeHostService = nativeHostService;
-    this.setAccessibilitySupport(environmentService.window.accessibilitySupport ? AccessibilitySupport.Enabled : AccessibilitySupport.Disabled);
+    this.setAccessibilitySupport(
+      environmentService.window.accessibilitySupport ? AccessibilitySupport.Enabled : AccessibilitySupport.Disabled
+    );
   }
   didSendTelemetry = false;
   shouldAlwaysUnderlineAccessKeys = void 0;

@@ -38,9 +38,9 @@ import {
 import { CellEditState } from "../../notebookBrowser.js";
 import {
   CELL_TITLE_CELL_GROUP_ID,
+  getEditorFromArgsOrActivePane,
   NotebookAction,
-  NotebookCellAction,
-  getEditorFromArgsOrActivePane
+  NotebookCellAction
 } from "../coreActions.js";
 import { insertNewCell } from "../insertCellActions.js";
 import {

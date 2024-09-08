@@ -29,8 +29,8 @@ import {
 } from "../../../../editor/common/languages.js";
 import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
 import {
-  ApplyCodeActionReason,
   applyCodeAction,
+  ApplyCodeActionReason,
   getCodeActions
 } from "../../../../editor/contrib/codeAction/browser/codeAction.js";
 import {
@@ -38,9 +38,9 @@ import {
   CodeActionTriggerSource
 } from "../../../../editor/contrib/codeAction/common/types.js";
 import {
-  FormattingMode,
   formatDocumentRangesWithSelectedProvider,
-  formatDocumentWithSelectedProvider
+  formatDocumentWithSelectedProvider,
+  FormattingMode
 } from "../../../../editor/contrib/format/browser/format.js";
 import { SnippetController2 } from "../../../../editor/contrib/snippet/browser/snippetController2.js";
 import { localize } from "../../../../nls.js";
@@ -358,12 +358,16 @@ let CodeActionOnSaveParticipant = class extends Disposable {
     this.editorService = editorService;
     this.codeEditorService = codeEditorService;
     this.telemetryService = telemetryService;
-    this._register(this.hostService.onDidChangeFocus(() => {
-      this.triggerCodeActionsCommand();
-    }));
-    this._register(this.editorService.onDidActiveEditorChange(() => {
-      this.triggerCodeActionsCommand();
-    }));
+    this._register(
+      this.hostService.onDidChangeFocus(() => {
+        this.triggerCodeActionsCommand();
+      })
+    );
+    this._register(
+      this.editorService.onDidActiveEditorChange(() => {
+        this.triggerCodeActionsCommand();
+      })
+    );
   }
   async triggerCodeActionsCommand() {
     if (this.configurationService.getValue(

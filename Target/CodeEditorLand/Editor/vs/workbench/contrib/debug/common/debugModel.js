@@ -16,9 +16,9 @@ import {
   RunOnceScheduler
 } from "../../../../base/common/async.js";
 import {
-  VSBuffer,
   decodeBase64,
-  encodeBase64
+  encodeBase64,
+  VSBuffer
 } from "../../../../base/common/buffer.js";
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { Emitter } from "../../../../base/common/event.js";
@@ -39,16 +39,16 @@ import { ILogService } from "../../../../platform/log/common/log.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
 import {
-  DEBUG_MEMORY_SCHEME,
   DataBreakpointSetType,
+  DEBUG_MEMORY_SCHEME,
   DebugTreeItemCollapsibleState,
+  isFrameDeemphasized,
   MemoryRangeType,
-  State,
-  isFrameDeemphasized
+  State
 } from "./debug.js";
 import {
-  UNKNOWN_SOURCE_LABEL,
-  getUriFromSource
+  getUriFromSource,
+  UNKNOWN_SOURCE_LABEL
 } from "./debugSource.js";
 import { DisassemblyViewInput } from "./disassemblyViewInput.js";
 class ExpressionContainer {
@@ -1361,21 +1361,30 @@ let DebugModel = class extends Disposable {
     this.textFileService = textFileService;
     this.uriIdentityService = uriIdentityService;
     this.logService = logService;
-    this._register(autorun((reader) => {
-      this.breakpoints = debugStorage.breakpoints.read(reader);
-      this.functionBreakpoints = debugStorage.functionBreakpoints.read(reader);
-      this.exceptionBreakpoints = debugStorage.exceptionBreakpoints.read(reader);
-      this.dataBreakpoints = debugStorage.dataBreakpoints.read(reader);
-      this._onDidChangeBreakpoints.fire(void 0);
-    }));
-    this._register(autorun((reader) => {
-      this.watchExpressions = debugStorage.watchExpressions.read(reader);
-      this._onDidChangeWatchExpressions.fire(void 0);
-    }));
+    this._register(
+      autorun((reader) => {
+        this.breakpoints = debugStorage.breakpoints.read(reader);
+        this.functionBreakpoints = debugStorage.functionBreakpoints.read(reader);
+        this.exceptionBreakpoints = debugStorage.exceptionBreakpoints.read(reader);
+        this.dataBreakpoints = debugStorage.dataBreakpoints.read(reader);
+        this._onDidChangeBreakpoints.fire(void 0);
+      })
+    );
+    this._register(
+      autorun((reader) => {
+        this.watchExpressions = debugStorage.watchExpressions.read(reader);
+        this._onDidChangeWatchExpressions.fire(void 0);
+      })
+    );
     this.instructionBreakpoints = [];
     this.sessions = [];
     for (const we of this.watchExpressions) {
-      this.watchExpressionChangeListeners.set(we.getId(), we.onDidChangeValue((e) => this._onDidChangeWatchExpressionValue.fire(e)));
+      this.watchExpressionChangeListeners.set(
+        we.getId(),
+        we.onDidChangeValue(
+          (e) => this._onDidChangeWatchExpressionValue.fire(e)
+        )
+      );
     }
   }
   sessions;

@@ -28,8 +28,8 @@ import {
   editorWarningForeground
 } from "../../../../../../platform/theme/common/colorRegistry.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../../../common/contributions.js";
 import { CellUri } from "../../../common/notebookCommon.js";
 import {
@@ -76,12 +76,18 @@ let NotebookMarkerDecorationContribution = class extends Disposable {
     this._notebookEditor = _notebookEditor;
     this._markerService = _markerService;
     this._update();
-    this._register(this._notebookEditor.onDidChangeModel(() => this._update()));
-    this._register(this._markerService.onMarkerChanged((e) => {
-      if (e.some((uri) => this._notebookEditor.getCellsInRange().some((cell) => isEqual(cell.uri, uri)))) {
-        this._update();
-      }
-    }));
+    this._register(
+      this._notebookEditor.onDidChangeModel(() => this._update())
+    );
+    this._register(
+      this._markerService.onMarkerChanged((e) => {
+        if (e.some(
+          (uri) => this._notebookEditor.getCellsInRange().some((cell) => isEqual(cell.uri, uri))
+        )) {
+          this._update();
+        }
+      })
+    );
   }
   static id = "workbench.notebook.markerDecoration";
   _markersOverviewRulerDecorations = [];

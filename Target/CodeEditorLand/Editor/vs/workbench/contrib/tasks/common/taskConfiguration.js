@@ -1,21 +1,21 @@
-import * as nls from "../../../../nls.js";
 import * as Objects from "../../../../base/common/objects.js";
 import { Platform } from "../../../../base/common/platform.js";
 import * as Types from "../../../../base/common/types.js";
 import * as UUID from "../../../../base/common/uuid.js";
+import * as nls from "../../../../nls.js";
 import {
+  isNamedProblemMatcher,
   ProblemMatcherParser,
-  ProblemMatcherRegistry,
-  isNamedProblemMatcher
+  ProblemMatcherRegistry
 } from "./problemMatcher.js";
 import {
   TaskDefinitionRegistry
 } from "./taskDefinitionRegistry.js";
+import * as Tasks from "./tasks.js";
 import {
   ProcessExecutionSupportedContext,
   ShellExecutionSupportedContext
 } from "./taskService.js";
-import * as Tasks from "./tasks.js";
 var ShellQuoting = /* @__PURE__ */ ((ShellQuoting2) => {
   ShellQuoting2[ShellQuoting2["escape"] = 1] = "escape";
   ShellQuoting2[ShellQuoting2["strong"] = 2] = "strong";

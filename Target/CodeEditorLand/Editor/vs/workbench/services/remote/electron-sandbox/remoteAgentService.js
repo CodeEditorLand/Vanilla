@@ -28,8 +28,8 @@ import { IRemoteSocketFactoryService } from "../../../../platform/remote/common/
 import { ISignService } from "../../../../platform/sign/common/sign.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
@@ -73,12 +73,18 @@ let RemoteConnectionFailureNotificationContribution = class {
         if (troubleshootingURL) {
           choices.push({
             label: nls.localize("directUrl", "Open in browser"),
-            run: () => openerService.open(troubleshootingURL, { openExternal: true })
+            run: () => openerService.open(troubleshootingURL, {
+              openExternal: true
+            })
           });
         }
         notificationService.prompt(
           Severity.Error,
-          nls.localize("connectionError", "Failed to connect to the remote extension host server (Error: {0})", err ? err.message : ""),
+          nls.localize(
+            "connectionError",
+            "Failed to connect to the remote extension host server (Error: {0})",
+            err ? err.message : ""
+          ),
           choices
         );
       }

@@ -21,11 +21,13 @@ let WebviewIconManager = class extends Disposable {
     super();
     this._lifecycleService = _lifecycleService;
     this._configService = _configService;
-    this._register(this._configService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("workbench.iconTheme")) {
-        this.updateStyleSheet();
-      }
-    }));
+    this._register(
+      this._configService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("workbench.iconTheme")) {
+          this.updateStyleSheet();
+        }
+      })
+    );
   }
   _icons = /* @__PURE__ */ new Map();
   _styleElement;

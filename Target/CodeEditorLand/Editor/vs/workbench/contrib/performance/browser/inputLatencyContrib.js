@@ -23,10 +23,12 @@ let InputLatencyContrib = class extends Disposable {
     super();
     this._editorService = _editorService;
     this._telemetryService = _telemetryService;
-    this._scheduler = this._register(new RunOnceScheduler(() => {
-      this._logSamples();
-      this._setupListener();
-    }, 6e4));
+    this._scheduler = this._register(
+      new RunOnceScheduler(() => {
+        this._logSamples();
+        this._setupListener();
+      }, 6e4)
+    );
     if (Math.random() <= 0.01) {
       this._setupListener();
     }

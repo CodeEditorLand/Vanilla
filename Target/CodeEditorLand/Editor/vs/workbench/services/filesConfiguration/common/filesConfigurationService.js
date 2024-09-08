@@ -30,9 +30,9 @@ import {
   AutoSaveConfiguration,
   FILES_READONLY_EXCLUDE_CONFIG,
   FILES_READONLY_INCLUDE_CONFIG,
+  hasReadonlyCapability,
   HotExitConfiguration,
-  IFileService,
-  hasReadonlyCapability
+  IFileService
 } from "../../../../platform/files/common/files.js";
 import {
   InstantiationType,

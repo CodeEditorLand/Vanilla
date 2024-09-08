@@ -36,50 +36,72 @@ let NotebookBreakpoints = class extends Disposable {
     this._debugService = _debugService;
     this._editorService = _editorService;
     const listeners = new ResourceMap();
-    this._register(_notebookService.onWillAddNotebookDocument((model) => {
-      listeners.set(model.uri, model.onWillAddRemoveCells((e) => {
-        const debugModel = this._debugService.getModel();
-        if (!debugModel.getBreakpoints().length) {
-          return;
-        }
-        if (e.rawEvent.kind !== NotebookCellsChangeType.ModelChange) {
-          return;
-        }
-        for (const change of e.rawEvent.changes) {
-          const [start, deleteCount] = change;
-          if (deleteCount > 0) {
-            const deleted = model.cells.slice(start, start + deleteCount);
-            for (const deletedCell of deleted) {
-              const cellBps = debugModel.getBreakpoints({ uri: deletedCell.uri });
-              cellBps.forEach((cellBp) => this._debugService.removeBreakpoints(cellBp.getId()));
+    this._register(
+      _notebookService.onWillAddNotebookDocument((model) => {
+        listeners.set(
+          model.uri,
+          model.onWillAddRemoveCells((e) => {
+            const debugModel = this._debugService.getModel();
+            if (!debugModel.getBreakpoints().length) {
+              return;
             }
+            if (e.rawEvent.kind !== NotebookCellsChangeType.ModelChange) {
+              return;
+            }
+            for (const change of e.rawEvent.changes) {
+              const [start, deleteCount] = change;
+              if (deleteCount > 0) {
+                const deleted = model.cells.slice(
+                  start,
+                  start + deleteCount
+                );
+                for (const deletedCell of deleted) {
+                  const cellBps = debugModel.getBreakpoints({
+                    uri: deletedCell.uri
+                  });
+                  cellBps.forEach(
+                    (cellBp) => this._debugService.removeBreakpoints(
+                      cellBp.getId()
+                    )
+                  );
+                }
+              }
+            }
+          })
+        );
+      })
+    );
+    this._register(
+      _notebookService.onWillRemoveNotebookDocument((model) => {
+        this.updateBreakpoints(model);
+        listeners.get(model.uri)?.dispose();
+        listeners.delete(model.uri);
+      })
+    );
+    this._register(
+      this._debugService.getModel().onDidChangeBreakpoints((e) => {
+        const newCellBp = e?.added?.find(
+          (bp) => "uri" in bp && bp.uri.scheme === Schemas.vscodeNotebookCell
+        );
+        if (newCellBp) {
+          const parsed = CellUri.parse(newCellBp.uri);
+          if (!parsed) {
+            return;
           }
+          const editor = getNotebookEditorFromEditorPane(
+            this._editorService.activeEditorPane
+          );
+          if (!editor || !editor.hasModel() || editor.textModel.uri.toString() !== parsed.notebook.toString()) {
+            return;
+          }
+          const cell = editor.getCellByHandle(parsed.handle);
+          if (!cell) {
+            return;
+          }
+          editor.focusElement(cell);
         }
-      }));
-    }));
-    this._register(_notebookService.onWillRemoveNotebookDocument((model) => {
-      this.updateBreakpoints(model);
-      listeners.get(model.uri)?.dispose();
-      listeners.delete(model.uri);
-    }));
-    this._register(this._debugService.getModel().onDidChangeBreakpoints((e) => {
-      const newCellBp = e?.added?.find((bp) => "uri" in bp && bp.uri.scheme === Schemas.vscodeNotebookCell);
-      if (newCellBp) {
-        const parsed = CellUri.parse(newCellBp.uri);
-        if (!parsed) {
-          return;
-        }
-        const editor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
-        if (!editor || !editor.hasModel() || editor.textModel.uri.toString() !== parsed.notebook.toString()) {
-          return;
-        }
-        const cell = editor.getCellByHandle(parsed.handle);
-        if (!cell) {
-          return;
-        }
-        editor.focusElement(cell);
-      }
-    }));
+      })
+    );
   }
   updateBreakpoints(model) {
     const bps = this._debugService.getModel().getBreakpoints();

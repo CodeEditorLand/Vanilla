@@ -26,7 +26,9 @@ import {
 } from "./debugCommands.js";
 let DebugConsoleQuickAccess = class extends PickerQuickAccessProvider {
   constructor(_debugService, _viewsService, _commandService) {
-    super(DEBUG_CONSOLE_QUICK_ACCESS_PREFIX, { canAcceptInBackground: true });
+    super(DEBUG_CONSOLE_QUICK_ACCESS_PREFIX, {
+      canAcceptInBackground: true
+    });
     this._debugService = _debugService;
     this._viewsService = _viewsService;
     this._commandService = _commandService;

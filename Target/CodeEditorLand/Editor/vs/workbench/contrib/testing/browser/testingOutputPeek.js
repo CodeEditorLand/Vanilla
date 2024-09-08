@@ -40,9 +40,9 @@ import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.j
 import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
 import {
   IPeekViewService,
-  PeekViewWidget,
   peekViewTitleForeground,
-  peekViewTitleInfoForeground
+  peekViewTitleInfoForeground,
+  PeekViewWidget
 } from "../../../../editor/contrib/peekView/browser/peekView.js";
 import { localize, localize2 } from "../../../../nls.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
@@ -89,8 +89,8 @@ import { IEditorService } from "../../../services/editor/common/editorService.js
 import { IViewsService } from "../../../services/views/common/viewsService.js";
 import {
   AutoOpenPeekViewWhen,
-  TestingConfigKeys,
-  getTestingConfiguration
+  getTestingConfiguration,
+  TestingConfigKeys
 } from "../common/configuration.js";
 import { Testing } from "../common/constants.js";
 import {
@@ -98,9 +98,19 @@ import {
   staticObservableValue
 } from "../common/observableValue.js";
 import { StoredValue } from "../common/storedValue.js";
+import { TestingContextKeys } from "../common/testingContextKeys.js";
 import {
-  TestResultItemChangeReason,
-  resultItemParents
+  ITestingPeekOpener
+} from "../common/testingPeekOpener.js";
+import { isFailedState } from "../common/testingStates.js";
+import {
+  buildTestUri,
+  parseTestUri,
+  TestUriType
+} from "../common/testingUri.js";
+import {
+  resultItemParents,
+  TestResultItemChangeReason
 } from "../common/testResult.js";
 import {
   ITestResultService
@@ -110,23 +120,13 @@ import {
   ITestMessage,
   TestMessageType
 } from "../common/testTypes.js";
-import { TestingContextKeys } from "../common/testingContextKeys.js";
-import {
-  ITestingPeekOpener
-} from "../common/testingPeekOpener.js";
-import { isFailedState } from "../common/testingStates.js";
-import {
-  TestUriType,
-  buildTestUri,
-  parseTestUri
-} from "../common/testingUri.js";
 import { renderTestMessageAsText } from "./testMessageColorizer.js";
 import {
+  inspectSubjectHasStack,
+  mapFindTestMessage,
   MessageSubject,
   TaskSubject,
-  TestOutputSubject,
-  inspectSubjectHasStack,
-  mapFindTestMessage
+  TestOutputSubject
 } from "./testResultsView/testResultsSubject.js";
 import { TestResultsViewContent } from "./testResultsView/testResultsViewContent.js";
 import {
@@ -483,8 +483,15 @@ let TestingOutputPeekController = class extends Disposable {
     this.testResults = testResults;
     this.visible = TestingContextKeys.isPeekVisible.bindTo(contextKeyService);
     this._register(editor.onDidChangeModel(() => this.peek.clear()));
-    this._register(testResults.onResultsChanged(this.closePeekOnCertainResultEvents, this));
-    this._register(testResults.onTestChanged(this.closePeekOnTestChange, this));
+    this._register(
+      testResults.onResultsChanged(
+        this.closePeekOnCertainResultEvents,
+        this
+      )
+    );
+    this._register(
+      testResults.onTestChanged(this.closePeekOnTestChange, this)
+    );
   }
   /**
    * Gets the controller associated with the given code editor.
@@ -710,7 +717,18 @@ TestingOutputPeekController = __decorateClass([
 ], TestingOutputPeekController);
 let TestResultsPeek = class extends PeekViewWidget {
   constructor(editor, themeService, peekViewService, testingPeek, contextKeyService, menuService, instantiationService, modelService, codeEditorService, uriIdentityService) {
-    super(editor, { showFrame: true, frameWidth: 1, showArrow: true, isResizeable: true, isAccessible: true, className: "test-output-peek" }, instantiationService);
+    super(
+      editor,
+      {
+        showFrame: true,
+        frameWidth: 1,
+        showArrow: true,
+        isResizeable: true,
+        isAccessible: true,
+        className: "test-output-peek"
+      },
+      instantiationService
+    );
     this.themeService = themeService;
     this.testingPeek = testingPeek;
     this.contextKeyService = contextKeyService;
@@ -718,8 +736,12 @@ let TestResultsPeek = class extends PeekViewWidget {
     this.modelService = modelService;
     this.codeEditorService = codeEditorService;
     this.uriIdentityService = uriIdentityService;
-    this._disposables.add(themeService.onDidColorThemeChange(this.applyTheme, this));
-    this._disposables.add(this.onDidClose(() => this.visibilityChange.fire(false)));
+    this._disposables.add(
+      themeService.onDidColorThemeChange(this.applyTheme, this)
+    );
+    this._disposables.add(
+      this.onDidClose(() => this.visibilityChange.fire(false))
+    );
     peekViewService.addExclusiveWidget(editor, this);
   }
   static lastHeightInLines;
@@ -912,7 +934,19 @@ TestResultsPeek = __decorateClass([
 ], TestResultsPeek);
 let TestResultsView = class extends ViewPane {
   constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService, resultService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.resultService = resultService;
   }
   content = new Lazy(

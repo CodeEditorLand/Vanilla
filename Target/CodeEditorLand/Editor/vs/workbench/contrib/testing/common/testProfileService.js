@@ -24,11 +24,11 @@ import {
 } from "../../../../platform/storage/common/storage.js";
 import { StoredValue } from "./storedValue.js";
 import { TestId } from "./testId.js";
+import { TestingContextKeys } from "./testingContextKeys.js";
 import {
   TestRunProfileBitset,
   testRunProfileBitsetList
 } from "./testTypes.js";
-import { TestingContextKeys } from "./testingContextKeys.js";
 const ITestProfileService = createDecorator("testProfileService");
 const canUseProfileWithTest = (profile, test) => profile.controllerId === test.controllerId && (TestId.isRoot(test.item.extId) || !profile.tag || test.item.tags.includes(profile.tag));
 const sorter = (a, b) => {

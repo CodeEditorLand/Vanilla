@@ -25,9 +25,9 @@ import {
   StorageTarget
 } from "../../../../platform/storage/common/storage.js";
 import {
+  readTrustedDomains,
   TRUSTED_DOMAINS_CONTENT_STORAGE_KEY,
-  TRUSTED_DOMAINS_STORAGE_KEY,
-  readTrustedDomains
+  TRUSTED_DOMAINS_STORAGE_KEY
 } from "./trustedDomains.js";
 const TRUSTED_DOMAINS_SCHEMA = "trustedDomains";
 const TRUSTED_DOMAINS_STAT = {

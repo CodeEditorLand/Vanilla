@@ -66,7 +66,11 @@ let EditorLineNumberContextMenu = class extends Disposable {
     this.menuService = menuService;
     this.contextKeyService = contextKeyService;
     this.instantiationService = instantiationService;
-    this._register(this.editor.onMouseDown((e) => this.doShow(e, false)));
+    this._register(
+      this.editor.onMouseDown(
+        (e) => this.doShow(e, false)
+      )
+    );
   }
   static ID = "workbench.contrib.editorLineNumberContextMenu";
   show(e) {

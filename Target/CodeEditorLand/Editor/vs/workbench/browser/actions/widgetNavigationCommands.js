@@ -11,8 +11,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { KeyCode, KeyMod } from "../../../base/common/keyCodes.js";
 import {
-  Disposable,
   combinedDisposable,
+  Disposable,
   toDisposable
 } from "../../../base/common/lifecycle.js";
 import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
@@ -22,8 +22,8 @@ import {
   RawContextKey
 } from "../../../platform/contextkey/common/contextkey.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../platform/keybinding/common/keybindingsRegistry.js";
 import {
   WorkbenchListFocusContextKey,
@@ -32,8 +32,8 @@ import {
 } from "../../../platform/list/browser/listService.js";
 import { ILogService } from "../../../platform/log/common/log.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../common/contributions.js";
 function handleFocusEventsGroup(group, handler, onPartFocusChange) {
   const focusedIndices = /* @__PURE__ */ new Set();

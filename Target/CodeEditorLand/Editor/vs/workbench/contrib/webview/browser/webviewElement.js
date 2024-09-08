@@ -11,14 +11,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { isFirefox } from "../../../../base/browser/browser.js";
 import {
-  EventType,
   addDisposableListener,
+  EventType,
   getWindowById
 } from "../../../../base/browser/dom.js";
 import { parentOriginHash } from "../../../../base/browser/iframe.js";
 import {
-  ThrottledDelayer,
-  promiseWithResolvers
+  promiseWithResolvers,
+  ThrottledDelayer
 } from "../../../../base/common/async.js";
 import {
   streamToBuffer
@@ -52,8 +52,8 @@ import {
   webviewRootResourceAuthority
 } from "../common/webview.js";
 import {
-  WebviewResourceResponse,
-  loadLocalResource
+  loadLocalResource,
+  WebviewResourceResponse
 } from "./resourceLoading.js";
 import {
   areWebviewContentOptionsEqual
@@ -99,118 +99,196 @@ let WebviewElement = class extends Disposable {
       options: initInfo.contentOptions,
       state: void 0
     };
-    this._portMappingManager = this._register(new WebviewPortMappingManager(
-      () => this.extension?.location,
-      () => this._content.options.portMapping || [],
-      this._tunnelService
-    ));
-    this._element = this._createElement(initInfo.options, initInfo.contentOptions);
-    this._register(this.on("no-csp-found", () => {
-      this.handleNoCspFound();
-    }));
-    this._register(this.on("did-click-link", ({ uri }) => {
-      this._onDidClickLink.fire(uri);
-    }));
-    this._register(this.on("onmessage", ({ message, transfer }) => {
-      this._onMessage.fire({ message, transfer });
-    }));
-    this._register(this.on("did-scroll", ({ scrollYPercentage }) => {
-      this._onDidScroll.fire({ scrollYPercentage });
-    }));
-    this._register(this.on("do-reload", () => {
-      this.reload();
-    }));
-    this._register(this.on("do-update-state", (state) => {
-      this.state = state;
-      this._onDidUpdateState.fire(state);
-    }));
-    this._register(this.on("did-focus", () => {
-      this.handleFocusChange(true);
-    }));
-    this._register(this.on("did-blur", () => {
-      this.handleFocusChange(false);
-    }));
-    this._register(this.on("did-scroll-wheel", (event) => {
-      this._onDidWheel.fire(event);
-    }));
-    this._register(this.on("did-find", ({ didFind }) => {
-      this._hasFindResult.fire(didFind);
-    }));
-    this._register(this.on("fatal-error", (e) => {
-      notificationService.error(localize("fatalErrorMessage", "Error loading webview: {0}", e.message));
-      this._onFatalError.fire({ message: e.message });
-    }));
-    this._register(this.on("did-keydown", (data) => {
-      this.handleKeyEvent("keydown", data);
-    }));
-    this._register(this.on("did-keyup", (data) => {
-      this.handleKeyEvent("keyup", data);
-    }));
-    this._register(this.on("did-context-menu", (data) => {
-      if (!this.element) {
-        return;
-      }
-      if (!this._contextKeyService) {
-        return;
-      }
-      const elementBox = this.element.getBoundingClientRect();
-      const contextKeyService = this._contextKeyService.createOverlay([
-        ...Object.entries(data.context),
-        [webviewIdContext, this.providedViewType]
-      ]);
-      contextMenuService.showContextMenu({
-        menuId: MenuId.WebviewContext,
-        menuActionOptions: { shouldForwardArgs: true },
-        contextKeyService,
-        getActionsContext: () => ({ ...data.context, webview: this.providedViewType }),
-        getAnchor: () => ({
-          x: elementBox.x + data.clientX,
-          y: elementBox.y + data.clientY
-        })
-      });
-      this._send("set-context-menu-visible", { visible: true });
-    }));
-    this._register(this.on("load-resource", async (entry) => {
-      try {
-        const authority = decodeAuthority(entry.authority);
-        const uri = URI.from({
-          scheme: entry.scheme,
-          authority,
-          path: decodeURIComponent(entry.path),
-          // This gets re-encoded
-          query: entry.query ? decodeURIComponent(entry.query) : entry.query
+    this._portMappingManager = this._register(
+      new WebviewPortMappingManager(
+        () => this.extension?.location,
+        () => this._content.options.portMapping || [],
+        this._tunnelService
+      )
+    );
+    this._element = this._createElement(
+      initInfo.options,
+      initInfo.contentOptions
+    );
+    this._register(
+      this.on("no-csp-found", () => {
+        this.handleNoCspFound();
+      })
+    );
+    this._register(
+      this.on("did-click-link", ({ uri }) => {
+        this._onDidClickLink.fire(uri);
+      })
+    );
+    this._register(
+      this.on("onmessage", ({ message, transfer }) => {
+        this._onMessage.fire({ message, transfer });
+      })
+    );
+    this._register(
+      this.on("did-scroll", ({ scrollYPercentage }) => {
+        this._onDidScroll.fire({ scrollYPercentage });
+      })
+    );
+    this._register(
+      this.on("do-reload", () => {
+        this.reload();
+      })
+    );
+    this._register(
+      this.on("do-update-state", (state) => {
+        this.state = state;
+        this._onDidUpdateState.fire(state);
+      })
+    );
+    this._register(
+      this.on("did-focus", () => {
+        this.handleFocusChange(true);
+      })
+    );
+    this._register(
+      this.on("did-blur", () => {
+        this.handleFocusChange(false);
+      })
+    );
+    this._register(
+      this.on("did-scroll-wheel", (event) => {
+        this._onDidWheel.fire(event);
+      })
+    );
+    this._register(
+      this.on("did-find", ({ didFind }) => {
+        this._hasFindResult.fire(didFind);
+      })
+    );
+    this._register(
+      this.on("fatal-error", (e) => {
+        notificationService.error(
+          localize(
+            "fatalErrorMessage",
+            "Error loading webview: {0}",
+            e.message
+          )
+        );
+        this._onFatalError.fire({ message: e.message });
+      })
+    );
+    this._register(
+      this.on("did-keydown", (data) => {
+        this.handleKeyEvent("keydown", data);
+      })
+    );
+    this._register(
+      this.on("did-keyup", (data) => {
+        this.handleKeyEvent("keyup", data);
+      })
+    );
+    this._register(
+      this.on("did-context-menu", (data) => {
+        if (!this.element) {
+          return;
+        }
+        if (!this._contextKeyService) {
+          return;
+        }
+        const elementBox = this.element.getBoundingClientRect();
+        const contextKeyService = this._contextKeyService.createOverlay(
+          [
+            ...Object.entries(data.context),
+            [webviewIdContext, this.providedViewType]
+          ]
+        );
+        contextMenuService.showContextMenu({
+          menuId: MenuId.WebviewContext,
+          menuActionOptions: { shouldForwardArgs: true },
+          contextKeyService,
+          getActionsContext: () => ({
+            ...data.context,
+            webview: this.providedViewType
+          }),
+          getAnchor: () => ({
+            x: elementBox.x + data.clientX,
+            y: elementBox.y + data.clientY
+          })
         });
-        this.loadResource(entry.id, uri, entry.ifNoneMatch);
-      } catch (e) {
-        this._send("did-load-resource", {
-          id: entry.id,
-          status: 404,
-          path: entry.path
-        });
-      }
-    }));
-    this._register(this.on("load-localhost", (entry) => {
-      this.localLocalhost(entry.id, entry.origin);
-    }));
-    this._register(Event.runAndSubscribe(webviewThemeDataProvider.onThemeDataChanged, () => this.style()));
-    this._register(_accessibilityService.onDidChangeReducedMotion(() => this.style()));
-    this._register(_accessibilityService.onDidChangeScreenReaderOptimized(() => this.style()));
-    this._register(contextMenuService.onDidHideContextMenu(() => this._send("set-context-menu-visible", { visible: false })));
-    this._confirmBeforeClose = configurationService.getValue("window.confirmBeforeClose");
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("window.confirmBeforeClose")) {
-        this._confirmBeforeClose = configurationService.getValue("window.confirmBeforeClose");
-        this._send("set-confirm-before-close", this._confirmBeforeClose);
-      }
-    }));
-    this._register(this.on("drag-start", () => {
-      this._startBlockingIframeDragEvents();
-    }));
-    this._register(this.on("drag", (event) => {
-      this.handleDragEvent("drag", event);
-    }));
+        this._send("set-context-menu-visible", { visible: true });
+      })
+    );
+    this._register(
+      this.on("load-resource", async (entry) => {
+        try {
+          const authority = decodeAuthority(entry.authority);
+          const uri = URI.from({
+            scheme: entry.scheme,
+            authority,
+            path: decodeURIComponent(entry.path),
+            // This gets re-encoded
+            query: entry.query ? decodeURIComponent(entry.query) : entry.query
+          });
+          this.loadResource(entry.id, uri, entry.ifNoneMatch);
+        } catch (e) {
+          this._send("did-load-resource", {
+            id: entry.id,
+            status: 404,
+            path: entry.path
+          });
+        }
+      })
+    );
+    this._register(
+      this.on("load-localhost", (entry) => {
+        this.localLocalhost(entry.id, entry.origin);
+      })
+    );
+    this._register(
+      Event.runAndSubscribe(
+        webviewThemeDataProvider.onThemeDataChanged,
+        () => this.style()
+      )
+    );
+    this._register(
+      _accessibilityService.onDidChangeReducedMotion(() => this.style())
+    );
+    this._register(
+      _accessibilityService.onDidChangeScreenReaderOptimized(
+        () => this.style()
+      )
+    );
+    this._register(
+      contextMenuService.onDidHideContextMenu(
+        () => this._send("set-context-menu-visible", { visible: false })
+      )
+    );
+    this._confirmBeforeClose = configurationService.getValue(
+      "window.confirmBeforeClose"
+    );
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("window.confirmBeforeClose")) {
+          this._confirmBeforeClose = configurationService.getValue(
+            "window.confirmBeforeClose"
+          );
+          this._send(
+            "set-confirm-before-close",
+            this._confirmBeforeClose
+          );
+        }
+      })
+    );
+    this._register(
+      this.on("drag-start", () => {
+        this._startBlockingIframeDragEvents();
+      })
+    );
+    this._register(
+      this.on("drag", (event) => {
+        this.handleDragEvent("drag", event);
+      })
+    );
     if (initInfo.options.enableFindWidget) {
-      this._webviewFindWidget = this._register(instantiationService.createInstance(WebviewFindWidget, this));
+      this._webviewFindWidget = this._register(
+        instantiationService.createInstance(WebviewFindWidget, this)
+      );
     }
   }
   id = generateUuid();

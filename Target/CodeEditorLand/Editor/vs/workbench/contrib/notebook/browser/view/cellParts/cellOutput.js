@@ -42,9 +42,9 @@ import {
 } from "../../../../extensions/common/extensions.js";
 import {
   CellUri,
+  isTextStreamMime,
   NotebookCellExecutionState,
-  RENDERER_NOT_AVAILABLE,
-  isTextStreamMime
+  RENDERER_NOT_AVAILABLE
 } from "../../../common/notebookCommon.js";
 import {
   NOTEBOOK_CELL_HAS_HIDDEN_OUTPUTS,
@@ -74,12 +74,16 @@ let CellOutputElement = class extends Disposable {
     this.paneCompositeService = paneCompositeService;
     this.instantiationService = instantiationService;
     this.contextKeyService = parentContextKeyService;
-    this._register(this.output.model.onDidChangeData(() => {
-      this.rerender();
-    }));
-    this._register(this.output.onDidResetRenderer(() => {
-      this.rerender();
-    }));
+    this._register(
+      this.output.model.onDidChangeData(() => {
+        this.rerender();
+      })
+    );
+    this._register(
+      this.output.onDidResetRenderer(() => {
+        this.rerender();
+      })
+    );
   }
   toolbarDisposables = this._register(new DisposableStore());
   innerContainer;
@@ -581,20 +585,32 @@ let CellOutputContainer = class extends CellContentPart {
     this.openerService = openerService;
     this._notebookExecutionStateService = _notebookExecutionStateService;
     this.instantiationService = instantiationService;
-    this._register(viewCell.onDidStartExecution(() => {
-      viewCell.updateOutputMinHeight(viewCell.layoutInfo.outputTotalHeight);
-    }));
-    this._register(viewCell.onDidStopExecution(() => {
-      this._validateFinalOutputHeight(false);
-    }));
-    this._register(viewCell.onDidChangeOutputs((splice) => {
-      const executionState = this._notebookExecutionStateService.getCellExecution(viewCell.uri);
-      const context = executionState ? 1 /* Execution */ : 2 /* Other */;
-      this._updateOutputs(splice, context);
-    }));
-    this._register(viewCell.onDidChangeLayout(() => {
-      this.updateInternalLayoutNow(viewCell);
-    }));
+    this._register(
+      viewCell.onDidStartExecution(() => {
+        viewCell.updateOutputMinHeight(
+          viewCell.layoutInfo.outputTotalHeight
+        );
+      })
+    );
+    this._register(
+      viewCell.onDidStopExecution(() => {
+        this._validateFinalOutputHeight(false);
+      })
+    );
+    this._register(
+      viewCell.onDidChangeOutputs((splice) => {
+        const executionState = this._notebookExecutionStateService.getCellExecution(
+          viewCell.uri
+        );
+        const context = executionState ? 1 /* Execution */ : 2 /* Other */;
+        this._updateOutputs(splice, context);
+      })
+    );
+    this._register(
+      viewCell.onDidChangeLayout(() => {
+        this.updateInternalLayoutNow(viewCell);
+      })
+    );
   }
   _outputEntries = [];
   _hasStaleOutputs = false;

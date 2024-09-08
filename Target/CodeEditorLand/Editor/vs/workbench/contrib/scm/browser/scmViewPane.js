@@ -12,10 +12,10 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import "./media/scm.css";
 import {
   $,
-  Dimension,
   append,
   asCSSUrl,
   clearNode,
+  Dimension,
   isActiveElement,
   isPointerEvent,
   trackFocus
@@ -36,10 +36,10 @@ import {
   Separator
 } from "../../../../base/common/actions.js";
 import {
+  disposableTimeout,
   Sequencer,
   ThrottledDelayer,
-  Throttler,
-  disposableTimeout
+  Throttler
 } from "../../../../base/common/async.js";
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { Codicon } from "../../../../base/common/codicons.js";
@@ -54,22 +54,22 @@ import {
 import { Iterable } from "../../../../base/common/iterator.js";
 import { KeyCode } from "../../../../base/common/keyCodes.js";
 import {
+  combinedDisposable,
   Disposable,
   DisposableMap,
   DisposableStore,
-  MutableDisposable,
-  combinedDisposable,
   dispose,
+  MutableDisposable,
   toDisposable
 } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { clamp, rot } from "../../../../base/common/numbers.js";
 import { autorun } from "../../../../base/common/observable.js";
 import * as platform from "../../../../base/common/platform.js";
+import { basename, dirname } from "../../../../base/common/resources.js";
 import {
   ResourceTree
 } from "../../../../base/common/resourceTree.js";
-import { basename, dirname } from "../../../../base/common/resources.js";
 import { compare, format } from "../../../../base/common/strings.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
 import { EditorExtensionsRegistry } from "../../../../editor/browser/editorExtensions.js";
@@ -190,10 +190,10 @@ import {
 } from "../../codeEditor/browser/simpleEditorOptions.js";
 import { OpenScmGroupAction } from "../../multiDiffEditor/browser/scmMultiDiffSourceResolver.js";
 import {
+  InputValidationType,
   ISCMRepositorySortKey,
   ISCMService,
   ISCMViewService,
-  InputValidationType,
   SCMInputChangeReason,
   VIEW_PANE_ID
 } from "../common/scm.js";
@@ -574,7 +574,11 @@ let ResourceRenderer = class {
     this.labelService = labelService;
     this.scmViewService = scmViewService;
     this.themeService = themeService;
-    themeService.onDidColorThemeChange(this.onDidColorThemeChange, this, this.disposables);
+    themeService.onDidColorThemeChange(
+      this.onDidColorThemeChange,
+      this,
+      this.disposables
+    );
   }
   static TEMPLATE_ID = "resource";
   get templateId() {
@@ -1078,9 +1082,21 @@ let RepositoryVisibilityActionController = class {
     this.scmViewService = scmViewService;
     this.repositoryCountContextKey = ContextKeys.RepositoryCount.bindTo(contextKeyService);
     this.repositoryVisibilityCountContextKey = ContextKeys.RepositoryVisibilityCount.bindTo(contextKeyService);
-    scmViewService.onDidChangeVisibleRepositories(this.onDidChangeVisibleRepositories, this, this.disposables);
-    scmService.onDidAddRepository(this.onDidAddRepository, this, this.disposables);
-    scmService.onDidRemoveRepository(this.onDidRemoveRepository, this, this.disposables);
+    scmViewService.onDidChangeVisibleRepositories(
+      this.onDidChangeVisibleRepositories,
+      this,
+      this.disposables
+    );
+    scmService.onDidAddRepository(
+      this.onDidAddRepository,
+      this,
+      this.disposables
+    );
+    scmService.onDidRemoveRepository(
+      this.onDidRemoveRepository,
+      this,
+      this.disposables
+    );
     for (const repository of scmService.repositories) {
       this.onDidAddRepository(repository);
     }
@@ -1425,7 +1441,16 @@ SCMInputWidgetActionRunner = __decorateClass([
 ], SCMInputWidgetActionRunner);
 let SCMInputWidgetToolbar = class extends WorkbenchToolBar {
   constructor(container, options, menuService, contextKeyService, contextMenuService, commandService, keybindingService, storageService, telemetryService) {
-    super(container, { resetMenu: MenuId.SCMInputBox, ...options }, menuService, contextKeyService, contextMenuService, keybindingService, commandService, telemetryService);
+    super(
+      container,
+      { resetMenu: MenuId.SCMInputBox, ...options },
+      menuService,
+      contextKeyService,
+      contextMenuService,
+      keybindingService,
+      commandService,
+      telemetryService
+    );
     this.menuService = menuService;
     this.contextKeyService = contextKeyService;
     this.storageService = storageService;
@@ -1434,11 +1459,19 @@ let SCMInputWidgetToolbar = class extends WorkbenchToolBar {
       localize("scmInputMoreActions", "More Actions..."),
       "codicon-chevron-down"
     );
-    this._cancelAction = new MenuItemAction({
-      id: "scm.input.cancelAction" /* CancelAction */,
-      title: localize("scmInputCancelAction", "Cancel"),
-      icon: Codicon.debugStop
-    }, void 0, void 0, void 0, void 0, contextKeyService, commandService);
+    this._cancelAction = new MenuItemAction(
+      {
+        id: "scm.input.cancelAction" /* CancelAction */,
+        title: localize("scmInputCancelAction", "Cancel"),
+        icon: Codicon.debugStop
+      },
+      void 0,
+      void 0,
+      void 0,
+      void 0,
+      contextKeyService,
+      commandService
+    );
   }
   _dropdownActions = [];
   get dropdownActions() {
@@ -1654,9 +1687,20 @@ let SCMInputWidget = class {
     this.editorContainer = append(this.element, $(".scm-editor-container"));
     this.toolbarContainer = append(this.element, $(".scm-editor-toolbar"));
     this.contextKeyService = contextKeyService.createScoped(this.element);
-    this.repositoryIdContextKey = this.contextKeyService.createKey("scmRepository", void 0);
-    this.inputEditorOptions = new SCMInputWidgetEditorOptions(overflowWidgetsDomNode, this.configurationService);
-    this.disposables.add(this.inputEditorOptions.onDidChange(this.onDidChangeEditorOptions, this));
+    this.repositoryIdContextKey = this.contextKeyService.createKey(
+      "scmRepository",
+      void 0
+    );
+    this.inputEditorOptions = new SCMInputWidgetEditorOptions(
+      overflowWidgetsDomNode,
+      this.configurationService
+    );
+    this.disposables.add(
+      this.inputEditorOptions.onDidChange(
+        this.onDidChangeEditorOptions,
+        this
+      )
+    );
     this.disposables.add(this.inputEditorOptions);
     const codeEditorWidgetOptions = {
       contributions: EditorExtensionsRegistry.getSomeEditorContributions([
@@ -1681,56 +1725,120 @@ let SCMInputWidget = class {
       ]),
       isSimpleWidget: true
     };
-    const services = new ServiceCollection([IContextKeyService, this.contextKeyService]);
-    const instantiationService2 = instantiationService.createChild(services, this.disposables);
+    const services = new ServiceCollection([
+      IContextKeyService,
+      this.contextKeyService
+    ]);
+    const instantiationService2 = instantiationService.createChild(
+      services,
+      this.disposables
+    );
     const editorConstructionOptions = this.inputEditorOptions.getEditorConstructionOptions();
-    this.inputEditor = instantiationService2.createInstance(CodeEditorWidget, this.editorContainer, editorConstructionOptions, codeEditorWidgetOptions);
+    this.inputEditor = instantiationService2.createInstance(
+      CodeEditorWidget,
+      this.editorContainer,
+      editorConstructionOptions,
+      codeEditorWidgetOptions
+    );
     this.disposables.add(this.inputEditor);
-    this.disposables.add(this.inputEditor.onDidFocusEditorText(() => {
-      if (this.input?.repository) {
-        this.scmViewService.focus(this.input.repository);
-      }
-      this.element.classList.add("synthetic-focus");
-      this.renderValidation();
-    }));
-    this.disposables.add(this.inputEditor.onDidBlurEditorText(() => {
-      this.element.classList.remove("synthetic-focus");
-      setTimeout(() => {
-        if (!this.validation || !this.validationHasFocus) {
-          this.clearValidation();
+    this.disposables.add(
+      this.inputEditor.onDidFocusEditorText(() => {
+        if (this.input?.repository) {
+          this.scmViewService.focus(this.input.repository);
         }
-      }, 0);
-    }));
-    this.disposables.add(this.inputEditor.onDidBlurEditorWidget(() => {
-      CopyPasteController.get(this.inputEditor)?.clearWidgets();
-      DropIntoEditorController.get(this.inputEditor)?.clearWidgets();
-    }));
-    const firstLineKey = this.contextKeyService.createKey("scmInputIsInFirstPosition", false);
-    const lastLineKey = this.contextKeyService.createKey("scmInputIsInLastPosition", false);
-    this.disposables.add(this.inputEditor.onDidChangeCursorPosition(({ position }) => {
-      const viewModel = this.inputEditor._getViewModel();
-      const lastLineNumber = viewModel.getLineCount();
-      const lastLineCol = viewModel.getLineLength(lastLineNumber) + 1;
-      const viewPosition = viewModel.coordinatesConverter.convertModelPositionToViewPosition(position);
-      firstLineKey.set(viewPosition.lineNumber === 1 && viewPosition.column === 1);
-      lastLineKey.set(viewPosition.lineNumber === lastLineNumber && viewPosition.column === lastLineCol);
-    }));
-    this.disposables.add(this.inputEditor.onDidScrollChange((e) => {
-      this.toolbarContainer.classList.toggle("scroll-decoration", e.scrollTop > 0);
-    }));
-    Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration("scm.showInputActionButton"))(() => this.layout(), this, this.disposables);
-    this.onDidChangeContentHeight = Event.signal(Event.filter(this.inputEditor.onDidContentSizeChange, (e) => e.contentHeightChanged, this.disposables));
-    this.toolbar = instantiationService2.createInstance(SCMInputWidgetToolbar, this.toolbarContainer, {
-      actionViewItemProvider: (action, options) => {
-        if (action instanceof MenuItemAction && this.toolbar.dropdownActions.length > 1) {
-          return instantiationService.createInstance(DropdownWithPrimaryActionViewItem, action, this.toolbar.dropdownAction, this.toolbar.dropdownActions, "", this.contextMenuService, { actionRunner: this.toolbar.actionRunner, hoverDelegate: options.hoverDelegate });
+        this.element.classList.add("synthetic-focus");
+        this.renderValidation();
+      })
+    );
+    this.disposables.add(
+      this.inputEditor.onDidBlurEditorText(() => {
+        this.element.classList.remove("synthetic-focus");
+        setTimeout(() => {
+          if (!this.validation || !this.validationHasFocus) {
+            this.clearValidation();
+          }
+        }, 0);
+      })
+    );
+    this.disposables.add(
+      this.inputEditor.onDidBlurEditorWidget(() => {
+        CopyPasteController.get(this.inputEditor)?.clearWidgets();
+        DropIntoEditorController.get(this.inputEditor)?.clearWidgets();
+      })
+    );
+    const firstLineKey = this.contextKeyService.createKey(
+      "scmInputIsInFirstPosition",
+      false
+    );
+    const lastLineKey = this.contextKeyService.createKey(
+      "scmInputIsInLastPosition",
+      false
+    );
+    this.disposables.add(
+      this.inputEditor.onDidChangeCursorPosition(({ position }) => {
+        const viewModel = this.inputEditor._getViewModel();
+        const lastLineNumber = viewModel.getLineCount();
+        const lastLineCol = viewModel.getLineLength(lastLineNumber) + 1;
+        const viewPosition = viewModel.coordinatesConverter.convertModelPositionToViewPosition(
+          position
+        );
+        firstLineKey.set(
+          viewPosition.lineNumber === 1 && viewPosition.column === 1
+        );
+        lastLineKey.set(
+          viewPosition.lineNumber === lastLineNumber && viewPosition.column === lastLineCol
+        );
+      })
+    );
+    this.disposables.add(
+      this.inputEditor.onDidScrollChange((e) => {
+        this.toolbarContainer.classList.toggle(
+          "scroll-decoration",
+          e.scrollTop > 0
+        );
+      })
+    );
+    Event.filter(
+      this.configurationService.onDidChangeConfiguration,
+      (e) => e.affectsConfiguration("scm.showInputActionButton")
+    )(() => this.layout(), this, this.disposables);
+    this.onDidChangeContentHeight = Event.signal(
+      Event.filter(
+        this.inputEditor.onDidContentSizeChange,
+        (e) => e.contentHeightChanged,
+        this.disposables
+      )
+    );
+    this.toolbar = instantiationService2.createInstance(
+      SCMInputWidgetToolbar,
+      this.toolbarContainer,
+      {
+        actionViewItemProvider: (action, options) => {
+          if (action instanceof MenuItemAction && this.toolbar.dropdownActions.length > 1) {
+            return instantiationService.createInstance(
+              DropdownWithPrimaryActionViewItem,
+              action,
+              this.toolbar.dropdownAction,
+              this.toolbar.dropdownActions,
+              "",
+              this.contextMenuService,
+              {
+                actionRunner: this.toolbar.actionRunner,
+                hoverDelegate: options.hoverDelegate
+              }
+            );
+          }
+          return createActionViewItem(
+            instantiationService,
+            action,
+            options
+          );
+        },
+        menuOptions: {
+          shouldForwardArgs: true
         }
-        return createActionViewItem(instantiationService, action, options);
-      },
-      menuOptions: {
-        shouldForwardArgs: true
       }
-    });
+    );
     this.disposables.add(this.toolbar.onDidChange(() => this.layout()));
     this.disposables.add(this.toolbar);
   }
@@ -2135,7 +2243,19 @@ SCMInputWidget = __decorateClass([
 ], SCMInputWidget);
 let SCMViewPane = class extends ViewPane {
   constructor(options, commandService, editorService, menuService, scmService, scmViewService, storageService, uriIdentityService, keybindingService, themeService, contextMenuService, instantiationService, viewDescriptorService, configurationService, contextKeyService, openerService, telemetryService, hoverService) {
-    super({ ...options, titleMenuId: MenuId.SCMTitle }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      { ...options, titleMenuId: MenuId.SCMTitle },
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.commandService = commandService;
     this.editorService = editorService;
     this.menuService = menuService;
@@ -2149,29 +2269,56 @@ let SCMViewPane = class extends ViewPane {
     this.viewModeContextKey.set(this._viewMode);
     this.viewSortKeyContextKey = ContextKeys.SCMViewSortKey.bindTo(contextKeyService);
     this.viewSortKeyContextKey.set(this.viewSortKey);
-    this.areAllRepositoriesCollapsedContextKey = ContextKeys.SCMViewAreAllRepositoriesCollapsed.bindTo(contextKeyService);
-    this.isAnyRepositoryCollapsibleContextKey = ContextKeys.SCMViewIsAnyRepositoryCollapsible.bindTo(contextKeyService);
+    this.areAllRepositoriesCollapsedContextKey = ContextKeys.SCMViewAreAllRepositoriesCollapsed.bindTo(
+      contextKeyService
+    );
+    this.isAnyRepositoryCollapsibleContextKey = ContextKeys.SCMViewIsAnyRepositoryCollapsible.bindTo(
+      contextKeyService
+    );
     this.scmProviderContextKey = ContextKeys.SCMProvider.bindTo(contextKeyService);
     this.scmProviderRootUriContextKey = ContextKeys.SCMProviderRootUri.bindTo(contextKeyService);
     this.scmProviderHasRootUriContextKey = ContextKeys.SCMProviderHasRootUri.bindTo(contextKeyService);
     this._onDidLayout = new Emitter();
-    this.layoutCache = { height: void 0, width: void 0, onDidChange: this._onDidLayout.event };
-    this.storageService.onDidChangeValue(StorageScope.WORKSPACE, void 0, this.disposables)((e) => {
-      switch (e.key) {
-        case "scm.viewMode":
-          this.viewMode = this.getViewMode();
-          break;
-        case "scm.viewSortKey":
-          this.viewSortKey = this.getViewSortKey();
-          break;
-      }
-    }, this, this.disposables);
-    this.storageService.onWillSaveState((e) => {
-      this.viewMode = this.getViewMode();
-      this.viewSortKey = this.getViewSortKey();
-      this.storeTreeViewState();
-    }, this, this.disposables);
-    Event.any(this.scmService.onDidAddRepository, this.scmService.onDidRemoveRepository)(() => this._onDidChangeViewWelcomeState.fire(), this, this.disposables);
+    this.layoutCache = {
+      height: void 0,
+      width: void 0,
+      onDidChange: this._onDidLayout.event
+    };
+    this.storageService.onDidChangeValue(
+      StorageScope.WORKSPACE,
+      void 0,
+      this.disposables
+    )(
+      (e) => {
+        switch (e.key) {
+          case "scm.viewMode":
+            this.viewMode = this.getViewMode();
+            break;
+          case "scm.viewSortKey":
+            this.viewSortKey = this.getViewSortKey();
+            break;
+        }
+      },
+      this,
+      this.disposables
+    );
+    this.storageService.onWillSaveState(
+      (e) => {
+        this.viewMode = this.getViewMode();
+        this.viewSortKey = this.getViewSortKey();
+        this.storeTreeViewState();
+      },
+      this,
+      this.disposables
+    );
+    Event.any(
+      this.scmService.onDidAddRepository,
+      this.scmService.onDidRemoveRepository
+    )(
+      () => this._onDidChangeViewWelcomeState.fire(),
+      this,
+      this.disposables
+    );
     this.disposables.add(this.revealResourceThrottler);
     this.disposables.add(this.updateChildrenThrottler);
   }

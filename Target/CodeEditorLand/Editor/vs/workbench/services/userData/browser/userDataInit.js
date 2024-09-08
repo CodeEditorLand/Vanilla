@@ -12,8 +12,8 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { mark } from "../../../../base/common/performance.js";
 import { isWeb } from "../../../../base/common/platform.js";
 import {
-  IInstantiationService,
-  createDecorator
+  createDecorator,
+  IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import {

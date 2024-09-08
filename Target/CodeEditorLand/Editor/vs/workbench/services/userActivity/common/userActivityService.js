@@ -10,8 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  RunOnceScheduler,
   disposableTimeout,
+  RunOnceScheduler,
   runWhenGlobalIdle
 } from "../../../../base/common/async.js";
 import { Emitter } from "../../../../base/common/event.js";
@@ -25,8 +25,8 @@ import {
   registerSingleton
 } from "../../../../platform/instantiation/common/extensions.js";
 import {
-  IInstantiationService,
-  createDecorator
+  createDecorator,
+  IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import { userActivityRegistry } from "./userActivityRegistry.js";
 const MARK_INACTIVE_DEBOUNCE = 1e4;
@@ -54,7 +54,11 @@ let UserActivityService = class extends Disposable {
   onDidChangeIsActive = this.changeEmitter.event;
   constructor(instantiationService) {
     super();
-    this._register(runWhenGlobalIdle(() => userActivityRegistry.take(this, instantiationService)));
+    this._register(
+      runWhenGlobalIdle(
+        () => userActivityRegistry.take(this, instantiationService)
+      )
+    );
   }
   /** @inheritdoc */
   markActive(opts) {

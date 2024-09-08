@@ -48,8 +48,8 @@ import { ModelDecorationOptions } from "../../../../editor/common/model/textMode
 import { IModelService } from "../../../../editor/common/services/model.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import {
-  IInstantiationService,
-  createDecorator
+  createDecorator,
+  IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
@@ -70,9 +70,9 @@ import {
   ISearchService,
   OneLineRange,
   QueryType,
+  resultIsMatch,
   SearchCompletionExitCode,
-  SearchSortOrder,
-  resultIsMatch
+  SearchSortOrder
 } from "../../../services/search/common/search.js";
 import {
   editorMatchesToTextSearchResults,
@@ -399,10 +399,18 @@ let FileMatch = class extends Disposable {
     this._resource = this.rawMatch.resource;
     this._textMatches = /* @__PURE__ */ new Map();
     this._removedTextMatches = /* @__PURE__ */ new Set();
-    this._updateScheduler = new RunOnceScheduler(this.updateMatchesForModel.bind(this), 250);
-    this._name = new Lazy(() => labelService.getUriBasenameLabel(this.resource));
+    this._updateScheduler = new RunOnceScheduler(
+      this.updateMatchesForModel.bind(this),
+      250
+    );
+    this._name = new Lazy(
+      () => labelService.getUriBasenameLabel(this.resource)
+    );
     this._cellMatches = /* @__PURE__ */ new Map();
-    this._notebookUpdateScheduler = new RunOnceScheduler(this.updateMatchesForEditorWidget.bind(this), 250);
+    this._notebookUpdateScheduler = new RunOnceScheduler(
+      this.updateMatchesForEditorWidget.bind(this),
+      250
+    );
   }
   static _CURRENT_FIND_MATCH = ModelDecorationOptions.register({
     description: "search-current-find-match",
@@ -1017,10 +1025,14 @@ let FolderMatch = class extends Disposable {
     this.uriIdentityService = uriIdentityService;
     this._fileMatches = new ResourceMap();
     this._folderMatches = new ResourceMap();
-    this._folderMatchesMap = TernarySearchTree.forUris((key) => this.uriIdentityService.extUri.ignorePathCasing(key));
+    this._folderMatchesMap = TernarySearchTree.forUris(
+      (key) => this.uriIdentityService.extUri.ignorePathCasing(key)
+    );
     this._unDisposedFileMatches = new ResourceMap();
     this._unDisposedFolderMatches = new ResourceMap();
-    this._name = new Lazy(() => this.resource ? labelService.getUriBasenameLabel(this.resource) : "");
+    this._name = new Lazy(
+      () => this.resource ? labelService.getUriBasenameLabel(this.resource) : ""
+    );
   }
   _onChange = this._register(new Emitter());
   onChange = this._onChange.event;
@@ -1698,17 +1710,25 @@ let SearchResult = class extends Disposable {
     this.notebookEditorService = notebookEditorService;
     this._rangeHighlightDecorations = this.instantiationService.createInstance(RangeHighlightDecorations);
     this.modelService.getModels().forEach((model) => this.onModelAdded(model));
-    this._register(this.modelService.onModelAdded((model) => this.onModelAdded(model)));
-    this._register(this.notebookEditorService.onDidAddNotebookEditor((widget) => {
-      if (widget instanceof NotebookEditorWidget) {
-        this.onDidAddNotebookEditorWidget(widget);
-      }
-    }));
-    this._register(this.onChange((e) => {
-      if (e.removed) {
-        this._isDirty = !this.isEmpty() || !this.isEmpty(true);
-      }
-    }));
+    this._register(
+      this.modelService.onModelAdded((model) => this.onModelAdded(model))
+    );
+    this._register(
+      this.notebookEditorService.onDidAddNotebookEditor((widget) => {
+        if (widget instanceof NotebookEditorWidget) {
+          this.onDidAddNotebookEditorWidget(
+            widget
+          );
+        }
+      })
+    );
+    this._register(
+      this.onChange((e) => {
+        if (e.removed) {
+          this._isDirty = !this.isEmpty() || !this.isEmpty(true);
+        }
+      })
+    );
   }
   _onChange = this._register(
     new PauseableEmitter({
@@ -2105,8 +2125,15 @@ let SearchModel = class extends Disposable {
     this.logService = logService;
     this.notebookSearchService = notebookSearchService;
     this.progressService = progressService;
-    this._searchResult = this.instantiationService.createInstance(SearchResult, this);
-    this._register(this._searchResult.onChange((e) => this._onSearchResultChanged.fire(e)));
+    this._searchResult = this.instantiationService.createInstance(
+      SearchResult,
+      this
+    );
+    this._register(
+      this._searchResult.onChange(
+        (e) => this._onSearchResultChanged.fire(e)
+      )
+    );
   }
   _searchResult;
   _searchQuery = null;

@@ -13,9 +13,9 @@ import { Emitter } from "../../base/common/event.js";
 import { Disposable, DisposableStore } from "../../base/common/lifecycle.js";
 import { isEqual } from "../../base/common/resources.js";
 import {
-  OverlayWidgetPositionPreference,
   isCodeEditor,
-  isCompositeEditor
+  isCompositeEditor,
+  OverlayWidgetPositionPreference
 } from "../../editor/browser/editorBrowser.js";
 import { EmbeddedCodeEditorWidget } from "../../editor/browser/widget/codeEditor/embeddedCodeEditorWidget.js";
 import { EditorOption } from "../../editor/common/config/editorOptions.js";

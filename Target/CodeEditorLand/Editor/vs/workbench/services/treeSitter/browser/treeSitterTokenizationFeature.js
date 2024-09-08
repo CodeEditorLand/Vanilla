@@ -38,8 +38,8 @@ import {
   registerSingleton
 } from "../../../../platform/instantiation/common/extensions.js";
 import {
-  IInstantiationService,
-  createDecorator
+  createDecorator,
+  IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 const ALLOWED_SUPPORT = ["typescript"];
@@ -53,11 +53,15 @@ let TreeSitterTokenizationFeature = class extends Disposable {
     this._instantiationService = _instantiationService;
     this._fileService = _fileService;
     this._handleGrammarsExtPoint();
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(EDITOR_EXPERIMENTAL_PREFER_TREESITTER)) {
-        this._handleGrammarsExtPoint();
-      }
-    }));
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          EDITOR_EXPERIMENTAL_PREFER_TREESITTER
+        )) {
+          this._handleGrammarsExtPoint();
+        }
+      })
+    );
   }
   _serviceBrand;
   _tokenizersRegistrations = new DisposableMap();
@@ -120,7 +124,12 @@ let TreeSitterTokenizationSupport = class extends Disposable {
     this._languageId = _languageId;
     this._treeSitterService = _treeSitterService;
     this._themeService = _themeService;
-    this._register(Event.runAndSubscribe(this._themeService.onDidColorThemeChange, () => this.reset()));
+    this._register(
+      Event.runAndSubscribe(
+        this._themeService.onDidColorThemeChange,
+        () => this.reset()
+      )
+    );
   }
   _query;
   _onDidChangeTokens = new Emitter();

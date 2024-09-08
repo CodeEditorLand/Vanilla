@@ -31,8 +31,8 @@ import {
   SyncStatus
 } from "../../../../platform/userDataSync/common/userDataSync.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   CONTEXT_SYNC_STATE,

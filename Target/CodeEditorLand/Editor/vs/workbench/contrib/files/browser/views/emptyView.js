@@ -27,20 +27,38 @@ import { ITelemetryService } from "../../../../../platform/telemetry/common/tele
 import { listDropOverBackground } from "../../../../../platform/theme/common/colorRegistry.js";
 import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
 import {
+  isTemporaryWorkspace,
   IWorkspaceContextService,
-  WorkbenchState,
-  isTemporaryWorkspace
+  WorkbenchState
 } from "../../../../../platform/workspace/common/workspace.js";
 import { ResourcesDropHandler } from "../../../../browser/dnd.js";
 import { ViewPane } from "../../../../browser/parts/views/viewPane.js";
 import { IViewDescriptorService } from "../../../../common/views.js";
 let EmptyView = class extends ViewPane {
   constructor(options, themeService, viewDescriptorService, instantiationService, keybindingService, contextMenuService, contextService, configurationService, labelService, contextKeyService, openerService, telemetryService, hoverService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.contextService = contextService;
     this.labelService = labelService;
-    this._register(this.contextService.onDidChangeWorkbenchState(() => this.refreshTitle()));
-    this._register(this.labelService.onDidChangeFormatters(() => this.refreshTitle()));
+    this._register(
+      this.contextService.onDidChangeWorkbenchState(
+        () => this.refreshTitle()
+      )
+    );
+    this._register(
+      this.labelService.onDidChangeFormatters(() => this.refreshTitle())
+    );
   }
   static ID = "workbench.explorer.emptyView";
   static NAME = nls.localize2(

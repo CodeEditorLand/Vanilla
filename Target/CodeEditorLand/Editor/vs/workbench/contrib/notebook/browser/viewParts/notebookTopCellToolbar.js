@@ -37,14 +37,18 @@ let ListTopCellToolbar = class extends Disposable {
     this.topCellToolbarContainer = DOM.$("div");
     this.topCellToolbar = DOM.$(".cell-list-top-cell-toolbar-container");
     this.topCellToolbarContainer.appendChild(this.topCellToolbar);
-    this._register(this.notebookEditor.onDidAttachViewModel(() => {
-      this.updateTopToolbar();
-    }));
-    this._register(this.notebookOptions.onDidChangeOptions((e) => {
-      if (e.insertToolbarAlignment || e.insertToolbarPosition || e.cellToolbarLocation) {
+    this._register(
+      this.notebookEditor.onDidAttachViewModel(() => {
         this.updateTopToolbar();
-      }
-    }));
+      })
+    );
+    this._register(
+      this.notebookOptions.onDidChangeOptions((e) => {
+        if (e.insertToolbarAlignment || e.insertToolbarPosition || e.cellToolbarLocation) {
+          this.updateTopToolbar();
+        }
+      })
+    );
   }
   topCellToolbarContainer;
   topCellToolbar;

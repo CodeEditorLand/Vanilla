@@ -14,8 +14,8 @@ import { ITextResourceConfigurationService } from "../../../editor/common/servic
 import { isConfigured } from "../../../platform/configuration/common/configuration.js";
 import {
   ByteSize,
-  IFileService,
-  getLargeFileConfirmationLimit
+  getLargeFileConfirmationLimit,
+  IFileService
 } from "../../../platform/files/common/files.js";
 import { ILabelService } from "../../../platform/label/common/label.js";
 import { ICustomEditorLabelService } from "../../services/editor/common/customEditorLabelService.js";

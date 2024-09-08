@@ -32,11 +32,11 @@ import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.j
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
 import {
+  formatDocumentRangesWithProvider,
+  formatDocumentWithProvider,
   FormattingConflicts,
   FormattingKind,
   FormattingMode,
-  formatDocumentRangesWithProvider,
-  formatDocumentWithProvider,
   getRealAndSyntheticDocumentFormattersOrdered
 } from "../../../../editor/contrib/format/browser/format.js";
 import * as nls from "../../../../nls.js";
@@ -85,12 +85,37 @@ let DefaultFormatter = class extends Disposable {
     this._languageFeaturesService = _languageFeaturesService;
     this._languageStatusService = _languageStatusService;
     this._editorService = _editorService;
-    this._store.add(this._extensionService.onDidChangeExtensions(this._updateConfigValues, this));
-    this._store.add(FormattingConflicts.setFormatterSelector((formatter, document, mode, kind) => this._selectFormatter(formatter, document, mode, kind)));
-    this._store.add(_editorService.onDidActiveEditorChange(this._updateStatus, this));
-    this._store.add(_languageFeaturesService.documentFormattingEditProvider.onDidChange(this._updateStatus, this));
-    this._store.add(_languageFeaturesService.documentRangeFormattingEditProvider.onDidChange(this._updateStatus, this));
-    this._store.add(_configService.onDidChangeConfiguration((e) => e.affectsConfiguration(DefaultFormatter.configName) && this._updateStatus()));
+    this._store.add(
+      this._extensionService.onDidChangeExtensions(
+        this._updateConfigValues,
+        this
+      )
+    );
+    this._store.add(
+      FormattingConflicts.setFormatterSelector(
+        (formatter, document, mode, kind) => this._selectFormatter(formatter, document, mode, kind)
+      )
+    );
+    this._store.add(
+      _editorService.onDidActiveEditorChange(this._updateStatus, this)
+    );
+    this._store.add(
+      _languageFeaturesService.documentFormattingEditProvider.onDidChange(
+        this._updateStatus,
+        this
+      )
+    );
+    this._store.add(
+      _languageFeaturesService.documentRangeFormattingEditProvider.onDidChange(
+        this._updateStatus,
+        this
+      )
+    );
+    this._store.add(
+      _configService.onDidChangeConfiguration(
+        (e) => e.affectsConfiguration(DefaultFormatter.configName) && this._updateStatus()
+      )
+    );
     this._updateConfigValues();
   }
   static configName = "editor.defaultFormatter";

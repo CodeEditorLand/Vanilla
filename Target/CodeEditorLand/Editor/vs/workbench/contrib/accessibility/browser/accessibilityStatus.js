@@ -37,8 +37,15 @@ let AccessibilityStatus = class extends Disposable {
     this.notificationService = notificationService;
     this.accessibilityService = accessibilityService;
     this.statusbarService = statusbarService;
-    this._register(CommandsRegistry.registerCommand({ id: "showEditorScreenReaderNotification", handler: () => this.showScreenReaderNotification() }));
-    this.updateScreenReaderModeElement(this.accessibilityService.isScreenReaderOptimized());
+    this._register(
+      CommandsRegistry.registerCommand({
+        id: "showEditorScreenReaderNotification",
+        handler: () => this.showScreenReaderNotification()
+      })
+    );
+    this.updateScreenReaderModeElement(
+      this.accessibilityService.isScreenReaderOptimized()
+    );
     this.registerListeners();
   }
   static ID = "workbench.contrib.accessibilityStatus";

@@ -37,8 +37,8 @@ import * as nls from "../../../../nls.js";
 import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { SelectionClipboardContributionID } from "../browser/selectionClipboard.js";
 let SelectionClipboard = class extends Disposable {
@@ -116,16 +116,28 @@ let LinuxSelectionClipboardPastePreventer = class extends Disposable {
   static ID = "workbench.contrib.linuxSelectionClipboardPastePreventer";
   constructor(configurationService) {
     super();
-    this._register(Event.runAndSubscribe(onDidRegisterWindow, ({ window, disposables }) => {
-      disposables.add(addDisposableListener(window.document, "mouseup", (e) => {
-        if (e.button === 1) {
-          const config = configurationService.getValue("editor");
-          if (!config.selectionClipboard) {
-            e.preventDefault();
-          }
-        }
-      }));
-    }, { window: mainWindow, disposables: this._store }));
+    this._register(
+      Event.runAndSubscribe(
+        onDidRegisterWindow,
+        ({ window, disposables }) => {
+          disposables.add(
+            addDisposableListener(
+              window.document,
+              "mouseup",
+              (e) => {
+                if (e.button === 1) {
+                  const config = configurationService.getValue("editor");
+                  if (!config.selectionClipboard) {
+                    e.preventDefault();
+                  }
+                }
+              }
+            )
+          );
+        },
+        { window: mainWindow, disposables: this._store }
+      )
+    );
   }
 };
 LinuxSelectionClipboardPastePreventer = __decorateClass([

@@ -7,6 +7,7 @@ import { registerTerminalAction } from "../../../terminal/browser/terminalAction
 import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
 import { TerminalStickyScrollSettingId } from "../common/terminalStickyScrollConfiguration.js";
 import { TerminalStickyScrollContribution } from "./terminalStickyScrollContribution.js";
+import "./terminalStickyScrollColorRegistry.js";
 registerTerminalContribution(
   TerminalStickyScrollContribution.ID,
   TerminalStickyScrollContribution,
@@ -45,4 +46,3 @@ registerTerminalAction({
   },
   menu: [{ id: MenuId.TerminalStickyScrollContext }]
 });
-import "./terminalStickyScrollColorRegistry.js";

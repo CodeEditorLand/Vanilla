@@ -56,19 +56,48 @@ import {
 } from "./notebookVariablesTree.js";
 let NotebookVariablesView = class extends ViewPane {
   constructor(options, editorService, notebookKernelService, notebookExecutionStateService, keybindingService, contextMenuService, contextKeyService, configurationService, instantiationService, viewDescriptorService, openerService, quickInputService, commandService, themeService, telemetryService, hoverService, menuService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.editorService = editorService;
     this.notebookKernelService = notebookKernelService;
     this.notebookExecutionStateService = notebookExecutionStateService;
     this.quickInputService = quickInputService;
     this.commandService = commandService;
     this.menuService = menuService;
-    this._register(this.editorService.onDidActiveEditorChange(this.handleActiveEditorChange.bind(this)));
-    this._register(this.notebookKernelService.onDidNotebookVariablesUpdate(this.handleVariablesChanged.bind(this)));
-    this._register(this.notebookExecutionStateService.onDidChangeExecution(this.handleExecutionStateChange.bind(this)));
+    this._register(
+      this.editorService.onDidActiveEditorChange(
+        this.handleActiveEditorChange.bind(this)
+      )
+    );
+    this._register(
+      this.notebookKernelService.onDidNotebookVariablesUpdate(
+        this.handleVariablesChanged.bind(this)
+      )
+    );
+    this._register(
+      this.notebookExecutionStateService.onDidChangeExecution(
+        this.handleExecutionStateChange.bind(this)
+      )
+    );
     this.setActiveNotebook();
-    this.dataSource = new NotebookVariableDataSource(this.notebookKernelService);
-    this.updateScheduler = new RunOnceScheduler(() => this.tree?.updateChildren(), 100);
+    this.dataSource = new NotebookVariableDataSource(
+      this.notebookKernelService
+    );
+    this.updateScheduler = new RunOnceScheduler(
+      () => this.tree?.updateChildren(),
+      100
+    );
   }
   static ID = "notebookVariablesView";
   static TITLE = nls.localize2(

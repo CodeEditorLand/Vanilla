@@ -43,9 +43,19 @@ let NotebookVariables = class extends Disposable {
     this.notebookKernelService = notebookKernelService;
     this.notebookDocumentService = notebookDocumentService;
     this.viewEnabled = NOTEBOOK_VARIABLE_VIEW_ENABLED.bindTo(contextKeyService);
-    this.listeners.push(this.editorService.onDidActiveEditorChange(() => this.handleInitEvent()));
-    this.listeners.push(this.notebookExecutionStateService.onDidChangeExecution((e) => this.handleInitEvent(e.notebook)));
-    this.configListener = configurationService.onDidChangeConfiguration((e) => this.handleConfigChange(e));
+    this.listeners.push(
+      this.editorService.onDidActiveEditorChange(
+        () => this.handleInitEvent()
+      )
+    );
+    this.listeners.push(
+      this.notebookExecutionStateService.onDidChangeExecution(
+        (e) => this.handleInitEvent(e.notebook)
+      )
+    );
+    this.configListener = configurationService.onDidChangeConfiguration(
+      (e) => this.handleConfigChange(e)
+    );
   }
   listeners = [];
   configListener;

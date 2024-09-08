@@ -21,11 +21,11 @@ import { CharCode } from "../../base/common/charCode.js";
 import { isEqualOrParent } from "../../base/common/extpath.js";
 import { getMediaMime } from "../../base/common/mime.js";
 import {
-  FileAccess,
-  Schemas,
   builtinExtensionsPath,
   connectionTokenCookieName,
-  connectionTokenQueryName
+  connectionTokenQueryName,
+  FileAccess,
+  Schemas
 } from "../../base/common/network.js";
 import { dirname, extname, join, normalize } from "../../base/common/path.js";
 import { isLinux } from "../../base/common/platform.js";
@@ -36,8 +36,8 @@ import { ICSSDevelopmentService } from "../../platform/cssDev/node/cssDevService
 import { ILogService } from "../../platform/log/common/log.js";
 import { IProductService } from "../../platform/product/common/productService.js";
 import {
-  IRequestService,
-  asTextOrError
+  asTextOrError,
+  IRequestService
 } from "../../platform/request/common/request.js";
 import {
   ServerConnectionTokenType
@@ -100,7 +100,9 @@ let WebClientServer = class {
     this._requestService = _requestService;
     this._productService = _productService;
     this._cssDevService = _cssDevService;
-    this._webExtensionResourceUrlTemplate = this._productService.extensionsGallery?.resourceUrlTemplate ? URI.parse(this._productService.extensionsGallery.resourceUrlTemplate) : void 0;
+    this._webExtensionResourceUrlTemplate = this._productService.extensionsGallery?.resourceUrlTemplate ? URI.parse(
+      this._productService.extensionsGallery.resourceUrlTemplate
+    ) : void 0;
     this._staticRoute = `${serverRootPath}/static`;
     this._callbackRoute = `${serverRootPath}/callback`;
     this._webExtensionRoute = `${serverRootPath}/web-extension-resource`;

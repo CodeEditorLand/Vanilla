@@ -62,12 +62,20 @@ let CustomEditorService = class extends Disposable {
     this.instantiationService = instantiationService;
     this.uriIdentityService = uriIdentityService;
     this.editorResolverService = editorResolverService;
-    this._contributedEditors = this._register(new ContributedCustomEditors(storageService));
-    this.editorResolverService.bufferChangeEvents(this.registerContributionPoints.bind(this));
-    this._register(this._contributedEditors.onChange(() => {
-      this.editorResolverService.bufferChangeEvents(this.registerContributionPoints.bind(this));
-      this._onDidChangeEditorTypes.fire();
-    }));
+    this._contributedEditors = this._register(
+      new ContributedCustomEditors(storageService)
+    );
+    this.editorResolverService.bufferChangeEvents(
+      this.registerContributionPoints.bind(this)
+    );
+    this._register(
+      this._contributedEditors.onChange(() => {
+        this.editorResolverService.bufferChangeEvents(
+          this.registerContributionPoints.bind(this)
+        );
+        this._onDidChangeEditorTypes.fire();
+      })
+    );
     const activeCustomEditorContextKeyProvider = {
       contextKey: CONTEXT_ACTIVE_CUSTOM_EDITOR_ID,
       getGroupContextKeyValue: (group) => this.getActiveCustomEditorId(group),
@@ -78,20 +86,39 @@ let CustomEditorService = class extends Disposable {
       getGroupContextKeyValue: (group) => this.getCustomEditorIsEditable(group),
       onDidChange: this.onDidChangeEditorTypes
     };
-    this._register(this.editorGroupService.registerContextKeyProvider(activeCustomEditorContextKeyProvider));
-    this._register(this.editorGroupService.registerContextKeyProvider(customEditorIsEditableContextKeyProvider));
-    this._register(fileService.onDidRunOperation((e) => {
-      if (e.isOperation(FileOperation.MOVE)) {
-        this.handleMovedFileInOpenedFileEditors(e.resource, this.uriIdentityService.asCanonicalUri(e.target.resource));
-      }
-    }));
+    this._register(
+      this.editorGroupService.registerContextKeyProvider(
+        activeCustomEditorContextKeyProvider
+      )
+    );
+    this._register(
+      this.editorGroupService.registerContextKeyProvider(
+        customEditorIsEditableContextKeyProvider
+      )
+    );
+    this._register(
+      fileService.onDidRunOperation((e) => {
+        if (e.isOperation(FileOperation.MOVE)) {
+          this.handleMovedFileInOpenedFileEditors(
+            e.resource,
+            this.uriIdentityService.asCanonicalUri(
+              e.target.resource
+            )
+          );
+        }
+      })
+    );
     const PRIORITY = 105;
-    this._register(UndoCommand.addImplementation(PRIORITY, "custom-editor", () => {
-      return this.withActiveCustomEditor((editor) => editor.undo());
-    }));
-    this._register(RedoCommand.addImplementation(PRIORITY, "custom-editor", () => {
-      return this.withActiveCustomEditor((editor) => editor.redo());
-    }));
+    this._register(
+      UndoCommand.addImplementation(PRIORITY, "custom-editor", () => {
+        return this.withActiveCustomEditor((editor) => editor.undo());
+      })
+    );
+    this._register(
+      RedoCommand.addImplementation(PRIORITY, "custom-editor", () => {
+        return this.withActiveCustomEditor((editor) => editor.redo());
+      })
+    );
   }
   _serviceBrand;
   _contributedEditors;

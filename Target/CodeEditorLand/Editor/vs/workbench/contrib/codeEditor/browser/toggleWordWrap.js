@@ -43,8 +43,8 @@ import {
 } from "../../../../platform/contextkey/common/contextkey.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 const transientWordWrapState = "transientWordWrapState";
@@ -149,32 +149,47 @@ let ToggleWordWrapController = class extends Disposable {
     this._codeEditorService = _codeEditorService;
     const options = this._editor.getOptions();
     const wrappingInfo = options.get(EditorOption.wrappingInfo);
-    const isWordWrapMinified = this._contextKeyService.createKey(isWordWrapMinifiedKey, wrappingInfo.isWordWrapMinified);
-    const isDominatedByLongLines = this._contextKeyService.createKey(isDominatedByLongLinesKey, wrappingInfo.isDominatedByLongLines);
+    const isWordWrapMinified = this._contextKeyService.createKey(
+      isWordWrapMinifiedKey,
+      wrappingInfo.isWordWrapMinified
+    );
+    const isDominatedByLongLines = this._contextKeyService.createKey(
+      isDominatedByLongLinesKey,
+      wrappingInfo.isDominatedByLongLines
+    );
     let currentlyApplyingEditorConfig = false;
-    this._register(_editor.onDidChangeConfiguration((e) => {
-      if (!e.hasChanged(EditorOption.wrappingInfo)) {
-        return;
-      }
-      const options2 = this._editor.getOptions();
-      const wrappingInfo2 = options2.get(EditorOption.wrappingInfo);
-      isWordWrapMinified.set(wrappingInfo2.isWordWrapMinified);
-      isDominatedByLongLines.set(wrappingInfo2.isDominatedByLongLines);
-      if (!currentlyApplyingEditorConfig) {
+    this._register(
+      _editor.onDidChangeConfiguration((e) => {
+        if (!e.hasChanged(EditorOption.wrappingInfo)) {
+          return;
+        }
+        const options2 = this._editor.getOptions();
+        const wrappingInfo2 = options2.get(EditorOption.wrappingInfo);
+        isWordWrapMinified.set(wrappingInfo2.isWordWrapMinified);
+        isDominatedByLongLines.set(wrappingInfo2.isDominatedByLongLines);
+        if (!currentlyApplyingEditorConfig) {
+          ensureWordWrapSettings();
+        }
+      })
+    );
+    this._register(
+      _editor.onDidChangeModel((e) => {
         ensureWordWrapSettings();
-      }
-    }));
-    this._register(_editor.onDidChangeModel((e) => {
-      ensureWordWrapSettings();
-    }));
-    this._register(_codeEditorService.onDidChangeTransientModelProperty(() => {
-      ensureWordWrapSettings();
-    }));
+      })
+    );
+    this._register(
+      _codeEditorService.onDidChangeTransientModelProperty(() => {
+        ensureWordWrapSettings();
+      })
+    );
     const ensureWordWrapSettings = () => {
       if (!canToggleWordWrap(this._codeEditorService, this._editor)) {
         return;
       }
-      const transientState = readTransientState(this._editor.getModel(), this._codeEditorService);
+      const transientState = readTransientState(
+        this._editor.getModel(),
+        this._codeEditorService
+      );
       try {
         currentlyApplyingEditorConfig = true;
         this._applyWordWrapState(transientState);
@@ -200,9 +215,11 @@ let DiffToggleWordWrapController = class extends Disposable {
     super();
     this._diffEditor = _diffEditor;
     this._codeEditorService = _codeEditorService;
-    this._register(this._diffEditor.onDidChangeModel(() => {
-      this._ensureSyncedWordWrapToggle();
-    }));
+    this._register(
+      this._diffEditor.onDidChangeModel(() => {
+        this._ensureSyncedWordWrapToggle();
+      })
+    );
   }
   static ID = "diffeditor.contrib.toggleWordWrapController";
   _ensureSyncedWordWrapToggle() {
@@ -266,12 +283,36 @@ let EditorWordWrapContextKeyTracker = class extends Disposable {
     this._editorService = _editorService;
     this._codeEditorService = _codeEditorService;
     this._contextService = _contextService;
-    this._register(Event.runAndSubscribe(onDidRegisterWindow, ({ window, disposables }) => {
-      disposables.add(addDisposableListener(window, "focus", () => this._update(), true));
-      disposables.add(addDisposableListener(window, "blur", () => this._update(), true));
-    }, { window: mainWindow, disposables: this._store }));
-    this._register(this._editorService.onDidActiveEditorChange(() => this._update()));
-    this._canToggleWordWrap = CAN_TOGGLE_WORD_WRAP.bindTo(this._contextService);
+    this._register(
+      Event.runAndSubscribe(
+        onDidRegisterWindow,
+        ({ window, disposables }) => {
+          disposables.add(
+            addDisposableListener(
+              window,
+              "focus",
+              () => this._update(),
+              true
+            )
+          );
+          disposables.add(
+            addDisposableListener(
+              window,
+              "blur",
+              () => this._update(),
+              true
+            )
+          );
+        },
+        { window: mainWindow, disposables: this._store }
+      )
+    );
+    this._register(
+      this._editorService.onDidActiveEditorChange(() => this._update())
+    );
+    this._canToggleWordWrap = CAN_TOGGLE_WORD_WRAP.bindTo(
+      this._contextService
+    );
     this._editorWordWrap = EDITOR_WORD_WRAP.bindTo(this._contextService);
     this._activeEditor = null;
     this._activeEditorListener = new DisposableStore();

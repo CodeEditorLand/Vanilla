@@ -9,9 +9,9 @@ import { StopWatch } from "../../../../base/common/stopwatch.js";
 import { TernarySearchTree } from "../../../../base/common/ternarySearchTree.js";
 import {
   DEFAULT_MAX_SEARCH_RESULTS,
-  QueryGlobTester,
   excludeToGlobPattern,
   hasSiblingFn,
+  QueryGlobTester,
   resolvePatternsForProvider
 } from "./search.js";
 import { OldFileSearchProviderConverter } from "./searchExtConversionTypes.js";

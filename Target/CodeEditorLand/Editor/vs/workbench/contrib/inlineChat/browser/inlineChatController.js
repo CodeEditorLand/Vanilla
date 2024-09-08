@@ -185,34 +185,49 @@ let InlineChatController = class {
           }
         }
       }
-      return this._store.add(_instaService.createInstance(InlineChatZoneWidget, location, this._editor));
+      return this._store.add(
+        _instaService.createInstance(
+          InlineChatZoneWidget,
+          location,
+          this._editor
+        )
+      );
     });
-    this._store.add(this._editor.onDidChangeModel(async (e) => {
-      if (this._session || !e.newModelUrl) {
-        return;
-      }
-      const existingSession = this._inlineChatSessionService.getSession(this._editor, e.newModelUrl);
-      if (!existingSession) {
-        return;
-      }
-      this._log("session RESUMING after model change", e);
-      await this.run({ existingSession });
-    }));
-    this._store.add(this._inlineChatSessionService.onDidEndSession((e) => {
-      if (e.session === this._session && e.endedByExternalCause) {
-        this._log("session ENDED by external cause");
-        this._session = void 0;
-        this._strategy?.cancel();
-        this._resetWidget();
-        this.cancelSession();
-      }
-    }));
-    this._store.add(this._inlineChatSessionService.onDidMoveSession(async (e) => {
-      if (e.editor === this._editor) {
-        this._log("session RESUMING after move", e);
-        await this.run({ existingSession: e.session });
-      }
-    }));
+    this._store.add(
+      this._editor.onDidChangeModel(async (e) => {
+        if (this._session || !e.newModelUrl) {
+          return;
+        }
+        const existingSession = this._inlineChatSessionService.getSession(
+          this._editor,
+          e.newModelUrl
+        );
+        if (!existingSession) {
+          return;
+        }
+        this._log("session RESUMING after model change", e);
+        await this.run({ existingSession });
+      })
+    );
+    this._store.add(
+      this._inlineChatSessionService.onDidEndSession((e) => {
+        if (e.session === this._session && e.endedByExternalCause) {
+          this._log("session ENDED by external cause");
+          this._session = void 0;
+          this._strategy?.cancel();
+          this._resetWidget();
+          this.cancelSession();
+        }
+      })
+    );
+    this._store.add(
+      this._inlineChatSessionService.onDidMoveSession(async (e) => {
+        if (e.editor === this._editor) {
+          this._log("session RESUMING after move", e);
+          await this.run({ existingSession: e.session });
+        }
+      })
+    );
     this._log(`NEW controller`);
   }
   static get(editor) {

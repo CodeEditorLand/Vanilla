@@ -1,11 +1,11 @@
+import { Emitter } from "../../../../base/common/event.js";
 import * as Objects from "../../../../base/common/objects.js";
 import * as Types from "../../../../base/common/types.js";
 import * as nls from "../../../../nls.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
 import {
   ExtensionsRegistry
 } from "../../../services/extensions/common/extensionsRegistry.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
 const taskDefinitionSchema = {
   type: "object",
   additionalProperties: false,

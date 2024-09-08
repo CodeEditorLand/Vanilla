@@ -33,8 +33,8 @@ import { setProperty } from "../../../../base/common/jsonEdit.js";
 import { KeyCode } from "../../../../base/common/keyCodes.js";
 import {
   DisposableStore,
-  MutableDisposable,
   dispose,
+  MutableDisposable,
   toDisposable
 } from "../../../../base/common/lifecycle.js";
 import { clamp } from "../../../../base/common/numbers.js";
@@ -241,9 +241,20 @@ let DebugEditorContribution = class {
     this.hostService = hostService;
     this.uriIdentityService = uriIdentityService;
     this.languageFeaturesService = languageFeaturesService;
-    this.debounceInfo = featureDebounceService.for(languageFeaturesService.inlineValuesProvider, "InlineValues", { min: DEAFULT_INLINE_DEBOUNCE_DELAY });
-    this.hoverWidget = this.instantiationService.createInstance(DebugHoverWidget, this.editor);
-    this.toDispose = [this.defaultHoverLockout, this.altListener, this.displayedStore];
+    this.debounceInfo = featureDebounceService.for(
+      languageFeaturesService.inlineValuesProvider,
+      "InlineValues",
+      { min: DEAFULT_INLINE_DEBOUNCE_DELAY }
+    );
+    this.hoverWidget = this.instantiationService.createInstance(
+      DebugHoverWidget,
+      this.editor
+    );
+    this.toDispose = [
+      this.defaultHoverLockout,
+      this.altListener,
+      this.displayedStore
+    ];
     this.registerListeners();
     this.exceptionWidgetVisible = CONTEXT_EXCEPTION_WIDGET_VISIBLE.bindTo(contextKeyService);
     this.toggleExceptionWidget();

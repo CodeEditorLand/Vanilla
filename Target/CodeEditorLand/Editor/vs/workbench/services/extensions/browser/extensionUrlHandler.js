@@ -49,8 +49,8 @@ import {
   IURLService
 } from "../../../../platform/url/common/url.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 import { IHostService } from "../../host/browser/host.js";
@@ -109,19 +109,32 @@ let ExtensionUrlHandler = class {
     this.notificationService = notificationService;
     this.productService = productService;
     this.workbenchEnvironmentService = workbenchEnvironmentService;
-    this.userTrustedExtensionsStorage = new UserTrustedExtensionIdStorage(storageService);
-    const interval = disposableWindowInterval(mainWindow, () => this.garbageCollect(), THIRTY_SECONDS);
-    const urlToHandleValue = this.storageService.get(URL_TO_HANDLE, StorageScope.WORKSPACE);
+    this.userTrustedExtensionsStorage = new UserTrustedExtensionIdStorage(
+      storageService
+    );
+    const interval = disposableWindowInterval(
+      mainWindow,
+      () => this.garbageCollect(),
+      THIRTY_SECONDS
+    );
+    const urlToHandleValue = this.storageService.get(
+      URL_TO_HANDLE,
+      StorageScope.WORKSPACE
+    );
     if (urlToHandleValue) {
       this.storageService.remove(URL_TO_HANDLE, StorageScope.WORKSPACE);
-      this.handleURL(URI.revive(JSON.parse(urlToHandleValue)), { trusted: true });
+      this.handleURL(URI.revive(JSON.parse(urlToHandleValue)), {
+        trusted: true
+      });
     }
     this.disposable = combinedDisposable(
       urlService.registerHandler(this),
       interval
     );
     const cache = ExtensionUrlBootstrapHandler.cache;
-    setTimeout(() => cache.forEach(([uri, option]) => this.handleURL(uri, option)));
+    setTimeout(
+      () => cache.forEach(([uri, option]) => this.handleURL(uri, option))
+    );
   }
   _serviceBrand;
   extensionHandlers = /* @__PURE__ */ new Map();

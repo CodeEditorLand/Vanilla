@@ -35,10 +35,27 @@ import { INotebookEditorModelResolverService } from "../../notebook/common/noteb
 import { INotebookService } from "../../notebook/common/notebookService.js";
 let ReplEditorInput = class extends NotebookEditorInput {
   constructor(resource, label, _notebookService, _notebookModelResolverService, _fileDialogService, labelService, fileService, filesConfigurationService, extensionService, editorService, textResourceConfigurationService, customEditorLabelService, historyService, _textModelService, configurationService) {
-    super(resource, void 0, "jupyter-notebook", {}, _notebookService, _notebookModelResolverService, _fileDialogService, labelService, fileService, filesConfigurationService, extensionService, editorService, textResourceConfigurationService, customEditorLabelService);
+    super(
+      resource,
+      void 0,
+      "jupyter-notebook",
+      {},
+      _notebookService,
+      _notebookModelResolverService,
+      _fileDialogService,
+      labelService,
+      fileService,
+      filesConfigurationService,
+      extensionService,
+      editorService,
+      textResourceConfigurationService,
+      customEditorLabelService
+    );
     this.historyService = historyService;
     this._textModelService = _textModelService;
-    this.isScratchpad = resource.scheme === "untitled" && configurationService.getValue(NotebookSetting.InteractiveWindowPromptToSave) !== true;
+    this.isScratchpad = resource.scheme === "untitled" && configurationService.getValue(
+      NotebookSetting.InteractiveWindowPromptToSave
+    ) !== true;
     this.label = label ?? this.createEditorLabel(resource);
   }
   static ID = "workbench.editorinputs.replEditorInput";

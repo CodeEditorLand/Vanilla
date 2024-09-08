@@ -5,9 +5,9 @@ import {
 } from "../../../../platform/instantiation/common/extensions.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import {
+  registerWorkbenchContribution2,
   Extensions as WorkbenchExtensions,
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   AccessibleViewInformationService,

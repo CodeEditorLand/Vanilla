@@ -46,7 +46,17 @@ class MergeEditorInputData {
 }
 let MergeEditorInput = class extends AbstractTextResourceEditorInput {
   constructor(base, input1, input2, result, _instaService, editorService, textFileService, labelService, fileService, configurationService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService) {
-    super(result, void 0, editorService, textFileService, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
+    super(
+      result,
+      void 0,
+      editorService,
+      textFileService,
+      labelService,
+      fileService,
+      filesConfigurationService,
+      textResourceConfigurationService,
+      customEditorLabelService
+    );
     this.base = base;
     this.input1 = input1;
     this.input2 = input2;

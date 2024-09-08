@@ -38,13 +38,13 @@ import {
 import { IViewsService } from "../../../services/views/common/viewsService.js";
 import { Markers } from "../../markers/common/markers.js";
 import {
-  ITaskService
-} from "../../tasks/common/taskService.js";
-import {
   ConfiguringTask,
   CustomTask,
   TaskEventKind
 } from "../../tasks/common/tasks.js";
+import {
+  ITaskService
+} from "../../tasks/common/taskService.js";
 import {
   DEBUG_CONFIGURE_COMMAND_ID,
   DEBUG_CONFIGURE_LABEL

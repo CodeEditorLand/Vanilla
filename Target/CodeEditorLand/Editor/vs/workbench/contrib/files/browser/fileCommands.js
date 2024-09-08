@@ -39,8 +39,8 @@ import {
   IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { IListService } from "../../../../platform/list/browser/listService.js";
@@ -88,8 +88,8 @@ import {
   ExplorerFolderContext,
   FilesExplorerFocusCondition,
   TextFileContentProvider,
-  VIEWLET_ID,
-  VIEW_ID
+  VIEW_ID,
+  VIEWLET_ID
 } from "../common/files.js";
 import {
   COMPARE_RESOURCE_COMMAND_ID,
@@ -107,22 +107,22 @@ import {
   OPEN_WITH_EXPLORER_COMMAND_ID,
   PREVIOUS_COMPRESSED_FOLDER,
   REMOVE_ROOT_FOLDER_COMMAND_ID,
+  ResourceSelectedForCompareContext,
   REVEAL_IN_EXPLORER_COMMAND_ID,
   REVERT_FILE_COMMAND_ID,
-  ResourceSelectedForCompareContext,
   SAVE_ALL_COMMAND_ID,
   SAVE_ALL_IN_GROUP_COMMAND_ID,
-  SAVE_FILES_COMMAND_ID,
   SAVE_FILE_AS_COMMAND_ID,
   SAVE_FILE_COMMAND_ID,
   SAVE_FILE_WITHOUT_FORMATTING_COMMAND_ID,
+  SAVE_FILES_COMMAND_ID,
   SELECT_FOR_COMPARE_COMMAND_ID
 } from "./fileConstants.js";
 import {
-  IExplorerService,
   getMultiSelectedResources,
   getOpenEditorsViewMultiSelection,
-  getResourceForCommand
+  getResourceForCommand,
+  IExplorerService
 } from "./files.js";
 import { OpenEditorsView } from "./views/openEditorsView.js";
 const openWindowCommand = (accessor, toOpen, options) => {

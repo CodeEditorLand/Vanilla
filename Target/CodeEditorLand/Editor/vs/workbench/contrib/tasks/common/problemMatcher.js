@@ -1,6 +1,6 @@
-import { localize } from "../../../../nls.js";
 import { asArray } from "../../../../base/common/arrays.js";
 import * as Assert from "../../../../base/common/assert.js";
+import { Emitter } from "../../../../base/common/event.js";
 import { Schemas as NetworkSchemas } from "../../../../base/common/network.js";
 import * as Objects from "../../../../base/common/objects.js";
 import {
@@ -15,7 +15,7 @@ import * as Strings from "../../../../base/common/strings.js";
 import * as Types from "../../../../base/common/types.js";
 import { URI } from "../../../../base/common/uri.js";
 import * as UUID from "../../../../base/common/uuid.js";
-import { Emitter } from "../../../../base/common/event.js";
+import { localize } from "../../../../nls.js";
 import {
   FileType
 } from "../../../../platform/files/common/files.js";

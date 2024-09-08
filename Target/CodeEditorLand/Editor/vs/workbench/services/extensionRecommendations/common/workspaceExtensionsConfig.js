@@ -31,8 +31,8 @@ import {
   IQuickInputService
 } from "../../../../platform/quickinput/common/quickInput.js";
 import {
-  IWorkspaceContextService,
-  isWorkspace
+  isWorkspace,
+  IWorkspaceContextService
 } from "../../../../platform/workspace/common/workspace.js";
 import {
   IJSONEditingService
@@ -50,13 +50,21 @@ let WorkspaceExtensionsConfigService = class extends Disposable {
     this.modelService = modelService;
     this.languageService = languageService;
     this.jsonEditingService = jsonEditingService;
-    this._register(workspaceContextService.onDidChangeWorkspaceFolders((e) => this._onDidChangeExtensionsConfigs.fire()));
-    this._register(fileService.onDidFilesChange((e) => {
-      const workspace = workspaceContextService.getWorkspace();
-      if (workspace.configuration && e.affects(workspace.configuration) || workspace.folders.some((folder) => e.affects(folder.toResource(EXTENSIONS_CONFIG)))) {
-        this._onDidChangeExtensionsConfigs.fire();
-      }
-    }));
+    this._register(
+      workspaceContextService.onDidChangeWorkspaceFolders(
+        (e) => this._onDidChangeExtensionsConfigs.fire()
+      )
+    );
+    this._register(
+      fileService.onDidFilesChange((e) => {
+        const workspace = workspaceContextService.getWorkspace();
+        if (workspace.configuration && e.affects(workspace.configuration) || workspace.folders.some(
+          (folder) => e.affects(folder.toResource(EXTENSIONS_CONFIG))
+        )) {
+          this._onDidChangeExtensionsConfigs.fire();
+        }
+      })
+    );
   }
   _onDidChangeExtensionsConfigs = this._register(
     new Emitter()

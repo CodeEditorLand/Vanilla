@@ -10,8 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  PlatformToString,
-  platform
+  platform,
+  PlatformToString
 } from "../../../../base/common/platform.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { ExtensionRecommendationReason } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";

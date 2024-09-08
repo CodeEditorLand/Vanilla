@@ -23,10 +23,10 @@ import {
   InstallOperation
 } from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
-import { areApiProposalsCompatible } from "../../../../platform/extensions/common/extensionValidator.js";
 import {
   ExtensionType
 } from "../../../../platform/extensions/common/extensions.js";
+import { areApiProposalsCompatible } from "../../../../platform/extensions/common/extensionValidator.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
@@ -38,7 +38,13 @@ import { IUserDataProfileService } from "../../userDataProfile/common/userDataPr
 import { RemoteExtensionManagementService } from "../common/remoteExtensionManagementService.js";
 let NativeRemoteExtensionManagementService = class extends RemoteExtensionManagementService {
   constructor(channel, localExtensionManagementServer, userDataProfileService, userDataProfilesService, remoteUserDataProfilesService, uriIdentityService, logService, galleryService, configurationService, productService, fileService, extensionManifestPropertiesService) {
-    super(channel, userDataProfileService, userDataProfilesService, remoteUserDataProfilesService, uriIdentityService);
+    super(
+      channel,
+      userDataProfileService,
+      userDataProfilesService,
+      remoteUserDataProfilesService,
+      uriIdentityService
+    );
     this.localExtensionManagementServer = localExtensionManagementServer;
     this.logService = logService;
     this.galleryService = galleryService;

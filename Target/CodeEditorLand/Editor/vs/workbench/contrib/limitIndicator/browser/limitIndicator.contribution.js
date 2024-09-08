@@ -16,6 +16,8 @@ import Severity from "../../../../base/common/severity.js";
 import {
   getCodeEditor
 } from "../../../../editor/browser/editorBrowser.js";
+import { ColorDetector } from "../../../../editor/contrib/colorPicker/browser/colorDetector.js";
+import { FoldingController } from "../../../../editor/contrib/folding/browser/folding.js";
 import * as nls from "../../../../nls.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import {
@@ -26,8 +28,6 @@ import {
   ILanguageStatusService
 } from "../../../services/languageStatus/common/languageStatusService.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-import { ColorDetector } from "../../../../editor/contrib/colorPicker/browser/colorDetector.js";
-import { FoldingController } from "../../../../editor/contrib/folding/browser/folding.js";
 const openSettingsCommand = "workbench.action.openSettings";
 const configureSettingsLabel = nls.localize(
   "status.button.configure",

@@ -28,18 +28,28 @@ let NotebookViewportContribution = class extends Disposable {
     super();
     this._notebookEditor = _notebookEditor;
     this._notebookService = _notebookService;
-    this._warmupViewport = new RunOnceScheduler(() => this._warmupViewportNow(), 200);
+    this._warmupViewport = new RunOnceScheduler(
+      () => this._warmupViewportNow(),
+      200
+    );
     this._register(this._warmupViewport);
-    this._register(this._notebookEditor.onDidScroll(() => {
-      this._warmupViewport.schedule();
-    }));
-    this._warmupDocument = new RunOnceScheduler(() => this._warmupDocumentNow(), 200);
+    this._register(
+      this._notebookEditor.onDidScroll(() => {
+        this._warmupViewport.schedule();
+      })
+    );
+    this._warmupDocument = new RunOnceScheduler(
+      () => this._warmupDocumentNow(),
+      200
+    );
     this._register(this._warmupDocument);
-    this._register(this._notebookEditor.onDidAttachViewModel(() => {
-      if (this._notebookEditor.hasModel()) {
-        this._warmupDocument?.schedule();
-      }
-    }));
+    this._register(
+      this._notebookEditor.onDidAttachViewModel(() => {
+        if (this._notebookEditor.hasModel()) {
+          this._warmupDocument?.schedule();
+        }
+      })
+    );
     if (this._notebookEditor.hasModel()) {
       this._warmupDocument?.schedule();
     }

@@ -22,8 +22,8 @@ import { RawContextKey } from "../../../../platform/contextkey/common/contextkey
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import {
-  Extensions as WorkbenchExtensions,
-  workbenchConfigurationNodeBase
+  workbenchConfigurationNodeBase,
+  Extensions as WorkbenchExtensions
 } from "../../../common/configuration.js";
 import {
   AccessibilityVoiceSettingId,
@@ -1126,7 +1126,12 @@ let DynamicSpeechAccessibilityConfiguration = class extends Disposable {
     super();
     this.speechService = speechService;
     this.productService = productService;
-    this._register(Event.runAndSubscribe(speechService.onDidChangeHasSpeechProvider, () => this.updateConfiguration()));
+    this._register(
+      Event.runAndSubscribe(
+        speechService.onDidChangeHasSpeechProvider,
+        () => this.updateConfiguration()
+      )
+    );
   }
   static ID = "workbench.contrib.dynamicSpeechAccessibilityConfiguration";
   updateConfiguration() {

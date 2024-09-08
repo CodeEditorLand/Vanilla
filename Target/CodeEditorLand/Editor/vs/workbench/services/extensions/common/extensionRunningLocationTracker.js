@@ -17,9 +17,9 @@ import {
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 import {
+  determineExtensionHostKinds,
   ExtensionHostKind,
-  ExtensionRunningPreference,
-  determineExtensionHostKinds
+  ExtensionRunningPreference
 } from "./extensionHostKind.js";
 import { IExtensionManifestPropertiesService } from "./extensionManifestPropertiesService.js";
 import {

@@ -66,8 +66,17 @@ let DebugVisualizerService = class {
     this.extensionService = extensionService;
     this.logService = logService;
     visualizersExtensionPoint.setHandler((_, { added, removed }) => {
-      this.registrations = this.registrations.filter((r) => !removed.some((e) => ExtensionIdentifier.equals(e.description.identifier, r.extensionId)));
-      added.forEach((e) => this.processExtensionRegistration(e.description));
+      this.registrations = this.registrations.filter(
+        (r) => !removed.some(
+          (e) => ExtensionIdentifier.equals(
+            e.description.identifier,
+            r.extensionId
+          )
+        )
+      );
+      added.forEach(
+        (e) => this.processExtensionRegistration(e.description)
+      );
     });
   }
   handles = /* @__PURE__ */ new Map();

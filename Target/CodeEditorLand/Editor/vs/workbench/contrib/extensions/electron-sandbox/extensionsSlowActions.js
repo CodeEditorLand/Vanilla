@@ -25,8 +25,8 @@ import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { Utils } from "../../../../platform/profiling/common/profiling.js";
 import {
-  IRequestService,
-  asText
+  asText,
+  IRequestService
 } from "../../../../platform/request/common/request.js";
 import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
 class RepoInfo {
@@ -64,7 +64,11 @@ class RepoInfo {
 }
 let SlowExtensionAction = class extends Action {
   constructor(extension, profile, _instantiationService) {
-    super("report.slow", localize("cmd.reportOrShow", "Performance Issue"), "extension-action report-issue");
+    super(
+      "report.slow",
+      localize("cmd.reportOrShow", "Performance Issue"),
+      "extension-action report-issue"
+    );
     this.extension = extension;
     this.profile = profile;
     this._instantiationService = _instantiationService;

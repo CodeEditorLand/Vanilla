@@ -17,6 +17,13 @@ import {
 import {
   Extensions as WorkbenchExtensions
 } from "../../../common/configuration.js";
+import { terminalAccessibilityConfiguration } from "../../terminalContrib/accessibility/common/terminalAccessibilityConfiguration.js";
+import { terminalInitialHintConfiguration } from "../../terminalContrib/chat/common/terminalInitialHintConfiguration.js";
+import { terminalCommandGuideConfiguration } from "../../terminalContrib/commandGuide/common/terminalCommandGuideConfiguration.js";
+import { terminalStickyScrollConfiguration } from "../../terminalContrib/stickyScroll/common/terminalStickyScrollConfiguration.js";
+import { terminalSuggestConfiguration } from "../../terminalContrib/suggest/common/terminalSuggestConfiguration.js";
+import { terminalTypeAheadConfiguration } from "../../terminalContrib/typeAhead/common/terminalTypeAheadConfiguration.js";
+import { terminalZoomConfiguration } from "../../terminalContrib/zoom/common/terminal.zoom.js";
 import {
   DEFAULT_COMMANDS_TO_SKIP_SHELL,
   DEFAULT_LETTER_SPACING,
@@ -25,13 +32,6 @@ import {
   MINIMUM_FONT_WEIGHT,
   SUGGESTIONS_FONT_WEIGHT
 } from "./terminal.js";
-import { terminalAccessibilityConfiguration } from "../../terminalContrib/accessibility/common/terminalAccessibilityConfiguration.js";
-import { terminalInitialHintConfiguration } from "../../terminalContrib/chat/common/terminalInitialHintConfiguration.js";
-import { terminalCommandGuideConfiguration } from "../../terminalContrib/commandGuide/common/terminalCommandGuideConfiguration.js";
-import { terminalStickyScrollConfiguration } from "../../terminalContrib/stickyScroll/common/terminalStickyScrollConfiguration.js";
-import { terminalSuggestConfiguration } from "../../terminalContrib/suggest/common/terminalSuggestConfiguration.js";
-import { terminalTypeAheadConfiguration } from "../../terminalContrib/typeAhead/common/terminalTypeAheadConfiguration.js";
-import { terminalZoomConfiguration } from "../../terminalContrib/zoom/common/terminal.zoom.js";
 const terminalDescriptors = "\n- " + [
   "`${cwd}`: " + localize("cwd", "the terminal's current working directory"),
   "`${cwdFolder}`: " + localize(

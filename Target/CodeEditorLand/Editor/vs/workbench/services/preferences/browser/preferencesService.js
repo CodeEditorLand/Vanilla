@@ -36,8 +36,8 @@ import {
 } from "../../../../platform/configuration/common/configuration.js";
 import {
   Extensions,
-  OVERRIDE_PROPERTY_REGEX,
-  getDefaultValue
+  getDefaultValue,
+  OVERRIDE_PROPERTY_REGEX
 } from "../../../../platform/configuration/common/configurationRegistry.js";
 import {
   FileOperationResult
@@ -89,14 +89,14 @@ import {
 } from "../common/preferences.js";
 import { SettingsEditor2Input } from "../common/preferencesEditorInput.js";
 import {
+  defaultKeybindingsContents,
   DefaultKeybindingsEditorModel,
   DefaultRawSettingsEditorModel,
   DefaultSettings,
   DefaultSettingsEditorModel,
   Settings2EditorModel,
   SettingsEditorModel,
-  WorkspaceConfigurationEditorModel,
-  defaultKeybindingsContents
+  WorkspaceConfigurationEditorModel
 } from "../common/preferencesModels.js";
 import { KeybindingsEditorInput } from "./keybindingsEditorInput.js";
 const emptyEditableSettingsContent = "{\n}";
@@ -119,13 +119,20 @@ let PreferencesService = class extends Disposable {
     this.textEditorService = textEditorService;
     this.extensionService = extensionService;
     this.progressService = progressService;
-    this._register(keybindingService.onDidUpdateKeybindings(() => {
-      const model = modelService.getModel(this.defaultKeybindingsResource);
-      if (!model) {
-        return;
-      }
-      modelService.updateModel(model, defaultKeybindingsContents(keybindingService));
-    }));
+    this._register(
+      keybindingService.onDidUpdateKeybindings(() => {
+        const model = modelService.getModel(
+          this.defaultKeybindingsResource
+        );
+        if (!model) {
+          return;
+        }
+        modelService.updateModel(
+          model,
+          defaultKeybindingsContents(keybindingService)
+        );
+      })
+    );
     this._register(urlService.registerHandler(this));
   }
   _onDispose = this._register(new Emitter());

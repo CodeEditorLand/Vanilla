@@ -1,8 +1,8 @@
 import { renderMarkdownAsPlaintext } from "../../../../../base/browser/markdownRenderer.js";
 import { localize } from "../../../../../nls.js";
 import { CellKind } from "../../common/notebookCommon.js";
-import { OutlineEntry } from "./OutlineEntry.js";
 import { getMarkdownHeadersInCell } from "./foldingModel.js";
+import { OutlineEntry } from "./OutlineEntry.js";
 var NotebookOutlineConstants = /* @__PURE__ */ ((NotebookOutlineConstants2) => {
   NotebookOutlineConstants2[NotebookOutlineConstants2["NonHeaderOutlineLevel"] = 7] = "NonHeaderOutlineLevel";
   return NotebookOutlineConstants2;

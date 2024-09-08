@@ -12,9 +12,9 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import {
-  OS,
+  isWeb,
   OperatingSystem,
-  isWeb
+  OS
 } from "../../../../base/common/platform.js";
 import { localize, localize2 } from "../../../../nls.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
@@ -41,9 +41,9 @@ import { Registry } from "../../../../platform/registry/common/platform.js";
 import { PersistentConnection } from "../../../../platform/remote/common/remoteAgentConnection.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 import {
+  registerWorkbenchContribution2,
   Extensions as WorkbenchExtensions,
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";

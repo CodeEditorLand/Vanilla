@@ -119,7 +119,9 @@ let InlineChatWidget = class {
     this._textModelResolverService = _textModelResolverService;
     this._chatService = _chatService;
     this._hoverService = _hoverService;
-    this.scopedContextKeyService = this._store.add(_contextKeyService.createScoped(this._elements.chatWidget));
+    this.scopedContextKeyService = this._store.add(
+      _contextKeyService.createScoped(this._elements.chatWidget)
+    );
     const scopedInstaService = _instantiationService.createChild(
       new ServiceCollection([
         IContextKeyService,
@@ -136,13 +138,19 @@ let InlineChatWidget = class {
         renderStyle: "minimal",
         renderInputOnTop: false,
         renderFollowups: true,
-        supportsFileReferences: _configurationService.getValue(`chat.experimental.variables.${location.location}`) === true,
+        supportsFileReferences: _configurationService.getValue(
+          `chat.experimental.variables.${location.location}`
+        ) === true,
         filter: (item) => {
           if (isWelcomeVM(item)) {
             return false;
           }
           if (isResponseVM(item) && item.isComplete && !item.errorDetails) {
-            if (item.response.value.length > 0 && item.response.value.every((item2) => item2.kind === "textEditGroup" && options.chatWidgetViewOptions?.rendererOptions?.renderTextEditsAsSummary?.(item2.uri))) {
+            if (item.response.value.length > 0 && item.response.value.every(
+              (item2) => item2.kind === "textEditGroup" && options.chatWidgetViewOptions?.rendererOptions?.renderTextEditsAsSummary?.(
+                item2.uri
+              )
+            )) {
               return false;
             }
             if (item.response.value.length === 0) {
@@ -162,90 +170,178 @@ let InlineChatWidget = class {
       }
     );
     this._chatWidget.render(this._elements.chatWidget);
-    this._elements.chatWidget.style.setProperty(asCssVariableName(chatRequestBackground), asCssVariable(inlineChatBackground));
+    this._elements.chatWidget.style.setProperty(
+      asCssVariableName(chatRequestBackground),
+      asCssVariable(inlineChatBackground)
+    );
     this._chatWidget.setVisible(true);
     this._store.add(this._chatWidget);
-    const ctxResponse = CONTEXT_RESPONSE.bindTo(this.scopedContextKeyService);
-    const ctxResponseVote = CONTEXT_RESPONSE_VOTE.bindTo(this.scopedContextKeyService);
-    const ctxResponseSupportIssues = CONTEXT_CHAT_RESPONSE_SUPPORT_ISSUE_REPORTING.bindTo(this.scopedContextKeyService);
-    const ctxResponseError = CONTEXT_RESPONSE_ERROR.bindTo(this.scopedContextKeyService);
-    const ctxResponseErrorFiltered = CONTEXT_RESPONSE_FILTERED.bindTo(this.scopedContextKeyService);
+    const ctxResponse = CONTEXT_RESPONSE.bindTo(
+      this.scopedContextKeyService
+    );
+    const ctxResponseVote = CONTEXT_RESPONSE_VOTE.bindTo(
+      this.scopedContextKeyService
+    );
+    const ctxResponseSupportIssues = CONTEXT_CHAT_RESPONSE_SUPPORT_ISSUE_REPORTING.bindTo(
+      this.scopedContextKeyService
+    );
+    const ctxResponseError = CONTEXT_RESPONSE_ERROR.bindTo(
+      this.scopedContextKeyService
+    );
+    const ctxResponseErrorFiltered = CONTEXT_RESPONSE_FILTERED.bindTo(
+      this.scopedContextKeyService
+    );
     const viewModelStore = this._store.add(new DisposableStore());
-    this._store.add(this._chatWidget.onDidChangeViewModel(() => {
-      viewModelStore.clear();
-      const viewModel = this._chatWidget.viewModel;
-      if (!viewModel) {
-        return;
-      }
-      viewModelStore.add(toDisposable(() => {
-        toolbar2.context = void 0;
-        ctxResponse.reset();
-        ctxResponseVote.reset();
-        ctxResponseError.reset();
-        ctxResponseErrorFiltered.reset();
-        ctxResponseSupportIssues.reset();
-      }));
-      viewModelStore.add(viewModel.onDidChange(() => {
-        const last = viewModel.getItems().at(-1);
-        toolbar2.context = last;
-        ctxResponse.set(isResponseVM(last));
-        ctxResponseVote.set(isResponseVM(last) ? last.vote === ChatAgentVoteDirection.Down ? "down" : last.vote === ChatAgentVoteDirection.Up ? "up" : "" : "");
-        ctxResponseError.set(isResponseVM(last) && last.errorDetails !== void 0);
-        ctxResponseErrorFiltered.set(!!(isResponseVM(last) && last.errorDetails?.responseIsFiltered));
-        ctxResponseSupportIssues.set(isResponseVM(last) && (last.agent?.metadata.supportIssueReporting ?? false));
+    this._store.add(
+      this._chatWidget.onDidChangeViewModel(() => {
+        viewModelStore.clear();
+        const viewModel = this._chatWidget.viewModel;
+        if (!viewModel) {
+          return;
+        }
+        viewModelStore.add(
+          toDisposable(() => {
+            toolbar2.context = void 0;
+            ctxResponse.reset();
+            ctxResponseVote.reset();
+            ctxResponseError.reset();
+            ctxResponseErrorFiltered.reset();
+            ctxResponseSupportIssues.reset();
+          })
+        );
+        viewModelStore.add(
+          viewModel.onDidChange(() => {
+            const last = viewModel.getItems().at(-1);
+            toolbar2.context = last;
+            ctxResponse.set(isResponseVM(last));
+            ctxResponseVote.set(
+              isResponseVM(last) ? last.vote === ChatAgentVoteDirection.Down ? "down" : last.vote === ChatAgentVoteDirection.Up ? "up" : "" : ""
+            );
+            ctxResponseError.set(
+              isResponseVM(last) && last.errorDetails !== void 0
+            );
+            ctxResponseErrorFiltered.set(
+              !!(isResponseVM(last) && last.errorDetails?.responseIsFiltered)
+            );
+            ctxResponseSupportIssues.set(
+              isResponseVM(last) && (last.agent?.metadata.supportIssueReporting ?? false)
+            );
+            this._onDidChangeHeight.fire();
+          })
+        );
         this._onDidChangeHeight.fire();
-      }));
-      this._onDidChangeHeight.fire();
-    }));
-    this._store.add(this.chatWidget.onDidChangeContentHeight(() => {
-      this._onDidChangeHeight.fire();
-    }));
-    this._ctxResponseFocused = CTX_INLINE_CHAT_RESPONSE_FOCUSED.bindTo(this._contextKeyService);
+      })
+    );
+    this._store.add(
+      this.chatWidget.onDidChangeContentHeight(() => {
+        this._onDidChangeHeight.fire();
+      })
+    );
+    this._ctxResponseFocused = CTX_INLINE_CHAT_RESPONSE_FOCUSED.bindTo(
+      this._contextKeyService
+    );
     const tracker = this._store.add(trackFocus(this.domNode));
-    this._store.add(tracker.onDidBlur(() => this._ctxResponseFocused.set(false)));
-    this._store.add(tracker.onDidFocus(() => this._ctxResponseFocused.set(true)));
+    this._store.add(
+      tracker.onDidBlur(() => this._ctxResponseFocused.set(false))
+    );
+    this._store.add(
+      tracker.onDidFocus(() => this._ctxResponseFocused.set(true))
+    );
     this._ctxInputEditorFocused = CTX_INLINE_CHAT_FOCUSED.bindTo(_contextKeyService);
-    this._store.add(this._chatWidget.inputEditor.onDidFocusEditorWidget(() => this._ctxInputEditorFocused.set(true)));
-    this._store.add(this._chatWidget.inputEditor.onDidBlurEditorWidget(() => this._ctxInputEditorFocused.set(false)));
+    this._store.add(
+      this._chatWidget.inputEditor.onDidFocusEditorWidget(
+        () => this._ctxInputEditorFocused.set(true)
+      )
+    );
+    this._store.add(
+      this._chatWidget.inputEditor.onDidBlurEditorWidget(
+        () => this._ctxInputEditorFocused.set(false)
+      )
+    );
     const statusMenuId = options.statusMenuId instanceof MenuId ? options.statusMenuId : options.statusMenuId.menu;
     const statusMenuOptions = options.statusMenuId instanceof MenuId ? void 0 : options.statusMenuId.options;
-    const statusButtonBar = scopedInstaService.createInstance(MenuWorkbenchButtonBar, this._elements.toolbar1, statusMenuId, {
-      toolbarOptions: { primaryGroup: "0_main" },
-      telemetrySource: options.chatWidgetViewOptions?.menus?.telemetrySource,
-      menuOptions: { renderShortTitle: true },
-      ...statusMenuOptions
-    });
-    this._store.add(statusButtonBar.onDidChange(() => this._onDidChangeHeight.fire()));
+    const statusButtonBar = scopedInstaService.createInstance(
+      MenuWorkbenchButtonBar,
+      this._elements.toolbar1,
+      statusMenuId,
+      {
+        toolbarOptions: { primaryGroup: "0_main" },
+        telemetrySource: options.chatWidgetViewOptions?.menus?.telemetrySource,
+        menuOptions: { renderShortTitle: true },
+        ...statusMenuOptions
+      }
+    );
+    this._store.add(
+      statusButtonBar.onDidChange(() => this._onDidChangeHeight.fire())
+    );
     this._store.add(statusButtonBar);
-    const toolbar2 = scopedInstaService.createInstance(MenuWorkbenchToolBar, this._elements.toolbar2, options.secondaryMenuId ?? MenuId.for(""), {
-      telemetrySource: options.chatWidgetViewOptions?.menus?.telemetrySource,
-      menuOptions: { renderShortTitle: true, shouldForwardArgs: true },
-      actionViewItemProvider: (action, options2) => {
-        if (action instanceof MenuItemAction && action.item.id === MarkUnhelpfulActionId) {
-          return scopedInstaService.createInstance(ChatVoteDownButton, action, options2);
+    const toolbar2 = scopedInstaService.createInstance(
+      MenuWorkbenchToolBar,
+      this._elements.toolbar2,
+      options.secondaryMenuId ?? MenuId.for(""),
+      {
+        telemetrySource: options.chatWidgetViewOptions?.menus?.telemetrySource,
+        menuOptions: {
+          renderShortTitle: true,
+          shouldForwardArgs: true
+        },
+        actionViewItemProvider: (action, options2) => {
+          if (action instanceof MenuItemAction && action.item.id === MarkUnhelpfulActionId) {
+            return scopedInstaService.createInstance(
+              ChatVoteDownButton,
+              action,
+              options2
+            );
+          }
+          return createActionViewItem(
+            scopedInstaService,
+            action,
+            options2
+          );
         }
-        return createActionViewItem(scopedInstaService, action, options2);
       }
-    });
-    this._store.add(toolbar2.onDidChangeMenuItems(() => this._onDidChangeHeight.fire()));
+    );
+    this._store.add(
+      toolbar2.onDidChangeMenuItems(() => this._onDidChangeHeight.fire())
+    );
     this._store.add(toolbar2);
-    this._store.add(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(AccessibilityVerbositySettingId.InlineChat)) {
-        this._updateAriaLabel();
-      }
-    }));
+    this._store.add(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          AccessibilityVerbositySettingId.InlineChat
+        )) {
+          this._updateAriaLabel();
+        }
+      })
+    );
     this._elements.root.tabIndex = 0;
     this._elements.statusLabel.tabIndex = 0;
     this._updateAriaLabel();
-    this._store.add(this._hoverService.setupManagedHover(getDefaultHoverDelegate("element"), this._elements.statusLabel, () => {
-      return this._elements.statusLabel.dataset["title"];
-    }));
-    this._store.add(this._chatService.onDidPerformUserAction((e) => {
-      if (e.sessionId === this._chatWidget.viewModel?.model.sessionId && e.action.kind === "vote") {
-        this.updateStatus("Thank you for your feedback!", { resetAfter: 1250 });
-      }
-    }));
-    this._defaultChatModel = this._store.add(this._instantiationService.createInstance(ChatModel, void 0, ChatAgentLocation.Editor));
+    this._store.add(
+      this._hoverService.setupManagedHover(
+        getDefaultHoverDelegate("element"),
+        this._elements.statusLabel,
+        () => {
+          return this._elements.statusLabel.dataset["title"];
+        }
+      )
+    );
+    this._store.add(
+      this._chatService.onDidPerformUserAction((e) => {
+        if (e.sessionId === this._chatWidget.viewModel?.model.sessionId && e.action.kind === "vote") {
+          this.updateStatus("Thank you for your feedback!", {
+            resetAfter: 1250
+          });
+        }
+      })
+    );
+    this._defaultChatModel = this._store.add(
+      this._instantiationService.createInstance(
+        ChatModel,
+        void 0,
+        ChatAgentLocation.Editor
+      )
+    );
     this._defaultChatModel.startInitialize();
     this._defaultChatModel.initialize(void 0);
     this.setChatModel(this._defaultChatModel);

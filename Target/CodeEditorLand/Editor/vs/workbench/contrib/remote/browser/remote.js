@@ -466,7 +466,19 @@ class IssueReporterItem extends HelpItemBase {
 }
 let HelpPanel = class extends ViewPane {
   constructor(viewModel, options, keybindingService, contextMenuService, contextKeyService, configurationService, instantiationService, viewDescriptorService, openerService, quickInputService, commandService, remoteExplorerService, environmentService, themeService, telemetryService, hoverService, workspaceContextService, walkthroughsService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.viewModel = viewModel;
     this.quickInputService = quickInputService;
     this.commandService = commandService;
@@ -559,32 +571,55 @@ class HelpPanelDescriptor {
 }
 let RemoteViewPaneContainer = class extends FilterViewPaneContainer {
   constructor(layoutService, telemetryService, contextService, storageService, configurationService, instantiationService, themeService, contextMenuService, extensionService, remoteExplorerService, viewDescriptorService) {
-    super(VIEWLET_ID, remoteExplorerService.onDidChangeTargetType, configurationService, layoutService, telemetryService, storageService, instantiationService, themeService, contextMenuService, extensionService, contextService, viewDescriptorService);
+    super(
+      VIEWLET_ID,
+      remoteExplorerService.onDidChangeTargetType,
+      configurationService,
+      layoutService,
+      telemetryService,
+      storageService,
+      instantiationService,
+      themeService,
+      contextMenuService,
+      extensionService,
+      contextService,
+      viewDescriptorService
+    );
     this.remoteExplorerService = remoteExplorerService;
     this.addConstantViewDescriptors([this.helpPanelDescriptor]);
-    this._register(this.remoteSwitcher = this.instantiationService.createInstance(SwitchRemoteViewItem));
+    this._register(
+      this.remoteSwitcher = this.instantiationService.createInstance(SwitchRemoteViewItem)
+    );
     this.remoteExplorerService.onDidChangeHelpInformation((extensions) => {
       this._setHelpInformation(extensions);
     });
     this._setHelpInformation(this.remoteExplorerService.helpInformation);
-    const viewsRegistry = Registry.as(Extensions.ViewsRegistry);
-    this.remoteSwitcher.createOptionItems(viewsRegistry.getViews(this.viewContainer));
-    this._register(viewsRegistry.onViewsRegistered((e) => {
-      const remoteViews = [];
-      for (const view of e) {
-        if (view.viewContainer.id === VIEWLET_ID) {
-          remoteViews.push(...view.views);
+    const viewsRegistry = Registry.as(
+      Extensions.ViewsRegistry
+    );
+    this.remoteSwitcher.createOptionItems(
+      viewsRegistry.getViews(this.viewContainer)
+    );
+    this._register(
+      viewsRegistry.onViewsRegistered((e) => {
+        const remoteViews = [];
+        for (const view of e) {
+          if (view.viewContainer.id === VIEWLET_ID) {
+            remoteViews.push(...view.views);
+          }
         }
-      }
-      if (remoteViews.length > 0) {
-        this.remoteSwitcher.createOptionItems(remoteViews);
-      }
-    }));
-    this._register(viewsRegistry.onViewsDeregistered((e) => {
-      if (e.viewContainer.id === VIEWLET_ID) {
-        this.remoteSwitcher.removeOptionItems(e.views);
-      }
-    }));
+        if (remoteViews.length > 0) {
+          this.remoteSwitcher.createOptionItems(remoteViews);
+        }
+      })
+    );
+    this._register(
+      viewsRegistry.onViewsDeregistered((e) => {
+        if (e.viewContainer.id === VIEWLET_ID) {
+          this.remoteSwitcher.removeOptionItems(e.views);
+        }
+      })
+    );
   }
   helpPanelDescriptor = new HelpPanelDescriptor(this);
   helpInformation = [];

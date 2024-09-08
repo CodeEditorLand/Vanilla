@@ -1,5 +1,6 @@
 import { asArray } from "../../../../base/common/arrays.js";
 import * as Async from "../../../../base/common/async.js";
+import { Codicon } from "../../../../base/common/codicons.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { isUNC } from "../../../../base/common/extpath.js";
 import {
@@ -7,31 +8,27 @@ import {
   DisposableStore
 } from "../../../../base/common/lifecycle.js";
 import { LinkedMap, Touch } from "../../../../base/common/map.js";
+import { Schemas } from "../../../../base/common/network.js";
 import * as Objects from "../../../../base/common/objects.js";
 import * as path from "../../../../base/common/path.js";
 import * as Platform from "../../../../base/common/platform.js";
 import * as resources from "../../../../base/common/resources.js";
 import Severity from "../../../../base/common/severity.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import * as Types from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
 import {
   MarkerSeverity
 } from "../../../../platform/markers/common/markers.js";
+import { formatMessageForTerminal } from "../../../../platform/terminal/common/terminalStrings.js";
 import {
   WorkbenchState
 } from "../../../../platform/workspace/common/workspace.js";
-import { Markers } from "../../markers/common/markers.js";
-import {
-  ProblemMatcherRegistry
-} from "../common/problemMatcher.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import { formatMessageForTerminal } from "../../../../platform/terminal/common/terminalStrings.js";
 import {
   ViewContainerLocation
 } from "../../../common/views.js";
+import { Markers } from "../../markers/common/markers.js";
 import {
   VSCodeOscProperty,
   VSCodeOscPt,
@@ -47,13 +44,10 @@ import {
   StartStopProblemCollector,
   WatchingProblemCollector
 } from "../common/problemCollectors.js";
-import { GroupKind } from "../common/taskConfiguration.js";
 import {
-  TaskError,
-  TaskErrors,
-  TaskExecuteKind,
-  Triggers
-} from "../common/taskSystem.js";
+  ProblemMatcherRegistry
+} from "../common/problemMatcher.js";
+import { GroupKind } from "../common/taskConfiguration.js";
 import {
   CommandString,
   ContributedTask,
@@ -70,6 +64,12 @@ import {
   TaskScope,
   TaskSourceKind
 } from "../common/tasks.js";
+import {
+  TaskError,
+  TaskErrors,
+  TaskExecuteKind,
+  Triggers
+} from "../common/taskSystem.js";
 import { TaskTerminalStatus } from "./taskTerminalStatus.js";
 const ReconnectionType = "Task";
 class VariableResolver {

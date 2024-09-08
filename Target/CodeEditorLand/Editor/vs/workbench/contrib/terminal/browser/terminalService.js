@@ -124,38 +124,80 @@ let TerminalService = class extends Disposable {
     this._commandService = _commandService;
     this._keybindingService = _keybindingService;
     this._timerService = _timerService;
-    this._register(this.onDidCreateInstance(() => this._terminalProfileService.refreshAvailableProfiles()));
+    this._register(
+      this.onDidCreateInstance(
+        () => this._terminalProfileService.refreshAvailableProfiles()
+      )
+    );
     this._forwardInstanceHostEvents(this._terminalGroupService);
     this._forwardInstanceHostEvents(this._terminalEditorService);
-    this._register(this._terminalGroupService.onDidChangeActiveGroup(this._onDidChangeActiveGroup.fire, this._onDidChangeActiveGroup));
-    this._register(this._terminalInstanceService.onDidCreateInstance((instance) => {
-      this._initInstanceListeners(instance);
-      this._onDidCreateInstance.fire(instance);
-    }));
-    this._register(this._terminalGroupService.onDidChangeActiveInstance((instance) => {
-      if (!instance && !this._isShuttingDown) {
-        this._terminalGroupService.hidePanel();
-      }
-      if (instance?.shellType) {
-        this._terminalShellTypeContextKey.set(instance.shellType.toString());
-      } else if (!instance || !instance.shellType) {
-        this._terminalShellTypeContextKey.reset();
-      }
-    }));
+    this._register(
+      this._terminalGroupService.onDidChangeActiveGroup(
+        this._onDidChangeActiveGroup.fire,
+        this._onDidChangeActiveGroup
+      )
+    );
+    this._register(
+      this._terminalInstanceService.onDidCreateInstance((instance) => {
+        this._initInstanceListeners(instance);
+        this._onDidCreateInstance.fire(instance);
+      })
+    );
+    this._register(
+      this._terminalGroupService.onDidChangeActiveInstance((instance) => {
+        if (!instance && !this._isShuttingDown) {
+          this._terminalGroupService.hidePanel();
+        }
+        if (instance?.shellType) {
+          this._terminalShellTypeContextKey.set(
+            instance.shellType.toString()
+          );
+        } else if (!instance || !instance.shellType) {
+          this._terminalShellTypeContextKey.reset();
+        }
+      })
+    );
     this._handleInstanceContextKeys();
     this._terminalShellTypeContextKey = TerminalContextKeys.shellType.bindTo(this._contextKeyService);
-    this._processSupportContextKey = TerminalContextKeys.processSupported.bindTo(this._contextKeyService);
-    this._processSupportContextKey.set(!isWeb || this._remoteAgentService.getConnection() !== null);
-    this._terminalHasBeenCreated = TerminalContextKeys.terminalHasBeenCreated.bindTo(this._contextKeyService);
-    this._terminalCountContextKey = TerminalContextKeys.count.bindTo(this._contextKeyService);
-    this._terminalEditorActive = TerminalContextKeys.terminalEditorActive.bindTo(this._contextKeyService);
-    this._register(this.onDidChangeActiveInstance((instance) => {
-      this._terminalEditorActive.set(!!instance?.target && instance.target === TerminalLocation.Editor);
-    }));
-    this._register(_lifecycleService.onBeforeShutdown(async (e) => e.veto(this._onBeforeShutdown(e.reason), "veto.terminal")));
-    this._register(_lifecycleService.onWillShutdown((e) => this._onWillShutdown(e)));
+    this._processSupportContextKey = TerminalContextKeys.processSupported.bindTo(
+      this._contextKeyService
+    );
+    this._processSupportContextKey.set(
+      !isWeb || this._remoteAgentService.getConnection() !== null
+    );
+    this._terminalHasBeenCreated = TerminalContextKeys.terminalHasBeenCreated.bindTo(
+      this._contextKeyService
+    );
+    this._terminalCountContextKey = TerminalContextKeys.count.bindTo(
+      this._contextKeyService
+    );
+    this._terminalEditorActive = TerminalContextKeys.terminalEditorActive.bindTo(
+      this._contextKeyService
+    );
+    this._register(
+      this.onDidChangeActiveInstance((instance) => {
+        this._terminalEditorActive.set(
+          !!instance?.target && instance.target === TerminalLocation.Editor
+        );
+      })
+    );
+    this._register(
+      _lifecycleService.onBeforeShutdown(
+        async (e) => e.veto(this._onBeforeShutdown(e.reason), "veto.terminal")
+      )
+    );
+    this._register(
+      _lifecycleService.onWillShutdown((e) => this._onWillShutdown(e))
+    );
     this._initializePrimaryBackend();
-    timeout(0).then(() => this._register(this._instantiationService.createInstance(TerminalEditorStyle, mainWindow.document.head)));
+    timeout(0).then(
+      () => this._register(
+        this._instantiationService.createInstance(
+          TerminalEditorStyle,
+          mainWindow.document.head
+        )
+      )
+    );
   }
   _hostActiveTerminals = /* @__PURE__ */ new Map();
   _detachedXterms = /* @__PURE__ */ new Set();

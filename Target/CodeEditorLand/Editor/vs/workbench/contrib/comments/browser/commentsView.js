@@ -51,12 +51,12 @@ import {
   ResourceWithCommentThreads
 } from "../common/commentModel.js";
 import {
-  ICommentService
-} from "./commentService.js";
-import {
   CommentsViewFilterFocusContextKey
 } from "./comments.js";
 import { revealCommentThread } from "./commentsController.js";
+import {
+  ICommentService
+} from "./commentService.js";
 import { FilterOptions } from "./commentsFilterOptions.js";
 import {
   CommentsModel,
@@ -102,17 +102,38 @@ function createResourceCommentsIterator(model) {
 let CommentsPanel = class extends FilterViewPane {
   constructor(options, instantiationService, viewDescriptorService, editorService, configurationService, contextKeyService, contextMenuService, keybindingService, openerService, themeService, commentService, telemetryService, hoverService, uriIdentityService, storageService, pathService) {
     const stateMemento = new Memento(VIEW_STORAGE_ID, storageService);
-    const viewState = stateMemento.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE);
-    super({
-      ...options,
-      filterOptions: {
-        placeholder: nls.localize("comments.filter.placeholder", "Filter (e.g. text, author)"),
-        ariaLabel: nls.localize("comments.filter.ariaLabel", "Filter comments"),
-        history: viewState["filterHistory"] || [],
-        text: viewState["filter"] || "",
-        focusContextKey: CommentsViewFilterFocusContextKey.key
-      }
-    }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    const viewState = stateMemento.getMemento(
+      StorageScope.WORKSPACE,
+      StorageTarget.MACHINE
+    );
+    super(
+      {
+        ...options,
+        filterOptions: {
+          placeholder: nls.localize(
+            "comments.filter.placeholder",
+            "Filter (e.g. text, author)"
+          ),
+          ariaLabel: nls.localize(
+            "comments.filter.ariaLabel",
+            "Filter comments"
+          ),
+          history: viewState["filterHistory"] || [],
+          text: viewState["filter"] || "",
+          focusContextKey: CommentsViewFilterFocusContextKey.key
+        }
+      },
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.editorService = editorService;
     this.commentService = commentService;
     this.uriIdentityService = uriIdentityService;
@@ -122,21 +143,36 @@ let CommentsPanel = class extends FilterViewPane {
     this.commentsFocusedContextKey = CONTEXT_KEY_COMMENT_FOCUSED.bindTo(contextKeyService);
     this.stateMemento = stateMemento;
     this.viewState = viewState;
-    this.filters = this._register(new CommentsFilters({
-      showResolved: this.viewState["showResolved"] !== false,
-      showUnresolved: this.viewState["showUnresolved"] !== false,
-      sortBy: this.viewState["sortBy"] ?? CommentsSortOrder.ResourceAscending
-    }, this.contextKeyService));
-    this.filter = new Filter(new FilterOptions(this.filterWidget.getFilterText(), this.filters.showResolved, this.filters.showUnresolved));
-    this._register(this.filters.onDidChange((event) => {
-      if (event.showResolved || event.showUnresolved) {
-        this.updateFilter();
-      }
-      if (event.sortBy) {
-        this.refresh();
-      }
-    }));
-    this._register(this.filterWidget.onDidChangeFilterText(() => this.updateFilter()));
+    this.filters = this._register(
+      new CommentsFilters(
+        {
+          showResolved: this.viewState["showResolved"] !== false,
+          showUnresolved: this.viewState["showUnresolved"] !== false,
+          sortBy: this.viewState["sortBy"] ?? CommentsSortOrder.ResourceAscending
+        },
+        this.contextKeyService
+      )
+    );
+    this.filter = new Filter(
+      new FilterOptions(
+        this.filterWidget.getFilterText(),
+        this.filters.showResolved,
+        this.filters.showUnresolved
+      )
+    );
+    this._register(
+      this.filters.onDidChange((event) => {
+        if (event.showResolved || event.showUnresolved) {
+          this.updateFilter();
+        }
+        if (event.sortBy) {
+          this.refresh();
+        }
+      })
+    );
+    this._register(
+      this.filterWidget.onDidChangeFilterText(() => this.updateFilter())
+    );
   }
   treeLabels;
   tree;

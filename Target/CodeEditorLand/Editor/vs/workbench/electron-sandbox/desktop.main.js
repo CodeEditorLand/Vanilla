@@ -13,15 +13,15 @@ import {
 import { URI } from "../../base/common/uri.js";
 import { ProxyChannel } from "../../base/parts/ipc/common/ipc.js";
 import { localize } from "../../nls.js";
-import { FileService } from "../../platform/files/common/fileService.js";
 import { IFileService } from "../../platform/files/common/files.js";
+import { FileService } from "../../platform/files/common/fileService.js";
 import { ServiceCollection } from "../../platform/instantiation/common/serviceCollection.js";
 import { IMainProcessService } from "../../platform/ipc/common/mainProcessService.js";
 import { ElectronIPCMainProcessService } from "../../platform/ipc/electron-sandbox/mainProcessService.js";
 import { ISharedProcessService } from "../../platform/ipc/electron-sandbox/services.js";
 import {
-  ILogService,
   ILoggerService,
+  ILogService,
   LogLevel
 } from "../../platform/log/common/log.js";
 import { LoggerChannelClient } from "../../platform/log/common/logIpc.js";
@@ -55,9 +55,9 @@ import {
 import { UserDataProfilesService } from "../../platform/userDataProfile/common/userDataProfileIpc.js";
 import { applyZoom } from "../../platform/window/electron-sandbox/window.js";
 import {
-  IWorkspaceContextService,
   isSingleFolderWorkspaceIdentifier,
   isWorkspaceIdentifier,
+  IWorkspaceContextService,
   reviveIdentifier,
   toWorkspaceIdentifier
 } from "../../platform/workspace/common/workspace.js";

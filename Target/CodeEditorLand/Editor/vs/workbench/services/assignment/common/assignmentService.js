@@ -82,8 +82,13 @@ let WorkbenchAssignmentService = class extends BaseAssignmentService {
       configurationService,
       productService,
       environmentService,
-      new WorkbenchAssignmentServiceTelemetry(telemetryService, productService),
-      new MementoKeyValueStorage(new Memento("experiment.service.memento", storageService))
+      new WorkbenchAssignmentServiceTelemetry(
+        telemetryService,
+        productService
+      ),
+      new MementoKeyValueStorage(
+        new Memento("experiment.service.memento", storageService)
+      )
     );
     this.telemetryService = telemetryService;
   }

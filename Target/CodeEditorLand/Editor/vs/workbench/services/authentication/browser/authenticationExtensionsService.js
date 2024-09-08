@@ -12,8 +12,8 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import {
   Disposable,
   DisposableStore,
-  MutableDisposable,
-  dispose
+  dispose,
+  MutableDisposable
 } from "../../../../base/common/lifecycle.js";
 import * as nls from "../../../../nls.js";
 import {

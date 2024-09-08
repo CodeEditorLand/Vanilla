@@ -18,8 +18,8 @@ import { IConfigurationService } from "../../../../platform/configuration/common
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ApplyFileSnippetAction } from "./commands/fileTemplateSnippets.js";
 import {
-  SurroundWithSnippetEditorAction,
-  getSurroundableSnippets
+  getSurroundableSnippets,
+  SurroundWithSnippetEditorAction
 } from "./commands/surroundWithSnippet.js";
 import { ISnippetsService } from "./snippets.js";
 let SurroundWithSnippetCodeActionProvider = class {

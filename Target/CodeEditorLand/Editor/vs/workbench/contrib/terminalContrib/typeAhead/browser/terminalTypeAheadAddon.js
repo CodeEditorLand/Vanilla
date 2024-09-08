@@ -1064,7 +1064,9 @@ let TypeAheadAddon = class extends Disposable {
     this._processManager = _processManager;
     this._configurationService = _configurationService;
     this._telemetryService = _telemetryService;
-    this._register(toDisposable(() => this._clearPredictionDebounce?.dispose()));
+    this._register(
+      toDisposable(() => this._clearPredictionDebounce?.dispose())
+    );
   }
   _typeaheadStyle;
   _typeaheadThreshold = this._configurationService.getValue(

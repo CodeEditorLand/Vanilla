@@ -63,13 +63,20 @@ import {
 } from "../../chat/common/chatAgents.js";
 let CommandsQuickAccessProvider = class extends AbstractEditorCommandsQuickAccessProvider {
   constructor(editorService, menuService, extensionService, instantiationService, keybindingService, commandService, telemetryService, dialogService, configurationService, editorGroupService, preferencesService, productService, aiRelatedInformationService, chatAgentService) {
-    super({
-      showAlias: !Language.isDefaultVariant(),
-      noResultsPick: () => ({
-        label: localize("noCommandResults", "No matching commands"),
-        commandId: ""
-      })
-    }, instantiationService, keybindingService, commandService, telemetryService, dialogService);
+    super(
+      {
+        showAlias: !Language.isDefaultVariant(),
+        noResultsPick: () => ({
+          label: localize("noCommandResults", "No matching commands"),
+          commandId: ""
+        })
+      },
+      instantiationService,
+      keybindingService,
+      commandService,
+      telemetryService,
+      dialogService
+    );
     this.editorService = editorService;
     this.menuService = menuService;
     this.extensionService = extensionService;
@@ -79,7 +86,11 @@ let CommandsQuickAccessProvider = class extends AbstractEditorCommandsQuickAcces
     this.productService = productService;
     this.aiRelatedInformationService = aiRelatedInformationService;
     this.chatAgentService = chatAgentService;
-    this._register(configurationService.onDidChangeConfiguration((e) => this.updateOptions(e)));
+    this._register(
+      configurationService.onDidChangeConfiguration(
+        (e) => this.updateOptions(e)
+      )
+    );
     this.updateOptions();
   }
   static AI_RELATED_INFORMATION_MAX_PICKS = 5;

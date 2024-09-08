@@ -10,14 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  EventType,
-  ModifierKeyEmitter,
   addDisposableListener,
   addDisposableThrottledListener,
   detectFullscreen,
   disposableWindowInterval,
+  EventType,
   getActiveDocument,
   getWindowId,
+  ModifierKeyEmitter,
   onDidRegisterWindow,
   trackFocus
 } from "../../../../base/browser/dom.js";
@@ -57,8 +57,8 @@ import {
   isWorkspaceToOpen
 } from "../../../../platform/window/common/window.js";
 import {
-  IWorkspaceContextService,
-  isTemporaryWorkspace
+  isTemporaryWorkspace,
+  IWorkspaceContextService
 } from "../../../../platform/workspace/common/workspace.js";
 import { whenEditorClosed } from "../../../browser/editor.js";
 import {

@@ -26,11 +26,15 @@ let DebugWatchAccessibilityAnnouncer = class extends Disposable {
     this._accessibilityService = _accessibilityService;
     this._configurationService = _configurationService;
     this._setListener();
-    this._register(_configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("accessibility.debugWatchVariableAnnouncements")) {
-        this._setListener();
-      }
-    }));
+    this._register(
+      _configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          "accessibility.debugWatchVariableAnnouncements"
+        )) {
+          this._setListener();
+        }
+      })
+    );
   }
   static ID = "workbench.contrib.debugWatchAccessibilityAnnouncer";
   _listener = this._register(

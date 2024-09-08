@@ -71,7 +71,10 @@ let StartupPageEditorResolverContribution = class {
       {
         createEditorInput: ({ resource, options }) => {
           return {
-            editor: this.instantiationService.createInstance(GettingStartedInput, options),
+            editor: this.instantiationService.createInstance(
+              GettingStartedInput,
+              options
+            ),
             options: {
               ...options,
               pinned: false

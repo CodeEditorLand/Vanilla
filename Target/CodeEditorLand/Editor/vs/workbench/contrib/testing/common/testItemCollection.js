@@ -1,17 +1,17 @@
 import { assertNever } from "../../../../base/common/assert.js";
 import {
   Barrier,
-  RunOnceScheduler,
-  isThenable
+  isThenable,
+  RunOnceScheduler
 } from "../../../../base/common/async.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { TestId } from "./testId.js";
 import {
-  TestDiffOpType,
-  TestItemExpandState,
   applyTestItemUpdate,
-  namespaceTestTag
+  namespaceTestTag,
+  TestDiffOpType,
+  TestItemExpandState
 } from "./testTypes.js";
 var TestItemEventOp = /* @__PURE__ */ ((TestItemEventOp2) => {
   TestItemEventOp2[TestItemEventOp2["Upsert"] = 0] = "Upsert";

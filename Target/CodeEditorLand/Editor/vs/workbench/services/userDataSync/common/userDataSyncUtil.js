@@ -20,8 +20,8 @@ import {
 } from "../../../../platform/instantiation/common/extensions.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import {
-  IUserDataSyncUtilService,
-  getDefaultIgnoredSettings
+  getDefaultIgnoredSettings,
+  IUserDataSyncUtilService
 } from "../../../../platform/userDataSync/common/userDataSync.js";
 let UserDataSyncUtilService = class {
   constructor(keybindingsService, textModelService, textResourcePropertiesService, textResourceConfigurationService) {

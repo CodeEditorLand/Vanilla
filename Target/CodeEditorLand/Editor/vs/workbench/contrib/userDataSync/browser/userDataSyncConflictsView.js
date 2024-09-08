@@ -53,19 +53,37 @@ import {
 import { IAccessibleViewInformationService } from "../../../services/accessibility/common/accessibleViewInformationService.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import {
+  getSyncAreaLabel,
   IUserDataSyncWorkbenchService,
-  SYNC_CONFLICTS_VIEW_ID,
-  getSyncAreaLabel
+  SYNC_CONFLICTS_VIEW_ID
 } from "../../../services/userDataSync/common/userDataSync.js";
 let UserDataSyncConflictsViewPane = class extends TreeViewPane {
   constructor(options, editorService, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, notificationService, hoverService, userDataSyncService, userDataSyncWorkbenchService, userDataSyncEnablementService, userDataProfilesService, accessibleViewVisibilityService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, notificationService, hoverService, accessibleViewVisibilityService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      notificationService,
+      hoverService,
+      accessibleViewVisibilityService
+    );
     this.editorService = editorService;
     this.userDataSyncService = userDataSyncService;
     this.userDataSyncWorkbenchService = userDataSyncWorkbenchService;
     this.userDataSyncEnablementService = userDataSyncEnablementService;
     this.userDataProfilesService = userDataProfilesService;
-    this._register(this.userDataSyncService.onDidChangeConflicts(() => this.treeView.refresh()));
+    this._register(
+      this.userDataSyncService.onDidChangeConflicts(
+        () => this.treeView.refresh()
+      )
+    );
     this.registerActions();
   }
   renderTreeView(container) {

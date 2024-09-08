@@ -44,12 +44,12 @@ import {
 } from "../../../services/preferences/common/preferences.js";
 import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
 import {
+  compareTwoNullableNumbers,
   ENABLE_EXTENSION_TOGGLE_SETTINGS,
   ENABLE_LANGUAGE_FILTER,
   MODIFIED_SETTING_TAG,
   POLICY_SETTING_TAG,
-  REQUIRE_TRUSTED_WORKSPACE_SETTING_TAG,
-  compareTwoNullableNumbers
+  REQUIRE_TRUSTED_WORKSPACE_SETTING_TAG
 } from "../common/preferences.js";
 import {
   knownAcronyms,
@@ -762,7 +762,14 @@ var SearchResultIdx = /* @__PURE__ */ ((SearchResultIdx2) => {
 })(SearchResultIdx || {});
 let SearchResultModel = class extends SettingsTreeModel {
   constructor(viewState, settingsOrderByTocIndex, isWorkspaceTrusted, configurationService, environmentService, languageService, userDataProfileService, productService) {
-    super(viewState, isWorkspaceTrusted, configurationService, languageService, userDataProfileService, productService);
+    super(
+      viewState,
+      isWorkspaceTrusted,
+      configurationService,
+      languageService,
+      userDataProfileService,
+      productService
+    );
     this.environmentService = environmentService;
     this.settingsOrderByTocIndex = settingsOrderByTocIndex;
     this.update({ id: "searchResultModel", label: "" });

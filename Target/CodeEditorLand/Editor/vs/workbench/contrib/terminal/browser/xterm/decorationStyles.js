@@ -14,8 +14,8 @@ import { Delayer } from "../../../../../base/common/async.js";
 import { fromNow, getDurationString } from "../../../../../base/common/date.js";
 import { MarkdownString } from "../../../../../base/common/htmlContent.js";
 import {
-  Disposable,
-  combinedDisposable
+  combinedDisposable,
+  Disposable
 } from "../../../../../base/common/lifecycle.js";
 import { localize } from "../../../../../nls.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
@@ -42,9 +42,19 @@ let TerminalDecorationHoverManager = class extends Disposable {
   constructor(_hoverService, configurationService, contextMenuService) {
     super();
     this._hoverService = _hoverService;
-    this._register(contextMenuService.onDidShowContextMenu(() => this._contextMenuVisible = true));
-    this._register(contextMenuService.onDidHideContextMenu(() => this._contextMenuVisible = false));
-    this._hoverDelayer = this._register(new Delayer(configurationService.getValue("workbench.hover.delay")));
+    this._register(
+      contextMenuService.onDidShowContextMenu(
+        () => this._contextMenuVisible = true
+      )
+    );
+    this._register(
+      contextMenuService.onDidHideContextMenu(
+        () => this._contextMenuVisible = false
+      )
+    );
+    this._hoverDelayer = this._register(
+      new Delayer(configurationService.getValue("workbench.hover.delay"))
+    );
   }
   _hoverDelayer;
   _contextMenuVisible = false;

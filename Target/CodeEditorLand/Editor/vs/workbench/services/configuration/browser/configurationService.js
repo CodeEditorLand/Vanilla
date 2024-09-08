@@ -47,15 +47,15 @@ import {
   mergeChanges
 } from "../../../../platform/configuration/common/configurationModels.js";
 import {
-  ConfigurationScope,
-  Extensions,
-  OVERRIDE_PROPERTY_PATTERN,
   allSettings,
   applicationSettings,
   configurationDefaultsSchemaId,
+  ConfigurationScope,
+  Extensions,
   keyFromOverrideIdentifiers,
   machineOverridableSettings,
   machineSettings,
+  OVERRIDE_PROPERTY_PATTERN,
   resourceLanguageSettingsSchemaId,
   resourceSettings,
   windowSettings
@@ -73,12 +73,12 @@ import {
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import {
   Workspace as BaseWorkspace,
-  IWorkspaceContextService,
-  WorkbenchState,
   isSingleFolderWorkspaceIdentifier,
   isWorkspaceFolder,
   isWorkspaceIdentifier,
-  toWorkspaceFolder
+  IWorkspaceContextService,
+  toWorkspaceFolder,
+  WorkbenchState
 } from "../../../../platform/workspace/common/workspace.js";
 import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
 import {
@@ -88,9 +88,9 @@ import {
 } from "../../../../platform/workspaces/common/workspaces.js";
 import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
 import {
+  registerWorkbenchContribution2,
   Extensions as WorkbenchExtensions,
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { IWorkbenchAssignmentService } from "../../assignment/common/assignmentService.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
@@ -101,13 +101,13 @@ import {
 } from "../../lifecycle/common/lifecycle.js";
 import {
   APPLY_ALL_PROFILES_SETTING,
+  defaultSettingsSchemaId,
   FOLDER_CONFIG_FOLDER_NAME,
+  folderSettingsSchemaId,
   LOCAL_MACHINE_PROFILE_SCOPES,
   LOCAL_MACHINE_SCOPES,
-  PROFILE_SCOPES,
-  defaultSettingsSchemaId,
-  folderSettingsSchemaId,
   machineSettingsSchemaId,
+  PROFILE_SCOPES,
   profileSettingsSchemaId,
   userSettingsSchemaId,
   workspaceSettingsSchemaId
@@ -1622,13 +1622,22 @@ let RegisterConfigurationSchemasContribution = class extends Disposable {
     this.workspaceTrustManagementService = workspaceTrustManagementService;
     extensionService.whenInstalledExtensionsRegistered().then(() => {
       this.registerConfigurationSchemas();
-      const configurationRegistry2 = Registry.as(Extensions.Configuration);
+      const configurationRegistry2 = Registry.as(
+        Extensions.Configuration
+      );
       const delayer = this._register(new Delayer(50));
-      this._register(Event.any(configurationRegistry2.onDidUpdateConfiguration, configurationRegistry2.onDidSchemaChange, workspaceTrustManagementService.onDidChangeTrust)(() => delayer.trigger(
-        () => this.registerConfigurationSchemas(),
-        lifecycleService.phase === LifecyclePhase.Eventually ? void 0 : 2500
-        /* delay longer in early phases */
-      )));
+      this._register(
+        Event.any(
+          configurationRegistry2.onDidUpdateConfiguration,
+          configurationRegistry2.onDidSchemaChange,
+          workspaceTrustManagementService.onDidChangeTrust
+        )(
+          () => delayer.trigger(
+            () => this.registerConfigurationSchemas(),
+            lifecycleService.phase === LifecyclePhase.Eventually ? void 0 : 2500
+          )
+        )
+      );
     });
   }
   registerConfigurationSchemas() {
@@ -1852,8 +1861,16 @@ let UpdateExperimentalSettingsDefaults = class extends Disposable {
   constructor(workbenchAssignmentService) {
     super();
     this.workbenchAssignmentService = workbenchAssignmentService;
-    this.processExperimentalSettings(Object.keys(this.configurationRegistry.getConfigurationProperties()));
-    this._register(this.configurationRegistry.onDidUpdateConfiguration(({ properties }) => this.processExperimentalSettings(properties)));
+    this.processExperimentalSettings(
+      Object.keys(
+        this.configurationRegistry.getConfigurationProperties()
+      )
+    );
+    this._register(
+      this.configurationRegistry.onDidUpdateConfiguration(
+        ({ properties }) => this.processExperimentalSettings(properties)
+      )
+    );
   }
   static ID = "workbench.contrib.updateExperimentalSettingsDefaults";
   processedExperimentalSettings = /* @__PURE__ */ new Set();

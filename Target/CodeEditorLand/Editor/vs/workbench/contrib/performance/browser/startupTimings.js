@@ -78,7 +78,13 @@ StartupTimings = __decorateClass([
 ], StartupTimings);
 let BrowserStartupTimings = class extends StartupTimings {
   constructor(editorService, paneCompositeService, lifecycleService, updateService, workspaceTrustService, timerService, logService, environmentService, telemetryService, productService) {
-    super(editorService, paneCompositeService, lifecycleService, updateService, workspaceTrustService);
+    super(
+      editorService,
+      paneCompositeService,
+      lifecycleService,
+      updateService,
+      workspaceTrustService
+    );
     this.timerService = timerService;
     this.logService = logService;
     this.environmentService = environmentService;
@@ -117,11 +123,14 @@ let BrowserResourcePerformanceMarks = class {
       try {
         const url = new URL(item.name);
         const name = posix.basename(url.pathname);
-        telemetryService.publicLog2("startup.resource.perf", {
-          hosthash: `H${hash(url.host).toString(16)}`,
-          name,
-          duration: item.duration
-        });
+        telemetryService.publicLog2(
+          "startup.resource.perf",
+          {
+            hosthash: `H${hash(url.host).toString(16)}`,
+            name,
+            duration: item.duration
+          }
+        );
       } catch {
       }
     }

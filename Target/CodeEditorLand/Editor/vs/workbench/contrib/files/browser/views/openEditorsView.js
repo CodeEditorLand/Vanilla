@@ -78,8 +78,8 @@ import {
 } from "../../../../../platform/theme/common/colorRegistry.js";
 import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
 import {
-  ResourcesDropHandler,
-  fillEditorsDragData
+  fillEditorsDragData,
+  ResourcesDropHandler
 } from "../../../../browser/dnd.js";
 import {
   ResourceLabels
@@ -99,9 +99,9 @@ import {
   EditorCloseMethod,
   EditorResourceAccessor,
   GroupModelChangeKind,
+  preventEditorClose,
   SideBySideEditor,
-  Verbosity,
-  preventEditorClose
+  Verbosity
 } from "../../../../common/editor.js";
 import { IViewDescriptorService } from "../../../../common/views.js";
 import {
@@ -132,16 +132,38 @@ import {
 const $ = dom.$;
 let OpenEditorsView = class extends ViewPane {
   constructor(options, instantiationService, viewDescriptorService, contextMenuService, editorGroupService, configurationService, keybindingService, contextKeyService, themeService, telemetryService, hoverService, workingCopyService, filesConfigurationService, openerService, fileService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.editorGroupService = editorGroupService;
     this.workingCopyService = workingCopyService;
     this.filesConfigurationService = filesConfigurationService;
     this.fileService = fileService;
     this.structuralRefreshDelay = 0;
-    this.sortOrder = configurationService.getValue("explorer.openEditors.sortOrder");
+    this.sortOrder = configurationService.getValue(
+      "explorer.openEditors.sortOrder"
+    );
     this.registerUpdateEvents();
-    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationChange(e)));
-    this._register(this.workingCopyService.onDidChangeDirty((workingCopy) => this.updateDirtyIndicator(workingCopy)));
+    this._register(
+      this.configurationService.onDidChangeConfiguration(
+        (e) => this.onConfigurationChange(e)
+      )
+    );
+    this._register(
+      this.workingCopyService.onDidChangeDirty(
+        (workingCopy) => this.updateDirtyIndicator(workingCopy)
+      )
+    );
   }
   static DEFAULT_VISIBLE_OPEN_EDITORS = 9;
   static DEFAULT_MIN_VISIBLE_OPEN_EDITORS = 0;

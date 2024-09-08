@@ -9,8 +9,8 @@ import {
 import { CommandsRegistry } from "../../../platform/commands/common/commands.js";
 import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../platform/keybinding/common/keybindingsRegistry.js";
 import {
   IQuickInputService,

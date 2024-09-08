@@ -73,7 +73,20 @@ let WorkspaceStateSynchroniser = class extends AbstractSynchroniser {
   constructor(profile, collection, userDataSyncStoreService, logService, fileService, environmentService, telemetryService, configurationService, storageService, uriIdentityService, workspaceIdentityService, editSessionsStorageService) {
     const userDataSyncLocalStoreService = new NullBackupStoreService();
     const userDataSyncEnablementService = new NullEnablementService();
-    super({ syncResource: SyncResource.WorkspaceState, profile }, collection, fileService, environmentService, storageService, userDataSyncStoreService, userDataSyncLocalStoreService, userDataSyncEnablementService, telemetryService, logService, configurationService, uriIdentityService);
+    super(
+      { syncResource: SyncResource.WorkspaceState, profile },
+      collection,
+      fileService,
+      environmentService,
+      storageService,
+      userDataSyncStoreService,
+      userDataSyncLocalStoreService,
+      userDataSyncEnablementService,
+      telemetryService,
+      logService,
+      configurationService,
+      uriIdentityService
+    );
     this.workspaceIdentityService = workspaceIdentityService;
     this.editSessionsStorageService = editSessionsStorageService;
   }

@@ -22,7 +22,12 @@ import { IUndoRedoService } from "../../../../platform/undoRedo/common/undoRedo.
 import { IPathService } from "../../path/common/pathService.js";
 let WorkbenchModelService = class extends ModelService {
   constructor(configurationService, resourcePropertiesService, undoRedoService, _pathService, instantiationService) {
-    super(configurationService, resourcePropertiesService, undoRedoService, instantiationService);
+    super(
+      configurationService,
+      resourcePropertiesService,
+      undoRedoService,
+      instantiationService
+    );
     this._pathService = _pathService;
   }
   _schemaShouldMaintainUndoRedoElements(resource) {

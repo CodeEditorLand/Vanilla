@@ -107,7 +107,11 @@ let LanguageStatusContribution = class extends Disposable {
     for (const part of editorGroupService.parts) {
       this.createLanguageStatus(part);
     }
-    this._register(editorGroupService.onDidCreateAuxiliaryEditorPart((part) => this.createLanguageStatus(part)));
+    this._register(
+      editorGroupService.onDidCreateAuxiliaryEditorPart(
+        (part) => this.createLanguageStatus(part)
+      )
+    );
   }
   createLanguageStatus(part) {
     const disposables = new DisposableStore();
@@ -129,19 +133,38 @@ let LanguageStatus = class {
     this._hoverService = _hoverService;
     this._openerService = _openerService;
     this._storageService = _storageService;
-    _storageService.onDidChangeValue(StorageScope.PROFILE, LanguageStatus._keyDedicatedItems, this._disposables)(this._handleStorageChange, this, this._disposables);
+    _storageService.onDidChangeValue(
+      StorageScope.PROFILE,
+      LanguageStatus._keyDedicatedItems,
+      this._disposables
+    )(this._handleStorageChange, this, this._disposables);
     this._restoreState();
-    this._interactionCounter = new StoredCounter(_storageService, "languageStatus.interactCount");
-    _languageStatusService.onDidChange(this._update, this, this._disposables);
-    _editorService.onDidActiveEditorChange(this._update, this, this._disposables);
+    this._interactionCounter = new StoredCounter(
+      _storageService,
+      "languageStatus.interactCount"
+    );
+    _languageStatusService.onDidChange(
+      this._update,
+      this,
+      this._disposables
+    );
+    _editorService.onDidActiveEditorChange(
+      this._update,
+      this,
+      this._disposables
+    );
     this._update();
-    _statusBarService.onDidChangeEntryVisibility((e) => {
-      if (!e.visible && this._dedicated.has(e.id)) {
-        this._dedicated.delete(e.id);
-        this._update();
-        this._storeState();
-      }
-    }, void 0, this._disposables);
+    _statusBarService.onDidChangeEntryVisibility(
+      (e) => {
+        if (!e.visible && this._dedicated.has(e.id)) {
+          this._dedicated.delete(e.id);
+          this._update();
+          this._storeState();
+        }
+      },
+      void 0,
+      this._disposables
+    );
   }
   static _id = "status.languageStatus";
   static _keyDedicatedItems = "languageStatus.dedicated";

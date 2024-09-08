@@ -31,8 +31,8 @@ import { IConfigurationService } from "../../../../../platform/configuration/com
 import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import {
-  ZIndex,
-  registerZIndex
+  registerZIndex,
+  ZIndex
 } from "../../../../../platform/layout/browser/zIndexRegistry.js";
 import { IStorageService } from "../../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
@@ -116,13 +116,24 @@ class NotebookDiffEditorSelection {
 }
 let NotebookTextDiffEditor = class extends EditorPane {
   constructor(group, instantiationService, themeService, contextKeyService, notebookEditorWorkerService, configurationService, telemetryService, storageService, notebookService) {
-    super(NotebookTextDiffEditor.ID, group, telemetryService, themeService, storageService);
+    super(
+      NotebookTextDiffEditor.ID,
+      group,
+      telemetryService,
+      themeService,
+      storageService
+    );
     this.instantiationService = instantiationService;
     this.contextKeyService = contextKeyService;
     this.notebookEditorWorkerService = notebookEditorWorkerService;
     this.configurationService = configurationService;
     this.notebookService = notebookService;
-    this._notebookOptions = instantiationService.createInstance(NotebookOptions, this.window, false, void 0);
+    this._notebookOptions = instantiationService.createInstance(
+      NotebookOptions,
+      this.window,
+      false,
+      void 0
+    );
     this._register(this._notebookOptions);
     this._revealFirst = true;
   }

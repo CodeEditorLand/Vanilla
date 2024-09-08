@@ -38,12 +38,12 @@ import { ITelemetryService } from "../../../../platform/telemetry/common/telemet
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
 import {
+  createEditorOpenError,
+  createTooLargeFileError,
   DEFAULT_EDITOR_ASSOCIATION,
   EditorPaneSelectionChangeReason,
   EditorPaneSelectionCompareResult,
   EditorResourceAccessor,
-  createEditorOpenError,
-  createTooLargeFileError,
   isEditorOpenError
 } from "../../../common/editor.js";
 import {
@@ -73,7 +73,13 @@ import { NotebooKernelActionViewItem } from "./viewParts/notebookKernelView.js";
 const NOTEBOOK_EDITOR_VIEW_STATE_PREFERENCE_KEY = "NotebookEditorViewState";
 let NotebookEditor = class extends EditorPane {
   constructor(group, telemetryService, themeService, _instantiationService, storageService, _editorService, _editorGroupService, _notebookWidgetService, _contextKeyService, _fileService, configurationService, _editorProgressService, _notebookService, _extensionsWorkbenchService, _workingCopyBackupService, logService, _notebookEditorWorkerService, _preferencesService) {
-    super(NotebookEditor.ID, group, telemetryService, themeService, storageService);
+    super(
+      NotebookEditor.ID,
+      group,
+      telemetryService,
+      themeService,
+      storageService
+    );
     this._instantiationService = _instantiationService;
     this._editorService = _editorService;
     this._editorGroupService = _editorGroupService;
@@ -87,9 +93,21 @@ let NotebookEditor = class extends EditorPane {
     this.logService = logService;
     this._notebookEditorWorkerService = _notebookEditorWorkerService;
     this._preferencesService = _preferencesService;
-    this._editorMemento = this.getEditorMemento(_editorGroupService, configurationService, NOTEBOOK_EDITOR_VIEW_STATE_PREFERENCE_KEY);
-    this._register(this._fileService.onDidChangeFileSystemProviderCapabilities((e) => this._onDidChangeFileSystemProvider(e.scheme)));
-    this._register(this._fileService.onDidChangeFileSystemProviderRegistrations((e) => this._onDidChangeFileSystemProvider(e.scheme)));
+    this._editorMemento = this.getEditorMemento(
+      _editorGroupService,
+      configurationService,
+      NOTEBOOK_EDITOR_VIEW_STATE_PREFERENCE_KEY
+    );
+    this._register(
+      this._fileService.onDidChangeFileSystemProviderCapabilities(
+        (e) => this._onDidChangeFileSystemProvider(e.scheme)
+      )
+    );
+    this._register(
+      this._fileService.onDidChangeFileSystemProviderRegistrations(
+        (e) => this._onDidChangeFileSystemProvider(e.scheme)
+      )
+    );
   }
   static ID = NOTEBOOK_EDITOR_ID;
   _editorMemento;

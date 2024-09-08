@@ -28,8 +28,8 @@ import {
 } from "../../../../base/common/errors.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import {
-  MarkdownString,
-  isMarkdownString
+  isMarkdownString,
+  MarkdownString
 } from "../../../../base/common/htmlContent.js";
 import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
 import {
@@ -241,7 +241,9 @@ let ExtensionFeaturesTab = class extends Themable {
     this.manifest = manifest;
     this.feature = feature;
     this.instantiationService = instantiationService;
-    this.extensionId = new ExtensionIdentifier(getExtensionId(manifest.publisher, manifest.name));
+    this.extensionId = new ExtensionIdentifier(
+      getExtensionId(manifest.publisher, manifest.name)
+    );
     this.domNode = $("div.subcontent.feature-contributions");
     this.create();
   }

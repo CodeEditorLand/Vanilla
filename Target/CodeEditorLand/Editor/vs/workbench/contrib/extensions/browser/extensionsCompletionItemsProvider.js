@@ -22,26 +22,46 @@ let ExtensionsCompletionItemsProvider = class extends Disposable {
   constructor(extensionManagementService, languageFeaturesService) {
     super();
     this.extensionManagementService = extensionManagementService;
-    this._register(languageFeaturesService.completionProvider.register({ language: "jsonc", pattern: "**/settings.json" }, {
-      _debugDisplayName: "extensionsCompletionProvider",
-      provideCompletionItems: async (model, position, _context, token) => {
-        const getWordRangeAtPosition = (model2, position2) => {
-          const wordAtPosition = model2.getWordAtPosition(position2);
-          return wordAtPosition ? new Range(position2.lineNumber, wordAtPosition.startColumn, position2.lineNumber, wordAtPosition.endColumn) : null;
-        };
-        const location = getLocation(model.getValue(), model.getOffsetAt(position));
-        const range = getWordRangeAtPosition(model, position) ?? Range.fromPositions(position, position);
-        if (location.path[0] === "extensions.supportUntrustedWorkspaces" && location.path.length === 2 && location.isAtPropertyKey) {
-          let alreadyConfigured = [];
-          try {
-            alreadyConfigured = Object.keys(parse(model.getValue())["extensions.supportUntrustedWorkspaces"]);
-          } catch (e) {
+    this._register(
+      languageFeaturesService.completionProvider.register(
+        { language: "jsonc", pattern: "**/settings.json" },
+        {
+          _debugDisplayName: "extensionsCompletionProvider",
+          provideCompletionItems: async (model, position, _context, token) => {
+            const getWordRangeAtPosition = (model2, position2) => {
+              const wordAtPosition = model2.getWordAtPosition(position2);
+              return wordAtPosition ? new Range(
+                position2.lineNumber,
+                wordAtPosition.startColumn,
+                position2.lineNumber,
+                wordAtPosition.endColumn
+              ) : null;
+            };
+            const location = getLocation(
+              model.getValue(),
+              model.getOffsetAt(position)
+            );
+            const range = getWordRangeAtPosition(model, position) ?? Range.fromPositions(position, position);
+            if (location.path[0] === "extensions.supportUntrustedWorkspaces" && location.path.length === 2 && location.isAtPropertyKey) {
+              let alreadyConfigured = [];
+              try {
+                alreadyConfigured = Object.keys(
+                  parse(model.getValue())["extensions.supportUntrustedWorkspaces"]
+                );
+              } catch (e) {
+              }
+              return {
+                suggestions: await this.provideSupportUntrustedWorkspacesExtensionProposals(
+                  alreadyConfigured,
+                  range
+                )
+              };
+            }
+            return { suggestions: [] };
           }
-          return { suggestions: await this.provideSupportUntrustedWorkspacesExtensionProposals(alreadyConfigured, range) };
         }
-        return { suggestions: [] };
-      }
-    }));
+      )
+    );
   }
   async provideSupportUntrustedWorkspacesExtensionProposals(alreadyConfigured, range) {
     const suggestions = [];

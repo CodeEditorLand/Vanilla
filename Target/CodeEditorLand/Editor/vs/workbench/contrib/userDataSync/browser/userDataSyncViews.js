@@ -50,6 +50,7 @@ import {
 } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import {
   ALL_SYNC_RESOURCES,
+  getLastSyncResourceUri,
   IUserDataAutoSyncService,
   IUserDataSyncEnablementService,
   IUserDataSyncResourceProviderService,
@@ -57,12 +58,11 @@ import {
   SyncResource,
   SyncStatus,
   UserDataSyncError,
-  UserDataSyncErrorCode,
-  getLastSyncResourceUri
+  UserDataSyncErrorCode
 } from "../../../../platform/userDataSync/common/userDataSync.js";
 import {
-  IUserDataSyncMachinesService,
-  isWebPlatform
+  isWebPlatform,
+  IUserDataSyncMachinesService
 } from "../../../../platform/userDataSync/common/userDataSyncMachines.js";
 import {
   API_OPEN_DIFF_EDITOR_COMMAND_ID,
@@ -84,10 +84,10 @@ import {
   CONTEXT_ENABLE_SYNC_CONFLICTS_VIEW,
   CONTEXT_HAS_CONFLICTS,
   CONTEXT_SYNC_STATE,
+  getSyncAreaLabel,
   IUserDataSyncWorkbenchService,
   SYNC_CONFLICTS_VIEW_ID,
-  SYNC_TITLE,
-  getSyncAreaLabel
+  SYNC_TITLE
 } from "../../../services/userDataSync/common/userDataSync.js";
 import { UserDataSyncConflictsViewPane } from "./userDataSyncConflictsView.js";
 let UserDataSyncDataViews = class extends Disposable {
@@ -734,7 +734,14 @@ class LocalUserDataSyncActivityViewDataProvider extends UserDataSyncActivityView
 }
 let RemoteUserDataSyncActivityViewDataProvider = class extends UserDataSyncActivityViewDataProvider {
   constructor(userDataSyncService, userDataSyncResourceProviderService, userDataAutoSyncService, userDataSyncMachinesService, userDataSyncWorkbenchService, notificationService, userDataProfilesService) {
-    super(userDataSyncService, userDataSyncResourceProviderService, userDataAutoSyncService, userDataSyncWorkbenchService, notificationService, userDataProfilesService);
+    super(
+      userDataSyncService,
+      userDataSyncResourceProviderService,
+      userDataAutoSyncService,
+      userDataSyncWorkbenchService,
+      notificationService,
+      userDataProfilesService
+    );
     this.userDataSyncMachinesService = userDataSyncMachinesService;
   }
   machinesPromise;
@@ -793,7 +800,14 @@ RemoteUserDataSyncActivityViewDataProvider = __decorateClass([
 ], RemoteUserDataSyncActivityViewDataProvider);
 let ExtractedUserDataSyncActivityViewDataProvider = class extends UserDataSyncActivityViewDataProvider {
   constructor(activityDataResource, userDataSyncService, userDataSyncResourceProviderService, userDataAutoSyncService, userDataSyncWorkbenchService, notificationService, userDataProfilesService, fileService, uriIdentityService) {
-    super(userDataSyncService, userDataSyncResourceProviderService, userDataAutoSyncService, userDataSyncWorkbenchService, notificationService, userDataProfilesService);
+    super(
+      userDataSyncService,
+      userDataSyncResourceProviderService,
+      userDataAutoSyncService,
+      userDataSyncWorkbenchService,
+      notificationService,
+      userDataProfilesService
+    );
     this.activityDataResource = activityDataResource;
     this.fileService = fileService;
     this.uriIdentityService = uriIdentityService;

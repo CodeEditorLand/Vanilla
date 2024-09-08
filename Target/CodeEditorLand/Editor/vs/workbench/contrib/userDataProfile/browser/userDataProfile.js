@@ -59,12 +59,12 @@ import {
   CURRENT_PROFILE_CONTEXT,
   HAS_PROFILES_CONTEXT,
   IS_CURRENT_PROFILE_TRANSIENT_CONTEXT,
+  isProfileURL,
   IUserDataProfileManagementService,
   IUserDataProfileService,
   PROFILES_CATEGORY,
   PROFILES_ENABLEMENT_CONTEXT,
-  PROFILES_TITLE,
-  isProfileURL
+  PROFILES_TITLE
 } from "../../../services/userDataProfile/common/userDataProfile.js";
 import { IWorkspaceTagsService } from "../../tags/common/workspaceTags.js";
 import {
@@ -87,17 +87,37 @@ let UserDataProfilesWorkbenchContribution = class extends Disposable {
     this.lifecycleService = lifecycleService;
     this.urlService = urlService;
     this.currentProfileContext = CURRENT_PROFILE_CONTEXT.bindTo(contextKeyService);
-    PROFILES_ENABLEMENT_CONTEXT.bindTo(contextKeyService).set(this.userDataProfilesService.isEnabled());
+    PROFILES_ENABLEMENT_CONTEXT.bindTo(contextKeyService).set(
+      this.userDataProfilesService.isEnabled()
+    );
     this.isCurrentProfileTransientContext = IS_CURRENT_PROFILE_TRANSIENT_CONTEXT.bindTo(contextKeyService);
-    this.currentProfileContext.set(this.userDataProfileService.currentProfile.id);
-    this.isCurrentProfileTransientContext.set(!!this.userDataProfileService.currentProfile.isTransient);
-    this._register(this.userDataProfileService.onDidChangeCurrentProfile((e) => {
-      this.currentProfileContext.set(this.userDataProfileService.currentProfile.id);
-      this.isCurrentProfileTransientContext.set(!!this.userDataProfileService.currentProfile.isTransient);
-    }));
+    this.currentProfileContext.set(
+      this.userDataProfileService.currentProfile.id
+    );
+    this.isCurrentProfileTransientContext.set(
+      !!this.userDataProfileService.currentProfile.isTransient
+    );
+    this._register(
+      this.userDataProfileService.onDidChangeCurrentProfile((e) => {
+        this.currentProfileContext.set(
+          this.userDataProfileService.currentProfile.id
+        );
+        this.isCurrentProfileTransientContext.set(
+          !!this.userDataProfileService.currentProfile.isTransient
+        );
+      })
+    );
     this.hasProfilesContext = HAS_PROFILES_CONTEXT.bindTo(contextKeyService);
-    this.hasProfilesContext.set(this.userDataProfilesService.profiles.length > 1);
-    this._register(this.userDataProfilesService.onDidChangeProfiles((e) => this.hasProfilesContext.set(this.userDataProfilesService.profiles.length > 1)));
+    this.hasProfilesContext.set(
+      this.userDataProfilesService.profiles.length > 1
+    );
+    this._register(
+      this.userDataProfilesService.onDidChangeProfiles(
+        (e) => this.hasProfilesContext.set(
+          this.userDataProfilesService.profiles.length > 1
+        )
+      )
+    );
     this.registerEditor();
     this.registerActions();
     this._register(this.urlService.registerHandler(this));
@@ -106,7 +126,13 @@ let UserDataProfilesWorkbenchContribution = class extends Disposable {
     }
     this.reportWorkspaceProfileInfo();
     if (environmentService.options?.profileToPreview) {
-      lifecycleService.when(LifecyclePhase.Restored).then(() => this.handleURL(URI.revive(environmentService.options.profileToPreview)));
+      lifecycleService.when(LifecyclePhase.Restored).then(
+        () => this.handleURL(
+          URI.revive(
+            environmentService.options.profileToPreview
+          )
+        )
+      );
     }
   }
   static ID = "workbench.contrib.userDataProfiles";

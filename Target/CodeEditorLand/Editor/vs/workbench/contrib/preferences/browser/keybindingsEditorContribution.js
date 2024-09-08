@@ -54,7 +54,12 @@ let DefineKeybindingEditorContribution = class extends Disposable {
     this._editor = _editor;
     this._instantiationService = _instantiationService;
     this._userDataProfileService = _userDataProfileService;
-    this._defineWidget = this._register(this._instantiationService.createInstance(DefineKeybindingOverlayWidget, this._editor));
+    this._defineWidget = this._register(
+      this._instantiationService.createInstance(
+        DefineKeybindingOverlayWidget,
+        this._editor
+      )
+    );
     this._register(this._editor.onDidChangeModel((e) => this._update()));
     this._update();
   }
@@ -116,10 +121,18 @@ let KeybindingEditorDecorationsRenderer = class extends Disposable {
     super();
     this._editor = _editor;
     this._keybindingService = _keybindingService;
-    this._updateDecorations = this._register(new RunOnceScheduler(() => this._updateDecorationsNow(), 500));
+    this._updateDecorations = this._register(
+      new RunOnceScheduler(() => this._updateDecorationsNow(), 500)
+    );
     const model = assertIsDefined(this._editor.getModel());
-    this._register(model.onDidChangeContent(() => this._updateDecorations.schedule()));
-    this._register(this._keybindingService.onDidUpdateKeybindings(() => this._updateDecorations.schedule()));
+    this._register(
+      model.onDidChangeContent(() => this._updateDecorations.schedule())
+    );
+    this._register(
+      this._keybindingService.onDidUpdateKeybindings(
+        () => this._updateDecorations.schedule()
+      )
+    );
     this._register({
       dispose: () => {
         this._dec.clear();

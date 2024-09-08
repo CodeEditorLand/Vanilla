@@ -23,11 +23,11 @@ import {
 import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { Range } from "../../../../../editor/common/core/range.js";
 import {
-  SymbolKind,
-  SymbolKinds,
-  SymbolTag,
   getAriaLabelForSymbol,
-  symbolKindNames
+  SymbolKind,
+  symbolKindNames,
+  SymbolKinds,
+  SymbolTag
 } from "../../../../../editor/common/languages.js";
 import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
 import {

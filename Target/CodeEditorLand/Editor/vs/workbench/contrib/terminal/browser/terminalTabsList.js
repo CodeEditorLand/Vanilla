@@ -114,7 +114,17 @@ let TerminalTabList = class extends WorkbenchList {
         getHeight: () => 22 /* TabHeight */,
         getTemplateId: () => "terminal.tabs"
       },
-      [instantiationService.createInstance(TerminalTabsRenderer, container, instantiationService.createInstance(ResourceLabels, DEFAULT_LABELS_CONTAINER), () => this.getSelectedElements())],
+      [
+        instantiationService.createInstance(
+          TerminalTabsRenderer,
+          container,
+          instantiationService.createInstance(
+            ResourceLabels,
+            DEFAULT_LABELS_CONTAINER
+          ),
+          () => this.getSelectedElements()
+        )
+      ],
       {
         horizontalScrolling: false,
         supportDynamicHeights: false,
@@ -122,11 +132,17 @@ let TerminalTabList = class extends WorkbenchList {
         identityProvider: {
           getId: (e) => e?.instanceId
         },
-        accessibilityProvider: instantiationService.createInstance(TerminalTabsAccessibilityProvider),
-        smoothScrolling: _configurationService.getValue("workbench.list.smoothScrolling"),
+        accessibilityProvider: instantiationService.createInstance(
+          TerminalTabsAccessibilityProvider
+        ),
+        smoothScrolling: _configurationService.getValue(
+          "workbench.list.smoothScrolling"
+        ),
         multipleSelectionSupport: true,
         paddingBottom: 22 /* TabHeight */,
-        dnd: instantiationService.createInstance(TerminalTabsDragAndDrop),
+        dnd: instantiationService.createInstance(
+          TerminalTabsDragAndDrop
+        ),
         openOnSingleClick: true
       },
       contextKeyService,
@@ -140,14 +156,24 @@ let TerminalTabList = class extends WorkbenchList {
     this._themeService = _themeService;
     this._hoverService = _hoverService;
     const instanceDisposables = [
-      this._terminalGroupService.onDidChangeInstances(() => this.refresh()),
+      this._terminalGroupService.onDidChangeInstances(
+        () => this.refresh()
+      ),
       this._terminalGroupService.onDidChangeGroups(() => this.refresh()),
       this._terminalGroupService.onDidShow(() => this.refresh()),
-      this._terminalGroupService.onDidChangeInstanceCapability(() => this.refresh()),
-      this._terminalService.onAnyInstanceTitleChange(() => this.refresh()),
+      this._terminalGroupService.onDidChangeInstanceCapability(
+        () => this.refresh()
+      ),
+      this._terminalService.onAnyInstanceTitleChange(
+        () => this.refresh()
+      ),
       this._terminalService.onAnyInstanceIconChange(() => this.refresh()),
-      this._terminalService.onAnyInstancePrimaryStatusChange(() => this.refresh()),
-      this._terminalService.onDidChangeConnectionState(() => this.refresh()),
+      this._terminalService.onAnyInstancePrimaryStatusChange(
+        () => this.refresh()
+      ),
+      this._terminalService.onDidChangeConnectionState(
+        () => this.refresh()
+      ),
       this._themeService.onDidColorThemeChange(() => this.refresh()),
       this._terminalGroupService.onDidChangeActiveInstance((e) => {
         if (e) {
@@ -158,67 +184,93 @@ let TerminalTabList = class extends WorkbenchList {
         this.refresh();
       })
     ];
-    this.disposables.add(lifecycleService.onWillShutdown((e) => {
-      dispose(instanceDisposables);
-      instanceDisposables.length = 0;
-    }));
-    this.disposables.add(toDisposable(() => {
-      dispose(instanceDisposables);
-      instanceDisposables.length = 0;
-    }));
-    this.disposables.add(this.onMouseDblClick(async (e) => {
-      const focus = this.getFocus();
-      if (focus.length === 0) {
-        const instance = await this._terminalService.createTerminal({ location: TerminalLocation.Panel });
-        this._terminalGroupService.setActiveInstance(instance);
-        await instance.focusWhenReady();
-      }
-      if (this._terminalService.getEditingTerminal()?.instanceId === e.element?.instanceId) {
-        return;
-      }
-      if (this._getFocusMode() === "doubleClick" && this.getFocus().length === 1) {
-        e.element?.focus(true);
-      }
-    }));
-    this.disposables.add(this.onMouseClick(async (e) => {
-      if (this._terminalService.getEditingTerminal()?.instanceId === e.element?.instanceId) {
-        return;
-      }
-      if (e.browserEvent.altKey && e.element) {
-        await this._terminalService.createTerminal({ location: { parentTerminal: e.element } });
-      } else if (this._getFocusMode() === "singleClick") {
-        if (this.getSelection().length <= 1) {
+    this.disposables.add(
+      lifecycleService.onWillShutdown((e) => {
+        dispose(instanceDisposables);
+        instanceDisposables.length = 0;
+      })
+    );
+    this.disposables.add(
+      toDisposable(() => {
+        dispose(instanceDisposables);
+        instanceDisposables.length = 0;
+      })
+    );
+    this.disposables.add(
+      this.onMouseDblClick(async (e) => {
+        const focus = this.getFocus();
+        if (focus.length === 0) {
+          const instance = await this._terminalService.createTerminal(
+            { location: TerminalLocation.Panel }
+          );
+          this._terminalGroupService.setActiveInstance(instance);
+          await instance.focusWhenReady();
+        }
+        if (this._terminalService.getEditingTerminal()?.instanceId === e.element?.instanceId) {
+          return;
+        }
+        if (this._getFocusMode() === "doubleClick" && this.getFocus().length === 1) {
           e.element?.focus(true);
         }
-      }
-    }));
-    this.disposables.add(this.onContextMenu((e) => {
-      if (!e.element) {
-        this.setSelection([]);
-        return;
-      }
-      const selection = this.getSelectedElements();
-      if (!selection || !selection.find((s) => e.element === s)) {
-        this.setFocus(e.index !== void 0 ? [e.index] : []);
-      }
-    }));
+      })
+    );
+    this.disposables.add(
+      this.onMouseClick(async (e) => {
+        if (this._terminalService.getEditingTerminal()?.instanceId === e.element?.instanceId) {
+          return;
+        }
+        if (e.browserEvent.altKey && e.element) {
+          await this._terminalService.createTerminal({
+            location: { parentTerminal: e.element }
+          });
+        } else if (this._getFocusMode() === "singleClick") {
+          if (this.getSelection().length <= 1) {
+            e.element?.focus(true);
+          }
+        }
+      })
+    );
+    this.disposables.add(
+      this.onContextMenu((e) => {
+        if (!e.element) {
+          this.setSelection([]);
+          return;
+        }
+        const selection = this.getSelectedElements();
+        if (!selection || !selection.find((s) => e.element === s)) {
+          this.setFocus(e.index !== void 0 ? [e.index] : []);
+        }
+      })
+    );
     this._terminalTabsSingleSelectedContextKey = TerminalContextKeys.tabsSingularSelection.bindTo(contextKeyService);
     this._isSplitContextKey = TerminalContextKeys.splitTerminal.bindTo(contextKeyService);
-    this.disposables.add(this.onDidChangeSelection((e) => this._updateContextKey()));
-    this.disposables.add(this.onDidChangeFocus(() => this._updateContextKey()));
-    this.disposables.add(this.onDidOpen(async (e) => {
-      const instance = e.element;
-      if (!instance) {
-        return;
-      }
-      this._terminalGroupService.setActiveInstance(instance);
-      if (!e.editorOptions.preserveFocus) {
-        await instance.focusWhenReady();
-      }
-    }));
+    this.disposables.add(
+      this.onDidChangeSelection((e) => this._updateContextKey())
+    );
+    this.disposables.add(
+      this.onDidChangeFocus(() => this._updateContextKey())
+    );
+    this.disposables.add(
+      this.onDidOpen(async (e) => {
+        const instance = e.element;
+        if (!instance) {
+          return;
+        }
+        this._terminalGroupService.setActiveInstance(instance);
+        if (!e.editorOptions.preserveFocus) {
+          await instance.focusWhenReady();
+        }
+      })
+    );
     if (!this._decorationsProvider) {
-      this._decorationsProvider = this.disposables.add(instantiationService.createInstance(TabDecorationsProvider));
-      this.disposables.add(decorationsService.registerDecorationsProvider(this._decorationsProvider));
+      this._decorationsProvider = this.disposables.add(
+        instantiationService.createInstance(TabDecorationsProvider)
+      );
+      this.disposables.add(
+        decorationsService.registerDecorationsProvider(
+          this._decorationsProvider
+        )
+      );
     }
     this.refresh();
   }
@@ -837,7 +889,11 @@ let TabDecorationsProvider = class extends Disposable {
   constructor(_terminalService) {
     super();
     this._terminalService = _terminalService;
-    this._register(this._terminalService.onAnyInstancePrimaryStatusChange((e) => this._onDidChange.fire([e.resource])));
+    this._register(
+      this._terminalService.onAnyInstancePrimaryStatusChange(
+        (e) => this._onDidChange.fire([e.resource])
+      )
+    );
   }
   label = localize("label", "Terminal");
   _onDidChange = this._register(new Emitter());

@@ -1,9 +1,9 @@
 import * as path from "../../../../base/common/path.js";
 import {
-  OperatingSystem,
   isMacintosh,
   isWindows,
-  language
+  language,
+  OperatingSystem
 } from "../../../../base/common/platform.js";
 import { sanitizeProcessEnvironment } from "../../../../base/common/processes.js";
 import { isString } from "../../../../base/common/types.js";

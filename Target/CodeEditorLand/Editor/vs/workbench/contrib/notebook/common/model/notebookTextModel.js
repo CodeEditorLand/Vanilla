@@ -38,8 +38,8 @@ import {
   CellEditType,
   CellKind,
   CellUri,
-  NotebookCellsChangeType,
-  diff
+  diff,
+  NotebookCellsChangeType
 } from "../notebookCommon.js";
 import { CellMetadataEdit, MoveCellEdit, SpliceCellsEdit } from "./cellEdit.js";
 import { NotebookCellOutputTextModel } from "./notebookCellOutputTextModel.js";
@@ -209,7 +209,9 @@ let NotebookTextModel = class extends Disposable {
         }
       }
     };
-    this._register(_modelService.onModelAdded((e) => maybeUpdateCellTextModel(e)));
+    this._register(
+      _modelService.onModelAdded((e) => maybeUpdateCellTextModel(e))
+    );
     this._pauseableEmitter = new NotebookEventEmitter({
       merge: (events) => {
         const first = events[0];
@@ -226,11 +228,13 @@ let NotebookTextModel = class extends Disposable {
         return { rawEvents, versionId, endSelectionState, synchronous };
       }
     });
-    this._register(this._pauseableEmitter.event((e) => {
-      if (e.rawEvents.length) {
-        this._onDidChangeContent.fire(e);
-      }
-    }));
+    this._register(
+      this._pauseableEmitter.event((e) => {
+        if (e.rawEvents.length) {
+          this._onDidChangeContent.fire(e);
+        }
+      })
+    );
     this._operationManager = new NotebookOperationManager(
       this,
       this._undoService,

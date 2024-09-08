@@ -41,14 +41,22 @@ let SettingsTreeIndicatorsLabel = class {
     this.languageService = languageService;
     this.userDataProfilesService = userDataProfilesService;
     this.commandService = commandService;
-    this.indicatorsContainerElement = DOM.append(container, $(".setting-indicators-container"));
+    this.indicatorsContainerElement = DOM.append(
+      container,
+      $(".setting-indicators-container")
+    );
     this.indicatorsContainerElement.style.display = "inline";
     this.profilesEnabled = this.userDataProfilesService.isEnabled();
     this.workspaceTrustIndicator = this.createWorkspaceTrustIndicator();
     this.scopeOverridesIndicator = this.createScopeOverridesIndicator();
     this.syncIgnoredIndicator = this.createSyncIgnoredIndicator();
     this.defaultOverrideIndicator = this.createDefaultOverrideIndicator();
-    this.allIndicators = [this.workspaceTrustIndicator, this.scopeOverridesIndicator, this.syncIgnoredIndicator, this.defaultOverrideIndicator];
+    this.allIndicators = [
+      this.workspaceTrustIndicator,
+      this.scopeOverridesIndicator,
+      this.syncIgnoredIndicator,
+      this.defaultOverrideIndicator
+    ];
   }
   indicatorsContainerElement;
   workspaceTrustIndicator;
@@ -77,9 +85,7 @@ let SettingsTreeIndicatorsLabel = class {
         if (hover) {
           disposables.add(hover);
         }
-      }, this.configurationService.getValue(
-        "workbench.hover.delay"
-      ))
+      }, this.configurationService.getValue("workbench.hover.delay"))
     );
     disposables.add(
       DOM.addDisposableListener(element, DOM.EventType.MOUSE_OVER, () => {

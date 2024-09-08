@@ -122,11 +122,16 @@ let TerminalInitialHintContribution = class extends Disposable {
     this._terminalEditorService = _terminalEditorService;
     this._chatAgentService = _chatAgentService;
     this._storageService = _storageService;
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(TerminalInitialHintSettingId.Enabled)) {
-        this._storageService.remove("terminal.initialHint.hide" /* InitialHintHideStorageKey */, StorageScope.APPLICATION);
-      }
-    }));
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(TerminalInitialHintSettingId.Enabled)) {
+          this._storageService.remove(
+            "terminal.initialHint.hide" /* InitialHintHideStorageKey */,
+            StorageScope.APPLICATION
+          );
+        }
+      })
+    );
   }
   static ID = "terminal.initialHint";
   _addon;
@@ -286,21 +291,33 @@ let TerminalInitialHintWidget = class extends Disposable {
     this.terminalService = terminalService;
     this._storageService = _storageService;
     this.contextMenuService = contextMenuService;
-    this.toDispose.add(_instance.onDidFocus(() => {
-      if (this._instance.hasFocus && this.isVisible && this.ariaLabel && this.configurationService.getValue(AccessibilityVerbositySettingId.TerminalChat)) {
-        status(this.ariaLabel);
-      }
-    }));
-    this.toDispose.add(terminalService.onDidChangeInstances(() => {
-      if (this.terminalService.instances.length !== 1) {
-        this.dispose();
-      }
-    }));
-    this.toDispose.add(this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(TerminalInitialHintSettingId.Enabled) && !this.configurationService.getValue(TerminalInitialHintSettingId.Enabled)) {
-        this.dispose();
-      }
-    }));
+    this.toDispose.add(
+      _instance.onDidFocus(() => {
+        if (this._instance.hasFocus && this.isVisible && this.ariaLabel && this.configurationService.getValue(
+          AccessibilityVerbositySettingId.TerminalChat
+        )) {
+          status(this.ariaLabel);
+        }
+      })
+    );
+    this.toDispose.add(
+      terminalService.onDidChangeInstances(() => {
+        if (this.terminalService.instances.length !== 1) {
+          this.dispose();
+        }
+      })
+    );
+    this.toDispose.add(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          TerminalInitialHintSettingId.Enabled
+        ) && !this.configurationService.getValue(
+          TerminalInitialHintSettingId.Enabled
+        )) {
+          this.dispose();
+        }
+      })
+    );
   }
   domNode;
   toDispose = this._register(

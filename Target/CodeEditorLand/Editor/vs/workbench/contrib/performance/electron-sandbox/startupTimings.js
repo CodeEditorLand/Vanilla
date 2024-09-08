@@ -28,7 +28,13 @@ import { ITimerService } from "../../../services/timer/browser/timerService.js";
 import { StartupTimings } from "../browser/startupTimings.js";
 let NativeStartupTimings = class extends StartupTimings {
   constructor(_fileService, _timerService, _nativeHostService, editorService, paneCompositeService, _telemetryService, lifecycleService, updateService, _environmentService, _productService, workspaceTrustService) {
-    super(editorService, paneCompositeService, lifecycleService, updateService, workspaceTrustService);
+    super(
+      editorService,
+      paneCompositeService,
+      lifecycleService,
+      updateService,
+      workspaceTrustService
+    );
     this._fileService = _fileService;
     this._timerService = _timerService;
     this._nativeHostService = _nativeHostService;

@@ -32,9 +32,9 @@ import {
   ViewContainerLocation
 } from "../../../common/views.js";
 import {
+  isHorizontal,
   IWorkbenchLayoutService,
-  Position,
-  isHorizontal
+  Position
 } from "../../../services/layout/browser/layoutService.js";
 import { getPartByLocation } from "../../../services/views/browser/viewsService.js";
 import { TERMINAL_VIEW_ID } from "../common/terminal.js";
@@ -258,13 +258,17 @@ let TerminalGroup = class extends Disposable {
     if (this._container) {
       this.attachToElement(this._container);
     }
-    this._onPanelOrientationChanged.fire(this._terminalLocation === ViewContainerLocation.Panel && isHorizontal(this._panelPosition) ? Orientation.HORIZONTAL : Orientation.VERTICAL);
-    this._register(toDisposable(() => {
-      if (this._container && this._groupElement) {
-        this._groupElement.remove();
-        this._groupElement = void 0;
-      }
-    }));
+    this._onPanelOrientationChanged.fire(
+      this._terminalLocation === ViewContainerLocation.Panel && isHorizontal(this._panelPosition) ? Orientation.HORIZONTAL : Orientation.VERTICAL
+    );
+    this._register(
+      toDisposable(() => {
+        if (this._container && this._groupElement) {
+          this._groupElement.remove();
+          this._groupElement = void 0;
+        }
+      })
+    );
   }
   _terminalInstances = [];
   _splitPaneContainer;

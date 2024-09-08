@@ -39,9 +39,17 @@ let KeymapExtensions = class extends Disposable {
     this.tipsService = tipsService;
     this.notificationService = notificationService;
     this._register(lifecycleService.onDidShutdown(() => this.dispose()));
-    this._register(instantiationService.invokeFunction(onExtensionChanged)((identifiers) => {
-      Promise.all(identifiers.map((identifier) => this.checkForOtherKeymaps(identifier))).then(void 0, onUnexpectedError);
-    }));
+    this._register(
+      instantiationService.invokeFunction(onExtensionChanged)(
+        (identifiers) => {
+          Promise.all(
+            identifiers.map(
+              (identifier) => this.checkForOtherKeymaps(identifier)
+            )
+          ).then(void 0, onUnexpectedError);
+        }
+      )
+    );
   }
   checkForOtherKeymaps(extensionIdentifier) {
     return this.instantiationService.invokeFunction(getInstalledExtensions).then((extensions) => {

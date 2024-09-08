@@ -22,10 +22,10 @@ import {
 } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import {
-  OS,
-  OperatingSystem,
   isMacintosh,
-  isWindows
+  isWindows,
+  OperatingSystem,
+  OS
 } from "../../../../base/common/platform.js";
 import Severity from "../../../../base/common/severity.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
@@ -61,6 +61,7 @@ import { IHistoryService } from "../../../services/history/common/history.js";
 import { IPathService } from "../../../services/path/common/pathService.js";
 import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
 import { TaskSettingId } from "../../tasks/common/tasks.js";
+import { TerminalSuggestSettingId } from "../../terminalContrib/suggest/common/terminalSuggestConfiguration.js";
 import {
   IEnvironmentVariableService
 } from "../common/environmentVariable.js";
@@ -77,7 +78,6 @@ import {
   ITerminalConfigurationService,
   ITerminalInstanceService
 } from "./terminal.js";
-import { TerminalSuggestSettingId } from "../../terminalContrib/suggest/common/terminalSuggestConfiguration.js";
 var ProcessConstants = /* @__PURE__ */ ((ProcessConstants2) => {
   ProcessConstants2[ProcessConstants2["ErrorLaunchThresholdDuration"] = 500] = "ErrorLaunchThresholdDuration";
   ProcessConstants2[ProcessConstants2["LatencyMeasuringInterval"] = 1e3] = "LatencyMeasuringInterval";
@@ -108,31 +108,63 @@ let TerminalProcessManager = class extends Disposable {
     this._terminalInstanceService = _terminalInstanceService;
     this._telemetryService = _telemetryService;
     this._notificationService = _notificationService;
-    this._cwdWorkspaceFolder = terminalEnvironment.getWorkspaceForTerminal(cwd, this._workspaceContextService, this._historyService);
+    this._cwdWorkspaceFolder = terminalEnvironment.getWorkspaceForTerminal(
+      cwd,
+      this._workspaceContextService,
+      this._historyService
+    );
     this.ptyProcessReady = this._createPtyProcessReadyPromise();
-    this._ackDataBufferer = new AckDataBufferer((e) => this._process?.acknowledgeDataEvent(e));
-    this._dataFilter = this._register(this._instantiationService.createInstance(SeamlessRelaunchDataFilter));
-    this._register(this._dataFilter.onProcessData((ev) => {
-      const data = typeof ev === "string" ? ev : ev.data;
-      const beforeProcessDataEvent = { data };
-      this._onBeforeProcessData.fire(beforeProcessDataEvent);
-      if (beforeProcessDataEvent.data && beforeProcessDataEvent.data.length > 0) {
-        if (typeof ev !== "string") {
-          ev.data = beforeProcessDataEvent.data;
+    this._ackDataBufferer = new AckDataBufferer(
+      (e) => this._process?.acknowledgeDataEvent(e)
+    );
+    this._dataFilter = this._register(
+      this._instantiationService.createInstance(
+        SeamlessRelaunchDataFilter
+      )
+    );
+    this._register(
+      this._dataFilter.onProcessData((ev) => {
+        const data = typeof ev === "string" ? ev : ev.data;
+        const beforeProcessDataEvent = {
+          data
+        };
+        this._onBeforeProcessData.fire(beforeProcessDataEvent);
+        if (beforeProcessDataEvent.data && beforeProcessDataEvent.data.length > 0) {
+          if (typeof ev !== "string") {
+            ev.data = beforeProcessDataEvent.data;
+          }
+          this._onProcessData.fire(
+            typeof ev !== "string" ? ev : {
+              data: beforeProcessDataEvent.data,
+              trackCommit: false
+            }
+          );
         }
-        this._onProcessData.fire(typeof ev !== "string" ? ev : { data: beforeProcessDataEvent.data, trackCommit: false });
-      }
-    }));
+      })
+    );
     if (cwd && typeof cwd === "object") {
       this.remoteAuthority = getRemoteAuthority(cwd);
     } else {
       this.remoteAuthority = this._workbenchEnvironmentService.remoteAuthority;
     }
     if (environmentVariableCollections) {
-      this._extEnvironmentVariableCollection = new MergedEnvironmentVariableCollection(environmentVariableCollections);
-      this._register(this._environmentVariableService.onDidChangeCollections((newCollection) => this._onEnvironmentVariableCollectionChange(newCollection)));
-      this.environmentVariableInfo = this._instantiationService.createInstance(EnvironmentVariableInfoChangesActive, this._extEnvironmentVariableCollection);
-      this._onEnvironmentVariableInfoChange.fire(this.environmentVariableInfo);
+      this._extEnvironmentVariableCollection = new MergedEnvironmentVariableCollection(
+        environmentVariableCollections
+      );
+      this._register(
+        this._environmentVariableService.onDidChangeCollections(
+          (newCollection) => this._onEnvironmentVariableCollectionChange(
+            newCollection
+          )
+        )
+      );
+      this.environmentVariableInfo = this._instantiationService.createInstance(
+        EnvironmentVariableInfoChangesActive,
+        this._extEnvironmentVariableCollection
+      );
+      this._onEnvironmentVariableInfoChange.fire(
+        this.environmentVariableInfo
+      );
     }
     this.shellIntegrationNonce = shellIntegrationNonce ?? generateUuid();
   }

@@ -1,16 +1,16 @@
 import { matchesFuzzy } from "../../../../base/common/filters.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { dirname } from "../../../../base/common/resources.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { getIconClasses } from "../../../../editor/common/services/getIconClasses.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
 import * as nls from "../../../../nls.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
 import {
   IQuickInputService
 } from "../../../../platform/quickinput/common/quickInput.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IDebugService } from "./debug.js";
-import { dirname } from "../../../../base/common/resources.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
 async function showLoadedScriptMenu(accessor) {
   const quickInputService = accessor.get(IQuickInputService);
   const debugService = accessor.get(IDebugService);

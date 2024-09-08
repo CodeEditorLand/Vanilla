@@ -79,20 +79,20 @@ import {
 } from "../../workingCopy/common/workingCopyFileService.js";
 import {
   DecodeStreamErrorKind,
+  encodingExists,
+  toDecodeStream,
+  toEncodeReadable,
   UTF8,
   UTF8_with_bom,
   UTF16be,
-  UTF16le,
-  encodingExists,
-  toDecodeStream,
-  toEncodeReadable
+  UTF16le
 } from "../common/encoding.js";
 import { TextFileEditorModelManager } from "../common/textFileEditorModelManager.js";
 import {
+  stringToSnapshot,
   TextFileEditorModelState,
   TextFileOperationError,
   TextFileOperationResult,
-  stringToSnapshot,
   toBufferOrReadable
 } from "../common/textfiles.js";
 let AbstractTextFileService = class extends Disposable {

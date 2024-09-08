@@ -34,12 +34,16 @@ let CollapsedCodeCellExecutionIcon = class extends Disposable {
     this._element = _element;
     this._executionStateService = _executionStateService;
     this._update();
-    this._register(this._executionStateService.onDidChangeExecution((e) => {
-      if (e.type === NotebookExecutionType.cell && e.affectsCell(this._cell.uri)) {
-        this._update();
-      }
-    }));
-    this._register(this._cell.model.onDidChangeInternalMetadata(() => this._update()));
+    this._register(
+      this._executionStateService.onDidChangeExecution((e) => {
+        if (e.type === NotebookExecutionType.cell && e.affectsCell(this._cell.uri)) {
+          this._update();
+        }
+      })
+    );
+    this._register(
+      this._cell.model.onDidChangeInternalMetadata(() => this._update())
+    );
   }
   _visible = false;
   setVisibility(visible) {

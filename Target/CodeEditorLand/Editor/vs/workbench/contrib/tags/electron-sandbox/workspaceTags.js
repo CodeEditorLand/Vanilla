@@ -32,8 +32,8 @@ import {
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
 import {
-  IWorkspaceTagsService,
-  getHashedRemotesFromConfig as baseGetHashedRemotesFromConfig
+  getHashedRemotesFromConfig as baseGetHashedRemotesFromConfig,
+  IWorkspaceTagsService
 } from "../common/workspaceTags.js";
 async function getHashedRemotesFromConfig(text, stripEndingDotGit = false) {
   return baseGetHashedRemotesFromConfig(

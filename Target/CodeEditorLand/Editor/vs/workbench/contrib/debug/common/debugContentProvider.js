@@ -30,7 +30,10 @@ let DebugContentProvider = class {
     this.modelService = modelService;
     this.languageService = languageService;
     this.editorWorkerService = editorWorkerService;
-    textModelResolverService.registerTextModelContentProvider(DEBUG_SCHEME, this);
+    textModelResolverService.registerTextModelContentProvider(
+      DEBUG_SCHEME,
+      this
+    );
     DebugContentProvider.INSTANCE = this;
   }
   static INSTANCE;

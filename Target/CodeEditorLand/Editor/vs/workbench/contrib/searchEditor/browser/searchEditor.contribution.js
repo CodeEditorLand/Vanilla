@@ -39,8 +39,8 @@ import {
 } from "../../../browser/editor.js";
 import { ActiveEditorContext } from "../../../common/contextkeys.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   DEFAULT_EDITOR_ASSOCIATION,
@@ -76,9 +76,9 @@ import {
   toggleSearchEditorWholeWordCommand
 } from "./searchEditorActions.js";
 import {
+  getOrMakeSearchEditorInput,
   SEARCH_EDITOR_EXT,
-  SearchEditorInput,
-  getOrMakeSearchEditorInput
+  SearchEditorInput
 } from "./searchEditorInput.js";
 const OpenInEditorCommandId = "search.action.openInEditor";
 const OpenNewEditorToSideCommandId = "search.action.openNewEditorToSide";

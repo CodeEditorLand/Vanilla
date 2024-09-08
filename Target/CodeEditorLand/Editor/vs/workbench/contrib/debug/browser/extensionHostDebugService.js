@@ -34,10 +34,10 @@ import {
   isWorkspaceToOpen
 } from "../../../../platform/window/common/window.js";
 import {
-  IWorkspaceContextService,
   hasWorkspaceFileExtension,
   isSingleFolderWorkspaceIdentifier,
   isWorkspaceIdentifier,
+  IWorkspaceContextService,
   toWorkspaceIdentifier
 } from "../../../../platform/workspace/common/workspace.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";

@@ -10,11 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
-import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import {
   ActionBar,
   ActionsOrientation
 } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import { renderIcon } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
 import { Action } from "../../../../base/common/actions.js";
 import { mapFindFirst } from "../../../../base/common/arraysFind.js";
@@ -38,7 +38,7 @@ import {
   observableFromEvent
 } from "../../../../base/common/observable.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI, isUriComponents } from "../../../../base/common/uri.js";
+import { isUriComponents, URI } from "../../../../base/common/uri.js";
 import {
   MouseTargetType,
   OverlayWidgetPositionPreference
@@ -72,18 +72,18 @@ import {
   IQuickInputService
 } from "../../../../platform/quickinput/common/quickInput.js";
 import {
-  TestingConfigKeys,
-  getTestingConfiguration
+  getTestingConfiguration,
+  TestingConfigKeys
 } from "../common/configuration.js";
 import { TestCommandId } from "../common/constants.js";
 import { FileCoverage } from "../common/testCoverage.js";
 import { ITestCoverageService } from "../common/testCoverageService.js";
 import { TestId } from "../common/testId.js";
+import { TestingContextKeys } from "../common/testingContextKeys.js";
 import { ITestService } from "../common/testService.js";
 import {
   DetailType
 } from "../common/testTypes.js";
-import { TestingContextKeys } from "../common/testingContextKeys.js";
 import * as coverUtils from "./codeCoverageDisplayUtils.js";
 import {
   testingCoverageMissingBranch,
@@ -106,9 +106,24 @@ let CodeCoverageDecorations = class extends Disposable {
     this.editor = editor;
     this.coverage = coverage;
     this.log = log;
-    this.summaryWidget = new Lazy(() => this._register(instantiationService.createInstance(CoverageToolbarWidget, this.editor)));
-    const modelObs = observableFromEvent(this, editor.onDidChangeModel, () => editor.getModel());
-    const configObs = observableFromEvent(this, editor.onDidChangeConfiguration, (i) => i);
+    this.summaryWidget = new Lazy(
+      () => this._register(
+        instantiationService.createInstance(
+          CoverageToolbarWidget,
+          this.editor
+        )
+      )
+    );
+    const modelObs = observableFromEvent(
+      this,
+      editor.onDidChangeModel,
+      () => editor.getModel()
+    );
+    const configObs = observableFromEvent(
+      this,
+      editor.onDidChangeConfiguration,
+      (i) => i
+    );
     const fileCoverage = derived((reader) => {
       const report = coverage.selected.read(reader);
       if (!report) {
@@ -125,54 +140,73 @@ let CodeCoverageDecorations = class extends Disposable {
       report.didAddCoverage.read(reader);
       return { file, testId: coverage.filterToTest.read(reader) };
     });
-    this._register(autorun((reader) => {
-      const c = fileCoverage.read(reader);
-      if (c) {
-        this.apply(editor.getModel(), c.file, c.testId, coverage.showInline.read(reader));
-      } else {
-        this.clear();
-      }
-    }));
-    const toolbarEnabled = observableConfigValue(TestingConfigKeys.CoverageToolbarEnabled, true, configurationService);
-    this._register(autorun((reader) => {
-      const c = fileCoverage.read(reader);
-      if (c && toolbarEnabled.read(reader)) {
-        this.summaryWidget.value.setCoverage(c.file, c.testId);
-      } else {
-        this.summaryWidget.rawValue?.clearCoverage();
-      }
-    }));
-    this._register(autorun((reader) => {
-      const c = fileCoverage.read(reader);
-      if (c) {
-        const evt = configObs.read(reader);
-        if (evt?.hasChanged(EditorOption.lineHeight) !== false) {
-          this.updateEditorStyles();
+    this._register(
+      autorun((reader) => {
+        const c = fileCoverage.read(reader);
+        if (c) {
+          this.apply(
+            editor.getModel(),
+            c.file,
+            c.testId,
+            coverage.showInline.read(reader)
+          );
+        } else {
+          this.clear();
         }
-      }
-    }));
-    this._register(editor.onMouseMove((e) => {
-      const model = editor.getModel();
-      if (e.target.type === MouseTargetType.GUTTER_LINE_NUMBERS && model) {
-        this.hoverLineNumber(editor.getModel());
-      } else if (coverage.showInline.get() && e.target.type === MouseTargetType.CONTENT_TEXT && model) {
-        this.hoverInlineDecoration(model, e.target.position);
-      } else {
-        this.hoveredStore.clear();
-      }
-    }));
-    this._register(editor.onWillChangeModel(() => {
-      const model = editor.getModel();
-      if (!this.details || !model) {
-        return;
-      }
-      for (const decoration of model.getAllDecorations()) {
-        const own = this.decorationIds.get(decoration.id);
-        if (own) {
-          own.detail.range = decoration.range;
+      })
+    );
+    const toolbarEnabled = observableConfigValue(
+      TestingConfigKeys.CoverageToolbarEnabled,
+      true,
+      configurationService
+    );
+    this._register(
+      autorun((reader) => {
+        const c = fileCoverage.read(reader);
+        if (c && toolbarEnabled.read(reader)) {
+          this.summaryWidget.value.setCoverage(c.file, c.testId);
+        } else {
+          this.summaryWidget.rawValue?.clearCoverage();
         }
-      }
-    }));
+      })
+    );
+    this._register(
+      autorun((reader) => {
+        const c = fileCoverage.read(reader);
+        if (c) {
+          const evt = configObs.read(reader);
+          if (evt?.hasChanged(EditorOption.lineHeight) !== false) {
+            this.updateEditorStyles();
+          }
+        }
+      })
+    );
+    this._register(
+      editor.onMouseMove((e) => {
+        const model = editor.getModel();
+        if (e.target.type === MouseTargetType.GUTTER_LINE_NUMBERS && model) {
+          this.hoverLineNumber(editor.getModel());
+        } else if (coverage.showInline.get() && e.target.type === MouseTargetType.CONTENT_TEXT && model) {
+          this.hoverInlineDecoration(model, e.target.position);
+        } else {
+          this.hoveredStore.clear();
+        }
+      })
+    );
+    this._register(
+      editor.onWillChangeModel(() => {
+        const model = editor.getModel();
+        if (!this.details || !model) {
+          return;
+        }
+        for (const decoration of model.getAllDecorations()) {
+          const own = this.decorationIds.get(decoration.id);
+          if (own) {
+            own.detail.range = decoration.range;
+          }
+        }
+      })
+    );
   }
   loadingCancellation;
   displayedStore = this._register(new DisposableStore());
@@ -572,31 +606,47 @@ let CoverageToolbarWidget = class extends Disposable {
     this.keybindingService = keybindingService;
     this.commandService = commandService;
     this.coverage = coverage;
-    this.bars = this._register(instaService.createInstance(ManagedTestCoverageBars, {
-      compact: false,
-      overall: false,
-      container: this._domNode.bars
-    }));
-    this.actionBar = this._register(instaService.createInstance(ActionBar, this._domNode.toolbar, {
-      orientation: ActionsOrientation.HORIZONTAL,
-      actionViewItemProvider: (action, options) => {
-        const vm = new CodiconActionViewItem(void 0, action, options);
-        if (action instanceof ActionWithIcon) {
-          vm.themeIcon = action.icon;
+    this.bars = this._register(
+      instaService.createInstance(ManagedTestCoverageBars, {
+        compact: false,
+        overall: false,
+        container: this._domNode.bars
+      })
+    );
+    this.actionBar = this._register(
+      instaService.createInstance(ActionBar, this._domNode.toolbar, {
+        orientation: ActionsOrientation.HORIZONTAL,
+        actionViewItemProvider: (action, options) => {
+          const vm = new CodiconActionViewItem(
+            void 0,
+            action,
+            options
+          );
+          if (action instanceof ActionWithIcon) {
+            vm.themeIcon = action.icon;
+          }
+          return vm;
         }
-        return vm;
-      }
-    }));
-    this._register(autorun((reader) => {
-      coverage.showInline.read(reader);
-      this.setActions();
-    }));
-    this._register(dom.addStandardDisposableListener(this._domNode.root, dom.EventType.CONTEXT_MENU, (e) => {
-      this.contextMenuService.showContextMenu({
-        menuId: MenuId.StickyScrollContext,
-        getAnchor: () => e
-      });
-    }));
+      })
+    );
+    this._register(
+      autorun((reader) => {
+        coverage.showInline.read(reader);
+        this.setActions();
+      })
+    );
+    this._register(
+      dom.addStandardDisposableListener(
+        this._domNode.root,
+        dom.EventType.CONTEXT_MENU,
+        (e) => {
+          this.contextMenuService.showContextMenu({
+            menuId: MenuId.StickyScrollContext,
+            getAnchor: () => e
+          });
+        }
+      )
+    );
   }
   current;
   registered = false;

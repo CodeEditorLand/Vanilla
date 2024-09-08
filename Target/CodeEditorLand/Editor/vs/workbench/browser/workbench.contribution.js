@@ -22,8 +22,8 @@ import {
   workbenchConfigurationNodeBase
 } from "../common/configuration.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../common/contributions.js";
 import { CustomEditorLabelService } from "../services/editor/common/customEditorLabelService.js";
 import {

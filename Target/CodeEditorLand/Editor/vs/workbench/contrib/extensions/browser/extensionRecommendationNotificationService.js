@@ -11,8 +11,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { distinct } from "../../../../base/common/arrays.js";
 import {
-  Promises,
   createCancelablePromise,
+  Promises,
   raceCancellablePromises,
   raceCancellation,
   timeout
@@ -23,8 +23,8 @@ import { Emitter, Event } from "../../../../base/common/event.js";
 import {
   Disposable,
   DisposableStore,
-  MutableDisposable,
   isDisposable,
+  MutableDisposable,
   toDisposable
 } from "../../../../base/common/lifecycle.js";
 import { isString } from "../../../../base/common/types.js";
@@ -32,9 +32,9 @@ import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
 import {
+  RecommendationsNotificationResult,
   RecommendationSource,
-  RecommendationSourceToString,
-  RecommendationsNotificationResult
+  RecommendationSourceToString
 } from "../../../../platform/extensionRecommendations/common/extensionRecommendations.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import {

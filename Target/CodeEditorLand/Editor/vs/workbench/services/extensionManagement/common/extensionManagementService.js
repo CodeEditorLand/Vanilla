@@ -106,40 +106,114 @@ let ExtensionManagementService = class extends Disposable {
     this.instantiationService = instantiationService;
     this.extensionsScannerService = extensionsScannerService;
     this.telemetryService = telemetryService;
-    this.workspaceExtensionManagementService = this._register(this.instantiationService.createInstance(WorkspaceExtensionsManagementService));
+    this.workspaceExtensionManagementService = this._register(
+      this.instantiationService.createInstance(
+        WorkspaceExtensionsManagementService
+      )
+    );
     this.onDidEnableExtensions = this.workspaceExtensionManagementService.onDidChangeInvalidExtensions;
     if (this.extensionManagementServerService.localExtensionManagementServer) {
-      this.servers.push(this.extensionManagementServerService.localExtensionManagementServer);
+      this.servers.push(
+        this.extensionManagementServerService.localExtensionManagementServer
+      );
     }
     if (this.extensionManagementServerService.remoteExtensionManagementServer) {
-      this.servers.push(this.extensionManagementServerService.remoteExtensionManagementServer);
+      this.servers.push(
+        this.extensionManagementServerService.remoteExtensionManagementServer
+      );
     }
     if (this.extensionManagementServerService.webExtensionManagementServer) {
-      this.servers.push(this.extensionManagementServerService.webExtensionManagementServer);
+      this.servers.push(
+        this.extensionManagementServerService.webExtensionManagementServer
+      );
     }
-    const onInstallExtensionEventMultiplexer = this._register(new EventMultiplexer());
-    this._register(onInstallExtensionEventMultiplexer.add(this._onInstallExtension.event));
+    const onInstallExtensionEventMultiplexer = this._register(
+      new EventMultiplexer()
+    );
+    this._register(
+      onInstallExtensionEventMultiplexer.add(
+        this._onInstallExtension.event
+      )
+    );
     this.onInstallExtension = onInstallExtensionEventMultiplexer.event;
-    const onDidInstallExtensionsEventMultiplexer = this._register(new EventMultiplexer());
-    this._register(onDidInstallExtensionsEventMultiplexer.add(this._onDidInstallExtensions.event));
+    const onDidInstallExtensionsEventMultiplexer = this._register(
+      new EventMultiplexer()
+    );
+    this._register(
+      onDidInstallExtensionsEventMultiplexer.add(
+        this._onDidInstallExtensions.event
+      )
+    );
     this.onDidInstallExtensions = onDidInstallExtensionsEventMultiplexer.event;
-    const onUninstallExtensionEventMultiplexer = this._register(new EventMultiplexer());
-    this._register(onUninstallExtensionEventMultiplexer.add(this._onUninstallExtension.event));
+    const onUninstallExtensionEventMultiplexer = this._register(
+      new EventMultiplexer()
+    );
+    this._register(
+      onUninstallExtensionEventMultiplexer.add(
+        this._onUninstallExtension.event
+      )
+    );
     this.onUninstallExtension = onUninstallExtensionEventMultiplexer.event;
-    const onDidUninstallExtensionEventMultiplexer = this._register(new EventMultiplexer());
-    this._register(onDidUninstallExtensionEventMultiplexer.add(this._onDidUninstallExtension.event));
+    const onDidUninstallExtensionEventMultiplexer = this._register(
+      new EventMultiplexer()
+    );
+    this._register(
+      onDidUninstallExtensionEventMultiplexer.add(
+        this._onDidUninstallExtension.event
+      )
+    );
     this.onDidUninstallExtension = onDidUninstallExtensionEventMultiplexer.event;
-    const onDidUpdateExtensionMetadaEventMultiplexer = this._register(new EventMultiplexer());
+    const onDidUpdateExtensionMetadaEventMultiplexer = this._register(
+      new EventMultiplexer()
+    );
     this.onDidUpdateExtensionMetadata = onDidUpdateExtensionMetadaEventMultiplexer.event;
-    const onDidChangeProfileEventMultiplexer = this._register(new EventMultiplexer());
+    const onDidChangeProfileEventMultiplexer = this._register(
+      new EventMultiplexer()
+    );
     this.onDidChangeProfile = onDidChangeProfileEventMultiplexer.event;
     for (const server of this.servers) {
-      this._register(onInstallExtensionEventMultiplexer.add(Event.map(server.extensionManagementService.onInstallExtension, (e) => ({ ...e, server }))));
-      this._register(onDidInstallExtensionsEventMultiplexer.add(server.extensionManagementService.onDidInstallExtensions));
-      this._register(onUninstallExtensionEventMultiplexer.add(Event.map(server.extensionManagementService.onUninstallExtension, (e) => ({ ...e, server }))));
-      this._register(onDidUninstallExtensionEventMultiplexer.add(Event.map(server.extensionManagementService.onDidUninstallExtension, (e) => ({ ...e, server }))));
-      this._register(onDidUpdateExtensionMetadaEventMultiplexer.add(server.extensionManagementService.onDidUpdateExtensionMetadata));
-      this._register(onDidChangeProfileEventMultiplexer.add(Event.map(server.extensionManagementService.onDidChangeProfile, (e) => ({ ...e, server }))));
+      this._register(
+        onInstallExtensionEventMultiplexer.add(
+          Event.map(
+            server.extensionManagementService.onInstallExtension,
+            (e) => ({ ...e, server })
+          )
+        )
+      );
+      this._register(
+        onDidInstallExtensionsEventMultiplexer.add(
+          server.extensionManagementService.onDidInstallExtensions
+        )
+      );
+      this._register(
+        onUninstallExtensionEventMultiplexer.add(
+          Event.map(
+            server.extensionManagementService.onUninstallExtension,
+            (e) => ({ ...e, server })
+          )
+        )
+      );
+      this._register(
+        onDidUninstallExtensionEventMultiplexer.add(
+          Event.map(
+            server.extensionManagementService.onDidUninstallExtension,
+            (e) => ({ ...e, server })
+          )
+        )
+      );
+      this._register(
+        onDidUpdateExtensionMetadaEventMultiplexer.add(
+          server.extensionManagementService.onDidUpdateExtensionMetadata
+        )
+      );
+      this._register(
+        onDidChangeProfileEventMultiplexer.add(
+          Event.map(
+            server.extensionManagementService.onDidChangeProfile,
+            (e) => ({ ...e, server })
+          )
+        )
+      );
     }
   }
   _onInstallExtension = this._register(
@@ -1108,15 +1182,23 @@ let WorkspaceExtensionsManagementService = class extends Disposable {
     this.storageService = storageService;
     this.uriIdentityService = uriIdentityService;
     this.telemetryService = telemetryService;
-    this._register(Event.debounce(this.fileService.onDidFilesChange, (last, e) => {
-      (last = last ?? []).push(e);
-      return last;
-    }, 1e3)((events) => {
-      const changedInvalidExtensions = this.extensions.filter((extension) => !extension.isValid && events.some((e) => e.affects(extension.location)));
-      if (changedInvalidExtensions.length) {
-        this.checkExtensionsValidity(changedInvalidExtensions);
-      }
-    }));
+    this._register(
+      Event.debounce(
+        this.fileService.onDidFilesChange,
+        (last, e) => {
+          (last = last ?? []).push(e);
+          return last;
+        },
+        1e3
+      )((events) => {
+        const changedInvalidExtensions = this.extensions.filter(
+          (extension) => !extension.isValid && events.some((e) => e.affects(extension.location))
+        );
+        if (changedInvalidExtensions.length) {
+          this.checkExtensionsValidity(changedInvalidExtensions);
+        }
+      })
+    );
     this.initializePromise = this.initialize();
   }
   static WORKSPACE_EXTENSIONS_KEY = "workspaceExtensions.locations";

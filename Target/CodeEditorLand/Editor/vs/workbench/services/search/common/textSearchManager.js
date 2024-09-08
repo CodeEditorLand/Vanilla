@@ -11,10 +11,10 @@ import { URI } from "../../../../base/common/uri.js";
 import {
   DEFAULT_MAX_SEARCH_RESULTS,
   DEFAULT_TEXT_SEARCH_PREVIEW_OPTIONS,
-  QueryGlobTester,
-  QueryType,
   excludeToGlobPattern,
   hasSiblingPromiseFn,
+  QueryGlobTester,
+  QueryType,
   resolvePatternsForProvider
 } from "./search.js";
 import {

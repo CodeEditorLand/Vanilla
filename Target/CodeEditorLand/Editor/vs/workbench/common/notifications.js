@@ -15,11 +15,11 @@ import {
 } from "../../base/common/linkedText.js";
 import { mapsStrictEqualIgnoreOrder } from "../../base/common/map.js";
 import {
+  isNotificationSource,
   NoOpNotification,
   NotificationPriority,
   NotificationsFilter,
-  Severity,
-  isNotificationSource
+  Severity
 } from "../../platform/notification/common/notification.js";
 var NotificationChangeType = /* @__PURE__ */ ((NotificationChangeType2) => {
   NotificationChangeType2[NotificationChangeType2["ADD"] = 0] = "ADD";

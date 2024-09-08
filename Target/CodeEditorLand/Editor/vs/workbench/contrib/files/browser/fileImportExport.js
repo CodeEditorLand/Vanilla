@@ -21,8 +21,8 @@ import {
   RunOnceWorker
 } from "../../../../base/common/async.js";
 import {
-  VSBuffer,
-  newWriteableBufferStream
+  newWriteableBufferStream,
+  VSBuffer
 } from "../../../../base/common/buffer.js";
 import {
   CancellationTokenSource
@@ -47,9 +47,9 @@ import { ResourceFileEdit } from "../../../../editor/browser/services/bulkEditSe
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import {
+  getFileNamesMessage,
   IDialogService,
-  IFileDialogService,
-  getFileNamesMessage
+  IFileDialogService
 } from "../../../../platform/dialogs/common/dialogs.js";
 import { extractEditorsAndFilesDropData } from "../../../../platform/dnd/browser/dnd.js";
 import { WebFileSystemAccess } from "../../../../platform/files/browser/webFileSystemAccess.js";

@@ -4,7 +4,7 @@ import {
   Disposable,
   toDisposable
 } from "../../base/common/lifecycle.js";
-import { SetMap, getOrSet } from "../../base/common/map.js";
+import { getOrSet, SetMap } from "../../base/common/map.js";
 import { mixin } from "../../base/common/objects.js";
 import { localize } from "../../nls.js";
 import { createDecorator } from "../../platform/instantiation/common/instantiation.js";

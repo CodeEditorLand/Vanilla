@@ -8,8 +8,8 @@ var __decorateClass = (decorators, target, key, kind) => {
   if (kind && result) __defProp(target, key, result);
   return result;
 };
-import * as nls from "../../nls.js";
 import { memoize } from "../../base/common/decorators.js";
+import * as nls from "../../nls.js";
 import {
   IEnvironmentService
 } from "../../platform/environment/common/environment.js";

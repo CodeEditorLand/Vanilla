@@ -13,9 +13,9 @@ import * as dom from "../../../../../base/browser/dom.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
 import {
+  combinedDisposable,
   Disposable,
-  MutableDisposable,
-  combinedDisposable
+  MutableDisposable
 } from "../../../../../base/common/lifecycle.js";
 import { sep } from "../../../../../base/common/path.js";
 import { commonPrefixLength } from "../../../../../base/common/strings.js";
@@ -80,23 +80,34 @@ let SuggestAddon = class extends Disposable {
     this._configurationService = _configurationService;
     this._instantiationService = _instantiationService;
     this._terminalConfigurationService = _terminalConfigurationService;
-    this._register(Event.runAndSubscribe(Event.any(
-      this._capabilities.onDidAddCapabilityType,
-      this._capabilities.onDidRemoveCapabilityType
-    ), () => {
-      const commandDetection = this._capabilities.get(TerminalCapability.CommandDetection);
-      if (commandDetection) {
-        if (this._promptInputModel !== commandDetection.promptInputModel) {
-          this._promptInputModel = commandDetection.promptInputModel;
-          this._promptInputModelSubscriptions.value = combinedDisposable(
-            this._promptInputModel.onDidChangeInput((e) => this._sync(e)),
-            this._promptInputModel.onDidFinishInput(() => this.hideSuggestWidget())
+    this._register(
+      Event.runAndSubscribe(
+        Event.any(
+          this._capabilities.onDidAddCapabilityType,
+          this._capabilities.onDidRemoveCapabilityType
+        ),
+        () => {
+          const commandDetection = this._capabilities.get(
+            TerminalCapability.CommandDetection
           );
+          if (commandDetection) {
+            if (this._promptInputModel !== commandDetection.promptInputModel) {
+              this._promptInputModel = commandDetection.promptInputModel;
+              this._promptInputModelSubscriptions.value = combinedDisposable(
+                this._promptInputModel.onDidChangeInput(
+                  (e) => this._sync(e)
+                ),
+                this._promptInputModel.onDidFinishInput(
+                  () => this.hideSuggestWidget()
+                )
+              );
+            }
+          } else {
+            this._promptInputModel = void 0;
+          }
         }
-      } else {
-        this._promptInputModel = void 0;
-      }
-    }));
+      )
+    );
   }
   _terminal;
   _promptInputModel;

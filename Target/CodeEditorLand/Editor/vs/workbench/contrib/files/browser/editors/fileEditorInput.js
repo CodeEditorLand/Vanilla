@@ -53,7 +53,17 @@ var ForceOpenAs = /* @__PURE__ */ ((ForceOpenAs2) => {
 })(ForceOpenAs || {});
 let FileEditorInput = class extends AbstractTextResourceEditorInput {
   constructor(resource, preferredResource, preferredName, preferredDescription, preferredEncoding, preferredLanguageId, preferredContents, instantiationService, textFileService, textModelService, labelService, fileService, filesConfigurationService, editorService, pathService, textResourceConfigurationService, customEditorLabelService) {
-    super(resource, preferredResource, editorService, textFileService, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
+    super(
+      resource,
+      preferredResource,
+      editorService,
+      textFileService,
+      labelService,
+      fileService,
+      filesConfigurationService,
+      textResourceConfigurationService,
+      customEditorLabelService
+    );
     this.instantiationService = instantiationService;
     this.textModelService = textModelService;
     this.pathService = pathService;
@@ -73,7 +83,11 @@ let FileEditorInput = class extends AbstractTextResourceEditorInput {
     if (typeof preferredContents === "string") {
       this.setPreferredContents(preferredContents);
     }
-    this._register(this.textFileService.files.onDidCreate((model) => this.onDidCreateTextFileModel(model)));
+    this._register(
+      this.textFileService.files.onDidCreate(
+        (model) => this.onDidCreateTextFileModel(model)
+      )
+    );
     if (this.model) {
       this.registerModelListeners(this.model);
     }

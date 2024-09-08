@@ -45,43 +45,54 @@ let TunnelFactoryContribution = class extends Disposable {
           }
         ];
       }
-      this._register(tunnelService.setTunnelProvider({
-        forwardPort: async (tunnelOptions, tunnelCreationOptions) => {
-          let tunnelPromise;
-          try {
-            tunnelPromise = tunnelFactory(tunnelOptions, tunnelCreationOptions);
-          } catch (e) {
-            logService.trace("tunnelFactory: tunnel provider error");
-          }
-          if (!tunnelPromise) {
-            return void 0;
-          }
-          let tunnel;
-          try {
-            tunnel = await tunnelPromise;
-          } catch (e) {
-            logService.trace("tunnelFactory: tunnel provider promise error");
-            if (e instanceof Error) {
-              return e.message;
+      this._register(
+        tunnelService.setTunnelProvider({
+          forwardPort: async (tunnelOptions, tunnelCreationOptions) => {
+            let tunnelPromise;
+            try {
+              tunnelPromise = tunnelFactory(
+                tunnelOptions,
+                tunnelCreationOptions
+              );
+            } catch (e) {
+              logService.trace(
+                "tunnelFactory: tunnel provider error"
+              );
             }
-            return void 0;
-          }
-          const localAddress = tunnel.localAddress.startsWith("http") ? tunnel.localAddress : `http://${tunnel.localAddress}`;
-          const remoteTunnel = {
-            tunnelRemotePort: tunnel.remoteAddress.port,
-            tunnelRemoteHost: tunnel.remoteAddress.host,
-            // The tunnel factory may give us an inaccessible local address.
-            // To make sure this doesn't happen, resolve the uri immediately.
-            localAddress: await this.resolveExternalUri(localAddress),
-            privacy: tunnel.privacy ?? (tunnel.public ? TunnelPrivacyId.Public : TunnelPrivacyId.Private),
-            protocol: tunnel.protocol ?? TunnelProtocol.Http,
-            dispose: async () => {
-              await tunnel.dispose();
+            if (!tunnelPromise) {
+              return void 0;
             }
-          };
-          return remoteTunnel;
-        }
-      }));
+            let tunnel;
+            try {
+              tunnel = await tunnelPromise;
+            } catch (e) {
+              logService.trace(
+                "tunnelFactory: tunnel provider promise error"
+              );
+              if (e instanceof Error) {
+                return e.message;
+              }
+              return void 0;
+            }
+            const localAddress = tunnel.localAddress.startsWith(
+              "http"
+            ) ? tunnel.localAddress : `http://${tunnel.localAddress}`;
+            const remoteTunnel = {
+              tunnelRemotePort: tunnel.remoteAddress.port,
+              tunnelRemoteHost: tunnel.remoteAddress.host,
+              // The tunnel factory may give us an inaccessible local address.
+              // To make sure this doesn't happen, resolve the uri immediately.
+              localAddress: await this.resolveExternalUri(localAddress),
+              privacy: tunnel.privacy ?? (tunnel.public ? TunnelPrivacyId.Public : TunnelPrivacyId.Private),
+              protocol: tunnel.protocol ?? TunnelProtocol.Http,
+              dispose: async () => {
+                await tunnel.dispose();
+              }
+            };
+            return remoteTunnel;
+          }
+        })
+      );
       const tunnelInformation = environmentService.options?.tunnelProvider?.features ? {
         features: {
           elevation: !!environmentService.options?.tunnelProvider?.features?.elevation,

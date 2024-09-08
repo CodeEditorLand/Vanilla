@@ -22,8 +22,8 @@ import {
   IContextKeyService
 } from "../../../../platform/contextkey/common/contextkey.js";
 import {
-  IInstantiationService,
-  createDecorator
+  createDecorator,
+  IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import {
@@ -54,47 +54,69 @@ let CommentService = class extends Disposable {
     this._handleZenMode();
     this._workspaceHasCommenting = CommentContextKeys.WorkspaceHasCommenting.bindTo(contextKeyService);
     const storageListener = this._register(new DisposableStore());
-    const storageEvent = Event.debounce(this.storageService.onDidChangeValue(StorageScope.WORKSPACE, CONTINUE_ON_COMMENTS, storageListener), (last, event) => last?.external ? last : event, 500);
-    storageListener.add(storageEvent((v) => {
-      if (!v.external) {
-        return;
-      }
-      const commentsToRestore = this.storageService.getObject(CONTINUE_ON_COMMENTS, StorageScope.WORKSPACE);
-      if (!commentsToRestore) {
-        return;
-      }
-      this.logService.debug(`Comments: URIs of continue on comments from storage ${commentsToRestore.map((thread) => thread.uri.toString()).join(", ")}.`);
-      const changedOwners = this._addContinueOnComments(commentsToRestore, this._continueOnComments);
-      for (const uniqueOwner of changedOwners) {
-        const control = this._commentControls.get(uniqueOwner);
-        if (!control) {
-          continue;
+    const storageEvent = Event.debounce(
+      this.storageService.onDidChangeValue(
+        StorageScope.WORKSPACE,
+        CONTINUE_ON_COMMENTS,
+        storageListener
+      ),
+      (last, event) => last?.external ? last : event,
+      500
+    );
+    storageListener.add(
+      storageEvent((v) => {
+        if (!v.external) {
+          return;
         }
-        const evt = {
-          uniqueOwner,
-          owner: control.owner,
-          ownerLabel: control.label,
-          pending: this._continueOnComments.get(uniqueOwner) || [],
-          added: [],
-          removed: [],
-          changed: []
-        };
-        this.updateModelThreads(evt);
-      }
-    }));
-    this._register(storageService.onWillSaveState(() => {
-      const map = /* @__PURE__ */ new Map();
-      for (const provider of this._continueOnCommentProviders) {
-        const pendingComments = provider.provideContinueOnComments();
-        this._addContinueOnComments(pendingComments, map);
-      }
-      this._saveContinueOnComments(map);
-    }));
-    this._register(this.modelService.onModelAdded((model) => {
-      if (!this._commentingRangeResources.has(model.uri.toString())) {
-        this.getDocumentComments(model.uri);
-      }
-    }));
+        const commentsToRestore = this.storageService.getObject(
+          CONTINUE_ON_COMMENTS,
+          StorageScope.WORKSPACE
+        );
+        if (!commentsToRestore) {
+          return;
+        }
+        this.logService.debug(
+          `Comments: URIs of continue on comments from storage ${commentsToRestore.map((thread) => thread.uri.toString()).join(", ")}.`
+        );
+        const changedOwners = this._addContinueOnComments(
+          commentsToRestore,
+          this._continueOnComments
+        );
+        for (const uniqueOwner of changedOwners) {
+          const control = this._commentControls.get(uniqueOwner);
+          if (!control) {
+            continue;
+          }
+          const evt = {
+            uniqueOwner,
+            owner: control.owner,
+            ownerLabel: control.label,
+            pending: this._continueOnComments.get(uniqueOwner) || [],
+            added: [],
+            removed: [],
+            changed: []
+          };
+          this.updateModelThreads(evt);
+        }
+      })
+    );
+    this._register(
+      storageService.onWillSaveState(() => {
+        const map = /* @__PURE__ */ new Map();
+        for (const provider of this._continueOnCommentProviders) {
+          const pendingComments = provider.provideContinueOnComments();
+          this._addContinueOnComments(pendingComments, map);
+        }
+        this._saveContinueOnComments(map);
+      })
+    );
+    this._register(
+      this.modelService.onModelAdded((model) => {
+        if (!this._commentingRangeResources.has(model.uri.toString())) {
+          this.getDocumentComments(model.uri);
+        }
+      })
+    );
   }
   _onDidSetDataProvider = this._register(
     new Emitter()

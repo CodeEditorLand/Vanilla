@@ -12,10 +12,10 @@ import { refineServiceDecorator } from "../../../../platform/instantiation/commo
 import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
 import {
   CustomTitleBarVisibility,
-  TitleBarSetting,
   getMenuBarVisibility,
   hasCustomTitlebar,
-  hasNativeTitlebar
+  hasNativeTitlebar,
+  TitleBarSetting
 } from "../../../../platform/window/common/window.js";
 const IWorkbenchLayoutService = refineServiceDecorator(ILayoutService);
 var Parts = /* @__PURE__ */ ((Parts2) => {

@@ -1,0 +1,31 @@
+import type { CancellationToken } from "../../../../base/common/cancellation.js";
+import { type Event } from "../../../../base/common/event.js";
+import { type IDisposable } from "../../../../base/common/lifecycle.js";
+import type { ReadableStreamEvents } from "../../../../base/common/stream.js";
+import type { URI } from "../../../../base/common/uri.js";
+import { FileSystemProviderCapabilities, type FileType, type IFileChange, type IFileDeleteOptions, type IFileOpenOptions, type IFileOverwriteOptions, type IFileReadStreamOptions, type IFileSystemProvider, type IFileWriteOptions, type IStat, type IWatchOptions } from "../../common/files.js";
+export declare class NullFileSystemProvider implements IFileSystemProvider {
+    private disposableFactory;
+    capabilities: FileSystemProviderCapabilities;
+    private readonly _onDidChangeCapabilities;
+    readonly onDidChangeCapabilities: Event<void>;
+    private readonly _onDidChangeFile;
+    readonly onDidChangeFile: Event<readonly IFileChange[]>;
+    constructor(disposableFactory?: () => IDisposable);
+    emitFileChangeEvents(changes: IFileChange[]): void;
+    setCapabilities(capabilities: FileSystemProviderCapabilities): void;
+    watch(resource: URI, opts: IWatchOptions): IDisposable;
+    stat(resource: URI): Promise<IStat>;
+    mkdir(resource: URI): Promise<void>;
+    readdir(resource: URI): Promise<[string, FileType][]>;
+    delete(resource: URI, opts: IFileDeleteOptions): Promise<void>;
+    rename(from: URI, to: URI, opts: IFileOverwriteOptions): Promise<void>;
+    copy(from: URI, to: URI, opts: IFileOverwriteOptions): Promise<void>;
+    readFile(resource: URI): Promise<Uint8Array>;
+    readFileStream(resource: URI, opts: IFileReadStreamOptions, token: CancellationToken): ReadableStreamEvents<Uint8Array>;
+    writeFile(resource: URI, content: Uint8Array, opts: IFileWriteOptions): Promise<void>;
+    open(resource: URI, opts: IFileOpenOptions): Promise<number>;
+    close(fd: number): Promise<void>;
+    read(fd: number, pos: number, data: Uint8Array, offset: number, length: number): Promise<number>;
+    write(fd: number, pos: number, data: Uint8Array, offset: number, length: number): Promise<number>;
+}

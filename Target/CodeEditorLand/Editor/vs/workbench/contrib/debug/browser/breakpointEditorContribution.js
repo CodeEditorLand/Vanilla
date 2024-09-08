@@ -69,8 +69,8 @@ import {
   IDebugService,
   State
 } from "../common/debug.js";
-import { BreakpointWidget } from "./breakpointWidget.js";
 import { getBreakpointMessageAndIcon } from "./breakpointsView.js";
+import { BreakpointWidget } from "./breakpointWidget.js";
 import * as icons from "./debugIcons.js";
 const $ = dom.$;
 const breakpointHelperDecoration = {
@@ -275,7 +275,10 @@ let BreakpointEditorContribution = class {
     this.configurationService = configurationService;
     this.labelService = labelService;
     this.breakpointWidgetVisible = CONTEXT_BREAKPOINT_WIDGET_VISIBLE.bindTo(contextKeyService);
-    this.setDecorationsScheduler = new RunOnceScheduler(() => this.setDecorations(), 30);
+    this.setDecorationsScheduler = new RunOnceScheduler(
+      () => this.setDecorations(),
+      30
+    );
     this.setDecorationsScheduler.schedule();
     this.registerListeners();
   }

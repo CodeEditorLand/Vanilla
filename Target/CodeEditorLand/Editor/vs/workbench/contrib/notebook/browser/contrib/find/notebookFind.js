@@ -7,9 +7,9 @@ import { EditorOption } from "../../../../../../editor/common/config/editorOptio
 import { EditorContextKeys } from "../../../../../../editor/common/editorContextKeys.js";
 import {
   FindStartFocusAction,
+  getSelectionSearchString,
   StartFindAction,
-  StartFindReplaceAction,
-  getSelectionSearchString
+  StartFindReplaceAction
 } from "../../../../../../editor/contrib/find/browser/findController.js";
 import { localize2 } from "../../../../../../nls.js";
 import {

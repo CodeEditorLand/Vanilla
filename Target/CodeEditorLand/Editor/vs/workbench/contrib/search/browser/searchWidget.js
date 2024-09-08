@@ -49,8 +49,8 @@ import { showHistoryKeybindingHint } from "../../../../platform/history/browser/
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import {
   defaultInputBoxStyles,
@@ -125,9 +125,15 @@ let SearchWidget = class extends Widget {
     this.contextMenuService = contextMenuService;
     this.instantiationService = instantiationService;
     this.editorService = editorService;
-    this.replaceActive = Constants.SearchContext.ReplaceActiveKey.bindTo(this.contextKeyService);
-    this.searchInputBoxFocused = Constants.SearchContext.SearchInputBoxFocusedKey.bindTo(this.contextKeyService);
-    this.replaceInputBoxFocused = Constants.SearchContext.ReplaceInputBoxFocusedKey.bindTo(this.contextKeyService);
+    this.replaceActive = Constants.SearchContext.ReplaceActiveKey.bindTo(
+      this.contextKeyService
+    );
+    this.searchInputBoxFocused = Constants.SearchContext.SearchInputBoxFocusedKey.bindTo(
+      this.contextKeyService
+    );
+    this.replaceInputBoxFocused = Constants.SearchContext.ReplaceInputBoxFocusedKey.bindTo(
+      this.contextKeyService
+    );
     const notebookOptions = options.notebookOptions ?? {
       isInNotebookMarkdownInput: true,
       isInNotebookMarkdownPreview: true,
@@ -150,20 +156,30 @@ let SearchWidget = class extends Widget {
         }
       })
     );
-    this._register(this.editorService.onDidEditorsChange((e) => {
-      if (this.searchInput && e.event.editor instanceof NotebookEditorInput && (e.event.kind === GroupModelChangeKind.EDITOR_OPEN || e.event.kind === GroupModelChangeKind.EDITOR_CLOSE)) {
-        this.searchInput.filterVisible = this._hasNotebookOpen();
-      }
-    }));
+    this._register(
+      this.editorService.onDidEditorsChange((e) => {
+        if (this.searchInput && e.event.editor instanceof NotebookEditorInput && (e.event.kind === GroupModelChangeKind.EDITOR_OPEN || e.event.kind === GroupModelChangeKind.EDITOR_CLOSE)) {
+          this.searchInput.filterVisible = this._hasNotebookOpen();
+        }
+      })
+    );
     this._replaceHistoryDelayer = new Delayer(500);
-    this._toggleReplaceButtonListener = this._register(new MutableDisposable());
+    this._toggleReplaceButtonListener = this._register(
+      new MutableDisposable()
+    );
     this.render(container, options);
-    this._register(this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("editor.accessibilitySupport")) {
-        this.updateAccessibilitySupport();
-      }
-    }));
-    this._register(this.accessibilityService.onDidChangeScreenReaderOptimized(() => this.updateAccessibilitySupport()));
+    this._register(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("editor.accessibilitySupport")) {
+          this.updateAccessibilitySupport();
+        }
+      })
+    );
+    this._register(
+      this.accessibilityService.onDidChangeScreenReaderOptimized(
+        () => this.updateAccessibilitySupport()
+      )
+    );
     this.updateAccessibilitySupport();
   }
   static INPUT_MAX_HEIGHT = 134;

@@ -1,0 +1,31 @@
+import type { ActionBar, IActionViewItemProvider } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { Action, type IAction } from "../../../../base/common/actions.js";
+import type { IDisposable } from "../../../../base/common/lifecycle.js";
+import { type IResourceNode } from "../../../../base/common/resourceTree.js";
+import type { Command } from "../../../../editor/common/languages.js";
+import { type IMenu } from "../../../../platform/actions/common/actions.js";
+import type { ICommandService } from "../../../../platform/commands/common/commands.js";
+import type { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import type { SCMHistoryItemLoadMoreTreeElement, SCMHistoryItemViewModelTreeElement } from "../common/history.js";
+import type { ISCMActionButton, ISCMInput, ISCMProvider, ISCMRepository, ISCMResource, ISCMResourceGroup, ISCMViewService } from "../common/scm.js";
+export declare function isSCMViewService(element: any): element is ISCMViewService;
+export declare function isSCMRepository(element: any): element is ISCMRepository;
+export declare function isSCMInput(element: any): element is ISCMInput;
+export declare function isSCMActionButton(element: any): element is ISCMActionButton;
+export declare function isSCMResourceGroup(element: any): element is ISCMResourceGroup;
+export declare function isSCMResource(element: any): element is ISCMResource;
+export declare function isSCMResourceNode(element: any): element is IResourceNode<ISCMResource, ISCMResourceGroup>;
+export declare function isSCMHistoryItemViewModelTreeElement(element: any): element is SCMHistoryItemViewModelTreeElement;
+export declare function isSCMHistoryItemLoadMoreTreeElement(element: any): element is SCMHistoryItemLoadMoreTreeElement;
+export declare function connectPrimaryMenu(menu: IMenu, callback: (primary: IAction[], secondary: IAction[]) => void, primaryGroup?: string): IDisposable;
+export declare function connectPrimaryMenuToInlineActionBar(menu: IMenu, actionBar: ActionBar): IDisposable;
+export declare function collectContextMenuActions(menu: IMenu): IAction[];
+export declare class StatusBarAction extends Action {
+    private command;
+    private commandService;
+    constructor(command: Command, commandService: ICommandService);
+    run(): Promise<void>;
+}
+export declare function getActionViewItemProvider(instaService: IInstantiationService): IActionViewItemProvider;
+export declare function getProviderKey(provider: ISCMProvider): string;
+export declare function getRepositoryResourceCount(provider: ISCMProvider): number;

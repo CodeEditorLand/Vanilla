@@ -1,9 +1,9 @@
 import { isNonEmptyArray } from "../../../../base/common/arrays.js";
 import { EditorExtensionsRegistry } from "../../../../editor/browser/editorExtensions.js";
 import {
+  isIMenuItem,
   MenuId,
-  MenuRegistry,
-  isIMenuItem
+  MenuRegistry
 } from "../../../../platform/actions/common/actions.js";
 import {
   CommandsRegistry

@@ -507,10 +507,7 @@ class DefaultSettings extends Disposable {
       Extensions.Configuration
     ).getConfigurations().slice();
     const groups = this.removeEmptySettingsGroups(
-      configurations.sort(this.compareConfigurationNodes).reduce(
-        (result, config, index, array) => this.parseConfig(config, result, array),
-        []
-      )
+      configurations.sort(this.compareConfigurationNodes).reduce((result, config, index, array) => this.parseConfig(config, result, array), [])
     );
     return this.sortGroups(groups);
   }

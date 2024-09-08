@@ -29,8 +29,8 @@ import {
 import { IViewsService } from "../../../services/views/common/viewsService.js";
 import { TestingConfigKeys } from "./configuration.js";
 import { Testing } from "./constants.js";
-import { ITestResultService } from "./testResultService.js";
 import { TestingContextKeys } from "./testingContextKeys.js";
+import { ITestResultService } from "./testResultService.js";
 const ITestCoverageService = createDecorator(
   "testCoverageService"
 );
@@ -38,47 +38,69 @@ let TestCoverageService = class extends Disposable {
   constructor(contextKeyService, resultService, configService, viewsService) {
     super();
     this.viewsService = viewsService;
-    const toolbarConfig = observableConfigValue(TestingConfigKeys.CoverageToolbarEnabled, true, configService);
-    this._register(bindContextKey(
-      TestingContextKeys.coverageToolbarEnabled,
-      contextKeyService,
-      (reader) => toolbarConfig.read(reader)
-    ));
-    this._register(bindContextKey(
-      TestingContextKeys.inlineCoverageEnabled,
-      contextKeyService,
-      (reader) => this.showInline.read(reader)
-    ));
-    this._register(bindContextKey(
-      TestingContextKeys.isTestCoverageOpen,
-      contextKeyService,
-      (reader) => !!this.selected.read(reader)
-    ));
-    this._register(bindContextKey(
-      TestingContextKeys.hasPerTestCoverage,
-      contextKeyService,
-      (reader) => !Iterable.isEmpty(this.selected.read(reader)?.allPerTestIDs())
-    ));
-    this._register(bindContextKey(
-      TestingContextKeys.isCoverageFilteredToTest,
-      contextKeyService,
-      (reader) => !!this.filterToTest.read(reader)
-    ));
-    this._register(resultService.onResultsChanged((evt) => {
-      if ("completed" in evt) {
-        const coverage = evt.completed.tasks.find((t) => t.coverage.get());
-        if (coverage) {
-          this.openCoverage(coverage, false);
-        } else {
-          this.closeCoverage();
+    const toolbarConfig = observableConfigValue(
+      TestingConfigKeys.CoverageToolbarEnabled,
+      true,
+      configService
+    );
+    this._register(
+      bindContextKey(
+        TestingContextKeys.coverageToolbarEnabled,
+        contextKeyService,
+        (reader) => toolbarConfig.read(reader)
+      )
+    );
+    this._register(
+      bindContextKey(
+        TestingContextKeys.inlineCoverageEnabled,
+        contextKeyService,
+        (reader) => this.showInline.read(reader)
+      )
+    );
+    this._register(
+      bindContextKey(
+        TestingContextKeys.isTestCoverageOpen,
+        contextKeyService,
+        (reader) => !!this.selected.read(reader)
+      )
+    );
+    this._register(
+      bindContextKey(
+        TestingContextKeys.hasPerTestCoverage,
+        contextKeyService,
+        (reader) => !Iterable.isEmpty(
+          this.selected.read(reader)?.allPerTestIDs()
+        )
+      )
+    );
+    this._register(
+      bindContextKey(
+        TestingContextKeys.isCoverageFilteredToTest,
+        contextKeyService,
+        (reader) => !!this.filterToTest.read(reader)
+      )
+    );
+    this._register(
+      resultService.onResultsChanged((evt) => {
+        if ("completed" in evt) {
+          const coverage = evt.completed.tasks.find(
+            (t) => t.coverage.get()
+          );
+          if (coverage) {
+            this.openCoverage(coverage, false);
+          } else {
+            this.closeCoverage();
+          }
+        } else if ("removed" in evt && this.selected.get()) {
+          const taskId = this.selected.get()?.fromTaskId;
+          if (evt.removed.some(
+            (e) => e.tasks.some((t) => t.id === taskId)
+          )) {
+            this.closeCoverage();
+          }
         }
-      } else if ("removed" in evt && this.selected.get()) {
-        const taskId = this.selected.get()?.fromTaskId;
-        if (evt.removed.some((e) => e.tasks.some((t) => t.id === taskId))) {
-          this.closeCoverage();
-        }
-      }
-    }));
+      })
+    );
   }
   lastOpenCts = this._register(
     new MutableDisposable()

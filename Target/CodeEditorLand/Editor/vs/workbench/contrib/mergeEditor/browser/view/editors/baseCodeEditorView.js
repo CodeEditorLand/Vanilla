@@ -33,8 +33,8 @@ import {
 import { EditorGutter } from "../editorGutter.js";
 import {
   CodeEditorView,
-  TitleMenu,
-  createSelectionsAutorun
+  createSelectionsAutorun,
+  TitleMenu
 } from "./codeEditorView.js";
 let BaseCodeEditorView = class extends CodeEditorView {
   constructor(viewModel, instantiationService, configurationService) {

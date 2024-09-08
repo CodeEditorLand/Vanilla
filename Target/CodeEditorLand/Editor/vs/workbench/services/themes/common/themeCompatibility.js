@@ -1,6 +1,6 @@
 import { Color } from "../../../../base/common/color.js";
-import * as colorRegistry from "../../../../platform/theme/common/colorRegistry.js";
 import * as editorColorRegistry from "../../../../editor/common/core/editorColorRegistry.js";
+import * as colorRegistry from "../../../../platform/theme/common/colorRegistry.js";
 const settingToColorIdMapping = {};
 function addSettingMapping(settingId, colorId) {
   let colorIds = settingToColorIdMapping[settingId];

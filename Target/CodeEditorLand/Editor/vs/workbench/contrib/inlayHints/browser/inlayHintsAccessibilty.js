@@ -47,7 +47,10 @@ let InlayHintsAccessibility = class {
     this._ariaElement.style.position = "fixed";
     this._ariaElement.className = "inlayhint-accessibility-element";
     this._ariaElement.tabIndex = 0;
-    this._ariaElement.setAttribute("aria-description", localize("description", "Code with Inlay Hint Information"));
+    this._ariaElement.setAttribute(
+      "aria-description",
+      localize("description", "Code with Inlay Hint Information")
+    );
     this._ctxIsReading = InlayHintsAccessibility.IsReading.bindTo(contextKeyService);
   }
   static IsReading = new RawContextKey(

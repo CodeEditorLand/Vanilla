@@ -66,13 +66,13 @@ import {
   IUserDataSyncEnablementService,
   IUserDataSyncService,
   IUserDataSyncStoreManagementService,
+  registerConfiguration,
   SyncResource,
   SyncStatus,
   USER_DATA_SYNC_LOG_ID,
   USER_DATA_SYNC_SCHEME,
   UserDataSyncError,
-  UserDataSyncErrorCode,
-  registerConfiguration
+  UserDataSyncErrorCode
 } from "../../../../platform/userDataSync/common/userDataSync.js";
 import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
 import {
@@ -103,12 +103,12 @@ import {
   CONTEXT_SYNC_ENABLEMENT,
   CONTEXT_SYNC_STATE,
   DOWNLOAD_ACTIVITY_ACTION_DESCRIPTOR,
+  getSyncAreaLabel,
   IUserDataSyncWorkbenchService,
   SHOW_SYNC_LOG_COMMAND_ID,
   SYNC_TITLE,
   SYNC_VIEW_CONTAINER_ID,
-  SYNC_VIEW_ICON,
-  getSyncAreaLabel
+  SYNC_VIEW_ICON
 } from "../../../services/userDataSync/common/userDataSync.js";
 import { IWorkbenchIssueService } from "../../issue/common/issue.js";
 import {
@@ -184,22 +184,60 @@ let UserDataSyncWorkbenchContribution = class extends Disposable {
       this.updateAccountBadge();
       this.updateGlobalActivityBadge();
       this.onDidChangeConflicts(this.userDataSyncService.conflicts);
-      this._register(Event.any(
-        Event.debounce(userDataSyncService.onDidChangeStatus, () => void 0, 500),
-        this.userDataSyncEnablementService.onDidChangeEnablement,
-        this.userDataSyncWorkbenchService.onDidChangeAccountStatus
-      )(() => {
-        this.updateAccountBadge();
-        this.updateGlobalActivityBadge();
-      }));
-      this._register(userDataSyncService.onDidChangeConflicts(() => this.onDidChangeConflicts(this.userDataSyncService.conflicts)));
-      this._register(userDataSyncEnablementService.onDidChangeEnablement(() => this.onDidChangeConflicts(this.userDataSyncService.conflicts)));
-      this._register(userDataSyncService.onSyncErrors((errors) => this.onSynchronizerErrors(errors)));
-      this._register(userDataAutoSyncService.onError((error) => this.onAutoSyncError(error)));
+      this._register(
+        Event.any(
+          Event.debounce(
+            userDataSyncService.onDidChangeStatus,
+            () => void 0,
+            500
+          ),
+          this.userDataSyncEnablementService.onDidChangeEnablement,
+          this.userDataSyncWorkbenchService.onDidChangeAccountStatus
+        )(() => {
+          this.updateAccountBadge();
+          this.updateGlobalActivityBadge();
+        })
+      );
+      this._register(
+        userDataSyncService.onDidChangeConflicts(
+          () => this.onDidChangeConflicts(
+            this.userDataSyncService.conflicts
+          )
+        )
+      );
+      this._register(
+        userDataSyncEnablementService.onDidChangeEnablement(
+          () => this.onDidChangeConflicts(
+            this.userDataSyncService.conflicts
+          )
+        )
+      );
+      this._register(
+        userDataSyncService.onSyncErrors(
+          (errors) => this.onSynchronizerErrors(errors)
+        )
+      );
+      this._register(
+        userDataAutoSyncService.onError(
+          (error) => this.onAutoSyncError(error)
+        )
+      );
       this.registerActions();
       this.registerViews();
-      textModelResolverService.registerTextModelContentProvider(USER_DATA_SYNC_SCHEME, instantiationService.createInstance(UserDataRemoteContentProvider));
-      this._register(Event.any(userDataSyncService.onDidChangeStatus, userDataSyncEnablementService.onDidChangeEnablement)(() => this.turningOnSync = !userDataSyncEnablementService.isEnabled() && userDataSyncService.status !== SyncStatus.Idle));
+      textModelResolverService.registerTextModelContentProvider(
+        USER_DATA_SYNC_SCHEME,
+        instantiationService.createInstance(
+          UserDataRemoteContentProvider
+        )
+      );
+      this._register(
+        Event.any(
+          userDataSyncService.onDidChangeStatus,
+          userDataSyncEnablementService.onDidChangeEnablement
+        )(
+          () => this.turningOnSync = !userDataSyncEnablementService.isEnabled() && userDataSyncService.status !== SyncStatus.Idle
+        )
+      );
     }
   }
   turningOnSyncContext;

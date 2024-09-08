@@ -26,18 +26,18 @@ import { parse } from "../../../../base/common/marshalling.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { deepClone } from "../../../../base/common/objects.js";
 import {
-  ObservableLazyPromise,
   autorun,
   derived,
   observableFromEvent,
+  ObservableLazyPromise,
   observableValue
 } from "../../../../base/common/observable.js";
 import {
-  ValueWithChangeEventFromObservable,
   constObservable,
   mapObservableArrayCached,
   observableFromValueWithChangeEvent,
-  recomputeInitiallyAndOnChange
+  recomputeInitiallyAndOnChange,
+  ValueWithChangeEventFromObservable
 } from "../../../../base/common/observableInternal/utils.js";
 import { isDefined, isObject } from "../../../../base/common/types.js";
 import { URI } from "../../../../base/common/uri.js";
@@ -81,19 +81,25 @@ let MultiDiffEditorInput = class extends EditorInput {
     this._instantiationService = _instantiationService;
     this._multiDiffSourceResolverService = _multiDiffSourceResolverService;
     this._textFileService = _textFileService;
-    this._register(autorun((reader) => {
-      const resources = this.resources.read(reader);
-      const label2 = this.label ?? localize("name", "Multi Diff Editor");
-      if (resources) {
-        this._name = label2 + localize({
-          key: "files",
-          comment: ["the number of files being shown"]
-        }, " ({0} files)", resources.length);
-      } else {
-        this._name = label2;
-      }
-      this._onDidChangeLabel.fire();
-    }));
+    this._register(
+      autorun((reader) => {
+        const resources = this.resources.read(reader);
+        const label2 = this.label ?? localize("name", "Multi Diff Editor");
+        if (resources) {
+          this._name = label2 + localize(
+            {
+              key: "files",
+              comment: ["the number of files being shown"]
+            },
+            " ({0} files)",
+            resources.length
+          );
+        } else {
+          this._name = label2;
+        }
+        this._onDidChangeLabel.fire();
+      })
+    );
   }
   static fromResourceMultiDiffEditorInput(input, instantiationService) {
     if (!input.multiDiffSource && !input.resources) {

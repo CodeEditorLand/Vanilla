@@ -22,10 +22,11 @@ import { IConfigurationService } from "../../../platform/configuration/common/co
 import { ContextKeyExpr } from "../../../platform/contextkey/common/contextkey.js";
 import { IHoverService } from "../../../platform/hover/browser/hover.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../platform/keybinding/common/keybindingsRegistry.js";
 import {
+  getSelectionKeyboardEvent,
   IListService,
   RawWorkbenchListFocusContextKey,
   WorkbenchListFocusContextKey,
@@ -40,8 +41,7 @@ import {
   WorkbenchTreeElementHasChild,
   WorkbenchTreeElementHasParent,
   WorkbenchTreeFindOpen,
-  WorkbenchTreeStickyScrollFocused,
-  getSelectionKeyboardEvent
+  WorkbenchTreeStickyScrollFocused
 } from "../../../platform/list/browser/listService.js";
 function ensureDOMFocus(widget) {
   const element = widget?.getHTMLElement();

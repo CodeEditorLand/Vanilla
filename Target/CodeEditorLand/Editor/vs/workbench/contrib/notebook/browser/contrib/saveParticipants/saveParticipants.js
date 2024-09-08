@@ -29,8 +29,8 @@ import { IEditorWorkerService } from "../../../../../../editor/common/services/e
 import { ILanguageFeaturesService } from "../../../../../../editor/common/services/languageFeatures.js";
 import { ITextModelService } from "../../../../../../editor/common/services/resolverService.js";
 import {
-  ApplyCodeActionReason,
   applyCodeAction,
+  ApplyCodeActionReason,
   getCodeActions
 } from "../../../../../../editor/contrib/codeAction/browser/codeAction.js";
 import {

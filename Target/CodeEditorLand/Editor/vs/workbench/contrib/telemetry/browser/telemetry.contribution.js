@@ -74,9 +74,16 @@ let TelemetryContribution = class extends Disposable {
     this.contextService = contextService;
     this.userDataProfileService = userDataProfileService;
     const { filesToOpenOrCreate, filesToDiff, filesToMerge } = environmentService;
-    const activeViewlet = paneCompositeService.getActivePaneComposite(ViewContainerLocation.Sidebar);
+    const activeViewlet = paneCompositeService.getActivePaneComposite(
+      ViewContainerLocation.Sidebar
+    );
     telemetryService.publicLog2("workspaceLoad", {
-      windowSize: { innerHeight: mainWindow.innerHeight, innerWidth: mainWindow.innerWidth, outerHeight: mainWindow.outerHeight, outerWidth: mainWindow.outerWidth },
+      windowSize: {
+        innerHeight: mainWindow.innerHeight,
+        innerWidth: mainWindow.innerWidth,
+        outerHeight: mainWindow.outerHeight,
+        outerWidth: mainWindow.outerWidth
+      },
       emptyWorkbench: contextService.getWorkbenchState() === WorkbenchState.EMPTY,
       "workbench.filesToOpenOrCreate": filesToOpenOrCreate && filesToOpenOrCreate.length || 0,
       "workbench.filesToDiff": filesToDiff && filesToDiff.length || 0,
@@ -84,14 +91,24 @@ let TelemetryContribution = class extends Disposable {
       customKeybindingsCount: keybindingsService.customKeybindingsCount(),
       theme: themeService.getColorTheme().id,
       language,
-      pinnedViewlets: paneCompositeService.getPinnedPaneCompositeIds(ViewContainerLocation.Sidebar),
+      pinnedViewlets: paneCompositeService.getPinnedPaneCompositeIds(
+        ViewContainerLocation.Sidebar
+      ),
       restoredViewlet: activeViewlet ? activeViewlet.getId() : void 0,
       restoredEditors: editorService.visibleEditors.length,
       startupKind: lifecycleService.startupKind
     });
     this._register(new ErrorTelemetry(telemetryService));
-    this._register(textFileService.files.onDidResolve((e) => this.onTextFileModelResolved(e)));
-    this._register(textFileService.files.onDidSave((e) => this.onTextFileModelSaved(e)));
+    this._register(
+      textFileService.files.onDidResolve(
+        (e) => this.onTextFileModelResolved(e)
+      )
+    );
+    this._register(
+      textFileService.files.onDidSave(
+        (e) => this.onTextFileModelSaved(e)
+      )
+    );
     this._register(lifecycleService.onDidShutdown(() => this.dispose()));
   }
   static ALLOWLIST_JSON = [
@@ -200,18 +217,27 @@ let ConfigurationTelemetryContribution = class extends Disposable {
     this.configurationService = configurationService;
     this.userDataProfilesService = userDataProfilesService;
     this.telemetryService = telemetryService;
-    const debouncedConfigService = Event.debounce(configurationService.onDidChangeConfiguration, (last, cur) => {
-      const newAffectedKeys = last ? /* @__PURE__ */ new Set([...last.affectedKeys, ...cur.affectedKeys]) : cur.affectedKeys;
-      return { ...cur, affectedKeys: newAffectedKeys };
-    }, 1e3, true);
-    this._register(debouncedConfigService((event) => {
-      if (event.source !== ConfigurationTarget.DEFAULT) {
-        telemetryService.publicLog2("updateConfiguration", {
-          configurationSource: ConfigurationTargetToString(event.source),
-          configurationKeys: Array.from(event.affectedKeys)
-        });
-      }
-    }));
+    const debouncedConfigService = Event.debounce(
+      configurationService.onDidChangeConfiguration,
+      (last, cur) => {
+        const newAffectedKeys = last ? /* @__PURE__ */ new Set([...last.affectedKeys, ...cur.affectedKeys]) : cur.affectedKeys;
+        return { ...cur, affectedKeys: newAffectedKeys };
+      },
+      1e3,
+      true
+    );
+    this._register(
+      debouncedConfigService((event) => {
+        if (event.source !== ConfigurationTarget.DEFAULT) {
+          telemetryService.publicLog2("updateConfiguration", {
+            configurationSource: ConfigurationTargetToString(
+              event.source
+            ),
+            configurationKeys: Array.from(event.affectedKeys)
+          });
+        }
+      })
+    );
     const { user, workspace } = configurationService.keys();
     for (const setting of user) {
       this.reportTelemetry(setting, ConfigurationTarget.USER_LOCAL);

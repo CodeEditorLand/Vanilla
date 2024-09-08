@@ -26,11 +26,11 @@ import { spinningLoading } from "../../../../platform/theme/common/iconRegistry.
 import {
   StartStopProblemCollector
 } from "../common/problemCollectors.js";
-import { ITaskService } from "../common/taskService.js";
 import {
   TaskEventKind,
   TaskRunType
 } from "../common/tasks.js";
+import { ITaskService } from "../common/taskService.js";
 const TASK_TERMINAL_STATUS_ID = "task_terminal_status";
 const ACTIVE_TASK_STATUS = {
   id: TASK_TERMINAL_STATUS_ID,
@@ -102,26 +102,30 @@ let TaskTerminalStatus = class extends Disposable {
   constructor(taskService, _accessibilitySignalService) {
     super();
     this._accessibilitySignalService = _accessibilitySignalService;
-    this._register(taskService.onDidStateChange((event) => {
-      switch (event.kind) {
-        case TaskEventKind.ProcessStarted:
-        case TaskEventKind.Active:
-          this.eventActive(event);
-          break;
-        case TaskEventKind.Inactive:
-          this.eventInactive(event);
-          break;
-        case TaskEventKind.ProcessEnded:
-          this.eventEnd(event);
-          break;
-      }
-    }));
-    this._register(toDisposable(() => {
-      for (const terminalData of this.terminalMap.values()) {
-        terminalData.disposeListener?.dispose();
-      }
-      this.terminalMap.clear();
-    }));
+    this._register(
+      taskService.onDidStateChange((event) => {
+        switch (event.kind) {
+          case TaskEventKind.ProcessStarted:
+          case TaskEventKind.Active:
+            this.eventActive(event);
+            break;
+          case TaskEventKind.Inactive:
+            this.eventInactive(event);
+            break;
+          case TaskEventKind.ProcessEnded:
+            this.eventEnd(event);
+            break;
+        }
+      })
+    );
+    this._register(
+      toDisposable(() => {
+        for (const terminalData of this.terminalMap.values()) {
+          terminalData.disposeListener?.dispose();
+        }
+        this.terminalMap.clear();
+      })
+    );
   }
   terminalMap = /* @__PURE__ */ new Map();
   _marker;

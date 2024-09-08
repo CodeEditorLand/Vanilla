@@ -10,8 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  EventType,
   addDisposableListener,
+  EventType,
   h,
   reset
 } from "../../../../../../base/browser/dom.js";
@@ -57,8 +57,8 @@ import {
 } from "../editorGutter.js";
 import {
   CodeEditorView,
-  TitleMenu,
-  createSelectionsAutorun
+  createSelectionsAutorun,
+  TitleMenu
 } from "./codeEditorView.js";
 let InputCodeEditorView = class extends CodeEditorView {
   constructor(inputNumber, viewModel, instantiationService, contextMenuService, configurationService) {

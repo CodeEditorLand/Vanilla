@@ -12,9 +12,9 @@ var __decorateParam = (index2, decorator) => (target, key) => decorator(target, 
 import { mainWindow } from "../../../../base/browser/window.js";
 import { index } from "../../../../base/common/arrays.js";
 import {
+  createCancelablePromise,
   Promises,
-  ThrottledDelayer,
-  createCancelablePromise
+  ThrottledDelayer
 } from "../../../../base/common/async.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
 import {
@@ -57,8 +57,8 @@ import {
   EXTENSION_IDENTIFIER_REGEX,
   IExtensionGalleryService,
   InstallOperation,
-  WEB_EXTENSION_TAG,
-  isTargetPlatformCompatible
+  isTargetPlatformCompatible,
+  WEB_EXTENSION_TAG
 } from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import {
   areSameExtensions,
@@ -67,13 +67,13 @@ import {
   getLocalExtensionTelemetryData,
   groupByExtension
 } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
-import { isEngineValid } from "../../../../platform/extensions/common/extensionValidator.js";
 import {
   ExtensionIdentifier,
   ExtensionType,
-  TargetPlatform,
-  isApplicationScopedExtension
+  isApplicationScopedExtension,
+  TargetPlatform
 } from "../../../../platform/extensions/common/extensions.js";
+import { isEngineValid } from "../../../../platform/extensions/common/extensionValidator.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { getLocale } from "../../../../platform/languagePacks/common/languagePacks.js";
@@ -119,10 +119,10 @@ import {
 import {
   DefaultIconPath,
   EnablementState,
+  extensionsConfigurationNodeBase,
   IExtensionManagementServerService,
   IWorkbenchExtensionEnablementService,
-  IWorkbenchExtensionManagementService,
-  extensionsConfigurationNodeBase
+  IWorkbenchExtensionManagementService
 } from "../../../services/extensionManagement/common/extensionManagement.js";
 import { IExtensionManifestPropertiesService } from "../../../services/extensions/common/extensionManifestPropertiesService.js";
 import {
@@ -603,36 +603,85 @@ let Extensions = class extends Disposable {
     this.userDataProfileService = userDataProfileService;
     this.telemetryService = telemetryService;
     this.instantiationService = instantiationService;
-    this._register(server.extensionManagementService.onInstallExtension((e) => this.onInstallExtension(e)));
-    this._register(server.extensionManagementService.onDidInstallExtensions((e) => this.onDidInstallExtensions(e)));
-    this._register(server.extensionManagementService.onUninstallExtension((e) => this.onUninstallExtension(e.identifier)));
-    this._register(server.extensionManagementService.onDidUninstallExtension((e) => this.onDidUninstallExtension(e)));
-    this._register(server.extensionManagementService.onDidUpdateExtensionMetadata((e) => this.onDidUpdateExtensionMetadata(e.local)));
-    this._register(server.extensionManagementService.onDidChangeProfile(() => this.reset()));
-    this._register(extensionEnablementService.onEnablementChanged((e) => this.onEnablementChanged(e)));
-    this._register(Event.any(this.onChange, this.onReset)(() => this._local = void 0));
+    this._register(
+      server.extensionManagementService.onInstallExtension(
+        (e) => this.onInstallExtension(e)
+      )
+    );
+    this._register(
+      server.extensionManagementService.onDidInstallExtensions(
+        (e) => this.onDidInstallExtensions(e)
+      )
+    );
+    this._register(
+      server.extensionManagementService.onUninstallExtension(
+        (e) => this.onUninstallExtension(e.identifier)
+      )
+    );
+    this._register(
+      server.extensionManagementService.onDidUninstallExtension(
+        (e) => this.onDidUninstallExtension(e)
+      )
+    );
+    this._register(
+      server.extensionManagementService.onDidUpdateExtensionMetadata(
+        (e) => this.onDidUpdateExtensionMetadata(e.local)
+      )
+    );
+    this._register(
+      server.extensionManagementService.onDidChangeProfile(
+        () => this.reset()
+      )
+    );
+    this._register(
+      extensionEnablementService.onEnablementChanged(
+        (e) => this.onEnablementChanged(e)
+      )
+    );
+    this._register(
+      Event.any(
+        this.onChange,
+        this.onReset
+      )(() => this._local = void 0)
+    );
     if (this.isWorkspaceServer) {
-      this._register(this.workbenchExtensionManagementService.onInstallExtension((e) => {
-        if (e.workspaceScoped) {
-          this.onInstallExtension(e);
-        }
-      }));
-      this._register(this.workbenchExtensionManagementService.onDidInstallExtensions((e) => {
-        const result = e.filter((e2) => e2.workspaceScoped);
-        if (result.length) {
-          this.onDidInstallExtensions(result);
-        }
-      }));
-      this._register(this.workbenchExtensionManagementService.onUninstallExtension((e) => {
-        if (e.workspaceScoped) {
-          this.onUninstallExtension(e.identifier);
-        }
-      }));
-      this._register(this.workbenchExtensionManagementService.onDidUninstallExtension((e) => {
-        if (e.workspaceScoped) {
-          this.onDidUninstallExtension(e);
-        }
-      }));
+      this._register(
+        this.workbenchExtensionManagementService.onInstallExtension(
+          (e) => {
+            if (e.workspaceScoped) {
+              this.onInstallExtension(e);
+            }
+          }
+        )
+      );
+      this._register(
+        this.workbenchExtensionManagementService.onDidInstallExtensions(
+          (e) => {
+            const result = e.filter((e2) => e2.workspaceScoped);
+            if (result.length) {
+              this.onDidInstallExtensions(result);
+            }
+          }
+        )
+      );
+      this._register(
+        this.workbenchExtensionManagementService.onUninstallExtension(
+          (e) => {
+            if (e.workspaceScoped) {
+              this.onUninstallExtension(e.identifier);
+            }
+          }
+        )
+      );
+      this._register(
+        this.workbenchExtensionManagementService.onDidUninstallExtension(
+          (e) => {
+            if (e.workspaceScoped) {
+              this.onDidUninstallExtension(e);
+            }
+          }
+        )
+      );
     }
   }
   _onChange = this._register(
@@ -1073,53 +1122,77 @@ let ExtensionsWorkbenchService = class extends Disposable {
     this.updateService = updateService;
     this.uriIdentityService = uriIdentityService;
     this.workspaceContextService = workspaceContextService;
-    const preferPreReleasesValue = configurationService.getValue("_extensions.preferPreReleases");
+    const preferPreReleasesValue = configurationService.getValue(
+      "_extensions.preferPreReleases"
+    );
     if (!isUndefined(preferPreReleasesValue)) {
       this.preferPreReleases = !!preferPreReleasesValue;
     }
     this.hasOutdatedExtensionsContextKey = HasOutdatedExtensionsContext.bindTo(contextKeyService);
     if (extensionManagementServerService.localExtensionManagementServer) {
-      this.localExtensions = this._register(instantiationService.createInstance(
-        Extensions,
-        extensionManagementServerService.localExtensionManagementServer,
-        (ext) => this.getExtensionState(ext),
-        (ext) => this.getRuntimeState(ext),
-        !extensionManagementServerService.remoteExtensionManagementServer
-      ));
-      this._register(this.localExtensions.onChange((e) => this.onDidChangeExtensions(e?.extension)));
+      this.localExtensions = this._register(
+        instantiationService.createInstance(
+          Extensions,
+          extensionManagementServerService.localExtensionManagementServer,
+          (ext) => this.getExtensionState(ext),
+          (ext) => this.getRuntimeState(ext),
+          !extensionManagementServerService.remoteExtensionManagementServer
+        )
+      );
+      this._register(
+        this.localExtensions.onChange(
+          (e) => this.onDidChangeExtensions(e?.extension)
+        )
+      );
       this._register(this.localExtensions.onReset((e) => this.reset()));
       this.extensionsServers.push(this.localExtensions);
     }
     if (extensionManagementServerService.remoteExtensionManagementServer) {
-      this.remoteExtensions = this._register(instantiationService.createInstance(
-        Extensions,
-        extensionManagementServerService.remoteExtensionManagementServer,
-        (ext) => this.getExtensionState(ext),
-        (ext) => this.getRuntimeState(ext),
-        true
-      ));
-      this._register(this.remoteExtensions.onChange((e) => this.onDidChangeExtensions(e?.extension)));
+      this.remoteExtensions = this._register(
+        instantiationService.createInstance(
+          Extensions,
+          extensionManagementServerService.remoteExtensionManagementServer,
+          (ext) => this.getExtensionState(ext),
+          (ext) => this.getRuntimeState(ext),
+          true
+        )
+      );
+      this._register(
+        this.remoteExtensions.onChange(
+          (e) => this.onDidChangeExtensions(e?.extension)
+        )
+      );
       this._register(this.remoteExtensions.onReset((e) => this.reset()));
       this.extensionsServers.push(this.remoteExtensions);
     }
     if (extensionManagementServerService.webExtensionManagementServer) {
-      this.webExtensions = this._register(instantiationService.createInstance(
-        Extensions,
-        extensionManagementServerService.webExtensionManagementServer,
-        (ext) => this.getExtensionState(ext),
-        (ext) => this.getRuntimeState(ext),
-        !(extensionManagementServerService.remoteExtensionManagementServer || extensionManagementServerService.localExtensionManagementServer)
-      ));
-      this._register(this.webExtensions.onChange((e) => this.onDidChangeExtensions(e?.extension)));
+      this.webExtensions = this._register(
+        instantiationService.createInstance(
+          Extensions,
+          extensionManagementServerService.webExtensionManagementServer,
+          (ext) => this.getExtensionState(ext),
+          (ext) => this.getRuntimeState(ext),
+          !(extensionManagementServerService.remoteExtensionManagementServer || extensionManagementServerService.localExtensionManagementServer)
+        )
+      );
+      this._register(
+        this.webExtensions.onChange(
+          (e) => this.onDidChangeExtensions(e?.extension)
+        )
+      );
       this._register(this.webExtensions.onReset((e) => this.reset()));
       this.extensionsServers.push(this.webExtensions);
     }
-    this.updatesCheckDelayer = new ThrottledDelayer(ExtensionsWorkbenchService.UpdatesCheckInterval);
+    this.updatesCheckDelayer = new ThrottledDelayer(
+      ExtensionsWorkbenchService.UpdatesCheckInterval
+    );
     this.autoUpdateDelayer = new ThrottledDelayer(1e3);
-    this._register(toDisposable(() => {
-      this.updatesCheckDelayer.cancel();
-      this.autoUpdateDelayer.cancel();
-    }));
+    this._register(
+      toDisposable(() => {
+        this.updatesCheckDelayer.cancel();
+        this.autoUpdateDelayer.cancel();
+      })
+    );
     urlService.registerHandler(this);
     if (this.productService.quality !== "stable") {
       this.registerAutoRestartConfig();

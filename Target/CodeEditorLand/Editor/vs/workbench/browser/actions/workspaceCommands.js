@@ -20,8 +20,8 @@ import {
   IQuickInputService
 } from "../../../platform/quickinput/common/quickInput.js";
 import {
-  IWorkspaceContextService,
-  hasWorkspaceFileExtension
+  hasWorkspaceFileExtension,
+  IWorkspaceContextService
 } from "../../../platform/workspace/common/workspace.js";
 import {
   IWorkspacesService

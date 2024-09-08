@@ -1,6 +1,6 @@
 import {
-  WindowIdleValue,
-  getActiveWindow
+  getActiveWindow,
+  WindowIdleValue
 } from "../../../../base/browser/dom.js";
 import { tail } from "../../../../base/common/arrays.js";
 import { Iterable } from "../../../../base/common/iterator.js";

@@ -11,19 +11,19 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { getZoomLevel } from "../../../../base/browser/browser.js";
 import {
-  EventHelper,
-  EventType,
-  ModifierKeyEmitter,
   addDisposableListener,
   cloneGlobalStylesheets,
   copyAttributes,
   createLinkElement,
   createMetaElement,
+  EventHelper,
+  EventType,
   getActiveWindow,
   getClientArea,
   getWindowId,
   isGlobalStylesheet,
   isHTMLElement,
+  ModifierKeyEmitter,
   position,
   registerWindow,
   sharedMutationObserver,

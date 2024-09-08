@@ -1,4 +1,4 @@
-import { VSBuffer, decodeBase64 } from "../../../../base/common/buffer.js";
+import { decodeBase64, VSBuffer } from "../../../../base/common/buffer.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { StringSHA1 } from "../../../../base/common/hash.js";
 import { localize, localize2 } from "../../../../nls.js";

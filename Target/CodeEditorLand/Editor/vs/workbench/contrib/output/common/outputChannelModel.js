@@ -18,8 +18,8 @@ import { isCancellationError } from "../../../../base/common/errors.js";
 import { Emitter } from "../../../../base/common/event.js";
 import {
   Disposable,
-  MutableDisposable,
   dispose,
+  MutableDisposable,
   toDisposable
 } from "../../../../base/common/lifecycle.js";
 import * as resources from "../../../../base/common/resources.js";
@@ -34,8 +34,8 @@ import { IModelService } from "../../../../editor/common/services/model.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import {
-  ILogService,
-  ILoggerService
+  ILoggerService,
+  ILogService
 } from "../../../../platform/log/common/log.js";
 import { OutputChannelUpdateMode } from "../../../services/output/common/output.js";
 class OutputFileListener extends Disposable {
@@ -95,8 +95,14 @@ let FileOutputChannelModel = class extends Disposable {
     this.fileService = fileService;
     this.modelService = modelService;
     this.editorWorkerService = editorWorkerService;
-    this.fileHandler = this._register(new OutputFileListener(this.file, this.fileService, logService));
-    this._register(this.fileHandler.onDidContentChange((size) => this.onDidContentChange(size)));
+    this.fileHandler = this._register(
+      new OutputFileListener(this.file, this.fileService, logService)
+    );
+    this._register(
+      this.fileHandler.onDidContentChange(
+        (size) => this.onDidContentChange(size)
+      )
+    );
     this._register(toDisposable(() => this.fileHandler.unwatch()));
   }
   _onDispose = this._register(new Emitter());
@@ -378,7 +384,12 @@ let DelegatedOutputChannelModel = class extends Disposable {
     super();
     this.instantiationService = instantiationService;
     this.fileService = fileService;
-    this.outputChannelModel = this.createOutputChannelModel(id, modelUri, language, outputDir);
+    this.outputChannelModel = this.createOutputChannelModel(
+      id,
+      modelUri,
+      language,
+      outputDir
+    );
   }
   _onDispose = this._register(
     new Emitter()

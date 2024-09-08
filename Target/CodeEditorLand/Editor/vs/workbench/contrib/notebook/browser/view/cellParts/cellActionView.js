@@ -54,7 +54,16 @@ class ActionViewWithLabel extends MenuEntryActionViewItem {
 }
 let UnifiedSubmenuActionView = class extends SubmenuEntryActionViewItem {
   constructor(action, options, renderLabel, subActionProvider, subActionViewItemProvider, _keybindingService, _contextMenuService, _themeService, _hoverService) {
-    super(action, { ...options, hoverDelegate: options?.hoverDelegate ?? getDefaultHoverDelegate("element") }, _keybindingService, _contextMenuService, _themeService);
+    super(
+      action,
+      {
+        ...options,
+        hoverDelegate: options?.hoverDelegate ?? getDefaultHoverDelegate("element")
+      },
+      _keybindingService,
+      _contextMenuService,
+      _themeService
+    );
     this.renderLabel = renderLabel;
     this.subActionProvider = subActionProvider;
     this.subActionViewItemProvider = subActionViewItemProvider;

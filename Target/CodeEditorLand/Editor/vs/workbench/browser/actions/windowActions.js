@@ -41,8 +41,8 @@ import { IDialogService } from "../../../platform/dialogs/common/dialogs.js";
 import { FileKind } from "../../../platform/files/common/files.js";
 import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../platform/keybinding/common/keybindingsRegistry.js";
 import {
   ILabelService,
@@ -55,9 +55,9 @@ import {
   IWorkspaceContextService
 } from "../../../platform/workspace/common/workspace.js";
 import {
-  IWorkspacesService,
   isRecentFolder,
-  isRecentWorkspace
+  isRecentWorkspace,
+  IWorkspacesService
 } from "../../../platform/workspaces/common/workspaces.js";
 import { IsMainWindowFullscreenContext } from "../../common/contextkeys.js";
 import { IHostService } from "../../services/host/browser/host.js";

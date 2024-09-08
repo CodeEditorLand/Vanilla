@@ -22,8 +22,8 @@ import {
   InstallOperation
 } from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import {
-  BetterMergeId,
   areSameExtensions,
+  BetterMergeId,
   getExtensionDependencies
 } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
 import {
@@ -92,27 +92,66 @@ let ExtensionEnablementService = class extends Disposable {
     this.workspaceTrustManagementService = workspaceTrustManagementService;
     this.workspaceTrustRequestService = workspaceTrustRequestService;
     this.extensionManifestPropertiesService = extensionManifestPropertiesService;
-    this.storageManager = this._register(new StorageManager(storageService));
-    const uninstallDisposable = this._register(Event.filter(extensionManagementService.onDidUninstallExtension, (e) => !e.error)(({ identifier }) => this._reset(identifier)));
+    this.storageManager = this._register(
+      new StorageManager(storageService)
+    );
+    const uninstallDisposable = this._register(
+      Event.filter(
+        extensionManagementService.onDidUninstallExtension,
+        (e) => !e.error
+      )(({ identifier }) => this._reset(identifier))
+    );
     let isDisposed = false;
     this._register(toDisposable(() => isDisposed = true));
-    this.extensionsManager = this._register(instantiationService.createInstance(ExtensionsManager));
+    this.extensionsManager = this._register(
+      instantiationService.createInstance(ExtensionsManager)
+    );
     this.extensionsManager.whenInitialized().then(() => {
       if (!isDisposed) {
-        this._register(this.extensionsManager.onDidChangeExtensions(({ added, removed, isProfileSwitch }) => this._onDidChangeExtensions(added, removed, isProfileSwitch)));
+        this._register(
+          this.extensionsManager.onDidChangeExtensions(
+            ({ added, removed, isProfileSwitch }) => this._onDidChangeExtensions(
+              added,
+              removed,
+              isProfileSwitch
+            )
+          )
+        );
         uninstallDisposable.dispose();
       }
     });
-    this._register(this.globalExtensionEnablementService.onDidChangeEnablement(({ extensions, source }) => this._onDidChangeGloballyDisabledExtensions(extensions, source)));
+    this._register(
+      this.globalExtensionEnablementService.onDidChangeEnablement(
+        ({ extensions, source }) => this._onDidChangeGloballyDisabledExtensions(
+          extensions,
+          source
+        )
+      )
+    );
     if (this.allUserExtensionsDisabled) {
       this.lifecycleService.when(LifecyclePhase.Eventually).then(() => {
-        this.notificationService.prompt(Severity.Info, localize("extensionsDisabled", "All installed extensions are temporarily disabled."), [{
-          label: localize("Reload", "Reload and Enable Extensions"),
-          run: () => hostService.reload({ disableExtensions: false })
-        }], {
-          sticky: true,
-          priority: NotificationPriority.URGENT
-        });
+        this.notificationService.prompt(
+          Severity.Info,
+          localize(
+            "extensionsDisabled",
+            "All installed extensions are temporarily disabled."
+          ),
+          [
+            {
+              label: localize(
+                "Reload",
+                "Reload and Enable Extensions"
+              ),
+              run: () => hostService.reload({
+                disableExtensions: false
+              })
+            }
+          ],
+          {
+            sticky: true,
+            priority: NotificationPriority.URGENT
+          }
+        );
       });
     }
   }

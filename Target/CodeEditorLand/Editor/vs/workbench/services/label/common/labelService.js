@@ -18,7 +18,7 @@ import {
 } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { posix, sep, win32 } from "../../../../base/common/path.js";
-import { OS, OperatingSystem } from "../../../../base/common/platform.js";
+import { OperatingSystem, OS } from "../../../../base/common/platform.js";
 import {
   basename,
   basenameOrAuthority,
@@ -42,14 +42,14 @@ import {
   StorageTarget
 } from "../../../../platform/storage/common/storage.js";
 import {
-  IWorkspaceContextService,
-  WORKSPACE_EXTENSION,
   isSingleFolderWorkspaceIdentifier,
   isTemporaryWorkspace,
   isUntitledWorkspace,
   isWorkspace,
   isWorkspaceIdentifier,
-  toWorkspaceIdentifier
+  IWorkspaceContextService,
+  toWorkspaceIdentifier,
+  WORKSPACE_EXTENSION
 } from "../../../../platform/workspace/common/workspace.js";
 import {
   Extensions as WorkbenchExtensions
@@ -156,10 +156,16 @@ let ResourceLabelFormattersHandler = class {
           if (typeof formatter.formatting.separator !== `string`) {
             formatter.formatting.separator = sep;
           }
-          if (!isProposedApiEnabled(added.description, "contribLabelFormatterWorkspaceTooltip") && formatter.formatting.workspaceTooltip) {
+          if (!isProposedApiEnabled(
+            added.description,
+            "contribLabelFormatterWorkspaceTooltip"
+          ) && formatter.formatting.workspaceTooltip) {
             formatter.formatting.workspaceTooltip = void 0;
           }
-          this.formattersDisposables.set(formatter, labelService.registerFormatter(formatter));
+          this.formattersDisposables.set(
+            formatter,
+            labelService.registerFormatter(formatter)
+          );
         }
       }
       for (const removed of delta.removed) {
@@ -189,8 +195,14 @@ let LabelService = class extends Disposable {
     this.remoteAgentService = remoteAgentService;
     this.os = OS;
     this.userHome = pathService.defaultUriScheme === Schemas.file ? this.pathService.userHome({ preferLocal: true }) : void 0;
-    const memento = this.storedFormattersMemento = new Memento("cachedResourceLabelFormatters2", storageService);
-    this.storedFormatters = memento.getMemento(StorageScope.PROFILE, StorageTarget.MACHINE);
+    const memento = this.storedFormattersMemento = new Memento(
+      "cachedResourceLabelFormatters2",
+      storageService
+    );
+    this.storedFormatters = memento.getMemento(
+      StorageScope.PROFILE,
+      StorageTarget.MACHINE
+    );
     this.formatters = this.storedFormatters?.formatters?.slice() || [];
     this.resolveRemoteEnvironment();
   }

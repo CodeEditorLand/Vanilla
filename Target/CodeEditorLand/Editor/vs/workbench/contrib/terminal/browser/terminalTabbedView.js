@@ -79,45 +79,92 @@ let TerminalTabbedView = class extends Disposable {
     this._tabListElement = $(".tabs-list");
     tabListContainer.appendChild(this._tabListElement);
     this._tabContainer.appendChild(tabListContainer);
-    this._instanceMenu = this._register(menuService.createMenu(MenuId.TerminalInstanceContext, contextKeyService));
-    this._tabsListMenu = this._register(menuService.createMenu(MenuId.TerminalTabContext, contextKeyService));
-    this._tabsListEmptyMenu = this._register(menuService.createMenu(MenuId.TerminalTabEmptyAreaContext, contextKeyService));
-    this._tabList = this._register(this._instantiationService.createInstance(TerminalTabList, this._tabListElement));
+    this._instanceMenu = this._register(
+      menuService.createMenu(
+        MenuId.TerminalInstanceContext,
+        contextKeyService
+      )
+    );
+    this._tabsListMenu = this._register(
+      menuService.createMenu(
+        MenuId.TerminalTabContext,
+        contextKeyService
+      )
+    );
+    this._tabsListEmptyMenu = this._register(
+      menuService.createMenu(
+        MenuId.TerminalTabEmptyAreaContext,
+        contextKeyService
+      )
+    );
+    this._tabList = this._register(
+      this._instantiationService.createInstance(
+        TerminalTabList,
+        this._tabListElement
+      )
+    );
     const terminalOuterContainer = $(".terminal-outer-container");
     this._terminalContainer = $(".terminal-groups-container");
     terminalOuterContainer.appendChild(this._terminalContainer);
-    this._terminalService.setContainers(parentElement, this._terminalContainer);
+    this._terminalService.setContainers(
+      parentElement,
+      this._terminalContainer
+    );
     this._terminalIsTabsNarrowContextKey = TerminalContextKeys.tabsNarrow.bindTo(contextKeyService);
     this._terminalTabsFocusContextKey = TerminalContextKeys.tabsFocus.bindTo(contextKeyService);
     this._terminalTabsMouseContextKey = TerminalContextKeys.tabsMouse.bindTo(contextKeyService);
     this._tabTreeIndex = this._terminalConfigurationService.config.tabs.location === "left" ? 0 : 1;
     this._terminalContainerIndex = this._terminalConfigurationService.config.tabs.location === "left" ? 1 : 0;
-    this._register(_configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(TerminalSettingId.TabsEnabled) || e.affectsConfiguration(TerminalSettingId.TabsHideCondition)) {
-        this._refreshShowTabs();
-      } else if (e.affectsConfiguration(TerminalSettingId.TabsLocation)) {
-        this._tabTreeIndex = this._terminalConfigurationService.config.tabs.location === "left" ? 0 : 1;
-        this._terminalContainerIndex = this._terminalConfigurationService.config.tabs.location === "left" ? 1 : 0;
-        if (this._shouldShowTabs()) {
-          this._splitView.swapViews(0, 1);
-          this._removeSashListener();
-          this._addSashListener();
-          this._splitView.resizeView(this._tabTreeIndex, this._getLastListWidth());
+    this._register(
+      _configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(TerminalSettingId.TabsEnabled) || e.affectsConfiguration(TerminalSettingId.TabsHideCondition)) {
+          this._refreshShowTabs();
+        } else if (e.affectsConfiguration(TerminalSettingId.TabsLocation)) {
+          this._tabTreeIndex = this._terminalConfigurationService.config.tabs.location === "left" ? 0 : 1;
+          this._terminalContainerIndex = this._terminalConfigurationService.config.tabs.location === "left" ? 1 : 0;
+          if (this._shouldShowTabs()) {
+            this._splitView.swapViews(0, 1);
+            this._removeSashListener();
+            this._addSashListener();
+            this._splitView.resizeView(
+              this._tabTreeIndex,
+              this._getLastListWidth()
+            );
+          }
         }
-      }
-    }));
-    this._register(this._terminalGroupService.onDidChangeInstances(() => this._refreshShowTabs()));
-    this._register(this._terminalGroupService.onDidChangeGroups(() => this._refreshShowTabs()));
+      })
+    );
+    this._register(
+      this._terminalGroupService.onDidChangeInstances(
+        () => this._refreshShowTabs()
+      )
+    );
+    this._register(
+      this._terminalGroupService.onDidChangeGroups(
+        () => this._refreshShowTabs()
+      )
+    );
     this._attachEventListeners(parentElement, this._terminalContainer);
-    this._register(this._terminalGroupService.onDidChangePanelOrientation((orientation) => {
-      this._panelOrientation = orientation;
-      if (this._panelOrientation === Orientation.VERTICAL) {
-        this._terminalContainer.classList.add("terminal-side-view" /* ViewIsVertical */);
-      } else {
-        this._terminalContainer.classList.remove("terminal-side-view" /* ViewIsVertical */);
-      }
-    }));
-    this._splitView = new SplitView(parentElement, { orientation: Orientation.HORIZONTAL, proportionalLayout: false });
+    this._register(
+      this._terminalGroupService.onDidChangePanelOrientation(
+        (orientation) => {
+          this._panelOrientation = orientation;
+          if (this._panelOrientation === Orientation.VERTICAL) {
+            this._terminalContainer.classList.add(
+              "terminal-side-view" /* ViewIsVertical */
+            );
+          } else {
+            this._terminalContainer.classList.remove(
+              "terminal-side-view" /* ViewIsVertical */
+            );
+          }
+        }
+      )
+    );
+    this._splitView = new SplitView(parentElement, {
+      orientation: Orientation.HORIZONTAL,
+      proportionalLayout: false
+    });
     this._setupSplitView(terminalOuterContainer);
   }
   _splitView;

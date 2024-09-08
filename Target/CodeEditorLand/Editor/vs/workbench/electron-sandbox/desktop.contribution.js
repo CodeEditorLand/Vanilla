@@ -19,8 +19,8 @@ import {
   Extensions as JSONExtensions
 } from "../../platform/jsonschemas/common/jsonContributionRegistry.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../platform/keybinding/common/keybindingsRegistry.js";
 import { INativeHostService } from "../../platform/native/common/native.js";
 import { Registry } from "../../platform/registry/common/platform.js";

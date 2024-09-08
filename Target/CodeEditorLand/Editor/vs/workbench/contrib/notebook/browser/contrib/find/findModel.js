@@ -11,8 +11,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { findFirstIdxMonotonousOrArrLen } from "../../../../../../base/common/arraysFind.js";
 import {
-  Delayer,
-  createCancelablePromise
+  createCancelablePromise,
+  Delayer
 } from "../../../../../../base/common/async.js";
 import {
   Disposable,
@@ -67,27 +67,36 @@ let FindModel = class extends Disposable {
     this._configurationService = _configurationService;
     this._throttledDelayer = new Delayer(20);
     this._computePromise = null;
-    this._register(_state.onFindReplaceStateChange((e) => {
-      this._updateCellStates(e);
-      if (e.searchString || e.isRegex || e.matchCase || e.searchScope || e.wholeWord || e.isRevealed && this._state.isRevealed || e.filters || e.isReplaceRevealed) {
-        this.research();
-      }
-      if (e.isRevealed && !this._state.isRevealed) {
-        this.clear();
-      }
-    }));
-    this._register(this._notebookEditor.onDidChangeModel((e) => {
-      this._registerModelListener(e);
-    }));
-    this._register(this._notebookEditor.onDidChangeCellState((e) => {
-      if (e.cell.cellKind === CellKind.Markup && e.source.editStateChanged) {
-        this.research();
-      }
-    }));
+    this._register(
+      _state.onFindReplaceStateChange((e) => {
+        this._updateCellStates(e);
+        if (e.searchString || e.isRegex || e.matchCase || e.searchScope || e.wholeWord || e.isRevealed && this._state.isRevealed || e.filters || e.isReplaceRevealed) {
+          this.research();
+        }
+        if (e.isRevealed && !this._state.isRevealed) {
+          this.clear();
+        }
+      })
+    );
+    this._register(
+      this._notebookEditor.onDidChangeModel((e) => {
+        this._registerModelListener(e);
+      })
+    );
+    this._register(
+      this._notebookEditor.onDidChangeCellState((e) => {
+        if (e.cell.cellKind === CellKind.Markup && e.source.editStateChanged) {
+          this.research();
+        }
+      })
+    );
     if (this._notebookEditor.hasModel()) {
       this._registerModelListener(this._notebookEditor.textModel);
     }
-    this._findMatchDecorationModel = new FindMatchDecorationModel(this._notebookEditor, this._notebookEditor.getId());
+    this._findMatchDecorationModel = new FindMatchDecorationModel(
+      this._notebookEditor,
+      this._notebookEditor.getId()
+    );
   }
   _findMatches = [];
   _findMatchesStarts = null;

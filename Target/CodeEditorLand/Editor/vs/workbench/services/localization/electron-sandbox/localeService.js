@@ -12,8 +12,8 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { toAction } from "../../../../base/common/actions.js";
 import { parse } from "../../../../base/common/jsonc.js";
 import {
-  LANGUAGE_DEFAULT,
-  Language
+  Language,
+  LANGUAGE_DEFAULT
 } from "../../../../base/common/platform.js";
 import { localize } from "../../../../nls.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";

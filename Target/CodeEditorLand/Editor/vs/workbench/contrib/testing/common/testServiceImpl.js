@@ -38,22 +38,22 @@ import {
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 import { IWorkspaceTrustRequestService } from "../../../../platform/workspace/common/workspaceTrust.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { TestingConfigKeys, getTestingConfiguration } from "./configuration.js";
+import { getTestingConfiguration, TestingConfigKeys } from "./configuration.js";
 import { MainThreadTestCollection } from "./mainThreadTestCollection.js";
 import { MutableObservableValue } from "./observableValue.js";
 import { StoredValue } from "./storedValue.js";
 import { TestExclusions } from "./testExclusions.js";
 import { TestId } from "./testId.js";
+import { TestingContextKeys } from "./testingContextKeys.js";
 import {
-  ITestProfileService,
-  canUseProfileWithTest
+  canUseProfileWithTest,
+  ITestProfileService
 } from "./testProfileService.js";
 import { ITestResultService } from "./testResultService.js";
 import {
   TestControllerCapability,
   TestDiffOpType
 } from "./testTypes.js";
-import { TestingContextKeys } from "./testingContextKeys.js";
 let TestService = class extends Disposable {
   constructor(contextKeyService, instantiationService, uriIdentityService, storage, editorService, testProfiles, notificationService, configurationService, testResults, workspaceTrustRequestService) {
     super();
@@ -68,23 +68,40 @@ let TestService = class extends Disposable {
     this.excluded = instantiationService.createInstance(TestExclusions);
     this.isRefreshingTests = TestingContextKeys.isRefreshingTests.bindTo(contextKeyService);
     this.activeEditorHasTests = TestingContextKeys.activeEditorHasTests.bindTo(contextKeyService);
-    this._register(bindContextKey(
-      TestingContextKeys.providerCount,
-      contextKeyService,
-      (reader) => this.testControllers.read(reader).size
-    ));
-    const bindCapability = (key, capability) => this._register(bindContextKey(
-      key,
-      contextKeyService,
-      (reader) => Iterable.some(
-        this.testControllers.read(reader).values(),
-        (ctrl) => !!(ctrl.capabilities.read(reader) & capability)
+    this._register(
+      bindContextKey(
+        TestingContextKeys.providerCount,
+        contextKeyService,
+        (reader) => this.testControllers.read(reader).size
       )
-    ));
-    bindCapability(TestingContextKeys.canRefreshTests, TestControllerCapability.Refresh);
-    bindCapability(TestingContextKeys.canGoToRelatedCode, TestControllerCapability.CodeRelatedToTest);
-    bindCapability(TestingContextKeys.canGoToRelatedTest, TestControllerCapability.TestRelatedToCode);
-    this._register(editorService.onDidActiveEditorChange(() => this.updateEditorContextKeys()));
+    );
+    const bindCapability = (key, capability) => this._register(
+      bindContextKey(
+        key,
+        contextKeyService,
+        (reader) => Iterable.some(
+          this.testControllers.read(reader).values(),
+          (ctrl) => !!(ctrl.capabilities.read(reader) & capability)
+        )
+      )
+    );
+    bindCapability(
+      TestingContextKeys.canRefreshTests,
+      TestControllerCapability.Refresh
+    );
+    bindCapability(
+      TestingContextKeys.canGoToRelatedCode,
+      TestControllerCapability.CodeRelatedToTest
+    );
+    bindCapability(
+      TestingContextKeys.canGoToRelatedTest,
+      TestControllerCapability.TestRelatedToCode
+    );
+    this._register(
+      editorService.onDidActiveEditorChange(
+        () => this.updateEditorContextKeys()
+      )
+    );
   }
   testControllers = observableValue("testControllers", /* @__PURE__ */ new Map());
   testExtHosts = /* @__PURE__ */ new Set();

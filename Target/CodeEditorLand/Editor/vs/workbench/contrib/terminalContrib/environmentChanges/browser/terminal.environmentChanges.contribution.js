@@ -110,7 +110,10 @@ function mutatorTypeLabel(type, value, variable) {
 let EnvironmentCollectionProvider = class {
   constructor(textModelResolverService, _modelService) {
     this._modelService = _modelService;
-    textModelResolverService.registerTextModelContentProvider(EnvironmentCollectionProvider.scheme, this);
+    textModelResolverService.registerTextModelContentProvider(
+      EnvironmentCollectionProvider.scheme,
+      this
+    );
   }
   static scheme = "ENVIRONMENT_CHANGES_COLLECTION";
   async provideTextContent(resource) {

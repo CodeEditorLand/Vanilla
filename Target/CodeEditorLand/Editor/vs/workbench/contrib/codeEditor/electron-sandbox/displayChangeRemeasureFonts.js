@@ -20,9 +20,11 @@ import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js"
 let DisplayChangeRemeasureFonts = class extends Disposable {
   constructor(nativeHostService) {
     super();
-    this._register(nativeHostService.onDidChangeDisplay(() => {
-      FontMeasurements.clearAllFontInfos();
-    }));
+    this._register(
+      nativeHostService.onDidChangeDisplay(() => {
+        FontMeasurements.clearAllFontInfos();
+      })
+    );
   }
 };
 DisplayChangeRemeasureFonts = __decorateClass([

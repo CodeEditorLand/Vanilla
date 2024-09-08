@@ -15,9 +15,9 @@ import {
 } from "../../../../base/browser/browser.js";
 import {
   $,
-  EventType,
   addDisposableListener,
   append,
+  EventType,
   getWindow,
   getWindowId,
   hide,
@@ -56,8 +56,8 @@ import {
   useWindowControlsOverlay
 } from "../../../../platform/window/common/window.js";
 import {
-  BrowserTitleService,
-  BrowserTitlebarPart
+  BrowserTitlebarPart,
+  BrowserTitleService
 } from "../../../browser/parts/titlebar/titlebarPart.js";
 import {
   IEditorGroupsService
@@ -72,7 +72,24 @@ import {
 import { NativeMenubarControl } from "./menubarControl.js";
 let NativeTitlebarPart = class extends BrowserTitlebarPart {
   constructor(id, targetWindow, editorGroupsContainer, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService, editorGroupService, editorService, menuService, keybindingService) {
-    super(id, targetWindow, editorGroupsContainer, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, editorGroupService, editorService, menuService, keybindingService);
+    super(
+      id,
+      targetWindow,
+      editorGroupsContainer,
+      contextMenuService,
+      configurationService,
+      environmentService,
+      instantiationService,
+      themeService,
+      storageService,
+      layoutService,
+      contextKeyService,
+      hostService,
+      editorGroupService,
+      editorService,
+      menuService,
+      keybindingService
+    );
     this.nativeHostService = nativeHostService;
     this.bigSurOrNewer = isBigSurOrNewer(environmentService.os.release);
   }

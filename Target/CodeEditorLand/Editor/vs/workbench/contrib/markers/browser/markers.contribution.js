@@ -31,8 +31,8 @@ import {
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
 import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import {
   IMarkerService
@@ -656,35 +656,47 @@ let MarkersStatusBarContributions = class extends Disposable {
     this.markerService = markerService;
     this.statusbarService = statusbarService;
     this.configurationService = configurationService;
-    this.markersStatusItem = this._register(this.statusbarService.addEntry(
-      this.getMarkersItem(),
-      "status.problems",
-      StatusbarAlignment.LEFT,
-      50
-      /* Medium Priority */
-    ));
+    this.markersStatusItem = this._register(
+      this.statusbarService.addEntry(
+        this.getMarkersItem(),
+        "status.problems",
+        StatusbarAlignment.LEFT,
+        50
+      )
+    );
     const addStatusBarEntry = () => {
-      this.markersStatusItemOff = this.statusbarService.addEntry(this.getMarkersItemTurnedOff(), "status.problemsVisibility", StatusbarAlignment.LEFT, 49);
+      this.markersStatusItemOff = this.statusbarService.addEntry(
+        this.getMarkersItemTurnedOff(),
+        "status.problemsVisibility",
+        StatusbarAlignment.LEFT,
+        49
+      );
     };
     let config = this.configurationService.getValue("problems.visibility");
     if (!config) {
       addStatusBarEntry();
     }
-    this._register(this.markerService.onMarkerChanged(() => {
-      this.markersStatusItem.update(this.getMarkersItem());
-    }));
-    this._register(this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("problems.visibility")) {
+    this._register(
+      this.markerService.onMarkerChanged(() => {
         this.markersStatusItem.update(this.getMarkersItem());
-        config = this.configurationService.getValue("problems.visibility");
-        if (!config && !this.markersStatusItemOff) {
-          addStatusBarEntry();
-        } else if (config && this.markersStatusItemOff) {
-          this.markersStatusItemOff.dispose();
-          this.markersStatusItemOff = void 0;
+      })
+    );
+    this._register(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("problems.visibility")) {
+          this.markersStatusItem.update(this.getMarkersItem());
+          config = this.configurationService.getValue(
+            "problems.visibility"
+          );
+          if (!config && !this.markersStatusItemOff) {
+            addStatusBarEntry();
+          } else if (config && this.markersStatusItemOff) {
+            this.markersStatusItemOff.dispose();
+            this.markersStatusItemOff = void 0;
+          }
         }
-      }
-    }));
+      })
+    );
   }
   markersStatusItem;
   markersStatusItemOff;
@@ -770,7 +782,9 @@ let ActivityUpdater = class extends Disposable {
     super();
     this.activityService = activityService;
     this.markerService = markerService;
-    this._register(this.markerService.onMarkerChanged(() => this.updateBadge()));
+    this._register(
+      this.markerService.onMarkerChanged(() => this.updateBadge())
+    );
     this.updateBadge();
   }
   activity = this._register(

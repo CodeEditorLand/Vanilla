@@ -12,14 +12,17 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { ListResizeColumnAction } from "./listResizeColumnAction.js";
 let ListContext = class {
   static ID = "workbench.contrib.listContext";
   constructor(contextKeyService) {
-    contextKeyService.createKey("listSupportsTypeNavigation", true);
+    contextKeyService.createKey(
+      "listSupportsTypeNavigation",
+      true
+    );
     contextKeyService.createKey("listSupportsKeyboardNavigation", true);
   }
 };

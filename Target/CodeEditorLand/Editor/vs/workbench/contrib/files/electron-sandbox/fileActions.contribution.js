@@ -9,8 +9,8 @@ import {
 } from "../../../../platform/actions/common/actions.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { IListService } from "../../../../platform/list/browser/listService.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
@@ -27,8 +27,8 @@ import {
   appendToCommandPalette
 } from "../browser/fileActions.contribution.js";
 import {
-  IExplorerService,
-  getMultiSelectedResources
+  getMultiSelectedResources,
+  IExplorerService
 } from "../browser/files.js";
 import { revealResourcesInOS } from "./fileCommands.js";
 const REVEAL_IN_OS_COMMAND_ID = "revealFileInOS";

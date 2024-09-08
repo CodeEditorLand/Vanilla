@@ -20,11 +20,11 @@ import {
 } from "../../../../base/common/lifecycle.js";
 import * as objects from "../../../../base/common/objects.js";
 import {
-  OS,
-  OperatingSystem,
   isMacintosh,
   isWeb,
-  isWindows
+  isWindows,
+  OperatingSystem,
+  OS
 } from "../../../../base/common/platform.js";
 import {
   ConfigurationTarget,
@@ -59,8 +59,14 @@ let TerminalProfileService = class extends Disposable {
     this._remoteAgentService = _remoteAgentService;
     this._environmentService = _environmentService;
     this._terminalInstanceService = _terminalInstanceService;
-    this._register(this._extensionService.onDidChangeExtensions(() => this.refreshAvailableProfiles()));
-    this._webExtensionContributedProfileContextKey = TerminalContextKeys.webExtensionContributedProfile.bindTo(this._contextKeyService);
+    this._register(
+      this._extensionService.onDidChangeExtensions(
+        () => this.refreshAvailableProfiles()
+      )
+    );
+    this._webExtensionContributedProfileContextKey = TerminalContextKeys.webExtensionContributedProfile.bindTo(
+      this._contextKeyService
+    );
     this._updateWebContextKey();
     this._profilesReadyPromise = this._remoteAgentService.getEnvironment().then(() => {
       this._profilesReadyBarrier = new AutoOpenBarrier(2e4);

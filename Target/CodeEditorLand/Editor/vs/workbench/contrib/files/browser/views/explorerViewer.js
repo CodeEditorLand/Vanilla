@@ -82,8 +82,8 @@ import {
   IContextViewService
 } from "../../../../../platform/contextview/browser/contextView.js";
 import {
-  IDialogService,
-  getFileNamesMessage
+  getFileNamesMessage,
+  IDialogService
 } from "../../../../../platform/dialogs/common/dialogs.js";
 import {
   CodeDataTransfers,
@@ -110,9 +110,9 @@ import { defaultInputBoxStyles } from "../../../../../platform/theme/browser/def
 import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
 import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
 import {
+  isTemporaryWorkspace,
   IWorkspaceContextService,
-  WorkbenchState,
-  isTemporaryWorkspace
+  WorkbenchState
 } from "../../../../../platform/workspace/common/workspace.js";
 import { fillEditorsDragData } from "../../../../browser/dnd.js";
 import { IEditorService } from "../../../../services/editor/common/editorService.js";
@@ -332,9 +332,14 @@ let FilesRenderer = class {
     this.instantiationService = instantiationService;
     this.config = this.configurationService.getValue();
     const updateOffsetStyles = () => {
-      const indent = this.configurationService.getValue("workbench.tree.indent");
+      const indent = this.configurationService.getValue(
+        "workbench.tree.indent"
+      );
       const offset = Math.max(22 - indent, 0);
-      container.style.setProperty(`--vscode-explorer-align-offset-margin-left`, `${offset}px`);
+      container.style.setProperty(
+        `--vscode-explorer-align-offset-margin-left`,
+        `${offset}px`
+      );
     };
     this.configListener = this.configurationService.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration("explorer")) {
@@ -730,50 +735,67 @@ let FilesFilter = class {
     this.editorService = editorService;
     this.uriIdentityService = uriIdentityService;
     this.fileService = fileService;
-    this.toDispose.push(this.contextService.onDidChangeWorkspaceFolders(() => this.updateConfiguration()));
-    this.toDispose.push(this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("files.exclude") || e.affectsConfiguration("explorer.excludeGitIgnore")) {
-        this.updateConfiguration();
-      }
-    }));
-    this.toDispose.push(this.fileService.onDidFilesChange((e) => {
-      for (const [root, ignoreFileResourceSet] of this.ignoreFileResourcesPerRoot.entries()) {
-        ignoreFileResourceSet.forEach(async (ignoreResource) => {
-          if (e.contains(ignoreResource, FileChangeType.UPDATED)) {
-            await this.processIgnoreFile(root, ignoreResource, true);
+    this.toDispose.push(
+      this.contextService.onDidChangeWorkspaceFolders(
+        () => this.updateConfiguration()
+      )
+    );
+    this.toDispose.push(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("files.exclude") || e.affectsConfiguration("explorer.excludeGitIgnore")) {
+          this.updateConfiguration();
+        }
+      })
+    );
+    this.toDispose.push(
+      this.fileService.onDidFilesChange((e) => {
+        for (const [
+          root,
+          ignoreFileResourceSet
+        ] of this.ignoreFileResourcesPerRoot.entries()) {
+          ignoreFileResourceSet.forEach(async (ignoreResource) => {
+            if (e.contains(ignoreResource, FileChangeType.UPDATED)) {
+              await this.processIgnoreFile(
+                root,
+                ignoreResource,
+                true
+              );
+            }
+            if (e.contains(ignoreResource, FileChangeType.DELETED)) {
+              this.ignoreTreesPerRoot.get(root)?.delete(dirname(ignoreResource));
+              ignoreFileResourceSet.delete(ignoreResource);
+              this._onDidChange.fire();
+            }
+          });
+        }
+      })
+    );
+    this.toDispose.push(
+      this.editorService.onDidVisibleEditorsChange(() => {
+        const editors = this.editorService.visibleEditors;
+        let shouldFire = false;
+        for (const e of editors) {
+          if (!e.resource) {
+            continue;
           }
-          if (e.contains(ignoreResource, FileChangeType.DELETED)) {
-            this.ignoreTreesPerRoot.get(root)?.delete(dirname(ignoreResource));
-            ignoreFileResourceSet.delete(ignoreResource);
-            this._onDidChange.fire();
+          const stat = this.explorerService.findClosest(e.resource);
+          if (stat && stat.isExcluded) {
+            shouldFire = true;
+            break;
           }
-        });
-      }
-    }));
-    this.toDispose.push(this.editorService.onDidVisibleEditorsChange(() => {
-      const editors = this.editorService.visibleEditors;
-      let shouldFire = false;
-      for (const e of editors) {
-        if (!e.resource) {
-          continue;
         }
-        const stat = this.explorerService.findClosest(e.resource);
-        if (stat && stat.isExcluded) {
-          shouldFire = true;
-          break;
+        for (const e of this.editorsAffectingFilter) {
+          if (!editors.includes(e)) {
+            shouldFire = true;
+            break;
+          }
         }
-      }
-      for (const e of this.editorsAffectingFilter) {
-        if (!editors.includes(e)) {
-          shouldFire = true;
-          break;
+        if (shouldFire) {
+          this.editorsAffectingFilter.clear();
+          this._onDidChange.fire();
         }
-      }
-      if (shouldFire) {
-        this.editorsAffectingFilter.clear();
-        this._onDidChange.fire();
-      }
-    }));
+      })
+    );
     this.updateConfiguration();
   }
   hiddenExpressionPerRoot = /* @__PURE__ */ new Map();
@@ -1052,11 +1074,17 @@ let FileDragAndDrop = class {
     this.uriIdentityService = uriIdentityService;
     const updateDropEnablement = (e) => {
       if (!e || e.affectsConfiguration("explorer.enableDragAndDrop")) {
-        this.dropEnabled = this.configurationService.getValue("explorer.enableDragAndDrop");
+        this.dropEnabled = this.configurationService.getValue(
+          "explorer.enableDragAndDrop"
+        );
       }
     };
     updateDropEnablement(void 0);
-    this.disposables.add(this.configurationService.onDidChangeConfiguration((e) => updateDropEnablement(e)));
+    this.disposables.add(
+      this.configurationService.onDidChangeConfiguration(
+        (e) => updateDropEnablement(e)
+      )
+    );
   }
   static CONFIRM_DND_SETTING_KEY = "explorer.confirmDragAndDrop";
   compressedDragOverElement;

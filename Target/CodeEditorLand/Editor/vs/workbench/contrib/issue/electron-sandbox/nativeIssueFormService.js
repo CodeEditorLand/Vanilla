@@ -24,7 +24,15 @@ import { IssueFormService } from "../browser/issueFormService.js";
 import { IssueReporter2 } from "./issueReporterService2.js";
 let NativeIssueFormService = class extends IssueFormService {
   constructor(instantiationService, auxiliaryWindowService, logService, dialogService, menuService, contextKeyService, hostService, nativeHostService, environmentService) {
-    super(instantiationService, auxiliaryWindowService, menuService, contextKeyService, logService, dialogService, hostService);
+    super(
+      instantiationService,
+      auxiliaryWindowService,
+      menuService,
+      contextKeyService,
+      logService,
+      dialogService,
+      hostService
+    );
     this.nativeHostService = nativeHostService;
     this.environmentService = environmentService;
   }

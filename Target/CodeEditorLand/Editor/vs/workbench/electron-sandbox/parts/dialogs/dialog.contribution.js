@@ -24,8 +24,8 @@ import { INativeHostService } from "../../../../platform/native/common/native.js
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { BrowserDialogHandler } from "../../../browser/parts/dialogs/dialogHandler.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { NativeDialogHandler } from "./dialogHandler.js";
 let DialogHandlerContribution = class extends Disposable {
@@ -33,14 +33,32 @@ let DialogHandlerContribution = class extends Disposable {
     super();
     this.configurationService = configurationService;
     this.dialogService = dialogService;
-    this.browserImpl = new Lazy(() => new BrowserDialogHandler(logService, layoutService, keybindingService, instantiationService, productService, clipboardService));
-    this.nativeImpl = new Lazy(() => new NativeDialogHandler(logService, nativeHostService, productService, clipboardService));
+    this.browserImpl = new Lazy(
+      () => new BrowserDialogHandler(
+        logService,
+        layoutService,
+        keybindingService,
+        instantiationService,
+        productService,
+        clipboardService
+      )
+    );
+    this.nativeImpl = new Lazy(
+      () => new NativeDialogHandler(
+        logService,
+        nativeHostService,
+        productService,
+        clipboardService
+      )
+    );
     this.model = this.dialogService.model;
-    this._register(this.model.onWillShowDialog(() => {
-      if (!this.currentDialog) {
-        this.processDialogs();
-      }
-    }));
+    this._register(
+      this.model.onWillShowDialog(() => {
+        if (!this.currentDialog) {
+          this.processDialogs();
+        }
+      })
+    );
     this.processDialogs();
   }
   static ID = "workbench.contrib.dialogHandler";

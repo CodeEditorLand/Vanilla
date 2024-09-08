@@ -1,8 +1,8 @@
 import { Emitter } from "../../../../../base/common/event.js";
 import {
   Disposable,
-  MutableDisposable,
-  dispose
+  dispose,
+  MutableDisposable
 } from "../../../../../base/common/lifecycle.js";
 import { Mimes } from "../../../../../base/common/mime.js";
 import { Range } from "../../../../../editor/common/core/range.js";

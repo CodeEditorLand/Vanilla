@@ -49,17 +49,17 @@ import { TaskDefinitionRegistry } from "../../tasks/common/taskDefinitionRegistr
 import { ITaskService } from "../../tasks/common/taskService.js";
 import { Breakpoints } from "../common/breakpoints.js";
 import {
-  CONTEXT_DEBUGGERS_AVAILABLE,
   CONTEXT_DEBUG_EXTENSION_AVAILABLE,
+  CONTEXT_DEBUGGERS_AVAILABLE,
   INTERNAL_CONSOLE_OPTIONS_SCHEMA
 } from "../common/debug.js";
+import { Debugger } from "../common/debugger.js";
 import {
   breakpointsExtPoint,
   debuggersExtPoint,
   launchSchema,
   presentationSchema
 } from "../common/debugSchemas.js";
-import { Debugger } from "../common/debugger.js";
 const jsonRegistry = Registry.as(
   JSONExtensions.JSONContribution
 );
@@ -85,24 +85,39 @@ let AdapterManager = class extends Disposable {
       this.debuggersAvailable = CONTEXT_DEBUGGERS_AVAILABLE.bindTo(contextKeyService);
       this.debugExtensionsAvailable = CONTEXT_DEBUG_EXTENSION_AVAILABLE.bindTo(contextKeyService);
     });
-    this._register(this.contextKeyService.onDidChangeContext((e) => {
-      if (e.affectsSome(this.debuggerWhenKeys)) {
-        this.debuggersAvailable.set(this.hasEnabledDebuggers());
-        this.updateDebugAdapterSchema();
-      }
-    }));
-    this._register(this.onDidDebuggersExtPointRead(() => {
-      this.debugExtensionsAvailable.set(this.debuggers.length > 0);
-    }));
-    const updateTaskScheduler = this._register(new RunOnceScheduler(() => this.updateTaskLabels(), 5e3));
-    this._register(Event.any(tasksService.onDidChangeTaskConfig, tasksService.onDidChangeTaskProviders)(() => {
-      updateTaskScheduler.cancel();
-      updateTaskScheduler.schedule();
-    }));
-    this.lifecycleService.when(LifecyclePhase.Eventually).then(() => this.debugExtensionsAvailable.set(this.debuggers.length > 0));
-    this._register(delegate.onDidNewSession((s) => {
-      this.usedDebugTypes.add(s.configuration.type);
-    }));
+    this._register(
+      this.contextKeyService.onDidChangeContext((e) => {
+        if (e.affectsSome(this.debuggerWhenKeys)) {
+          this.debuggersAvailable.set(this.hasEnabledDebuggers());
+          this.updateDebugAdapterSchema();
+        }
+      })
+    );
+    this._register(
+      this.onDidDebuggersExtPointRead(() => {
+        this.debugExtensionsAvailable.set(this.debuggers.length > 0);
+      })
+    );
+    const updateTaskScheduler = this._register(
+      new RunOnceScheduler(() => this.updateTaskLabels(), 5e3)
+    );
+    this._register(
+      Event.any(
+        tasksService.onDidChangeTaskConfig,
+        tasksService.onDidChangeTaskProviders
+      )(() => {
+        updateTaskScheduler.cancel();
+        updateTaskScheduler.schedule();
+      })
+    );
+    this.lifecycleService.when(LifecyclePhase.Eventually).then(
+      () => this.debugExtensionsAvailable.set(this.debuggers.length > 0)
+    );
+    this._register(
+      delegate.onDidNewSession((s) => {
+        this.usedDebugTypes.add(s.configuration.type);
+      })
+    );
     updateTaskScheduler.schedule();
   }
   debuggers;
@@ -490,10 +505,7 @@ let AdapterManager = class extends Disposable {
       }
     }
     const placeHolder = nls.localize("selectDebug", "Select debugger");
-    return this.quickInputService.pick(
-      picks,
-      { activeItem: picks[0], placeHolder }
-    ).then(async (picked) => {
+    return this.quickInputService.pick(picks, { activeItem: picks[0], placeHolder }).then(async (picked) => {
       if (picked && "debugger" in picked && picked.debugger) {
         return picked.debugger;
       } else if (picked instanceof MenuItemAction) {

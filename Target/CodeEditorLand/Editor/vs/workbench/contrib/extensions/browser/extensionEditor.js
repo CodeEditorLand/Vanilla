@@ -32,11 +32,11 @@ import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
 import {
   Disposable,
   DisposableStore,
-  MutableDisposable,
   dispose,
+  MutableDisposable,
   toDisposable
 } from "../../../../base/common/lifecycle.js";
-import { Schemas, matchesScheme } from "../../../../base/common/network.js";
+import { matchesScheme, Schemas } from "../../../../base/common/network.js";
 import { language } from "../../../../base/common/platform.js";
 import * as semver from "../../../../base/common/semver/semver.js";
 import { isUndefined } from "../../../../base/common/types.js";
@@ -152,11 +152,11 @@ import {
   ExtensionStatusWidget,
   ExtensionWidget,
   InstallCountWidget,
+  onClick,
   RatingsWidget,
   RemoteBadgeWidget,
   SponsorWidget,
-  VerifiedPublisherWidget,
-  onClick
+  VerifiedPublisherWidget
 } from "./extensionsWidgets.js";
 class NavBar extends Disposable {
   _onChange = this._register(
@@ -255,7 +255,13 @@ class VersionWidget extends ExtensionWithDifferentGalleryVersionWidget {
 }
 let ExtensionEditor = class extends EditorPane {
   constructor(group, telemetryService, instantiationService, paneCompositeService, extensionsWorkbenchService, extensionGalleryService, themeService, notificationService, openerService, extensionRecommendationsService, storageService, extensionService, webviewService, languageService, contextMenuService, contextKeyService, contextService, explorerService, viewsService, uriIdentityService, hoverService) {
-    super(ExtensionEditor.ID, group, telemetryService, themeService, storageService);
+    super(
+      ExtensionEditor.ID,
+      group,
+      telemetryService,
+      themeService,
+      storageService
+    );
     this.instantiationService = instantiationService;
     this.paneCompositeService = paneCompositeService;
     this.extensionsWorkbenchService = extensionsWorkbenchService;

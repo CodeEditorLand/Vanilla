@@ -284,7 +284,9 @@ let EditSessionDataViewDataProvider = class {
     this.contextKeyService = contextKeyService;
     this.workspaceContextService = workspaceContextService;
     this.fileService = fileService;
-    this.editSessionsCount = EDIT_SESSIONS_COUNT_CONTEXT_KEY.bindTo(this.contextKeyService);
+    this.editSessionsCount = EDIT_SESSIONS_COUNT_CONTEXT_KEY.bindTo(
+      this.contextKeyService
+    );
   }
   editSessionsCount;
   async getChildren(element) {

@@ -62,8 +62,8 @@ import { IExtensionService } from "../../../services/extensions/common/extension
 import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
 import {
   ExplorerViewletVisibleContext,
-  VIEWLET_ID,
-  VIEW_ID
+  VIEW_ID,
+  VIEWLET_ID
 } from "../common/files.js";
 import { EmptyView } from "./views/emptyView.js";
 import { ExplorerView } from "./views/explorerView.js";
@@ -82,10 +82,21 @@ let ExplorerViewletViewsContribution = class extends Disposable {
   constructor(workspaceContextService, progressService) {
     super();
     this.workspaceContextService = workspaceContextService;
-    progressService.withProgress({ location: ProgressLocation.Explorer }, () => workspaceContextService.getCompleteWorkspace()).finally(() => {
+    progressService.withProgress(
+      { location: ProgressLocation.Explorer },
+      () => workspaceContextService.getCompleteWorkspace()
+    ).finally(() => {
       this.registerViews();
-      this._register(workspaceContextService.onDidChangeWorkbenchState(() => this.registerViews()));
-      this._register(workspaceContextService.onDidChangeWorkspaceFolders(() => this.registerViews()));
+      this._register(
+        workspaceContextService.onDidChangeWorkbenchState(
+          () => this.registerViews()
+        )
+      );
+      this._register(
+        workspaceContextService.onDidChangeWorkspaceFolders(
+          () => this.registerViews()
+        )
+      );
     });
   }
   static ID = "workbench.contrib.explorerViewletViews";

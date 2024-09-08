@@ -12,9 +12,9 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import "./media/extensionsWidgets.css";
 import {
   $,
-  EventType,
   addDisposableListener,
   append,
+  EventType,
   finalHandler,
   reset
 } from "../../../../base/browser/dom.js";
@@ -257,7 +257,13 @@ let VerifiedPublisherWidget = class extends ExtensionWidget {
     this.container = container;
     this.small = small;
     this.openerService = openerService;
-    this.containerHover = this._register(hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), container, ""));
+    this.containerHover = this._register(
+      hoverService.setupManagedHover(
+        getDefaultHoverDelegate("mouse"),
+        container,
+        ""
+      )
+    );
     this.render();
   }
   disposables = this._register(new DisposableStore());
@@ -362,7 +368,11 @@ let RecommendationWidget = class extends ExtensionWidget {
     this.extensionRecommendationsService = extensionRecommendationsService;
     this.render();
     this._register(toDisposable(() => this.clear()));
-    this._register(this.extensionRecommendationsService.onDidChangeRecommendations(() => this.render()));
+    this._register(
+      this.extensionRecommendationsService.onDidChangeRecommendations(
+        () => this.render()
+      )
+    );
   }
   element;
   disposables = this._register(new DisposableStore());
@@ -458,7 +468,13 @@ let RemoteBadge = class extends Disposable {
     this.themeService = themeService;
     this.extensionManagementServerService = extensionManagementServerService;
     this.element = $("div.extension-badge.extension-remote-badge");
-    this.elementHover = this._register(hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.element, ""));
+    this.elementHover = this._register(
+      hoverService.setupManagedHover(
+        getDefaultHoverDelegate("mouse"),
+        this.element,
+        ""
+      )
+    );
     this.render();
   }
   element;
@@ -541,8 +557,17 @@ let SyncIgnoredWidget = class extends ExtensionWidget {
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.hoverService = hoverService;
     this.userDataSyncEnablementService = userDataSyncEnablementService;
-    this._register(Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration("settingsSync.ignoredExtensions"))(() => this.render()));
-    this._register(userDataSyncEnablementService.onDidChangeEnablement(() => this.update()));
+    this._register(
+      Event.filter(
+        this.configurationService.onDidChangeConfiguration,
+        (e) => e.affectsConfiguration("settingsSync.ignoredExtensions")
+      )(() => this.render())
+    );
+    this._register(
+      userDataSyncEnablementService.onDidChangeEnablement(
+        () => this.update()
+      )
+    );
     this.render();
   }
   disposables = this._register(new DisposableStore());
@@ -586,11 +611,18 @@ let ExtensionActivationStatusWidget = class extends ExtensionWidget {
     this.container = container;
     this.small = small;
     this.extensionsWorkbenchService = extensionsWorkbenchService;
-    this._register(extensionService.onDidChangeExtensionsStatus((extensions) => {
-      if (this.extension && extensions.some((e) => areSameExtensions({ id: e.value }, this.extension.identifier))) {
-        this.update();
-      }
-    }));
+    this._register(
+      extensionService.onDidChangeExtensionsStatus((extensions) => {
+        if (this.extension && extensions.some(
+          (e) => areSameExtensions(
+            { id: e.value },
+            this.extension.identifier
+          )
+        )) {
+          this.update();
+        }
+      })
+    );
   }
   render() {
     this.container.innerText = "";
@@ -906,7 +938,9 @@ let ExtensionStatusWidget = class extends ExtensionWidget {
     this.extensionStatusAction = extensionStatusAction;
     this.openerService = openerService;
     this.render();
-    this._register(extensionStatusAction.onDidChangeStatus(() => this.render()));
+    this._register(
+      extensionStatusAction.onDidChangeStatus(() => this.render())
+    );
   }
   renderDisposables = this._register(
     new MutableDisposable()
@@ -960,7 +994,11 @@ let ExtensionRecommendationWidget = class extends ExtensionWidget {
     this.extensionRecommendationsService = extensionRecommendationsService;
     this.extensionIgnoredRecommendationsService = extensionIgnoredRecommendationsService;
     this.render();
-    this._register(this.extensionRecommendationsService.onDidChangeRecommendations(() => this.render()));
+    this._register(
+      this.extensionRecommendationsService.onDidChangeRecommendations(
+        () => this.render()
+      )
+    );
   }
   _onDidRender = this._register(new Emitter());
   onDidRender = this._onDidRender.event;

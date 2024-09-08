@@ -66,10 +66,10 @@ import {
   updateProductIconThemeConfigurationSchemas
 } from "../common/themeConfiguration.js";
 import {
-  ThemeRegistry,
   registerColorThemeExtensionPoint,
   registerFileIconThemeExtensionPoint,
-  registerProductIconThemeExtensionPoint
+  registerProductIconThemeExtensionPoint,
+  ThemeRegistry
 } from "../common/themeExtensionPoints.js";
 import {
   COLOR_THEME_DARK_INITIAL_COLORS,
@@ -126,24 +126,75 @@ let WorkbenchThemeService = class extends Disposable {
     this.userDataInitializationService = userDataInitializationService;
     this.languageService = languageService;
     this.container = layoutService.mainContainer;
-    this.settings = new ThemeConfiguration(configurationService, hostColorService);
-    this.colorThemeRegistry = this._register(new ThemeRegistry(colorThemesExtPoint, ColorThemeData.fromExtensionTheme));
-    this.colorThemeWatcher = this._register(new ThemeFileWatcher(fileService, environmentService, this.reloadCurrentColorTheme.bind(this)));
-    this.onColorThemeChange = new Emitter({ leakWarningThreshold: 400 });
+    this.settings = new ThemeConfiguration(
+      configurationService,
+      hostColorService
+    );
+    this.colorThemeRegistry = this._register(
+      new ThemeRegistry(
+        colorThemesExtPoint,
+        ColorThemeData.fromExtensionTheme
+      )
+    );
+    this.colorThemeWatcher = this._register(
+      new ThemeFileWatcher(
+        fileService,
+        environmentService,
+        this.reloadCurrentColorTheme.bind(this)
+      )
+    );
+    this.onColorThemeChange = new Emitter({
+      leakWarningThreshold: 400
+    });
     this.currentColorTheme = ColorThemeData.createUnloadedTheme("");
     this.colorThemeSequencer = new Sequencer();
-    this.fileIconThemeWatcher = this._register(new ThemeFileWatcher(fileService, environmentService, this.reloadCurrentFileIconTheme.bind(this)));
-    this.fileIconThemeRegistry = this._register(new ThemeRegistry(fileIconThemesExtPoint, FileIconThemeData.fromExtensionTheme, true, FileIconThemeData.noIconTheme));
-    this.fileIconThemeLoader = new FileIconThemeLoader(extensionResourceLoaderService, languageService);
-    this.onFileIconThemeChange = new Emitter({ leakWarningThreshold: 400 });
+    this.fileIconThemeWatcher = this._register(
+      new ThemeFileWatcher(
+        fileService,
+        environmentService,
+        this.reloadCurrentFileIconTheme.bind(this)
+      )
+    );
+    this.fileIconThemeRegistry = this._register(
+      new ThemeRegistry(
+        fileIconThemesExtPoint,
+        FileIconThemeData.fromExtensionTheme,
+        true,
+        FileIconThemeData.noIconTheme
+      )
+    );
+    this.fileIconThemeLoader = new FileIconThemeLoader(
+      extensionResourceLoaderService,
+      languageService
+    );
+    this.onFileIconThemeChange = new Emitter({
+      leakWarningThreshold: 400
+    });
     this.currentFileIconTheme = FileIconThemeData.createUnloadedTheme("");
     this.fileIconThemeSequencer = new Sequencer();
-    this.productIconThemeWatcher = this._register(new ThemeFileWatcher(fileService, environmentService, this.reloadCurrentProductIconTheme.bind(this)));
-    this.productIconThemeRegistry = this._register(new ThemeRegistry(productIconThemesExtPoint, ProductIconThemeData.fromExtensionTheme, true, ProductIconThemeData.defaultTheme));
+    this.productIconThemeWatcher = this._register(
+      new ThemeFileWatcher(
+        fileService,
+        environmentService,
+        this.reloadCurrentProductIconTheme.bind(this)
+      )
+    );
+    this.productIconThemeRegistry = this._register(
+      new ThemeRegistry(
+        productIconThemesExtPoint,
+        ProductIconThemeData.fromExtensionTheme,
+        true,
+        ProductIconThemeData.defaultTheme
+      )
+    );
     this.onProductIconThemeChange = new Emitter();
     this.currentProductIconTheme = ProductIconThemeData.createUnloadedTheme("");
     this.productIconThemeSequencer = new Sequencer();
-    this._register(this.onDidColorThemeChange((theme) => getColorRegistry().notifyThemeUpdate(theme)));
+    this._register(
+      this.onDidColorThemeChange(
+        (theme) => getColorRegistry().notifyThemeUpdate(theme)
+      )
+    );
     let themeData = ColorThemeData.fromStorageData(this.storageService);
     const colorThemeSetting = this.settings.colorTheme;
     if (themeData && colorThemeSetting !== themeData.settingsId && this.settings.isDefaultColorTheme()) {
@@ -154,19 +205,29 @@ let WorkbenchThemeService = class extends Disposable {
     if (!themeData) {
       const initialColorTheme = environmentService.options?.initialColorTheme;
       if (initialColorTheme) {
-        themeData = ColorThemeData.createUnloadedThemeForThemeType(initialColorTheme.themeType, initialColorTheme.colors ?? defaultColorMap);
+        themeData = ColorThemeData.createUnloadedThemeForThemeType(
+          initialColorTheme.themeType,
+          initialColorTheme.colors ?? defaultColorMap
+        );
       }
     }
     if (!themeData) {
-      themeData = ColorThemeData.createUnloadedThemeForThemeType(isWeb ? ColorScheme.LIGHT : ColorScheme.DARK, defaultColorMap);
+      themeData = ColorThemeData.createUnloadedThemeForThemeType(
+        isWeb ? ColorScheme.LIGHT : ColorScheme.DARK,
+        defaultColorMap
+      );
     }
     themeData.setCustomizations(this.settings);
     this.applyTheme(themeData, void 0, true);
-    const fileIconData = FileIconThemeData.fromStorageData(this.storageService);
+    const fileIconData = FileIconThemeData.fromStorageData(
+      this.storageService
+    );
     if (fileIconData) {
       this.applyAndSetFileIconTheme(fileIconData, true);
     }
-    const productIconData = ProductIconThemeData.fromStorageData(this.storageService);
+    const productIconData = ProductIconThemeData.fromStorageData(
+      this.storageService
+    );
     if (productIconData) {
       this.applyAndSetProductIconTheme(productIconData, true);
     }

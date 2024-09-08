@@ -23,9 +23,9 @@ import { RunOnceScheduler } from "../../../../base/common/async.js";
 import * as errors from "../../../../base/common/errors.js";
 import {
   DisposableStore,
-  MutableDisposable,
   dispose,
-  markAsSingleton
+  markAsSingleton,
+  MutableDisposable
 } from "../../../../base/common/lifecycle.js";
 import "./media/debugToolBar.css";
 import { PixelRatio } from "../../../../base/browser/pixelRatio.js";
@@ -130,41 +130,81 @@ let DebugToolBar = class extends Themable {
     this.instantiationService = instantiationService;
     this.$el = dom.$("div.debug-toolbar");
     this.$el.style.top = `${layoutService.mainContainerOffset.top}px`;
-    this.dragArea = dom.append(this.$el, dom.$("div.drag-area" + ThemeIcon.asCSSSelector(icons.debugGripper)));
-    const actionBarContainer = dom.append(this.$el, dom.$("div.action-bar-container"));
-    this.debugToolBarMenu = menuService.createMenu(MenuId.DebugToolBar, contextKeyService);
+    this.dragArea = dom.append(
+      this.$el,
+      dom.$(
+        "div.drag-area" + ThemeIcon.asCSSSelector(icons.debugGripper)
+      )
+    );
+    const actionBarContainer = dom.append(
+      this.$el,
+      dom.$("div.action-bar-container")
+    );
+    this.debugToolBarMenu = menuService.createMenu(
+      MenuId.DebugToolBar,
+      contextKeyService
+    );
     this._register(this.debugToolBarMenu);
     this.activeActions = [];
-    this.actionBar = this._register(new ActionBar(actionBarContainer, {
-      orientation: ActionsOrientation.HORIZONTAL,
-      actionViewItemProvider: (action, options) => {
-        if (action.id === FOCUS_SESSION_ID) {
-          return this.instantiationService.createInstance(FocusSessionActionViewItem, action, void 0);
-        } else if (action.id === STOP_ID || action.id === DISCONNECT_ID) {
-          this.stopActionViewItemDisposables.clear();
-          const item = this.instantiationService.invokeFunction((accessor) => createDisconnectMenuItemAction(action, this.stopActionViewItemDisposables, accessor, { hoverDelegate: options.hoverDelegate }));
-          if (item) {
-            return item;
+    this.actionBar = this._register(
+      new ActionBar(actionBarContainer, {
+        orientation: ActionsOrientation.HORIZONTAL,
+        actionViewItemProvider: (action, options) => {
+          if (action.id === FOCUS_SESSION_ID) {
+            return this.instantiationService.createInstance(
+              FocusSessionActionViewItem,
+              action,
+              void 0
+            );
+          } else if (action.id === STOP_ID || action.id === DISCONNECT_ID) {
+            this.stopActionViewItemDisposables.clear();
+            const item = this.instantiationService.invokeFunction(
+              (accessor) => createDisconnectMenuItemAction(
+                action,
+                this.stopActionViewItemDisposables,
+                accessor,
+                { hoverDelegate: options.hoverDelegate }
+              )
+            );
+            if (item) {
+              return item;
+            }
           }
+          return createActionViewItem(
+            this.instantiationService,
+            action,
+            options
+          );
         }
-        return createActionViewItem(this.instantiationService, action, options);
-      }
-    }));
-    this.updateScheduler = this._register(new RunOnceScheduler(() => {
-      const state = this.debugService.state;
-      const toolBarLocation = this.configurationService.getValue("debug").toolBarLocation;
-      if (state === State.Inactive || toolBarLocation !== "floating" || this.debugService.getModel().getSessions().every((s) => s.suppressDebugToolbar) || state === State.Initializing && this.debugService.initializingOptions?.suppressDebugToolbar) {
-        return this.hide();
-      }
-      const actions = [];
-      createAndFillInActionBarActions(this.debugToolBarMenu, { shouldForwardArgs: true }, actions);
-      if (!arrays.equals(actions, this.activeActions, (first, second) => first.id === second.id && first.enabled === second.enabled)) {
-        this.actionBar.clear();
-        this.actionBar.push(actions, { icon: true, label: false });
-        this.activeActions = actions;
-      }
-      this.show();
-    }, 20));
+      })
+    );
+    this.updateScheduler = this._register(
+      new RunOnceScheduler(() => {
+        const state = this.debugService.state;
+        const toolBarLocation = this.configurationService.getValue(
+          "debug"
+        ).toolBarLocation;
+        if (state === State.Inactive || toolBarLocation !== "floating" || this.debugService.getModel().getSessions().every((s) => s.suppressDebugToolbar) || state === State.Initializing && this.debugService.initializingOptions?.suppressDebugToolbar) {
+          return this.hide();
+        }
+        const actions = [];
+        createAndFillInActionBarActions(
+          this.debugToolBarMenu,
+          { shouldForwardArgs: true },
+          actions
+        );
+        if (!arrays.equals(
+          actions,
+          this.activeActions,
+          (first, second) => first.id === second.id && first.enabled === second.enabled
+        )) {
+          this.actionBar.clear();
+          this.actionBar.push(actions, { icon: true, label: false });
+          this.activeActions = actions;
+        }
+        this.show();
+      }, 20)
+    );
     this.updateStyles();
     this.registerListeners();
     this.hide();

@@ -32,8 +32,8 @@ import {
 } from "../../../../platform/extensions/common/extensionHostStarter.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import {
-  ILogService,
-  ILoggerService
+  ILoggerService,
+  ILogService
 } from "../../../../platform/log/common/log.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
 import {
@@ -46,9 +46,9 @@ import { ITelemetryService } from "../../../../platform/telemetry/common/telemet
 import { isLoggingOnly } from "../../../../platform/telemetry/common/telemetryUtils.js";
 import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import {
+  isUntitledWorkspace,
   IWorkspaceContextService,
-  WorkbenchState,
-  isUntitledWorkspace
+  WorkbenchState
 } from "../../../../platform/workspace/common/workspace.js";
 import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
 import { IShellEnvironmentService } from "../../environment/electron-sandbox/shellEnvironmentService.js";
@@ -62,10 +62,10 @@ import {
   writeExtHostConnection
 } from "../common/extensionHostEnv.js";
 import {
+  isMessageOfType,
   MessageType,
   NativeLogMarkers,
-  UIKind,
-  isMessageOfType
+  UIKind
 } from "../common/extensionHostProtocol.js";
 import {
   ExtensionHostStartup
@@ -128,17 +128,25 @@ let NativeLocalProcessExtensionHost = class {
     this._extensionHostProcess = null;
     this._messageProtocol = null;
     this._toDispose.add(this._onExit);
-    this._toDispose.add(this._lifecycleService.onWillShutdown((e) => this._onWillShutdown(e)));
-    this._toDispose.add(this._extensionHostDebugService.onClose((event) => {
-      if (this._isExtensionDevHost && this._environmentService.debugExtensionHost.debugId === event.sessionId) {
-        this._nativeHostService.closeWindow();
-      }
-    }));
-    this._toDispose.add(this._extensionHostDebugService.onReload((event) => {
-      if (this._isExtensionDevHost && this._environmentService.debugExtensionHost.debugId === event.sessionId) {
-        this._hostService.reload();
-      }
-    }));
+    this._toDispose.add(
+      this._lifecycleService.onWillShutdown(
+        (e) => this._onWillShutdown(e)
+      )
+    );
+    this._toDispose.add(
+      this._extensionHostDebugService.onClose((event) => {
+        if (this._isExtensionDevHost && this._environmentService.debugExtensionHost.debugId === event.sessionId) {
+          this._nativeHostService.closeWindow();
+        }
+      })
+    );
+    this._toDispose.add(
+      this._extensionHostDebugService.onReload((event) => {
+        if (this._isExtensionDevHost && this._environmentService.debugExtensionHost.debugId === event.sessionId) {
+          this._hostService.reload();
+        }
+      })
+    );
   }
   pid = null;
   remoteAuthority = null;

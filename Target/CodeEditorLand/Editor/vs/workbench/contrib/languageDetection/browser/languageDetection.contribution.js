@@ -50,7 +50,11 @@ let LanguageDetectionStatusContribution = class {
     this._editorService = _editorService;
     this._languageService = _languageService;
     this._keybindingService = _keybindingService;
-    _editorService.onDidActiveEditorChange(() => this._update(true), this, this._disposables);
+    _editorService.onDidActiveEditorChange(
+      () => this._update(true),
+      this,
+      this._disposables
+    );
     this._update(false);
   }
   static _id = "status.languageDetectionStatus";

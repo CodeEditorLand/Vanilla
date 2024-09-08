@@ -13,8 +13,8 @@ import "./notebookDiff.css";
 import * as DOM from "../../../../../base/browser/dom.js";
 import { PixelRatio } from "../../../../../base/browser/pixelRatio.js";
 import {
-  MouseController,
-  isMonacoEditor
+  isMonacoEditor,
+  MouseController
 } from "../../../../../base/browser/ui/list/listWidget.js";
 import {
   DisposableStore
@@ -49,10 +49,10 @@ import {
   CellDiffPlaceholderElement,
   CollapsedCellOverlayWidget,
   DeletedElement,
+  getOptimizedNestedCodeEditorWidgetOptions,
   InsertElement,
   ModifiedElement,
-  UnchangedCellOverlayWidget,
-  getOptimizedNestedCodeEditorWidgetOptions
+  UnchangedCellOverlayWidget
 } from "./diffComponents.js";
 import {
   DIFF_CELL_MARGIN
@@ -61,7 +61,10 @@ let NotebookCellTextDiffListDelegate = class {
   constructor(targetWindow, configurationService) {
     this.configurationService = configurationService;
     const editorOptions = this.configurationService.getValue("editor");
-    this.lineHeight = BareFontInfo.createFromRawSettings(editorOptions, PixelRatio.getInstance(targetWindow).value).lineHeight;
+    this.lineHeight = BareFontInfo.createFromRawSettings(
+      editorOptions,
+      PixelRatio.getInstance(targetWindow).value
+    ).lineHeight;
   }
   lineHeight;
   getHeight(element) {

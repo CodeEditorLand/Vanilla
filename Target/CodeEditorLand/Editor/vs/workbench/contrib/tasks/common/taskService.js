@@ -1,9 +1,9 @@
 import * as nls from "../../../../nls.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import {
   ContextKeyExpr,
   RawContextKey
 } from "../../../../platform/contextkey/common/contextkey.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 const CustomExecutionSupportedContext = new RawContextKey(
   "customExecutionSupported",
   false,

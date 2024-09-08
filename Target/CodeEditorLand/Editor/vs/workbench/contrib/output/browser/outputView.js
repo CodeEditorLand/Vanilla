@@ -199,9 +199,22 @@ OutputViewPane = __decorateClass([
 ], OutputViewPane);
 let OutputEditor = class extends AbstractTextResourceEditor {
   constructor(telemetryService, instantiationService, storageService, configurationService, textResourceConfigurationService, themeService, editorGroupService, editorService, fileService) {
-    super(OUTPUT_VIEW_ID, editorGroupService.activeGroup, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorGroupService, editorService, fileService);
+    super(
+      OUTPUT_VIEW_ID,
+      editorGroupService.activeGroup,
+      telemetryService,
+      instantiationService,
+      storageService,
+      textResourceConfigurationService,
+      themeService,
+      editorGroupService,
+      editorService,
+      fileService
+    );
     this.configurationService = configurationService;
-    this.resourceContext = this._register(instantiationService.createInstance(ResourceContextKey));
+    this.resourceContext = this._register(
+      instantiationService.createInstance(ResourceContextKey)
+    );
   }
   resourceContext;
   getId() {

@@ -1,7 +1,7 @@
 import * as Objects from "../../../../base/common/objects.js";
 import * as nls from "../../../../nls.js";
-import { ProblemMatcherRegistry } from "./problemMatcher.js";
 import commonSchema from "./jsonSchemaCommon.js";
+import { ProblemMatcherRegistry } from "./problemMatcher.js";
 const schema = {
   oneOf: [
     {

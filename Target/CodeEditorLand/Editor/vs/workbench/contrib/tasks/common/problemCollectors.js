@@ -3,8 +3,8 @@ import {
   Disposable,
   DisposableStore
 } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
 import { isWindows } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
 import {
   IMarkerData

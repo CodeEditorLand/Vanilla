@@ -84,12 +84,26 @@ let NotebookKeymapService = class extends Disposable {
     this.instantiationService = instantiationService;
     this.extensionEnablementService = extensionEnablementService;
     this.notificationService = notificationService;
-    this.notebookKeymapMemento = new Memento("notebookKeymap", storageService);
-    this.notebookKeymap = this.notebookKeymapMemento.getMemento(StorageScope.PROFILE, StorageTarget.USER);
+    this.notebookKeymapMemento = new Memento(
+      "notebookKeymap",
+      storageService
+    );
+    this.notebookKeymap = this.notebookKeymapMemento.getMemento(
+      StorageScope.PROFILE,
+      StorageTarget.USER
+    );
     this._register(lifecycleService.onDidShutdown(() => this.dispose()));
-    this._register(this.instantiationService.invokeFunction(onExtensionChanged)((identifiers) => {
-      Promise.all(identifiers.map((identifier) => this.checkForOtherKeymaps(identifier))).then(void 0, onUnexpectedError);
-    }));
+    this._register(
+      this.instantiationService.invokeFunction(onExtensionChanged)(
+        (identifiers) => {
+          Promise.all(
+            identifiers.map(
+              (identifier) => this.checkForOtherKeymaps(identifier)
+            )
+          ).then(void 0, onUnexpectedError);
+        }
+      )
+    );
   }
   _serviceBrand;
   notebookKeymapMemento;

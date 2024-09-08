@@ -40,8 +40,8 @@ import {
 import { EditorGutter } from "../editorGutter.js";
 import {
   CodeEditorView,
-  TitleMenu,
-  createSelectionsAutorun
+  createSelectionsAutorun,
+  TitleMenu
 } from "./codeEditorView.js";
 let ResultCodeEditorView = class extends CodeEditorView {
   constructor(viewModel, instantiationService, _labelService, configurationService) {
@@ -58,58 +58,91 @@ let ResultCodeEditorView = class extends CodeEditorView {
     this._register(
       autorunWithStore((reader, store) => {
         if (this.checkboxesVisible.read(reader)) {
-          store.add(new EditorGutter(this.editor, this.htmlElements.gutterDiv, {
-            getIntersectingGutterItems: (range, reader2) => [],
-            createView: (item, target) => {
-              throw new BugIndicatingError();
-            }
-          }));
+          store.add(
+            new EditorGutter(
+              this.editor,
+              this.htmlElements.gutterDiv,
+              {
+                getIntersectingGutterItems: (range, reader2) => [],
+                createView: (item, target) => {
+                  throw new BugIndicatingError();
+                }
+              }
+            )
+          );
         }
       })
     );
-    this._register(autorun((reader) => {
-      const vm = this.viewModel.read(reader);
-      if (!vm) {
-        return;
-      }
-      this.editor.setModel(vm.model.resultTextModel);
-      reset(this.htmlElements.title, ...renderLabelWithIcons(localize("result", "Result")));
-      reset(this.htmlElements.description, ...renderLabelWithIcons(this._labelService.getUriLabel(vm.model.resultTextModel.uri, { relative: true })));
-    }));
-    const remainingConflictsActionBar = this._register(new ActionBar(this.htmlElements.detail));
-    this._register(autorun((reader) => {
-      const vm = this.viewModel.read(reader);
-      if (!vm) {
-        return;
-      }
-      const model = vm.model;
-      if (!model) {
-        return;
-      }
-      const count = model.unhandledConflictsCount.read(reader);
-      const text = count === 1 ? localize(
-        "mergeEditor.remainingConflicts",
-        "{0} Conflict Remaining",
-        count
-      ) : localize(
-        "mergeEditor.remainingConflict",
-        "{0} Conflicts Remaining ",
-        count
-      );
-      remainingConflictsActionBar.clear();
-      remainingConflictsActionBar.push({
-        class: void 0,
-        enabled: count > 0,
-        id: "nextConflict",
-        label: text,
-        run() {
-          vm.model.telemetry.reportConflictCounterClicked();
-          vm.goToNextModifiedBaseRange((m) => !model.isHandled(m).get());
-        },
-        tooltip: count > 0 ? localize("goToNextConflict", "Go to next conflict") : localize("allConflictHandled", "All conflicts handled, the merge can be completed now.")
-      });
-    }));
-    this._register(applyObservableDecorations(this.editor, this.decorations));
+    this._register(
+      autorun((reader) => {
+        const vm = this.viewModel.read(reader);
+        if (!vm) {
+          return;
+        }
+        this.editor.setModel(vm.model.resultTextModel);
+        reset(
+          this.htmlElements.title,
+          ...renderLabelWithIcons(localize("result", "Result"))
+        );
+        reset(
+          this.htmlElements.description,
+          ...renderLabelWithIcons(
+            this._labelService.getUriLabel(
+              vm.model.resultTextModel.uri,
+              { relative: true }
+            )
+          )
+        );
+      })
+    );
+    const remainingConflictsActionBar = this._register(
+      new ActionBar(this.htmlElements.detail)
+    );
+    this._register(
+      autorun((reader) => {
+        const vm = this.viewModel.read(reader);
+        if (!vm) {
+          return;
+        }
+        const model = vm.model;
+        if (!model) {
+          return;
+        }
+        const count = model.unhandledConflictsCount.read(reader);
+        const text = count === 1 ? localize(
+          "mergeEditor.remainingConflicts",
+          "{0} Conflict Remaining",
+          count
+        ) : localize(
+          "mergeEditor.remainingConflict",
+          "{0} Conflicts Remaining ",
+          count
+        );
+        remainingConflictsActionBar.clear();
+        remainingConflictsActionBar.push({
+          class: void 0,
+          enabled: count > 0,
+          id: "nextConflict",
+          label: text,
+          run() {
+            vm.model.telemetry.reportConflictCounterClicked();
+            vm.goToNextModifiedBaseRange(
+              (m) => !model.isHandled(m).get()
+            );
+          },
+          tooltip: count > 0 ? localize(
+            "goToNextConflict",
+            "Go to next conflict"
+          ) : localize(
+            "allConflictHandled",
+            "All conflicts handled, the merge can be completed now."
+          )
+        });
+      })
+    );
+    this._register(
+      applyObservableDecorations(this.editor, this.decorations)
+    );
     this._register(
       createSelectionsAutorun(
         this,

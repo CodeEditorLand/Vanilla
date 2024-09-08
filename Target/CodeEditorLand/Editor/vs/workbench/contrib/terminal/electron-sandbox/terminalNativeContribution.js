@@ -26,10 +26,15 @@ let TerminalNativeContribution = class extends Disposable {
     super();
     this._fileService = _fileService;
     this._terminalService = _terminalService;
-    ipcRenderer.on("vscode:openFiles", (_, request) => {
-      this._onOpenFileRequest(request);
-    });
-    this._register(nativeHostService.onDidResumeOS(() => this._onOsResume()));
+    ipcRenderer.on(
+      "vscode:openFiles",
+      (_, request) => {
+        this._onOpenFileRequest(request);
+      }
+    );
+    this._register(
+      nativeHostService.onDidResumeOS(() => this._onOsResume())
+    );
     this._terminalService.setNativeDelegate({
       getWindowCount: () => nativeHostService.getWindowCount()
     });

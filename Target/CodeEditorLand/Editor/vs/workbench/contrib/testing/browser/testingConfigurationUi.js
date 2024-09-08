@@ -9,8 +9,8 @@ import {
 } from "../../../../platform/quickinput/common/quickInput.js";
 import { testConfigurationGroupNames } from "../common/constants.js";
 import {
-  ITestProfileService,
-  canUseProfileWithTest
+  canUseProfileWithTest,
+  ITestProfileService
 } from "../common/testProfileService.js";
 import { testingUpdateProfiles } from "./icons.js";
 function buildPicker(accessor, {

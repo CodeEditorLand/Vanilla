@@ -33,7 +33,9 @@ import { killTerminalIcon, renameTerminalIcon } from "./terminalIcons.js";
 let terminalPicks = [];
 let TerminalQuickAccessProvider = class extends PickerQuickAccessProvider {
   constructor(_editorService, _terminalService, _terminalEditorService, _terminalGroupService, _commandService, _themeService, _instantiationService) {
-    super(TerminalQuickAccessProvider.PREFIX, { canAcceptInBackground: true });
+    super(TerminalQuickAccessProvider.PREFIX, {
+      canAcceptInBackground: true
+    });
     this._editorService = _editorService;
     this._terminalService = _terminalService;
     this._terminalEditorService = _terminalEditorService;

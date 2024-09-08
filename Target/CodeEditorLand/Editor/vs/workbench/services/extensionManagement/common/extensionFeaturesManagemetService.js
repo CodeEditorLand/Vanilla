@@ -39,9 +39,17 @@ let ExtensionFeaturesManagementService = class extends Disposable {
     this.storageService = storageService;
     this.dialogService = dialogService;
     this.extensionService = extensionService;
-    this.registry = Registry.as(Extensions.ExtensionFeaturesRegistry);
+    this.registry = Registry.as(
+      Extensions.ExtensionFeaturesRegistry
+    );
     this.extensionFeaturesState = this.loadState();
-    this._register(storageService.onDidChangeValue(StorageScope.PROFILE, FEATURES_STATE_KEY, this._store)((e) => this.onDidStorageChange(e)));
+    this._register(
+      storageService.onDidChangeValue(
+        StorageScope.PROFILE,
+        FEATURES_STATE_KEY,
+        this._store
+      )((e) => this.onDidStorageChange(e))
+    );
   }
   _onDidChangeEnablement = this._register(
     new Emitter()

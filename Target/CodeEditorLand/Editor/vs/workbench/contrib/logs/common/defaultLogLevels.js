@@ -25,10 +25,10 @@ import {
 } from "../../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import {
-  ILogService,
-  ILoggerService,
-  LogLevelToString,
   getLogLevel,
+  ILoggerService,
+  ILogService,
+  LogLevelToString,
   parseLogLevel
 } from "../../../../platform/log/common/log.js";
 import { IJSONEditingService } from "../../../services/configuration/common/jsonEditing.js";

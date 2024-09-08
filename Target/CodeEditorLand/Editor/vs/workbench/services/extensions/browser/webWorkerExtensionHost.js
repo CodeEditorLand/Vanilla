@@ -30,8 +30,8 @@ import { getNLSLanguage, getNLSMessages } from "../../../../nls.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
 import {
-  ILogService,
-  ILoggerService
+  ILoggerService,
+  ILogService
 } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import {
@@ -48,11 +48,11 @@ import {
 } from "../../../../platform/workspace/common/workspace.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
 import {
-  ExtensionHostExitCode,
-  MessageType,
-  UIKind,
   createMessageOfType,
-  isMessageOfType
+  ExtensionHostExitCode,
+  isMessageOfType,
+  MessageType,
+  UIKind
 } from "../common/extensionHostProtocol.js";
 import {
   ExtensionHostStartup
@@ -76,7 +76,10 @@ let WebWorkerExtensionHost = class extends Disposable {
     this._isTerminating = false;
     this._protocolPromise = null;
     this._protocol = null;
-    this._extensionHostLogsLocation = joinPath(this._environmentService.extHostLogsPath, "webWorker");
+    this._extensionHostLogsLocation = joinPath(
+      this._environmentService.extHostLogsPath,
+      "webWorker"
+    );
   }
   pid = null;
   remoteAuthority = null;

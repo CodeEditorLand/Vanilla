@@ -53,8 +53,8 @@ import { IContextKeyService } from "../../../../platform/contextkey/common/conte
 import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import {
-  IInstantiationService,
-  createDecorator
+  createDecorator,
+  IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
@@ -74,9 +74,9 @@ import {
 } from "../../codeEditor/browser/simpleEditorOptions.js";
 import {
   BREAKPOINT_EDITOR_CONTRIBUTION_ID,
+  BreakpointWidgetContext as Context,
   CONTEXT_BREAKPOINT_WIDGET_VISIBLE,
   CONTEXT_IN_BREAKPOINT_WIDGET,
-  BreakpointWidgetContext as Context,
   DEBUG_SCHEME,
   IDebugService
 } from "../common/debug.js";
@@ -113,7 +113,12 @@ function createDecorations(theme, placeHolder) {
 }
 let BreakpointWidget = class extends ZoneWidget {
   constructor(editor, lineNumber, column, context, contextViewService, debugService, themeService, contextKeyService, instantiationService, modelService, codeEditorService, _configurationService, languageFeaturesService, keybindingService, labelService, textModelService, hoverService) {
-    super(editor, { showFrame: true, showArrow: false, frameWidth: 1, isAccessible: true });
+    super(editor, {
+      showFrame: true,
+      showArrow: false,
+      frameWidth: 1,
+      isAccessible: true
+    });
     this.lineNumber = lineNumber;
     this.column = column;
     this.contextViewService = contextViewService;
@@ -133,7 +138,11 @@ let BreakpointWidget = class extends ZoneWidget {
     const model = this.editor.getModel();
     if (model) {
       const uri2 = model.uri;
-      const breakpoints = this.debugService.getModel().getBreakpoints({ lineNumber: this.lineNumber, column: this.column, uri: uri2 });
+      const breakpoints = this.debugService.getModel().getBreakpoints({
+        lineNumber: this.lineNumber,
+        column: this.column,
+        uri: uri2
+      });
       this.breakpoint = breakpoints.length ? breakpoints[0] : void 0;
     }
     if (context === void 0) {
@@ -149,12 +158,18 @@ let BreakpointWidget = class extends ZoneWidget {
     } else {
       this.context = context;
     }
-    this.toDispose.push(this.debugService.getModel().onDidChangeBreakpoints((e) => {
-      if (this.breakpoint && e && e.removed && e.removed.indexOf(this.breakpoint) >= 0) {
-        this.dispose();
-      }
-    }));
-    this.codeEditorService.registerDecorationType("breakpoint-widget", DECORATION_KEY, {});
+    this.toDispose.push(
+      this.debugService.getModel().onDidChangeBreakpoints((e) => {
+        if (this.breakpoint && e && e.removed && e.removed.indexOf(this.breakpoint) >= 0) {
+          this.dispose();
+        }
+      })
+    );
+    this.codeEditorService.registerDecorationType(
+      "breakpoint-widget",
+      DECORATION_KEY,
+      {}
+    );
     this.create();
   }
   selectContainer;

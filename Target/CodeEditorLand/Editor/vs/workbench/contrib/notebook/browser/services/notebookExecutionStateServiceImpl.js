@@ -11,8 +11,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../../../base/common/event.js";
 import {
-  Disposable,
-  combinedDisposable
+  combinedDisposable,
+  Disposable
 } from "../../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../../base/common/map.js";
 import { isEqual } from "../../../../../base/common/resources.js";
@@ -385,8 +385,16 @@ let NotebookExecutionListeners = class extends Disposable {
       throw new Error("Notebook not found: " + notebook);
     }
     this._notebookModel = notebookModel;
-    this._register(this._notebookModel.onWillAddRemoveCells((e) => this.onWillAddRemoveCells(e)));
-    this._register(this._notebookModel.onWillDispose(() => this.onWillDisposeDocument()));
+    this._register(
+      this._notebookModel.onWillAddRemoveCells(
+        (e) => this.onWillAddRemoveCells(e)
+      )
+    );
+    this._register(
+      this._notebookModel.onWillDispose(
+        () => this.onWillDisposeDocument()
+      )
+    );
   }
   _notebookModel;
   cancelAll() {

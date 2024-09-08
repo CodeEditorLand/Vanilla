@@ -59,14 +59,14 @@ import { ITelemetryService } from "../../../../platform/telemetry/common/telemet
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 import { UserDataSyncStoreTypeSynchronizer } from "../../../../platform/userDataSync/common/globalStateSync.js";
 import {
+  isAuthenticationProvider,
   IUserDataAutoSyncService,
   IUserDataSyncEnablementService,
   IUserDataSyncService,
   IUserDataSyncStoreManagementService,
   SyncStatus,
   USER_DATA_SYNC_LOG_ID,
-  USER_DATA_SYNC_SCHEME,
-  isAuthenticationProvider
+  USER_DATA_SYNC_SCHEME
 } from "../../../../platform/userDataSync/common/userDataSync.js";
 import { IUserDataSyncAccountService } from "../../../../platform/userDataSync/common/userDataSyncAccount.js";
 import { IUserDataSyncMachinesService } from "../../../../platform/userDataSync/common/userDataSyncMachines.js";
@@ -157,9 +157,19 @@ let UserDataSyncWorkbenchService = class extends Disposable {
     this.enableConflictsViewContext = CONTEXT_ENABLE_SYNC_CONFLICTS_VIEW.bindTo(contextKeyService);
     if (this.userDataSyncStoreManagementService.userDataSyncStore) {
       this.syncStatusContext.set(this.userDataSyncService.status);
-      this._register(userDataSyncService.onDidChangeStatus((status) => this.syncStatusContext.set(status)));
-      this.syncEnablementContext.set(userDataSyncEnablementService.isEnabled());
-      this._register(userDataSyncEnablementService.onDidChangeEnablement((enabled) => this.syncEnablementContext.set(enabled)));
+      this._register(
+        userDataSyncService.onDidChangeStatus(
+          (status) => this.syncStatusContext.set(status)
+        )
+      );
+      this.syncEnablementContext.set(
+        userDataSyncEnablementService.isEnabled()
+      );
+      this._register(
+        userDataSyncEnablementService.onDidChangeEnablement(
+          (enabled) => this.syncEnablementContext.set(enabled)
+        )
+      );
       this.waitAndInitialize();
     }
   }

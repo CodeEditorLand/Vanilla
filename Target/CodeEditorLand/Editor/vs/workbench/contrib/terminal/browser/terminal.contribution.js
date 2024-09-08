@@ -21,8 +21,8 @@ import {
   registerSingleton
 } from "../../../../platform/instantiation/common/extensions.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import {
   Extensions as QuickAccessExtensions
@@ -41,8 +41,8 @@ import {
 import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
 import { getQuickNavigateHandler } from "../../../browser/quickaccess.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   EditorExtensions
@@ -51,6 +51,7 @@ import {
   Extensions as ViewContainerExtensions,
   ViewContainerLocation
 } from "../../../common/views.js";
+import { TerminalSuggestSettingId } from "../../terminalContrib/suggest/common/terminalSuggestConfiguration.js";
 import {
   ITerminalProfileService,
   TERMINAL_VIEW_ID,
@@ -59,8 +60,8 @@ import {
 import { registerColors } from "../common/terminalColorRegistry.js";
 import { registerTerminalConfiguration } from "../common/terminalConfiguration.js";
 import {
-  TerminalContextKeyStrings,
-  TerminalContextKeys
+  TerminalContextKeys,
+  TerminalContextKeyStrings
 } from "../common/terminalContextKey.js";
 import { terminalStrings } from "../common/terminalStrings.js";
 import { RemoteTerminalBackendContribution } from "./remoteTerminalBackend.js";
@@ -93,7 +94,6 @@ import { TerminalQuickAccessProvider } from "./terminalQuickAccess.js";
 import { TerminalService } from "./terminalService.js";
 import { TerminalViewPane } from "./terminalView.js";
 import { TerminalWslRecommendationContribution } from "./terminalWslRecommendationContribution.js";
-import { TerminalSuggestSettingId } from "../../terminalContrib/suggest/common/terminalSuggestConfiguration.js";
 registerSingleton(
   ITerminalLogService,
   TerminalLogService,

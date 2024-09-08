@@ -15,8 +15,8 @@ import { CountBadge } from "../../../../base/browser/ui/countBadge/countBadge.js
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { ActionRunner } from "../../../../base/common/actions.js";
 import {
-  DisposableStore,
-  combinedDisposable
+  combinedDisposable,
+  DisposableStore
 } from "../../../../base/common/lifecycle.js";
 import { autorun } from "../../../../base/common/observable.js";
 import { WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
@@ -36,10 +36,10 @@ import {
   ISCMViewService
 } from "../common/scm.js";
 import {
-  StatusBarAction,
   connectPrimaryMenu,
   getRepositoryResourceCount,
-  isSCMRepository
+  isSCMRepository,
+  StatusBarAction
 } from "./util.js";
 class RepositoryActionRunner extends ActionRunner {
   constructor(getSelectedRepositories) {

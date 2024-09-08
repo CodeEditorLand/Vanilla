@@ -109,10 +109,10 @@ import {
   CONTEXT_IN_DEBUG_REPL,
   CONTEXT_MULTI_SESSION_REPL,
   DEBUG_SCHEME,
+  getStateLabel,
   IDebugService,
   REPL_VIEW_ID,
-  State,
-  getStateLabel
+  State
 } from "../common/debug.js";
 import { Variable } from "../common/debugModel.js";
 import { ReplEvaluationResult, ReplGroup } from "../common/replModel.js";
@@ -146,15 +146,45 @@ const sessionsToIgnore = /* @__PURE__ */ new Set();
 const identityProvider = { getId: (element) => element.getId() };
 let Repl = class extends FilterViewPane {
   constructor(options, debugService, instantiationService, storageService, themeService, modelService, contextKeyService, codeEditorService, viewDescriptorService, contextMenuService, configurationService, textResourcePropertiesService, editorService, keybindingService, openerService, telemetryService, hoverService, menuService, languageFeaturesService, logService) {
-    const filterText = storageService.get(FILTER_VALUE_STORAGE_KEY, StorageScope.WORKSPACE, "");
-    super({
-      ...options,
-      filterOptions: {
-        placeholder: localize({ key: "workbench.debug.filter.placeholder", comment: ["Text in the brackets after e.g. is not localizable"] }, "Filter (e.g. text, !exclude, \\escape)"),
-        text: filterText,
-        history: JSON.parse(storageService.get(FILTER_HISTORY_STORAGE_KEY, StorageScope.WORKSPACE, "[]"))
-      }
-    }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    const filterText = storageService.get(
+      FILTER_VALUE_STORAGE_KEY,
+      StorageScope.WORKSPACE,
+      ""
+    );
+    super(
+      {
+        ...options,
+        filterOptions: {
+          placeholder: localize(
+            {
+              key: "workbench.debug.filter.placeholder",
+              comment: [
+                "Text in the brackets after e.g. is not localizable"
+              ]
+            },
+            "Filter (e.g. text, !exclude, \\escape)"
+          ),
+          text: filterText,
+          history: JSON.parse(
+            storageService.get(
+              FILTER_HISTORY_STORAGE_KEY,
+              StorageScope.WORKSPACE,
+              "[]"
+            )
+          )
+        }
+      },
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.debugService = debugService;
     this.storageService = storageService;
     this.modelService = modelService;
@@ -164,15 +194,39 @@ let Repl = class extends FilterViewPane {
     this.keybindingService = keybindingService;
     this.languageFeaturesService = languageFeaturesService;
     this.logService = logService;
-    this.menu = menuService.createMenu(MenuId.DebugConsoleContext, contextKeyService);
+    this.menu = menuService.createMenu(
+      MenuId.DebugConsoleContext,
+      contextKeyService
+    );
     this._register(this.menu);
-    this.history = new HistoryNavigator(JSON.parse(this.storageService.get(HISTORY_STORAGE_KEY, StorageScope.WORKSPACE, "[]")), 100);
+    this.history = new HistoryNavigator(
+      JSON.parse(
+        this.storageService.get(
+          HISTORY_STORAGE_KEY,
+          StorageScope.WORKSPACE,
+          "[]"
+        )
+      ),
+      100
+    );
     this.filter = new ReplFilter();
     this.filter.filterQuery = filterText;
     this.multiSessionRepl = CONTEXT_MULTI_SESSION_REPL.bindTo(contextKeyService);
-    this.replOptions = this._register(this.instantiationService.createInstance(ReplOptions, this.id, () => this.getLocationBasedColors().background));
-    this._register(this.replOptions.onDidChange(() => this.onDidStyleChange()));
-    codeEditorService.registerDecorationType("repl-decoration", DECORATION_KEY, {});
+    this.replOptions = this._register(
+      this.instantiationService.createInstance(
+        ReplOptions,
+        this.id,
+        () => this.getLocationBasedColors().background
+      )
+    );
+    this._register(
+      this.replOptions.onDidChange(() => this.onDidStyleChange())
+    );
+    codeEditorService.registerDecorationType(
+      "repl-decoration",
+      DECORATION_KEY,
+      {}
+    );
     this.multiSessionRepl.set(this.isMultiSessionView);
     this.registerListeners();
   }
@@ -1075,17 +1129,23 @@ let ReplOptions = class extends Disposable {
     this.configurationService = configurationService;
     this.themeService = themeService;
     this.viewDescriptorService = viewDescriptorService;
-    this._register(this.themeService.onDidColorThemeChange((e) => this.update()));
-    this._register(this.viewDescriptorService.onDidChangeLocation((e) => {
-      if (e.views.some((v) => v.id === viewId)) {
-        this.update();
-      }
-    }));
-    this._register(this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("debug.console.lineHeight") || e.affectsConfiguration("debug.console.fontSize") || e.affectsConfiguration("debug.console.fontFamily")) {
-        this.update();
-      }
-    }));
+    this._register(
+      this.themeService.onDidColorThemeChange((e) => this.update())
+    );
+    this._register(
+      this.viewDescriptorService.onDidChangeLocation((e) => {
+        if (e.views.some((v) => v.id === viewId)) {
+          this.update();
+        }
+      })
+    );
+    this._register(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("debug.console.lineHeight") || e.affectsConfiguration("debug.console.fontSize") || e.affectsConfiguration("debug.console.fontFamily")) {
+          this.update();
+        }
+      })
+    );
     this.update();
   }
   static lineHeightEm = 1.4;

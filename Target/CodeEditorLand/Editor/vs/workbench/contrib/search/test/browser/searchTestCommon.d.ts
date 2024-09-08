@@ -1,0 +1,12 @@
+import type { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import type { IModelService } from "../../../../../editor/common/services/model.js";
+import type { TestInstantiationService } from "../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
+import type { IFileMatch } from "../../../../services/search/common/search.js";
+import type { INotebookEditorService } from "../../../notebook/browser/services/notebookEditorService.js";
+import type { SearchResult } from "../../browser/searchModel.js";
+export declare function createFileUriFromPathFromRoot(path?: string): URI;
+export declare function getRootName(): string;
+export declare function stubModelService(instantiationService: TestInstantiationService, addDisposable: (e: IDisposable) => void): IModelService;
+export declare function stubNotebookEditorService(instantiationService: TestInstantiationService, addDisposable: (e: IDisposable) => void): INotebookEditorService;
+export declare function addToSearchResult(searchResult: SearchResult, allRaw: IFileMatch[], searchInstanceID?: string): void;

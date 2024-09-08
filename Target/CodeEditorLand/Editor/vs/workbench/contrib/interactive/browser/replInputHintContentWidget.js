@@ -32,22 +32,38 @@ let ReplInputHintContentWidget = class extends Disposable {
     this.editor = editor;
     this.configurationService = configurationService;
     this.keybindingService = keybindingService;
-    this._register(this.editor.onDidChangeConfiguration((e) => {
-      if (this.domNode && e.hasChanged(EditorOption.fontInfo)) {
-        this.editor.applyFontInfo(this.domNode);
-      }
-    }));
-    const onDidFocusEditorText = Event.debounce(this.editor.onDidFocusEditorText, () => void 0, 500);
-    this._register(onDidFocusEditorText(() => {
-      if (this.editor.hasTextFocus() && this.ariaLabel && configurationService.getValue(AccessibilityVerbositySettingId.ReplInputHint)) {
-        status(this.ariaLabel);
-      }
-    }));
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(InteractiveWindowSetting.executeWithShiftEnter)) {
-        this.setHint();
-      }
-    }));
+    this._register(
+      this.editor.onDidChangeConfiguration(
+        (e) => {
+          if (this.domNode && e.hasChanged(EditorOption.fontInfo)) {
+            this.editor.applyFontInfo(this.domNode);
+          }
+        }
+      )
+    );
+    const onDidFocusEditorText = Event.debounce(
+      this.editor.onDidFocusEditorText,
+      () => void 0,
+      500
+    );
+    this._register(
+      onDidFocusEditorText(() => {
+        if (this.editor.hasTextFocus() && this.ariaLabel && configurationService.getValue(
+          AccessibilityVerbositySettingId.ReplInputHint
+        )) {
+          status(this.ariaLabel);
+        }
+      })
+    );
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          InteractiveWindowSetting.executeWithShiftEnter
+        )) {
+          this.setHint();
+        }
+      })
+    );
     this.editor.addContentWidget(this);
   }
   static ID = "replInput.widget.emptyHint";

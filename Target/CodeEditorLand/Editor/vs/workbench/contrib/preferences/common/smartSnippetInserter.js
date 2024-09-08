@@ -1,6 +1,6 @@
 import {
-  SyntaxKind as JSONSyntaxKind,
-  createScanner as createJSONScanner
+  createScanner as createJSONScanner,
+  SyntaxKind as JSONSyntaxKind
 } from "../../../../base/common/json.js";
 import { Position } from "../../../../editor/common/core/position.js";
 import { Range } from "../../../../editor/common/core/range.js";

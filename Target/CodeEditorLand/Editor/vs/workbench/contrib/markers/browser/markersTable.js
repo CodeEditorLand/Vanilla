@@ -28,16 +28,16 @@ import { ILabelService } from "../../../../platform/label/common/label.js";
 import {
   WorkbenchTable
 } from "../../../../platform/list/browser/listService.js";
-import { unsupportedSchemas } from "../../../../platform/markers/common/markerService.js";
 import { MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { unsupportedSchemas } from "../../../../platform/markers/common/markerService.js";
 import { Link } from "../../../../platform/opener/browser/link.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { SeverityIcon } from "../../../../platform/severityIcon/browser/severityIcon.js";
 import { FilterOptions } from "./markersFilterOptions.js";
 import {
+  compareMarkersByUri,
   Marker,
-  MarkerTableItem,
-  compareMarkersByUri
+  MarkerTableItem
 } from "./markersModel.js";
 import {
   QuickFixAction,
@@ -338,27 +338,59 @@ let MarkersTable = class extends Disposable {
         }
       ],
       [
-        this.instantiationService.createInstance(MarkerSeverityColumnRenderer, this.markersViewModel),
-        this.instantiationService.createInstance(MarkerCodeColumnRenderer),
-        this.instantiationService.createInstance(MarkerMessageColumnRenderer),
-        this.instantiationService.createInstance(MarkerFileColumnRenderer),
-        this.instantiationService.createInstance(MarkerOwnerColumnRenderer)
+        this.instantiationService.createInstance(
+          MarkerSeverityColumnRenderer,
+          this.markersViewModel
+        ),
+        this.instantiationService.createInstance(
+          MarkerCodeColumnRenderer
+        ),
+        this.instantiationService.createInstance(
+          MarkerMessageColumnRenderer
+        ),
+        this.instantiationService.createInstance(
+          MarkerFileColumnRenderer
+        ),
+        this.instantiationService.createInstance(
+          MarkerOwnerColumnRenderer
+        )
       ],
       options
     );
-    const list = this.table.domNode.querySelector(".monaco-list-rows");
+    const list = this.table.domNode.querySelector(
+      ".monaco-list-rows"
+    );
     const onRowHover = Event.chain(
       this._register(new DomEmitter(list, "mouseover")).event,
-      ($2) => $2.map((e) => DOM.findParentWithClass(e.target, "monaco-list-row", "monaco-list-rows")).filter((e) => !!e).map((e) => Number.parseInt(e.getAttribute("data-index")))
+      ($2) => $2.map(
+        (e) => DOM.findParentWithClass(
+          e.target,
+          "monaco-list-row",
+          "monaco-list-rows"
+        )
+      ).filter(
+        (e) => !!e
+      ).map((e) => Number.parseInt(e.getAttribute("data-index")))
     );
-    const onListLeave = Event.map(this._register(new DomEmitter(list, "mouseleave")).event, () => -1);
-    const onRowHoverOrLeave = Event.latch(Event.any(onRowHover, onListLeave));
-    const onRowPermanentHover = Event.debounce(onRowHoverOrLeave, (_, e) => e, 500);
-    this._register(onRowPermanentHover((e) => {
-      if (e !== -1 && this.table.row(e)) {
-        this.markersViewModel.onMarkerMouseHover(this.table.row(e));
-      }
-    }));
+    const onListLeave = Event.map(
+      this._register(new DomEmitter(list, "mouseleave")).event,
+      () => -1
+    );
+    const onRowHoverOrLeave = Event.latch(
+      Event.any(onRowHover, onListLeave)
+    );
+    const onRowPermanentHover = Event.debounce(
+      onRowHoverOrLeave,
+      (_, e) => e,
+      500
+    );
+    this._register(
+      onRowPermanentHover((e) => {
+        if (e !== -1 && this.table.row(e)) {
+          this.markersViewModel.onMarkerMouseHover(this.table.row(e));
+        }
+      })
+    );
   }
   _itemCount = 0;
   table;

@@ -31,13 +31,18 @@ let TextAreaSyncAddon = class extends Disposable {
     this._accessibilityService = _accessibilityService;
     this._configurationService = _configurationService;
     this._logService = _logService;
-    this._register(Event.runAndSubscribe(Event.any(
-      this._capabilities.onDidAddCapability,
-      this._capabilities.onDidRemoveCapability,
-      this._accessibilityService.onDidChangeScreenReaderOptimized
-    ), () => {
-      this._refreshListeners();
-    }));
+    this._register(
+      Event.runAndSubscribe(
+        Event.any(
+          this._capabilities.onDidAddCapability,
+          this._capabilities.onDidRemoveCapability,
+          this._accessibilityService.onDidChangeScreenReaderOptimized
+        ),
+        () => {
+          this._refreshListeners();
+        }
+      )
+    );
   }
   _terminal;
   _listeners = this._register(new MutableDisposable());

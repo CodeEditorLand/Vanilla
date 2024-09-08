@@ -15,7 +15,7 @@ import {
   Disposable,
   MutableDisposable
 } from "../../../../base/common/lifecycle.js";
-import { OperatingSystem, isWeb } from "../../../../base/common/platform.js";
+import { isWeb, OperatingSystem } from "../../../../base/common/platform.js";
 import Severity from "../../../../base/common/severity.js";
 import * as nls from "../../../../nls.js";
 import {
@@ -67,12 +67,12 @@ import {
 } from "../../../services/remote/common/remoteExplorerService.js";
 import {
   AutoTunnelSource,
-  OnPortForward,
-  TunnelCloseReason,
-  TunnelSource,
   forwardedPortsViewEnabled,
   makeAddress,
-  mapHasAddressLocalhostOrAllInterfaces
+  mapHasAddressLocalhostOrAllInterfaces,
+  OnPortForward,
+  TunnelCloseReason,
+  TunnelSource
 } from "../../../services/remote/common/tunnelModel.js";
 import {
   IStatusbarService,
@@ -86,10 +86,10 @@ import {
   ForwardPortAction,
   OpenPortInBrowserAction,
   OpenPortInPreviewAction,
+  openPreviewEnabledContext,
   TunnelPanel,
   TunnelPanelDescriptor,
-  TunnelViewModel,
-  openPreviewEnabledContext
+  TunnelViewModel
 } from "./tunnelView.js";
 import { UrlFinder } from "./urlFinder.js";
 const VIEWLET_ID = "workbench.view.remote";
@@ -102,9 +102,21 @@ let ForwardedPortsView = class extends Disposable {
     this.tunnelService = tunnelService;
     this.activityService = activityService;
     this.statusbarService = statusbarService;
-    this._register(Registry.as(Extensions.ViewsRegistry).registerViewWelcomeContent(TUNNEL_VIEW_ID, {
-      content: this.environmentService.remoteAuthority ? nls.localize("remoteNoPorts", "No forwarded ports. Forward a port to access your running services locally.\n[Forward a Port]({0})", `command:${ForwardPortAction.INLINE_ID}`) : nls.localize("noRemoteNoPorts", "No forwarded ports. Forward a port to access your locally running services over the internet.\n[Forward a Port]({0})", `command:${ForwardPortAction.INLINE_ID}`)
-    }));
+    this._register(
+      Registry.as(
+        Extensions.ViewsRegistry
+      ).registerViewWelcomeContent(TUNNEL_VIEW_ID, {
+        content: this.environmentService.remoteAuthority ? nls.localize(
+          "remoteNoPorts",
+          "No forwarded ports. Forward a port to access your running services locally.\n[Forward a Port]({0})",
+          `command:${ForwardPortAction.INLINE_ID}`
+        ) : nls.localize(
+          "noRemoteNoPorts",
+          "No forwarded ports. Forward a port to access your locally running services over the internet.\n[Forward a Port]({0})",
+          `command:${ForwardPortAction.INLINE_ID}`
+        )
+      })
+    );
     this.enableBadgeAndStatusBar();
     this.enableForwardedPortsView();
   }
@@ -283,7 +295,9 @@ let PortRestore = class {
     if (this.remoteExplorerService.tunnelModel.environmentTunnelsSet) {
       this.restore();
     } else {
-      Event.once(this.remoteExplorerService.tunnelModel.onEnvironmentTunnelsSet)(async () => {
+      Event.once(
+        this.remoteExplorerService.tunnelModel.onEnvironmentTunnelsSet
+      )(async () => {
         await this.restore();
       });
     }
@@ -318,16 +332,28 @@ let AutomaticPortForwarding = class extends Disposable {
     }
     configurationService.whenRemoteConfigurationLoaded().then(() => remoteAgentService.getEnvironment()).then((environment) => {
       this.setup(environment);
-      this._register(configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(PORT_AUTO_SOURCE_SETTING)) {
-          this.setup(environment);
-        } else if (e.affectsConfiguration(PORT_AUTO_FALLBACK_SETTING) && !this.portListener) {
-          this.listenForPorts();
-        }
-      }));
+      this._register(
+        configurationService.onDidChangeConfiguration((e) => {
+          if (e.affectsConfiguration(PORT_AUTO_SOURCE_SETTING)) {
+            this.setup(environment);
+          } else if (e.affectsConfiguration(
+            PORT_AUTO_FALLBACK_SETTING
+          ) && !this.portListener) {
+            this.listenForPorts();
+          }
+        })
+      );
     });
-    if (!this.storageService.getBoolean("processPortForwardingFallback", StorageScope.WORKSPACE, true)) {
-      this.configurationService.updateValue(PORT_AUTO_FALLBACK_SETTING, 0, ConfigurationTarget.WORKSPACE);
+    if (!this.storageService.getBoolean(
+      "processPortForwardingFallback",
+      StorageScope.WORKSPACE,
+      true
+    )) {
+      this.configurationService.updateValue(
+        PORT_AUTO_FALLBACK_SETTING,
+        0,
+        ConfigurationTarget.WORKSPACE
+      );
     }
   }
   procForwarder;

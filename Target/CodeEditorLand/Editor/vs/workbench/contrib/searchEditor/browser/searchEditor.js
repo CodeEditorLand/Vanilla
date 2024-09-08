@@ -96,7 +96,18 @@ const RESULT_LINE_REGEX = /^(\s+)(\d+)(: | {2})(\s*)(.*)$/;
 const FILE_LINE_REGEX = /^(\S.*):$/;
 let SearchEditor = class extends AbstractTextCodeEditor {
   constructor(group, telemetryService, themeService, storageService, modelService, contextService, labelService, instantiationService, contextViewService, commandService, openerService, notificationService, progressService, textResourceService, editorGroupService, editorService, configurationService, fileService, logService, hoverService) {
-    super(SearchEditor.ID, group, telemetryService, instantiationService, storageService, textResourceService, themeService, editorService, editorGroupService, fileService);
+    super(
+      SearchEditor.ID,
+      group,
+      telemetryService,
+      instantiationService,
+      storageService,
+      textResourceService,
+      themeService,
+      editorService,
+      editorGroupService,
+      fileService
+    );
     this.modelService = modelService;
     this.contextService = contextService;
     this.labelService = labelService;
@@ -108,10 +119,14 @@ let SearchEditor = class extends AbstractTextCodeEditor {
     this.logService = logService;
     this.hoverService = hoverService;
     this.container = DOM.$(".search-editor");
-    this.searchOperation = this._register(new LongRunningOperation(progressService));
+    this.searchOperation = this._register(
+      new LongRunningOperation(progressService)
+    );
     this._register(this.messageDisposables = new DisposableStore());
     this.searchHistoryDelayer = new Delayer(2e3);
-    this.searchModel = this._register(this.instantiationService.createInstance(SearchModel));
+    this.searchModel = this._register(
+      this.instantiationService.createInstance(SearchModel)
+    );
   }
   static ID = SearchEditorID;
   static SEARCH_EDITOR_VIEW_STATE_PREFERENCE_KEY = "searchEditorViewState";

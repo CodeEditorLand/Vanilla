@@ -1,0 +1,51 @@
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import type { OperatingSystem } from "../../../../base/common/platform.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { TerminalCapabilityStore } from "../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";
+import type { IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
+import type { ITerminalBackend } from "../../../../platform/terminal/common/terminal.js";
+import type { IEnvironmentVariableInfo } from "../common/environmentVariable.js";
+import { ProcessState, type ITerminalProcessInfo } from "../common/terminal.js";
+import type { IDetachedTerminalInstance, IDetachedXTermOptions, IDetachedXtermTerminal, ITerminalContribution, IXtermAttachToElementOptions } from "./terminal.js";
+import type { XtermTerminal } from "./xterm/xtermTerminal.js";
+export declare class DetachedTerminal extends Disposable implements IDetachedTerminalInstance {
+    private readonly _xterm;
+    private readonly _widgets;
+    readonly capabilities: TerminalCapabilityStore;
+    private readonly _contributions;
+    domElement?: HTMLElement;
+    get xterm(): IDetachedXtermTerminal;
+    constructor(_xterm: XtermTerminal, options: IDetachedXTermOptions, instantiationService: IInstantiationService);
+    get selection(): string | undefined;
+    hasSelection(): boolean;
+    clearSelection(): void;
+    focus(force?: boolean): void;
+    attachToElement(container: HTMLElement, options?: Partial<IXtermAttachToElementOptions> | undefined): void;
+    forceScrollbarVisibility(): void;
+    resetScrollbarVisibility(): void;
+    getContribution<T extends ITerminalContribution>(id: string): T | null;
+}
+/**
+ * Implements {@link ITerminalProcessInfo} for a detached terminal where most
+ * properties are stubbed. Properties are mutable and can be updated by
+ * the instantiator.
+ */
+export declare class DetachedProcessInfo implements ITerminalProcessInfo {
+    processState: ProcessState;
+    ptyProcessReady: Promise<void>;
+    shellProcessId: number | undefined;
+    remoteAuthority: string | undefined;
+    os: OperatingSystem | undefined;
+    userHome: string | undefined;
+    initialCwd: string;
+    environmentVariableInfo: IEnvironmentVariableInfo | undefined;
+    persistentProcessId: number | undefined;
+    shouldPersist: boolean;
+    hasWrittenData: boolean;
+    hasChildProcesses: boolean;
+    backend: ITerminalBackend | undefined;
+    capabilities: TerminalCapabilityStore;
+    shellIntegrationNonce: string;
+    extEnvironmentVariableCollection: IMergedEnvironmentVariableCollection | undefined;
+    constructor(initialValues: Partial<ITerminalProcessInfo>);
+}

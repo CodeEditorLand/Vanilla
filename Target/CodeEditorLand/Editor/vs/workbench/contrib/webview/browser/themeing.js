@@ -26,15 +26,26 @@ let WebviewThemeDataProvider = class extends Disposable {
     super();
     this._themeService = _themeService;
     this._configurationService = _configurationService;
-    this._register(this._themeService.onDidColorThemeChange(() => {
-      this._reset();
-    }));
-    const webviewConfigurationKeys = ["editor.fontFamily", "editor.fontWeight", "editor.fontSize", "accessibility.underlineLinks"];
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (webviewConfigurationKeys.some((key) => e.affectsConfiguration(key))) {
+    this._register(
+      this._themeService.onDidColorThemeChange(() => {
         this._reset();
-      }
-    }));
+      })
+    );
+    const webviewConfigurationKeys = [
+      "editor.fontFamily",
+      "editor.fontWeight",
+      "editor.fontSize",
+      "accessibility.underlineLinks"
+    ];
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (webviewConfigurationKeys.some(
+          (key) => e.affectsConfiguration(key)
+        )) {
+          this._reset();
+        }
+      })
+    );
   }
   _cachedWebViewThemeData = void 0;
   _onThemeDataChanged = this._register(new Emitter());

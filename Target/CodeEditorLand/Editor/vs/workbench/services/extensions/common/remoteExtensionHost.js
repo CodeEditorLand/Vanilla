@@ -17,8 +17,8 @@ import * as platform from "../../../../base/common/platform.js";
 import { IExtensionHostDebugService } from "../../../../platform/debug/common/extensionHostDebug.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import {
-  ILogService,
-  ILoggerService
+  ILoggerService,
+  ILogService
 } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import {
@@ -38,10 +38,10 @@ import {
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 import { parseExtensionDevOptions } from "./extensionDevOptions.js";
 import {
-  MessageType,
-  UIKind,
   createMessageOfType,
-  isMessageOfType
+  isMessageOfType,
+  MessageType,
+  UIKind
 } from "./extensionHostProtocol.js";
 import {
   ExtensionHostStartup

@@ -1,9 +1,9 @@
+import { getAllCodicons } from "../../../../base/common/codicons.js";
 import * as Objects from "../../../../base/common/objects.js";
 import * as nls from "../../../../nls.js";
-import commonSchema from "./jsonSchemaCommon.js";
-import { getAllCodicons } from "../../../../base/common/codicons.js";
 import { inputsSchema } from "../../../services/configurationResolver/common/configurationResolverSchema.js";
 import * as ConfigurationResolverUtils from "../../../services/configurationResolver/common/configurationResolverUtils.js";
+import commonSchema from "./jsonSchemaCommon.js";
 import { ProblemMatcherRegistry } from "./problemMatcher.js";
 import { TaskDefinitionRegistry } from "./taskDefinitionRegistry.js";
 function fixReferences(literal) {

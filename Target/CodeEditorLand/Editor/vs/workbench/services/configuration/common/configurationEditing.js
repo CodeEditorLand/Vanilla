@@ -23,8 +23,8 @@ import * as nls from "../../../../nls.js";
 import {
   Extensions as ConfigurationExtensions,
   ConfigurationScope,
-  OVERRIDE_PROPERTY_REGEX,
-  keyFromOverrideIdentifiers
+  keyFromOverrideIdentifiers,
+  OVERRIDE_PROPERTY_REGEX
 } from "../../../../platform/configuration/common/configurationRegistry.js";
 import {
   FileOperationResult,

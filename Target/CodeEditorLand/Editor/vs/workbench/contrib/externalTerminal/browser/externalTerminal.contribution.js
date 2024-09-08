@@ -39,8 +39,8 @@ import { IEditorService } from "../../../services/editor/common/editorService.js
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
 import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
 import {
-  IExplorerService,
-  getMultiSelectedResources
+  getMultiSelectedResources,
+  IExplorerService
 } from "../../files/browser/files.js";
 import {
   ITerminalService as IIntegratedTerminalService,
@@ -136,37 +136,66 @@ let ExternalTerminalContribution = class extends Disposable {
     this._configurationService = _configurationService;
     const shouldShowIntegratedOnLocal = ContextKeyExpr.and(
       ResourceContextKey.Scheme.isEqualTo(Schemas.file),
-      ContextKeyExpr.or(ContextKeyExpr.equals("config.terminal.explorerKind", "integrated"), ContextKeyExpr.equals("config.terminal.explorerKind", "both"))
+      ContextKeyExpr.or(
+        ContextKeyExpr.equals(
+          "config.terminal.explorerKind",
+          "integrated"
+        ),
+        ContextKeyExpr.equals("config.terminal.explorerKind", "both")
+      )
     );
     const shouldShowExternalKindOnLocal = ContextKeyExpr.and(
       ResourceContextKey.Scheme.isEqualTo(Schemas.file),
-      ContextKeyExpr.or(ContextKeyExpr.equals("config.terminal.explorerKind", "external"), ContextKeyExpr.equals("config.terminal.explorerKind", "both"))
+      ContextKeyExpr.or(
+        ContextKeyExpr.equals(
+          "config.terminal.explorerKind",
+          "external"
+        ),
+        ContextKeyExpr.equals("config.terminal.explorerKind", "both")
+      )
     );
     this._openInIntegratedTerminalMenuItem = {
       group: "navigation",
       order: 30,
       command: {
         id: OPEN_IN_INTEGRATED_TERMINAL_COMMAND_ID,
-        title: nls.localize("scopedConsoleAction.Integrated", "Open in Integrated Terminal")
+        title: nls.localize(
+          "scopedConsoleAction.Integrated",
+          "Open in Integrated Terminal"
+        )
       },
-      when: ContextKeyExpr.or(shouldShowIntegratedOnLocal, ResourceContextKey.Scheme.isEqualTo(Schemas.vscodeRemote))
+      when: ContextKeyExpr.or(
+        shouldShowIntegratedOnLocal,
+        ResourceContextKey.Scheme.isEqualTo(Schemas.vscodeRemote)
+      )
     };
     this._openInTerminalMenuItem = {
       group: "navigation",
       order: 31,
       command: {
         id: OPEN_IN_TERMINAL_COMMAND_ID,
-        title: nls.localize("scopedConsoleAction.external", "Open in External Terminal")
+        title: nls.localize(
+          "scopedConsoleAction.external",
+          "Open in External Terminal"
+        )
       },
       when: shouldShowExternalKindOnLocal
     };
-    MenuRegistry.appendMenuItem(MenuId.ExplorerContext, this._openInTerminalMenuItem);
-    MenuRegistry.appendMenuItem(MenuId.ExplorerContext, this._openInIntegratedTerminalMenuItem);
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("terminal.explorerKind") || e.affectsConfiguration("terminal.external")) {
-        this._refreshOpenInTerminalMenuItemTitle();
-      }
-    }));
+    MenuRegistry.appendMenuItem(
+      MenuId.ExplorerContext,
+      this._openInTerminalMenuItem
+    );
+    MenuRegistry.appendMenuItem(
+      MenuId.ExplorerContext,
+      this._openInIntegratedTerminalMenuItem
+    );
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("terminal.explorerKind") || e.affectsConfiguration("terminal.external")) {
+          this._refreshOpenInTerminalMenuItemTitle();
+        }
+      })
+    );
     this._refreshOpenInTerminalMenuItemTitle();
   }
   _openInIntegratedTerminalMenuItem;

@@ -16,8 +16,8 @@ import {
   registerSingleton
 } from "../../../../platform/instantiation/common/extensions.js";
 import {
-  ILogService,
-  ILoggerService
+  ILoggerService,
+  ILogService
 } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
@@ -32,10 +32,10 @@ import {
   TelemetryService as BaseTelemetryService
 } from "../../../../platform/telemetry/common/telemetryService.js";
 import {
-  NullTelemetryService,
   getTelemetryLevel,
   isInternalTelemetry,
   isLoggingOnly,
+  NullTelemetryService,
   supportsTelemetry
 } from "../../../../platform/telemetry/common/telemetryUtils.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";

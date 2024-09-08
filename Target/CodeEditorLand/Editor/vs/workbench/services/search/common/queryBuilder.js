@@ -35,15 +35,15 @@ import { ILogService } from "../../../../platform/log/common/log.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 import {
   IWorkspaceContextService,
-  WorkbenchState,
-  toWorkspaceFolder
+  toWorkspaceFolder,
+  WorkbenchState
 } from "../../../../platform/workspace/common/workspace.js";
 import { IEditorGroupsService } from "../../editor/common/editorGroupsService.js";
 import { IPathService } from "../../path/common/pathService.js";
 import {
-  QueryType,
   getExcludes,
-  pathIncludedInQuery
+  pathIncludedInQuery,
+  QueryType
 } from "./search.js";
 function isISearchPatternBuilder(object) {
   return typeof object === "object" && "uri" in object && "pattern" in object;

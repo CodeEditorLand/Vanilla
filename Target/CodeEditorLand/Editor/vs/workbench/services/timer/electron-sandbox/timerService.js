@@ -37,7 +37,17 @@ import {
 } from "../browser/timerService.js";
 let TimerService = class extends AbstractTimerService {
   constructor(_nativeHostService, _environmentService, lifecycleService, contextService, extensionService, updateService, paneCompositeService, editorService, accessibilityService, telemetryService, layoutService, _productService, _storageService) {
-    super(lifecycleService, contextService, extensionService, updateService, paneCompositeService, editorService, accessibilityService, telemetryService, layoutService);
+    super(
+      lifecycleService,
+      contextService,
+      extensionService,
+      updateService,
+      paneCompositeService,
+      editorService,
+      accessibilityService,
+      telemetryService,
+      layoutService
+    );
     this._nativeHostService = _nativeHostService;
     this._environmentService = _environmentService;
     this._productService = _productService;

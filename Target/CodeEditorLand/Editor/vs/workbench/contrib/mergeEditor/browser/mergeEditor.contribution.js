@@ -9,9 +9,9 @@ import {
   EditorPaneDescriptor
 } from "../../../browser/editor.js";
 import {
+  registerWorkbenchContribution2,
   Extensions as WorkbenchExtensions,
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   EditorExtensions

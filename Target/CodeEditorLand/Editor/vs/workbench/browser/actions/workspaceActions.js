@@ -13,9 +13,9 @@ import { IsMacNativeContext } from "../../../platform/contextkey/common/contextk
 import { IFileDialogService } from "../../../platform/dialogs/common/dialogs.js";
 import { KeybindingWeight } from "../../../platform/keybinding/common/keybindingsRegistry.js";
 import {
+  hasWorkspaceFileExtension,
   IWorkspaceContextService,
-  WorkbenchState,
-  hasWorkspaceFileExtension
+  WorkbenchState
 } from "../../../platform/workspace/common/workspace.js";
 import { IWorkspacesService } from "../../../platform/workspaces/common/workspaces.js";
 import {

@@ -35,7 +35,13 @@ let ExtensionIgnoredRecommendationsService = class extends Disposable {
     this.workspaceExtensionsConfigService = workspaceExtensionsConfigService;
     this.storageService = storageService;
     this._globalIgnoredRecommendations = this.getCachedIgnoredRecommendations();
-    this._register(this.storageService.onDidChangeValue(StorageScope.PROFILE, ignoredRecommendationsStorageKey, this._register(new DisposableStore()))((e) => this.onDidStorageChange()));
+    this._register(
+      this.storageService.onDidChangeValue(
+        StorageScope.PROFILE,
+        ignoredRecommendationsStorageKey,
+        this._register(new DisposableStore())
+      )((e) => this.onDidStorageChange())
+    );
     this.initIgnoredWorkspaceRecommendations();
   }
   _onDidChangeIgnoredRecommendations = this._register(

@@ -5,11 +5,11 @@ import { ResourceMap } from "../../../../base/common/map.js";
 import { basename, extUri } from "../../../../base/common/resources.js";
 import { splitLines } from "../../../../base/common/strings.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import { unsupportedSchemas } from "../../../../platform/markers/common/markerService.js";
 import {
   IMarkerData,
   MarkerSeverity
 } from "../../../../platform/markers/common/markers.js";
+import { unsupportedSchemas } from "../../../../platform/markers/common/markerService.js";
 function compareMarkersByUri(a, b) {
   return extUri.compare(a.resource, b.resource);
 }

@@ -17,7 +17,11 @@ let DelayedLogChannel = class {
   constructor(id, name, file, loggerService) {
     this.file = file;
     this.loggerService = loggerService;
-    this.logger = loggerService.createLogger(file, { name, id, hidden: true });
+    this.logger = loggerService.createLogger(file, {
+      name,
+      id,
+      hidden: true
+    });
   }
   logger;
   log(level, message) {

@@ -22,8 +22,8 @@ import { IConfigurationService } from "../../../../../../platform/configuration/
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../../../platform/log/common/log.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../../../common/contributions.js";
 import {
   IEditorGroupsService
@@ -101,7 +101,11 @@ let KernelStatus = class extends Disposable {
     this._statusbarService = _statusbarService;
     this._notebookKernelService = _notebookKernelService;
     this._instantiationService = _instantiationService;
-    this._register(this._editorService.onDidActiveEditorChange(() => this._updateStatusbar()));
+    this._register(
+      this._editorService.onDidActiveEditorChange(
+        () => this._updateStatusbar()
+      )
+    );
   }
   _editorDisposables = this._register(new DisposableStore());
   _kernelInfoElement = this._register(new DisposableStore());
@@ -230,7 +234,9 @@ let ActiveCellStatus = class extends Disposable {
     super();
     this._editorService = _editorService;
     this._statusbarService = _statusbarService;
-    this._register(this._editorService.onDidActiveEditorChange(() => this._update()));
+    this._register(
+      this._editorService.onDidActiveEditorChange(() => this._update())
+    );
   }
   _itemDisposables = this._register(new DisposableStore());
   _accessor = this._register(
@@ -321,12 +327,16 @@ let NotebookIndentationStatus = class extends Disposable {
     this._editorService = _editorService;
     this._statusbarService = _statusbarService;
     this._configurationService = _configurationService;
-    this._register(this._editorService.onDidActiveEditorChange(() => this._update()));
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("editor") || e.affectsConfiguration("notebook")) {
-        this._update();
-      }
-    }));
+    this._register(
+      this._editorService.onDidActiveEditorChange(() => this._update())
+    );
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("editor") || e.affectsConfiguration("notebook")) {
+          this._update();
+        }
+      })
+    );
   }
   _itemDisposables = this._register(new DisposableStore());
   _accessor = this._register(
@@ -405,7 +415,11 @@ let NotebookEditorStatusContribution = class extends Disposable {
     for (const part of editorGroupService.parts) {
       this.createNotebookStatus(part);
     }
-    this._register(editorGroupService.onDidCreateAuxiliaryEditorPart((part) => this.createNotebookStatus(part)));
+    this._register(
+      editorGroupService.onDidCreateAuxiliaryEditorPart(
+        (part) => this.createNotebookStatus(part)
+      )
+    );
   }
   static ID = "notebook.contrib.editorStatus";
   createNotebookStatus(part) {

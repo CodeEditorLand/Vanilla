@@ -33,7 +33,9 @@ let ShareService = class {
     this.quickInputService = quickInputService;
     this.codeEditorService = codeEditorService;
     this.telemetryService = telemetryService;
-    this.providerCount = ShareProviderCountContext.bindTo(this.contextKeyService);
+    this.providerCount = ShareProviderCountContext.bindTo(
+      this.contextKeyService
+    );
   }
   _serviceBrand;
   providerCount;

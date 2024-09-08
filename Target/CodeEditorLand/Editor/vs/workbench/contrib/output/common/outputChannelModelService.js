@@ -17,8 +17,8 @@ import {
   registerSingleton
 } from "../../../../platform/instantiation/common/extensions.js";
 import {
-  IInstantiationService,
-  createDecorator
+  createDecorator,
+  IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
 import {
@@ -30,7 +30,10 @@ let OutputChannelModelService = class {
   constructor(fileService, instantiationService, environmentService) {
     this.fileService = fileService;
     this.instantiationService = instantiationService;
-    this.outputLocation = joinPath(environmentService.windowLogsPath, `output_${toLocalISOString(/* @__PURE__ */ new Date()).replace(/-|:|\.\d+Z$/g, "")}`);
+    this.outputLocation = joinPath(
+      environmentService.windowLogsPath,
+      `output_${toLocalISOString(/* @__PURE__ */ new Date()).replace(/-|:|\.\d+Z$/g, "")}`
+    );
   }
   outputLocation;
   createOutputChannelModel(id, modelUri, language, file) {

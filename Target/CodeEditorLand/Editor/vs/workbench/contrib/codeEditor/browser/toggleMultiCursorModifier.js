@@ -58,11 +58,13 @@ let MultiCursorModifierContextKeyController = class extends Disposable {
     this.configurationService = configurationService;
     this._multiCursorModifier = multiCursorModifier.bindTo(contextKeyService);
     this._update();
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("editor.multiCursorModifier")) {
-        this._update();
-      }
-    }));
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("editor.multiCursorModifier")) {
+          this._update();
+        }
+      })
+    );
   }
   _multiCursorModifier;
   _update() {

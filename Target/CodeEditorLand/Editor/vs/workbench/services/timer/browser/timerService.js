@@ -86,7 +86,13 @@ let AbstractTimerService = class {
       // workbench created and parts restored
       layoutService.whenRestored,
       // layout restored (including visible editors resolved)
-      Promise.all(Array.from(Registry.as(TerminalExtensions.Backend).backends.values()).map((e) => e.whenReady))
+      Promise.all(
+        Array.from(
+          Registry.as(
+            TerminalExtensions.Backend
+          ).backends.values()
+        ).map((e) => e.whenReady)
+      )
     ]).then(() => {
       this.setPerformanceMarks("renderer", perf.getMarks());
       return this._computeStartupMetrics();
@@ -115,9 +121,13 @@ let AbstractTimerService = class {
         const value = Math.round(performance.now() - t1);
         self.postMessage({ value: tooSlow ? -1 : value });
       }.toString();
-      const blob = new Blob([`(${jsSrc})();`], { type: "application/javascript" });
+      const blob = new Blob([`(${jsSrc})();`], {
+        type: "application/javascript"
+      });
       const blobUrl = URL.createObjectURL(blob);
-      const worker = createBlobWorker(blobUrl, { name: "perfBaseline" });
+      const worker = createBlobWorker(blobUrl, {
+        name: "perfBaseline"
+      });
       return new Promise((resolve) => {
         worker.onmessage = (e) => resolve(e.data.value);
       }).finally(() => {

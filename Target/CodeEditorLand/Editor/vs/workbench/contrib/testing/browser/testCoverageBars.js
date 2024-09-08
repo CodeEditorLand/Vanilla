@@ -31,9 +31,9 @@ import {
   ExplorerExtensions
 } from "../../files/browser/explorerFileContrib.js";
 import {
-  TestingConfigKeys,
   getTestingConfiguration,
-  observeTestingConfiguration
+  observeTestingConfiguration,
+  TestingConfigKeys
 } from "../common/configuration.js";
 import { ITestCoverageService } from "../common/testCoverageService.js";
 import * as coverUtils from "./codeCoverageDisplayUtils.js";

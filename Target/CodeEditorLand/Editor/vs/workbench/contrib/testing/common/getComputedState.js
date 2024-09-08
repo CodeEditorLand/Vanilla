@@ -1,10 +1,10 @@
 import { Iterable } from "../../../../base/common/iterator.js";
-import { TestResultState } from "./testTypes.js";
 import {
   makeEmptyCounts,
   maxPriority,
   statePriority
 } from "./testingStates.js";
+import { TestResultState } from "./testTypes.js";
 const isDurationAccessor = (accessor) => "getOwnDuration" in accessor;
 const getComputedState = (accessor, node, force = false) => {
   let computed = accessor.getCurrentComputedState(node);

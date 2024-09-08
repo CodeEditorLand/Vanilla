@@ -17,8 +17,8 @@ import {
 import { ILogService } from "../../../../platform/log/common/log.js";
 import {
   AbstractTunnelService,
-  ITunnelService,
-  isTunnelProvider
+  isTunnelProvider,
+  ITunnelService
 } from "../../../../platform/tunnel/common/tunnel.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 let TunnelService = class extends AbstractTunnelService {

@@ -29,18 +29,18 @@ import { commonSuffixLength } from "../../../../base/common/strings.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
 import { localize } from "../../../../nls.js";
 import {
-  MenuEntryActionViewItem,
-  SubmenuEntryActionViewItem,
   createAndFillInActionBarActions,
-  createAndFillInContextMenuActions
+  createAndFillInContextMenuActions,
+  MenuEntryActionViewItem,
+  SubmenuEntryActionViewItem
 } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
 import {
   IMenuService,
   MenuId,
   MenuItemAction,
   MenuRegistry,
-  SubmenuItemAction,
-  registerAction2
+  registerAction2,
+  SubmenuItemAction
 } from "../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import {
@@ -74,10 +74,10 @@ import {
   CONTEXT_DEBUG_STATE,
   CONTEXT_FOCUSED_SESSION_IS_NO_DEBUG,
   CONTEXT_STACK_FRAME_SUPPORTS_RESTART,
-  IDebugService,
-  State,
   getStateLabel,
-  isFrameDeemphasized
+  IDebugService,
+  isFrameDeemphasized,
+  State
 } from "../common/debug.js";
 import {
   StackFrame,
@@ -185,52 +185,74 @@ async function expandTo(session, tree) {
 }
 let CallStackView = class extends ViewPane {
   constructor(options, contextMenuService, debugService, keybindingService, instantiationService, viewDescriptorService, configurationService, contextKeyService, openerService, themeService, telemetryService, hoverService, menuService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.options = options;
     this.debugService = debugService;
     this.menuService = menuService;
-    this.onCallStackChangeScheduler = this._register(new RunOnceScheduler(async () => {
-      const sessions = this.debugService.getModel().getSessions();
-      if (sessions.length === 0) {
-        this.autoExpandedSessions.clear();
-      }
-      const thread = sessions.length === 1 && sessions[0].getAllThreads().length === 1 ? sessions[0].getAllThreads()[0] : void 0;
-      const stoppedDetails = sessions.length === 1 ? sessions[0].getStoppedDetails() : void 0;
-      if (stoppedDetails && (thread || typeof stoppedDetails.threadId !== "number")) {
-        this.stateMessageLabel.textContent = stoppedDescription(stoppedDetails);
-        this.stateMessageLabelHover.update(stoppedText(stoppedDetails));
-        this.stateMessageLabel.classList.toggle("exception", stoppedDetails.reason === "exception");
-        this.stateMessage.hidden = false;
-      } else if (sessions.length === 1 && sessions[0].state === State.Running) {
-        this.stateMessageLabel.textContent = localize({ key: "running", comment: ["indicates state"] }, "Running");
-        this.stateMessageLabelHover.update(sessions[0].getLabel());
-        this.stateMessageLabel.classList.remove("exception");
-        this.stateMessage.hidden = false;
-      } else {
-        this.stateMessage.hidden = true;
-      }
-      this.updateActions();
-      this.needsRefresh = false;
-      this.dataSource.deemphasizedStackFramesToShow = [];
-      await this.tree.updateChildren();
-      try {
-        const toExpand = /* @__PURE__ */ new Set();
-        sessions.forEach((s) => {
-          if (s.parentSession && !this.autoExpandedSessions.has(s.parentSession)) {
-            toExpand.add(s.parentSession);
-          }
-        });
-        for (const session of toExpand) {
-          await expandTo(session, this.tree);
-          this.autoExpandedSessions.add(session);
+    this.onCallStackChangeScheduler = this._register(
+      new RunOnceScheduler(async () => {
+        const sessions = this.debugService.getModel().getSessions();
+        if (sessions.length === 0) {
+          this.autoExpandedSessions.clear();
         }
-      } catch (e) {
-      }
-      if (this.selectionNeedsUpdate) {
-        this.selectionNeedsUpdate = false;
-        await this.updateTreeSelection();
-      }
-    }, 50));
+        const thread = sessions.length === 1 && sessions[0].getAllThreads().length === 1 ? sessions[0].getAllThreads()[0] : void 0;
+        const stoppedDetails = sessions.length === 1 ? sessions[0].getStoppedDetails() : void 0;
+        if (stoppedDetails && (thread || typeof stoppedDetails.threadId !== "number")) {
+          this.stateMessageLabel.textContent = stoppedDescription(stoppedDetails);
+          this.stateMessageLabelHover.update(
+            stoppedText(stoppedDetails)
+          );
+          this.stateMessageLabel.classList.toggle(
+            "exception",
+            stoppedDetails.reason === "exception"
+          );
+          this.stateMessage.hidden = false;
+        } else if (sessions.length === 1 && sessions[0].state === State.Running) {
+          this.stateMessageLabel.textContent = localize(
+            { key: "running", comment: ["indicates state"] },
+            "Running"
+          );
+          this.stateMessageLabelHover.update(sessions[0].getLabel());
+          this.stateMessageLabel.classList.remove("exception");
+          this.stateMessage.hidden = false;
+        } else {
+          this.stateMessage.hidden = true;
+        }
+        this.updateActions();
+        this.needsRefresh = false;
+        this.dataSource.deemphasizedStackFramesToShow = [];
+        await this.tree.updateChildren();
+        try {
+          const toExpand = /* @__PURE__ */ new Set();
+          sessions.forEach((s) => {
+            if (s.parentSession && !this.autoExpandedSessions.has(s.parentSession)) {
+              toExpand.add(s.parentSession);
+            }
+          });
+          for (const session of toExpand) {
+            await expandTo(session, this.tree);
+            this.autoExpandedSessions.add(session);
+          }
+        } catch (e) {
+        }
+        if (this.selectionNeedsUpdate) {
+          this.selectionNeedsUpdate = false;
+          await this.updateTreeSelection();
+        }
+      }, 50)
+    );
   }
   stateMessage;
   stateMessageLabel;

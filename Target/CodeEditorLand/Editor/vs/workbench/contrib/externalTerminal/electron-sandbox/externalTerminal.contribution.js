@@ -27,8 +27,8 @@ import {
 } from "../../../../platform/externalTerminal/common/externalTerminal.js";
 import { IExternalTerminalService } from "../../../../platform/externalTerminal/electron-sandbox/externalTerminalService.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";

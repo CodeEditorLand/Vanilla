@@ -27,9 +27,9 @@ import {
   TelemetryService as BaseTelemetryService
 } from "../../../../platform/telemetry/common/telemetryService.js";
 import {
-  NullTelemetryService,
   getPiiPathsFromEnvironment,
   isInternalTelemetry,
+  NullTelemetryService,
   supportsTelemetry
 } from "../../../../platform/telemetry/common/telemetryUtils.js";
 import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";

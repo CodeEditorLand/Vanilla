@@ -34,11 +34,19 @@ import { IInteractiveDocumentService } from "./interactiveDocumentService.js";
 import { IInteractiveHistoryService } from "./interactiveHistoryService.js";
 let InteractiveEditorInput = class extends EditorInput {
   constructor(resource, inputResource, title, languageId, instantiationService, textModelService, interactiveDocumentService, historyService, _notebookService, _fileDialogService, configurationService) {
-    const input = NotebookEditorInput.getOrCreate(instantiationService, resource, void 0, "interactive", {});
+    const input = NotebookEditorInput.getOrCreate(
+      instantiationService,
+      resource,
+      void 0,
+      "interactive",
+      {}
+    );
     super();
     this._notebookService = _notebookService;
     this._fileDialogService = _fileDialogService;
-    this.isScratchpad = configurationService.getValue(NotebookSetting.InteractiveWindowPromptToSave) !== true;
+    this.isScratchpad = configurationService.getValue(
+      NotebookSetting.InteractiveWindowPromptToSave
+    ) !== true;
     this._notebookEditorInput = input;
     this._register(this._notebookEditorInput);
     this.name = title ?? InteractiveEditorInput.windowNames[resource.path] ?? paths.basename(resource.path, paths.extname(resource.path));

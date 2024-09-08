@@ -23,8 +23,8 @@ import {
 import { TaskExecutionSupportedContext } from "../../tasks/common/taskService.js";
 import { TERMINAL_VIEW_ID, TerminalCommandId } from "../common/terminal.js";
 import {
-  TerminalContextKeyStrings,
-  TerminalContextKeys
+  TerminalContextKeys,
+  TerminalContextKeyStrings
 } from "../common/terminalContextKey.js";
 import { terminalStrings } from "../common/terminalStrings.js";
 var ContextMenuGroup = /* @__PURE__ */ ((ContextMenuGroup2) => {

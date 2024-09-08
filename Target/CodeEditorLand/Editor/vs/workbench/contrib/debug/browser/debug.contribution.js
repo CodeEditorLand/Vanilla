@@ -34,9 +34,9 @@ import {
 } from "../../../browser/editor.js";
 import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
 import {
+  registerWorkbenchContribution2,
   Extensions as WorkbenchExtensions,
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { EditorExtensions } from "../../../common/editor.js";
 import {
@@ -50,18 +50,18 @@ import {
   COPY_NOTEBOOK_VARIABLE_VALUE_LABEL
 } from "../../notebook/browser/contrib/notebookVariables/notebookVariableCommands.js";
 import {
-  BREAKPOINTS_VIEW_ID,
   BREAKPOINT_EDITOR_CONTRIBUTION_ID,
+  BREAKPOINTS_VIEW_ID,
   CALLSTACK_VIEW_ID,
-  CONTEXT_BREAKPOINTS_EXIST,
   CONTEXT_BREAK_WHEN_VALUE_CHANGES_SUPPORTED,
   CONTEXT_BREAK_WHEN_VALUE_IS_ACCESSED_SUPPORTED,
   CONTEXT_BREAK_WHEN_VALUE_IS_READ_SUPPORTED,
+  CONTEXT_BREAKPOINTS_EXIST,
   CONTEXT_CALLSTACK_ITEM_TYPE,
   CONTEXT_CAN_VIEW_MEMORY,
-  CONTEXT_DEBUGGERS_AVAILABLE,
   CONTEXT_DEBUG_STATE,
   CONTEXT_DEBUG_UX,
+  CONTEXT_DEBUGGERS_AVAILABLE,
   CONTEXT_FOCUSED_SESSION_IS_ATTACH,
   CONTEXT_FOCUSED_SESSION_IS_NO_DEBUG,
   CONTEXT_HAS_DEBUGGED,
@@ -82,6 +82,7 @@ import {
   DEBUG_PANEL_ID,
   DISASSEMBLY_VIEW_ID,
   EDITOR_CONTRIBUTION_ID,
+  getStateLabel,
   IDebugService,
   INTERNAL_CONSOLE_OPTIONS_SCHEMA,
   LOADED_SCRIPTS_VIEW_ID,
@@ -89,8 +90,7 @@ import {
   State,
   VARIABLES_VIEW_ID,
   VIEWLET_ID,
-  WATCH_VIEW_ID,
-  getStateLabel
+  WATCH_VIEW_ID
 } from "../common/debug.js";
 import { DebugContentProvider } from "../common/debugContentProvider.js";
 import { DebugLifecycle } from "../common/debugLifecycle.js";
@@ -197,8 +197,8 @@ import {
   BREAK_WHEN_VALUE_IS_ACCESSED_ID,
   BREAK_WHEN_VALUE_IS_READ_ID,
   SET_VARIABLE_ID,
-  VIEW_MEMORY_ID,
-  VariablesView
+  VariablesView,
+  VIEW_MEMORY_ID
 } from "./variablesView.js";
 import {
   ADD_WATCH_ID,

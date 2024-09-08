@@ -32,7 +32,15 @@ import { AbstractResourceEditorInput } from "./resourceEditorInput.js";
 import { TextResourceEditorModel } from "./textResourceEditorModel.js";
 let AbstractTextResourceEditorInput = class extends AbstractResourceEditorInput {
   constructor(resource, preferredResource, editorService, textFileService, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService) {
-    super(resource, preferredResource, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
+    super(
+      resource,
+      preferredResource,
+      labelService,
+      fileService,
+      filesConfigurationService,
+      textResourceConfigurationService,
+      customEditorLabelService
+    );
     this.editorService = editorService;
     this.textFileService = textFileService;
   }
@@ -76,7 +84,17 @@ AbstractTextResourceEditorInput = __decorateClass([
 ], AbstractTextResourceEditorInput);
 let TextResourceEditorInput = class extends AbstractTextResourceEditorInput {
   constructor(resource, name, description, preferredLanguageId, preferredContents, textModelService, textFileService, editorService, fileService, labelService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService) {
-    super(resource, void 0, editorService, textFileService, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
+    super(
+      resource,
+      void 0,
+      editorService,
+      textFileService,
+      labelService,
+      fileService,
+      filesConfigurationService,
+      textResourceConfigurationService,
+      customEditorLabelService
+    );
     this.name = name;
     this.description = description;
     this.preferredLanguageId = preferredLanguageId;

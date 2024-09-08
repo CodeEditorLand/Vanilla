@@ -50,13 +50,13 @@ import { IUserDataInitializationService } from "../../userData/browser/userDataI
 import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
 import {
   AbstractExtensionService,
-  ResolvedExtensions,
-  checkEnabledAndProposedAPI
+  checkEnabledAndProposedAPI,
+  ResolvedExtensions
 } from "../common/abstractExtensionService.js";
 import {
   ExtensionHostKind,
-  ExtensionRunningPreference,
   extensionHostKindToString,
+  ExtensionRunningPreference,
   extensionRunningPreferenceToString
 } from "../common/extensionHostKind.js";
 import { IExtensionManifestPropertiesService } from "../common/extensionManifestPropertiesService.js";
@@ -80,7 +80,9 @@ import {
 import { FetchFileSystemProvider } from "./webWorkerFileSystemProvider.js";
 let ExtensionService = class extends AbstractExtensionService {
   constructor(instantiationService, notificationService, _browserEnvironmentService, telemetryService, extensionEnablementService, fileService, productService, extensionManagementService, contextService, configurationService, extensionManifestPropertiesService, _webExtensionsScannerService, logService, remoteAgentService, remoteExtensionsScannerService, lifecycleService, remoteAuthorityResolverService, _userDataInitializationService, _userDataProfileService, _workspaceTrustManagementService, _remoteExplorerService, dialogService) {
-    const extensionsProposedApi = instantiationService.createInstance(ExtensionsProposedApi);
+    const extensionsProposedApi = instantiationService.createInstance(
+      ExtensionsProposedApi
+    );
     const extensionHostFactory = new BrowserExtensionHostFactory(
       extensionsProposedApi,
       () => this._scanWebExtensions(),
@@ -120,7 +122,9 @@ let ExtensionService = class extends AbstractExtensionService {
     this._workspaceTrustManagementService = _workspaceTrustManagementService;
     this._remoteExplorerService = _remoteExplorerService;
     lifecycleService.when(LifecyclePhase.Ready).then(async () => {
-      await this._userDataInitializationService.initializeInstalledExtensions(this._instantiationService);
+      await this._userDataInitializationService.initializeInstalledExtensions(
+        this._instantiationService
+      );
       this._initialize();
     });
     this._initFetchFileSystem();

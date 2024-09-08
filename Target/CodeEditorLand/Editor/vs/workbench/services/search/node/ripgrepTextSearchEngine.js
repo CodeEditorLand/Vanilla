@@ -15,8 +15,8 @@ import {
   DEFAULT_MAX_SEARCH_RESULTS,
   SearchError,
   SearchErrorCode,
-  TextSearchMatch,
-  serializeSearchError
+  serializeSearchError,
+  TextSearchMatch
 } from "../common/search.js";
 import { newToOldPreviewOptions } from "../common/searchExtConversionTypes.js";
 import {

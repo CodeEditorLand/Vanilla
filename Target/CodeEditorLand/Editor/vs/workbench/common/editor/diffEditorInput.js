@@ -16,9 +16,9 @@ import { IEditorService } from "../../services/editor/common/editorService.js";
 import {
   BINARY_DIFF_EDITOR_ID,
   EditorInputCapabilities,
+  isResourceDiffEditorInput,
   TEXT_DIFF_EDITOR_ID,
-  Verbosity,
-  isResourceDiffEditorInput
+  Verbosity
 } from "../editor.js";
 import { DiffEditorModel } from "./diffEditorModel.js";
 import {

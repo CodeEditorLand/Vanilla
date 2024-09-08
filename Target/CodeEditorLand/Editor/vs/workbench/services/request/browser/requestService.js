@@ -23,10 +23,12 @@ import {
 } from "../../remote/common/remoteAgentService.js";
 let BrowserRequestService = class extends AbstractRequestService {
   constructor(remoteAgentService, configurationService, loggerService) {
-    super(loggerService.createLogger("network-window", {
-      name: localize("network-window", "Network (Window)"),
-      hidden: true
-    }));
+    super(
+      loggerService.createLogger("network-window", {
+        name: localize("network-window", "Network (Window)"),
+        hidden: true
+      })
+    );
     this.remoteAgentService = remoteAgentService;
     this.configurationService = configurationService;
   }

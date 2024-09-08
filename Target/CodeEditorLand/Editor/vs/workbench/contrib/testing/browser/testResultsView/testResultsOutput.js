@@ -15,9 +15,9 @@ import { Event } from "../../../../../base/common/event.js";
 import { Iterable } from "../../../../../base/common/iterator.js";
 import { Lazy } from "../../../../../base/common/lazy.js";
 import {
+  combinedDisposable,
   Disposable,
   MutableDisposable,
-  combinedDisposable,
   toDisposable
 } from "../../../../../base/common/lifecycle.js";
 import { CodeEditorWidget } from "../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
@@ -57,9 +57,9 @@ import {
   TestResultItemChangeReason
 } from "../../common/testResult.js";
 import {
+  getMarkId,
   ITestMessage,
-  TestMessageType,
-  getMarkId
+  TestMessageType
 } from "../../common/testTypes.js";
 import { colorizeTestMessageInEditor } from "../testMessageColorizer.js";
 import {

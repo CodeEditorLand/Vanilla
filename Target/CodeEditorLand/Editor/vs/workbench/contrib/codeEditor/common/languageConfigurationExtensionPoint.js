@@ -50,16 +50,22 @@ let LanguageConfigurationFileHandler = class extends Disposable {
     this._extensionResourceLoaderService = _extensionResourceLoaderService;
     this._extensionService = _extensionService;
     this._languageConfigurationService = _languageConfigurationService;
-    this._register(this._languageService.onDidRequestBasicLanguageFeatures(async (languageIdentifier) => {
-      this._extensionService.whenInstalledExtensionsRegistered().then(() => {
-        this._loadConfigurationsForMode(languageIdentifier);
-      });
-    }));
-    this._register(this._languageService.onDidChange(() => {
-      for (const [languageId] of this._done) {
-        this._loadConfigurationsForMode(languageId);
-      }
-    }));
+    this._register(
+      this._languageService.onDidRequestBasicLanguageFeatures(
+        async (languageIdentifier) => {
+          this._extensionService.whenInstalledExtensionsRegistered().then(() => {
+            this._loadConfigurationsForMode(languageIdentifier);
+          });
+        }
+      )
+    );
+    this._register(
+      this._languageService.onDidChange(() => {
+        for (const [languageId] of this._done) {
+          this._loadConfigurationsForMode(languageId);
+        }
+      })
+    );
   }
   /**
    * A map from language id to a hash computed from the config files locations.

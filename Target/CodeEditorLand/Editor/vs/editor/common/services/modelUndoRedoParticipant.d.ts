@@ -1,0 +1,12 @@
+import { Disposable, type IDisposable } from "../../../base/common/lifecycle.js";
+import { IUndoRedoService } from "../../../platform/undoRedo/common/undoRedo.js";
+import { MultiModelEditStackElement, type IUndoRedoDelegate } from "../model/editStack.js";
+import { IModelService } from "./model.js";
+import { ITextModelService } from "./resolverService.js";
+export declare class ModelUndoRedoParticipant extends Disposable implements IUndoRedoDelegate {
+    private readonly _modelService;
+    private readonly _textModelService;
+    private readonly _undoRedoService;
+    constructor(_modelService: IModelService, _textModelService: ITextModelService, _undoRedoService: IUndoRedoService);
+    prepareUndoRedo(element: MultiModelEditStackElement): IDisposable | Promise<IDisposable>;
+}

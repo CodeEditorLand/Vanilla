@@ -62,14 +62,51 @@ let NotebookEditorContextKeys = class {
     this._lastCellFailed = NOTEBOOK_LAST_CELL_FAILED.bindTo(contextKeyService);
     this._handleDidChangeModel();
     this._updateForNotebookOptions();
-    this._disposables.add(_editor.onDidChangeModel(this._handleDidChangeModel, this));
-    this._disposables.add(_notebookKernelService.onDidAddKernel(this._updateKernelContext, this));
-    this._disposables.add(_notebookKernelService.onDidChangeSelectedNotebooks(this._updateKernelContext, this));
-    this._disposables.add(_notebookKernelService.onDidChangeSourceActions(this._updateKernelContext, this));
-    this._disposables.add(_editor.notebookOptions.onDidChangeOptions(this._updateForNotebookOptions, this));
-    this._disposables.add(_extensionService.onDidChangeExtensions(this._updateForInstalledExtension, this));
-    this._disposables.add(_notebookExecutionStateService.onDidChangeExecution(this._updateForExecution, this));
-    this._disposables.add(_notebookExecutionStateService.onDidChangeLastRunFailState(this._updateForLastRunFailState, this));
+    this._disposables.add(
+      _editor.onDidChangeModel(this._handleDidChangeModel, this)
+    );
+    this._disposables.add(
+      _notebookKernelService.onDidAddKernel(
+        this._updateKernelContext,
+        this
+      )
+    );
+    this._disposables.add(
+      _notebookKernelService.onDidChangeSelectedNotebooks(
+        this._updateKernelContext,
+        this
+      )
+    );
+    this._disposables.add(
+      _notebookKernelService.onDidChangeSourceActions(
+        this._updateKernelContext,
+        this
+      )
+    );
+    this._disposables.add(
+      _editor.notebookOptions.onDidChangeOptions(
+        this._updateForNotebookOptions,
+        this
+      )
+    );
+    this._disposables.add(
+      _extensionService.onDidChangeExtensions(
+        this._updateForInstalledExtension,
+        this
+      )
+    );
+    this._disposables.add(
+      _notebookExecutionStateService.onDidChangeExecution(
+        this._updateForExecution,
+        this
+      )
+    );
+    this._disposables.add(
+      _notebookExecutionStateService.onDidChangeLastRunFailState(
+        this._updateForLastRunFailState,
+        this
+      )
+    );
   }
   _notebookKernel;
   _notebookKernelCount;

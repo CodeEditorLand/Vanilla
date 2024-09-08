@@ -45,11 +45,15 @@ let EmptyCellEditorHintContribution = class extends EmptyTextEditorHintContribut
       contextMenuService
     );
     this._editorService = _editorService;
-    const activeEditor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
+    const activeEditor = getNotebookEditorFromEditorPane(
+      this._editorService.activeEditorPane
+    );
     if (!activeEditor) {
       return;
     }
-    this.toDispose.push(activeEditor.onDidChangeActiveCell(() => this.update()));
+    this.toDispose.push(
+      activeEditor.onDidChangeActiveCell(() => this.update())
+    );
   }
   static CONTRIB_ID = "notebook.editor.contrib.emptyCellEditorHint";
   _getOptions() {

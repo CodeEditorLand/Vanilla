@@ -26,8 +26,8 @@ import { IPaneCompositePartService } from "../../../services/panecomposite/brows
 import { resolveResourcesForSearchIncludes } from "../../../services/search/common/queryBuilder.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
 import {
-  IExplorerService,
-  getMultiSelectedResources
+  getMultiSelectedResources,
+  IExplorerService
 } from "../../files/browser/files.js";
 import {
   ExplorerFolderContext,

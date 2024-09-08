@@ -31,12 +31,19 @@ let TerminalConfigurationService = class extends Disposable {
   constructor(_configurationService) {
     super();
     this._configurationService = _configurationService;
-    this._fontMetrics = this._register(new TerminalFontMetrics(this, this._configurationService));
-    this._register(Event.runAndSubscribe(this._configurationService.onDidChangeConfiguration, (e) => {
-      if (!e || e.affectsConfiguration(TERMINAL_CONFIG_SECTION)) {
-        this._updateConfig();
-      }
-    }));
+    this._fontMetrics = this._register(
+      new TerminalFontMetrics(this, this._configurationService)
+    );
+    this._register(
+      Event.runAndSubscribe(
+        this._configurationService.onDidChangeConfiguration,
+        (e) => {
+          if (!e || e.affectsConfiguration(TERMINAL_CONFIG_SECTION)) {
+            this._updateConfig();
+          }
+        }
+      )
+    );
   }
   _fontMetrics;
   _config;

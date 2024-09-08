@@ -19,8 +19,8 @@ import { Orientation } from "../../../../base/browser/ui/sash/sash.js";
 import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
 import {
   AutoOpenBarrier,
-  Promises,
   disposableTimeout,
+  Promises,
   timeout
 } from "../../../../base/common/async.js";
 import { Codicon } from "../../../../base/common/codicons.js";
@@ -35,17 +35,17 @@ import { template } from "../../../../base/common/labels.js";
 import {
   Disposable,
   DisposableStore,
-  MutableDisposable,
   dispose,
+  MutableDisposable,
   toDisposable
 } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import * as path from "../../../../base/common/path.js";
 import {
-  OS,
-  OperatingSystem,
   isMacintosh,
-  isWindows
+  isWindows,
+  OperatingSystem,
+  OS
 } from "../../../../base/common/platform.js";
 import { ScrollbarVisibility } from "../../../../base/common/scrollable.js";
 import { URI } from "../../../../base/common/uri.js";
@@ -62,6 +62,7 @@ import { IConfigurationService } from "../../../../platform/configuration/common
 import {
   IContextKeyService
 } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
 import {
   CodeDataTransfers,
   containsDragType
@@ -128,14 +129,15 @@ import { IWorkbenchEnvironmentService } from "../../../services/environment/comm
 import { IHistoryService } from "../../../services/history/common/history.js";
 import { IHostService } from "../../../services/host/browser/host.js";
 import {
-  IWorkbenchLayoutService,
-  isHorizontal
+  isHorizontal,
+  IWorkbenchLayoutService
 } from "../../../services/layout/browser/layoutService.js";
 import { IPathService } from "../../../services/path/common/pathService.js";
 import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
 import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
 import { AccessibilityCommandId } from "../../accessibility/common/accessibilityCommands.js";
+import { TerminalAccessibilityCommandId } from "../../terminalContrib/accessibility/common/terminal.accessibility.js";
 import { getCommandHistory, getDirectoryHistory } from "../common/history.js";
 import {
   DEFAULT_COMMANDS_TO_SKIP_SHELL,
@@ -158,6 +160,7 @@ import {
   TerminalDataTransfers
 } from "./terminal.js";
 import { TerminalLaunchHelpAction } from "./terminalActions.js";
+import { openContextMenu } from "./terminalContextMenu.js";
 import { TerminalEditorInput } from "./terminalEditorInput.js";
 import { TerminalExtensionsRegistry } from "./terminalExtensions.js";
 import {
@@ -180,12 +183,9 @@ import {
 import { TerminalWidgetManager } from "./widgets/widgetManager.js";
 import { LineDataEventAddon } from "./xterm/lineDataEventAddon.js";
 import {
-  XtermTerminal,
-  getXtermScaledDimensions
+  getXtermScaledDimensions,
+  XtermTerminal
 } from "./xterm/xtermTerminal.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { TerminalAccessibilityCommandId } from "../../terminalContrib/accessibility/common/terminal.accessibility.js";
-import { openContextMenu } from "./terminalContextMenu.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["WaitForContainerThreshold"] = 100] = "WaitForContainerThreshold";
   Constants2[Constants2["DefaultCols"] = 80] = "DefaultCols";
@@ -234,7 +234,9 @@ let TerminalInstance = class extends Disposable {
     this._viewDescriptorService = _viewDescriptorService;
     this._wrapperElement = document.createElement("div");
     this._wrapperElement.classList.add("terminal-wrapper");
-    this._widgetManager = this._register(instantiationService.createInstance(TerminalWidgetManager));
+    this._widgetManager = this._register(
+      instantiationService.createInstance(TerminalWidgetManager)
+    );
     this._skipTerminalCommands = [];
     this._isExiting = false;
     this._hadFocusOnExit = false;
@@ -243,7 +245,11 @@ let TerminalInstance = class extends Disposable {
     this._hasHadInput = false;
     this._fixedRows = _shellLaunchConfig.attachPersistentProcess?.fixedDimensions?.rows;
     this._fixedCols = _shellLaunchConfig.attachPersistentProcess?.fixedDimensions?.cols;
-    this._resource = getTerminalUri(this._workspaceContextService.getWorkspace().id, this.instanceId, this.title);
+    this._resource = getTerminalUri(
+      this._workspaceContextService.getWorkspace().id,
+      this.instanceId,
+      this.title
+    );
     if (this._shellLaunchConfig.attachPersistentProcess?.hideFromUser) {
       this._shellLaunchConfig.hideFromUser = this._shellLaunchConfig.attachPersistentProcess.hideFromUser;
     }
@@ -264,55 +270,97 @@ let TerminalInstance = class extends Disposable {
     }
     if (!this._workspaceFolder) {
       const activeWorkspaceRootUri = this._historyService.getLastActiveWorkspaceRoot();
-      this._workspaceFolder = activeWorkspaceRootUri ? this._workspaceContextService.getWorkspaceFolder(activeWorkspaceRootUri) ?? void 0 : void 0;
+      this._workspaceFolder = activeWorkspaceRootUri ? this._workspaceContextService.getWorkspaceFolder(
+        activeWorkspaceRootUri
+      ) ?? void 0 : void 0;
     }
-    const scopedContextKeyService = this._register(_contextKeyService.createScoped(this._wrapperElement));
+    const scopedContextKeyService = this._register(
+      _contextKeyService.createScoped(this._wrapperElement)
+    );
     this._scopedContextKeyService = scopedContextKeyService;
-    this._scopedInstantiationService = this._register(instantiationService.createChild(new ServiceCollection(
-      [IContextKeyService, scopedContextKeyService]
-    )));
-    this._terminalFocusContextKey = TerminalContextKeys.focus.bindTo(scopedContextKeyService);
-    this._terminalHasFixedWidth = TerminalContextKeys.terminalHasFixedWidth.bindTo(scopedContextKeyService);
+    this._scopedInstantiationService = this._register(
+      instantiationService.createChild(
+        new ServiceCollection([
+          IContextKeyService,
+          scopedContextKeyService
+        ])
+      )
+    );
+    this._terminalFocusContextKey = TerminalContextKeys.focus.bindTo(
+      scopedContextKeyService
+    );
+    this._terminalHasFixedWidth = TerminalContextKeys.terminalHasFixedWidth.bindTo(
+      scopedContextKeyService
+    );
     this._terminalHasTextContextKey = TerminalContextKeys.textSelected.bindTo(scopedContextKeyService);
     this._terminalAltBufferActiveContextKey = TerminalContextKeys.altBufferActive.bindTo(scopedContextKeyService);
-    this._terminalShellIntegrationEnabledContextKey = TerminalContextKeys.terminalShellIntegrationEnabled.bindTo(scopedContextKeyService);
-    this._logService.trace(`terminalInstance#ctor (instanceId: ${this.instanceId})`, this._shellLaunchConfig);
-    this._register(this.capabilities.onDidAddCapabilityType((e) => {
-      this._logService.debug("terminalInstance added capability", e);
-      if (e === TerminalCapability.CwdDetection) {
-        this.capabilities.get(TerminalCapability.CwdDetection)?.onDidChangeCwd((e2) => {
-          this._cwd = e2;
-          this._setTitle(this.title, TitleEventSource.Config);
-          this._scopedInstantiationService.invokeFunction(getDirectoryHistory)?.add(e2, { remoteAuthority: this.remoteAuthority });
-        });
-      } else if (e === TerminalCapability.CommandDetection) {
-        const commandCapability = this.capabilities.get(TerminalCapability.CommandDetection);
-        commandCapability?.onCommandFinished((e2) => {
-          if (e2.command.trim().length > 0) {
-            this._scopedInstantiationService.invokeFunction(getCommandHistory)?.add(e2.command, { shellType: this._shellType });
-          }
-        });
-      }
-    }));
-    this._register(this.capabilities.onDidRemoveCapabilityType((e) => this._logService.debug("terminalInstance removed capability", e)));
+    this._terminalShellIntegrationEnabledContextKey = TerminalContextKeys.terminalShellIntegrationEnabled.bindTo(
+      scopedContextKeyService
+    );
+    this._logService.trace(
+      `terminalInstance#ctor (instanceId: ${this.instanceId})`,
+      this._shellLaunchConfig
+    );
+    this._register(
+      this.capabilities.onDidAddCapabilityType((e) => {
+        this._logService.debug("terminalInstance added capability", e);
+        if (e === TerminalCapability.CwdDetection) {
+          this.capabilities.get(TerminalCapability.CwdDetection)?.onDidChangeCwd((e2) => {
+            this._cwd = e2;
+            this._setTitle(this.title, TitleEventSource.Config);
+            this._scopedInstantiationService.invokeFunction(getDirectoryHistory)?.add(e2, {
+              remoteAuthority: this.remoteAuthority
+            });
+          });
+        } else if (e === TerminalCapability.CommandDetection) {
+          const commandCapability = this.capabilities.get(
+            TerminalCapability.CommandDetection
+          );
+          commandCapability?.onCommandFinished((e2) => {
+            if (e2.command.trim().length > 0) {
+              this._scopedInstantiationService.invokeFunction(getCommandHistory)?.add(e2.command, {
+                shellType: this._shellType
+              });
+            }
+          });
+        }
+      })
+    );
+    this._register(
+      this.capabilities.onDidRemoveCapabilityType(
+        (e) => this._logService.debug(
+          "terminalInstance removed capability",
+          e
+        )
+      )
+    );
     if (!this.shellLaunchConfig.executable && !workbenchEnvironmentService.remoteAuthority) {
-      this._terminalProfileResolverService.resolveIcon(this._shellLaunchConfig, OS);
+      this._terminalProfileResolverService.resolveIcon(
+        this._shellLaunchConfig,
+        OS
+      );
     }
     this._icon = _shellLaunchConfig.attachPersistentProcess?.icon || _shellLaunchConfig.icon;
     if (this.shellLaunchConfig.customPtyImplementation) {
       this._setTitle(this._shellLaunchConfig.name, TitleEventSource.Api);
     }
-    this.statusList = this._register(this._scopedInstantiationService.createInstance(TerminalStatusList));
+    this.statusList = this._register(
+      this._scopedInstantiationService.createInstance(TerminalStatusList)
+    );
     this._initDimensions();
     this._processManager = this._createProcessManager();
-    this._containerReadyBarrier = new AutoOpenBarrier(100 /* WaitForContainerThreshold */);
+    this._containerReadyBarrier = new AutoOpenBarrier(
+      100 /* WaitForContainerThreshold */
+    );
     this._attachBarrier = new AutoOpenBarrier(1e3);
     this._xtermReadyPromise = this._createXterm();
     this._xtermReadyPromise.then(async () => {
       await this._containerReadyBarrier.wait();
       if (!this.shellLaunchConfig.customPtyImplementation && this._terminalConfigurationService.config.shellIntegration?.enabled && !this.shellLaunchConfig.executable) {
         const os = await this._processManager.getBackendOS();
-        const defaultProfile = await this._terminalProfileResolverService.getDefaultProfile({ remoteAuthority: this.remoteAuthority, os });
+        const defaultProfile = await this._terminalProfileResolverService.getDefaultProfile(
+          { remoteAuthority: this.remoteAuthority, os }
+        );
         this.shellLaunchConfig.executable = defaultProfile.path;
         this.shellLaunchConfig.args = defaultProfile.args;
         if (this.shellLaunchConfig.isExtensionOwnedTerminal) {
@@ -328,7 +376,10 @@ let TerminalInstance = class extends Disposable {
       await this._createProcess();
       if (this.shellLaunchConfig.attachPersistentProcess) {
         this._cwd = this.shellLaunchConfig.attachPersistentProcess.cwd;
-        this._setTitle(this.shellLaunchConfig.attachPersistentProcess.title, this.shellLaunchConfig.attachPersistentProcess.titleSource);
+        this._setTitle(
+          this.shellLaunchConfig.attachPersistentProcess.title,
+          this.shellLaunchConfig.attachPersistentProcess.titleSource
+        );
         this.setShellType(this.shellType);
       }
       if (this._fixedCols) {
@@ -339,57 +390,88 @@ let TerminalInstance = class extends Disposable {
         throw err;
       }
     });
-    this._register(this._configurationService.onDidChangeConfiguration(async (e) => {
-      if (e.affectsConfiguration(AccessibilityVerbositySettingId.Terminal)) {
-        this._setAriaLabel(this.xterm?.raw, this._instanceId, this.title);
-      }
-      if (e.affectsConfiguration("terminal.integrated")) {
-        this.updateConfig();
-        this.setVisible(this._isVisible);
-      }
-      const layoutSettings = [
-        TerminalSettingId.FontSize,
-        TerminalSettingId.FontFamily,
-        TerminalSettingId.FontWeight,
-        TerminalSettingId.FontWeightBold,
-        TerminalSettingId.LetterSpacing,
-        TerminalSettingId.LineHeight,
-        "editor.fontFamily"
-      ];
-      if (layoutSettings.some((id) => e.affectsConfiguration(id))) {
-        this._layoutSettingsChanged = true;
-        await this._resize();
-      }
-      if (e.affectsConfiguration(TerminalSettingId.UnicodeVersion)) {
-        this._updateUnicodeVersion();
-      }
-      if (e.affectsConfiguration("editor.accessibilitySupport")) {
-        this.updateAccessibilitySupport();
-      }
-      if (e.affectsConfiguration(TerminalSettingId.TerminalTitle) || e.affectsConfiguration(TerminalSettingId.TerminalTitleSeparator) || e.affectsConfiguration(TerminalSettingId.TerminalDescription)) {
-        this._labelComputer?.refreshLabel(this);
-      }
-    }));
-    this._register(this._workspaceContextService.onDidChangeWorkspaceFolders(() => this._labelComputer?.refreshLabel(this)));
+    this._register(
+      this._configurationService.onDidChangeConfiguration(async (e) => {
+        if (e.affectsConfiguration(
+          AccessibilityVerbositySettingId.Terminal
+        )) {
+          this._setAriaLabel(
+            this.xterm?.raw,
+            this._instanceId,
+            this.title
+          );
+        }
+        if (e.affectsConfiguration("terminal.integrated")) {
+          this.updateConfig();
+          this.setVisible(this._isVisible);
+        }
+        const layoutSettings = [
+          TerminalSettingId.FontSize,
+          TerminalSettingId.FontFamily,
+          TerminalSettingId.FontWeight,
+          TerminalSettingId.FontWeightBold,
+          TerminalSettingId.LetterSpacing,
+          TerminalSettingId.LineHeight,
+          "editor.fontFamily"
+        ];
+        if (layoutSettings.some((id) => e.affectsConfiguration(id))) {
+          this._layoutSettingsChanged = true;
+          await this._resize();
+        }
+        if (e.affectsConfiguration(TerminalSettingId.UnicodeVersion)) {
+          this._updateUnicodeVersion();
+        }
+        if (e.affectsConfiguration("editor.accessibilitySupport")) {
+          this.updateAccessibilitySupport();
+        }
+        if (e.affectsConfiguration(TerminalSettingId.TerminalTitle) || e.affectsConfiguration(
+          TerminalSettingId.TerminalTitleSeparator
+        ) || e.affectsConfiguration(
+          TerminalSettingId.TerminalDescription
+        )) {
+          this._labelComputer?.refreshLabel(this);
+        }
+      })
+    );
+    this._register(
+      this._workspaceContextService.onDidChangeWorkspaceFolders(
+        () => this._labelComputer?.refreshLabel(this)
+      )
+    );
     let initialDataEventsTimeout = dom.getWindow(this._container).setTimeout(() => {
       initialDataEventsTimeout = void 0;
       this._initialDataEvents = void 0;
       this._initialDataEventsListener.clear();
     }, 1e4);
-    this._register(toDisposable(() => {
-      if (initialDataEventsTimeout) {
-        dom.getWindow(this._container).clearTimeout(initialDataEventsTimeout);
-      }
-    }));
+    this._register(
+      toDisposable(() => {
+        if (initialDataEventsTimeout) {
+          dom.getWindow(this._container).clearTimeout(
+            initialDataEventsTimeout
+          );
+        }
+      })
+    );
     const contributionDescs = TerminalExtensionsRegistry.getTerminalContributions();
     for (const desc of contributionDescs) {
       if (this._contributions.has(desc.id)) {
-        onUnexpectedError(new Error(`Cannot have two terminal contributions with the same id ${desc.id}`));
+        onUnexpectedError(
+          new Error(
+            `Cannot have two terminal contributions with the same id ${desc.id}`
+          )
+        );
         continue;
       }
       let contribution;
       try {
-        contribution = this._register(this._scopedInstantiationService.createInstance(desc.ctor, this, this._processManager, this._widgetManager));
+        contribution = this._register(
+          this._scopedInstantiationService.createInstance(
+            desc.ctor,
+            this,
+            this._processManager,
+            this._widgetManager
+          )
+        );
         this._contributions.set(desc.id, contribution);
       } catch (err) {
         onUnexpectedError(err);
@@ -397,16 +479,18 @@ let TerminalInstance = class extends Disposable {
       this._xtermReadyPromise.then((xterm) => {
         contribution.xtermReady?.(xterm);
       });
-      this._register(this.onDisposed(() => {
-        contribution.dispose();
-        this._contributions.delete(desc.id);
-        if ("instance" in contribution) {
-          delete contribution.instance;
-        }
-        if ("_instance" in contribution) {
-          delete contribution._instance;
-        }
-      }));
+      this._register(
+        this.onDisposed(() => {
+          contribution.dispose();
+          this._contributions.delete(desc.id);
+          if ("instance" in contribution) {
+            delete contribution.instance;
+          }
+          if ("_instance" in contribution) {
+            delete contribution._instance;
+          }
+        })
+      );
     }
   }
   static _lastKnownCanvasDimensions;

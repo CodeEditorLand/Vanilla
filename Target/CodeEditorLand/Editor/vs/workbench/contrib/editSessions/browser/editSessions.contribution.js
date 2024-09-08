@@ -49,9 +49,9 @@ import {
 } from "../../../../platform/contextkey/common/contextkey.js";
 import { IsWebContext } from "../../../../platform/contextkey/common/contextkeys.js";
 import {
+  getFileNamesMessage,
   IDialogService,
-  IFileDialogService,
-  getFileNamesMessage
+  IFileDialogService
 } from "../../../../platform/dialogs/common/dialogs.js";
 import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
@@ -136,20 +136,20 @@ import {
 import { ISCMService } from "../../scm/common/scm.js";
 import {
   ChangeType,
+  decodeEditSessionFileContent,
+  EDIT_SESSION_SYNC_CATEGORY,
   EDIT_SESSIONS_CONTAINER_ID,
   EDIT_SESSIONS_DATA_VIEW_ID,
   EDIT_SESSIONS_PENDING,
   EDIT_SESSIONS_SHOW_VIEW,
   EDIT_SESSIONS_TITLE,
   EDIT_SESSIONS_VIEW_ICON,
-  EDIT_SESSION_SYNC_CATEGORY,
   EditSessionSchemaVersion,
-  FileType,
-  IEditSessionsLogService,
-  IEditSessionsStorageService,
-  decodeEditSessionFileContent,
   editSessionsLogId,
-  hashedEditSessionId
+  FileType,
+  hashedEditSessionId,
+  IEditSessionsLogService,
+  IEditSessionsStorageService
 } from "../common/editSessions.js";
 import { EditSessionsLogService } from "../common/editSessionsLogService.js";
 import { EditSessionsStoreClient } from "../common/editSessionsStorageClient.js";
@@ -255,27 +255,75 @@ let EditSessionsContribution = class extends Disposable {
     this.userDataProfilesService = userDataProfilesService;
     this.uriIdentityService = uriIdentityService;
     this.workspaceIdentityService = workspaceIdentityService;
-    this.shouldShowViewsContext = EDIT_SESSIONS_SHOW_VIEW.bindTo(this.contextKeyService);
-    this.pendingEditSessionsContext = EDIT_SESSIONS_PENDING.bindTo(this.contextKeyService);
+    this.shouldShowViewsContext = EDIT_SESSIONS_SHOW_VIEW.bindTo(
+      this.contextKeyService
+    );
+    this.pendingEditSessionsContext = EDIT_SESSIONS_PENDING.bindTo(
+      this.contextKeyService
+    );
     this.pendingEditSessionsContext.set(false);
     if (!this.productService["editSessions.store"]?.url) {
       return;
     }
-    this.editSessionsStorageClient = new EditSessionsStoreClient(URI.parse(this.productService["editSessions.store"].url), this.productService, this.requestService, this.logService, this.environmentService, this.fileService, this.storageService);
+    this.editSessionsStorageClient = new EditSessionsStoreClient(
+      URI.parse(this.productService["editSessions.store"].url),
+      this.productService,
+      this.requestService,
+      this.logService,
+      this.environmentService,
+      this.fileService,
+      this.storageService
+    );
     this.editSessionsStorageService.storeClient = this.editSessionsStorageClient;
-    this.workspaceStateSynchronizer = new WorkspaceStateSynchroniser(this.userDataProfilesService.defaultProfile, void 0, this.editSessionsStorageClient, this.logService, this.fileService, this.environmentService, this.telemetryService, this.configurationService, this.storageService, this.uriIdentityService, this.workspaceIdentityService, this.editSessionsStorageService);
+    this.workspaceStateSynchronizer = new WorkspaceStateSynchroniser(
+      this.userDataProfilesService.defaultProfile,
+      void 0,
+      this.editSessionsStorageClient,
+      this.logService,
+      this.fileService,
+      this.environmentService,
+      this.telemetryService,
+      this.configurationService,
+      this.storageService,
+      this.uriIdentityService,
+      this.workspaceIdentityService,
+      this.editSessionsStorageService
+    );
     this.autoResumeEditSession();
     this.registerActions();
     this.registerViews();
     this.registerContributedEditSessionOptions();
-    this._register(this.fileService.registerProvider(EditSessionsFileSystemProvider.SCHEMA, new EditSessionsFileSystemProvider(this.editSessionsStorageService)));
+    this._register(
+      this.fileService.registerProvider(
+        EditSessionsFileSystemProvider.SCHEMA,
+        new EditSessionsFileSystemProvider(
+          this.editSessionsStorageService
+        )
+      )
+    );
     this.lifecycleService.onWillShutdown((e) => {
-      if (e.reason !== ShutdownReason.RELOAD && this.editSessionsStorageService.isSignedIn && this.configurationService.getValue("workbench.experimental.cloudChanges.autoStore") === "onShutdown" && !isWeb) {
-        e.join(this.autoStoreEditSession(), { id: "autoStoreWorkingChanges", label: localize("autoStoreWorkingChanges", "Storing current working changes...") });
+      if (e.reason !== ShutdownReason.RELOAD && this.editSessionsStorageService.isSignedIn && this.configurationService.getValue(
+        "workbench.experimental.cloudChanges.autoStore"
+      ) === "onShutdown" && !isWeb) {
+        e.join(this.autoStoreEditSession(), {
+          id: "autoStoreWorkingChanges",
+          label: localize(
+            "autoStoreWorkingChanges",
+            "Storing current working changes..."
+          )
+        });
       }
     });
-    this._register(this.editSessionsStorageService.onDidSignIn(() => this.updateAccountsMenuBadge()));
-    this._register(this.editSessionsStorageService.onDidSignOut(() => this.updateAccountsMenuBadge()));
+    this._register(
+      this.editSessionsStorageService.onDidSignIn(
+        () => this.updateAccountsMenuBadge()
+      )
+    );
+    this._register(
+      this.editSessionsStorageService.onDidSignOut(
+        () => this.updateAccountsMenuBadge()
+      )
+    );
   }
   continueEditSessionOptions = [];
   shouldShowViewsContext;

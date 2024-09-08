@@ -17,11 +17,11 @@ import { isString } from "../../../../base/common/types.js";
 import {
   ILanguageService
 } from "../../../../editor/common/languages/language.js";
-import { LanguageService } from "../../../../editor/common/services/languageService.js";
 import {
   clearConfiguredLanguageAssociations,
   registerConfiguredLanguageAssociation
 } from "../../../../editor/common/services/languagesAssociations.js";
+import { LanguageService } from "../../../../editor/common/services/languageService.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
@@ -275,57 +275,85 @@ Registry.as(
 });
 let WorkbenchLanguageService = class extends LanguageService {
   constructor(extensionService, configurationService, environmentService, logService) {
-    super(environmentService.verbose || environmentService.isExtensionDevelopment || !environmentService.isBuilt);
+    super(
+      environmentService.verbose || environmentService.isExtensionDevelopment || !environmentService.isBuilt
+    );
     this.logService = logService;
     this._configurationService = configurationService;
     this._extensionService = extensionService;
-    languagesExtPoint.setHandler((extensions) => {
-      const allValidLanguages = [];
-      for (let i = 0, len = extensions.length; i < len; i++) {
-        const extension = extensions[i];
-        if (!Array.isArray(extension.value)) {
-          extension.collector.error(localize("invalid", "Invalid `contributes.{0}`. Expected an array.", languagesExtPoint.name));
-          continue;
-        }
-        for (let j = 0, lenJ = extension.value.length; j < lenJ; j++) {
-          const ext = extension.value[j];
-          if (isValidLanguageExtensionPoint(ext, extension.collector)) {
-            let configuration;
-            if (ext.configuration) {
-              configuration = joinPath(extension.description.extensionLocation, ext.configuration);
-            }
-            allValidLanguages.push({
-              id: ext.id,
-              extensions: ext.extensions,
-              filenames: ext.filenames,
-              filenamePatterns: ext.filenamePatterns,
-              firstLine: ext.firstLine,
-              aliases: ext.aliases,
-              mimetypes: ext.mimetypes,
-              configuration,
-              icon: ext.icon && {
-                light: joinPath(extension.description.extensionLocation, ext.icon.light),
-                dark: joinPath(extension.description.extensionLocation, ext.icon.dark)
+    languagesExtPoint.setHandler(
+      (extensions) => {
+        const allValidLanguages = [];
+        for (let i = 0, len = extensions.length; i < len; i++) {
+          const extension = extensions[i];
+          if (!Array.isArray(extension.value)) {
+            extension.collector.error(
+              localize(
+                "invalid",
+                "Invalid `contributes.{0}`. Expected an array.",
+                languagesExtPoint.name
+              )
+            );
+            continue;
+          }
+          for (let j = 0, lenJ = extension.value.length; j < lenJ; j++) {
+            const ext = extension.value[j];
+            if (isValidLanguageExtensionPoint(
+              ext,
+              extension.collector
+            )) {
+              let configuration;
+              if (ext.configuration) {
+                configuration = joinPath(
+                  extension.description.extensionLocation,
+                  ext.configuration
+                );
               }
-            });
+              allValidLanguages.push({
+                id: ext.id,
+                extensions: ext.extensions,
+                filenames: ext.filenames,
+                filenamePatterns: ext.filenamePatterns,
+                firstLine: ext.firstLine,
+                aliases: ext.aliases,
+                mimetypes: ext.mimetypes,
+                configuration,
+                icon: ext.icon && {
+                  light: joinPath(
+                    extension.description.extensionLocation,
+                    ext.icon.light
+                  ),
+                  dark: joinPath(
+                    extension.description.extensionLocation,
+                    ext.icon.dark
+                  )
+                }
+              });
+            }
           }
         }
+        this._registry.setDynamicLanguages(allValidLanguages);
       }
-      this._registry.setDynamicLanguages(allValidLanguages);
-    });
+    );
     this.updateMime();
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(FILES_ASSOCIATIONS_CONFIG)) {
-        this.updateMime();
-      }
-    }));
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(FILES_ASSOCIATIONS_CONFIG)) {
+          this.updateMime();
+        }
+      })
+    );
     this._extensionService.whenInstalledExtensionsRegistered().then(() => {
       this.updateMime();
     });
-    this._register(this.onDidRequestRichLanguageFeatures((languageId) => {
-      this._extensionService.activateByEvent(`onLanguage:${languageId}`);
-      this._extensionService.activateByEvent(`onLanguage`);
-    }));
+    this._register(
+      this.onDidRequestRichLanguageFeatures((languageId) => {
+        this._extensionService.activateByEvent(
+          `onLanguage:${languageId}`
+        );
+        this._extensionService.activateByEvent(`onLanguage`);
+      })
+    );
   }
   _configurationService;
   _extensionService;

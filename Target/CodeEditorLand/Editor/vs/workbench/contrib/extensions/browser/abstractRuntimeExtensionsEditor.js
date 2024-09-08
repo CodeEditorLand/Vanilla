@@ -83,7 +83,13 @@ import { RuntimeExtensionsInput } from "../common/runtimeExtensionsInput.js";
 import { errorIcon, warningIcon } from "./extensionsIcons.js";
 let AbstractRuntimeExtensionsEditor = class extends EditorPane {
   constructor(group, telemetryService, themeService, contextKeyService, _extensionsWorkbenchService, _extensionService, _notificationService, _contextMenuService, _instantiationService, storageService, _labelService, _environmentService, _clipboardService, _extensionFeaturesManagementService, _hoverService) {
-    super(AbstractRuntimeExtensionsEditor.ID, group, telemetryService, themeService, storageService);
+    super(
+      AbstractRuntimeExtensionsEditor.ID,
+      group,
+      telemetryService,
+      themeService,
+      storageService
+    );
     this._extensionsWorkbenchService = _extensionsWorkbenchService;
     this._extensionService = _extensionService;
     this._notificationService = _notificationService;
@@ -96,9 +102,19 @@ let AbstractRuntimeExtensionsEditor = class extends EditorPane {
     this._hoverService = _hoverService;
     this._list = null;
     this._elements = null;
-    this._updateSoon = this._register(new RunOnceScheduler(() => this._updateExtensions(), 200));
-    this._register(this._extensionService.onDidChangeExtensionsStatus(() => this._updateSoon.schedule()));
-    this._register(this._extensionFeaturesManagementService.onDidChangeAccessData(() => this._updateSoon.schedule()));
+    this._updateSoon = this._register(
+      new RunOnceScheduler(() => this._updateExtensions(), 200)
+    );
+    this._register(
+      this._extensionService.onDidChangeExtensionsStatus(
+        () => this._updateSoon.schedule()
+      )
+    );
+    this._register(
+      this._extensionFeaturesManagementService.onDidChangeAccessData(
+        () => this._updateSoon.schedule()
+      )
+    );
     this._updateExtensions();
   }
   static ID = "workbench.editor.runtimeExtensions";

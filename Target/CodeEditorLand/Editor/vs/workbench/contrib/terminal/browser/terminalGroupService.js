@@ -33,11 +33,30 @@ let TerminalGroupService = class extends Disposable {
     this._viewDescriptorService = _viewDescriptorService;
     this._quickInputService = _quickInputService;
     this._terminalGroupCountContextKey = TerminalContextKeys.groupCount.bindTo(this._contextKeyService);
-    this._register(this.onDidDisposeGroup((group) => this._removeGroup(group)));
-    this._register(this.onDidChangeGroups(() => this._terminalGroupCountContextKey.set(this.groups.length)));
-    this._register(Event.any(this.onDidChangeActiveGroup, this.onDidChangeInstances)(() => this.updateVisibility()));
-    this._register(this._quickInputService.onShow(() => this._isQuickInputOpened = true));
-    this._register(this._quickInputService.onHide(() => this._isQuickInputOpened = false));
+    this._register(
+      this.onDidDisposeGroup((group) => this._removeGroup(group))
+    );
+    this._register(
+      this.onDidChangeGroups(
+        () => this._terminalGroupCountContextKey.set(this.groups.length)
+      )
+    );
+    this._register(
+      Event.any(
+        this.onDidChangeActiveGroup,
+        this.onDidChangeInstances
+      )(() => this.updateVisibility())
+    );
+    this._register(
+      this._quickInputService.onShow(
+        () => this._isQuickInputOpened = true
+      )
+    );
+    this._register(
+      this._quickInputService.onHide(
+        () => this._isQuickInputOpened = false
+      )
+    );
   }
   groups = [];
   activeGroupIndex = -1;

@@ -17,15 +17,19 @@ import { ICodeEditorService } from "../../../../editor/browser/services/codeEdit
 import { getEditorFeatures } from "../../../../editor/common/editorFeatures.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 let EditorFeaturesInstantiator = class extends Disposable {
   constructor(codeEditorService, _instantiationService) {
     super();
     this._instantiationService = _instantiationService;
-    this._register(codeEditorService.onWillCreateCodeEditor(() => this._instantiate()));
-    this._register(codeEditorService.onWillCreateDiffEditor(() => this._instantiate()));
+    this._register(
+      codeEditorService.onWillCreateCodeEditor(() => this._instantiate())
+    );
+    this._register(
+      codeEditorService.onWillCreateDiffEditor(() => this._instantiate())
+    );
     if (codeEditorService.listCodeEditors().length > 0 || codeEditorService.listDiffEditors().length > 0) {
       this._instantiate();
     }

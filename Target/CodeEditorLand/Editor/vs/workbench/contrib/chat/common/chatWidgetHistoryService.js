@@ -28,9 +28,14 @@ let ChatWidgetHistoryService = class {
   onDidClearHistory = this._onDidClearHistory.event;
   constructor(storageService) {
     this.memento = new Memento("interactive-session", storageService);
-    const loadedState = this.memento.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE);
+    const loadedState = this.memento.getMemento(
+      StorageScope.WORKSPACE,
+      StorageTarget.MACHINE
+    );
     for (const provider in loadedState.history) {
-      loadedState.history[provider] = loadedState.history[provider].map((entry) => typeof entry === "string" ? { text: entry } : entry);
+      loadedState.history[provider] = loadedState.history[provider].map(
+        (entry) => typeof entry === "string" ? { text: entry } : entry
+      );
     }
     this.viewState = loadedState;
   }

@@ -6,9 +6,9 @@ import {
 import { Schemas } from "../../base/common/network.js";
 import * as path from "../../base/common/path.js";
 import {
+  getdevDeviceId,
   getMachineId,
-  getSqmMachineId,
-  getdevDeviceId
+  getSqmMachineId
 } from "../../base/node/id.js";
 import { Promises } from "../../base/node/pfs.js";
 import {
@@ -45,8 +45,8 @@ import {
   IExtensionSignatureVerificationService
 } from "../../platform/extensionManagement/node/extensionSignatureVerificationService.js";
 import { ExtensionsProfileScannerService } from "../../platform/extensionManagement/node/extensionsProfileScannerService.js";
-import { FileService } from "../../platform/files/common/fileService.js";
 import { IFileService } from "../../platform/files/common/files.js";
+import { FileService } from "../../platform/files/common/fileService.js";
 import { DiskFileSystemProvider } from "../../platform/files/node/diskFileSystemProvider.js";
 import { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
 import { InstantiationService } from "../../platform/instantiation/common/instantiationService.js";
@@ -56,12 +56,12 @@ import { NativeLanguagePackService } from "../../platform/languagePacks/node/lan
 import {
   AbstractLogger,
   DEFAULT_LOG_LEVEL,
-  ILogService,
-  ILoggerService,
-  LogLevel,
-  LogLevelToString,
   getLogLevel,
-  log
+  ILoggerService,
+  ILogService,
+  log,
+  LogLevel,
+  LogLevelToString
 } from "../../platform/log/common/log.js";
 import { LoggerChannel } from "../../platform/log/common/logIpc.js";
 import { LogService } from "../../platform/log/common/logService.js";
@@ -85,10 +85,10 @@ import {
   TelemetryLevel
 } from "../../platform/telemetry/common/telemetry.js";
 import {
-  NullAppender,
   getPiiPathsFromEnvironment,
   isInternalTelemetry,
   isLoggingOnly,
+  NullAppender,
   supportsTelemetry
 } from "../../platform/telemetry/common/telemetryUtils.js";
 import { OneDataSystemAppender } from "../../platform/telemetry/node/1dsAppender.js";

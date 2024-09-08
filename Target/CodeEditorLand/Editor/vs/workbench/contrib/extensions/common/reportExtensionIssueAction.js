@@ -15,7 +15,11 @@ import { IWorkbenchIssueService } from "../../issue/common/issue.js";
 let ReportExtensionIssueAction = class extends Action {
   // TODO: Consider passing in IExtensionStatus or IExtensionHostProfile for additional data
   constructor(extension, issueService) {
-    super(ReportExtensionIssueAction._id, ReportExtensionIssueAction._label, "extension-action report-issue");
+    super(
+      ReportExtensionIssueAction._id,
+      ReportExtensionIssueAction._label,
+      "extension-action report-issue"
+    );
     this.extension = extension;
     this.issueService = issueService;
     this.enabled = extension.isBuiltin || !!extension.repository && !!extension.repository.url;

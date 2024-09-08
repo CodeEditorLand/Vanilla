@@ -22,10 +22,10 @@ import {
   getThemeTypeSelector
 } from "../../../../platform/theme/common/themeService.js";
 import {
-  SemanticTokenRule,
-  TokenStyle,
   getTokenClassificationRegistry,
-  parseClassifierString
+  parseClassifierString,
+  SemanticTokenRule,
+  TokenStyle
 } from "../../../../platform/theme/common/tokenClassificationRegistry.js";
 import { parse as parsePList } from "./plistParser.js";
 import {
@@ -37,10 +37,10 @@ import {
   THEME_SCOPE_CLOSE_PAREN,
   THEME_SCOPE_OPEN_PAREN,
   THEME_SCOPE_WILDCARD,
+  themeScopeRegex,
   VS_HC_LIGHT_THEME,
   VS_HC_THEME,
-  VS_LIGHT_THEME,
-  themeScopeRegex
+  VS_LIGHT_THEME
 } from "./workbenchThemeService.js";
 const colorRegistry = Registry.as(
   ColorRegistryExtensions.ColorContribution

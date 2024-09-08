@@ -21,13 +21,13 @@ import {
 import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import {
@@ -36,12 +36,12 @@ import {
 } from "../../accessibility/browser/accessibilityConfiguration.js";
 import { CommentCommandId } from "../common/commentCommandIds.js";
 import { CommentContextKeys } from "../common/commentContextKeys.js";
-import { ICommentService } from "./commentService.js";
 import { CommentController, ID } from "./commentsController.js";
+import { ICommentService } from "./commentService.js";
 import { CommentsInputContentProvider } from "./commentsInputContentProvider.js";
 import {
-  SimpleCommentEditor,
-  ctxCommentEditorFocused
+  ctxCommentEditorFocused,
+  SimpleCommentEditor
 } from "./simpleCommentEditor.js";
 registerEditorContribution(
   ID,

@@ -11,7 +11,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { DomEmitter } from "../../../../base/browser/event.js";
 import { mainWindow } from "../../../../base/browser/window.js";
-import { RunOnceScheduler, retry } from "../../../../base/common/async.js";
+import { retry, RunOnceScheduler } from "../../../../base/common/async.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import {
@@ -25,9 +25,9 @@ import {
 } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import {
-  PlatformToString,
   isWeb,
-  platform
+  platform,
+  PlatformToString
 } from "../../../../base/common/platform.js";
 import { truncate } from "../../../../base/common/strings.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";

@@ -26,7 +26,16 @@ import {
 const MAX_URL_LENGTH = 7500;
 let IssueReporter2 = class extends BaseIssueReporterService {
   constructor(disableExtensions, data, os, product, window, nativeHostService, issueFormService, processMainService, themeService) {
-    super(disableExtensions, data, os, product, window, false, issueFormService, themeService);
+    super(
+      disableExtensions,
+      data,
+      os,
+      product,
+      window,
+      false,
+      issueFormService,
+      themeService
+    );
     this.nativeHostService = nativeHostService;
     this.processMainService = processMainService;
     this.processMainService.$getSystemInfo().then((info) => {

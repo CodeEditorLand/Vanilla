@@ -55,10 +55,10 @@ import {
   updateRanges
 } from "./chatModel.js";
 import {
+  chatAgentLeader,
   ChatRequestAgentPart,
   ChatRequestAgentSubcommandPart,
   ChatRequestSlashCommandPart,
-  chatAgentLeader,
   chatSubcommandLeader,
   getPromptText
 } from "./chatParserTypes.js";
@@ -98,12 +98,19 @@ let ChatService = class extends Disposable {
     this.configurationService = configurationService;
     this._chatServiceTelemetry = this.instantiationService.createInstance(ChatServiceTelemetry);
     const isEmptyWindow = !workspaceContextService.getWorkspace().folders.length;
-    const sessionData = storageService.get(serializedChatKey, isEmptyWindow ? StorageScope.APPLICATION : StorageScope.WORKSPACE, "");
+    const sessionData = storageService.get(
+      serializedChatKey,
+      isEmptyWindow ? StorageScope.APPLICATION : StorageScope.WORKSPACE,
+      ""
+    );
     if (sessionData) {
       this._persistedSessions = this.deserializeChats(sessionData);
       const countsForLog = Object.keys(this._persistedSessions).length;
       if (countsForLog > 0) {
-        this.trace("constructor", `Restored ${countsForLog} persisted sessions`);
+        this.trace(
+          "constructor",
+          `Restored ${countsForLog} persisted sessions`
+        );
       }
     } else {
       this._persistedSessions = {};
@@ -111,9 +118,15 @@ let ChatService = class extends Disposable {
     const transferredData = this.getTransferredSessionData();
     const transferredChat = transferredData?.chat;
     if (transferredChat) {
-      this.trace("constructor", `Transferred session ${transferredChat.sessionId}`);
+      this.trace(
+        "constructor",
+        `Transferred session ${transferredChat.sessionId}`
+      );
       this._persistedSessions[transferredChat.sessionId] = transferredChat;
-      this._transferredSessionData = { sessionId: transferredChat.sessionId, inputValue: transferredData.inputValue };
+      this._transferredSessionData = {
+        sessionId: transferredChat.sessionId,
+        inputValue: transferredData.inputValue
+      };
     }
     this._register(storageService.onWillSaveState(() => this.saveState()));
     const voteUpEnabled = CONTEXT_VOTE_UP_ENABLED.bindTo(contextKeyService);

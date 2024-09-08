@@ -481,29 +481,53 @@ let ResourceContextKey = class {
     this._fileService = _fileService;
     this._languageService = _languageService;
     this._modelService = _modelService;
-    this._schemeKey = ResourceContextKey.Scheme.bindTo(this._contextKeyService);
-    this._filenameKey = ResourceContextKey.Filename.bindTo(this._contextKeyService);
-    this._dirnameKey = ResourceContextKey.Dirname.bindTo(this._contextKeyService);
+    this._schemeKey = ResourceContextKey.Scheme.bindTo(
+      this._contextKeyService
+    );
+    this._filenameKey = ResourceContextKey.Filename.bindTo(
+      this._contextKeyService
+    );
+    this._dirnameKey = ResourceContextKey.Dirname.bindTo(
+      this._contextKeyService
+    );
     this._pathKey = ResourceContextKey.Path.bindTo(this._contextKeyService);
-    this._langIdKey = ResourceContextKey.LangId.bindTo(this._contextKeyService);
-    this._resourceKey = ResourceContextKey.Resource.bindTo(this._contextKeyService);
-    this._extensionKey = ResourceContextKey.Extension.bindTo(this._contextKeyService);
-    this._hasResource = ResourceContextKey.HasResource.bindTo(this._contextKeyService);
-    this._isFileSystemResource = ResourceContextKey.IsFileSystemResource.bindTo(this._contextKeyService);
-    this._disposables.add(_fileService.onDidChangeFileSystemProviderRegistrations(() => {
-      const resource = this.get();
-      this._isFileSystemResource.set(Boolean(resource && _fileService.hasProvider(resource)));
-    }));
-    this._disposables.add(_modelService.onModelAdded((model) => {
-      if (isEqual(model.uri, this.get())) {
-        this._setLangId();
-      }
-    }));
-    this._disposables.add(_modelService.onModelLanguageChanged((e) => {
-      if (isEqual(e.model.uri, this.get())) {
-        this._setLangId();
-      }
-    }));
+    this._langIdKey = ResourceContextKey.LangId.bindTo(
+      this._contextKeyService
+    );
+    this._resourceKey = ResourceContextKey.Resource.bindTo(
+      this._contextKeyService
+    );
+    this._extensionKey = ResourceContextKey.Extension.bindTo(
+      this._contextKeyService
+    );
+    this._hasResource = ResourceContextKey.HasResource.bindTo(
+      this._contextKeyService
+    );
+    this._isFileSystemResource = ResourceContextKey.IsFileSystemResource.bindTo(
+      this._contextKeyService
+    );
+    this._disposables.add(
+      _fileService.onDidChangeFileSystemProviderRegistrations(() => {
+        const resource = this.get();
+        this._isFileSystemResource.set(
+          Boolean(resource && _fileService.hasProvider(resource))
+        );
+      })
+    );
+    this._disposables.add(
+      _modelService.onModelAdded((model) => {
+        if (isEqual(model.uri, this.get())) {
+          this._setLangId();
+        }
+      })
+    );
+    this._disposables.add(
+      _modelService.onModelLanguageChanged((e) => {
+        if (isEqual(e.model.uri, this.get())) {
+          this._setLangId();
+        }
+      })
+    );
   }
   // NOTE: DO NOT CHANGE THE DEFAULT VALUE TO ANYTHING BUT
   // UNDEFINED! IT IS IMPORTANT THAT DEFAULTS ARE INHERITED

@@ -34,9 +34,9 @@ import { Color, RGBA } from "../../../../base/common/color.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import {
+  combinedDisposable,
   Disposable,
   DisposableStore,
-  combinedDisposable,
   dispose,
   toDisposable
 } from "../../../../base/common/lifecycle.js";
@@ -66,8 +66,8 @@ import { ServiceCollection } from "../../../../platform/instantiation/common/ser
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
 import {
-  ZIndex,
-  registerZIndex
+  registerZIndex,
+  ZIndex
 } from "../../../../platform/layout/browser/zIndexRegistry.js";
 import {
   IEditorProgressService
@@ -219,9 +219,23 @@ let NotebookEditorWidget = class extends Disposable {
     this._readOnly = creationOptions.isReadOnly ?? false;
     this._inRepl = creationOptions.forRepl ?? false;
     this._overlayContainer = document.createElement("div");
-    this.scopedContextKeyService = this._register(contextKeyService.createScoped(this._overlayContainer));
-    this.instantiationService = this._register(instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
-    this._notebookOptions = creationOptions.options ?? this.instantiationService.createInstance(NotebookOptions, this.creationOptions?.codeWindow ?? mainWindow, this._readOnly, void 0);
+    this.scopedContextKeyService = this._register(
+      contextKeyService.createScoped(this._overlayContainer)
+    );
+    this.instantiationService = this._register(
+      instantiationService.createChild(
+        new ServiceCollection([
+          IContextKeyService,
+          this.scopedContextKeyService
+        ])
+      )
+    );
+    this._notebookOptions = creationOptions.options ?? this.instantiationService.createInstance(
+      NotebookOptions,
+      this.creationOptions?.codeWindow ?? mainWindow,
+      this._readOnly,
+      void 0
+    );
     this._register(this._notebookOptions);
     const eventDispatcher = this._register(new NotebookEventDispatcher());
     this._viewContext = new ViewContext(
@@ -229,58 +243,84 @@ let NotebookEditorWidget = class extends Disposable {
       eventDispatcher,
       (language) => this.getBaseCellEditorOptions(language)
     );
-    this._register(this._viewContext.eventDispatcher.onDidChangeLayout(() => {
-      this._onDidChangeLayout.fire();
-    }));
-    this._register(this._viewContext.eventDispatcher.onDidChangeCellState((e) => {
-      this._onDidChangeCellState.fire(e);
-    }));
-    this._register(_notebookService.onDidChangeOutputRenderers(() => {
-      this._updateOutputRenderers();
-    }));
-    this._register(this.instantiationService.createInstance(NotebookEditorContextKeys, this));
-    this._register(notebookKernelService.onDidChangeSelectedNotebooks((e) => {
-      if (isEqual(e.notebook, this.viewModel?.uri)) {
-        this._loadKernelPreloads();
-        this._onDidChangeActiveKernel.fire();
-      }
-    }));
-    this._scrollBeyondLastLine = this.configurationService.getValue("editor.scrollBeyondLastLine");
-    this._register(this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("editor.scrollBeyondLastLine")) {
-        this._scrollBeyondLastLine = this.configurationService.getValue("editor.scrollBeyondLastLine");
+    this._register(
+      this._viewContext.eventDispatcher.onDidChangeLayout(() => {
+        this._onDidChangeLayout.fire();
+      })
+    );
+    this._register(
+      this._viewContext.eventDispatcher.onDidChangeCellState((e) => {
+        this._onDidChangeCellState.fire(e);
+      })
+    );
+    this._register(
+      _notebookService.onDidChangeOutputRenderers(() => {
+        this._updateOutputRenderers();
+      })
+    );
+    this._register(
+      this.instantiationService.createInstance(
+        NotebookEditorContextKeys,
+        this
+      )
+    );
+    this._register(
+      notebookKernelService.onDidChangeSelectedNotebooks((e) => {
+        if (isEqual(e.notebook, this.viewModel?.uri)) {
+          this._loadKernelPreloads();
+          this._onDidChangeActiveKernel.fire();
+        }
+      })
+    );
+    this._scrollBeyondLastLine = this.configurationService.getValue(
+      "editor.scrollBeyondLastLine"
+    );
+    this._register(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("editor.scrollBeyondLastLine")) {
+          this._scrollBeyondLastLine = this.configurationService.getValue(
+            "editor.scrollBeyondLastLine"
+          );
+          if (this._dimension && this._isVisible) {
+            this.layout(this._dimension);
+          }
+        }
+      })
+    );
+    this._register(
+      this._notebookOptions.onDidChangeOptions((e) => {
+        if (e.cellStatusBarVisibility || e.cellToolbarLocation || e.cellToolbarInteraction) {
+          this._updateForNotebookConfiguration();
+        }
+        if (e.fontFamily) {
+          this._generateFontInfo();
+        }
+        if (e.compactView || e.focusIndicator || e.insertToolbarPosition || e.cellToolbarLocation || e.dragAndDropEnabled || e.fontSize || e.markupFontSize || e.markdownLineHeight || e.fontFamily || e.insertToolbarAlignment || e.outputFontSize || e.outputLineHeight || e.outputFontFamily || e.outputWordWrap || e.outputScrolling || e.outputLinkifyFilePaths || e.minimalError) {
+          this._styleElement?.remove();
+          this._createLayoutStyles();
+          this._webview?.updateOptions({
+            ...this.notebookOptions.computeWebviewOptions(),
+            fontFamily: this._generateFontFamily()
+          });
+        }
         if (this._dimension && this._isVisible) {
           this.layout(this._dimension);
         }
-      }
-    }));
-    this._register(this._notebookOptions.onDidChangeOptions((e) => {
-      if (e.cellStatusBarVisibility || e.cellToolbarLocation || e.cellToolbarInteraction) {
-        this._updateForNotebookConfiguration();
-      }
-      if (e.fontFamily) {
-        this._generateFontInfo();
-      }
-      if (e.compactView || e.focusIndicator || e.insertToolbarPosition || e.cellToolbarLocation || e.dragAndDropEnabled || e.fontSize || e.markupFontSize || e.markdownLineHeight || e.fontFamily || e.insertToolbarAlignment || e.outputFontSize || e.outputLineHeight || e.outputFontFamily || e.outputWordWrap || e.outputScrolling || e.outputLinkifyFilePaths || e.minimalError) {
-        this._styleElement?.remove();
-        this._createLayoutStyles();
-        this._webview?.updateOptions({
-          ...this.notebookOptions.computeWebviewOptions(),
-          fontFamily: this._generateFontFamily()
-        });
-      }
-      if (this._dimension && this._isVisible) {
-        this.layout(this._dimension);
-      }
-    }));
+      })
+    );
     const container = creationOptions.codeWindow ? this.layoutService.getContainer(creationOptions.codeWindow) : this.layoutService.mainContainer;
-    this._register(editorGroupsService.getPart(container).onDidScroll((e) => {
-      if (!this._shadowElement || !this._isVisible) {
-        return;
-      }
-      this.updateShadowElement(this._shadowElement, this._dimension);
-      this.layoutContainerOverShadowElement(this._dimension, this._position);
-    }));
+    this._register(
+      editorGroupsService.getPart(container).onDidScroll((e) => {
+        if (!this._shadowElement || !this._isVisible) {
+          return;
+        }
+        this.updateShadowElement(this._shadowElement, this._dimension);
+        this.layoutContainerOverShadowElement(
+          this._dimension,
+          this._position
+        );
+      })
+    );
     this.notebookEditorService.addNotebookEditor(this);
     const id = generateUuid();
     this._overlayContainer.id = `notebook-${id}`;
@@ -292,12 +332,25 @@ let NotebookEditorWidget = class extends Disposable {
     this._createBody(this._overlayContainer);
     this._generateFontInfo();
     this._isVisible = true;
-    this._editorFocus = NOTEBOOK_EDITOR_FOCUSED.bindTo(this.scopedContextKeyService);
-    this._outputFocus = NOTEBOOK_OUTPUT_FOCUSED.bindTo(this.scopedContextKeyService);
-    this._outputInputFocus = NOTEBOOK_OUTPUT_INPUT_FOCUSED.bindTo(this.scopedContextKeyService);
-    this._editorEditable = NOTEBOOK_EDITOR_EDITABLE.bindTo(this.scopedContextKeyService);
-    this._cursorNavMode = NOTEBOOK_CURSOR_NAVIGATION_MODE.bindTo(this.scopedContextKeyService);
-    new RawContextKey(PreventDefaultContextMenuItemsContextKeyName, false).bindTo(this.scopedContextKeyService).set(true);
+    this._editorFocus = NOTEBOOK_EDITOR_FOCUSED.bindTo(
+      this.scopedContextKeyService
+    );
+    this._outputFocus = NOTEBOOK_OUTPUT_FOCUSED.bindTo(
+      this.scopedContextKeyService
+    );
+    this._outputInputFocus = NOTEBOOK_OUTPUT_INPUT_FOCUSED.bindTo(
+      this.scopedContextKeyService
+    );
+    this._editorEditable = NOTEBOOK_EDITOR_EDITABLE.bindTo(
+      this.scopedContextKeyService
+    );
+    this._cursorNavMode = NOTEBOOK_CURSOR_NAVIGATION_MODE.bindTo(
+      this.scopedContextKeyService
+    );
+    new RawContextKey(
+      PreventDefaultContextMenuItemsContextKeyName,
+      false
+    ).bindTo(this.scopedContextKeyService).set(true);
     this._editorEditable.set(!creationOptions.isReadOnly);
     let contributions;
     if (Array.isArray(this.creationOptions.contributions)) {
@@ -308,14 +361,19 @@ let NotebookEditorWidget = class extends Disposable {
     for (const desc of contributions) {
       let contribution;
       try {
-        contribution = this.instantiationService.createInstance(desc.ctor, this);
+        contribution = this.instantiationService.createInstance(
+          desc.ctor,
+          this
+        );
       } catch (err) {
         onUnexpectedError(err);
       }
       if (contribution) {
         if (this._contributions.has(desc.id)) {
           contribution.dispose();
-          throw new Error(`DUPLICATE notebook editor contribution: '${desc.id}'`);
+          throw new Error(
+            `DUPLICATE notebook editor contribution: '${desc.id}'`
+          );
         } else {
           this._contributions.set(desc.id, contribution);
         }

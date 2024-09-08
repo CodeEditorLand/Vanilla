@@ -8,11 +8,6 @@ import {
   foreground
 } from "../../../../platform/theme/common/colorRegistry.js";
 import {
-  asCssVariable,
-  registerColor,
-  transparent
-} from "../../../../platform/theme/common/colorUtils.js";
-import {
   chartsBlue,
   chartsGreen,
   chartsOrange,
@@ -20,6 +15,11 @@ import {
   chartsRed,
   chartsYellow
 } from "../../../../platform/theme/common/colors/chartsColors.js";
+import {
+  asCssVariable,
+  registerColor,
+  transparent
+} from "../../../../platform/theme/common/colorUtils.js";
 const SWIMLANE_HEIGHT = 22;
 const SWIMLANE_WIDTH = 11;
 const CIRCLE_RADIUS = 4;

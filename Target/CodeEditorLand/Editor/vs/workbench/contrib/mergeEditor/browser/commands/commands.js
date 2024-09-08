@@ -15,12 +15,12 @@ import {
 } from "../../../../../platform/storage/common/storage.js";
 import { IEditorService } from "../../../../services/editor/common/editorService.js";
 import {
-  StorageCloseWithConflicts,
   ctxIsMergeEditor,
   ctxMergeEditorLayout,
   ctxMergeEditorShowBase,
   ctxMergeEditorShowBaseAtTop,
-  ctxMergeEditorShowNonConflictingChanges
+  ctxMergeEditorShowNonConflictingChanges,
+  StorageCloseWithConflicts
 } from "../../common/mergeEditor.js";
 import {
   MergeEditorInputData

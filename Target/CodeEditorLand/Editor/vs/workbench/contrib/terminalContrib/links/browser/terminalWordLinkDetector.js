@@ -37,11 +37,13 @@ let TerminalWordLinkDetector = class extends Disposable {
     this._configurationService = _configurationService;
     this._productService = _productService;
     this._refreshSeparatorCodes();
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(TerminalSettingId.WordSeparators)) {
-        this._refreshSeparatorCodes();
-      }
-    }));
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(TerminalSettingId.WordSeparators)) {
+          this._refreshSeparatorCodes();
+        }
+      })
+    );
   }
   static id = "word";
   // Word links typically search the workspace so it makes sense that their maximum link length is

@@ -16,8 +16,8 @@ import {
   DisposableStore
 } from "../../../../base/common/lifecycle.js";
 import {
-  OperatingSystem,
-  isMacintosh
+  isMacintosh,
+  OperatingSystem
 } from "../../../../base/common/platform.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI } from "../../../../base/common/uri.js";
@@ -419,7 +419,12 @@ let TerminalOutputProvider = class extends Disposable {
   constructor(textModelResolverService, _modelService) {
     super();
     this._modelService = _modelService;
-    this._register(textModelResolverService.registerTextModelContentProvider(TerminalOutputProvider.scheme, this));
+    this._register(
+      textModelResolverService.registerTextModelContentProvider(
+        TerminalOutputProvider.scheme,
+        this
+      )
+    );
   }
   static scheme = "TERMINAL_OUTPUT";
   async provideTextContent(resource) {

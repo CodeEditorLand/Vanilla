@@ -42,8 +42,8 @@ import { InputFocusedContextKey } from "../../../../../../platform/contextkey/co
 import { KeybindingWeight } from "../../../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { ILogService } from "../../../../../../platform/log/common/log.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../../../common/contributions.js";
 import { IEditorService } from "../../../../../services/editor/common/editorService.js";
 import { showWindowLogActionId } from "../../../../../services/log/common/logConstants.js";
@@ -407,19 +407,37 @@ let NotebookClipboardContribution = class extends Disposable {
     this._editorService = _editorService;
     const PRIORITY2 = 105;
     if (CopyAction) {
-      this._register(CopyAction.addImplementation(PRIORITY2, "notebook-clipboard", (accessor) => {
-        return this.runCopyAction(accessor);
-      }));
+      this._register(
+        CopyAction.addImplementation(
+          PRIORITY2,
+          "notebook-clipboard",
+          (accessor) => {
+            return this.runCopyAction(accessor);
+          }
+        )
+      );
     }
     if (PasteAction) {
-      this._register(PasteAction.addImplementation(PRIORITY2, "notebook-clipboard", (accessor) => {
-        return this.runPasteAction(accessor);
-      }));
+      this._register(
+        PasteAction.addImplementation(
+          PRIORITY2,
+          "notebook-clipboard",
+          (accessor) => {
+            return this.runPasteAction(accessor);
+          }
+        )
+      );
     }
     if (CutAction) {
-      this._register(CutAction.addImplementation(PRIORITY2, "notebook-clipboard", (accessor) => {
-        return this.runCutAction(accessor);
-      }));
+      this._register(
+        CutAction.addImplementation(
+          PRIORITY2,
+          "notebook-clipboard",
+          (accessor) => {
+            return this.runCutAction(accessor);
+          }
+        )
+      );
     }
   }
   static ID = "workbench.contrib.notebookClipboard";

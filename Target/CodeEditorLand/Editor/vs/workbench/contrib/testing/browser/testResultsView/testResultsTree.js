@@ -31,8 +31,8 @@ import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { isDefined } from "../../../../../base/common/types.js";
 import { localize } from "../../../../../nls.js";
 import {
-  MenuEntryActionViewItem,
-  createAndFillInActionBarActions
+  createAndFillInActionBarActions,
+  MenuEntryActionViewItem
 } from "../../../../../platform/actions/browser/menuEntryActionViewItem.js";
 import {
   IMenuService,
@@ -51,32 +51,32 @@ import { IEditorService } from "../../../../services/editor/common/editorService
 import { TestCommandId, Testing } from "../../common/constants.js";
 import { ITestCoverageService } from "../../common/testCoverageService.js";
 import { ITestExplorerFilterState } from "../../common/testExplorerFilterState.js";
+import { TestingContextKeys } from "../../common/testingContextKeys.js";
+import { cmpPriority } from "../../common/testingStates.js";
+import { buildTestUri, TestUriType } from "../../common/testingUri.js";
 import { ITestProfileService } from "../../common/testProfileService.js";
 import {
   LiveTestResult,
-  TestResultItemChangeReason,
-  maxCountPriority
+  maxCountPriority,
+  TestResultItemChangeReason
 } from "../../common/testResult.js";
 import { ITestResultService } from "../../common/testResultService.js";
 import {
   InternalTestItem,
   TestMessageType,
   TestResultState,
-  TestRunProfileBitset,
-  testResultStateToContextValues
+  testResultStateToContextValues,
+  TestRunProfileBitset
 } from "../../common/testTypes.js";
-import { TestingContextKeys } from "../../common/testingContextKeys.js";
-import { cmpPriority } from "../../common/testingStates.js";
-import { TestUriType, buildTestUri } from "../../common/testingUri.js";
 import { getTestItemContextOverlay } from "../explorerProjections/testItemContextOverlay.js";
 import * as icons from "../icons.js";
 import { renderTestMessageAsText } from "../testMessageColorizer.js";
 import {
+  getMessageArgs,
+  mapFindTestMessage,
   MessageSubject,
   TaskSubject,
-  TestOutputSubject,
-  getMessageArgs,
-  mapFindTestMessage
+  TestOutputSubject
 } from "./testResultsSubject.js";
 class TestResultElement {
   constructor(value) {
@@ -239,56 +239,80 @@ let OutputPeekTree = class extends Disposable {
   constructor(container, onDidReveal, options, contextMenuService, results, instantiationService, explorerFilter, coverageService, progressService, telemetryService) {
     super();
     this.contextMenuService = contextMenuService;
-    this.treeActions = instantiationService.createInstance(TreeActionsProvider, options.showRevealLocationOnMessages, this.requestReveal);
+    this.treeActions = instantiationService.createInstance(
+      TreeActionsProvider,
+      options.showRevealLocationOnMessages,
+      this.requestReveal
+    );
     const diffIdentityProvider = {
       getId(e) {
         return e.id;
       }
     };
-    this.tree = this._register(instantiationService.createInstance(
-      WorkbenchCompressibleObjectTree,
-      "Test Output Peek",
-      container,
-      {
-        getHeight: () => 22,
-        getTemplateId: () => TestRunElementRenderer.ID
-      },
-      [instantiationService.createInstance(TestRunElementRenderer, this.treeActions)],
-      {
-        compressionEnabled: true,
-        hideTwistiesOfChildlessElements: true,
-        identityProvider: diffIdentityProvider,
-        sorter: {
-          compare(a, b) {
-            if (a instanceof TestCaseElement && b instanceof TestCaseElement) {
-              return cmpPriority(a.state, b.state);
-            }
-            return 0;
-          }
+    this.tree = this._register(
+      instantiationService.createInstance(
+        WorkbenchCompressibleObjectTree,
+        "Test Output Peek",
+        container,
+        {
+          getHeight: () => 22,
+          getTemplateId: () => TestRunElementRenderer.ID
         },
-        accessibilityProvider: {
-          getAriaLabel(element) {
-            return element.ariaLabel || element.label;
+        [
+          instantiationService.createInstance(
+            TestRunElementRenderer,
+            this.treeActions
+          )
+        ],
+        {
+          compressionEnabled: true,
+          hideTwistiesOfChildlessElements: true,
+          identityProvider: diffIdentityProvider,
+          sorter: {
+            compare(a, b) {
+              if (a instanceof TestCaseElement && b instanceof TestCaseElement) {
+                return cmpPriority(a.state, b.state);
+              }
+              return 0;
+            }
           },
-          getWidgetAriaLabel() {
-            return localize("testingPeekLabel", "Test Result Messages");
+          accessibilityProvider: {
+            getAriaLabel(element) {
+              return element.ariaLabel || element.label;
+            },
+            getWidgetAriaLabel() {
+              return localize(
+                "testingPeekLabel",
+                "Test Result Messages"
+              );
+            }
           }
         }
-      }
-    ));
+      )
+    );
     const cc = new CreationCache();
     const getTaskChildren = (taskElem) => {
       const { results: results2, index, itemsCache, task } = taskElem;
-      const tests = Iterable.filter(results2.tests, (test) => test.tasks[index].state >= TestResultState.Running || test.tasks[index].messages.length > 0);
+      const tests = Iterable.filter(
+        results2.tests,
+        (test) => test.tasks[index].state >= TestResultState.Running || test.tasks[index].messages.length > 0
+      );
       let result = Iterable.map(tests, (test) => ({
-        element: itemsCache.getOrCreate(test, () => new TestCaseElement(results2, test, index)),
+        element: itemsCache.getOrCreate(
+          test,
+          () => new TestCaseElement(results2, test, index)
+        ),
         incompressible: true,
         children: getTestChildren(results2, test, index)
       }));
       if (task.coverage.get()) {
         result = Iterable.concat(
           Iterable.single({
-            element: new CoverageElement(results2, task, coverageService),
+            element: new CoverageElement(
+              results2,
+              task,
+              coverageService
+            ),
             collapsible: true,
             incompressible: true
           }),
@@ -299,12 +323,26 @@ let OutputPeekTree = class extends Disposable {
     };
     const getTestChildren = (result, test, taskIndex) => {
       return test.tasks[taskIndex].messages.map(
-        (m, messageIndex) => m.type === TestMessageType.Error ? { element: cc.getOrCreate(m, () => new TestMessageElement(result, test, taskIndex, messageIndex)), incompressible: false } : void 0
+        (m, messageIndex) => m.type === TestMessageType.Error ? {
+          element: cc.getOrCreate(
+            m,
+            () => new TestMessageElement(
+              result,
+              test,
+              taskIndex,
+              messageIndex
+            )
+          ),
+          incompressible: false
+        } : void 0
       ).filter(isDefined);
     };
     const getResultChildren = (result) => {
       return result.tasks.map((task, taskIndex) => {
-        const taskElem = cc.getOrCreate(task, () => new TaskElement(result, task, taskIndex));
+        const taskElem = cc.getOrCreate(
+          task,
+          () => new TaskElement(result, task, taskIndex)
+        );
         return {
           element: taskElem,
           incompressible: false,
@@ -320,7 +358,10 @@ let OutputPeekTree = class extends Disposable {
         if (!children.length && result.tasks.length) {
           children = getResultChildren(result);
         } else if (children) {
-          const element = cc.getOrCreate(result, () => new TestResultElement(result));
+          const element = cc.getOrCreate(
+            result,
+            () => new TestResultElement(result)
+          );
           older.push({
             element,
             incompressible: true,
@@ -345,14 +386,20 @@ let OutputPeekTree = class extends Disposable {
       return children;
     };
     const taskChildrenToUpdate = /* @__PURE__ */ new Set();
-    const taskChildrenUpdate = this._register(new RunOnceScheduler(() => {
-      for (const taskNode of taskChildrenToUpdate) {
-        if (this.tree.hasElement(taskNode)) {
-          this.tree.setChildren(taskNode, getTaskChildren(taskNode), { diffIdentityProvider });
+    const taskChildrenUpdate = this._register(
+      new RunOnceScheduler(() => {
+        for (const taskNode of taskChildrenToUpdate) {
+          if (this.tree.hasElement(taskNode)) {
+            this.tree.setChildren(
+              taskNode,
+              getTaskChildren(taskNode),
+              { diffIdentityProvider }
+            );
+          }
         }
-      }
-      taskChildrenToUpdate.clear();
-    }, 300));
+        taskChildrenToUpdate.clear();
+      }, 300)
+    );
     const queueTaskChildrenUpdate = (taskNode) => {
       taskChildrenToUpdate.add(taskNode);
       if (!taskChildrenUpdate.isScheduled()) {
@@ -361,53 +408,75 @@ let OutputPeekTree = class extends Disposable {
     };
     const attachToResults = (result) => {
       const disposable = new DisposableStore();
-      disposable.add(result.onNewTask((i) => {
-        this.tree.setChildren(null, getRootChildren(), { diffIdentityProvider });
-        if (result.tasks.length === 1) {
-          this.requestReveal.fire(new TaskSubject(result, 0));
-        }
-        const task = result.tasks[i];
-        disposable.add(autorun((reader) => {
-          task.coverage.read(reader);
-          queueTaskChildrenUpdate(cc.get(task));
-        }));
-      }));
-      disposable.add(result.onEndTask((index) => {
-        cc.get(result.tasks[index])?.changeEmitter.fire();
-      }));
-      disposable.add(result.onChange((e) => {
-        for (const [index, task] of result.tasks.entries()) {
-          const taskNode = cc.get(task);
-          if (!this.tree.hasElement(taskNode)) {
-            continue;
+      disposable.add(
+        result.onNewTask((i) => {
+          this.tree.setChildren(null, getRootChildren(), {
+            diffIdentityProvider
+          });
+          if (result.tasks.length === 1) {
+            this.requestReveal.fire(new TaskSubject(result, 0));
           }
-          const itemNode = taskNode.itemsCache.get(e.item);
-          if (itemNode && this.tree.hasElement(itemNode)) {
-            if (e.reason === TestResultItemChangeReason.NewMessage && e.message.type === TestMessageType.Error) {
-              this.tree.setChildren(itemNode, getTestChildren(result, e.item, index), { diffIdentityProvider });
+          const task = result.tasks[i];
+          disposable.add(
+            autorun((reader) => {
+              task.coverage.read(reader);
+              queueTaskChildrenUpdate(
+                cc.get(task)
+              );
+            })
+          );
+        })
+      );
+      disposable.add(
+        result.onEndTask((index) => {
+          cc.get(result.tasks[index])?.changeEmitter.fire();
+        })
+      );
+      disposable.add(
+        result.onChange((e) => {
+          for (const [index, task] of result.tasks.entries()) {
+            const taskNode = cc.get(task);
+            if (!this.tree.hasElement(taskNode)) {
+              continue;
             }
-            return;
+            const itemNode = taskNode.itemsCache.get(e.item);
+            if (itemNode && this.tree.hasElement(itemNode)) {
+              if (e.reason === TestResultItemChangeReason.NewMessage && e.message.type === TestMessageType.Error) {
+                this.tree.setChildren(
+                  itemNode,
+                  getTestChildren(result, e.item, index),
+                  { diffIdentityProvider }
+                );
+              }
+              return;
+            }
+            queueTaskChildrenUpdate(taskNode);
           }
-          queueTaskChildrenUpdate(taskNode);
-        }
-      }));
-      disposable.add(result.onComplete(() => {
-        cc.get(result)?.changeEmitter.fire();
-        disposable.dispose();
-      }));
+        })
+      );
+      disposable.add(
+        result.onComplete(() => {
+          cc.get(result)?.changeEmitter.fire();
+          disposable.dispose();
+        })
+      );
     };
-    this._register(results.onResultsChanged((e) => {
-      if (this.disposed) {
-        return;
-      }
-      if ("completed" in e) {
-        cc.get(e.completed)?.changeEmitter.fire();
-      } else if ("started" in e) {
-        attachToResults(e.started);
-      } else {
-        this.tree.setChildren(null, getRootChildren(), { diffIdentityProvider });
-      }
-    }));
+    this._register(
+      results.onResultsChanged((e) => {
+        if (this.disposed) {
+          return;
+        }
+        if ("completed" in e) {
+          cc.get(e.completed)?.changeEmitter.fire();
+        } else if ("started" in e) {
+          attachToResults(e.started);
+        } else {
+          this.tree.setChildren(null, getRootChildren(), {
+            diffIdentityProvider
+          });
+        }
+      })
+    );
     const revealItem = (element, preserveFocus) => {
       this.tree.setFocus([element]);
       this.tree.setSelection([element]);
@@ -415,70 +484,95 @@ let OutputPeekTree = class extends Disposable {
         this.tree.domFocus();
       }
     };
-    this._register(onDidReveal(async ({ subject, preserveFocus = false }) => {
-      if (subject instanceof TaskSubject) {
-        const resultItem = this.tree.getNode(null).children.find((c) => {
-          if (c.element instanceof TaskElement) {
-            return c.element.results.id === subject.result.id && c.element.index === subject.taskIndex;
+    this._register(
+      onDidReveal(async ({ subject, preserveFocus = false }) => {
+        if (subject instanceof TaskSubject) {
+          const resultItem = this.tree.getNode(null).children.find((c) => {
+            if (c.element instanceof TaskElement) {
+              return c.element.results.id === subject.result.id && c.element.index === subject.taskIndex;
+            }
+            if (c.element instanceof TestResultElement) {
+              return c.element.id === subject.result.id;
+            }
+            return false;
+          });
+          if (resultItem) {
+            revealItem(resultItem.element, preserveFocus);
           }
-          if (c.element instanceof TestResultElement) {
-            return c.element.id === subject.result.id;
+          return;
+        }
+        const revealElement = subject instanceof TestOutputSubject ? cc.get(subject.task)?.itemsCache.get(subject.test) : cc.get(subject.message);
+        if (!revealElement || !this.tree.hasElement(revealElement)) {
+          return;
+        }
+        const parents = [];
+        for (let parent = this.tree.getParentElement(revealElement); parent; parent = this.tree.getParentElement(parent)) {
+          parents.unshift(parent);
+        }
+        for (const parent of parents) {
+          this.tree.expand(parent);
+        }
+        if (this.tree.getRelativeTop(revealElement) === null) {
+          this.tree.reveal(revealElement, 0.5);
+        }
+        revealItem(revealElement, preserveFocus);
+      })
+    );
+    this._register(
+      this.tree.onDidOpen(async (e) => {
+        if (e.element instanceof TestMessageElement) {
+          this.requestReveal.fire(
+            new MessageSubject(
+              e.element.result,
+              e.element.test,
+              e.element.taskIndex,
+              e.element.messageIndex
+            )
+          );
+        } else if (e.element instanceof TestCaseElement) {
+          const t = e.element;
+          const message = mapFindTestMessage(
+            e.element.test,
+            (_t, _m, mesasgeIndex, taskIndex) => new MessageSubject(
+              t.results,
+              t.test,
+              taskIndex,
+              mesasgeIndex
+            )
+          );
+          this.requestReveal.fire(
+            message || new TestOutputSubject(t.results, 0, t.test)
+          );
+        } else if (e.element instanceof CoverageElement) {
+          const task = e.element.task;
+          if (e.element.isOpen) {
+            return coverageService.closeCoverage();
           }
-          return false;
-        });
-        if (resultItem) {
-          revealItem(resultItem.element, preserveFocus);
+          progressService.withProgress(
+            { location: options.locationForProgress },
+            () => coverageService.openCoverage(task, true)
+          );
         }
-        return;
-      }
-      const revealElement = subject instanceof TestOutputSubject ? cc.get(subject.task)?.itemsCache.get(subject.test) : cc.get(subject.message);
-      if (!revealElement || !this.tree.hasElement(revealElement)) {
-        return;
-      }
-      const parents = [];
-      for (let parent = this.tree.getParentElement(revealElement); parent; parent = this.tree.getParentElement(parent)) {
-        parents.unshift(parent);
-      }
-      for (const parent of parents) {
-        this.tree.expand(parent);
-      }
-      if (this.tree.getRelativeTop(revealElement) === null) {
-        this.tree.reveal(revealElement, 0.5);
-      }
-      revealItem(revealElement, preserveFocus);
-    }));
-    this._register(this.tree.onDidOpen(async (e) => {
-      if (e.element instanceof TestMessageElement) {
-        this.requestReveal.fire(new MessageSubject(e.element.result, e.element.test, e.element.taskIndex, e.element.messageIndex));
-      } else if (e.element instanceof TestCaseElement) {
-        const t = e.element;
-        const message = mapFindTestMessage(e.element.test, (_t, _m, mesasgeIndex, taskIndex) => new MessageSubject(t.results, t.test, taskIndex, mesasgeIndex));
-        this.requestReveal.fire(message || new TestOutputSubject(t.results, 0, t.test));
-      } else if (e.element instanceof CoverageElement) {
-        const task = e.element.task;
-        if (e.element.isOpen) {
-          return coverageService.closeCoverage();
+      })
+    );
+    this._register(
+      this.tree.onDidChangeSelection((evt) => {
+        for (const element of evt.elements) {
+          if (element && "test" in element) {
+            explorerFilter.reveal.value = element.test.item.extId;
+            break;
+          }
         }
-        progressService.withProgress(
-          { location: options.locationForProgress },
-          () => coverageService.openCoverage(task, true)
-        );
-      }
-    }));
-    this._register(this.tree.onDidChangeSelection((evt) => {
-      for (const element of evt.elements) {
-        if (element && "test" in element) {
-          explorerFilter.reveal.value = element.test.item.extId;
-          break;
-        }
-      }
-    }));
+      })
+    );
     this._register(this.tree.onContextMenu((e) => this.onContextMenu(e)));
-    this._register(this.tree.onDidChangeCollapseState((e) => {
-      if (e.node.element instanceof OlderResultsElement && !e.node.collapsed) {
-        telemetryService.publicLog2("testing.expandOlderResults");
-      }
-    }));
+    this._register(
+      this.tree.onDidChangeCollapseState((e) => {
+        if (e.node.element instanceof OlderResultsElement && !e.node.collapsed) {
+          telemetryService.publicLog2("testing.expandOlderResults");
+        }
+      })
+    );
     this.tree.setChildren(null, getRootChildren());
     for (const result of results.results) {
       if (!result.completedAt && result instanceof LiveTestResult) {

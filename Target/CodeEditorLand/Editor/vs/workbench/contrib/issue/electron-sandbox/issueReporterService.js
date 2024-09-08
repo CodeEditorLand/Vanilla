@@ -66,7 +66,9 @@ let IssueReporter = class extends Disposable {
     this.nativeHostService = nativeHostService;
     this.issueMainService = issueMainService;
     this.processMainService = processMainService;
-    const targetExtension = configuration.data.extensionId ? configuration.data.enabledExtensions.find((extension) => extension.id.toLocaleLowerCase() === configuration.data.extensionId?.toLocaleLowerCase()) : void 0;
+    const targetExtension = configuration.data.extensionId ? configuration.data.enabledExtensions.find(
+      (extension) => extension.id.toLocaleLowerCase() === configuration.data.extensionId?.toLocaleLowerCase()
+    ) : void 0;
     this.issueReporterModel = new IssueReporterModel({
       ...configuration.data,
       issueType: configuration.data.issueType || OldIssueType.Bug,
@@ -83,7 +85,10 @@ let IssueReporter = class extends Disposable {
     this.issueReporterModel.update({ fileOnMarketplace, fileOnProduct });
     const issueReporterElement = this.getElementById("issue-reporter");
     if (issueReporterElement) {
-      this.previewButton = new Button(issueReporterElement, unthemedButtonStyles);
+      this.previewButton = new Button(
+        issueReporterElement,
+        unthemedButtonStyles
+      );
       const issueRepoName = document.createElement("a");
       issueReporterElement.appendChild(issueRepoName);
       issueRepoName.id = "show-repo-name";

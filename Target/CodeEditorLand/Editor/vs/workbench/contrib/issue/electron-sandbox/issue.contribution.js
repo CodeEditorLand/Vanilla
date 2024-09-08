@@ -33,8 +33,8 @@ import { IssueQuickAccess } from "../browser/issueQuickAccess.js";
 import { BaseIssueContribution } from "../common/issue.contribution.js";
 import {
   IIssueFormService,
-  IWorkbenchIssueService,
-  IssueType
+  IssueType,
+  IWorkbenchIssueService
 } from "../common/issue.js";
 import { NativeIssueService } from "./issueService.js";
 import "./issueMainService.js";

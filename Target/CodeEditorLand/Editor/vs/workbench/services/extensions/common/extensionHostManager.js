@@ -28,15 +28,12 @@ import {
 } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import {
-  RemoteAuthorityResolverErrorCode,
-  getRemoteAuthorityPrefix
+  getRemoteAuthorityPrefix,
+  RemoteAuthorityResolverErrorCode
 } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IEditorService } from "../../editor/common/editorService.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import {
-  ExtHostCustomersRegistry
-} from "./extHostCustomers.js";
 import {
   extensionHostKindToString
 } from "./extensionHostKind.js";
@@ -44,8 +41,11 @@ import {
   ActivationKind
 } from "./extensions.js";
 import {
-  RPCProtocol,
-  RequestInitiator
+  ExtHostCustomersRegistry
+} from "./extHostCustomers.js";
+import {
+  RequestInitiator,
+  RPCProtocol
 } from "./rpcProtocol.js";
 const LOG_EXTENSION_HOST_COMMUNICATION = false;
 const LOG_USE_COLORS = true;
@@ -81,7 +81,9 @@ let ExtensionHostManager = class extends Disposable {
         return this._createExtensionHostCustomers(this.kind, protocol);
       },
       (err) => {
-        this._logService.error(`Error received from starting extension host (kind: ${extensionHostKindToString(this.kind)})`);
+        this._logService.error(
+          `Error received from starting extension host (kind: ${extensionHostKindToString(this.kind)})`
+        );
         this._logService.error(err);
         const failureTelemetryEvent = {
           time: Date.now(),
@@ -102,10 +104,14 @@ let ExtensionHostManager = class extends Disposable {
       }
     );
     this._proxy.then(() => {
-      initialActivationEvents.forEach((activationEvent) => this.activateByEvent(activationEvent, ActivationKind.Normal));
-      this._register(registerLatencyTestProvider({
-        measure: () => this.measure()
-      }));
+      initialActivationEvents.forEach(
+        (activationEvent) => this.activateByEvent(activationEvent, ActivationKind.Normal)
+      );
+      this._register(
+        registerLatencyTestProvider({
+          measure: () => this.measure()
+        })
+      );
     });
   }
   onDidExit;

@@ -33,17 +33,25 @@ let ExtensionsProposedApi = class {
   constructor(_logService, _environmentService, productService) {
     this._logService = _logService;
     this._environmentService = _environmentService;
-    this._envEnabledExtensions = new Set((_environmentService.extensionEnabledProposedApi ?? []).map((id) => ExtensionIdentifier.toKey(id)));
+    this._envEnabledExtensions = new Set(
+      (_environmentService.extensionEnabledProposedApi ?? []).map(
+        (id) => ExtensionIdentifier.toKey(id)
+      )
+    );
     this._envEnablesProposedApiForAll = !_environmentService.isBuilt || // always allow proposed API when running out of sources
     _environmentService.isExtensionDevelopment && productService.quality !== "stable" || // do not allow proposed API against stable builds when developing an extension
     this._envEnabledExtensions.size === 0 && Array.isArray(_environmentService.extensionEnabledProposedApi);
     this._productEnabledExtensions = /* @__PURE__ */ new Map();
     if (productService.extensionEnabledApiProposals) {
-      for (const [k, value] of Object.entries(productService.extensionEnabledApiProposals)) {
+      for (const [k, value] of Object.entries(
+        productService.extensionEnabledApiProposals
+      )) {
         const key = ExtensionIdentifier.toKey(k);
         const proposalNames = value.filter((name) => {
           if (!allApiProposals[name]) {
-            _logService.warn(`Via 'product.json#extensionEnabledApiProposals' extension '${key}' wants API proposal '${name}' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.`);
+            _logService.warn(
+              `Via 'product.json#extensionEnabledApiProposals' extension '${key}' wants API proposal '${name}' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.`
+            );
             return false;
           }
           return true;

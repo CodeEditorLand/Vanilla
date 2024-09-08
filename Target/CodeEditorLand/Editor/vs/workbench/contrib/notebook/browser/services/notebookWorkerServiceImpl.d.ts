@@ -1,0 +1,14 @@
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import type { URI } from "../../../../../base/common/uri.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { type INotebookDiffResult } from "../../common/notebookCommon.js";
+import { INotebookService } from "../../common/notebookService.js";
+import type { INotebookEditorWorkerService } from "../../common/services/notebookWorkerService.js";
+export declare class NotebookEditorWorkerServiceImpl extends Disposable implements INotebookEditorWorkerService {
+    readonly _serviceBrand: undefined;
+    private readonly _workerManager;
+    constructor(notebookService: INotebookService, modelService: IModelService);
+    canComputeDiff(original: URI, modified: URI): boolean;
+    computeDiff(original: URI, modified: URI): Promise<INotebookDiffResult>;
+    canPromptRecommendation(model: URI): Promise<boolean>;
+}

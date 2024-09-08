@@ -34,8 +34,18 @@ let ViewContainerActivityByView = class extends Disposable {
     this.viewId = viewId;
     this.viewDescriptorService = viewDescriptorService;
     this.activityService = activityService;
-    this._register(Event.filter(this.viewDescriptorService.onDidChangeContainer, (e) => e.views.some((view) => view.id === viewId))(() => this.update()));
-    this._register(Event.filter(this.viewDescriptorService.onDidChangeLocation, (e) => e.views.some((view) => view.id === viewId))(() => this.update()));
+    this._register(
+      Event.filter(
+        this.viewDescriptorService.onDidChangeContainer,
+        (e) => e.views.some((view) => view.id === viewId)
+      )(() => this.update())
+    );
+    this._register(
+      Event.filter(
+        this.viewDescriptorService.onDidChangeLocation,
+        (e) => e.views.some((view) => view.id === viewId)
+      )(() => this.update())
+    );
   }
   activity = void 0;
   activityDisposable = Disposable.None;

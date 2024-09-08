@@ -47,7 +47,10 @@ let SymbolsQuickAccessProvider = class extends PickerQuickAccessProvider {
     super(SymbolsQuickAccessProvider.PREFIX, {
       canAcceptInBackground: true,
       noResultsPick: {
-        label: localize("noSymbolResults", "No matching workspace symbols")
+        label: localize(
+          "noSymbolResults",
+          "No matching workspace symbols"
+        )
       }
     });
     this.labelService = labelService;

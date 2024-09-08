@@ -151,14 +151,21 @@ let CallStackEditorContribution = class extends Disposable {
     this.uriIdentityService = uriIdentityService;
     this.logService = logService;
     const setDecorations = () => this.decorations.set(this.createCallStackDecorations());
-    this._register(Event.any(this.debugService.getViewModel().onDidFocusStackFrame, this.debugService.getModel().onDidChangeCallStack)(() => {
-      setDecorations();
-    }));
-    this._register(this.editor.onDidChangeModel((e) => {
-      if (e.newModelUrl) {
+    this._register(
+      Event.any(
+        this.debugService.getViewModel().onDidFocusStackFrame,
+        this.debugService.getModel().onDidChangeCallStack
+      )(() => {
         setDecorations();
-      }
-    }));
+      })
+    );
+    this._register(
+      this.editor.onDidChangeModel((e) => {
+        if (e.newModelUrl) {
+          setDecorations();
+        }
+      })
+    );
     setDecorations();
   }
   decorations = this.editor.createDecorationsCollection();

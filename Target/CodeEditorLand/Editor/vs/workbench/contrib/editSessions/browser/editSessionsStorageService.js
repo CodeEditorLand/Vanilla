@@ -53,10 +53,10 @@ import {
 } from "../../../services/authentication/common/authentication.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 import {
+  EDIT_SESSION_SYNC_CATEGORY,
   EDIT_SESSIONS_PENDING_KEY,
   EDIT_SESSIONS_SIGNED_IN,
   EDIT_SESSIONS_SIGNED_IN_KEY,
-  EDIT_SESSION_SYNC_CATEGORY,
   IEditSessionsLogService
 } from "../common/editSessions.js";
 let EditSessionsWorkbenchService = class extends Disposable {
@@ -74,11 +74,23 @@ let EditSessionsWorkbenchService = class extends Disposable {
     this.contextKeyService = contextKeyService;
     this.dialogService = dialogService;
     this.secretStorageService = secretStorageService;
-    this._register(this.authenticationService.onDidChangeSessions((e) => this.onDidChangeSessions(e.event)));
-    this._register(this.storageService.onDidChangeValue(StorageScope.APPLICATION, EditSessionsWorkbenchService.CACHED_SESSION_STORAGE_KEY, this._register(new DisposableStore()))(() => this.onDidChangeStorage()));
+    this._register(
+      this.authenticationService.onDidChangeSessions(
+        (e) => this.onDidChangeSessions(e.event)
+      )
+    );
+    this._register(
+      this.storageService.onDidChangeValue(
+        StorageScope.APPLICATION,
+        EditSessionsWorkbenchService.CACHED_SESSION_STORAGE_KEY,
+        this._register(new DisposableStore())
+      )(() => this.onDidChangeStorage())
+    );
     this.registerSignInAction();
     this.registerResetAuthenticationAction();
-    this.signedInContext = EDIT_SESSIONS_SIGNED_IN.bindTo(this.contextKeyService);
+    this.signedInContext = EDIT_SESSIONS_SIGNED_IN.bindTo(
+      this.contextKeyService
+    );
     this.signedInContext.set(this.existingSessionId !== void 0);
   }
   SIZE_LIMIT = Math.floor(1024 * 1024 * 1.9);

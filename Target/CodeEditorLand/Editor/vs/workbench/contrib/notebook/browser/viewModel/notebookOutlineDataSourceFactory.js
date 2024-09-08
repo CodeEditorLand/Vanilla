@@ -13,8 +13,8 @@ import {
   ReferenceCollection
 } from "../../../../../base/common/lifecycle.js";
 import {
-  IInstantiationService,
-  createDecorator
+  createDecorator,
+  IInstantiationService
 } from "../../../../../platform/instantiation/common/instantiation.js";
 import { NotebookCellOutlineDataSource } from "./notebookOutlineDataSource.js";
 let NotebookCellOutlineDataSourceReferenceCollection = class extends ReferenceCollection {
@@ -41,7 +41,9 @@ const INotebookCellOutlineDataSourceFactory = createDecorator(
 let NotebookCellOutlineDataSourceFactory = class {
   _data;
   constructor(instantiationService) {
-    this._data = instantiationService.createInstance(NotebookCellOutlineDataSourceReferenceCollection);
+    this._data = instantiationService.createInstance(
+      NotebookCellOutlineDataSourceReferenceCollection
+    );
   }
   getOrCreate(editor) {
     return this._data.acquire(editor.getId(), editor);

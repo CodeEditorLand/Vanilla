@@ -20,8 +20,8 @@ import {
 } from "../../../../base/common/actions.js";
 import { coalesce, distinct } from "../../../../base/common/arrays.js";
 import {
-  ThrottledDelayer,
-  createCancelablePromise
+  createCancelablePromise,
+  ThrottledDelayer
 } from "../../../../base/common/async.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { createErrorWithActions } from "../../../../base/common/errorMessage.js";
@@ -121,8 +121,8 @@ import {
 } from "../common/extensions.js";
 import {
   ExtensionAction,
-  ManageExtensionAction,
-  getContextMenuActions
+  getContextMenuActions,
+  ManageExtensionAction
 } from "./extensionsActions.js";
 import {
   Delegate,
@@ -161,11 +161,27 @@ function isLocalSortBy(value) {
 }
 let ExtensionsListView = class extends ViewPane {
   constructor(options, viewletViewOptions, notificationService, keybindingService, contextMenuService, instantiationService, themeService, extensionService, extensionsWorkbenchService, extensionRecommendationsService, telemetryService, hoverService, configurationService, contextService, extensionManagementServerService, extensionManifestPropertiesService, extensionManagementService, workspaceService, productService, contextKeyService, viewDescriptorService, openerService, preferencesService, storageService, workspaceTrustManagementService, extensionEnablementService, layoutService, extensionFeaturesManagementService, uriIdentityService, logService) {
-    super({
-      ...viewletViewOptions,
-      showActions: ViewPaneShowActions.Always,
-      maximumBodySize: options.flexibleHeight ? storageService.getNumber(`${viewletViewOptions.id}.size`, StorageScope.PROFILE, 0) ? void 0 : 0 : void 0
-    }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      {
+        ...viewletViewOptions,
+        showActions: ViewPaneShowActions.Always,
+        maximumBodySize: options.flexibleHeight ? storageService.getNumber(
+          `${viewletViewOptions.id}.size`,
+          StorageScope.PROFILE,
+          0
+        ) ? void 0 : 0 : void 0
+      },
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.options = options;
     this.notificationService = notificationService;
     this.extensionService = extensionService;
@@ -186,9 +202,17 @@ let ExtensionsListView = class extends ViewPane {
     this.uriIdentityService = uriIdentityService;
     this.logService = logService;
     if (this.options.onDidChangeTitle) {
-      this._register(this.options.onDidChangeTitle((title) => this.updateTitle(title)));
+      this._register(
+        this.options.onDidChangeTitle(
+          (title) => this.updateTitle(title)
+        )
+      );
     }
-    this._register(this.contextMenuActionRunner.onDidRun(({ error }) => error && this.notificationService.error(error)));
+    this._register(
+      this.contextMenuActionRunner.onDidRun(
+        ({ error }) => error && this.notificationService.error(error)
+      )
+    );
     this.registerActions();
   }
   static RECENT_UPDATE_DURATION = 7 * 24 * 60 * 60 * 1e3;

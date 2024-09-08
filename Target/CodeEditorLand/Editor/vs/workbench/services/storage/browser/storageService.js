@@ -23,23 +23,25 @@ import {
 import { assertIsDefined } from "../../../../base/common/types.js";
 import {
   InMemoryStorageDatabase,
-  Storage,
-  isStorageItemsChangeEvent
+  isStorageItemsChangeEvent,
+  Storage
 } from "../../../../base/parts/storage/common/storage.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import {
   AbstractStorageService,
   IS_NEW_KEY,
+  isProfileUsingDefaultStorage,
   StorageScope,
-  StorageTarget,
-  isProfileUsingDefaultStorage
+  StorageTarget
 } from "../../../../platform/storage/common/storage.js";
 import {
   isUserDataProfile
 } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 let BrowserStorageService = class extends AbstractStorageService {
   constructor(workspace, userDataProfileService, logService) {
-    super({ flushInterval: BrowserStorageService.BROWSER_DEFAULT_FLUSH_INTERVAL });
+    super({
+      flushInterval: BrowserStorageService.BROWSER_DEFAULT_FLUSH_INTERVAL
+    });
     this.workspace = workspace;
     this.userDataProfileService = userDataProfileService;
     this.logService = logService;

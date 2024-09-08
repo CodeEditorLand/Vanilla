@@ -20,9 +20,9 @@ import { IFileService } from "../../../../platform/files/common/files.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import {
   DEFAULT_EDITOR_ASSOCIATION,
-  Verbosity,
   findViewStateForEditor,
-  isUntitledResourceEditorInput
+  isUntitledResourceEditorInput,
+  Verbosity
 } from "../../../common/editor.js";
 import { AbstractTextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
 import { ICustomEditorLabelService } from "../../editor/common/customEditorLabelService.js";
@@ -35,13 +35,27 @@ import {
 } from "../../textfile/common/textfiles.js";
 let UntitledTextEditorInput = class extends AbstractTextResourceEditorInput {
   constructor(model, textFileService, labelService, editorService, fileService, environmentService, pathService, filesConfigurationService, textModelService, textResourceConfigurationService, customEditorLabelService) {
-    super(model.resource, void 0, editorService, textFileService, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
+    super(
+      model.resource,
+      void 0,
+      editorService,
+      textFileService,
+      labelService,
+      fileService,
+      filesConfigurationService,
+      textResourceConfigurationService,
+      customEditorLabelService
+    );
     this.model = model;
     this.environmentService = environmentService;
     this.pathService = pathService;
     this.textModelService = textModelService;
     this.registerModelListeners(model);
-    this._register(this.textFileService.untitled.onDidCreate((model2) => this.onDidCreateUntitledModel(model2)));
+    this._register(
+      this.textFileService.untitled.onDidCreate(
+        (model2) => this.onDidCreateUntitledModel(model2)
+      )
+    );
   }
   static ID = "workbench.editors.untitledEditorInput";
   get typeId() {

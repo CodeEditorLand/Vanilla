@@ -21,7 +21,11 @@ let NotebookLoggingService = class extends Disposable {
   _logger;
   constructor(loggerService) {
     super();
-    this._logger = this._register(loggerService.createLogger(logChannelId, { name: nls.localize("renderChannelName", "Notebook") }));
+    this._logger = this._register(
+      loggerService.createLogger(logChannelId, {
+        name: nls.localize("renderChannelName", "Notebook")
+      })
+    );
   }
   debug(category, output) {
     this._logger.debug(`[${category}] ${output}`);

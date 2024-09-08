@@ -1,6 +1,6 @@
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { UserDataProfilesWorkbenchContribution } from "./userDataProfile.js";
 import "./userDataProfileActions.js";

@@ -25,8 +25,8 @@ import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import {
-  IInstantiationService,
-  createDecorator
+  createDecorator,
+  IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
@@ -64,20 +64,42 @@ var ProfileSessionState = /* @__PURE__ */ ((ProfileSessionState2) => {
 })(ProfileSessionState || {});
 let RuntimeExtensionsEditor = class extends AbstractRuntimeExtensionsEditor {
   constructor(group, telemetryService, themeService, contextKeyService, extensionsWorkbenchService, extensionService, notificationService, contextMenuService, instantiationService, storageService, labelService, environmentService, clipboardService, _extensionHostProfileService, extensionFeaturesManagementService, hoverService) {
-    super(group, telemetryService, themeService, contextKeyService, extensionsWorkbenchService, extensionService, notificationService, contextMenuService, instantiationService, storageService, labelService, environmentService, clipboardService, extensionFeaturesManagementService, hoverService);
+    super(
+      group,
+      telemetryService,
+      themeService,
+      contextKeyService,
+      extensionsWorkbenchService,
+      extensionService,
+      notificationService,
+      contextMenuService,
+      instantiationService,
+      storageService,
+      labelService,
+      environmentService,
+      clipboardService,
+      extensionFeaturesManagementService,
+      hoverService
+    );
     this._extensionHostProfileService = _extensionHostProfileService;
     this._profileInfo = this._extensionHostProfileService.lastProfile;
     this._extensionsHostRecorded = CONTEXT_EXTENSION_HOST_PROFILE_RECORDED.bindTo(contextKeyService);
     this._profileSessionState = CONTEXT_PROFILE_SESSION_STATE.bindTo(contextKeyService);
-    this._register(this._extensionHostProfileService.onDidChangeLastProfile(() => {
-      this._profileInfo = this._extensionHostProfileService.lastProfile;
-      this._extensionsHostRecorded.set(!!this._profileInfo);
-      this._updateExtensions();
-    }));
-    this._register(this._extensionHostProfileService.onDidChangeState(() => {
-      const state = this._extensionHostProfileService.state;
-      this._profileSessionState.set(ProfileSessionState[state].toLowerCase());
-    }));
+    this._register(
+      this._extensionHostProfileService.onDidChangeLastProfile(() => {
+        this._profileInfo = this._extensionHostProfileService.lastProfile;
+        this._extensionsHostRecorded.set(!!this._profileInfo);
+        this._updateExtensions();
+      })
+    );
+    this._register(
+      this._extensionHostProfileService.onDidChangeState(() => {
+        const state = this._extensionHostProfileService.state;
+        this._profileSessionState.set(
+          ProfileSessionState[state].toLowerCase()
+        );
+      })
+    );
   }
   _profileInfo;
   _extensionsHostRecorded;

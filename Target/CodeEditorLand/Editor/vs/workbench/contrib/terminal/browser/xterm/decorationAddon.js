@@ -74,22 +74,46 @@ let DecorationAddon = class extends Disposable {
     this._accessibilitySignalService = _accessibilitySignalService;
     this._notificationService = _notificationService;
     this._register(toDisposable(() => this._dispose()));
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(TerminalSettingId.FontSize) || e.affectsConfiguration(TerminalSettingId.LineHeight)) {
-        this.refreshLayouts();
-      } else if (e.affectsConfiguration("workbench.colorCustomizations")) {
-        this._refreshStyles(true);
-      } else if (e.affectsConfiguration(TerminalSettingId.ShellIntegrationDecorationsEnabled)) {
-        this._removeCapabilityDisposables(TerminalCapability.CommandDetection);
-        this._updateDecorationVisibility();
-      }
-    }));
-    this._register(this._themeService.onDidColorThemeChange(() => this._refreshStyles(true)));
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(TerminalSettingId.FontSize) || e.affectsConfiguration(TerminalSettingId.LineHeight)) {
+          this.refreshLayouts();
+        } else if (e.affectsConfiguration("workbench.colorCustomizations")) {
+          this._refreshStyles(true);
+        } else if (e.affectsConfiguration(
+          TerminalSettingId.ShellIntegrationDecorationsEnabled
+        )) {
+          this._removeCapabilityDisposables(
+            TerminalCapability.CommandDetection
+          );
+          this._updateDecorationVisibility();
+        }
+      })
+    );
+    this._register(
+      this._themeService.onDidColorThemeChange(
+        () => this._refreshStyles(true)
+      )
+    );
     this._updateDecorationVisibility();
-    this._register(this._capabilities.onDidAddCapabilityType((c) => this._createCapabilityDisposables(c)));
-    this._register(this._capabilities.onDidRemoveCapabilityType((c) => this._removeCapabilityDisposables(c)));
-    this._register(lifecycleService.onWillShutdown(() => this._disposeAllDecorations()));
-    this._terminalDecorationHoverManager = this._register(instantiationService.createInstance(TerminalDecorationHoverManager));
+    this._register(
+      this._capabilities.onDidAddCapabilityType(
+        (c) => this._createCapabilityDisposables(c)
+      )
+    );
+    this._register(
+      this._capabilities.onDidRemoveCapabilityType(
+        (c) => this._removeCapabilityDisposables(c)
+      )
+    );
+    this._register(
+      lifecycleService.onWillShutdown(
+        () => this._disposeAllDecorations()
+      )
+    );
+    this._terminalDecorationHoverManager = this._register(
+      instantiationService.createInstance(TerminalDecorationHoverManager)
+    );
   }
   _terminal;
   _capabilityDisposables = /* @__PURE__ */ new Map();

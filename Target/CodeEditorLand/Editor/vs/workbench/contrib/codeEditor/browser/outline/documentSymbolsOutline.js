@@ -11,9 +11,9 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
   Barrier,
-  TimeoutTimer,
   raceCancellation,
-  timeout
+  timeout,
+  TimeoutTimer
 } from "../../../../../base/common/async.js";
 import {
   CancellationTokenSource
@@ -144,9 +144,19 @@ let DocumentSymbolsOutline = class {
     this._outlineModelService = _outlineModelService;
     this._configurationService = _configurationService;
     this._markerDecorationsService = _markerDecorationsService;
-    this._breadcrumbsDataSource = new DocumentSymbolBreadcrumbsSource(_editor, textResourceConfigurationService);
+    this._breadcrumbsDataSource = new DocumentSymbolBreadcrumbsSource(
+      _editor,
+      textResourceConfigurationService
+    );
     const delegate = new DocumentSymbolVirtualDelegate();
-    const renderers = [new DocumentSymbolGroupRenderer(), instantiationService.createInstance(DocumentSymbolRenderer, true, target)];
+    const renderers = [
+      new DocumentSymbolGroupRenderer(),
+      instantiationService.createInstance(
+        DocumentSymbolRenderer,
+        true,
+        target
+      )
+    ];
     const treeDataSource = {
       getChildren: (parent) => {
         if (parent instanceof OutlineElement || parent instanceof OutlineGroup) {
@@ -159,15 +169,26 @@ let DocumentSymbolsOutline = class {
       }
     };
     const comparator = new DocumentSymbolComparator();
-    const initialState = textResourceConfigurationService.getValue(_editor.getModel()?.uri, OutlineConfigKeys.collapseItems);
+    const initialState = textResourceConfigurationService.getValue(
+      _editor.getModel()?.uri,
+      OutlineConfigKeys.collapseItems
+    );
     const options = {
       collapseByDefault: target === OutlineTarget.Breadcrumbs || target === OutlineTarget.OutlinePane && initialState === OutlineConfigCollapseItemsValues.Collapsed,
       expandOnlyOnTwistieClick: true,
       multipleSelectionSupport: false,
       identityProvider: new DocumentSymbolIdentityProvider(),
       keyboardNavigationLabelProvider: new DocumentSymbolNavigationLabelProvider(),
-      accessibilityProvider: new DocumentSymbolAccessibilityProvider(localize("document", "Document Symbols")),
-      filter: target === OutlineTarget.OutlinePane ? instantiationService.createInstance(DocumentSymbolFilter, "outline") : target === OutlineTarget.Breadcrumbs ? instantiationService.createInstance(DocumentSymbolFilter, "breadcrumbs") : void 0
+      accessibilityProvider: new DocumentSymbolAccessibilityProvider(
+        localize("document", "Document Symbols")
+      ),
+      filter: target === OutlineTarget.OutlinePane ? instantiationService.createInstance(
+        DocumentSymbolFilter,
+        "outline"
+      ) : target === OutlineTarget.Breadcrumbs ? instantiationService.createInstance(
+        DocumentSymbolFilter,
+        "breadcrumbs"
+      ) : void 0
     };
     this.config = {
       breadcrumbsDataSource: this._breadcrumbsDataSource,
@@ -176,23 +197,40 @@ let DocumentSymbolsOutline = class {
       treeDataSource,
       comparator,
       options,
-      quickPickDataSource: { getQuickPickElements: () => {
-        throw new Error("not implemented");
-      } }
+      quickPickDataSource: {
+        getQuickPickElements: () => {
+          throw new Error("not implemented");
+        }
+      }
     };
-    this._disposables.add(_languageFeaturesService.documentSymbolProvider.onDidChange((_) => this._createOutline()));
-    this._disposables.add(this._editor.onDidChangeModel((_) => this._createOutline()));
-    this._disposables.add(this._editor.onDidChangeModelLanguage((_) => this._createOutline()));
+    this._disposables.add(
+      _languageFeaturesService.documentSymbolProvider.onDidChange(
+        (_) => this._createOutline()
+      )
+    );
+    this._disposables.add(
+      this._editor.onDidChangeModel((_) => this._createOutline())
+    );
+    this._disposables.add(
+      this._editor.onDidChangeModelLanguage((_) => this._createOutline())
+    );
     const updateSoon = new TimeoutTimer();
     this._disposables.add(updateSoon);
-    this._disposables.add(this._editor.onDidChangeModelContent((event) => {
-      const model = this._editor.getModel();
-      if (model) {
-        const timeout2 = _outlineModelService.getDebounceValue(model);
-        updateSoon.cancelAndSet(() => this._createOutline(event), timeout2);
-      }
-    }));
-    this._disposables.add(this._editor.onDidDispose(() => this._outlineDisposables.clear()));
+    this._disposables.add(
+      this._editor.onDidChangeModelContent((event) => {
+        const model = this._editor.getModel();
+        if (model) {
+          const timeout2 = _outlineModelService.getDebounceValue(model);
+          updateSoon.cancelAndSet(
+            () => this._createOutline(event),
+            timeout2
+          );
+        }
+      })
+    );
+    this._disposables.add(
+      this._editor.onDidDispose(() => this._outlineDisposables.clear())
+    );
     this._createOutline().finally(() => firstLoadBarrier.open());
   }
   _disposables = new DisposableStore();

@@ -54,6 +54,7 @@ import {
 } from "../../../../../platform/theme/common/themeService.js";
 import { PANEL_BACKGROUND } from "../../../../common/theme.js";
 import {
+  ansiColorIdentifiers,
   TERMINAL_BACKGROUND_COLOR,
   TERMINAL_CURSOR_BACKGROUND_COLOR,
   TERMINAL_CURSOR_FOREGROUND_COLOR,
@@ -67,8 +68,7 @@ import {
   TERMINAL_OVERVIEW_RULER_CURSOR_FOREGROUND_COLOR,
   TERMINAL_OVERVIEW_RULER_FIND_MATCH_FOREGROUND_COLOR,
   TERMINAL_SELECTION_BACKGROUND_COLOR,
-  TERMINAL_SELECTION_FOREGROUND_COLOR,
-  ansiColorIdentifiers
+  TERMINAL_SELECTION_FOREGROUND_COLOR
 } from "../../common/terminalColorRegistry.js";
 import { TerminalContextKeys } from "../../common/terminalContextKey.js";
 import {
@@ -120,92 +120,144 @@ let XtermTerminal = class extends Disposable {
     this._terminalConfigurationService = _terminalConfigurationService;
     this._clipboardService = _clipboardService;
     this._accessibilitySignalService = _accessibilitySignalService;
-    const font = this._terminalConfigurationService.getFont(dom.getActiveWindow(), void 0, true);
+    const font = this._terminalConfigurationService.getFont(
+      dom.getActiveWindow(),
+      void 0,
+      true
+    );
     const config = this._terminalConfigurationService.config;
     const editorOptions = this._configurationService.getValue("editor");
-    this.raw = this._register(new xtermCtor({
-      allowProposedApi: true,
-      cols,
-      rows,
-      documentOverride: layoutService.mainContainer.ownerDocument,
-      altClickMovesCursor: config.altClickMovesCursor && editorOptions.multiCursorModifier === "alt",
-      scrollback: config.scrollback,
-      theme: this.getXtermTheme(),
-      drawBoldTextInBrightColors: config.drawBoldTextInBrightColors,
-      fontFamily: font.fontFamily,
-      fontWeight: config.fontWeight,
-      fontWeightBold: config.fontWeightBold,
-      fontSize: font.fontSize,
-      letterSpacing: font.letterSpacing,
-      lineHeight: font.lineHeight,
-      logLevel: vscodeToXtermLogLevel(this._logService.getLevel()),
-      logger: this._logService,
-      minimumContrastRatio: config.minimumContrastRatio,
-      tabStopWidth: config.tabStopWidth,
-      cursorBlink: config.cursorBlinking,
-      cursorStyle: vscodeToXtermCursorStyle(config.cursorStyle),
-      cursorInactiveStyle: vscodeToXtermCursorStyle(config.cursorStyleInactive),
-      cursorWidth: config.cursorWidth,
-      macOptionIsMeta: config.macOptionIsMeta,
-      macOptionClickForcesSelection: config.macOptionClickForcesSelection,
-      rightClickSelectsWord: config.rightClickBehavior === "selectWord",
-      fastScrollModifier: "alt",
-      fastScrollSensitivity: config.fastScrollSensitivity,
-      scrollSensitivity: config.mouseWheelScrollSensitivity,
-      wordSeparator: config.wordSeparators,
-      overviewRuler: {
-        width: 14,
-        showTopBorder: true
-      },
-      ignoreBracketedPasteMode: config.ignoreBracketedPasteMode,
-      rescaleOverlappingGlyphs: config.rescaleOverlappingGlyphs,
-      windowOptions: {
-        getWinSizePixels: true,
-        getCellSizePixels: true,
-        getWinSizeChars: true
-      }
-    }));
+    this.raw = this._register(
+      new xtermCtor({
+        allowProposedApi: true,
+        cols,
+        rows,
+        documentOverride: layoutService.mainContainer.ownerDocument,
+        altClickMovesCursor: config.altClickMovesCursor && editorOptions.multiCursorModifier === "alt",
+        scrollback: config.scrollback,
+        theme: this.getXtermTheme(),
+        drawBoldTextInBrightColors: config.drawBoldTextInBrightColors,
+        fontFamily: font.fontFamily,
+        fontWeight: config.fontWeight,
+        fontWeightBold: config.fontWeightBold,
+        fontSize: font.fontSize,
+        letterSpacing: font.letterSpacing,
+        lineHeight: font.lineHeight,
+        logLevel: vscodeToXtermLogLevel(this._logService.getLevel()),
+        logger: this._logService,
+        minimumContrastRatio: config.minimumContrastRatio,
+        tabStopWidth: config.tabStopWidth,
+        cursorBlink: config.cursorBlinking,
+        cursorStyle: vscodeToXtermCursorStyle(
+          config.cursorStyle
+        ),
+        cursorInactiveStyle: vscodeToXtermCursorStyle(
+          config.cursorStyleInactive
+        ),
+        cursorWidth: config.cursorWidth,
+        macOptionIsMeta: config.macOptionIsMeta,
+        macOptionClickForcesSelection: config.macOptionClickForcesSelection,
+        rightClickSelectsWord: config.rightClickBehavior === "selectWord",
+        fastScrollModifier: "alt",
+        fastScrollSensitivity: config.fastScrollSensitivity,
+        scrollSensitivity: config.mouseWheelScrollSensitivity,
+        wordSeparator: config.wordSeparators,
+        overviewRuler: {
+          width: 14,
+          showTopBorder: true
+        },
+        ignoreBracketedPasteMode: config.ignoreBracketedPasteMode,
+        rescaleOverlappingGlyphs: config.rescaleOverlappingGlyphs,
+        windowOptions: {
+          getWinSizePixels: true,
+          getCellSizePixels: true,
+          getWinSizeChars: true
+        }
+      })
+    );
     this._updateSmoothScrolling();
     this._core = this.raw._core;
-    this._register(this._configurationService.onDidChangeConfiguration(async (e) => {
-      if (e.affectsConfiguration(TerminalSettingId.GpuAcceleration)) {
-        XtermTerminal._suggestedRendererType = void 0;
-      }
-      if (e.affectsConfiguration("terminal.integrated") || e.affectsConfiguration("editor.fastScrollSensitivity") || e.affectsConfiguration("editor.mouseWheelScrollSensitivity") || e.affectsConfiguration("editor.multiCursorModifier")) {
-        this.updateConfig();
-      }
-      if (e.affectsConfiguration(TerminalSettingId.UnicodeVersion)) {
-        this._updateUnicodeVersion();
-      }
-      if (e.affectsConfiguration(TerminalSettingId.ShellIntegrationDecorationsEnabled)) {
-        this._updateTheme();
-      }
-    }));
-    this._register(this._themeService.onDidColorThemeChange((theme) => this._updateTheme(theme)));
-    this._register(this._logService.onDidChangeLogLevel((e) => this.raw.options.logLevel = vscodeToXtermLogLevel(e)));
-    this._register(this.raw.onSelectionChange(() => {
-      this._onDidChangeSelection.fire();
-      if (this.isFocused) {
-        this._anyFocusedTerminalHasSelection.set(this.raw.hasSelection());
-      }
-    }));
+    this._register(
+      this._configurationService.onDidChangeConfiguration(async (e) => {
+        if (e.affectsConfiguration(TerminalSettingId.GpuAcceleration)) {
+          XtermTerminal._suggestedRendererType = void 0;
+        }
+        if (e.affectsConfiguration("terminal.integrated") || e.affectsConfiguration("editor.fastScrollSensitivity") || e.affectsConfiguration(
+          "editor.mouseWheelScrollSensitivity"
+        ) || e.affectsConfiguration("editor.multiCursorModifier")) {
+          this.updateConfig();
+        }
+        if (e.affectsConfiguration(TerminalSettingId.UnicodeVersion)) {
+          this._updateUnicodeVersion();
+        }
+        if (e.affectsConfiguration(
+          TerminalSettingId.ShellIntegrationDecorationsEnabled
+        )) {
+          this._updateTheme();
+        }
+      })
+    );
+    this._register(
+      this._themeService.onDidColorThemeChange(
+        (theme) => this._updateTheme(theme)
+      )
+    );
+    this._register(
+      this._logService.onDidChangeLogLevel(
+        (e) => this.raw.options.logLevel = vscodeToXtermLogLevel(e)
+      )
+    );
+    this._register(
+      this.raw.onSelectionChange(() => {
+        this._onDidChangeSelection.fire();
+        if (this.isFocused) {
+          this._anyFocusedTerminalHasSelection.set(
+            this.raw.hasSelection()
+          );
+        }
+      })
+    );
     this._updateUnicodeVersion();
-    this._markNavigationAddon = this._instantiationService.createInstance(MarkNavigationAddon, _capabilities);
+    this._markNavigationAddon = this._instantiationService.createInstance(
+      MarkNavigationAddon,
+      _capabilities
+    );
     this.raw.loadAddon(this._markNavigationAddon);
-    this._decorationAddon = this._instantiationService.createInstance(DecorationAddon, this._capabilities);
-    this._register(this._decorationAddon.onDidRequestRunCommand((e) => this._onDidRequestRunCommand.fire(e)));
+    this._decorationAddon = this._instantiationService.createInstance(
+      DecorationAddon,
+      this._capabilities
+    );
+    this._register(
+      this._decorationAddon.onDidRequestRunCommand(
+        (e) => this._onDidRequestRunCommand.fire(e)
+      )
+    );
     this.raw.loadAddon(this._decorationAddon);
-    this._shellIntegrationAddon = new ShellIntegrationAddon(shellIntegrationNonce, disableShellIntegrationReporting, this._telemetryService, this._logService);
+    this._shellIntegrationAddon = new ShellIntegrationAddon(
+      shellIntegrationNonce,
+      disableShellIntegrationReporting,
+      this._telemetryService,
+      this._logService
+    );
     this.raw.loadAddon(this._shellIntegrationAddon);
     this._getClipboardAddonConstructor().then((ClipboardAddon2) => {
-      this._clipboardAddon = this._instantiationService.createInstance(ClipboardAddon2, void 0, {
-        async readText(type) {
-          return _clipboardService.readText(type === "p" ? "selection" : "clipboard");
-        },
-        async writeText(type, text) {
-          return _clipboardService.writeText(text, type === "p" ? "selection" : "clipboard");
+      this._clipboardAddon = this._instantiationService.createInstance(
+        ClipboardAddon2,
+        void 0,
+        {
+          async readText(type) {
+            return _clipboardService.readText(
+              type === "p" ? "selection" : "clipboard"
+            );
+          },
+          async writeText(type, text) {
+            return _clipboardService.writeText(
+              text,
+              type === "p" ? "selection" : "clipboard"
+            );
+          }
         }
-      });
+      );
       this.raw.loadAddon(this._clipboardAddon);
     });
     this._anyTerminalFocusContextKey = TerminalContextKeys.focusInAny.bindTo(contextKeyService);

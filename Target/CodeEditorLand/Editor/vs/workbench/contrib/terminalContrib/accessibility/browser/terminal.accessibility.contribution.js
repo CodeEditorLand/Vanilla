@@ -112,31 +112,48 @@ let TerminalAccessibleViewContribution = class extends Disposable {
     this._configurationService = _configurationService;
     this._contextKeyService = _contextKeyService;
     this._accessibilitySignalService = _accessibilitySignalService;
-    this._register(AccessibleViewAction.addImplementation(90, "terminal", () => {
-      if (this._terminalService.activeInstance !== this._instance) {
-        return false;
-      }
-      this.show();
-      return true;
-    }, TerminalContextKeys.focus));
-    this._register(_instance.onDidExecuteText(() => {
-      const focusAfterRun = _configurationService.getValue(TerminalSettingId.FocusAfterRun);
-      if (focusAfterRun === "terminal") {
-        _instance.focus(true);
-      } else if (focusAfterRun === "accessible-buffer") {
-        this.show();
-      }
-    }));
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(TerminalAccessibilitySettingId.AccessibleViewFocusOnCommandExecution)) {
-        this._updateCommandExecutedListener();
-      }
-    }));
-    this._register(this._instance.capabilities.onDidAddCapability((e) => {
-      if (e.capability.type === TerminalCapability.CommandDetection) {
-        this._updateCommandExecutedListener();
-      }
-    }));
+    this._register(
+      AccessibleViewAction.addImplementation(
+        90,
+        "terminal",
+        () => {
+          if (this._terminalService.activeInstance !== this._instance) {
+            return false;
+          }
+          this.show();
+          return true;
+        },
+        TerminalContextKeys.focus
+      )
+    );
+    this._register(
+      _instance.onDidExecuteText(() => {
+        const focusAfterRun = _configurationService.getValue(
+          TerminalSettingId.FocusAfterRun
+        );
+        if (focusAfterRun === "terminal") {
+          _instance.focus(true);
+        } else if (focusAfterRun === "accessible-buffer") {
+          this.show();
+        }
+      })
+    );
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          TerminalAccessibilitySettingId.AccessibleViewFocusOnCommandExecution
+        )) {
+          this._updateCommandExecutedListener();
+        }
+      })
+    );
+    this._register(
+      this._instance.capabilities.onDidAddCapability((e) => {
+        if (e.capability.type === TerminalCapability.CommandDetection) {
+          this._updateCommandExecutedListener();
+        }
+      })
+    );
   }
   static ID = "terminal.accessibleBufferProvider";
   static get(instance) {

@@ -22,10 +22,10 @@ import { IRemoteAuthorityResolverService } from "../../../../platform/remote/com
 import { ISharedProcessTunnelService } from "../../../../platform/remote/common/sharedProcessTunnelService.js";
 import {
   AbstractTunnelService,
-  ITunnelService,
-  TunnelPrivacyId,
   isPortPrivileged,
-  isTunnelProvider
+  isTunnelProvider,
+  ITunnelService,
+  TunnelPrivacyId
 } from "../../../../platform/tunnel/common/tunnel.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
@@ -43,7 +43,11 @@ let SharedProcessTunnel = class extends Disposable {
     this._sharedProcessTunnelService = _sharedProcessTunnelService;
     this._remoteAuthorityResolverService = _remoteAuthorityResolverService;
     this._updateAddress();
-    this._register(this._remoteAuthorityResolverService.onDidChangeConnectionData(() => this._updateAddress()));
+    this._register(
+      this._remoteAuthorityResolverService.onDidChangeConnectionData(
+        () => this._updateAddress()
+      )
+    );
   }
   privacy = TunnelPrivacyId.Private;
   protocol = void 0;
@@ -69,11 +73,13 @@ let TunnelService = class extends AbstractTunnelService {
     this._sharedProcessTunnelService = _sharedProcessTunnelService;
     this._instantiationService = _instantiationService;
     this._nativeWorkbenchEnvironmentService = _nativeWorkbenchEnvironmentService;
-    this._register(lifecycleService.onDidShutdown(() => {
-      this._activeSharedProcessTunnels.forEach((id) => {
-        this._sharedProcessTunnelService.destroyTunnel(id);
-      });
-    }));
+    this._register(
+      lifecycleService.onDidShutdown(() => {
+        this._activeSharedProcessTunnels.forEach((id) => {
+          this._sharedProcessTunnelService.destroyTunnel(id);
+        });
+      })
+    );
   }
   _activeSharedProcessTunnels = /* @__PURE__ */ new Set();
   isPortPrivileged(port) {

@@ -60,8 +60,8 @@ import {
   UndoRedoElementType
 } from "../../../../../../platform/undoRedo/common/undoRedo.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../../../common/contributions.js";
 import { IEditorService } from "../../../../../services/editor/common/editorService.js";
 import {
@@ -103,14 +103,18 @@ let NotebookMultiCursorController = class extends Disposable {
     this.accessibilityService = accessibilityService;
     this.configurationService = configurationService;
     this.undoRedoService = undoRedoService;
-    if (!this.configurationService.getValue("notebook.multiSelect.enabled")) {
+    if (!this.configurationService.getValue(
+      "notebook.multiSelect.enabled"
+    )) {
       return;
     }
     this.anchorCell = this.notebookEditor.activeCellAndCodeEditor;
-    this._register(this.onDidChangeAnchorCell(() => {
-      this.updateCursorsControllers();
-      this.updateAnchorListeners();
-    }));
+    this._register(
+      this.onDidChangeAnchorCell(() => {
+        this.updateCursorsControllers();
+        this.updateAnchorListeners();
+      })
+    );
   }
   static id = "notebook.multiCursorController";
   state = 0 /* Idle */;
@@ -765,40 +769,70 @@ let NotebookMultiCursorUndoRedoContribution = class extends Disposable {
     super();
     this._editorService = _editorService;
     this.configurationService = configurationService;
-    if (!this.configurationService.getValue("notebook.multiSelect.enabled")) {
+    if (!this.configurationService.getValue(
+      "notebook.multiSelect.enabled"
+    )) {
       return;
     }
     const PRIORITY = 10005;
-    this._register(UndoCommand.addImplementation(PRIORITY, "notebook-multicursor-undo-redo", () => {
-      const editor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
-      if (!editor) {
-        return false;
-      }
-      if (!editor.hasModel()) {
-        return false;
-      }
-      const controller = editor.getContribution(NotebookMultiCursorController.id);
-      return controller.undo();
-    }, ContextKeyExpr.and(
-      ContextKeyExpr.equals("config.notebook.multiSelect.enabled", true),
-      NOTEBOOK_IS_ACTIVE_EDITOR,
-      NOTEBOOK_MULTI_SELECTION_CONTEXT.IsNotebookMultiSelect
-    )));
-    this._register(RedoCommand.addImplementation(PRIORITY, "notebook-multicursor-undo-redo", () => {
-      const editor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
-      if (!editor) {
-        return false;
-      }
-      if (!editor.hasModel()) {
-        return false;
-      }
-      const controller = editor.getContribution(NotebookMultiCursorController.id);
-      return controller.redo();
-    }, ContextKeyExpr.and(
-      ContextKeyExpr.equals("config.notebook.multiSelect.enabled", true),
-      NOTEBOOK_IS_ACTIVE_EDITOR,
-      NOTEBOOK_MULTI_SELECTION_CONTEXT.IsNotebookMultiSelect
-    )));
+    this._register(
+      UndoCommand.addImplementation(
+        PRIORITY,
+        "notebook-multicursor-undo-redo",
+        () => {
+          const editor = getNotebookEditorFromEditorPane(
+            this._editorService.activeEditorPane
+          );
+          if (!editor) {
+            return false;
+          }
+          if (!editor.hasModel()) {
+            return false;
+          }
+          const controller = editor.getContribution(
+            NotebookMultiCursorController.id
+          );
+          return controller.undo();
+        },
+        ContextKeyExpr.and(
+          ContextKeyExpr.equals(
+            "config.notebook.multiSelect.enabled",
+            true
+          ),
+          NOTEBOOK_IS_ACTIVE_EDITOR,
+          NOTEBOOK_MULTI_SELECTION_CONTEXT.IsNotebookMultiSelect
+        )
+      )
+    );
+    this._register(
+      RedoCommand.addImplementation(
+        PRIORITY,
+        "notebook-multicursor-undo-redo",
+        () => {
+          const editor = getNotebookEditorFromEditorPane(
+            this._editorService.activeEditorPane
+          );
+          if (!editor) {
+            return false;
+          }
+          if (!editor.hasModel()) {
+            return false;
+          }
+          const controller = editor.getContribution(
+            NotebookMultiCursorController.id
+          );
+          return controller.redo();
+        },
+        ContextKeyExpr.and(
+          ContextKeyExpr.equals(
+            "config.notebook.multiSelect.enabled",
+            true
+          ),
+          NOTEBOOK_IS_ACTIVE_EDITOR,
+          NOTEBOOK_MULTI_SELECTION_CONTEXT.IsNotebookMultiSelect
+        )
+      )
+    );
   }
   static ID = "workbench.contrib.notebook.multiCursorUndoRedo";
 };

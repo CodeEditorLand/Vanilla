@@ -10,8 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
-import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import { CountBadge } from "../../../../base/browser/ui/countBadge/countBadge.js";
 import { HighlightedLabel } from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
@@ -20,8 +20,8 @@ import {
 } from "../../../../base/browser/ui/tree/tree.js";
 import { Action } from "../../../../base/common/actions.js";
 import {
-  Delayer,
-  createCancelablePromise
+  createCancelablePromise,
+  Delayer
 } from "../../../../base/common/async.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { Emitter } from "../../../../base/common/event.js";
@@ -41,8 +41,8 @@ import { CodeActionTriggerType } from "../../../../editor/common/languages.js";
 import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
 import {
-  ApplyCodeActionReason,
   applyCodeAction,
+  ApplyCodeActionReason,
   getCodeActions
 } from "../../../../editor/contrib/codeAction/browser/codeAction.js";
 import {
@@ -56,10 +56,10 @@ import {
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
-import { unsupportedSchemas } from "../../../../platform/markers/common/markerService.js";
 import {
   MarkerSeverity
 } from "../../../../platform/markers/common/markers.js";
+import { unsupportedSchemas } from "../../../../platform/markers/common/markerService.js";
 import { Link } from "../../../../platform/opener/browser/link.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { Progress } from "../../../../platform/progress/common/progress.js";
@@ -666,14 +666,16 @@ let MarkerViewModel = class extends Disposable {
     this.instantiationService = instantiationService;
     this.editorService = editorService;
     this.languageFeaturesService = languageFeaturesService;
-    this._register(toDisposable(() => {
-      if (this.modelPromise) {
-        this.modelPromise.cancel();
-      }
-      if (this.codeActionsPromise) {
-        this.codeActionsPromise.cancel();
-      }
-    }));
+    this._register(
+      toDisposable(() => {
+        if (this.modelPromise) {
+          this.modelPromise.cancel();
+        }
+        if (this.codeActionsPromise) {
+          this.codeActionsPromise.cancel();
+        }
+      })
+    );
   }
   _onDidChange = this._register(
     new Emitter()
@@ -829,7 +831,9 @@ let MarkersViewModel = class extends Disposable {
     this.instantiationService = instantiationService;
     this._multiline = multiline;
     this._viewMode = viewMode;
-    this.viewModeContextKey = MarkersContextKeys.MarkersViewModeContextKey.bindTo(this.contextKeyService);
+    this.viewModeContextKey = MarkersContextKeys.MarkersViewModeContextKey.bindTo(
+      this.contextKeyService
+    );
     this.viewModeContextKey.set(viewMode);
   }
   _onDidChange = this._register(

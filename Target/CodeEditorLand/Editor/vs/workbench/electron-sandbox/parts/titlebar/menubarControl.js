@@ -39,7 +39,22 @@ import { IHostService } from "../../../services/host/browser/host.js";
 import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
 let NativeMenubarControl = class extends MenubarControl {
   constructor(menuService, workspacesService, contextKeyService, keybindingService, configurationService, labelService, updateService, storageService, notificationService, preferencesService, environmentService, accessibilityService, menubarService, hostService, nativeHostService, commandService) {
-    super(menuService, workspacesService, contextKeyService, keybindingService, configurationService, labelService, updateService, storageService, notificationService, preferencesService, environmentService, accessibilityService, hostService, commandService);
+    super(
+      menuService,
+      workspacesService,
+      contextKeyService,
+      keybindingService,
+      configurationService,
+      labelService,
+      updateService,
+      storageService,
+      notificationService,
+      preferencesService,
+      environmentService,
+      accessibilityService,
+      hostService,
+      commandService
+    );
     this.menubarService = menubarService;
     this.nativeHostService = nativeHostService;
     (async () => {

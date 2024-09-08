@@ -38,10 +38,18 @@ let NotebookKernelHistoryService = class extends Disposable {
     this._notebookKernelService = _notebookKernelService;
     this._notebookLoggingService = _notebookLoggingService;
     this._loadState();
-    this._register(this._storageService.onWillSaveState(() => this._saveState()));
-    this._register(this._storageService.onDidChangeValue(StorageScope.WORKSPACE, NotebookKernelHistoryService.STORAGE_KEY, this._register(new DisposableStore()))(() => {
-      this._loadState();
-    }));
+    this._register(
+      this._storageService.onWillSaveState(() => this._saveState())
+    );
+    this._register(
+      this._storageService.onDidChangeValue(
+        StorageScope.WORKSPACE,
+        NotebookKernelHistoryService.STORAGE_KEY,
+        this._register(new DisposableStore())
+      )(() => {
+        this._loadState();
+      })
+    );
   }
   static STORAGE_KEY = "notebook.kernelHistory";
   _mostRecentKernelsMap = {};

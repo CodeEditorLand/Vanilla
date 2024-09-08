@@ -17,9 +17,9 @@ import {
 } from "../../../../base/common/uriIpc.js";
 import { CanceledLazyPromise, LazyPromise } from "./lazyPromise.js";
 import {
+  getStringIdentifierForProxy,
   ProxyIdentifier,
-  SerializableObjectWithBuffers,
-  getStringIdentifierForProxy
+  SerializableObjectWithBuffers
 } from "./proxyIdentifier.js";
 function safeStringify(obj, replacer) {
   try {

@@ -50,18 +50,31 @@ const CONTEXT_ACTIVE_WEBVIEW_PANEL_ID = new RawContextKey(
 );
 let WebviewEditor = class extends EditorPane {
   constructor(group, telemetryService, themeService, storageService, _editorGroupsService, _editorService, _workbenchLayoutService, _hostService, _contextKeyService) {
-    super(WebviewEditor.ID, group, telemetryService, themeService, storageService);
+    super(
+      WebviewEditor.ID,
+      group,
+      telemetryService,
+      themeService,
+      storageService
+    );
     this._editorGroupsService = _editorGroupsService;
     this._editorService = _editorService;
     this._workbenchLayoutService = _workbenchLayoutService;
     this._hostService = _hostService;
     this._contextKeyService = _contextKeyService;
     const part = _editorGroupsService.getPart(group);
-    this._register(Event.any(part.onDidScroll, part.onDidAddGroup, part.onDidRemoveGroup, part.onDidMoveGroup)(() => {
-      if (this.webview && this._visible) {
-        this.synchronizeWebviewContainerDimensions(this.webview);
-      }
-    }));
+    this._register(
+      Event.any(
+        part.onDidScroll,
+        part.onDidAddGroup,
+        part.onDidRemoveGroup,
+        part.onDidMoveGroup
+      )(() => {
+        if (this.webview && this._visible) {
+          this.synchronizeWebviewContainerDimensions(this.webview);
+        }
+      })
+    );
   }
   static ID = "WebviewEditor";
   _element;

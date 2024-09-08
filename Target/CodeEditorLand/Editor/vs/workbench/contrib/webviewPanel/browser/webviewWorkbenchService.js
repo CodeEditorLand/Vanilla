@@ -10,8 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  DeferredPromise,
-  createCancelablePromise
+  createCancelablePromise,
+  DeferredPromise
 } from "../../../../base/common/async.js";
 import {
   CancellationTokenSource
@@ -21,14 +21,14 @@ import { isCancellationError } from "../../../../base/common/errors.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { Iterable } from "../../../../base/common/iterator.js";
 import {
-  Disposable,
   combinedDisposable,
+  Disposable,
   toDisposable
 } from "../../../../base/common/lifecycle.js";
 import { EditorActivation } from "../../../../platform/editor/common/editor.js";
 import {
-  IInstantiationService,
-  createDecorator
+  createDecorator,
+  IInstantiationService
 } from "../../../../platform/instantiation/common/instantiation.js";
 import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
 import {
@@ -136,17 +136,25 @@ let WebviewEditorService = class extends Disposable {
     this._editorService = _editorService;
     this._instantiationService = _instantiationService;
     this._webviewService = _webviewService;
-    this._iconManager = this._register(this._instantiationService.createInstance(WebviewIconManager));
-    this._register(editorGroupsService.registerContextKeyProvider({
-      contextKey: CONTEXT_ACTIVE_WEBVIEW_PANEL_ID,
-      getGroupContextKeyValue: (group) => this.getWebviewId(group.activeEditor)
-    }));
-    this._register(_editorService.onDidActiveEditorChange(() => {
-      this.updateActiveWebview();
-    }));
-    this._register(_webviewService.onDidChangeActiveWebview(() => {
-      this.updateActiveWebview();
-    }));
+    this._iconManager = this._register(
+      this._instantiationService.createInstance(WebviewIconManager)
+    );
+    this._register(
+      editorGroupsService.registerContextKeyProvider({
+        contextKey: CONTEXT_ACTIVE_WEBVIEW_PANEL_ID,
+        getGroupContextKeyValue: (group) => this.getWebviewId(group.activeEditor)
+      })
+    );
+    this._register(
+      _editorService.onDidActiveEditorChange(() => {
+        this.updateActiveWebview();
+      })
+    );
+    this._register(
+      _webviewService.onDidChangeActiveWebview(() => {
+        this.updateActiveWebview();
+      })
+    );
     this.updateActiveWebview();
   }
   _revivers = /* @__PURE__ */ new Set();

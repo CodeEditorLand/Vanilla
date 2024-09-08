@@ -43,19 +43,32 @@ let SCMWorkingSetController = class extends Disposable {
     this.scmService = scmService;
     this.storageService = storageService;
     this.layoutService = layoutService;
-    this._store.add(autorunWithStore((reader, store) => {
-      if (!this._enabledConfig.read(reader)) {
-        this.storageService.remove("scm.workingSets", StorageScope.WORKSPACE);
-        this._repositoryDisposables.clearAndDisposeAll();
-        return;
-      }
-      this._workingSets = this._loadWorkingSets();
-      this.scmService.onDidAddRepository(this._onDidAddRepository, this, store);
-      this.scmService.onDidRemoveRepository(this._onDidRemoveRepository, this, store);
-      for (const repository of this.scmService.repositories) {
-        this._onDidAddRepository(repository);
-      }
-    }));
+    this._store.add(
+      autorunWithStore((reader, store) => {
+        if (!this._enabledConfig.read(reader)) {
+          this.storageService.remove(
+            "scm.workingSets",
+            StorageScope.WORKSPACE
+          );
+          this._repositoryDisposables.clearAndDisposeAll();
+          return;
+        }
+        this._workingSets = this._loadWorkingSets();
+        this.scmService.onDidAddRepository(
+          this._onDidAddRepository,
+          this,
+          store
+        );
+        this.scmService.onDidRemoveRepository(
+          this._onDidRemoveRepository,
+          this,
+          store
+        );
+        for (const repository of this.scmService.repositories) {
+          this._onDidAddRepository(repository);
+        }
+      })
+    );
   }
   static ID = "workbench.contrib.scmWorkingSets";
   _workingSets;

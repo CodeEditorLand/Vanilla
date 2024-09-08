@@ -12,8 +12,8 @@ import {
 import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
 import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
 import {
-  FormattingMode,
-  formatDocumentRangesWithSelectedProvider
+  formatDocumentRangesWithSelectedProvider,
+  FormattingMode
 } from "../../../../editor/contrib/format/browser/format.js";
 import * as nls from "../../../../nls.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";

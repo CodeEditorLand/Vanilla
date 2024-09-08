@@ -27,10 +27,10 @@ import { whenDeleted, writeFileSync } from "../../base/node/pfs.js";
 import { findFreePort } from "../../base/node/ports.js";
 import { addUNCHostToAllowlist } from "../../base/node/unc.js";
 import {
-  NATIVE_CLI_COMMANDS,
-  OPTIONS,
   buildHelpMessage,
-  buildVersionMessage
+  buildVersionMessage,
+  NATIVE_CLI_COMMANDS,
+  OPTIONS
 } from "../../platform/environment/node/argv.js";
 import {
   addArg,

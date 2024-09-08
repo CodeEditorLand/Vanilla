@@ -28,8 +28,8 @@ import { KeyCode } from "../../../../base/common/keyCodes.js";
 import {
   Disposable,
   DisposableStore,
-  MutableDisposable,
-  dispose
+  dispose,
+  MutableDisposable
 } from "../../../../base/common/lifecycle.js";
 import * as platform from "../../../../base/common/platform.js";
 import { URI } from "../../../../base/common/uri.js";
@@ -99,8 +99,8 @@ import {
   validateSettingsEditorOptions
 } from "../../../services/preferences/common/preferences.js";
 import {
-  Settings2EditorModel,
-  nullRange
+  nullRange,
+  Settings2EditorModel
 } from "../../../services/preferences/common/preferencesModels.js";
 import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
 import { IUserDataSyncWorkbenchService } from "../../../services/userDataSync/common/userDataSync.js";
@@ -113,6 +113,7 @@ import {
   ENABLE_LANGUAGE_FILTER,
   EXTENSION_SETTING_TAG,
   FEATURE_SETTING_TAG,
+  getExperimentalExtensionToggleData,
   ID_SETTING_TAG,
   IPreferencesSearchService,
   LANGUAGE_SETTING_TAG,
@@ -121,8 +122,7 @@ import {
   REQUIRE_TRUSTED_WORKSPACE_SETTING_TAG,
   SETTINGS_EDITOR_COMMAND_CLEAR_SEARCH_RESULTS,
   SETTINGS_EDITOR_COMMAND_SUGGEST_FILTERS,
-  WORKSPACE_TRUST_SETTING_TAG,
-  getExperimentalExtensionToggleData
+  WORKSPACE_TRUST_SETTING_TAG
 } from "../common/preferences.js";
 import {
   settingsHeaderBorder,
@@ -143,21 +143,21 @@ import {
 import { SettingsSearchFilterDropdownMenuActionViewItem } from "./settingsSearchMenu.js";
 import {
   AbstractSettingRenderer,
-  SettingTreeRenderers,
-  SettingsTree,
   createTocTreeForExtensionSettings,
   resolveConfiguredUntrustedSettings,
-  resolveSettingsTree
+  resolveSettingsTree,
+  SettingsTree,
+  SettingTreeRenderers
 } from "./settingsTree.js";
 import {
+  parseQuery,
   SearchResultIdx,
   SearchResultModel,
   SettingsTreeGroupElement,
   SettingsTreeModel,
-  SettingsTreeSettingElement,
-  parseQuery
+  SettingsTreeSettingElement
 } from "./settingsTreeModels.js";
-import { TOCTree, TOCTreeModel, createTOCIterator } from "./tocTree.js";
+import { createTOCIterator, TOCTree, TOCTreeModel } from "./tocTree.js";
 var SettingsFocusContext = /* @__PURE__ */ ((SettingsFocusContext2) => {
   SettingsFocusContext2[SettingsFocusContext2["Search"] = 0] = "Search";
   SettingsFocusContext2[SettingsFocusContext2["TableOfContents"] = 1] = "TableOfContents";
@@ -179,7 +179,13 @@ const SEARCH_TOC_BEHAVIOR_KEY = "workbench.settings.settingsSearchTocBehavior";
 const SETTINGS_EDITOR_STATE_KEY = "settingsEditorState";
 let SettingsEditor2 = class extends EditorPane {
   constructor(group, telemetryService, configurationService, textResourceConfigurationService, themeService, preferencesService, instantiationService, preferencesSearchService, logService, contextKeyService, storageService, editorGroupService, userDataSyncWorkbenchService, userDataSyncEnablementService, workspaceTrustManagementService, extensionService, languageService, extensionManagementService, productService, extensionGalleryService, editorProgressService, userDataProfileService) {
-    super(SettingsEditor2.ID, group, telemetryService, themeService, storageService);
+    super(
+      SettingsEditor2.ID,
+      group,
+      telemetryService,
+      themeService,
+      storageService
+    );
     this.configurationService = configurationService;
     this.preferencesService = preferencesService;
     this.instantiationService = instantiationService;
@@ -199,43 +205,75 @@ let SettingsEditor2 = class extends EditorPane {
     this.delayedFilterLogging = new Delayer(1e3);
     this.searchDelayer = new Delayer(300);
     this.viewState = { settingsTarget: ConfigurationTarget.USER_LOCAL };
-    this.settingFastUpdateDelayer = new Delayer(SettingsEditor2.SETTING_UPDATE_FAST_DEBOUNCE);
-    this.settingSlowUpdateDelayer = new Delayer(SettingsEditor2.SETTING_UPDATE_SLOW_DEBOUNCE);
-    this.searchInputDelayer = new Delayer(SettingsEditor2.SEARCH_DEBOUNCE);
-    this.updatedConfigSchemaDelayer = new Delayer(SettingsEditor2.CONFIG_SCHEMA_UPDATE_DELAYER);
+    this.settingFastUpdateDelayer = new Delayer(
+      SettingsEditor2.SETTING_UPDATE_FAST_DEBOUNCE
+    );
+    this.settingSlowUpdateDelayer = new Delayer(
+      SettingsEditor2.SETTING_UPDATE_SLOW_DEBOUNCE
+    );
+    this.searchInputDelayer = new Delayer(
+      SettingsEditor2.SEARCH_DEBOUNCE
+    );
+    this.updatedConfigSchemaDelayer = new Delayer(
+      SettingsEditor2.CONFIG_SCHEMA_UPDATE_DELAYER
+    );
     this.inSettingsEditorContextKey = CONTEXT_SETTINGS_EDITOR.bindTo(contextKeyService);
     this.searchFocusContextKey = CONTEXT_SETTINGS_SEARCH_FOCUS.bindTo(contextKeyService);
     this.tocRowFocused = CONTEXT_TOC_ROW_FOCUS.bindTo(contextKeyService);
     this.settingRowFocused = CONTEXT_SETTINGS_ROW_FOCUS.bindTo(contextKeyService);
     this.scheduledRefreshes = /* @__PURE__ */ new Map();
-    this.editorMemento = this.getEditorMemento(editorGroupService, textResourceConfigurationService, SETTINGS_EDITOR_STATE_KEY);
-    this.dismissedExtensionSettings = this.storageService.get(this.DISMISSED_EXTENSION_SETTINGS_STORAGE_KEY, StorageScope.PROFILE, "").split(this.DISMISSED_EXTENSION_SETTINGS_DELIMITER);
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.source !== ConfigurationTarget.DEFAULT) {
-        this.onConfigUpdate(e.affectedKeys);
-      }
-    }));
-    this._register(userDataProfileService.onDidChangeCurrentProfile((e) => {
-      e.join(this.whenCurrentProfileChanged());
-    }));
-    this._register(workspaceTrustManagementService.onDidChangeTrust(() => {
-      this.searchResultModel?.updateWorkspaceTrust(workspaceTrustManagementService.isWorkspaceTrusted());
-      if (this.settingsTreeModel) {
-        this.settingsTreeModel.updateWorkspaceTrust(workspaceTrustManagementService.isWorkspaceTrusted());
-        this.renderTree();
-      }
-    }));
-    this._register(configurationService.onDidChangeRestrictedSettings((e) => {
-      if (e.default.length && this.currentSettingsModel) {
-        this.updateElementsByKey(new Set(e.default));
-      }
-    }));
-    this._register(extensionManagementService.onDidInstallExtensions(() => {
-      this.refreshInstalledExtensionsList();
-    }));
-    this._register(extensionManagementService.onDidUninstallExtension(() => {
-      this.refreshInstalledExtensionsList();
-    }));
+    this.editorMemento = this.getEditorMemento(
+      editorGroupService,
+      textResourceConfigurationService,
+      SETTINGS_EDITOR_STATE_KEY
+    );
+    this.dismissedExtensionSettings = this.storageService.get(
+      this.DISMISSED_EXTENSION_SETTINGS_STORAGE_KEY,
+      StorageScope.PROFILE,
+      ""
+    ).split(this.DISMISSED_EXTENSION_SETTINGS_DELIMITER);
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.source !== ConfigurationTarget.DEFAULT) {
+          this.onConfigUpdate(e.affectedKeys);
+        }
+      })
+    );
+    this._register(
+      userDataProfileService.onDidChangeCurrentProfile((e) => {
+        e.join(this.whenCurrentProfileChanged());
+      })
+    );
+    this._register(
+      workspaceTrustManagementService.onDidChangeTrust(() => {
+        this.searchResultModel?.updateWorkspaceTrust(
+          workspaceTrustManagementService.isWorkspaceTrusted()
+        );
+        if (this.settingsTreeModel) {
+          this.settingsTreeModel.updateWorkspaceTrust(
+            workspaceTrustManagementService.isWorkspaceTrusted()
+          );
+          this.renderTree();
+        }
+      })
+    );
+    this._register(
+      configurationService.onDidChangeRestrictedSettings((e) => {
+        if (e.default.length && this.currentSettingsModel) {
+          this.updateElementsByKey(new Set(e.default));
+        }
+      })
+    );
+    this._register(
+      extensionManagementService.onDidInstallExtensions(() => {
+        this.refreshInstalledExtensionsList();
+      })
+    );
+    this._register(
+      extensionManagementService.onDidUninstallExtension(() => {
+        this.refreshInstalledExtensionsList();
+      })
+    );
     this.modelDisposables = this._register(new DisposableStore());
     if (ENABLE_LANGUAGE_FILTER && !SettingsEditor2.SUGGESTIONS.includes(`@${LANGUAGE_SETTING_TAG}`)) {
       SettingsEditor2.SUGGESTIONS.push(`@${LANGUAGE_SETTING_TAG}`);
@@ -2016,31 +2054,64 @@ let SyncControls = class extends Disposable {
     this.commandService = commandService;
     this.userDataSyncService = userDataSyncService;
     this.userDataSyncEnablementService = userDataSyncEnablementService;
-    const headerRightControlsContainer = DOM.append(container, $(".settings-right-controls"));
-    const turnOnSyncButtonContainer = DOM.append(headerRightControlsContainer, $(".turn-on-sync"));
-    this.turnOnSyncButton = this._register(new Button(turnOnSyncButtonContainer, { title: true, ...defaultButtonStyles }));
-    this.lastSyncedLabel = DOM.append(headerRightControlsContainer, $(".last-synced-label"));
+    const headerRightControlsContainer = DOM.append(
+      container,
+      $(".settings-right-controls")
+    );
+    const turnOnSyncButtonContainer = DOM.append(
+      headerRightControlsContainer,
+      $(".turn-on-sync")
+    );
+    this.turnOnSyncButton = this._register(
+      new Button(turnOnSyncButtonContainer, {
+        title: true,
+        ...defaultButtonStyles
+      })
+    );
+    this.lastSyncedLabel = DOM.append(
+      headerRightControlsContainer,
+      $(".last-synced-label")
+    );
     DOM.hide(this.lastSyncedLabel);
     this.turnOnSyncButton.enabled = true;
-    this.turnOnSyncButton.label = localize("turnOnSyncButton", "Backup and Sync Settings");
+    this.turnOnSyncButton.label = localize(
+      "turnOnSyncButton",
+      "Backup and Sync Settings"
+    );
     DOM.hide(this.turnOnSyncButton.element);
-    this._register(this.turnOnSyncButton.onDidClick(async () => {
-      telemetryService.publicLog2("sync/turnOnSyncFromSettings");
-      await this.commandService.executeCommand("workbench.userDataSync.actions.turnOn");
-    }));
+    this._register(
+      this.turnOnSyncButton.onDidClick(async () => {
+        telemetryService.publicLog2("sync/turnOnSyncFromSettings");
+        await this.commandService.executeCommand(
+          "workbench.userDataSync.actions.turnOn"
+        );
+      })
+    );
     this.updateLastSyncedTime();
-    this._register(this.userDataSyncService.onDidChangeLastSyncTime(() => {
-      this.updateLastSyncedTime();
-    }));
-    const updateLastSyncedTimer = this._register(new DOM.WindowIntervalTimer());
-    updateLastSyncedTimer.cancelAndSet(() => this.updateLastSyncedTime(), 60 * 1e3, window);
+    this._register(
+      this.userDataSyncService.onDidChangeLastSyncTime(() => {
+        this.updateLastSyncedTime();
+      })
+    );
+    const updateLastSyncedTimer = this._register(
+      new DOM.WindowIntervalTimer()
+    );
+    updateLastSyncedTimer.cancelAndSet(
+      () => this.updateLastSyncedTime(),
+      60 * 1e3,
+      window
+    );
     this.update();
-    this._register(this.userDataSyncService.onDidChangeStatus(() => {
-      this.update();
-    }));
-    this._register(this.userDataSyncEnablementService.onDidChangeEnablement(() => {
-      this.update();
-    }));
+    this._register(
+      this.userDataSyncService.onDidChangeStatus(() => {
+        this.update();
+      })
+    );
+    this._register(
+      this.userDataSyncEnablementService.onDidChangeEnablement(() => {
+        this.update();
+      })
+    );
   }
   lastSyncedLabel;
   turnOnSyncButton;

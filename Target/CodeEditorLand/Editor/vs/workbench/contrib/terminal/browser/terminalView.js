@@ -19,8 +19,8 @@ import { Action } from "../../../../base/common/actions.js";
 import { Event } from "../../../../base/common/event.js";
 import {
   DisposableStore,
-  MutableDisposable,
   dispose,
+  MutableDisposable,
   toDisposable
 } from "../../../../base/common/lifecycle.js";
 import { MicrotaskDelay } from "../../../../base/common/symbols.js";
@@ -30,8 +30,8 @@ import * as nls from "../../../../nls.js";
 import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 import { DropdownWithPrimaryActionViewItem } from "../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";
 import {
-  MenuEntryActionViewItem,
-  createAndFillInContextMenuActions
+  createAndFillInContextMenuActions,
+  MenuEntryActionViewItem
 } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
 import {
   IMenuService,
@@ -103,7 +103,19 @@ import { TerminalTabbedView } from "./terminalTabbedView.js";
 import { getInstanceHoverInfo } from "./terminalTooltip.js";
 let TerminalViewPane = class extends ViewPane {
   constructor(options, keybindingService, _contextKeyService, viewDescriptorService, _configurationService, _contextMenuService, _instantiationService, _terminalService, _terminalConfigurationService, _terminalGroupService, themeService, telemetryService, hoverService, _notificationService, _keybindingService, openerService, _menuService, _terminalProfileService, _terminalProfileResolverService, _themeService, _accessibilityService) {
-    super(options, keybindingService, _contextMenuService, _configurationService, _contextKeyService, viewDescriptorService, _instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      _contextMenuService,
+      _configurationService,
+      _contextKeyService,
+      viewDescriptorService,
+      _instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this._contextKeyService = _contextKeyService;
     this._configurationService = _configurationService;
     this._contextMenuService = _contextMenuService;
@@ -118,44 +130,79 @@ let TerminalViewPane = class extends ViewPane {
     this._terminalProfileResolverService = _terminalProfileResolverService;
     this._themeService = _themeService;
     this._accessibilityService = _accessibilityService;
-    this._register(this._terminalService.onDidRegisterProcessSupport(() => {
-      this._onDidChangeViewWelcomeState.fire();
-    }));
-    this._register(this._terminalService.onDidChangeInstances(() => {
-      if (this._hasWelcomeScreen() && this._terminalGroupService.instances.length <= 1) {
+    this._register(
+      this._terminalService.onDidRegisterProcessSupport(() => {
         this._onDidChangeViewWelcomeState.fire();
-      }
-      if (!this._parentDomElement) {
-        return;
-      }
-      if (!this._terminalTabbedView) {
-        this._createTabsView();
-      }
-      if (this._terminalGroupService.instances.length === 1) {
-        this.layoutBody(this._parentDomElement.offsetHeight, this._parentDomElement.offsetWidth);
-      }
-    }));
-    this._dropdownMenu = this._register(this._menuService.createMenu(MenuId.TerminalNewDropdownContext, this._contextKeyService));
-    this._singleTabMenu = this._register(this._menuService.createMenu(MenuId.TerminalTabContext, this._contextKeyService));
-    this._register(this._terminalProfileService.onDidChangeAvailableProfiles((profiles) => this._updateTabActionBar(profiles)));
-    this._viewShowing = TerminalContextKeys.viewShowing.bindTo(this._contextKeyService);
-    this._register(this.onDidChangeBodyVisibility((e) => {
-      if (e) {
-        this._terminalTabbedView?.rerenderTabs();
-      }
-    }));
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (this._parentDomElement && (e.affectsConfiguration(TerminalSettingId.ShellIntegrationDecorationsEnabled) || e.affectsConfiguration(TerminalSettingId.ShellIntegrationEnabled))) {
-        this._updateForShellIntegration(this._parentDomElement);
-      }
-    }));
-    this._register(this._terminalService.onDidCreateInstance((i) => {
-      i.capabilities.onDidAddCapabilityType((c) => {
-        if (c === TerminalCapability.CommandDetection && this._gutterDecorationsEnabled()) {
-          this._parentDomElement?.classList.add("shell-integration");
+      })
+    );
+    this._register(
+      this._terminalService.onDidChangeInstances(() => {
+        if (this._hasWelcomeScreen() && this._terminalGroupService.instances.length <= 1) {
+          this._onDidChangeViewWelcomeState.fire();
         }
-      });
-    }));
+        if (!this._parentDomElement) {
+          return;
+        }
+        if (!this._terminalTabbedView) {
+          this._createTabsView();
+        }
+        if (this._terminalGroupService.instances.length === 1) {
+          this.layoutBody(
+            this._parentDomElement.offsetHeight,
+            this._parentDomElement.offsetWidth
+          );
+        }
+      })
+    );
+    this._dropdownMenu = this._register(
+      this._menuService.createMenu(
+        MenuId.TerminalNewDropdownContext,
+        this._contextKeyService
+      )
+    );
+    this._singleTabMenu = this._register(
+      this._menuService.createMenu(
+        MenuId.TerminalTabContext,
+        this._contextKeyService
+      )
+    );
+    this._register(
+      this._terminalProfileService.onDidChangeAvailableProfiles(
+        (profiles) => this._updateTabActionBar(profiles)
+      )
+    );
+    this._viewShowing = TerminalContextKeys.viewShowing.bindTo(
+      this._contextKeyService
+    );
+    this._register(
+      this.onDidChangeBodyVisibility((e) => {
+        if (e) {
+          this._terminalTabbedView?.rerenderTabs();
+        }
+      })
+    );
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (this._parentDomElement && (e.affectsConfiguration(
+          TerminalSettingId.ShellIntegrationDecorationsEnabled
+        ) || e.affectsConfiguration(
+          TerminalSettingId.ShellIntegrationEnabled
+        ))) {
+          this._updateForShellIntegration(this._parentDomElement);
+        }
+      })
+    );
+    this._register(
+      this._terminalService.onDidCreateInstance((i) => {
+        i.capabilities.onDidAddCapabilityType((c) => {
+          if (c === TerminalCapability.CommandDetection && this._gutterDecorationsEnabled()) {
+            this._parentDomElement?.classList.add(
+              "shell-integration"
+            );
+          }
+        });
+      })
+    );
   }
   _parentDomElement;
   _terminalTabbedView;
@@ -489,17 +536,68 @@ TerminalViewPane = __decorateClass([
 ], TerminalViewPane);
 let SwitchTerminalActionViewItem = class extends SelectActionViewItem {
   constructor(action, _terminalService, _terminalGroupService, contextViewService, terminalProfileService) {
-    super(null, action, getTerminalSelectOpenItems(_terminalService, _terminalGroupService), _terminalGroupService.activeGroupIndex, contextViewService, defaultSelectBoxStyles, { ariaLabel: nls.localize("terminals", "Open Terminals."), optionsAsChildren: true });
+    super(
+      null,
+      action,
+      getTerminalSelectOpenItems(_terminalService, _terminalGroupService),
+      _terminalGroupService.activeGroupIndex,
+      contextViewService,
+      defaultSelectBoxStyles,
+      {
+        ariaLabel: nls.localize("terminals", "Open Terminals."),
+        optionsAsChildren: true
+      }
+    );
     this._terminalService = _terminalService;
     this._terminalGroupService = _terminalGroupService;
-    this._register(_terminalService.onDidChangeInstances(() => this._updateItems(), this));
-    this._register(_terminalService.onDidChangeActiveGroup(() => this._updateItems(), this));
-    this._register(_terminalService.onDidChangeActiveInstance(() => this._updateItems(), this));
-    this._register(_terminalService.onAnyInstanceTitleChange(() => this._updateItems(), this));
-    this._register(_terminalGroupService.onDidChangeGroups(() => this._updateItems(), this));
-    this._register(_terminalService.onDidChangeConnectionState(() => this._updateItems(), this));
-    this._register(terminalProfileService.onDidChangeAvailableProfiles(() => this._updateItems(), this));
-    this._register(_terminalService.onAnyInstancePrimaryStatusChange(() => this._updateItems(), this));
+    this._register(
+      _terminalService.onDidChangeInstances(
+        () => this._updateItems(),
+        this
+      )
+    );
+    this._register(
+      _terminalService.onDidChangeActiveGroup(
+        () => this._updateItems(),
+        this
+      )
+    );
+    this._register(
+      _terminalService.onDidChangeActiveInstance(
+        () => this._updateItems(),
+        this
+      )
+    );
+    this._register(
+      _terminalService.onAnyInstanceTitleChange(
+        () => this._updateItems(),
+        this
+      )
+    );
+    this._register(
+      _terminalGroupService.onDidChangeGroups(
+        () => this._updateItems(),
+        this
+      )
+    );
+    this._register(
+      _terminalService.onDidChangeConnectionState(
+        () => this._updateItems(),
+        this
+      )
+    );
+    this._register(
+      terminalProfileService.onDidChangeAvailableProfiles(
+        () => this._updateItems(),
+        this
+      )
+    );
+    this._register(
+      _terminalService.onAnyInstancePrimaryStatusChange(
+        () => this._updateItems(),
+        this
+      )
+    );
   }
   render(container) {
     super.render(container);
@@ -540,35 +638,55 @@ function getTerminalSelectOpenItems(terminalService, terminalGroupService) {
 }
 let SingleTerminalTabActionViewItem = class extends MenuEntryActionViewItem {
   constructor(action, _actions, keybindingService, notificationService, contextKeyService, themeService, _terminalService, _terminaConfigurationService, _terminalGroupService, contextMenuService, _commandService, _instantiationService, _accessibilityService) {
-    super(action, {
-      draggable: true,
-      hoverDelegate: _instantiationService.createInstance(SingleTabHoverDelegate)
-    }, keybindingService, notificationService, contextKeyService, themeService, contextMenuService, _accessibilityService);
+    super(
+      action,
+      {
+        draggable: true,
+        hoverDelegate: _instantiationService.createInstance(
+          SingleTabHoverDelegate
+        )
+      },
+      keybindingService,
+      notificationService,
+      contextKeyService,
+      themeService,
+      contextMenuService,
+      _accessibilityService
+    );
     this._actions = _actions;
     this._terminalService = _terminalService;
     this._terminaConfigurationService = _terminaConfigurationService;
     this._terminalGroupService = _terminalGroupService;
     this._commandService = _commandService;
     this._instantiationService = _instantiationService;
-    this._register(Event.debounce(Event.any(
-      this._terminalService.onAnyInstancePrimaryStatusChange,
-      this._terminalGroupService.onDidChangeActiveInstance,
-      Event.map(this._terminalService.onAnyInstanceIconChange, (e) => e.instance),
-      this._terminalService.onAnyInstanceTitleChange,
-      this._terminalService.onDidChangeInstanceCapability
-    ), (last, e) => {
-      if (!last) {
-        last = /* @__PURE__ */ new Set();
-      }
-      if (e) {
-        last.add(e);
-      }
-      return last;
-    }, MicrotaskDelay)((merged) => {
-      for (const e of merged) {
-        this.updateLabel(e);
-      }
-    }));
+    this._register(
+      Event.debounce(
+        Event.any(
+          this._terminalService.onAnyInstancePrimaryStatusChange,
+          this._terminalGroupService.onDidChangeActiveInstance,
+          Event.map(
+            this._terminalService.onAnyInstanceIconChange,
+            (e) => e.instance
+          ),
+          this._terminalService.onAnyInstanceTitleChange,
+          this._terminalService.onDidChangeInstanceCapability
+        ),
+        (last, e) => {
+          if (!last) {
+            last = /* @__PURE__ */ new Set();
+          }
+          if (e) {
+            last.add(e);
+          }
+          return last;
+        },
+        MicrotaskDelay
+      )((merged) => {
+        for (const e of merged) {
+          this.updateLabel(e);
+        }
+      })
+    );
     this._register(toDisposable(() => dispose(this._elementDisposables)));
   }
   _color;

@@ -4,10 +4,10 @@ import {
   Disposable
 } from "../../../../base/common/lifecycle.js";
 import {
+  createFileSystemProviderError,
   FileSystemProviderCapabilities,
   FileSystemProviderErrorCode,
-  FileType,
-  createFileSystemProviderError
+  FileType
 } from "../../../../platform/files/common/files.js";
 class FetchFileSystemProvider {
   capabilities = FileSystemProviderCapabilities.Readonly + FileSystemProviderCapabilities.FileReadWrite + FileSystemProviderCapabilities.PathCaseSensitive;

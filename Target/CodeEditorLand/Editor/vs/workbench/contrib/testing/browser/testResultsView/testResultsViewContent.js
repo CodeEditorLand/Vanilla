@@ -51,16 +51,16 @@ import { IQuickInputService } from "../../../../../platform/quickinput/common/qu
 import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
 import { CustomStackFrame } from "../../../debug/browser/callStackWidget.js";
 import { TestCommandId } from "../../common/constants.js";
+import { TestingContextKeys } from "../../common/testingContextKeys.js";
 import {
-  ITestProfileService,
-  capabilityContextKeys
+  capabilityContextKeys,
+  ITestProfileService
 } from "../../common/testProfileService.js";
 import { LiveTestResult } from "../../common/testResult.js";
 import { ITestService } from "../../common/testService.js";
 import {
   TestRunProfileBitset
 } from "../../common/testTypes.js";
-import { TestingContextKeys } from "../../common/testingContextKeys.js";
 import * as icons from "../icons.js";
 import { TestResultStackWidget } from "./testMessageStack.js";
 import {
@@ -70,11 +70,11 @@ import {
   TerminalMessagePeek
 } from "./testResultsOutput.js";
 import {
+  equalsSubject,
+  getSubjectTestItem,
   MessageSubject,
   TaskSubject,
-  TestOutputSubject,
-  equalsSubject,
-  getSubjectTestItem
+  TestOutputSubject
 } from "./testResultsSubject.js";
 import { OutputPeekTree } from "./testResultsTree.js";
 var SubView = /* @__PURE__ */ ((SubView2) => {

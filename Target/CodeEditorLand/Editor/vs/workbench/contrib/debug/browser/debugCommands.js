@@ -27,8 +27,8 @@ import {
 } from "../../../../platform/contextkey/common/contextkey.js";
 import { InputFocusedContext } from "../../../../platform/contextkey/common/contextkeys.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { IListService } from "../../../../platform/list/browser/listService.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
@@ -50,10 +50,10 @@ import {
 } from "../../extensions/common/extensions.js";
 import { TEXT_FILE_EDITOR_ID } from "../../files/common/files.js";
 import {
-  CONTEXT_BREAKPOINTS_FOCUSED,
   CONTEXT_BREAKPOINT_INPUT_FOCUSED,
-  CONTEXT_DEBUGGERS_AVAILABLE,
+  CONTEXT_BREAKPOINTS_FOCUSED,
   CONTEXT_DEBUG_STATE,
+  CONTEXT_DEBUGGERS_AVAILABLE,
   CONTEXT_DISASSEMBLY_VIEW_FOCUS,
   CONTEXT_EXPRESSION_SELECTED,
   CONTEXT_FOCUSED_SESSION_IS_ATTACH,
@@ -64,12 +64,12 @@ import {
   CONTEXT_VARIABLES_FOCUSED,
   CONTEXT_WATCH_EXPRESSIONS_FOCUSED,
   EDITOR_CONTRIBUTION_ID,
+  getStateLabel,
   IDebugService,
+  isFrameDeemphasized,
   REPL_VIEW_ID,
   State,
-  VIEWLET_ID,
-  getStateLabel,
-  isFrameDeemphasized
+  VIEWLET_ID
 } from "../common/debug.js";
 import {
   Breakpoint,

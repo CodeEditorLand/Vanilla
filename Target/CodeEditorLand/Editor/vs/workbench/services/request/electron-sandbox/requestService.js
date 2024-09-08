@@ -24,10 +24,12 @@ import {
 } from "../../../../platform/request/common/request.js";
 let NativeRequestService = class extends AbstractRequestService {
   constructor(nativeHostService, configurationService, loggerService) {
-    super(loggerService.createLogger("network-window", {
-      name: localize("network-window", "Network (Window)"),
-      hidden: true
-    }));
+    super(
+      loggerService.createLogger("network-window", {
+        name: localize("network-window", "Network (Window)"),
+        hidden: true
+      })
+    );
     this.nativeHostService = nativeHostService;
     this.configurationService = configurationService;
   }

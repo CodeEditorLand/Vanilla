@@ -111,10 +111,10 @@ import {
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import {
   EnablementState,
+  extensionsConfigurationNodeBase,
   IExtensionManagementServerService,
   IWorkbenchExtensionEnablementService,
-  IWorkbenchExtensionManagementService,
-  extensionsConfigurationNodeBase
+  IWorkbenchExtensionManagementService
 } from "../../../services/extensionManagement/common/extensionManagement.js";
 import {
   IExtensionIgnoredRecommendationsService,
@@ -134,6 +134,7 @@ import {
   AutoUpdateConfigurationKey,
   CONTEXT_HAS_GALLERY,
   ExtensionRuntimeActionType,
+  extensionsSearchActionsMenu,
   HasOutdatedExtensionsContext,
   IExtensionsWorkbenchService,
   INSTALL_ACTIONS_GROUP,
@@ -145,8 +146,7 @@ import {
   TOGGLE_IGNORE_EXTENSION_ACTION_ID,
   UPDATE_ACTIONS_GROUP,
   VIEWLET_ID,
-  WORKSPACE_RECOMMENDATIONS_VIEW_ID,
-  extensionsSearchActionsMenu
+  WORKSPACE_RECOMMENDATIONS_VIEW_ID
 } from "../common/extensions.js";
 import {
   ExtensionsConfigurationSchema,
@@ -196,8 +196,8 @@ import {
   BuiltInExtensionsContext,
   DefaultViewsContext,
   ExtensionsSortByContext,
-  ExtensionsViewPaneContainer,
   ExtensionsViewletViewsContribution,
+  ExtensionsViewPaneContainer,
   MaliciousExtensionChecker,
   RecommendedExtensionsContext,
   SearchHasTextContext,

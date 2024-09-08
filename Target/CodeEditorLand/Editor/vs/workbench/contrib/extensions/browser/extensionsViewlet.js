@@ -12,9 +12,9 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import "./media/extensionsViewlet.css";
 import {
   $,
+  append,
   Dimension,
   DragAndDropObserver,
-  append,
   hide,
   show,
   trackFocus
@@ -110,14 +110,14 @@ import { Query } from "../common/extensionQuery.js";
 import {
   AutoCheckUpdatesConfigurationKey,
   AutoRestartConfigurationKey,
-  CONTEXT_HAS_GALLERY,
   CloseExtensionDetailsOnViewChangeKey,
+  CONTEXT_HAS_GALLERY,
+  extensionsSearchActionsMenu,
   IExtensionsWorkbenchService,
   INSTALL_EXTENSION_FROM_VSIX_COMMAND_ID,
   OUTDATED_EXTENSIONS_VIEW_ID,
   VIEWLET_ID,
-  WORKSPACE_RECOMMENDATIONS_VIEW_ID,
-  extensionsSearchActionsMenu
+  WORKSPACE_RECOMMENDATIONS_VIEW_ID
 } from "../common/extensions.js";
 import { ExtensionsInput } from "../common/extensionsInput.js";
 import {
@@ -660,7 +660,20 @@ ExtensionsViewletViewsContribution = __decorateClass([
 ], ExtensionsViewletViewsContribution);
 let ExtensionsViewPaneContainer = class extends ViewPaneContainer {
   constructor(layoutService, telemetryService, progressService, instantiationService, editorGroupService, extensionsWorkbenchService, extensionManagementServerService, notificationService, paneCompositeService, themeService, configurationService, storageService, contextService, contextKeyService, contextMenuService, extensionService, viewDescriptorService, preferencesService, commandService) {
-    super(VIEWLET_ID, { mergeViewWithContainerWhenSingleView: true }, instantiationService, configurationService, layoutService, contextMenuService, telemetryService, extensionService, themeService, storageService, contextService, viewDescriptorService);
+    super(
+      VIEWLET_ID,
+      { mergeViewWithContainerWhenSingleView: true },
+      instantiationService,
+      configurationService,
+      layoutService,
+      contextMenuService,
+      telemetryService,
+      extensionService,
+      themeService,
+      storageService,
+      contextService,
+      viewDescriptorService
+    );
     this.progressService = progressService;
     this.editorGroupService = editorGroupService;
     this.extensionsWorkbenchService = extensionsWorkbenchService;
@@ -680,7 +693,9 @@ let ExtensionsViewPaneContainer = class extends ViewPaneContainer {
     this.searchInstalledExtensionsContextKey = SearchInstalledExtensionsContext.bindTo(contextKeyService);
     this.searchRecentlyUpdatedExtensionsContextKey = SearchRecentlyUpdatedExtensionsContext.bindTo(contextKeyService);
     this.searchExtensionUpdatesContextKey = SearchExtensionUpdatesContext.bindTo(contextKeyService);
-    this.searchWorkspaceUnsupportedExtensionsContextKey = SearchUnsupportedWorkspaceExtensionsContext.bindTo(contextKeyService);
+    this.searchWorkspaceUnsupportedExtensionsContextKey = SearchUnsupportedWorkspaceExtensionsContext.bindTo(
+      contextKeyService
+    );
     this.searchDeprecatedExtensionsContextKey = SearchDeprecatedExtensionsContext.bindTo(contextKeyService);
     this.searchOutdatedExtensionsContextKey = SearchOutdatedExtensionsContext.bindTo(contextKeyService);
     this.searchEnabledExtensionsContextKey = SearchEnabledExtensionsContext.bindTo(contextKeyService);
@@ -689,13 +704,20 @@ let ExtensionsViewPaneContainer = class extends ViewPaneContainer {
     this.builtInExtensionsContextKey = BuiltInExtensionsContext.bindTo(contextKeyService);
     this.searchBuiltInExtensionsContextKey = SearchBuiltInExtensionsContext.bindTo(contextKeyService);
     this.recommendedExtensionsContextKey = RecommendedExtensionsContext.bindTo(contextKeyService);
-    this._register(this.paneCompositeService.onDidPaneCompositeOpen((e) => {
-      if (e.viewContainerLocation === ViewContainerLocation.Sidebar) {
-        this.onViewletOpen(e.composite);
-      }
-    }, this));
-    this._register(extensionsWorkbenchService.onReset(() => this.refresh()));
-    this.searchViewletState = this.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE);
+    this._register(
+      this.paneCompositeService.onDidPaneCompositeOpen((e) => {
+        if (e.viewContainerLocation === ViewContainerLocation.Sidebar) {
+          this.onViewletOpen(e.composite);
+        }
+      }, this)
+    );
+    this._register(
+      extensionsWorkbenchService.onReset(() => this.refresh())
+    );
+    this.searchViewletState = this.getMemento(
+      StorageScope.WORKSPACE,
+      StorageTarget.MACHINE
+    );
   }
   defaultViewsContextKey;
   sortByContextKey;
@@ -1143,7 +1165,17 @@ let StatusUpdater = class extends Disposable {
     this.extensionEnablementService = extensionEnablementService;
     this.configurationService = configurationService;
     this.onServiceChange();
-    this._register(Event.debounce(extensionsWorkbenchService.onChange, () => void 0, 100, void 0, void 0, void 0, this._store)(this.onServiceChange, this));
+    this._register(
+      Event.debounce(
+        extensionsWorkbenchService.onChange,
+        () => void 0,
+        100,
+        void 0,
+        void 0,
+        void 0,
+        this._store
+      )(this.onServiceChange, this)
+    );
   }
   badgeHandle = this._register(new MutableDisposable());
   onServiceChange() {

@@ -25,8 +25,8 @@ import {
   RawContextKey
 } from "../../../../platform/contextkey/common/contextkey.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
@@ -45,9 +45,9 @@ import {
   WorkbenchState
 } from "../../../../platform/workspace/common/workspace.js";
 import {
+  registerWorkbenchContribution2,
   Extensions as WorkbenchContributionsExtensions,
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   OpenLocalFileCommand,
@@ -136,11 +136,13 @@ let RemoteTelemetryEnablementUpdater = class extends Disposable {
     this.remoteAgentService = remoteAgentService;
     this.configurationService = configurationService;
     this.updateRemoteTelemetryEnablement();
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(TELEMETRY_SETTING_ID)) {
-        this.updateRemoteTelemetryEnablement();
-      }
-    }));
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(TELEMETRY_SETTING_ID)) {
+          this.updateRemoteTelemetryEnablement();
+        }
+      })
+    );
   }
   static ID = "workbench.contrib.remoteTelemetryEnablementUpdater";
   updateRemoteTelemetryEnablement() {

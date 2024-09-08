@@ -17,17 +17,17 @@ import { TestResultItemChangeReason } from "../../common/testResult.js";
 import { ITestResultService } from "../../common/testResultService.js";
 import { ITestService } from "../../common/testService.js";
 import {
+  applyTestItemUpdate,
   TestDiffOpType,
   TestItemExpandState,
-  TestResultState,
-  applyTestItemUpdate
+  TestResultState
 } from "../../common/testTypes.js";
 import { flatTestItemDelimiter } from "./display.js";
 import {
-  TestItemTreeElement,
-  TestTreeErrorMessage,
   getChildrenForParent,
-  testIdentityProvider
+  testIdentityProvider,
+  TestItemTreeElement,
+  TestTreeErrorMessage
 } from "./index.js";
 import {
   isCollapsedInSerializedTestTree
@@ -71,38 +71,46 @@ let ListProjection = class extends Disposable {
     this.lastState = lastState;
     this.testService = testService;
     this.results = results;
-    this._register(testService.onDidProcessDiff((diff) => this.applyDiff(diff)));
-    this._register(results.onResultsChanged((evt) => {
-      if (!("removed" in evt)) {
-        return;
-      }
-      for (const inTree of this.items.values()) {
-        const lookup = this.results.getStateById(inTree.test.item.extId)?.[1];
-        inTree.duration = lookup?.ownDuration;
-        inTree.state = lookup?.ownComputedState || TestResultState.Unset;
-        inTree.fireChange();
-      }
-    }));
-    this._register(results.onTestChanged((ev) => {
-      if (ev.reason === TestResultItemChangeReason.NewMessage) {
-        return;
-      }
-      let result = ev.item;
-      if (result.ownComputedState === TestResultState.Unset || ev.result !== results.results[0]) {
-        const fallback = results.getStateById(result.item.extId);
-        if (fallback) {
-          result = fallback[1];
+    this._register(
+      testService.onDidProcessDiff((diff) => this.applyDiff(diff))
+    );
+    this._register(
+      results.onResultsChanged((evt) => {
+        if (!("removed" in evt)) {
+          return;
         }
-      }
-      const item = this.items.get(result.item.extId);
-      if (!item) {
-        return;
-      }
-      item.retired = !!result.retired;
-      item.state = result.computedState;
-      item.duration = result.ownDuration;
-      item.fireChange();
-    }));
+        for (const inTree of this.items.values()) {
+          const lookup = this.results.getStateById(
+            inTree.test.item.extId
+          )?.[1];
+          inTree.duration = lookup?.ownDuration;
+          inTree.state = lookup?.ownComputedState || TestResultState.Unset;
+          inTree.fireChange();
+        }
+      })
+    );
+    this._register(
+      results.onTestChanged((ev) => {
+        if (ev.reason === TestResultItemChangeReason.NewMessage) {
+          return;
+        }
+        let result = ev.item;
+        if (result.ownComputedState === TestResultState.Unset || ev.result !== results.results[0]) {
+          const fallback = results.getStateById(result.item.extId);
+          if (fallback) {
+            result = fallback[1];
+          }
+        }
+        const item = this.items.get(result.item.extId);
+        if (!item) {
+          return;
+        }
+        item.retired = !!result.retired;
+        item.state = result.computedState;
+        item.duration = result.ownDuration;
+        item.fireChange();
+      })
+    );
     for (const test of testService.collection.all) {
       this.storeItem(test);
     }

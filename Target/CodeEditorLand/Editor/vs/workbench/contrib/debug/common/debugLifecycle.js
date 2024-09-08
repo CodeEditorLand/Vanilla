@@ -21,7 +21,9 @@ let DebugLifecycle = class {
     this.debugService = debugService;
     this.configurationService = configurationService;
     this.dialogService = dialogService;
-    this.disposable = lifecycleService.onBeforeShutdown(async (e) => e.veto(this.shouldVetoShutdown(e.reason), "veto.debug"));
+    this.disposable = lifecycleService.onBeforeShutdown(
+      async (e) => e.veto(this.shouldVetoShutdown(e.reason), "veto.debug")
+    );
   }
   disposable;
   shouldVetoShutdown(_reason) {

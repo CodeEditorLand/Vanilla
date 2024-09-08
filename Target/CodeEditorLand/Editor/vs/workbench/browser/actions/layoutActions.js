@@ -31,8 +31,8 @@ import {
 } from "../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../platform/keybinding/common/keybindingsRegistry.js";
 import {
   IQuickInputService
@@ -65,8 +65,8 @@ import {
   LayoutSettings,
   Parts,
   Position,
-  ZenModeSettings,
-  positionToString
+  positionToString,
+  ZenModeSettings
 } from "../../services/layout/browser/layoutService.js";
 import { IPaneCompositePartService } from "../../services/panecomposite/browser/panecomposite.js";
 import { IPreferencesService } from "../../services/preferences/common/preferences.js";

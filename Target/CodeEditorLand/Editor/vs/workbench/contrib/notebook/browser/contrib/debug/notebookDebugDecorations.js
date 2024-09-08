@@ -43,13 +43,19 @@ let PausedCellDecorationContribution = class extends Disposable {
     this._debugService = _debugService;
     this._notebookExecutionStateService = _notebookExecutionStateService;
     const delayer = this._register(new Delayer(200));
-    this._register(_debugService.getModel().onDidChangeCallStack(() => this.updateExecutionDecorations()));
-    this._register(_debugService.getViewModel().onDidFocusStackFrame(() => this.updateExecutionDecorations()));
-    this._register(_notebookExecutionStateService.onDidChangeExecution((e) => {
-      if (e.type === NotebookExecutionType.cell && this._notebookEditor.textModel && e.affectsNotebook(this._notebookEditor.textModel.uri)) {
-        delayer.trigger(() => this.updateExecutionDecorations());
-      }
-    }));
+    this._register(
+      _debugService.getModel().onDidChangeCallStack(() => this.updateExecutionDecorations())
+    );
+    this._register(
+      _debugService.getViewModel().onDidFocusStackFrame(() => this.updateExecutionDecorations())
+    );
+    this._register(
+      _notebookExecutionStateService.onDidChangeExecution((e) => {
+        if (e.type === NotebookExecutionType.cell && this._notebookEditor.textModel && e.affectsNotebook(this._notebookEditor.textModel.uri)) {
+          delayer.trigger(() => this.updateExecutionDecorations());
+        }
+      })
+    );
   }
   static id = "workbench.notebook.debug.pausedCellDecorations";
   _currentTopDecorations = [];
@@ -169,8 +175,16 @@ let NotebookBreakpointDecorations = class extends Disposable {
     this._notebookEditor = _notebookEditor;
     this._debugService = _debugService;
     this._configService = _configService;
-    this._register(_debugService.getModel().onDidChangeBreakpoints(() => this.updateDecorations()));
-    this._register(_configService.onDidChangeConfiguration((e) => e.affectsConfiguration("debug.showBreakpointsInOverviewRuler") && this.updateDecorations()));
+    this._register(
+      _debugService.getModel().onDidChangeBreakpoints(() => this.updateDecorations())
+    );
+    this._register(
+      _configService.onDidChangeConfiguration(
+        (e) => e.affectsConfiguration(
+          "debug.showBreakpointsInOverviewRuler"
+        ) && this.updateDecorations()
+      )
+    );
   }
   static id = "workbench.notebook.debug.notebookBreakpointDecorations";
   _currentDecorations = [];

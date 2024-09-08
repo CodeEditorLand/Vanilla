@@ -64,7 +64,10 @@ let NotebookCellListDelegate = class extends Disposable {
     super();
     this.configurationService = configurationService;
     const editorOptions = this.configurationService.getValue("editor");
-    this.lineHeight = BareFontInfo.createFromRawSettings(editorOptions, PixelRatio.getInstance(targetWindow).value).lineHeight;
+    this.lineHeight = BareFontInfo.createFromRawSettings(
+      editorOptions,
+      PixelRatio.getInstance(targetWindow).value
+    ).lineHeight;
   }
   lineHeight;
   getHeight(element) {

@@ -43,8 +43,14 @@ Registry.as(
 ).registerConfiguration(notebookEditorConfiguration);
 let WorkbenchConfigurationContribution = class {
   constructor(instantiationService) {
-    instantiationService.createInstance(CodeActionsContribution, codeActionsExtensionPoint);
-    instantiationService.createInstance(CodeActionDocumentationContribution, documentationExtensionPoint);
+    instantiationService.createInstance(
+      CodeActionsContribution,
+      codeActionsExtensionPoint
+    );
+    instantiationService.createInstance(
+      CodeActionDocumentationContribution,
+      documentationExtensionPoint
+    );
   }
 };
 WorkbenchConfigurationContribution = __decorateClass([

@@ -13,11 +13,11 @@ import { Delayer } from "../../../../../base/common/async.js";
 import { VSBuffer } from "../../../../../base/common/buffer.js";
 import { Event } from "../../../../../base/common/event.js";
 import {
+  combinedDisposable,
   Disposable,
   DisposableStore,
-  MutableDisposable,
-  combinedDisposable,
-  dispose
+  dispose,
+  MutableDisposable
 } from "../../../../../base/common/lifecycle.js";
 import { URI } from "../../../../../base/common/uri.js";
 import "./media/developer.css";
@@ -273,11 +273,13 @@ let DevModeContribution = class extends Disposable {
     this._instance = _instance;
     this._configurationService = _configurationService;
     this._statusbarService = _statusbarService;
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(TerminalSettingId.DevMode)) {
-        this._updateDevMode();
-      }
-    }));
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(TerminalSettingId.DevMode)) {
+          this._updateDevMode();
+        }
+      })
+    );
   }
   static ID = "terminal.devMode";
   static get(instance) {

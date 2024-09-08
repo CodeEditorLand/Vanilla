@@ -29,8 +29,8 @@ import { createDecorator } from "../../../../platform/instantiation/common/insta
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import {
-  IRequestService,
-  asJson
+  asJson,
+  IRequestService
 } from "../../../../platform/request/common/request.js";
 import {
   IStorageService,
@@ -68,8 +68,12 @@ const IChatAgentService = createDecorator("chatAgentService");
 let ChatAgentService = class {
   constructor(contextKeyService) {
     this.contextKeyService = contextKeyService;
-    this._hasDefaultAgent = CONTEXT_CHAT_ENABLED.bindTo(this.contextKeyService);
-    this._defaultAgentRegistered = CONTEXT_CHAT_PANEL_PARTICIPANT_REGISTERED.bindTo(this.contextKeyService);
+    this._hasDefaultAgent = CONTEXT_CHAT_ENABLED.bindTo(
+      this.contextKeyService
+    );
+    this._defaultAgentRegistered = CONTEXT_CHAT_PANEL_PARTICIPANT_REGISTERED.bindTo(
+      this.contextKeyService
+    );
   }
   static AGENT_LEADER = "@";
   _agents = /* @__PURE__ */ new Map();
@@ -397,11 +401,17 @@ let ChatAgentNameService = class {
       return;
     }
     this.url = productService.chatParticipantRegistry;
-    const raw = storageService.get(ChatAgentNameService.StorageKey, StorageScope.APPLICATION);
+    const raw = storageService.get(
+      ChatAgentNameService.StorageKey,
+      StorageScope.APPLICATION
+    );
     try {
       this.registry.set(JSON.parse(raw ?? "{}"), void 0);
     } catch (err) {
-      storageService.remove(ChatAgentNameService.StorageKey, StorageScope.APPLICATION);
+      storageService.remove(
+        ChatAgentNameService.StorageKey,
+        StorageScope.APPLICATION
+      );
     }
     this.refresh();
   }

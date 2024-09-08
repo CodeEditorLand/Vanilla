@@ -296,18 +296,27 @@ let OutputContainer = class extends Disposable {
     this._outputContainer = _outputContainer;
     this._notebookService = _notebookService;
     this._quickInputService = _quickInputService;
-    this._register(this._diffElementViewModel.onDidLayoutChange(() => {
-      this._outputEntries.forEach((value, key) => {
-        const index = _nestedCellViewModel.outputs.indexOf(key.model);
-        if (index >= 0) {
-          const top = this._diffElementViewModel.getOutputOffsetInContainer(this._diffSide, index);
-          value.domNode.style.top = `${top}px`;
-        }
-      });
-    }));
-    this._register(this._nestedCellViewModel.textModel.onDidChangeOutputs((splice) => {
-      this._updateOutputs(splice);
-    }));
+    this._register(
+      this._diffElementViewModel.onDidLayoutChange(() => {
+        this._outputEntries.forEach((value, key) => {
+          const index = _nestedCellViewModel.outputs.indexOf(
+            key.model
+          );
+          if (index >= 0) {
+            const top = this._diffElementViewModel.getOutputOffsetInContainer(
+              this._diffSide,
+              index
+            );
+            value.domNode.style.top = `${top}px`;
+          }
+        });
+      })
+    );
+    this._register(
+      this._nestedCellViewModel.textModel.onDidChangeOutputs((splice) => {
+        this._updateOutputs(splice);
+      })
+    );
   }
   _outputEntries = /* @__PURE__ */ new Map();
   _updateOutputs(splice) {

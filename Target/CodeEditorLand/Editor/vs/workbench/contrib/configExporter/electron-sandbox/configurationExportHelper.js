@@ -28,7 +28,9 @@ let DefaultConfigurationExportHelper = class {
     this.productService = productService;
     const exportDefaultConfigurationPath = environmentService.args["export-default-configuration"];
     if (exportDefaultConfigurationPath) {
-      this.writeConfigModelAndQuit(URI.file(exportDefaultConfigurationPath));
+      this.writeConfigModelAndQuit(
+        URI.file(exportDefaultConfigurationPath)
+      );
     }
   }
   async writeConfigModelAndQuit(target) {

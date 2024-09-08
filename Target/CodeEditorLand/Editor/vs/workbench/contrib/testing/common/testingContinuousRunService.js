@@ -29,9 +29,9 @@ import {
 } from "../../../../platform/storage/common/storage.js";
 import { StoredValue } from "./storedValue.js";
 import { TestId } from "./testId.js";
+import { TestingContextKeys } from "./testingContextKeys.js";
 import { ITestProfileService } from "./testProfileService.js";
 import { ITestService } from "./testService.js";
-import { TestingContextKeys } from "./testingContextKeys.js";
 const ITestingContinuousRunService = createDecorator(
   "testingContinuousRunService"
 );
@@ -41,21 +41,28 @@ let TestingContinuousRunService = class extends Disposable {
     this.testService = testService;
     this.testProfileService = testProfileService;
     this.isGloballyOn = TestingContextKeys.isContinuousModeOn.bindTo(contextKeyService);
-    this.lastRun = this._register(new StoredValue({
-      key: "lastContinuousRunProfileIds",
-      scope: StorageScope.WORKSPACE,
-      target: StorageTarget.MACHINE,
-      serialization: {
-        deserialize: (v) => new Set(JSON.parse(v)),
-        serialize: (v) => JSON.stringify([...v])
-      }
-    }, storageService));
-    this._register(toDisposable(() => {
-      this.globallyRunning?.dispose();
-      for (const cts of this.running.values()) {
-        cts.dispose();
-      }
-    }));
+    this.lastRun = this._register(
+      new StoredValue(
+        {
+          key: "lastContinuousRunProfileIds",
+          scope: StorageScope.WORKSPACE,
+          target: StorageTarget.MACHINE,
+          serialization: {
+            deserialize: (v) => new Set(JSON.parse(v)),
+            serialize: (v) => JSON.stringify([...v])
+          }
+        },
+        storageService
+      )
+    );
+    this._register(
+      toDisposable(() => {
+        this.globallyRunning?.dispose();
+        for (const cts of this.running.values()) {
+          cts.dispose();
+        }
+      })
+    );
   }
   changeEmitter = new Emitter();
   globallyRunning;

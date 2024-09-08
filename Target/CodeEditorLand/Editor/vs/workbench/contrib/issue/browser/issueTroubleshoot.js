@@ -410,9 +410,15 @@ let IssueTroubleshootUi = class extends Disposable {
     if (troubleshootIssueService.isActive()) {
       troubleshootIssueService.resume();
     }
-    this._register(storageService.onDidChangeValue(StorageScope.PROFILE, TroubleshootIssueService.storageKey, this._register(new DisposableStore()))(() => {
-      this.updateContext();
-    }));
+    this._register(
+      storageService.onDidChangeValue(
+        StorageScope.PROFILE,
+        TroubleshootIssueService.storageKey,
+        this._register(new DisposableStore())
+      )(() => {
+        this.updateContext();
+      })
+    );
   }
   static ctxIsTroubleshootActive = new RawContextKey(
     "isIssueTroubleshootActive",

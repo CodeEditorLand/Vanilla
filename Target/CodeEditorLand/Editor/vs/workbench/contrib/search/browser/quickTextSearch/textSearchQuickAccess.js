@@ -67,9 +67,9 @@ import {
   searchOpenInFileIcon
 } from "../searchIcons.js";
 import {
+  searchComparer,
   SearchModel,
-  SearchModelLocation,
-  searchComparer
+  SearchModelLocation
 } from "../searchModel.js";
 import { getEditorSelectionFromMatch } from "../searchView.js";
 const TEXT_SEARCH_QUICK_ACCESS_PREFIX = "%";
@@ -85,7 +85,10 @@ const MAX_RESULTS_PER_FILE = 10;
 const DEBOUNCE_DELAY = 75;
 let TextSearchQuickAccess = class extends PickerQuickAccessProvider {
   constructor(_instantiationService, _contextService, _editorService, _labelService, _viewsService, _configurationService) {
-    super(TEXT_SEARCH_QUICK_ACCESS_PREFIX, { canAcceptInBackground: true, shouldSkipTrimPickFilter: true });
+    super(TEXT_SEARCH_QUICK_ACCESS_PREFIX, {
+      canAcceptInBackground: true,
+      shouldSkipTrimPickFilter: true
+    });
     this._instantiationService = _instantiationService;
     this._contextService = _contextService;
     this._editorService = _editorService;
@@ -93,8 +96,12 @@ let TextSearchQuickAccess = class extends PickerQuickAccessProvider {
     this._viewsService = _viewsService;
     this._configurationService = _configurationService;
     this.queryBuilder = this._instantiationService.createInstance(QueryBuilder);
-    this.searchModel = this._register(this._instantiationService.createInstance(SearchModel));
-    this.editorViewState = this._register(this._instantiationService.createInstance(PickerEditorState));
+    this.searchModel = this._register(
+      this._instantiationService.createInstance(SearchModel)
+    );
+    this.editorViewState = this._register(
+      this._instantiationService.createInstance(PickerEditorState)
+    );
     this.searchModel.location = SearchModelLocation.QUICK_ACCESS;
     this.editorSequencer = new Sequencer();
   }

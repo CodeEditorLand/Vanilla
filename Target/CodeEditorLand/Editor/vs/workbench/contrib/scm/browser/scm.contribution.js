@@ -29,8 +29,8 @@ import {
   registerSingleton
 } from "../../../../platform/instantiation/common/extensions.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import {
   IListService,
@@ -39,9 +39,9 @@ import {
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
 import {
+  registerWorkbenchContribution2,
   Extensions as WorkbenchExtensions,
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import {
   Extensions as ViewContainerExtensions,
@@ -60,8 +60,8 @@ import {
   ISCMService,
   ISCMViewService,
   REPOSITORIES_VIEW_PANE_ID,
-  VIEWLET_ID,
-  VIEW_PANE_ID
+  VIEW_PANE_ID,
+  VIEWLET_ID
 } from "../common/scm.js";
 import { SCMService } from "../common/scmService.js";
 import {

@@ -46,18 +46,28 @@ let ElectronWebviewElement = class extends WebviewElement {
       accessibilityService
     );
     this._nativeHostService = _nativeHostService;
-    this._webviewKeyboardHandler = new WindowIgnoreMenuShortcutsManager(configurationService, mainProcessService, _nativeHostService);
-    this._webviewMainService = ProxyChannel.toService(mainProcessService.getChannel("webview"));
+    this._webviewKeyboardHandler = new WindowIgnoreMenuShortcutsManager(
+      configurationService,
+      mainProcessService,
+      _nativeHostService
+    );
+    this._webviewMainService = ProxyChannel.toService(
+      mainProcessService.getChannel("webview")
+    );
     if (initInfo.options.enableFindWidget) {
-      this._register(this.onDidHtmlChange((newContent) => {
-        if (this._findStarted && this._cachedHtmlContent !== newContent) {
-          this.stopFind(false);
-          this._cachedHtmlContent = newContent;
-        }
-      }));
-      this._register(this._webviewMainService.onFoundInFrame((result) => {
-        this._hasFindResult.fire(result.matches > 0);
-      }));
+      this._register(
+        this.onDidHtmlChange((newContent) => {
+          if (this._findStarted && this._cachedHtmlContent !== newContent) {
+            this.stopFind(false);
+            this._cachedHtmlContent = newContent;
+          }
+        })
+      );
+      this._register(
+        this._webviewMainService.onFoundInFrame((result) => {
+          this._hasFindResult.fire(result.matches > 0);
+        })
+      );
     }
   }
   _webviewKeyboardHandler;

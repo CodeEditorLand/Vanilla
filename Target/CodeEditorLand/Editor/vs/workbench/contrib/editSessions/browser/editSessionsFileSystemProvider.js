@@ -22,9 +22,9 @@ import {
 } from "../../../../platform/files/common/files.js";
 import {
   ChangeType,
+  decodeEditSessionFileContent,
   EDIT_SESSIONS_SCHEME,
-  IEditSessionsStorageService,
-  decodeEditSessionFileContent
+  IEditSessionsStorageService
 } from "../common/editSessions.js";
 let EditSessionsFileSystemProvider = class {
   constructor(editSessionsStorageService) {

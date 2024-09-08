@@ -37,9 +37,9 @@ import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
 import { AbstractTextCodeEditor } from "../../../../browser/parts/editor/textCodeEditor.js";
 import {
-  DEFAULT_EDITOR_ASSOCIATION,
   createEditorOpenError,
   createTooLargeFileError,
+  DEFAULT_EDITOR_ASSOCIATION,
   isTextEditorViewState
 } from "../../../../common/editor.js";
 import { BinaryEditorModel } from "../../../../common/editor/binaryEditorModel.js";
@@ -67,7 +67,18 @@ import { IExplorerService } from "../files.js";
 import { FileEditorInput } from "./fileEditorInput.js";
 let TextFileEditor = class extends AbstractTextCodeEditor {
   constructor(group, telemetryService, fileService, paneCompositeService, instantiationService, contextService, storageService, textResourceConfigurationService, editorService, themeService, editorGroupService, textFileService, explorerService, uriIdentityService, pathService, configurationService, preferencesService, hostService, filesConfigurationService) {
-    super(TextFileEditor.ID, group, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService, fileService);
+    super(
+      TextFileEditor.ID,
+      group,
+      telemetryService,
+      instantiationService,
+      storageService,
+      textResourceConfigurationService,
+      themeService,
+      editorService,
+      editorGroupService,
+      fileService
+    );
     this.paneCompositeService = paneCompositeService;
     this.contextService = contextService;
     this.textFileService = textFileService;
@@ -78,8 +89,14 @@ let TextFileEditor = class extends AbstractTextCodeEditor {
     this.preferencesService = preferencesService;
     this.hostService = hostService;
     this.filesConfigurationService = filesConfigurationService;
-    this._register(this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e)));
-    this._register(this.fileService.onDidRunOperation((e) => this.onDidRunOperation(e)));
+    this._register(
+      this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e))
+    );
+    this._register(
+      this.fileService.onDidRunOperation(
+        (e) => this.onDidRunOperation(e)
+      )
+    );
   }
   static ID = TEXT_FILE_EDITOR_ID;
   onDidFilesChange(e) {

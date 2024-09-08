@@ -22,14 +22,28 @@ let ContributedExternalUriOpenersStore = class extends Disposable {
   constructor(storageService, _extensionService) {
     super();
     this._extensionService = _extensionService;
-    this._memento = new Memento(ContributedExternalUriOpenersStore.STORAGE_ID, storageService);
-    this._mementoObject = this._memento.getMemento(StorageScope.PROFILE, StorageTarget.MACHINE);
+    this._memento = new Memento(
+      ContributedExternalUriOpenersStore.STORAGE_ID,
+      storageService
+    );
+    this._mementoObject = this._memento.getMemento(
+      StorageScope.PROFILE,
+      StorageTarget.MACHINE
+    );
     for (const [id, value] of Object.entries(this._mementoObject || {})) {
       this.add(id, value.extensionId, { isCurrentlyRegistered: false });
     }
     this.invalidateOpenersOnExtensionsChanged();
-    this._register(this._extensionService.onDidChangeExtensions(() => this.invalidateOpenersOnExtensionsChanged()));
-    this._register(this._extensionService.onDidChangeExtensionsStatus(() => this.invalidateOpenersOnExtensionsChanged()));
+    this._register(
+      this._extensionService.onDidChangeExtensions(
+        () => this.invalidateOpenersOnExtensionsChanged()
+      )
+    );
+    this._register(
+      this._extensionService.onDidChangeExtensionsStatus(
+        () => this.invalidateOpenersOnExtensionsChanged()
+      )
+    );
   }
   static STORAGE_ID = "externalUriOpeners";
   _openers = /* @__PURE__ */ new Map();

@@ -36,8 +36,8 @@ import { getIconClassesForLanguageId } from "../../../../../../editor/common/ser
 import { ILanguageFeaturesService } from "../../../../../../editor/common/services/languageFeatures.js";
 import { localize } from "../../../../../../nls.js";
 import {
-  MenuEntryActionViewItem,
-  createAndFillInActionBarActions
+  createAndFillInActionBarActions,
+  MenuEntryActionViewItem
 } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
 import {
   Action2,
@@ -400,12 +400,20 @@ let NotebookQuickPickProvider = class {
     this.notebookCellOutlineDataSourceRef = notebookCellOutlineDataSourceRef;
     this._configurationService = _configurationService;
     this._themeService = _themeService;
-    this.gotoShowCodeCellSymbols = this._configurationService.getValue(NotebookSetting.gotoSymbolsAllSymbols);
-    this._disposables.add(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(NotebookSetting.gotoSymbolsAllSymbols)) {
-        this.gotoShowCodeCellSymbols = this._configurationService.getValue(NotebookSetting.gotoSymbolsAllSymbols);
-      }
-    }));
+    this.gotoShowCodeCellSymbols = this._configurationService.getValue(
+      NotebookSetting.gotoSymbolsAllSymbols
+    );
+    this._disposables.add(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          NotebookSetting.gotoSymbolsAllSymbols
+        )) {
+          this.gotoShowCodeCellSymbols = this._configurationService.getValue(
+            NotebookSetting.gotoSymbolsAllSymbols
+          );
+        }
+      })
+    );
   }
   _disposables = new DisposableStore();
   gotoShowCodeCellSymbols;
@@ -449,20 +457,38 @@ let NotebookOutlinePaneProvider = class {
   constructor(outlineDataSourceRef, _configurationService) {
     this.outlineDataSourceRef = outlineDataSourceRef;
     this._configurationService = _configurationService;
-    this.showCodeCells = this._configurationService.getValue(NotebookSetting.outlineShowCodeCells);
-    this.showCodeCellSymbols = this._configurationService.getValue(NotebookSetting.outlineShowCodeCellSymbols);
-    this.showMarkdownHeadersOnly = this._configurationService.getValue(NotebookSetting.outlineShowMarkdownHeadersOnly);
-    this._disposables.add(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(NotebookSetting.outlineShowCodeCells)) {
-        this.showCodeCells = this._configurationService.getValue(NotebookSetting.outlineShowCodeCells);
-      }
-      if (e.affectsConfiguration(NotebookSetting.outlineShowCodeCellSymbols)) {
-        this.showCodeCellSymbols = this._configurationService.getValue(NotebookSetting.outlineShowCodeCellSymbols);
-      }
-      if (e.affectsConfiguration(NotebookSetting.outlineShowMarkdownHeadersOnly)) {
-        this.showMarkdownHeadersOnly = this._configurationService.getValue(NotebookSetting.outlineShowMarkdownHeadersOnly);
-      }
-    }));
+    this.showCodeCells = this._configurationService.getValue(
+      NotebookSetting.outlineShowCodeCells
+    );
+    this.showCodeCellSymbols = this._configurationService.getValue(
+      NotebookSetting.outlineShowCodeCellSymbols
+    );
+    this.showMarkdownHeadersOnly = this._configurationService.getValue(
+      NotebookSetting.outlineShowMarkdownHeadersOnly
+    );
+    this._disposables.add(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(NotebookSetting.outlineShowCodeCells)) {
+          this.showCodeCells = this._configurationService.getValue(
+            NotebookSetting.outlineShowCodeCells
+          );
+        }
+        if (e.affectsConfiguration(
+          NotebookSetting.outlineShowCodeCellSymbols
+        )) {
+          this.showCodeCellSymbols = this._configurationService.getValue(
+            NotebookSetting.outlineShowCodeCellSymbols
+          );
+        }
+        if (e.affectsConfiguration(
+          NotebookSetting.outlineShowMarkdownHeadersOnly
+        )) {
+          this.showMarkdownHeadersOnly = this._configurationService.getValue(
+            NotebookSetting.outlineShowMarkdownHeadersOnly
+          );
+        }
+      })
+    );
   }
   _disposables = new DisposableStore();
   showCodeCells;
@@ -530,12 +556,20 @@ let NotebookBreadcrumbsProvider = class {
   constructor(outlineDataSourceRef, _configurationService) {
     this.outlineDataSourceRef = outlineDataSourceRef;
     this._configurationService = _configurationService;
-    this.showCodeCells = this._configurationService.getValue(NotebookSetting.breadcrumbsShowCodeCells);
-    this._disposables.add(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(NotebookSetting.breadcrumbsShowCodeCells)) {
-        this.showCodeCells = this._configurationService.getValue(NotebookSetting.breadcrumbsShowCodeCells);
-      }
-    }));
+    this.showCodeCells = this._configurationService.getValue(
+      NotebookSetting.breadcrumbsShowCodeCells
+    );
+    this._disposables.add(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          NotebookSetting.breadcrumbsShowCodeCells
+        )) {
+          this.showCodeCells = this._configurationService.getValue(
+            NotebookSetting.breadcrumbsShowCodeCells
+          );
+        }
+      })
+    );
   }
   _disposables = new DisposableStore();
   showCodeCells;
@@ -582,18 +616,32 @@ let NotebookCellOutline = class {
     this._configurationService = _configurationService;
     this._languageFeaturesService = _languageFeaturesService;
     this._notebookExecutionStateService = _notebookExecutionStateService;
-    this.gotoShowCodeCellSymbols = this._configurationService.getValue(NotebookSetting.gotoSymbolsAllSymbols);
-    this.outlineShowCodeCellSymbols = this._configurationService.getValue(NotebookSetting.outlineShowCodeCellSymbols);
+    this.gotoShowCodeCellSymbols = this._configurationService.getValue(
+      NotebookSetting.gotoSymbolsAllSymbols
+    );
+    this.outlineShowCodeCellSymbols = this._configurationService.getValue(
+      NotebookSetting.outlineShowCodeCellSymbols
+    );
     this.initializeOutline();
     const delegate = new NotebookOutlineVirtualDelegate();
-    const renderers = [this._instantiationService.createInstance(NotebookOutlineRenderer, this._editor.getControl(), this._target)];
+    const renderers = [
+      this._instantiationService.createInstance(
+        NotebookOutlineRenderer,
+        this._editor.getControl(),
+        this._target
+      )
+    ];
     const comparator = new NotebookComparator();
     const options = {
-      collapseByDefault: this._target === OutlineTarget.Breadcrumbs || this._target === OutlineTarget.OutlinePane && this._configurationService.getValue(OutlineConfigKeys.collapseItems) === OutlineConfigCollapseItemsValues.Collapsed,
+      collapseByDefault: this._target === OutlineTarget.Breadcrumbs || this._target === OutlineTarget.OutlinePane && this._configurationService.getValue(
+        OutlineConfigKeys.collapseItems
+      ) === OutlineConfigCollapseItemsValues.Collapsed,
       expandOnlyOnTwistieClick: true,
       multipleSelectionSupport: false,
       accessibilityProvider: new NotebookOutlineAccessibility(),
-      identityProvider: { getId: (element) => element.cell.uri.toString() },
+      identityProvider: {
+        getId: (element) => element.cell.uri.toString()
+      },
       keyboardNavigationLabelProvider: new NotebookNavigationLabelProvider()
     };
     this.config = {

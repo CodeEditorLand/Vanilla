@@ -25,12 +25,12 @@ import {
 } from "./searchActionsBase.js";
 import { searchRemoveIcon, searchReplaceIcon } from "./searchIcons.js";
 import {
+  arrayContainsElementOrParent,
   FileMatch,
   FolderMatch,
   Match,
   MatchInNotebook,
-  SearchResult,
-  arrayContainsElementOrParent
+  SearchResult
 } from "./searchModel.js";
 registerAction2(
   class RemoveAction extends Action2 {

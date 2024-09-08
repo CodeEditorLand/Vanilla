@@ -11,7 +11,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { OS, OperatingSystem } from "../../../../base/common/platform.js";
+import { OperatingSystem, OS } from "../../../../base/common/platform.js";
 import { ProxyChannel } from "../../../../base/parts/ipc/common/ipc.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
@@ -33,19 +33,28 @@ let NativeKeyboardLayoutService = class extends Disposable {
   _keyboardLayoutInfo;
   constructor(mainProcessService) {
     super();
-    this._keyboardLayoutService = ProxyChannel.toService(mainProcessService.getChannel("keyboardLayout"));
+    this._keyboardLayoutService = ProxyChannel.toService(
+      mainProcessService.getChannel("keyboardLayout")
+    );
     this._initPromise = null;
     this._keyboardMapping = null;
     this._keyboardLayoutInfo = null;
-    this._register(this._keyboardLayoutService.onDidChangeKeyboardLayout(async ({ keyboardLayoutInfo, keyboardMapping }) => {
-      await this.initialize();
-      if (keyboardMappingEquals(this._keyboardMapping, keyboardMapping)) {
-        return;
-      }
-      this._keyboardMapping = keyboardMapping;
-      this._keyboardLayoutInfo = keyboardLayoutInfo;
-      this._onDidChangeKeyboardLayout.fire();
-    }));
+    this._register(
+      this._keyboardLayoutService.onDidChangeKeyboardLayout(
+        async ({ keyboardLayoutInfo, keyboardMapping }) => {
+          await this.initialize();
+          if (keyboardMappingEquals(
+            this._keyboardMapping,
+            keyboardMapping
+          )) {
+            return;
+          }
+          this._keyboardMapping = keyboardMapping;
+          this._keyboardLayoutInfo = keyboardLayoutInfo;
+          this._onDidChangeKeyboardLayout.fire();
+        }
+      )
+    );
   }
   initialize() {
     if (!this._initPromise) {

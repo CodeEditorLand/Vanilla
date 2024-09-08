@@ -10,7 +10,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/searchEditor.css";
-import { VSBuffer, bufferToReadable } from "../../../../base/common/buffer.js";
+import { bufferToReadable, VSBuffer } from "../../../../base/common/buffer.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { basename } from "../../../../base/common/path.js";
@@ -84,12 +84,19 @@ let SearchEditorInput = class extends EditorInput {
     this.workingCopyService = workingCopyService;
     this.telemetryService = telemetryService;
     this.pathService = pathService;
-    this.model = instantiationService.createInstance(SearchEditorModel, modelUri);
+    this.model = instantiationService.createInstance(
+      SearchEditorModel,
+      modelUri
+    );
     if (this.modelUri.scheme !== SearchEditorScheme) {
-      throw Error("SearchEditorInput must be invoked with a SearchEditorScheme uri");
+      throw Error(
+        "SearchEditorInput must be invoked with a SearchEditorScheme uri"
+      );
     }
     this.memento = new Memento(SearchEditorInput.ID, storageService);
-    this._register(storageService.onWillSaveState(() => this.memento.saveMemento()));
+    this._register(
+      storageService.onWillSaveState(() => this.memento.saveMemento())
+    );
     const input = this;
     const workingCopyAdapter = new class {
       typeId = SearchEditorWorkingCopyTypeId;
@@ -97,7 +104,9 @@ let SearchEditorInput = class extends EditorInput {
       get name() {
         return input.getName();
       }
-      capabilities = input.hasCapability(EditorInputCapabilities.Untitled) ? WorkingCopyCapabilities.Untitled : WorkingCopyCapabilities.None;
+      capabilities = input.hasCapability(
+        EditorInputCapabilities.Untitled
+      ) ? WorkingCopyCapabilities.Untitled : WorkingCopyCapabilities.None;
       onDidChangeDirty = input.onDidChangeDirty;
       onDidChangeContent = input.onDidChangeContent;
       onDidSave = input.onDidSave;
@@ -117,7 +126,9 @@ let SearchEditorInput = class extends EditorInput {
         return input.revert(0, options);
       }
     }();
-    this._register(this.workingCopyService.registerWorkingCopy(workingCopyAdapter));
+    this._register(
+      this.workingCopyService.registerWorkingCopy(workingCopyAdapter)
+    );
   }
   static ID = SearchEditorInputTypeId;
   get typeId() {

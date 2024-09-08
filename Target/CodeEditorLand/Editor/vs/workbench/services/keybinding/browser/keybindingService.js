@@ -9,7 +9,6 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as nls from "../../../../nls.js";
 import * as browser from "../../../../base/browser/browser.js";
 import {
   BrowserFeatures,
@@ -17,9 +16,9 @@ import {
 } from "../../../../base/browser/canIUse.js";
 import * as dom from "../../../../base/browser/dom.js";
 import {
-  StandardKeyboardEvent,
   printKeyboardEvent,
-  printStandardKeyboardEvent
+  printStandardKeyboardEvent,
+  StandardKeyboardEvent
 } from "../../../../base/browser/keyboardEvent.js";
 import { mainWindow } from "../../../../base/browser/window.js";
 import {
@@ -28,6 +27,12 @@ import {
 } from "../../../../base/common/async.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import { parse } from "../../../../base/common/json.js";
+import { UserSettingsLabelProvider } from "../../../../base/common/keybindingLabels.js";
+import { KeybindingParser } from "../../../../base/common/keybindingParser.js";
+import {
+  KeyCodeChord,
+  ScanCodeChord
+} from "../../../../base/common/keybindings.js";
 import {
   IMMUTABLE_CODE_TO_KEY_CODE,
   KeyCode,
@@ -36,23 +41,18 @@ import {
   ScanCode,
   ScanCodeUtils
 } from "../../../../base/common/keyCodes.js";
-import { UserSettingsLabelProvider } from "../../../../base/common/keybindingLabels.js";
-import { KeybindingParser } from "../../../../base/common/keybindingParser.js";
-import {
-  KeyCodeChord,
-  ScanCodeChord
-} from "../../../../base/common/keybindings.js";
 import {
   Disposable,
   DisposableStore
 } from "../../../../base/common/lifecycle.js";
 import * as objects from "../../../../base/common/objects.js";
 import {
-  OS,
+  isMacintosh,
   OperatingSystem,
-  isMacintosh
+  OS
 } from "../../../../base/common/platform.js";
 import { dirname } from "../../../../base/common/resources.js";
+import * as nls from "../../../../nls.js";
 import {
   isLocalizedString
 } from "../../../../platform/action/common/action.js";
@@ -82,8 +82,8 @@ import {
 } from "../../../../platform/keybinding/common/keybinding.js";
 import { KeybindingResolver } from "../../../../platform/keybinding/common/keybindingResolver.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { ResolvedKeybindingItem } from "../../../../platform/keybinding/common/resolvedKeybindingItem.js";
 import { IKeyboardLayoutService } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
@@ -272,56 +272,94 @@ otherMacNumpadMapping.set(ScanCode.Numpad9, KeyCode.Digit9);
 otherMacNumpadMapping.set(ScanCode.Numpad0, KeyCode.Digit0);
 let WorkbenchKeybindingService = class extends AbstractKeybindingService {
   constructor(contextKeyService, commandService, telemetryService, notificationService, userDataProfileService, hostService, extensionService, fileService, uriIdentityService, logService, keyboardLayoutService) {
-    super(contextKeyService, commandService, telemetryService, notificationService, logService);
+    super(
+      contextKeyService,
+      commandService,
+      telemetryService,
+      notificationService,
+      logService
+    );
     this.hostService = hostService;
     this.keyboardLayoutService = keyboardLayoutService;
-    this.isComposingGlobalContextKey = contextKeyService.createKey("isComposing", false);
+    this.isComposingGlobalContextKey = contextKeyService.createKey(
+      "isComposing",
+      false
+    );
     this.kbsJsonSchema = new KeybindingsJsonSchema();
     this.updateKeybindingsJsonSchema();
     this._keyboardMapper = this.keyboardLayoutService.getKeyboardMapper();
-    this._register(this.keyboardLayoutService.onDidChangeKeyboardLayout(() => {
-      this._keyboardMapper = this.keyboardLayoutService.getKeyboardMapper();
-      this.updateResolver();
-    }));
+    this._register(
+      this.keyboardLayoutService.onDidChangeKeyboardLayout(() => {
+        this._keyboardMapper = this.keyboardLayoutService.getKeyboardMapper();
+        this.updateResolver();
+      })
+    );
     this._keybindingHoldMode = null;
     this._cachedResolver = null;
-    this.userKeybindings = this._register(new UserKeybindings(userDataProfileService, uriIdentityService, fileService, logService));
+    this.userKeybindings = this._register(
+      new UserKeybindings(
+        userDataProfileService,
+        uriIdentityService,
+        fileService,
+        logService
+      )
+    );
     this.userKeybindings.initialize().then(() => {
       if (this.userKeybindings.keybindings.length) {
         this.updateResolver();
       }
     });
-    this._register(this.userKeybindings.onDidChange(() => {
-      logService.debug("User keybindings changed");
-      this.updateResolver();
-    }));
+    this._register(
+      this.userKeybindings.onDidChange(() => {
+        logService.debug("User keybindings changed");
+        this.updateResolver();
+      })
+    );
     keybindingsExtPoint.setHandler((extensions) => {
       const keybindings = [];
       for (const extension of extensions) {
-        this._handleKeybindingsExtensionPointUser(extension.description.identifier, extension.description.isBuiltin, extension.value, extension.collector, keybindings);
+        this._handleKeybindingsExtensionPointUser(
+          extension.description.identifier,
+          extension.description.isBuiltin,
+          extension.value,
+          extension.collector,
+          keybindings
+        );
       }
       KeybindingsRegistry.setExtensionKeybindings(keybindings);
       this.updateResolver();
     });
     this.updateKeybindingsJsonSchema();
-    this._register(extensionService.onDidRegisterExtensions(() => this.updateKeybindingsJsonSchema()));
-    this._register(Event.runAndSubscribe(dom.onDidRegisterWindow, ({ window, disposables }) => disposables.add(this._registerKeyListeners(window)), { window: mainWindow, disposables: this._store }));
-    this._register(browser.onDidChangeFullscreen((windowId) => {
-      if (windowId !== mainWindow.vscodeWindowId) {
-        return;
-      }
-      const keyboard = navigator.keyboard;
-      if (BrowserFeatures.keyboard === KeyboardSupport.None) {
-        return;
-      }
-      if (browser.isFullscreen(mainWindow)) {
-        keyboard?.lock(["Escape"]);
-      } else {
-        keyboard?.unlock();
-      }
-      this._cachedResolver = null;
-      this._onDidUpdateKeybindings.fire();
-    }));
+    this._register(
+      extensionService.onDidRegisterExtensions(
+        () => this.updateKeybindingsJsonSchema()
+      )
+    );
+    this._register(
+      Event.runAndSubscribe(
+        dom.onDidRegisterWindow,
+        ({ window, disposables }) => disposables.add(this._registerKeyListeners(window)),
+        { window: mainWindow, disposables: this._store }
+      )
+    );
+    this._register(
+      browser.onDidChangeFullscreen((windowId) => {
+        if (windowId !== mainWindow.vscodeWindowId) {
+          return;
+        }
+        const keyboard = navigator.keyboard;
+        if (BrowserFeatures.keyboard === KeyboardSupport.None) {
+          return;
+        }
+        if (browser.isFullscreen(mainWindow)) {
+          keyboard?.lock(["Escape"]);
+        } else {
+          keyboard?.unlock();
+        }
+        this._cachedResolver = null;
+        this._onDidUpdateKeybindings.fire();
+      })
+    );
   }
   _keyboardMapper;
   _cachedResolver;

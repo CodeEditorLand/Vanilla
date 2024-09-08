@@ -107,7 +107,6 @@ import {
   ISCMViewService
 } from "../common/scm.js";
 import {
-  SWIMLANE_WIDTH,
   historyItemGroupBase,
   historyItemGroupLocal,
   historyItemGroupRemote,
@@ -118,6 +117,7 @@ import {
   historyItemHoverLabelForeground,
   renderSCMHistoryGraphPlaceholder,
   renderSCMHistoryItemGraph,
+  SWIMLANE_WIDTH,
   toISCMHistoryItemViewModelArray
 } from "./scmHistory.js";
 import { ContextKeys } from "./scmViewPane.js";
@@ -575,7 +575,13 @@ HistoryItemLoadMoreRenderer = __decorateClass([
 ], HistoryItemLoadMoreRenderer);
 let HistoryItemHoverDelegate = class extends WorkbenchHoverDelegate {
   constructor(_viewContainerLocation, layoutService, configurationService, hoverService) {
-    super("element", true, () => this.getHoverOptions(), configurationService, hoverService);
+    super(
+      "element",
+      true,
+      () => this.getHoverOptions(),
+      configurationService,
+      hoverService
+    );
     this._viewContainerLocation = _viewContainerLocation;
     this.layoutService = layoutService;
   }
@@ -692,16 +698,21 @@ let SCMHistoryViewModel = class extends Disposable {
     this._configurationService = _configurationService;
     this._scmService = _scmService;
     this._scmViewService = _scmViewService;
-    this._register(autorun((reader) => {
-      const repository = this._closedRepository.read(reader);
-      if (!repository) {
-        return;
-      }
-      if (this.repository.get() === repository) {
-        this._selectedRepository.set(Iterable.first(this._scmService.repositories) ?? "auto", void 0);
-      }
-      this._state.delete(repository);
-    }));
+    this._register(
+      autorun((reader) => {
+        const repository = this._closedRepository.read(reader);
+        if (!repository) {
+          return;
+        }
+        if (this.repository.get() === repository) {
+          this._selectedRepository.set(
+            Iterable.first(this._scmService.repositories) ?? "auto",
+            void 0
+          );
+        }
+        this._state.delete(repository);
+      })
+    );
   }
   _closedRepository = observableFromEvent(
     this,
@@ -847,17 +858,33 @@ SCMHistoryViewModel = __decorateClass([
 ], SCMHistoryViewModel);
 let SCMHistoryViewPane = class extends ViewPane {
   constructor(options, _commandService, _scmViewService, _progressService, _quickInputService, configurationService, contextMenuService, keybindingService, instantiationService, viewDescriptorService, contextKeyService, openerService, themeService, telemetryService, hoverService) {
-    super({
-      ...options,
-      titleMenuId: MenuId.SCMHistoryTitle,
-      showActions: ViewPaneShowActions.WhenExpanded
-    }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      {
+        ...options,
+        titleMenuId: MenuId.SCMHistoryTitle,
+        showActions: ViewPaneShowActions.WhenExpanded
+      },
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this._commandService = _commandService;
     this._scmViewService = _scmViewService;
     this._progressService = _progressService;
     this._quickInputService = _quickInputService;
-    this._scmProviderCtx = ContextKeys.SCMProvider.bindTo(this.scopedContextKeyService);
-    this._actionRunner = this.instantiationService.createInstance(SCMHistoryViewPaneActionRunner);
+    this._scmProviderCtx = ContextKeys.SCMProvider.bindTo(
+      this.scopedContextKeyService
+    );
+    this._actionRunner = this.instantiationService.createInstance(
+      SCMHistoryViewPaneActionRunner
+    );
     this._register(this._actionRunner);
     this._register(this._updateChildrenThrottler);
   }

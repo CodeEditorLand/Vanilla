@@ -54,10 +54,16 @@ let ExtensionHostProfileService = class extends Disposable {
     this._profile = null;
     this._profileSession = null;
     this._setState(ProfileSessionState.None);
-    CommandsRegistry.registerCommand("workbench.action.extensionHostProfiler.stop", () => {
-      this.stopProfiling();
-      this._editorService.openEditor(RuntimeExtensionsInput.instance, { pinned: true });
-    });
+    CommandsRegistry.registerCommand(
+      "workbench.action.extensionHostProfiler.stop",
+      () => {
+        this.stopProfiling();
+        this._editorService.openEditor(
+          RuntimeExtensionsInput.instance,
+          { pinned: true }
+        );
+      }
+    );
   }
   _onDidChangeState = this._register(
     new Emitter()

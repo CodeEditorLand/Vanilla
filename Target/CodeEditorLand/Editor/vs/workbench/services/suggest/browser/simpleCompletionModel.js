@@ -2,9 +2,9 @@ import { quickSelect } from "../../../../base/common/arrays.js";
 import { CharCode } from "../../../../base/common/charCode.js";
 import {
   FuzzyScore,
-  FuzzyScoreOptions,
   fuzzyScore,
-  fuzzyScoreGracefulAggressive
+  fuzzyScoreGracefulAggressive,
+  FuzzyScoreOptions
 } from "../../../../base/common/filters.js";
 import { isWindows } from "../../../../base/common/platform.js";
 class LineContext {

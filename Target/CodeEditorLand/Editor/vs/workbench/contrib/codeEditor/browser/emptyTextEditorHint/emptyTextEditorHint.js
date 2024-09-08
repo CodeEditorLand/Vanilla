@@ -75,30 +75,48 @@ let EmptyTextEditorHintContribution = class {
     this.contextMenuService = contextMenuService;
     this.toDispose = [];
     this.toDispose.push(this.editor.onDidChangeModel(() => this.update()));
-    this.toDispose.push(this.editor.onDidChangeModelLanguage(() => this.update()));
-    this.toDispose.push(this.editor.onDidChangeModelContent(() => this.update()));
-    this.toDispose.push(this.chatAgentService.onDidChangeAgents(() => this.update()));
-    this.toDispose.push(this.editor.onDidChangeModelDecorations(() => this.update()));
-    this.toDispose.push(this.editor.onDidChangeConfiguration((e) => {
-      if (e.hasChanged(EditorOption.readOnly)) {
-        this.update();
-      }
-    }));
-    this.toDispose.push(this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(emptyTextEditorHintSetting)) {
-        this.update();
-      }
-    }));
-    this.toDispose.push(inlineChatSessionService.onWillStartSession((editor2) => {
-      if (this.editor === editor2) {
-        this.textHintContentWidget?.dispose();
-      }
-    }));
-    this.toDispose.push(inlineChatSessionService.onDidEndSession((e) => {
-      if (this.editor === e.editor) {
-        this.update();
-      }
-    }));
+    this.toDispose.push(
+      this.editor.onDidChangeModelLanguage(() => this.update())
+    );
+    this.toDispose.push(
+      this.editor.onDidChangeModelContent(() => this.update())
+    );
+    this.toDispose.push(
+      this.chatAgentService.onDidChangeAgents(() => this.update())
+    );
+    this.toDispose.push(
+      this.editor.onDidChangeModelDecorations(() => this.update())
+    );
+    this.toDispose.push(
+      this.editor.onDidChangeConfiguration(
+        (e) => {
+          if (e.hasChanged(EditorOption.readOnly)) {
+            this.update();
+          }
+        }
+      )
+    );
+    this.toDispose.push(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(emptyTextEditorHintSetting)) {
+          this.update();
+        }
+      })
+    );
+    this.toDispose.push(
+      inlineChatSessionService.onWillStartSession((editor2) => {
+        if (this.editor === editor2) {
+          this.textHintContentWidget?.dispose();
+        }
+      })
+    );
+    this.toDispose.push(
+      inlineChatSessionService.onDidEndSession((e) => {
+        if (this.editor === e.editor) {
+          this.update();
+        }
+      })
+    );
   }
   static ID = "editor.contrib.emptyTextEditorHint";
   toDispose;

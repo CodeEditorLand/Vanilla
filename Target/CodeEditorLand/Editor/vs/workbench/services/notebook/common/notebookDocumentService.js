@@ -1,7 +1,7 @@
 import {
-  VSBuffer,
   decodeBase64,
-  encodeBase64
+  encodeBase64,
+  VSBuffer
 } from "../../../../base/common/buffer.js";
 import { ResourceMap } from "../../../../base/common/map.js";
 import { Schemas } from "../../../../base/common/network.js";

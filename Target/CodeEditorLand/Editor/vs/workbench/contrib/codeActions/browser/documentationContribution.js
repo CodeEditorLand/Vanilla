@@ -21,7 +21,9 @@ let CodeActionDocumentationContribution = class extends Disposable {
   constructor(extensionPoint, contextKeyService, languageFeaturesService) {
     super();
     this.contextKeyService = contextKeyService;
-    this._register(languageFeaturesService.codeActionProvider.register("*", this));
+    this._register(
+      languageFeaturesService.codeActionProvider.register("*", this)
+    );
     extensionPoint.setHandler((points) => {
       this.contributions = [];
       for (const documentation of points) {
@@ -29,7 +31,9 @@ let CodeActionDocumentationContribution = class extends Disposable {
           continue;
         }
         for (const contribution of documentation.value.refactoring) {
-          const precondition = ContextKeyExpr.deserialize(contribution.when);
+          const precondition = ContextKeyExpr.deserialize(
+            contribution.when
+          );
           if (!precondition) {
             continue;
           }

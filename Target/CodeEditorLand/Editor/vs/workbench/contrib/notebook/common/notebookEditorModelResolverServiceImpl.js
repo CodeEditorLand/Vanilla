@@ -15,10 +15,10 @@ import {
   Emitter
 } from "../../../../base/common/event.js";
 import {
-  DisposableStore,
-  ReferenceCollection,
   combinedDisposable,
+  DisposableStore,
   dispose,
+  ReferenceCollection,
   toDisposable
 } from "../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../base/common/map.js";
@@ -172,7 +172,9 @@ let NotebookModelResolverServiceImpl = class {
     this._notebookService = _notebookService;
     this._extensionService = _extensionService;
     this._uriIdentService = _uriIdentService;
-    this._data = instantiationService.createInstance(NotebookModelReferenceCollection);
+    this._data = instantiationService.createInstance(
+      NotebookModelReferenceCollection
+    );
     this.onDidSaveNotebook = this._data.onDidSaveNotebook;
     this.onDidChangeDirty = this._data.onDidChangeDirty;
   }

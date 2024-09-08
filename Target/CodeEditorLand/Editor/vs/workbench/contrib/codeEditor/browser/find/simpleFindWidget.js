@@ -13,11 +13,11 @@ import {
   FindReplaceState
 } from "../../../../../editor/contrib/find/browser/findState.js";
 import {
+  findNextMatchIcon,
+  findPreviousMatchIcon,
   NLS_MATCHES_LOCATION,
   NLS_NO_RESULTS,
-  SimpleButton,
-  findNextMatchIcon,
-  findPreviousMatchIcon
+  SimpleButton
 } from "../../../../../editor/contrib/find/browser/findWidget.js";
 import * as nls from "../../../../../nls.js";
 import { ContextScopedFindInput } from "../../../../../platform/history/browser/contextScopedHistoryWidget.js";

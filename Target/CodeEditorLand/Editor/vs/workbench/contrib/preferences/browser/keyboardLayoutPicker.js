@@ -24,17 +24,17 @@ import { IConfigurationService } from "../../../../platform/configuration/common
 import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import {
-  IKeyboardLayoutService,
   areKeyboardLayoutsEqual,
   getKeyboardLayoutId,
+  IKeyboardLayoutService,
   parseKeyboardLayoutDescription
 } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
 import {
   IQuickInputService
 } from "../../../../platform/quickinput/common/quickInput.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import {
@@ -47,11 +47,18 @@ let KeyboardLayoutPickerContribution = class extends Disposable {
     super();
     this.keyboardLayoutService = keyboardLayoutService;
     this.statusbarService = statusbarService;
-    const name = nls.localize("status.workbench.keyboardLayout", "Keyboard Layout");
+    const name = nls.localize(
+      "status.workbench.keyboardLayout",
+      "Keyboard Layout"
+    );
     const layout = this.keyboardLayoutService.getCurrentKeyboardLayout();
     if (layout) {
       const layoutInfo = parseKeyboardLayoutDescription(layout);
-      const text = nls.localize("keyboardLayout", "Layout: {0}", layoutInfo.label);
+      const text = nls.localize(
+        "keyboardLayout",
+        "Layout: {0}",
+        layoutInfo.label
+      );
       this.pickerElement.value = this.statusbarService.addEntry(
         {
           name,
@@ -63,31 +70,41 @@ let KeyboardLayoutPickerContribution = class extends Disposable {
         StatusbarAlignment.RIGHT
       );
     }
-    this._register(this.keyboardLayoutService.onDidChangeKeyboardLayout(() => {
-      const layout2 = this.keyboardLayoutService.getCurrentKeyboardLayout();
-      const layoutInfo = parseKeyboardLayoutDescription(layout2);
-      if (this.pickerElement.value) {
-        const text = nls.localize("keyboardLayout", "Layout: {0}", layoutInfo.label);
-        this.pickerElement.value.update({
-          name,
-          text,
-          ariaLabel: text,
-          command: KEYBOARD_LAYOUT_OPEN_PICKER
-        });
-      } else {
-        const text = nls.localize("keyboardLayout", "Layout: {0}", layoutInfo.label);
-        this.pickerElement.value = this.statusbarService.addEntry(
-          {
+    this._register(
+      this.keyboardLayoutService.onDidChangeKeyboardLayout(() => {
+        const layout2 = this.keyboardLayoutService.getCurrentKeyboardLayout();
+        const layoutInfo = parseKeyboardLayoutDescription(layout2);
+        if (this.pickerElement.value) {
+          const text = nls.localize(
+            "keyboardLayout",
+            "Layout: {0}",
+            layoutInfo.label
+          );
+          this.pickerElement.value.update({
             name,
             text,
             ariaLabel: text,
             command: KEYBOARD_LAYOUT_OPEN_PICKER
-          },
-          "status.workbench.keyboardLayout",
-          StatusbarAlignment.RIGHT
-        );
-      }
-    }));
+          });
+        } else {
+          const text = nls.localize(
+            "keyboardLayout",
+            "Layout: {0}",
+            layoutInfo.label
+          );
+          this.pickerElement.value = this.statusbarService.addEntry(
+            {
+              name,
+              text,
+              ariaLabel: text,
+              command: KEYBOARD_LAYOUT_OPEN_PICKER
+            },
+            "status.workbench.keyboardLayout",
+            StatusbarAlignment.RIGHT
+          );
+        }
+      })
+    );
   }
   static ID = "workbench.contrib.keyboardLayoutPicker";
   pickerElement = this._register(

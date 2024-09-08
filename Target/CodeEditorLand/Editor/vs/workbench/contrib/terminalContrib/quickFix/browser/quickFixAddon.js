@@ -69,24 +69,42 @@ let TerminalQuickFixAddon = class extends Disposable {
     this._extensionService = _extensionService;
     this._actionWidgetService = _actionWidgetService;
     this._labelService = _labelService;
-    const commandDetectionCapability = this._capabilities.get(TerminalCapability.CommandDetection);
+    const commandDetectionCapability = this._capabilities.get(
+      TerminalCapability.CommandDetection
+    );
     if (commandDetectionCapability) {
       this._registerCommandHandlers();
     } else {
-      this._register(this._capabilities.onDidAddCapabilityType((c) => {
-        if (c === TerminalCapability.CommandDetection) {
-          this._registerCommandHandlers();
-        }
-      }));
+      this._register(
+        this._capabilities.onDidAddCapabilityType((c) => {
+          if (c === TerminalCapability.CommandDetection) {
+            this._registerCommandHandlers();
+          }
+        })
+      );
     }
-    this._register(this._quickFixService.onDidRegisterProvider((result) => this.registerCommandFinishedListener(convertToQuickFixOptions(result))));
+    this._register(
+      this._quickFixService.onDidRegisterProvider(
+        (result) => this.registerCommandFinishedListener(
+          convertToQuickFixOptions(result)
+        )
+      )
+    );
     this._quickFixService.extensionQuickFixes.then((quickFixSelectors) => {
       for (const selector of quickFixSelectors) {
         this.registerCommandSelector(selector);
       }
     });
-    this._register(this._quickFixService.onDidRegisterCommandSelector((selector) => this.registerCommandSelector(selector)));
-    this._register(this._quickFixService.onDidUnregisterProvider((id) => this._commandListeners.delete(id)));
+    this._register(
+      this._quickFixService.onDidRegisterCommandSelector(
+        (selector) => this.registerCommandSelector(selector)
+      )
+    );
+    this._register(
+      this._quickFixService.onDidUnregisterProvider(
+        (id) => this._commandListeners.delete(id)
+      )
+    );
   }
   _onDidRequestRerunCommand = new Emitter();
   onDidRequestRerunCommand = this._onDidRequestRerunCommand.event;

@@ -15,16 +15,16 @@ import { timeout } from "../../../../../base/common/async.js";
 import {
   Disposable,
   DisposableStore,
-  MutableDisposable,
-  dispose
+  dispose,
+  MutableDisposable
 } from "../../../../../base/common/lifecycle.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import {
   TerminalCapability
 } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
 import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { TERMINAL_OVERVIEW_RULER_CURSOR_FOREGROUND_COLOR } from "../../common/terminalColorRegistry.js";
 import { TerminalStickyScrollSettingId } from "../../../terminalContrib/stickyScroll/common/terminalStickyScrollConfiguration.js";
+import { TERMINAL_OVERVIEW_RULER_CURSOR_FOREGROUND_COLOR } from "../../common/terminalColorRegistry.js";
 var Boundary = /* @__PURE__ */ ((Boundary2) => {
   Boundary2[Boundary2["Top"] = 0] = "Top";
   Boundary2[Boundary2["Bottom"] = 1] = "Bottom";

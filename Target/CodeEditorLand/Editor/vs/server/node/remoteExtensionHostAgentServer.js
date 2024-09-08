@@ -13,9 +13,9 @@ import * as crypto from "crypto";
 import * as fs from "fs";
 import * as net from "net";
 import { createRequire } from "node:module";
-import * as url from "url";
 import { performance } from "perf_hooks";
-import { LoaderStats, isESM } from "../../base/common/amd.js";
+import * as url from "url";
+import { isESM, LoaderStats } from "../../base/common/amd.js";
 import { VSBuffer } from "../../base/common/buffer.js";
 import { CharCode } from "../../base/common/charCode.js";
 import {
@@ -26,10 +26,10 @@ import {
 import { isEqualOrParent } from "../../base/common/extpath.js";
 import { Disposable, DisposableStore } from "../../base/common/lifecycle.js";
 import {
-  FileAccess,
-  Schemas,
   connectionTokenQueryName,
-  getServerRootPath
+  FileAccess,
+  getServerRootPath,
+  Schemas
 } from "../../base/common/network.js";
 import { dirname, join } from "../../base/common/path.js";
 import * as perf from "../../base/common/performance.js";
@@ -62,10 +62,10 @@ import { ITelemetryService } from "../../platform/telemetry/common/telemetry.js"
 import { ExtensionHostConnection } from "./extensionHostConnection.js";
 import { ManagementConnection } from "./remoteExtensionManagement.js";
 import {
-  ServerConnectionTokenParseError,
-  ServerConnectionTokenType,
   determineServerConnectionToken,
-  requestHasValidConnectionToken as httpRequestHasValidConnectionToken
+  requestHasValidConnectionToken as httpRequestHasValidConnectionToken,
+  ServerConnectionTokenParseError,
+  ServerConnectionTokenType
 } from "./serverConnectionToken.js";
 import {
   IServerEnvironmentService
@@ -73,9 +73,9 @@ import {
 import { setupServerServices } from "./serverServices.js";
 import {
   CacheControl,
-  WebClientServer,
   serveError,
-  serveFile
+  serveFile,
+  WebClientServer
 } from "./webClientServer.js";
 const require2 = createRequire(import.meta.url);
 const SHUTDOWN_TIMEOUT = 5 * 60 * 1e3;
@@ -89,11 +89,19 @@ let RemoteExtensionHostAgentServer = class extends Disposable {
     this._productService = _productService;
     this._logService = _logService;
     this._instantiationService = _instantiationService;
-    this._serverRootPath = getServerRootPath(_productService, serverBasePath);
+    this._serverRootPath = getServerRootPath(
+      _productService,
+      serverBasePath
+    );
     this._extHostConnections = /* @__PURE__ */ Object.create(null);
     this._managementConnections = /* @__PURE__ */ Object.create(null);
     this._allReconnectionTokens = /* @__PURE__ */ new Set();
-    this._webClientServer = hasWebClient ? this._instantiationService.createInstance(WebClientServer, this._connectionToken, serverBasePath ?? "/", this._serverRootPath) : null;
+    this._webClientServer = hasWebClient ? this._instantiationService.createInstance(
+      WebClientServer,
+      this._connectionToken,
+      serverBasePath ?? "/",
+      this._serverRootPath
+    ) : null;
     this._logService.info(`Extension host agent started.`);
     this._waitThenShutdown(true);
   }

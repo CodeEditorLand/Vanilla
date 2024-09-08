@@ -4,8 +4,8 @@ import {
   AbstractEditorInput,
   EditorInputCapabilities,
   EditorResourceAccessor,
-  Verbosity,
-  isEditorInput
+  isEditorInput,
+  Verbosity
 } from "../editor.js";
 class EditorInput extends AbstractEditorInput {
   _onDidChangeDirty = this._register(new Emitter());

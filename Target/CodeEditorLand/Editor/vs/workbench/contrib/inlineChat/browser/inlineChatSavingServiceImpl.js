@@ -13,10 +13,10 @@ import { Queue, raceCancellation } from "../../../../base/common/async.js";
 import { Event } from "../../../../base/common/event.js";
 import { Iterable } from "../../../../base/common/iterator.js";
 import {
-  DisposableStore,
-  MutableDisposable,
   combinedDisposable,
-  dispose
+  DisposableStore,
+  dispose,
+  MutableDisposable
 } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { compare } from "../../../../base/common/strings.js";
@@ -50,9 +50,14 @@ let InlineChatSavingServiceImpl = class {
     this._configService = _configService;
     this._workingCopyFileService = _workingCopyFileService;
     this._logService = _logService;
-    this._store.add(Event.any(_inlineChatSessionService.onDidEndSession, _inlineChatSessionService.onDidStashSession)((e) => {
-      this._sessionData.get(e.session)?.dispose();
-    }));
+    this._store.add(
+      Event.any(
+        _inlineChatSessionService.onDidEndSession,
+        _inlineChatSessionService.onDidStashSession
+      )((e) => {
+        this._sessionData.get(e.session)?.dispose();
+      })
+    );
   }
   _store = new DisposableStore();
   _saveParticipant = this._store.add(

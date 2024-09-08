@@ -21,8 +21,8 @@ import {
 import { IRemoteSocketFactoryService } from "../../../../platform/remote/common/remoteSocketFactoryService.js";
 import { ISignService } from "../../../../platform/sign/common/sign.js";
 import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
+  registerWorkbenchContribution2,
+  WorkbenchPhase
 } from "../../../common/contributions.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 import { IHostService } from "../../host/browser/host.js";

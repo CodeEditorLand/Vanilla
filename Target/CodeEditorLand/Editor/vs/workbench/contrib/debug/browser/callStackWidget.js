@@ -65,8 +65,8 @@ import {
   SIDE_GROUP
 } from "../../../services/editor/common/editorService.js";
 import {
-  TOP_STACK_FRAME_DECORATION,
-  makeStackFrameColumnDecoration
+  makeStackFrameColumnDecoration,
+  TOP_STACK_FRAME_DECORATION
 } from "./callStackEditorContribution.js";
 class CallStackFrame {
   constructor(name, source, line = 1, column = 1) {

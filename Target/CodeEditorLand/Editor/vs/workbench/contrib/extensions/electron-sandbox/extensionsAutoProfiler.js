@@ -63,7 +63,10 @@ let ExtensionsAutoProfiler = class {
         return;
       }
       this._perfBaseline = value;
-      this._unresponsiveListener = _extensionService.onDidChangeResponsiveChange(this._onDidChangeResponsiveChange, this);
+      this._unresponsiveListener = _extensionService.onDidChangeResponsiveChange(
+        this._onDidChangeResponsiveChange,
+        this
+      );
     });
   }
   _blame = new ExtensionIdentifierSet();

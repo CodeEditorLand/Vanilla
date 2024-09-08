@@ -36,12 +36,18 @@ let CellDiagnostics = class extends Disposable {
     this.chatAgentService = chatAgentService;
     this.configurationService = configurationService;
     this.updateEnabled();
-    this._register(chatAgentService.onDidChangeAgents(() => this.updateEnabled()));
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(NotebookSetting.cellFailureDiagnostics)) {
-        this.updateEnabled();
-      }
-    }));
+    this._register(
+      chatAgentService.onDidChangeAgents(() => this.updateEnabled())
+    );
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          NotebookSetting.cellFailureDiagnostics
+        )) {
+          this.updateEnabled();
+        }
+      })
+    );
   }
   static ID = "workbench.notebook.cellDiagnostics";
   enabled = false;

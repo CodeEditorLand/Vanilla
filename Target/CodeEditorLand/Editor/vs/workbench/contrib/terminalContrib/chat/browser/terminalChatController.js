@@ -9,8 +9,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  createCancelablePromise,
+  DeferredPromise
+} from "../../../../../base/common/async.js";
 import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
 import { Lazy } from "../../../../../base/common/lazy.js";
 import {
   Disposable,
@@ -18,36 +23,31 @@ import {
   MutableDisposable,
   toDisposable
 } from "../../../../../base/common/lifecycle.js";
+import { assertType } from "../../../../../base/common/types.js";
 import {
   IContextKeyService
 } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import {
-  IChatCodeBlockContextProviderService,
-  showChatView
-} from "../../../chat/browser/chat.js";
-import {
-  IChatService
-} from "../../../chat/common/chatService.js";
-import {
-  ITerminalService,
-  isDetachedTerminalInstance
-} from "../../../terminal/browser/terminal.js";
-import { TerminalChatWidget } from "./terminalChatWidget.js";
-import {
-  DeferredPromise,
-  createCancelablePromise
-} from "../../../../../base/common/async.js";
-import { MarkdownString } from "../../../../../base/common/htmlContent.js";
-import { assertType } from "../../../../../base/common/types.js";
 import {
   IStorageService,
   StorageScope,
   StorageTarget
 } from "../../../../../platform/storage/common/storage.js";
 import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import {
+  IChatCodeBlockContextProviderService,
+  showChatView
+} from "../../../chat/browser/chat.js";
 import { ChatAgentLocation } from "../../../chat/common/chatAgents.js";
+import {
+  IChatService
+} from "../../../chat/common/chatService.js";
+import {
+  isDetachedTerminalInstance,
+  ITerminalService
+} from "../../../terminal/browser/terminal.js";
 import { TerminalChatContextKeys } from "./terminalChat.js";
+import { TerminalChatWidget } from "./terminalChatWidget.js";
 var Message = /* @__PURE__ */ ((Message2) => {
   Message2[Message2["NONE"] = 0] = "NONE";
   Message2[Message2["ACCEPT_SESSION"] = 1] = "ACCEPT_SESSION";
@@ -70,23 +70,40 @@ let TerminalChatController = class extends Disposable {
     this._chatCodeBlockContextProviderService = _chatCodeBlockContextProviderService;
     this._viewsService = _viewsService;
     this._storageService = _storageService;
-    this._requestActiveContextKey = TerminalChatContextKeys.requestActive.bindTo(this._contextKeyService);
-    this._responseContainsCodeBlockContextKey = TerminalChatContextKeys.responseContainsCodeBlock.bindTo(this._contextKeyService);
-    this._responseContainsMulitpleCodeBlocksContextKey = TerminalChatContextKeys.responseContainsMultipleCodeBlocks.bindTo(this._contextKeyService);
-    this._register(this._chatCodeBlockContextProviderService.registerProvider({
-      getCodeBlockContext: (editor) => {
-        if (!editor || !this._chatWidget?.hasValue || !this.hasFocus()) {
-          return;
-        }
-        return {
-          element: editor,
-          code: editor.getValue(),
-          codeBlockIndex: 0,
-          languageId: editor.getModel().getLanguageId()
-        };
-      }
-    }, "terminal"));
-    TerminalChatController._promptHistory = JSON.parse(this._storageService.get(TerminalChatController._storageKey, StorageScope.PROFILE, "[]"));
+    this._requestActiveContextKey = TerminalChatContextKeys.requestActive.bindTo(
+      this._contextKeyService
+    );
+    this._responseContainsCodeBlockContextKey = TerminalChatContextKeys.responseContainsCodeBlock.bindTo(
+      this._contextKeyService
+    );
+    this._responseContainsMulitpleCodeBlocksContextKey = TerminalChatContextKeys.responseContainsMultipleCodeBlocks.bindTo(
+      this._contextKeyService
+    );
+    this._register(
+      this._chatCodeBlockContextProviderService.registerProvider(
+        {
+          getCodeBlockContext: (editor) => {
+            if (!editor || !this._chatWidget?.hasValue || !this.hasFocus()) {
+              return;
+            }
+            return {
+              element: editor,
+              code: editor.getValue(),
+              codeBlockIndex: 0,
+              languageId: editor.getModel().getLanguageId()
+            };
+          }
+        },
+        "terminal"
+      )
+    );
+    TerminalChatController._promptHistory = JSON.parse(
+      this._storageService.get(
+        TerminalChatController._storageKey,
+        StorageScope.PROFILE,
+        "[]"
+      )
+    );
     this._historyUpdate = (prompt) => {
       const idx = TerminalChatController._promptHistory.indexOf(prompt);
       if (idx >= 0) {
@@ -95,7 +112,12 @@ let TerminalChatController = class extends Disposable {
       TerminalChatController._promptHistory.unshift(prompt);
       this._historyOffset = -1;
       this._historyCandidate = "";
-      this._storageService.store(TerminalChatController._storageKey, JSON.stringify(TerminalChatController._promptHistory), StorageScope.PROFILE, StorageTarget.USER);
+      this._storageService.store(
+        TerminalChatController._storageKey,
+        JSON.stringify(TerminalChatController._promptHistory),
+        StorageScope.PROFILE,
+        StorageTarget.USER
+      );
     };
   }
   static ID = "terminal.chat";

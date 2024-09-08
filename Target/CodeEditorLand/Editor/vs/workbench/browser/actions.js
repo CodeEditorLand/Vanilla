@@ -85,8 +85,17 @@ let CompositeMenuActions = class extends Disposable {
     this.options = options;
     this.contextKeyService = contextKeyService;
     this.menuService = menuService;
-    this.menuActions = this._register(new MenuActions(menuId, this.options, menuService, contextKeyService));
-    this._register(this.menuActions.onDidChange(() => this._onDidChange.fire()));
+    this.menuActions = this._register(
+      new MenuActions(
+        menuId,
+        this.options,
+        menuService,
+        contextKeyService
+      )
+    );
+    this._register(
+      this.menuActions.onDidChange(() => this._onDidChange.fire())
+    );
   }
   menuActions;
   _onDidChange = this._register(new Emitter());

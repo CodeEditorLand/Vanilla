@@ -1,0 +1,31 @@
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { AccessibleViewProviderId, type IAccessibleViewContentProvider, type IAccessibleViewOptions, type IAccessibleViewSymbol } from "../../../../../platform/accessibility/browser/accessibleView.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { type ITerminalCommand } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import type { ICurrentPartialCommand } from "../../../../../platform/terminal/common/capabilities/commandDetection/terminalCommand.js";
+import { AccessibilityVerbositySettingId } from "../../../accessibility/browser/accessibilityConfiguration.js";
+import { ITerminalService, type ITerminalInstance } from "../../../terminal/browser/terminal.js";
+import type { BufferContentTracker } from "./bufferContentTracker.js";
+export declare class TerminalAccessibleBufferProvider extends Disposable implements IAccessibleViewContentProvider {
+    private readonly _instance;
+    private _bufferTracker;
+    id: AccessibleViewProviderId;
+    options: IAccessibleViewOptions;
+    verbositySettingKey: AccessibilityVerbositySettingId;
+    private readonly _onDidRequestClearProvider;
+    readonly onDidRequestClearLastProvider: import("../../../../../base/common/event.js").Event<AccessibleViewProviderId>;
+    private _focusedInstance;
+    constructor(_instance: Pick<ITerminalInstance, "onDidExecuteText" | "focus" | "shellType" | "capabilities" | "onDidRequestFocus" | "resource" | "onDisposed">, _bufferTracker: BufferContentTracker, customHelp: () => string, _modelService: IModelService, configurationService: IConfigurationService, _contextKeyService: IContextKeyService, _terminalService: ITerminalService);
+    onClose(): void;
+    provideContent(): string;
+    getSymbols(): IAccessibleViewSymbol[];
+    private _getCommandsWithEditorLine;
+    private _getEditorLineForCommand;
+}
+export interface ICommandWithEditorLine {
+    command: ITerminalCommand | ICurrentPartialCommand;
+    lineNumber: number;
+    exitCode?: number;
+}

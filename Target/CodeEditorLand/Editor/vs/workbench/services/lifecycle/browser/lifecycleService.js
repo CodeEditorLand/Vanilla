@@ -10,8 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  EventType,
-  addDisposableListener
+  addDisposableListener,
+  EventType
 } from "../../../../base/browser/dom.js";
 import { mainWindow } from "../../../../base/browser/window.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";

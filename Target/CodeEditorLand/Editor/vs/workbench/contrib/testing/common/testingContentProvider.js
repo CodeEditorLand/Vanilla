@@ -20,15 +20,18 @@ import {
   ITextModelService
 } from "../../../../editor/common/services/resolverService.js";
 import { localize } from "../../../../nls.js";
+import { parseTestUri, TEST_DATA_SCHEME, TestUriType } from "./testingUri.js";
 import { ITestResultService } from "./testResultService.js";
 import { TestMessageType } from "./testTypes.js";
-import { TEST_DATA_SCHEME, TestUriType, parseTestUri } from "./testingUri.js";
 let TestingContentProvider = class {
   constructor(textModelResolverService, languageService, modelService, resultService) {
     this.languageService = languageService;
     this.modelService = modelService;
     this.resultService = resultService;
-    textModelResolverService.registerTextModelContentProvider(TEST_DATA_SCHEME, this);
+    textModelResolverService.registerTextModelContentProvider(
+      TEST_DATA_SCHEME,
+      this
+    );
   }
   /**
    * @inheritdoc

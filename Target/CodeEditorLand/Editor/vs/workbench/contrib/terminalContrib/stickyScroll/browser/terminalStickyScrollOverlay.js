@@ -19,9 +19,9 @@ import {
 import { memoize, throttle } from "../../../../../base/common/decorators.js";
 import { Event } from "../../../../../base/common/event.js";
 import {
+  combinedDisposable,
   Disposable,
   MutableDisposable,
-  combinedDisposable,
   toDisposable
 } from "../../../../../base/common/lifecycle.js";
 import { removeAnsiEscapeCodes } from "../../../../../base/common/strings.js";
@@ -74,44 +74,77 @@ let TerminalStickyScrollOverlay = class extends Disposable {
     this._keybindingService = _keybindingService;
     this._terminalConfigurationService = _terminalConfigurationService;
     this._themeService = _themeService;
-    this._contextMenu = this._register(menuService.createMenu(MenuId.TerminalStickyScrollContext, contextKeyService));
-    this._register(Event.runAndSubscribe(this._xterm.raw.buffer.onBufferChange, (buffer) => {
-      this._setState((buffer ?? this._xterm.raw.buffer.active).type === "normal" ? 1 /* On */ : 0 /* Off */);
-    }));
-    this._register(Event.runAndSubscribe(configurationService.onDidChangeConfiguration, (e) => {
-      if (!e || e.affectsConfiguration(TerminalStickyScrollSettingId.MaxLineCount)) {
-        this._rawMaxLineCount = configurationService.getValue(TerminalStickyScrollSettingId.MaxLineCount);
-      }
-    }));
-    this._register(this._instance.onDidChangeTarget(() => this._syncOptions()));
+    this._contextMenu = this._register(
+      menuService.createMenu(
+        MenuId.TerminalStickyScrollContext,
+        contextKeyService
+      )
+    );
+    this._register(
+      Event.runAndSubscribe(
+        this._xterm.raw.buffer.onBufferChange,
+        (buffer) => {
+          this._setState(
+            (buffer ?? this._xterm.raw.buffer.active).type === "normal" ? 1 /* On */ : 0 /* Off */
+          );
+        }
+      )
+    );
+    this._register(
+      Event.runAndSubscribe(
+        configurationService.onDidChangeConfiguration,
+        (e) => {
+          if (!e || e.affectsConfiguration(
+            TerminalStickyScrollSettingId.MaxLineCount
+          )) {
+            this._rawMaxLineCount = configurationService.getValue(
+              TerminalStickyScrollSettingId.MaxLineCount
+            );
+          }
+        }
+      )
+    );
+    this._register(
+      this._instance.onDidChangeTarget(() => this._syncOptions())
+    );
     xtermCtor.then((ctor) => {
       if (this._store.isDisposed) {
         return;
       }
-      this._stickyScrollOverlay = this._register(new ctor({
-        rows: 1,
-        cols: this._xterm.raw.cols,
-        allowProposedApi: true,
-        ...this._getOptions()
-      }));
+      this._stickyScrollOverlay = this._register(
+        new ctor({
+          rows: 1,
+          cols: this._xterm.raw.cols,
+          allowProposedApi: true,
+          ...this._getOptions()
+        })
+      );
       this._refreshGpuAcceleration();
-      this._register(configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(TERMINAL_CONFIG_SECTION)) {
+      this._register(
+        configurationService.onDidChangeConfiguration((e) => {
+          if (e.affectsConfiguration(TERMINAL_CONFIG_SECTION)) {
+            this._syncOptions();
+          }
+        })
+      );
+      this._register(
+        this._themeService.onDidColorThemeChange(() => {
           this._syncOptions();
-        }
-      }));
-      this._register(this._themeService.onDidColorThemeChange(() => {
-        this._syncOptions();
-      }));
-      this._register(this._xterm.raw.onResize(() => {
-        this._syncOptions();
-        this._refresh();
-      }));
-      this._register(this._instance.onDidChangeVisibility((isVisible) => {
-        if (isVisible) {
+        })
+      );
+      this._register(
+        this._xterm.raw.onResize(() => {
+          this._syncOptions();
           this._refresh();
-        }
-      }));
+        })
+      );
+      this._register(
+        this._instance.onDidChangeVisibility((isVisible) => {
+          if (isVisible) {
+            this._refresh();
+          }
+        })
+      );
       this._getSerializeAddonConstructor().then((SerializeAddon) => {
         if (this._store.isDisposed) {
           return;

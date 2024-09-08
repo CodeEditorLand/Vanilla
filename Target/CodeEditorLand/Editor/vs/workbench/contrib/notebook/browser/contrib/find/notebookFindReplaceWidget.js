@@ -44,16 +44,16 @@ import {
   FindReplaceState
 } from "../../../../../../editor/contrib/find/browser/findState.js";
 import {
-  SimpleButton,
   findNextMatchIcon,
   findPreviousMatchIcon,
   findReplaceAllIcon,
   findReplaceIcon,
-  findSelectionIcon
+  findSelectionIcon,
+  SimpleButton
 } from "../../../../../../editor/contrib/find/browser/findWidget.js";
 import {
-  ReplacePattern,
-  parseReplaceString
+  parseReplaceString,
+  ReplacePattern
 } from "../../../../../../editor/contrib/find/browser/replacePattern.js";
 import { createAndFillInActionBarActions } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
@@ -367,115 +367,175 @@ let SimpleFindReplaceWidget = class extends Widget {
     this.instantiationService = instantiationService;
     this._state = _state;
     this._notebookEditor = _notebookEditor;
-    const findFilters = this._configurationService.getValue(NotebookSetting.findFilters) ?? { markupSource: true, markupPreview: true, codeSource: true, codeOutput: true };
-    this._filters = new NotebookFindFilters(findFilters.markupSource, findFilters.markupPreview, findFilters.codeSource, findFilters.codeOutput, { findScopeType: NotebookFindScopeType.None });
+    const findFilters = this._configurationService.getValue(NotebookSetting.findFilters) ?? {
+      markupSource: true,
+      markupPreview: true,
+      codeSource: true,
+      codeOutput: true
+    };
+    this._filters = new NotebookFindFilters(
+      findFilters.markupSource,
+      findFilters.markupPreview,
+      findFilters.codeSource,
+      findFilters.codeOutput,
+      { findScopeType: NotebookFindScopeType.None }
+    );
     this._state.change({ filters: this._filters }, false);
     this._filters.onDidChange(() => {
       this._state.change({ filters: this._filters }, false);
     });
     this._domNode = document.createElement("div");
     this._domNode.classList.add("simple-fr-find-part-wrapper");
-    this._register(this._state.onFindReplaceStateChange((e) => this._onStateChanged(e)));
-    this._scopedContextKeyService = contextKeyService.createScoped(this._domNode);
+    this._register(
+      this._state.onFindReplaceStateChange(
+        (e) => this._onStateChanged(e)
+      )
+    );
+    this._scopedContextKeyService = contextKeyService.createScoped(
+      this._domNode
+    );
     const progressContainer = dom.$(".find-replace-progress");
-    this._progressBar = new ProgressBar(progressContainer, defaultProgressBarStyles);
+    this._progressBar = new ProgressBar(
+      progressContainer,
+      defaultProgressBarStyles
+    );
     this._domNode.appendChild(progressContainer);
     const isInteractiveWindow = contextKeyService.getContextKeyValue("notebookType") === "interactive";
-    this._toggleReplaceBtn = this._register(new SimpleButton({
-      label: NLS_TOGGLE_REPLACE_MODE_BTN_LABEL,
-      className: "codicon toggle left",
-      onTrigger: isInteractiveWindow ? () => {
-      } : () => {
-        this._isReplaceVisible = !this._isReplaceVisible;
-        this._state.change({ isReplaceRevealed: this._isReplaceVisible }, false);
-        this._updateReplaceViewDisplay();
-      }
-    }, hoverService));
+    this._toggleReplaceBtn = this._register(
+      new SimpleButton(
+        {
+          label: NLS_TOGGLE_REPLACE_MODE_BTN_LABEL,
+          className: "codicon toggle left",
+          onTrigger: isInteractiveWindow ? () => {
+          } : () => {
+            this._isReplaceVisible = !this._isReplaceVisible;
+            this._state.change(
+              {
+                isReplaceRevealed: this._isReplaceVisible
+              },
+              false
+            );
+            this._updateReplaceViewDisplay();
+          }
+        },
+        hoverService
+      )
+    );
     this._toggleReplaceBtn.setEnabled(!isInteractiveWindow);
     this._toggleReplaceBtn.setExpanded(this._isReplaceVisible);
     this._domNode.appendChild(this._toggleReplaceBtn.domNode);
     this._innerFindDomNode = document.createElement("div");
     this._innerFindDomNode.classList.add("simple-fr-find-part");
-    this._findInput = this._register(new NotebookFindInput(
-      this._filters,
-      this._scopedContextKeyService,
-      this.contextMenuService,
-      this.instantiationService,
-      null,
-      this._contextViewService,
-      {
-        // width:FIND_INPUT_AREA_WIDTH,
-        label: NLS_FIND_INPUT_LABEL,
-        placeholder: NLS_FIND_INPUT_PLACEHOLDER,
-        validation: (value) => {
-          if (value.length === 0 || !this._findInput.getRegex()) {
-            return null;
-          }
-          try {
-            new RegExp(value);
-            return null;
-          } catch (e) {
-            this.foundMatch = false;
-            this.updateButtons(this.foundMatch);
-            return { content: e.message };
-          }
-        },
-        flexibleWidth: true,
-        showCommonFindToggles: true,
-        inputBoxStyles: defaultInputBoxStyles,
-        toggleStyles: defaultToggleStyles
-      }
-    ));
+    this._findInput = this._register(
+      new NotebookFindInput(
+        this._filters,
+        this._scopedContextKeyService,
+        this.contextMenuService,
+        this.instantiationService,
+        null,
+        this._contextViewService,
+        {
+          // width:FIND_INPUT_AREA_WIDTH,
+          label: NLS_FIND_INPUT_LABEL,
+          placeholder: NLS_FIND_INPUT_PLACEHOLDER,
+          validation: (value) => {
+            if (value.length === 0 || !this._findInput.getRegex()) {
+              return null;
+            }
+            try {
+              new RegExp(value);
+              return null;
+            } catch (e) {
+              this.foundMatch = false;
+              this.updateButtons(this.foundMatch);
+              return { content: e.message };
+            }
+          },
+          flexibleWidth: true,
+          showCommonFindToggles: true,
+          inputBoxStyles: defaultInputBoxStyles,
+          toggleStyles: defaultToggleStyles
+        }
+      )
+    );
     this._updateHistoryDelayer = new Delayer(500);
     this.oninput(this._findInput.domNode, (e) => {
       this.foundMatch = this.onInputChanged();
       this.updateButtons(this.foundMatch);
       this._delayedUpdateHistory();
     });
-    this._register(this._findInput.inputBox.onDidChange(() => {
-      this._state.change({ searchString: this._findInput.getValue() }, true);
-    }));
+    this._register(
+      this._findInput.inputBox.onDidChange(() => {
+        this._state.change(
+          { searchString: this._findInput.getValue() },
+          true
+        );
+      })
+    );
     this._findInput.setRegex(!!this._state.isRegex);
     this._findInput.setCaseSensitive(!!this._state.matchCase);
     this._findInput.setWholeWords(!!this._state.wholeWord);
-    this._register(this._findInput.onDidOptionChange(() => {
-      this._state.change({
-        isRegex: this._findInput.getRegex(),
-        wholeWord: this._findInput.getWholeWords(),
-        matchCase: this._findInput.getCaseSensitive()
-      }, true);
-    }));
-    this._register(this._state.onFindReplaceStateChange(() => {
-      this._findInput.setRegex(this._state.isRegex);
-      this._findInput.setWholeWords(this._state.wholeWord);
-      this._findInput.setCaseSensitive(this._state.matchCase);
-      this._replaceInput.setPreserveCase(this._state.preserveCase);
-    }));
+    this._register(
+      this._findInput.onDidOptionChange(() => {
+        this._state.change(
+          {
+            isRegex: this._findInput.getRegex(),
+            wholeWord: this._findInput.getWholeWords(),
+            matchCase: this._findInput.getCaseSensitive()
+          },
+          true
+        );
+      })
+    );
+    this._register(
+      this._state.onFindReplaceStateChange(() => {
+        this._findInput.setRegex(this._state.isRegex);
+        this._findInput.setWholeWords(this._state.wholeWord);
+        this._findInput.setCaseSensitive(this._state.matchCase);
+        this._replaceInput.setPreserveCase(this._state.preserveCase);
+      })
+    );
     this._matchesCount = document.createElement("div");
     this._matchesCount.className = "matchesCount";
     this._updateMatchesCount();
-    this.prevBtn = this._register(new SimpleButton({
-      label: NLS_PREVIOUS_MATCH_BTN_LABEL,
-      icon: findPreviousMatchIcon,
-      onTrigger: () => {
-        this.find(true);
-      }
-    }, hoverService));
-    this.nextBtn = this._register(new SimpleButton({
-      label: NLS_NEXT_MATCH_BTN_LABEL,
-      icon: findNextMatchIcon,
-      onTrigger: () => {
-        this.find(false);
-      }
-    }, hoverService));
-    this.inSelectionToggle = this._register(new Toggle({
-      icon: findSelectionIcon,
-      title: NLS_TOGGLE_SELECTION_FIND_TITLE,
-      isChecked: false,
-      inputActiveOptionBackground: asCssVariable(inputActiveOptionBackground),
-      inputActiveOptionBorder: asCssVariable(inputActiveOptionBorder),
-      inputActiveOptionForeground: asCssVariable(inputActiveOptionForeground)
-    }));
+    this.prevBtn = this._register(
+      new SimpleButton(
+        {
+          label: NLS_PREVIOUS_MATCH_BTN_LABEL,
+          icon: findPreviousMatchIcon,
+          onTrigger: () => {
+            this.find(true);
+          }
+        },
+        hoverService
+      )
+    );
+    this.nextBtn = this._register(
+      new SimpleButton(
+        {
+          label: NLS_NEXT_MATCH_BTN_LABEL,
+          icon: findNextMatchIcon,
+          onTrigger: () => {
+            this.find(false);
+          }
+        },
+        hoverService
+      )
+    );
+    this.inSelectionToggle = this._register(
+      new Toggle({
+        icon: findSelectionIcon,
+        title: NLS_TOGGLE_SELECTION_FIND_TITLE,
+        isChecked: false,
+        inputActiveOptionBackground: asCssVariable(
+          inputActiveOptionBackground
+        ),
+        inputActiveOptionBorder: asCssVariable(inputActiveOptionBorder),
+        inputActiveOptionForeground: asCssVariable(
+          inputActiveOptionForeground
+        )
+      })
+    );
     this.inSelectionToggle.domNode.style.display = "inline";
     this.inSelectionToggle.onChange(() => {
       const checked = this.inSelectionToggle.checked;
@@ -488,13 +548,18 @@ let SimpleFindReplaceWidget = class extends Widget {
             selectedCellRanges: cellSelection
           };
           this.setCellSelectionDecorations();
-        } else if (textSelection.length > 1 || textSelection.some((range) => range.endLineNumber - range.startLineNumber >= 1)) {
+        } else if (textSelection.length > 1 || textSelection.some(
+          (range) => range.endLineNumber - range.startLineNumber >= 1
+        )) {
           this._filters.findScope = {
             findScopeType: NotebookFindScopeType.Text,
             selectedCellRanges: cellSelection,
             selectedTextRanges: textSelection
           };
-          this.setTextSelectionDecorations(textSelection, this._notebookEditor.getSelectionViewModels()[0]);
+          this.setTextSelectionDecorations(
+            textSelection,
+            this._notebookEditor.getSelectionViewModels()[0]
+          );
         } else {
           this._filters.findScope = {
             findScopeType: NotebookFindScopeType.Cells,
@@ -510,13 +575,18 @@ let SimpleFindReplaceWidget = class extends Widget {
         this.clearTextSelectionDecorations();
       }
     });
-    const closeBtn = this._register(new SimpleButton({
-      label: NLS_CLOSE_BTN_LABEL,
-      icon: widgetClose,
-      onTrigger: () => {
-        this.hide();
-      }
-    }, hoverService));
+    const closeBtn = this._register(
+      new SimpleButton(
+        {
+          label: NLS_CLOSE_BTN_LABEL,
+          icon: widgetClose,
+          onTrigger: () => {
+            this.hide();
+          }
+        },
+        hoverService
+      )
+    );
     this._innerFindDomNode.appendChild(this._findInput.domNode);
     this._innerFindDomNode.appendChild(this._matchesCount);
     this._innerFindDomNode.appendChild(this.prevBtn.domNode);
@@ -532,79 +602,148 @@ let SimpleFindReplaceWidget = class extends Widget {
       }
     });
     this._focusTracker = this._register(dom.trackFocus(this._domNode));
-    this._register(this._focusTracker.onDidFocus(this.onFocusTrackerFocus.bind(this)));
-    this._register(this._focusTracker.onDidBlur(this.onFocusTrackerBlur.bind(this)));
-    this._findInputFocusTracker = this._register(dom.trackFocus(this._findInput.domNode));
-    this._register(this._findInputFocusTracker.onDidFocus(this.onFindInputFocusTrackerFocus.bind(this)));
-    this._register(this._findInputFocusTracker.onDidBlur(this.onFindInputFocusTrackerBlur.bind(this)));
-    this._register(dom.addDisposableListener(this._innerFindDomNode, "click", (event) => {
-      event.stopPropagation();
-    }));
+    this._register(
+      this._focusTracker.onDidFocus(this.onFocusTrackerFocus.bind(this))
+    );
+    this._register(
+      this._focusTracker.onDidBlur(this.onFocusTrackerBlur.bind(this))
+    );
+    this._findInputFocusTracker = this._register(
+      dom.trackFocus(this._findInput.domNode)
+    );
+    this._register(
+      this._findInputFocusTracker.onDidFocus(
+        this.onFindInputFocusTrackerFocus.bind(this)
+      )
+    );
+    this._register(
+      this._findInputFocusTracker.onDidBlur(
+        this.onFindInputFocusTrackerBlur.bind(this)
+      )
+    );
+    this._register(
+      dom.addDisposableListener(
+        this._innerFindDomNode,
+        "click",
+        (event) => {
+          event.stopPropagation();
+        }
+      )
+    );
     this._innerReplaceDomNode = document.createElement("div");
     this._innerReplaceDomNode.classList.add("simple-fr-replace-part");
-    this._replaceInput = this._register(new ContextScopedReplaceInput(null, void 0, {
-      label: NLS_REPLACE_INPUT_LABEL,
-      placeholder: NLS_REPLACE_INPUT_PLACEHOLDER,
-      history: [],
-      inputBoxStyles: defaultInputBoxStyles,
-      toggleStyles: defaultToggleStyles
-    }, contextKeyService, false));
+    this._replaceInput = this._register(
+      new ContextScopedReplaceInput(
+        null,
+        void 0,
+        {
+          label: NLS_REPLACE_INPUT_LABEL,
+          placeholder: NLS_REPLACE_INPUT_PLACEHOLDER,
+          history: [],
+          inputBoxStyles: defaultInputBoxStyles,
+          toggleStyles: defaultToggleStyles
+        },
+        contextKeyService,
+        false
+      )
+    );
     this._innerReplaceDomNode.appendChild(this._replaceInput.domNode);
-    this._replaceInputFocusTracker = this._register(dom.trackFocus(this._replaceInput.domNode));
-    this._register(this._replaceInputFocusTracker.onDidFocus(this.onReplaceInputFocusTrackerFocus.bind(this)));
-    this._register(this._replaceInputFocusTracker.onDidBlur(this.onReplaceInputFocusTrackerBlur.bind(this)));
-    this._register(this._replaceInput.inputBox.onDidChange(() => {
-      this._state.change({ replaceString: this._replaceInput.getValue() }, true);
-    }));
+    this._replaceInputFocusTracker = this._register(
+      dom.trackFocus(this._replaceInput.domNode)
+    );
+    this._register(
+      this._replaceInputFocusTracker.onDidFocus(
+        this.onReplaceInputFocusTrackerFocus.bind(this)
+      )
+    );
+    this._register(
+      this._replaceInputFocusTracker.onDidBlur(
+        this.onReplaceInputFocusTrackerBlur.bind(this)
+      )
+    );
+    this._register(
+      this._replaceInput.inputBox.onDidChange(() => {
+        this._state.change(
+          { replaceString: this._replaceInput.getValue() },
+          true
+        );
+      })
+    );
     this._domNode.appendChild(this._innerReplaceDomNode);
     this._updateReplaceViewDisplay();
-    this._replaceBtn = this._register(new SimpleButton({
-      label: NLS_REPLACE_BTN_LABEL,
-      icon: findReplaceIcon,
-      onTrigger: () => {
-        this.replaceOne();
-      }
-    }, hoverService));
-    this._replaceAllBtn = this._register(new SimpleButton({
-      label: NLS_REPLACE_ALL_BTN_LABEL,
-      icon: findReplaceAllIcon,
-      onTrigger: () => {
-        this.replaceAll();
-      }
-    }, hoverService));
+    this._replaceBtn = this._register(
+      new SimpleButton(
+        {
+          label: NLS_REPLACE_BTN_LABEL,
+          icon: findReplaceIcon,
+          onTrigger: () => {
+            this.replaceOne();
+          }
+        },
+        hoverService
+      )
+    );
+    this._replaceAllBtn = this._register(
+      new SimpleButton(
+        {
+          label: NLS_REPLACE_ALL_BTN_LABEL,
+          icon: findReplaceAllIcon,
+          onTrigger: () => {
+            this.replaceAll();
+          }
+        },
+        hoverService
+      )
+    );
     this._innerReplaceDomNode.appendChild(this._replaceBtn.domNode);
     this._innerReplaceDomNode.appendChild(this._replaceAllBtn.domNode);
-    this._resizeSash = this._register(new Sash(this._domNode, { getVerticalSashLeft: () => 0 }, { orientation: Orientation.VERTICAL, size: 2 }));
-    this._register(this._resizeSash.onDidStart(() => {
-      this._resizeOriginalWidth = this._getDomWidth();
-    }));
-    this._register(this._resizeSash.onDidChange((evt) => {
-      let width = this._resizeOriginalWidth + evt.startX - evt.currentX;
-      if (width < NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH) {
-        width = NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH;
-      }
-      const maxWidth = this._getMaxWidth();
-      if (width > maxWidth) {
-        width = maxWidth;
-      }
-      this._domNode.style.width = `${width}px`;
-      if (this._isReplaceVisible) {
-        this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
-      }
-      this._findInput.inputBox.layout();
-    }));
-    this._register(this._resizeSash.onDidReset(() => {
-      const currentWidth = this._getDomWidth();
-      let width = NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH;
-      if (currentWidth <= NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH) {
-        width = this._getMaxWidth();
-      }
-      this._domNode.style.width = `${width}px`;
-      if (this._isReplaceVisible) {
-        this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
-      }
-      this._findInput.inputBox.layout();
-    }));
+    this._resizeSash = this._register(
+      new Sash(
+        this._domNode,
+        { getVerticalSashLeft: () => 0 },
+        { orientation: Orientation.VERTICAL, size: 2 }
+      )
+    );
+    this._register(
+      this._resizeSash.onDidStart(() => {
+        this._resizeOriginalWidth = this._getDomWidth();
+      })
+    );
+    this._register(
+      this._resizeSash.onDidChange((evt) => {
+        let width = this._resizeOriginalWidth + evt.startX - evt.currentX;
+        if (width < NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH) {
+          width = NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH;
+        }
+        const maxWidth = this._getMaxWidth();
+        if (width > maxWidth) {
+          width = maxWidth;
+        }
+        this._domNode.style.width = `${width}px`;
+        if (this._isReplaceVisible) {
+          this._replaceInput.width = dom.getTotalWidth(
+            this._findInput.domNode
+          );
+        }
+        this._findInput.inputBox.layout();
+      })
+    );
+    this._register(
+      this._resizeSash.onDidReset(() => {
+        const currentWidth = this._getDomWidth();
+        let width = NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH;
+        if (currentWidth <= NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH) {
+          width = this._getMaxWidth();
+        }
+        this._domNode.style.width = `${width}px`;
+        if (this._isReplaceVisible) {
+          this._replaceInput.width = dom.getTotalWidth(
+            this._findInput.domNode
+          );
+        }
+        this._findInput.inputBox.layout();
+      })
+    );
   }
   _findInput;
   _domNode;

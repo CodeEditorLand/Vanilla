@@ -22,8 +22,8 @@ import { QueryBuilder } from "../../../../services/search/common/queryBuilder.js
 import {
   DEFAULT_MAX_SEARCH_RESULTS,
   ISearchService,
-  QueryType,
-  pathIncludedInQuery
+  pathIncludedInQuery,
+  QueryType
 } from "../../../../services/search/common/search.js";
 import { INotebookEditorService } from "../../../notebook/browser/services/notebookEditorService.js";
 import { INotebookService } from "../../../notebook/common/notebookService.js";

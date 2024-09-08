@@ -41,16 +41,20 @@ let RawDebugSession = class {
     this.dialogSerivce = dialogSerivce;
     this.debugAdapter = debugAdapter;
     this._capabilities = /* @__PURE__ */ Object.create(null);
-    this.toDispose.push(this.debugAdapter.onError((err) => {
-      this.shutdown(err);
-    }));
-    this.toDispose.push(this.debugAdapter.onExit((code) => {
-      if (code !== 0) {
-        this.shutdown(new Error(`exit code: ${code}`));
-      } else {
-        this.shutdown();
-      }
-    }));
+    this.toDispose.push(
+      this.debugAdapter.onError((err) => {
+        this.shutdown(err);
+      })
+    );
+    this.toDispose.push(
+      this.debugAdapter.onExit((code) => {
+        if (code !== 0) {
+          this.shutdown(new Error(`exit code: ${code}`));
+        } else {
+          this.shutdown();
+        }
+      })
+    );
     this.debugAdapter.onEvent((event) => {
       switch (event.event) {
         case "initialized":
@@ -58,7 +62,9 @@ let RawDebugSession = class {
           this._onDidInitialize.fire(event);
           break;
         case "loadedSource":
-          this._onDidLoadedSource.fire(event);
+          this._onDidLoadedSource.fire(
+            event
+          );
           break;
         case "capabilities":
           if (event.body) {
@@ -73,7 +79,9 @@ let RawDebugSession = class {
           break;
         case "continued":
           this.allThreadsContinued = event.body.allThreadsContinued === false ? false : true;
-          this._onDidContinued.fire(event);
+          this._onDidContinued.fire(
+            event
+          );
           break;
         case "thread":
           this._onDidThread.fire(event);
@@ -82,28 +90,44 @@ let RawDebugSession = class {
           this._onDidOutput.fire(event);
           break;
         case "breakpoint":
-          this._onDidBreakpoint.fire(event);
+          this._onDidBreakpoint.fire(
+            event
+          );
           break;
         case "terminated":
-          this._onDidTerminateDebugee.fire(event);
+          this._onDidTerminateDebugee.fire(
+            event
+          );
           break;
         case "exited":
-          this._onDidExitDebugee.fire(event);
+          this._onDidExitDebugee.fire(
+            event
+          );
           break;
         case "progressStart":
-          this._onDidProgressStart.fire(event);
+          this._onDidProgressStart.fire(
+            event
+          );
           break;
         case "progressUpdate":
-          this._onDidProgressUpdate.fire(event);
+          this._onDidProgressUpdate.fire(
+            event
+          );
           break;
         case "progressEnd":
-          this._onDidProgressEnd.fire(event);
+          this._onDidProgressEnd.fire(
+            event
+          );
           break;
         case "invalidated":
-          this._onDidInvalidated.fire(event);
+          this._onDidInvalidated.fire(
+            event
+          );
           break;
         case "memory":
-          this._onDidInvalidateMemory.fire(event);
+          this._onDidInvalidateMemory.fire(
+            event
+          );
           break;
         case "process":
           break;

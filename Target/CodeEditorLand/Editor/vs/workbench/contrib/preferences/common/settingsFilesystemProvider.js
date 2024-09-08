@@ -36,12 +36,23 @@ let SettingsFileSystemProvider = class extends Disposable {
     super();
     this.preferencesService = preferencesService;
     this.logService = logService;
-    this._register(schemaRegistry.onDidChangeSchema((schemaUri) => {
-      this._onDidChangeFile.fire([{ resource: URI.parse(schemaUri), type: FileChangeType.UPDATED }]);
-    }));
-    this._register(preferencesService.onDidDefaultSettingsContentChanged((uri) => {
-      this._onDidChangeFile.fire([{ resource: uri, type: FileChangeType.UPDATED }]);
-    }));
+    this._register(
+      schemaRegistry.onDidChangeSchema((schemaUri) => {
+        this._onDidChangeFile.fire([
+          {
+            resource: URI.parse(schemaUri),
+            type: FileChangeType.UPDATED
+          }
+        ]);
+      })
+    );
+    this._register(
+      preferencesService.onDidDefaultSettingsContentChanged((uri) => {
+        this._onDidChangeFile.fire([
+          { resource: uri, type: FileChangeType.UPDATED }
+        ]);
+      })
+    );
   }
   static SCHEMA = Schemas.vscode;
   _onDidChangeFile = this._register(

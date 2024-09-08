@@ -41,22 +41,43 @@ let DebugStorage = class extends Disposable {
     this.textFileService = textFileService;
     this.uriIdentityService = uriIdentityService;
     this.logService = logService;
-    this._register(storageService.onDidChangeValue(StorageScope.WORKSPACE, void 0, this._store)((e) => {
-      if (e.external) {
-        switch (e.key) {
-          case DEBUG_BREAKPOINTS_KEY:
-            return this.breakpoints.set(this.loadBreakpoints(), void 0);
-          case DEBUG_FUNCTION_BREAKPOINTS_KEY:
-            return this.functionBreakpoints.set(this.loadFunctionBreakpoints(), void 0);
-          case DEBUG_EXCEPTION_BREAKPOINTS_KEY:
-            return this.exceptionBreakpoints.set(this.loadExceptionBreakpoints(), void 0);
-          case DEBUG_DATA_BREAKPOINTS_KEY:
-            return this.dataBreakpoints.set(this.loadDataBreakpoints(), void 0);
-          case DEBUG_WATCH_EXPRESSIONS_KEY:
-            return this.watchExpressions.set(this.loadWatchExpressions(), void 0);
+    this._register(
+      storageService.onDidChangeValue(
+        StorageScope.WORKSPACE,
+        void 0,
+        this._store
+      )((e) => {
+        if (e.external) {
+          switch (e.key) {
+            case DEBUG_BREAKPOINTS_KEY:
+              return this.breakpoints.set(
+                this.loadBreakpoints(),
+                void 0
+              );
+            case DEBUG_FUNCTION_BREAKPOINTS_KEY:
+              return this.functionBreakpoints.set(
+                this.loadFunctionBreakpoints(),
+                void 0
+              );
+            case DEBUG_EXCEPTION_BREAKPOINTS_KEY:
+              return this.exceptionBreakpoints.set(
+                this.loadExceptionBreakpoints(),
+                void 0
+              );
+            case DEBUG_DATA_BREAKPOINTS_KEY:
+              return this.dataBreakpoints.set(
+                this.loadDataBreakpoints(),
+                void 0
+              );
+            case DEBUG_WATCH_EXPRESSIONS_KEY:
+              return this.watchExpressions.set(
+                this.loadWatchExpressions(),
+                void 0
+              );
+          }
         }
-      }
-    }));
+      })
+    );
   }
   breakpoints = observableValue(this, this.loadBreakpoints());
   functionBreakpoints = observableValue(

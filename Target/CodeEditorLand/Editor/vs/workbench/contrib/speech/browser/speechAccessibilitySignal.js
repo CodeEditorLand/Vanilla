@@ -20,8 +20,20 @@ let SpeechAccessibilitySignalContribution = class extends Disposable {
     super();
     this._accessibilitySignalService = _accessibilitySignalService;
     this._speechService = _speechService;
-    this._register(this._speechService.onDidStartSpeechToTextSession(() => this._accessibilitySignalService.playSignal(AccessibilitySignal.voiceRecordingStarted)));
-    this._register(this._speechService.onDidEndSpeechToTextSession(() => this._accessibilitySignalService.playSignal(AccessibilitySignal.voiceRecordingStopped)));
+    this._register(
+      this._speechService.onDidStartSpeechToTextSession(
+        () => this._accessibilitySignalService.playSignal(
+          AccessibilitySignal.voiceRecordingStarted
+        )
+      )
+    );
+    this._register(
+      this._speechService.onDidEndSpeechToTextSession(
+        () => this._accessibilitySignalService.playSignal(
+          AccessibilitySignal.voiceRecordingStopped
+        )
+      )
+    );
   }
   static ID = "workbench.contrib.speechAccessibilitySignal";
 };

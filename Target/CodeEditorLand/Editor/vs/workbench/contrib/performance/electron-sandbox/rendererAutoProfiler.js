@@ -34,7 +34,9 @@ let RendererProfiling = class {
       return;
     }
     timerService.perfBaseline.then((perfBaseline) => {
-      _logService.info(`[perf] Render performance baseline is ${perfBaseline}ms`);
+      _logService.info(
+        `[perf] Render performance baseline is ${perfBaseline}ms`
+      );
       if (perfBaseline < 0) {
         return;
       }
@@ -45,17 +47,31 @@ let RendererProfiling = class {
         if (maxDuration < slowThreshold) {
           return;
         }
-        if (!configService.getValue("application.experimental.rendererProfiling")) {
-          _logService.debug(`[perf] SLOW task detected (${maxDuration}ms) but renderer profiling is disabled via 'application.experimental.rendererProfiling'`);
+        if (!configService.getValue(
+          "application.experimental.rendererProfiling"
+        )) {
+          _logService.debug(
+            `[perf] SLOW task detected (${maxDuration}ms) but renderer profiling is disabled via 'application.experimental.rendererProfiling'`
+          );
           return;
         }
         const sessionId = generateUuid();
-        _logService.warn(`[perf] Renderer reported VERY LONG TASK (${maxDuration}ms), starting profiling session '${sessionId}'`);
+        _logService.warn(
+          `[perf] Renderer reported VERY LONG TASK (${maxDuration}ms), starting profiling session '${sessionId}'`
+        );
         obs.disconnect();
         for (let i = 0; i < 3; i++) {
           try {
-            const profile = await nativeHostService.profileRenderer(sessionId, 5e3);
-            const output = await profileAnalysisService.analyseBottomUp(profile, (_url) => "<<renderer>>", perfBaseline, true);
+            const profile = await nativeHostService.profileRenderer(
+              sessionId,
+              5e3
+            );
+            const output = await profileAnalysisService.analyseBottomUp(
+              profile,
+              (_url) => "<<renderer>>",
+              perfBaseline,
+              true
+            );
             if (output === ProfilingOutput.Interesting) {
               this._store(profile, sessionId);
               break;

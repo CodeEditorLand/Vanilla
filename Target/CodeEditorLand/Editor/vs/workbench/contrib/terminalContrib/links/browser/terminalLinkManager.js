@@ -19,7 +19,7 @@ import {
   dispose,
   toDisposable
 } from "../../../../../base/common/lifecycle.js";
-import { OS, isMacintosh } from "../../../../../base/common/platform.js";
+import { isMacintosh, OS } from "../../../../../base/common/platform.js";
 import { URI } from "../../../../../base/common/uri.js";
 import * as nls from "../../../../../nls.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
@@ -70,7 +70,9 @@ let TerminalLinkManager = class extends DisposableStore {
     this._logService = _logService;
     this._tunnelService = _tunnelService;
     let enableFileLinks = true;
-    const enableFileLinksConfig = this._configurationService.getValue(TERMINAL_CONFIG_SECTION).enableFileLinks;
+    const enableFileLinksConfig = this._configurationService.getValue(
+      TERMINAL_CONFIG_SECTION
+    ).enableFileLinks;
     switch (enableFileLinksConfig) {
       case "off":
       case false:
@@ -81,27 +83,90 @@ let TerminalLinkManager = class extends DisposableStore {
         break;
     }
     if (enableFileLinks) {
-      this._setupLinkDetector(TerminalMultiLineLinkDetector.id, this._instantiationService.createInstance(TerminalMultiLineLinkDetector, this._xterm, this._processInfo, this._linkResolver));
-      this._setupLinkDetector(TerminalLocalLinkDetector.id, this._instantiationService.createInstance(TerminalLocalLinkDetector, this._xterm, capabilities, this._processInfo, this._linkResolver));
+      this._setupLinkDetector(
+        TerminalMultiLineLinkDetector.id,
+        this._instantiationService.createInstance(
+          TerminalMultiLineLinkDetector,
+          this._xterm,
+          this._processInfo,
+          this._linkResolver
+        )
+      );
+      this._setupLinkDetector(
+        TerminalLocalLinkDetector.id,
+        this._instantiationService.createInstance(
+          TerminalLocalLinkDetector,
+          this._xterm,
+          capabilities,
+          this._processInfo,
+          this._linkResolver
+        )
+      );
     }
-    this._setupLinkDetector(TerminalUriLinkDetector.id, this._instantiationService.createInstance(TerminalUriLinkDetector, this._xterm, this._processInfo, this._linkResolver));
-    this._setupLinkDetector(TerminalWordLinkDetector.id, this.add(this._instantiationService.createInstance(TerminalWordLinkDetector, this._xterm)));
-    const localFileOpener = this._instantiationService.createInstance(TerminalLocalFileLinkOpener);
-    const localFolderInWorkspaceOpener = this._instantiationService.createInstance(TerminalLocalFolderInWorkspaceLinkOpener);
+    this._setupLinkDetector(
+      TerminalUriLinkDetector.id,
+      this._instantiationService.createInstance(
+        TerminalUriLinkDetector,
+        this._xterm,
+        this._processInfo,
+        this._linkResolver
+      )
+    );
+    this._setupLinkDetector(
+      TerminalWordLinkDetector.id,
+      this.add(
+        this._instantiationService.createInstance(
+          TerminalWordLinkDetector,
+          this._xterm
+        )
+      )
+    );
+    const localFileOpener = this._instantiationService.createInstance(
+      TerminalLocalFileLinkOpener
+    );
+    const localFolderInWorkspaceOpener = this._instantiationService.createInstance(
+      TerminalLocalFolderInWorkspaceLinkOpener
+    );
     this._openers.set(TerminalBuiltinLinkType.LocalFile, localFileOpener);
-    this._openers.set(TerminalBuiltinLinkType.LocalFolderInWorkspace, localFolderInWorkspaceOpener);
-    this._openers.set(TerminalBuiltinLinkType.LocalFolderOutsideWorkspace, this._instantiationService.createInstance(TerminalLocalFolderOutsideWorkspaceLinkOpener));
-    this._openers.set(TerminalBuiltinLinkType.Search, this._instantiationService.createInstance(TerminalSearchLinkOpener, capabilities, this._processInfo.initialCwd, localFileOpener, localFolderInWorkspaceOpener, () => this._processInfo.os || OS));
-    this._openers.set(TerminalBuiltinLinkType.Url, this._instantiationService.createInstance(TerminalUrlLinkOpener, !!this._processInfo.remoteAuthority));
+    this._openers.set(
+      TerminalBuiltinLinkType.LocalFolderInWorkspace,
+      localFolderInWorkspaceOpener
+    );
+    this._openers.set(
+      TerminalBuiltinLinkType.LocalFolderOutsideWorkspace,
+      this._instantiationService.createInstance(
+        TerminalLocalFolderOutsideWorkspaceLinkOpener
+      )
+    );
+    this._openers.set(
+      TerminalBuiltinLinkType.Search,
+      this._instantiationService.createInstance(
+        TerminalSearchLinkOpener,
+        capabilities,
+        this._processInfo.initialCwd,
+        localFileOpener,
+        localFolderInWorkspaceOpener,
+        () => this._processInfo.os || OS
+      )
+    );
+    this._openers.set(
+      TerminalBuiltinLinkType.Url,
+      this._instantiationService.createInstance(
+        TerminalUrlLinkOpener,
+        !!this._processInfo.remoteAuthority
+      )
+    );
     this._registerStandardLinkProviders();
     let activeHoverDisposable;
     let activeTooltipScheduler;
-    this.add(toDisposable(() => {
-      this._clearLinkProviders();
-      dispose(this._externalLinkProviders);
-      activeHoverDisposable?.dispose();
-      activeTooltipScheduler?.dispose();
-    }));
+    this.add(
+      toDisposable(() => {
+        this._clearLinkProviders();
+        dispose(this._externalLinkProviders);
+        activeHoverDisposable?.dispose();
+        activeTooltipScheduler?.dispose();
+      })
+    );
     this._xterm.options.linkHandler = {
       allowNonHttpProtocols: true,
       activate: (event, text) => {
@@ -113,19 +178,36 @@ let TerminalLinkManager = class extends DisposableStore {
           throw new Error(`Could not find scheme in link "${text}"`);
         }
         const scheme = text.substring(0, colonIndex);
-        if (this._terminalConfigurationService.config.allowedLinkSchemes.indexOf(scheme) === -1) {
-          this._notificationService.prompt(Severity.Warning, nls.localize("scheme", "Opening URIs can be insecure, do you want to allow opening links with the scheme {0}?", scheme), [
-            {
-              label: nls.localize("allow", "Allow {0}", scheme),
-              run: () => {
-                const allowedLinkSchemes = [
-                  ...this._terminalConfigurationService.config.allowedLinkSchemes,
+        if (this._terminalConfigurationService.config.allowedLinkSchemes.indexOf(
+          scheme
+        ) === -1) {
+          this._notificationService.prompt(
+            Severity.Warning,
+            nls.localize(
+              "scheme",
+              "Opening URIs can be insecure, do you want to allow opening links with the scheme {0}?",
+              scheme
+            ),
+            [
+              {
+                label: nls.localize(
+                  "allow",
+                  "Allow {0}",
                   scheme
-                ];
-                this._configurationService.updateValue(`terminal.integrated.allowedLinkSchemes`, allowedLinkSchemes);
+                ),
+                run: () => {
+                  const allowedLinkSchemes = [
+                    ...this._terminalConfigurationService.config.allowedLinkSchemes,
+                    scheme
+                  ];
+                  this._configurationService.updateValue(
+                    `terminal.integrated.allowedLinkSchemes`,
+                    allowedLinkSchemes
+                  );
+                }
               }
-            }
-          ]);
+            ]
+          );
         }
         this._openers.get(TerminalBuiltinLinkType.Url)?.open({
           type: TerminalBuiltinLinkType.Url,
@@ -148,11 +230,23 @@ let TerminalLinkManager = class extends DisposableStore {
             width: this._xterm.cols,
             height: this._xterm.rows
           };
-          activeHoverDisposable = this._showHover({
-            viewportRange: convertBufferRangeToViewport(range, this._xterm.buffer.active.viewportY),
-            cellDimensions,
-            terminalDimensions
-          }, this._getLinkHoverString(text, text), void 0, (text2) => this._xterm.options.linkHandler?.activate(e, text2, range));
+          activeHoverDisposable = this._showHover(
+            {
+              viewportRange: convertBufferRangeToViewport(
+                range,
+                this._xterm.buffer.active.viewportY
+              ),
+              cellDimensions,
+              terminalDimensions
+            },
+            this._getLinkHoverString(text, text),
+            void 0,
+            (text2) => this._xterm.options.linkHandler?.activate(
+              e,
+              text2,
+              range
+            )
+          );
           activeTooltipScheduler?.dispose();
           activeTooltipScheduler = void 0;
         }, this._configurationService.getValue("workbench.hover.delay"));

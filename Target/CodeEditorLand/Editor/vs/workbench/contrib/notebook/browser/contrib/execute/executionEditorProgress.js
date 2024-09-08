@@ -27,12 +27,14 @@ let ExecutionEditorProgressController = class extends Disposable {
     this._notebookExecutionStateService = _notebookExecutionStateService;
     this._userActivity = _userActivity;
     this._register(_notebookEditor.onDidScroll(() => this._update()));
-    this._register(_notebookExecutionStateService.onDidChangeExecution((e) => {
-      if (e.notebook.toString() !== this._notebookEditor.textModel?.uri.toString()) {
-        return;
-      }
-      this._update();
-    }));
+    this._register(
+      _notebookExecutionStateService.onDidChangeExecution((e) => {
+        if (e.notebook.toString() !== this._notebookEditor.textModel?.uri.toString()) {
+          return;
+        }
+        this._update();
+      })
+    );
     this._register(_notebookEditor.onDidChangeModel(() => this._update()));
   }
   static id = "workbench.notebook.executionEditorProgress";

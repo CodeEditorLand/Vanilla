@@ -11,8 +11,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/tunnelView.css";
 import * as dom from "../../../../base/browser/dom.js";
-import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import { Button } from "../../../../base/browser/ui/button/button.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
@@ -71,8 +71,8 @@ import { SyncDescriptor } from "../../../../platform/instantiation/common/descri
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import {
-  KeybindingWeight,
-  KeybindingsRegistry
+  KeybindingsRegistry,
+  KeybindingWeight
 } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { WorkbenchTable } from "../../../../platform/list/browser/listService.js";
 import {
@@ -91,11 +91,11 @@ import {
 import { registerColor } from "../../../../platform/theme/common/colorRegistry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import {
+  isAllInterfaces,
+  isLocalhost,
   ITunnelService,
   TunnelPrivacyId,
-  TunnelProtocol,
-  isAllInterfaces,
-  isLocalhost
+  TunnelProtocol
 } from "../../../../platform/tunnel/common/tunnel.js";
 import {
   ViewPane
@@ -112,20 +112,20 @@ import {
   TunnelType
 } from "../../../services/remote/common/remoteExplorerService.js";
 import {
-  TunnelCloseReason,
-  TunnelSource,
   forwardedPortsViewEnabled,
   makeAddress,
   mapHasAddressLocalhostOrAllInterfaces,
-  parseAddress
+  parseAddress,
+  TunnelCloseReason,
+  TunnelSource
 } from "../../../services/remote/common/tunnelModel.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
 import { IExternalUriOpenerService } from "../../externalUriOpener/common/externalUriOpenerService.js";
 import {
   copyAddressIcon,
-  forwardPortIcon,
-  forwardedPortWithProcessIcon,
   forwardedPortWithoutProcessIcon,
+  forwardedPortWithProcessIcon,
+  forwardPortIcon,
   labelPortIcon,
   openBrowserIcon,
   openPreviewIcon,
@@ -151,7 +151,12 @@ let TunnelViewModel = class {
     this.remoteExplorerService = remoteExplorerService;
     this.tunnelService = tunnelService;
     this.model = remoteExplorerService.tunnelModel;
-    this.onForwardedPortsChanged = Event.any(this.model.onForwardPort, this.model.onClosePort, this.model.onPortName, this.model.onCandidatesChanged);
+    this.onForwardedPortsChanged = Event.any(
+      this.model.onForwardPort,
+      this.model.onClosePort,
+      this.model.onPortName,
+      this.model.onCandidatesChanged
+    );
   }
   onForwardedPortsChanged;
   model;
@@ -918,7 +923,19 @@ const ProtocolChangeableContextKey = new RawContextKey(
 );
 let TunnelPanel = class extends ViewPane {
   constructor(viewModel, options, keybindingService, contextMenuService, contextKeyService, configurationService, instantiationService, viewDescriptorService, openerService, quickInputService, commandService, menuService, themeService, remoteExplorerService, telemetryService, hoverService, tunnelService, contextViewService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
     this.viewModel = viewModel;
     this.quickInputService = quickInputService;
     this.commandService = commandService;
@@ -938,36 +955,55 @@ let TunnelPanel = class extends ViewPane {
     this.tunnelViewSelectionContext = TunnelViewSelectionContextKey.bindTo(contextKeyService);
     this.tunnelViewMultiSelectionContext = TunnelViewMultiSelectionContextKey.bindTo(contextKeyService);
     this.portChangableContextKey = PortChangableContextKey.bindTo(contextKeyService);
-    const overlayContextKeyService = this.contextKeyService.createOverlay([["view", TunnelPanel.ID]]);
-    const titleMenu = this._register(this.menuService.createMenu(MenuId.TunnelTitle, overlayContextKeyService));
+    const overlayContextKeyService = this.contextKeyService.createOverlay([
+      ["view", TunnelPanel.ID]
+    ]);
+    const titleMenu = this._register(
+      this.menuService.createMenu(
+        MenuId.TunnelTitle,
+        overlayContextKeyService
+      )
+    );
     const updateActions = () => {
       this.titleActions = [];
-      createAndFillInActionBarActions(titleMenu, void 0, this.titleActions);
+      createAndFillInActionBarActions(
+        titleMenu,
+        void 0,
+        this.titleActions
+      );
       this.updateActions();
     };
     this._register(titleMenu.onDidChange(updateActions));
     updateActions();
-    this._register(toDisposable(() => {
-      this.titleActions = [];
-    }));
+    this._register(
+      toDisposable(() => {
+        this.titleActions = [];
+      })
+    );
     this.registerPrivacyActions();
-    this._register(Event.once(this.tunnelService.onAddedTunnelProvider)(() => {
-      let updated = false;
-      if (this.tunnelPrivacyEnabledContext.get() === false) {
-        this.tunnelPrivacyEnabledContext.set(tunnelService.canChangePrivacy);
-        updated = true;
-      }
-      if (this.protocolChangableContextKey.get() === true) {
-        this.protocolChangableContextKey.set(tunnelService.canChangeProtocol);
-        updated = true;
-      }
-      if (updated) {
-        updateActions();
-        this.registerPrivacyActions();
-        this.createTable();
-        this.table?.layout(this.height, this.width);
-      }
-    }));
+    this._register(
+      Event.once(this.tunnelService.onAddedTunnelProvider)(() => {
+        let updated = false;
+        if (this.tunnelPrivacyEnabledContext.get() === false) {
+          this.tunnelPrivacyEnabledContext.set(
+            tunnelService.canChangePrivacy
+          );
+          updated = true;
+        }
+        if (this.protocolChangableContextKey.get() === true) {
+          this.protocolChangableContextKey.set(
+            tunnelService.canChangeProtocol
+          );
+          updated = true;
+        }
+        if (updated) {
+          updateActions();
+          this.registerPrivacyActions();
+          this.createTable();
+          this.table?.layout(this.height, this.width);
+        }
+      })
+    );
   }
   static ID = TUNNEL_VIEW_ID;
   static TITLE = nls.localize2(
@@ -1342,9 +1378,7 @@ var LabelTunnelAction;
       if (isITunnelItem(arg)) {
         tunnelContext = arg;
       } else {
-        const context = accessor.get(IContextKeyService).getContextKeyValue(
-          TunnelViewSelectionKeyName
-        );
+        const context = accessor.get(IContextKeyService).getContextKeyValue(TunnelViewSelectionKeyName);
         const tunnel = context ? remoteExplorerService.tunnelModel.forwarded.get(context) : void 0;
         if (tunnel) {
           const tunnelService = accessor.get(ITunnelService);
@@ -1842,9 +1876,7 @@ var CopyAddressAction;
       if (isITunnelItem(arg)) {
         tunnelItem = arg;
       } else {
-        const context = accessor.get(IContextKeyService).getContextKeyValue(
-          TunnelViewSelectionKeyName
-        );
+        const context = accessor.get(IContextKeyService).getContextKeyValue(TunnelViewSelectionKeyName);
         tunnelItem = context ? remoteExplorerService.tunnelModel.forwarded.get(context) : void 0;
       }
       if (tunnelItem) {
@@ -1928,9 +1960,7 @@ var ChangeLocalPortAction;
       if (isITunnelItem(arg)) {
         tunnelContext = arg;
       } else {
-        const context = accessor.get(IContextKeyService).getContextKeyValue(
-          TunnelViewSelectionKeyName
-        );
+        const context = accessor.get(IContextKeyService).getContextKeyValue(TunnelViewSelectionKeyName);
         const tunnel = context ? remoteExplorerService.tunnelModel.forwarded.get(context) : void 0;
         if (tunnel) {
           const tunnelService2 = accessor.get(ITunnelService);

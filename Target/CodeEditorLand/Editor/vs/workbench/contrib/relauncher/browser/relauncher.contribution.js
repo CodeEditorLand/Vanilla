@@ -52,7 +52,11 @@ let SettingsChangeRelauncher = class extends Disposable {
     this.productService = productService;
     this.dialogService = dialogService;
     this.onConfigurationChange(void 0);
-    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationChange(e)));
+    this._register(
+      this.configurationService.onDidChangeConfiguration(
+        (e) => this.onConfigurationChange(e)
+      )
+    );
   }
   static SETTINGS = [
     TitleBarSetting.TITLE_BAR_STYLE,
@@ -229,27 +233,40 @@ let WorkspaceChangeExtHostRelauncher = class extends Disposable {
   constructor(contextService, extensionService, hostService, environmentService) {
     super();
     this.contextService = contextService;
-    this.extensionHostRestarter = this._register(new RunOnceScheduler(async () => {
-      if (!!environmentService.extensionTestsLocationURI) {
-        return;
-      }
-      if (environmentService.remoteAuthority) {
-        hostService.reload();
-      } else if (isNative) {
-        const stopped = await extensionService.stopExtensionHosts(localize("restartExtensionHost.reason", "Restarting extension host due to a workspace folder change."));
-        if (stopped) {
-          extensionService.startExtensionHosts();
+    this.extensionHostRestarter = this._register(
+      new RunOnceScheduler(async () => {
+        if (!!environmentService.extensionTestsLocationURI) {
+          return;
         }
-      }
-    }, 10));
+        if (environmentService.remoteAuthority) {
+          hostService.reload();
+        } else if (isNative) {
+          const stopped = await extensionService.stopExtensionHosts(
+            localize(
+              "restartExtensionHost.reason",
+              "Restarting extension host due to a workspace folder change."
+            )
+          );
+          if (stopped) {
+            extensionService.startExtensionHosts();
+          }
+        }
+      }, 10)
+    );
     this.contextService.getCompleteWorkspace().then((workspace) => {
       this.firstFolderResource = workspace.folders.length > 0 ? workspace.folders[0].uri : void 0;
       this.handleWorkbenchState();
-      this._register(this.contextService.onDidChangeWorkbenchState(() => setTimeout(() => this.handleWorkbenchState())));
+      this._register(
+        this.contextService.onDidChangeWorkbenchState(
+          () => setTimeout(() => this.handleWorkbenchState())
+        )
+      );
     });
-    this._register(toDisposable(() => {
-      this.onDidChangeWorkspaceFoldersUnbind?.dispose();
-    }));
+    this._register(
+      toDisposable(() => {
+        this.onDidChangeWorkspaceFoldersUnbind?.dispose();
+      })
+    );
   }
   firstFolderResource;
   extensionHostRestarter;

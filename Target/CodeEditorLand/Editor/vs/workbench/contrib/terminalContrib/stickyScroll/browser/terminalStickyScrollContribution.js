@@ -34,11 +34,18 @@ let TerminalStickyScrollContribution = class extends Disposable {
     this._contextKeyService = _contextKeyService;
     this._instantiationService = _instantiationService;
     this._keybindingService = _keybindingService;
-    this._register(Event.runAndSubscribe(this._configurationService.onDidChangeConfiguration, (e) => {
-      if (!e || e.affectsConfiguration(TerminalStickyScrollSettingId.Enabled)) {
-        this._refreshState();
-      }
-    }));
+    this._register(
+      Event.runAndSubscribe(
+        this._configurationService.onDidChangeConfiguration,
+        (e) => {
+          if (!e || e.affectsConfiguration(
+            TerminalStickyScrollSettingId.Enabled
+          )) {
+            this._refreshState();
+          }
+        }
+      )
+    );
   }
   static ID = "terminal.stickyScroll";
   static get(instance) {

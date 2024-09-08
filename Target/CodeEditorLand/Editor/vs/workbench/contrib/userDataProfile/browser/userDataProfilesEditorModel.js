@@ -14,8 +14,8 @@ import {
   Separator
 } from "../../../../base/common/actions.js";
 import {
-  RunOnceScheduler,
-  createCancelablePromise
+  createCancelablePromise,
+  RunOnceScheduler
 } from "../../../../base/common/async.js";
 import {
   CancellationToken,
@@ -46,9 +46,9 @@ import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import {
+  isUserDataProfile,
   IUserDataProfilesService,
   ProfileResourceType,
-  isUserDataProfile,
   toUserDataProfile
 } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { API_OPEN_EDITOR_COMMAND_ID } from "../../../browser/parts/editor/editorCommands.js";
@@ -77,10 +77,10 @@ import {
   TasksResourceTreeItem
 } from "../../../services/userDataProfile/browser/tasksResource.js";
 import {
+  isProfileURL,
   IUserDataProfileImportExportService,
   IUserDataProfileManagementService,
-  IUserDataProfileService,
-  isProfileURL
+  IUserDataProfileService
 } from "../../../services/userDataProfile/common/userDataProfile.js";
 function isProfileResourceTypeElement(element) {
   return element.resourceType !== void 0;
@@ -99,12 +99,14 @@ let AbstractUserDataProfileElement = class extends Disposable {
     this._icon = icon;
     this._flags = flags;
     this._active = isActive;
-    this._register(this.onDidChange((e) => {
-      if (!e.message) {
-        this.validate();
-      }
-      this.save();
-    }));
+    this._register(
+      this.onDidChange((e) => {
+        if (!e.message) {
+          this.validate();
+        }
+        this.save();
+      })
+    );
   }
   _onDidChange = this._register(
     new Emitter()
@@ -369,22 +371,30 @@ let UserDataProfileElement = class extends AbstractUserDataProfileElement {
     this.userDataProfileService = userDataProfileService;
     this.configurationService = configurationService;
     this._isNewWindowProfile = this.configurationService.getValue(CONFIG_NEW_WINDOW_PROFILE) === this.profile.name;
-    this._register(configurationService.onDidChangeConfiguration(
-      (e) => {
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
         if (e.affectsConfiguration(CONFIG_NEW_WINDOW_PROFILE)) {
-          this.isNewWindowProfile = this.configurationService.getValue(CONFIG_NEW_WINDOW_PROFILE) === this.profile.name;
+          this.isNewWindowProfile = this.configurationService.getValue(
+            CONFIG_NEW_WINDOW_PROFILE
+          ) === this.profile.name;
         }
-      }
-    ));
-    this._register(this.userDataProfileService.onDidChangeCurrentProfile(() => this.active = this.userDataProfileService.currentProfile.id === this.profile.id));
-    this._register(this.userDataProfilesService.onDidChangeProfiles(({ updated }) => {
-      const profile = updated.find((p) => p.id === this.profile.id);
-      if (profile) {
-        this._profile = profile;
-        this.reset();
-        this._onDidChange.fire({ profile: true });
-      }
-    }));
+      })
+    );
+    this._register(
+      this.userDataProfileService.onDidChangeCurrentProfile(
+        () => this.active = this.userDataProfileService.currentProfile.id === this.profile.id
+      )
+    );
+    this._register(
+      this.userDataProfilesService.onDidChangeProfiles(({ updated }) => {
+        const profile = updated.find((p) => p.id === this.profile.id);
+        if (profile) {
+          this._profile = profile;
+          this.reset();
+          this._onDidChange.fire({ profile: true });
+        }
+      })
+    );
   }
   get profile() {
     return this._profile;
@@ -467,7 +477,12 @@ let NewProfileElement = class extends AbstractUserDataProfileElement {
     this._copyFrom = copyFrom;
     this._copyFlags = this.getCopyFlagsFrom(copyFrom);
     this.initialize();
-    this._register(this.fileService.registerProvider(USER_DATA_PROFILE_TEMPLATE_PREVIEW_SCHEME, this._register(new InMemoryFileSystemProvider())));
+    this._register(
+      this.fileService.registerProvider(
+        USER_DATA_PROFILE_TEMPLATE_PREVIEW_SCHEME,
+        this._register(new InMemoryFileSystemProvider())
+      )
+    );
   }
   _copyFromTemplates = new ResourceMap();
   get copyFromTemplates() {
@@ -762,8 +777,16 @@ let UserDataProfilesEditorModel = class extends EditorModel {
         this._profiles.push(this.createProfileElement(profile));
       }
     }
-    this._register(toDisposable(() => this._profiles.splice(0, this._profiles.length).map(([, disposables]) => disposables.dispose())));
-    this._register(userDataProfilesService.onDidChangeProfiles((e) => this.onDidChangeProfiles(e)));
+    this._register(
+      toDisposable(
+        () => this._profiles.splice(0, this._profiles.length).map(([, disposables]) => disposables.dispose())
+      )
+    );
+    this._register(
+      userDataProfilesService.onDidChangeProfiles(
+        (e) => this.onDidChangeProfiles(e)
+      )
+    );
   }
   static INSTANCE;
   static getInstance(instantiationService) {

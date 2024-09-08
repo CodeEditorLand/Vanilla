@@ -87,11 +87,36 @@ let UserSettingsRenderer = class extends Disposable {
     this.preferencesService = preferencesService;
     this.configurationService = configurationService;
     this.instantiationService = instantiationService;
-    this.settingHighlighter = this._register(instantiationService.createInstance(SettingHighlighter, editor));
-    this.editSettingActionRenderer = this._register(this.instantiationService.createInstance(EditSettingRenderer, this.editor, this.preferencesModel, this.settingHighlighter));
-    this._register(this.editSettingActionRenderer.onUpdateSetting(({ key, value, source }) => this.updatePreference(key, value, source)));
-    this._register(this.editor.getModel().onDidChangeContent(() => this.modelChangeDelayer.trigger(() => this.onModelChanged())));
-    this.unsupportedSettingsRenderer = this._register(instantiationService.createInstance(UnsupportedSettingsRenderer, editor, preferencesModel));
+    this.settingHighlighter = this._register(
+      instantiationService.createInstance(SettingHighlighter, editor)
+    );
+    this.editSettingActionRenderer = this._register(
+      this.instantiationService.createInstance(
+        EditSettingRenderer,
+        this.editor,
+        this.preferencesModel,
+        this.settingHighlighter
+      )
+    );
+    this._register(
+      this.editSettingActionRenderer.onUpdateSetting(
+        ({ key, value, source }) => this.updatePreference(key, value, source)
+      )
+    );
+    this._register(
+      this.editor.getModel().onDidChangeContent(
+        () => this.modelChangeDelayer.trigger(
+          () => this.onModelChanged()
+        )
+      )
+    );
+    this.unsupportedSettingsRenderer = this._register(
+      instantiationService.createInstance(
+        UnsupportedSettingsRenderer,
+        editor,
+        preferencesModel
+      )
+    );
   }
   settingHighlighter;
   editSettingActionRenderer;
@@ -204,14 +229,50 @@ let EditSettingRenderer = class extends Disposable {
     this.configurationService = configurationService;
     this.instantiationService = instantiationService;
     this.contextMenuService = contextMenuService;
-    this.editPreferenceWidgetForCursorPosition = this._register(this.instantiationService.createInstance(EditPreferenceWidget, editor));
-    this.editPreferenceWidgetForMouseMove = this._register(this.instantiationService.createInstance(EditPreferenceWidget, editor));
+    this.editPreferenceWidgetForCursorPosition = this._register(
+      this.instantiationService.createInstance(
+        EditPreferenceWidget,
+        editor
+      )
+    );
+    this.editPreferenceWidgetForMouseMove = this._register(
+      this.instantiationService.createInstance(
+        EditPreferenceWidget,
+        editor
+      )
+    );
     this.toggleEditPreferencesForMouseMoveDelayer = new Delayer(75);
-    this._register(this.editPreferenceWidgetForCursorPosition.onClick((e) => this.onEditSettingClicked(this.editPreferenceWidgetForCursorPosition, e)));
-    this._register(this.editPreferenceWidgetForMouseMove.onClick((e) => this.onEditSettingClicked(this.editPreferenceWidgetForMouseMove, e)));
-    this._register(this.editor.onDidChangeCursorPosition((positionChangeEvent) => this.onPositionChanged(positionChangeEvent)));
-    this._register(this.editor.onMouseMove((mouseMoveEvent) => this.onMouseMoved(mouseMoveEvent)));
-    this._register(this.editor.onDidChangeConfiguration(() => this.onConfigurationChanged()));
+    this._register(
+      this.editPreferenceWidgetForCursorPosition.onClick(
+        (e) => this.onEditSettingClicked(
+          this.editPreferenceWidgetForCursorPosition,
+          e
+        )
+      )
+    );
+    this._register(
+      this.editPreferenceWidgetForMouseMove.onClick(
+        (e) => this.onEditSettingClicked(
+          this.editPreferenceWidgetForMouseMove,
+          e
+        )
+      )
+    );
+    this._register(
+      this.editor.onDidChangeCursorPosition(
+        (positionChangeEvent) => this.onPositionChanged(positionChangeEvent)
+      )
+    );
+    this._register(
+      this.editor.onMouseMove(
+        (mouseMoveEvent) => this.onMouseMoved(mouseMoveEvent)
+      )
+    );
+    this._register(
+      this.editor.onDidChangeConfiguration(
+        () => this.onConfigurationChanged()
+      )
+    );
   }
   editPreferenceWidgetForCursorPosition;
   editPreferenceWidgetForMouseMove;
@@ -551,10 +612,26 @@ let UnsupportedSettingsRenderer = class extends Disposable {
     this.uriIdentityService = uriIdentityService;
     this.userDataProfileService = userDataProfileService;
     this.userDataProfilesService = userDataProfilesService;
-    this._register(this.editor.getModel().onDidChangeContent(() => this.delayedRender()));
-    this._register(Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.source === ConfigurationTarget.DEFAULT)(() => this.delayedRender()));
-    this._register(languageFeaturesService.codeActionProvider.register({ pattern: settingsEditorModel.uri.path }, this));
-    this._register(userDataProfileService.onDidChangeCurrentProfile(() => this.delayedRender()));
+    this._register(
+      this.editor.getModel().onDidChangeContent(() => this.delayedRender())
+    );
+    this._register(
+      Event.filter(
+        this.configurationService.onDidChangeConfiguration,
+        (e) => e.source === ConfigurationTarget.DEFAULT
+      )(() => this.delayedRender())
+    );
+    this._register(
+      languageFeaturesService.codeActionProvider.register(
+        { pattern: settingsEditorModel.uri.path },
+        this
+      )
+    );
+    this._register(
+      userDataProfileService.onDidChangeCurrentProfile(
+        () => this.delayedRender()
+      )
+    );
   }
   renderingDelayer = new Delayer(200);
   codeActions = new ResourceMap((uri) => this.uriIdentityService.extUri.getComparisonKey(uri));
@@ -910,7 +987,11 @@ let WorkspaceConfigurationRenderer = class extends Disposable {
     this.workspaceSettingsEditorModel = workspaceSettingsEditorModel;
     this.workspaceContextService = workspaceContextService;
     this.markerService = markerService;
-    this._register(this.editor.getModel().onDidChangeContent(() => this.renderingDelayer.trigger(() => this.render())));
+    this._register(
+      this.editor.getModel().onDidChangeContent(
+        () => this.renderingDelayer.trigger(() => this.render())
+      )
+    );
   }
   static supportedKeys = [
     "folders",

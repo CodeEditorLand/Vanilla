@@ -10,13 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  RunOnceScheduler,
-  disposableTimeout
+  disposableTimeout,
+  RunOnceScheduler
 } from "../../../../../../base/common/async.js";
 import {
   Disposable,
-  MutableDisposable,
-  dispose
+  dispose,
+  MutableDisposable
 } from "../../../../../../base/common/lifecycle.js";
 import { language } from "../../../../../../base/common/platform.js";
 import { ThemeIcon } from "../../../../../../base/common/themables.js";
@@ -137,12 +137,16 @@ let ExecutionStateCellStatusBarItem = class extends Disposable {
     this._cell = _cell;
     this._executionStateService = _executionStateService;
     this._update();
-    this._register(this._executionStateService.onDidChangeExecution((e) => {
-      if (e.type === NotebookExecutionType.cell && e.affectsCell(this._cell.uri)) {
-        this._update();
-      }
-    }));
-    this._register(this._cell.model.onDidChangeInternalMetadata(() => this._update()));
+    this._register(
+      this._executionStateService.onDidChangeExecution((e) => {
+        if (e.type === NotebookExecutionType.cell && e.affectsCell(this._cell.uri)) {
+          this._update();
+        }
+      })
+    );
+    this._register(
+      this._cell.model.onDidChangeInternalMetadata(() => this._update())
+    );
   }
   static MIN_SPINNER_TIME = 500;
   _currentItemIds = [];
@@ -287,9 +291,16 @@ let TimerCellStatusBarItem = class extends Disposable {
     this._cell = _cell;
     this._executionStateService = _executionStateService;
     this._notebookService = _notebookService;
-    this._scheduler = this._register(new RunOnceScheduler(() => this._update(), TimerCellStatusBarItem.UPDATE_INTERVAL));
+    this._scheduler = this._register(
+      new RunOnceScheduler(
+        () => this._update(),
+        TimerCellStatusBarItem.UPDATE_INTERVAL
+      )
+    );
     this._update();
-    this._register(this._cell.model.onDidChangeInternalMetadata(() => this._update()));
+    this._register(
+      this._cell.model.onDidChangeInternalMetadata(() => this._update())
+    );
   }
   static UPDATE_INTERVAL = 100;
   _currentItemIds = [];

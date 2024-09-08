@@ -32,11 +32,18 @@ let AbstractLifecycleService = class extends Disposable {
     this.logService = logService;
     this.storageService = storageService;
     this._startupKind = this.resolveStartupKind();
-    this._register(this.storageService.onWillSaveState((e) => {
-      if (e.reason === WillSaveStateReason.SHUTDOWN) {
-        this.storageService.store(AbstractLifecycleService.LAST_SHUTDOWN_REASON_KEY, this.shutdownReason, StorageScope.WORKSPACE, StorageTarget.MACHINE);
-      }
-    }));
+    this._register(
+      this.storageService.onWillSaveState((e) => {
+        if (e.reason === WillSaveStateReason.SHUTDOWN) {
+          this.storageService.store(
+            AbstractLifecycleService.LAST_SHUTDOWN_REASON_KEY,
+            this.shutdownReason,
+            StorageScope.WORKSPACE,
+            StorageTarget.MACHINE
+          );
+        }
+      })
+    );
   }
   static LAST_SHUTDOWN_REASON_KEY = "lifecyle.lastShutdownReason";
   _onBeforeShutdown = this._register(

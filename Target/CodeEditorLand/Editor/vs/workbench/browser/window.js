@@ -16,9 +16,9 @@ import {
   requestUsbDevice
 } from "../../base/browser/deviceAccess.js";
 import {
+  addDisposableListener,
   EventHelper,
   EventType,
-  addDisposableListener,
   getActiveWindow,
   getWindow,
   getWindowById,
@@ -41,7 +41,7 @@ import {
   dispose,
   toDisposable
 } from "../../base/common/lifecycle.js";
-import { Schemas, matchesScheme } from "../../base/common/network.js";
+import { matchesScheme, Schemas } from "../../base/common/network.js";
 import { isIOS, isMacintosh } from "../../base/common/platform.js";
 import Severity from "../../base/common/severity.js";
 import { URI } from "../../base/common/uri.js";

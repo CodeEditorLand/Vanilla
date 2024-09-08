@@ -20,9 +20,9 @@ import { Emitter } from "../../../../../../base/common/event.js";
 import { getExtensionForMimeType } from "../../../../../../base/common/mime.js";
 import {
   FileAccess,
-  Schemas,
   matchesScheme,
-  matchesSomeScheme
+  matchesSomeScheme,
+  Schemas
 } from "../../../../../../base/common/network.js";
 import { equals } from "../../../../../../base/common/objects.js";
 import * as osPath from "../../../../../../base/common/path.js";
@@ -118,7 +118,9 @@ let BackLayerWebView = class extends Themable {
     this.pathService = pathService;
     this.notebookLogService = notebookLogService;
     this.telemetryService = telemetryService;
-    this._logRendererDebugMessage("Creating backlayer webview for notebook");
+    this._logRendererDebugMessage(
+      "Creating backlayer webview for notebook"
+    );
     this.element = document.createElement("div");
     this.element.style.height = "1400px";
     this.element.style.position = "absolute";
@@ -137,17 +139,24 @@ let BackLayerWebView = class extends Themable {
         return Promise.resolve(true);
       };
     }
-    this._register(workspaceTrustManagementService.onDidChangeTrust((e) => {
-      const baseUrl = this.asWebviewUri(this.getNotebookBaseUri(), void 0);
-      const htmlContent = this.generateContent(baseUrl.toString());
-      this.webview?.setHtml(htmlContent);
-    }));
-    this._register(TokenizationRegistry.onDidChange(() => {
-      this._sendMessageToWebview({
-        type: "tokenizedStylesChanged",
-        css: getTokenizationCss()
-      });
-    }));
+    this._register(
+      workspaceTrustManagementService.onDidChangeTrust((e) => {
+        const baseUrl = this.asWebviewUri(
+          this.getNotebookBaseUri(),
+          void 0
+        );
+        const htmlContent = this.generateContent(baseUrl.toString());
+        this.webview?.setHtml(htmlContent);
+      })
+    );
+    this._register(
+      TokenizationRegistry.onDidChange(() => {
+        this._sendMessageToWebview({
+          type: "tokenizedStylesChanged",
+          css: getTokenizationCss()
+        });
+      })
+    );
   }
   static _originStore;
   static getOriginStore(storageService) {

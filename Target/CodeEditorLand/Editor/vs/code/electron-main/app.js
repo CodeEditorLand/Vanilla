@@ -11,8 +11,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { hostname, release } from "os";
 import {
-  BrowserWindow,
   app,
+  BrowserWindow,
   protocol,
   session,
   systemPreferences
@@ -38,11 +38,11 @@ import { Schemas, VSCODE_AUTHORITY } from "../../base/common/network.js";
 import { normalizeNFC } from "../../base/common/normalization.js";
 import { join, posix } from "../../base/common/path.js";
 import {
-  OS,
   isLinux,
   isLinuxSnap,
   isMacintosh,
-  isWindows
+  isWindows,
+  OS
 } from "../../base/common/platform.js";
 import { assertType } from "../../base/common/types.js";
 import { URI } from "../../base/common/uri.js";
@@ -53,9 +53,9 @@ import {
 } from "../../base/node/unc.js";
 import { registerContextMenuListener } from "../../base/parts/contextmenu/electron-main/contextmenu.js";
 import {
+  getDelayedChannel,
   ProxyChannel,
-  StaticRouter,
-  getDelayedChannel
+  StaticRouter
 } from "../../base/parts/ipc/common/ipc.js";
 import { Server as ElectronIPCServer } from "../../base/parts/ipc/electron-main/ipc.electron.js";
 import { Client as MessagePortClient } from "../../base/parts/ipc/electron-main/ipc.mp.js";
@@ -127,9 +127,9 @@ import {
   LifecycleMainPhase,
   ShutdownReason
 } from "../../platform/lifecycle/electron-main/lifecycleMainService.js";
-import { ILogService, ILoggerService } from "../../platform/log/common/log.js";
-import { LoggerChannel } from "../../platform/log/electron-main/logIpc.js";
+import { ILoggerService, ILogService } from "../../platform/log/common/log.js";
 import { ILoggerMainService } from "../../platform/log/electron-main/loggerService.js";
+import { LoggerChannel } from "../../platform/log/electron-main/logIpc.js";
 import {
   IMenubarMainService,
   MenubarMainService
@@ -174,16 +174,16 @@ import {
   TelemetryService
 } from "../../platform/telemetry/common/telemetryService.js";
 import {
-  NullTelemetryService,
   getPiiPathsFromEnvironment,
   getTelemetryLevel,
   isInternalTelemetry,
+  NullTelemetryService,
   supportsTelemetry
 } from "../../platform/telemetry/common/telemetryUtils.js";
 import {
+  resolvedevDeviceId,
   resolveMachineId,
-  resolveSqmId,
-  resolvedevDeviceId
+  resolveSqmId
 } from "../../platform/telemetry/electron-main/telemetryUtils.js";
 import {
   ILocalPtyService,
@@ -209,8 +209,8 @@ import {
 import { NativeURLService } from "../../platform/url/common/urlService.js";
 import { ElectronURLListener } from "../../platform/url/electron-main/electronUrlListener.js";
 import { IUserDataProfilesMainService } from "../../platform/userDataProfile/electron-main/userDataProfile.js";
-import { ProfileStorageChangesListenerChannel } from "../../platform/userDataProfile/electron-main/userDataProfileStorageIpc.js";
 import { UserDataProfilesHandler } from "../../platform/userDataProfile/electron-main/userDataProfilesHandler.js";
+import { ProfileStorageChangesListenerChannel } from "../../platform/userDataProfile/electron-main/userDataProfileStorageIpc.js";
 import { ipcUtilityProcessWorkerChannelName } from "../../platform/utilityProcess/common/utilityProcessWorkerService.js";
 import {
   IUtilityProcessWorkerMainService,

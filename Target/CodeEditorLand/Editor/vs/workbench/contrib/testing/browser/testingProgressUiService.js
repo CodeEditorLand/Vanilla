@@ -19,28 +19,30 @@ import { IConfigurationService } from "../../../../platform/configuration/common
 import { IViewsService } from "../../../services/views/common/viewsService.js";
 import {
   AutoOpenTesting,
-  TestingConfigKeys,
-  getTestingConfiguration
+  getTestingConfiguration,
+  TestingConfigKeys
 } from "../common/configuration.js";
 import { Testing } from "../common/constants.js";
 import { ITestCoverageService } from "../common/testCoverageService.js";
+import { isFailedState } from "../common/testingStates.js";
 import {
   TestResultItemChangeReason
 } from "../common/testResult.js";
 import { ITestResultService } from "../common/testResultService.js";
 import { TestResultState } from "../common/testTypes.js";
-import { isFailedState } from "../common/testingStates.js";
 import { ExplorerTestCoverageBars } from "./testCoverageBars.js";
 let TestingProgressTrigger = class extends Disposable {
   constructor(resultService, testCoverageService, configurationService, viewsService) {
     super();
     this.configurationService = configurationService;
     this.viewsService = viewsService;
-    this._register(resultService.onResultsChanged((e) => {
-      if ("started" in e) {
-        this.attachAutoOpenForNewResults(e.started);
-      }
-    }));
+    this._register(
+      resultService.onResultsChanged((e) => {
+        if ("started" in e) {
+          this.attachAutoOpenForNewResults(e.started);
+        }
+      })
+    );
     const barContributionRegistration = autorun((reader) => {
       const hasCoverage = !!testCoverageService.selected.read(reader);
       if (!hasCoverage) {

@@ -15,9 +15,9 @@ import { Disposable } from "../../../../base/common/lifecycle.js";
 import { LRUCache } from "../../../../base/common/map.js";
 import {
   FileAccess,
-  Schemas,
   nodeModulesAsarPath,
-  nodeModulesPath
+  nodeModulesPath,
+  Schemas
 } from "../../../../base/common/network.js";
 import { isWeb } from "../../../../base/common/platform.js";
 import { URI } from "../../../../base/common/uri.js";
@@ -62,16 +62,34 @@ let LanguageDetectionService = class extends Disposable {
     this._editorService = _editorService;
     this._logService = _logService;
     const useAsar = canASAR && this._environmentService.isBuilt && !isWeb;
-    this._languageDetectionWorkerClient = this._register(new LanguageDetectionWorkerClient(
-      modelService,
-      languageService,
-      telemetryService,
-      // TODO@esm: See if it's possible to bundle vscode-languagedetection
-      useAsar ? FileAccess.asBrowserUri(`${moduleLocationAsar}/dist/lib/index.js`).toString(true) : FileAccess.asBrowserUri(`${moduleLocation}/dist/lib/index.js`).toString(true),
-      useAsar ? FileAccess.asBrowserUri(`${moduleLocationAsar}/model/model.json`).toString(true) : FileAccess.asBrowserUri(`${moduleLocation}/model/model.json`).toString(true),
-      useAsar ? FileAccess.asBrowserUri(`${moduleLocationAsar}/model/group1-shard1of1.bin`).toString(true) : FileAccess.asBrowserUri(`${moduleLocation}/model/group1-shard1of1.bin`).toString(true),
-      useAsar ? FileAccess.asBrowserUri(`${regexpModuleLocationAsar}/dist/index.js`).toString(true) : FileAccess.asBrowserUri(`${regexpModuleLocation}/dist/index.js`).toString(true)
-    ));
+    this._languageDetectionWorkerClient = this._register(
+      new LanguageDetectionWorkerClient(
+        modelService,
+        languageService,
+        telemetryService,
+        // TODO@esm: See if it's possible to bundle vscode-languagedetection
+        useAsar ? FileAccess.asBrowserUri(
+          `${moduleLocationAsar}/dist/lib/index.js`
+        ).toString(true) : FileAccess.asBrowserUri(
+          `${moduleLocation}/dist/lib/index.js`
+        ).toString(true),
+        useAsar ? FileAccess.asBrowserUri(
+          `${moduleLocationAsar}/model/model.json`
+        ).toString(true) : FileAccess.asBrowserUri(
+          `${moduleLocation}/model/model.json`
+        ).toString(true),
+        useAsar ? FileAccess.asBrowserUri(
+          `${moduleLocationAsar}/model/group1-shard1of1.bin`
+        ).toString(true) : FileAccess.asBrowserUri(
+          `${moduleLocation}/model/group1-shard1of1.bin`
+        ).toString(true),
+        useAsar ? FileAccess.asBrowserUri(
+          `${regexpModuleLocationAsar}/dist/index.js`
+        ).toString(true) : FileAccess.asBrowserUri(
+          `${regexpModuleLocation}/dist/index.js`
+        ).toString(true)
+      )
+    );
     this.initEditorOpenedListeners(storageService);
   }
   static enablementSettingKey = "workbench.editor.languageDetection";

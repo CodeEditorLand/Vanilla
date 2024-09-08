@@ -45,13 +45,13 @@ import {
 import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
 import { TerminalSuggestCommandId } from "../common/terminal.suggest.js";
 import {
-  TerminalSuggestSettingId,
-  terminalSuggestConfigSection
+  terminalSuggestConfigSection,
+  TerminalSuggestSettingId
 } from "../common/terminalSuggestConfiguration.js";
 import {
+  parseCompletionsFromShell,
   SuggestAddon,
-  VSCodeSuggestOscPt,
-  parseCompletionsFromShell
+  VSCodeSuggestOscPt
 } from "./terminalSuggestAddon.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2["CachedPwshCommandsStorageKey"] = "terminal.suggest.pwshCommands";
@@ -66,9 +66,15 @@ let TerminalSuggestContribution = class extends DisposableStore {
     this._instantiationService = _instantiationService;
     this._storageService = _storageService;
     this.add(toDisposable(() => this._addon?.dispose()));
-    this._terminalSuggestWidgetVisibleContextKey = TerminalContextKeys.suggestWidgetVisible.bindTo(this._contextKeyService);
+    this._terminalSuggestWidgetVisibleContextKey = TerminalContextKeys.suggestWidgetVisible.bindTo(
+      this._contextKeyService
+    );
     if (TerminalSuggestContribution._cachedPwshCommands.size === 0) {
-      const config = this._storageService.get("terminal.suggest.pwshCommands" /* CachedPwshCommandsStorageKey */, StorageScope.APPLICATION, void 0);
+      const config = this._storageService.get(
+        "terminal.suggest.pwshCommands" /* CachedPwshCommandsStorageKey */,
+        StorageScope.APPLICATION,
+        void 0
+      );
       if (config !== void 0) {
         const completions = JSON.parse(config);
         for (const c of completions) {
@@ -76,11 +82,13 @@ let TerminalSuggestContribution = class extends DisposableStore {
         }
       }
     }
-    this.add(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(TerminalSuggestSettingId.Enabled)) {
-        this.clearSuggestCache();
-      }
-    }));
+    this.add(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(TerminalSuggestSettingId.Enabled)) {
+          this.clearSuggestCache();
+        }
+      })
+    );
   }
   static ID = "terminal.suggest";
   static get(instance) {

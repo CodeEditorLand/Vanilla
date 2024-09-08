@@ -51,15 +51,15 @@ import { IWorkbenchLayoutService } from "../../../services/layout/browser/layout
 import { IViewsService } from "../../../services/views/common/viewsService.js";
 import {
   BREAKPOINTS_VIEW_ID,
-  CONTEXT_DEBUGGERS_AVAILABLE,
   CONTEXT_DEBUG_STATE,
   CONTEXT_DEBUG_UX,
   CONTEXT_DEBUG_UX_KEY,
+  CONTEXT_DEBUGGERS_AVAILABLE,
+  getStateLabel,
   IDebugService,
   REPL_VIEW_ID,
   State,
-  VIEWLET_ID,
-  getStateLabel
+  VIEWLET_ID
 } from "../common/debug.js";
 import {
   FocusSessionActionViewItem,
@@ -80,23 +80,50 @@ import { createDisconnectMenuItemAction } from "./debugToolBar.js";
 import { WelcomeView } from "./welcomeView.js";
 let DebugViewPaneContainer = class extends ViewPaneContainer {
   constructor(layoutService, telemetryService, progressService, debugService, instantiationService, contextService, storageService, themeService, contextMenuService, extensionService, configurationService, contextViewService, contextKeyService, viewDescriptorService) {
-    super(VIEWLET_ID, { mergeViewWithContainerWhenSingleView: true }, instantiationService, configurationService, layoutService, contextMenuService, telemetryService, extensionService, themeService, storageService, contextService, viewDescriptorService);
+    super(
+      VIEWLET_ID,
+      { mergeViewWithContainerWhenSingleView: true },
+      instantiationService,
+      configurationService,
+      layoutService,
+      contextMenuService,
+      telemetryService,
+      extensionService,
+      themeService,
+      storageService,
+      contextService,
+      viewDescriptorService
+    );
     this.progressService = progressService;
     this.debugService = debugService;
     this.contextViewService = contextViewService;
     this.contextKeyService = contextKeyService;
-    this._register(this.debugService.onDidChangeState((state) => this.onDebugServiceStateChange(state)));
-    this._register(this.contextKeyService.onDidChangeContext((e) => {
-      if (e.affectsSome(/* @__PURE__ */ new Set([CONTEXT_DEBUG_UX_KEY, "inDebugMode"]))) {
-        this.updateTitleArea();
-      }
-    }));
-    this._register(this.contextService.onDidChangeWorkbenchState(() => this.updateTitleArea()));
-    this._register(this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("debug.toolBarLocation") || e.affectsConfiguration("debug.hideLauncherWhileDebugging")) {
-        this.updateTitleArea();
-      }
-    }));
+    this._register(
+      this.debugService.onDidChangeState(
+        (state) => this.onDebugServiceStateChange(state)
+      )
+    );
+    this._register(
+      this.contextKeyService.onDidChangeContext((e) => {
+        if (e.affectsSome(
+          /* @__PURE__ */ new Set([CONTEXT_DEBUG_UX_KEY, "inDebugMode"])
+        )) {
+          this.updateTitleArea();
+        }
+      })
+    );
+    this._register(
+      this.contextService.onDidChangeWorkbenchState(
+        () => this.updateTitleArea()
+      )
+    );
+    this._register(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("debug.toolBarLocation") || e.affectsConfiguration("debug.hideLauncherWhileDebugging")) {
+          this.updateTitleArea();
+        }
+      })
+    );
   }
   startDebugActionViewItem;
   progressResolve;

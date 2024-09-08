@@ -1,6 +1,6 @@
 import { ThrottledDelayer } from "../../../../../base/common/async.js";
 import { Emitter } from "../../../../../base/common/event.js";
-import { StringSHA1, hash } from "../../../../../base/common/hash.js";
+import { hash, StringSHA1 } from "../../../../../base/common/hash.js";
 import { toFormattedString } from "../../../../../base/common/jsonFormatter.js";
 import {
   Disposable,

@@ -38,37 +38,59 @@ import {
 } from "./notebookService.js";
 let NotebookEditorInput = class extends AbstractResourceEditorInput {
   constructor(resource, preferredResource, viewType, options, _notebookService, _notebookModelResolverService, _fileDialogService, labelService, fileService, filesConfigurationService, extensionService, editorService, textResourceConfigurationService, customEditorLabelService) {
-    super(resource, preferredResource, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
+    super(
+      resource,
+      preferredResource,
+      labelService,
+      fileService,
+      filesConfigurationService,
+      textResourceConfigurationService,
+      customEditorLabelService
+    );
     this.viewType = viewType;
     this.options = options;
     this._notebookService = _notebookService;
     this._notebookModelResolverService = _notebookModelResolverService;
     this._fileDialogService = _fileDialogService;
     this._defaultDirtyState = !!options.startDirty;
-    this._sideLoadedListener = _notebookService.onDidAddNotebookDocument((e) => {
-      if (e.viewType === this.viewType && e.uri.toString() === this.resource.toString()) {
-        this.resolve().catch(onUnexpectedError);
-      }
-    });
-    this._register(extensionService.onWillStop((e) => {
-      if (!e.auto && !this.isDirty()) {
-        return;
-      }
-      const reason = e.auto ? localize("vetoAutoExtHostRestart", "One of the opened editors is a notebook editor.") : localize("vetoExtHostRestart", "Notebook '{0}' could not be saved.", this.resource.path);
-      e.veto((async () => {
-        const editors = editorService.findEditors(this);
-        if (e.auto) {
-          return true;
+    this._sideLoadedListener = _notebookService.onDidAddNotebookDocument(
+      (e) => {
+        if (e.viewType === this.viewType && e.uri.toString() === this.resource.toString()) {
+          this.resolve().catch(onUnexpectedError);
         }
-        if (editors.length > 0) {
-          const result = await editorService.save(editors[0]);
-          if (result.success) {
-            return false;
-          }
+      }
+    );
+    this._register(
+      extensionService.onWillStop((e) => {
+        if (!e.auto && !this.isDirty()) {
+          return;
         }
-        return true;
-      })(), reason);
-    }));
+        const reason = e.auto ? localize(
+          "vetoAutoExtHostRestart",
+          "One of the opened editors is a notebook editor."
+        ) : localize(
+          "vetoExtHostRestart",
+          "Notebook '{0}' could not be saved.",
+          this.resource.path
+        );
+        e.veto(
+          (async () => {
+            const editors = editorService.findEditors(this);
+            if (e.auto) {
+              return true;
+            }
+            if (editors.length > 0) {
+              const result = await editorService.save(editors[0]);
+              if (result.success) {
+                return false;
+              }
+            }
+            return true;
+          })(),
+          reason
+        );
+      })
+    );
   }
   static getOrCreate(instantiationService, resource, preferredResource, viewType, options = {}) {
     const editor = instantiationService.createInstance(

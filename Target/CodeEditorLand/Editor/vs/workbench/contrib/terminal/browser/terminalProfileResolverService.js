@@ -16,8 +16,8 @@ import { Schemas } from "../../../../base/common/network.js";
 import { deepClone } from "../../../../base/common/objects.js";
 import * as path from "../../../../base/common/path.js";
 import {
-  OS,
-  OperatingSystem
+  OperatingSystem,
+  OS
 } from "../../../../base/common/platform.js";
 import { env } from "../../../../base/common/process.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";

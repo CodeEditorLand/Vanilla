@@ -45,7 +45,13 @@ import { openContextMenu } from "./terminalContextMenu.js";
 import { getTerminalActionBarArgs } from "./terminalMenus.js";
 let TerminalEditor = class extends EditorPane {
   constructor(group, telemetryService, themeService, storageService, _terminalEditorService, _terminalProfileResolverService, _terminalService, _terminalConfigurationService, contextKeyService, menuService, _instantiationService, _contextMenuService, _terminalProfileService, _workbenchLayoutService) {
-    super(terminalEditorId, group, telemetryService, themeService, storageService);
+    super(
+      terminalEditorId,
+      group,
+      telemetryService,
+      themeService,
+      storageService
+    );
     this._terminalEditorService = _terminalEditorService;
     this._terminalProfileResolverService = _terminalProfileResolverService;
     this._terminalService = _terminalService;
@@ -54,8 +60,18 @@ let TerminalEditor = class extends EditorPane {
     this._contextMenuService = _contextMenuService;
     this._terminalProfileService = _terminalProfileService;
     this._workbenchLayoutService = _workbenchLayoutService;
-    this._dropdownMenu = this._register(menuService.createMenu(MenuId.TerminalNewDropdownContext, contextKeyService));
-    this._instanceMenu = this._register(menuService.createMenu(MenuId.TerminalInstanceContext, contextKeyService));
+    this._dropdownMenu = this._register(
+      menuService.createMenu(
+        MenuId.TerminalNewDropdownContext,
+        contextKeyService
+      )
+    );
+    this._instanceMenu = this._register(
+      menuService.createMenu(
+        MenuId.TerminalInstanceContext,
+        contextKeyService
+      )
+    );
   }
   _editorInstanceElement;
   _overflowGuardElement;

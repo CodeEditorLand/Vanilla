@@ -20,16 +20,28 @@ import { ExtensionsRegistry } from "../../../../services/extensions/common/exten
 let TerminalQuickFixService = class {
   constructor(_logService) {
     this._logService = _logService;
-    this.extensionQuickFixes = new Promise((r) => quickFixExtensionPoint.setHandler((fixes) => {
-      r(fixes.filter((c) => isProposedApiEnabled(c.description, "terminalQuickFixProvider")).flatMap((c) => {
-        if (!c.value) {
-          return [];
-        }
-        return c.value.map((fix) => {
-          return { ...fix, extensionIdentifier: c.description.identifier.value };
-        });
-      }));
-    }));
+    this.extensionQuickFixes = new Promise(
+      (r) => quickFixExtensionPoint.setHandler((fixes) => {
+        r(
+          fixes.filter(
+            (c) => isProposedApiEnabled(
+              c.description,
+              "terminalQuickFixProvider"
+            )
+          ).flatMap((c) => {
+            if (!c.value) {
+              return [];
+            }
+            return c.value.map((fix) => {
+              return {
+                ...fix,
+                extensionIdentifier: c.description.identifier.value
+              };
+            });
+          })
+        );
+      })
+    );
     this.extensionQuickFixes.then((selectors) => {
       for (const selector of selectors) {
         this.registerCommandSelector(selector);

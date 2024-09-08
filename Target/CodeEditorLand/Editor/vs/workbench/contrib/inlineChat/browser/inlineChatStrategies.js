@@ -10,8 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import {
-  WindowIntervalTimer,
-  getTotalWidth
+  getTotalWidth,
+  WindowIntervalTimer
 } from "../../../../base/browser/dom.js";
 import { coalesceInPlace } from "../../../../base/common/arrays.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
@@ -21,16 +21,16 @@ import { Schemas } from "../../../../base/common/network.js";
 import { observableValue } from "../../../../base/common/observable.js";
 import { isEqual } from "../../../../base/common/resources.js";
 import {
-  ThemeIcon,
-  themeColorFromId
+  themeColorFromId,
+  ThemeIcon
 } from "../../../../base/common/themables.js";
 import { assertType } from "../../../../base/common/types.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
 import { StableEditorScrollState } from "../../../../editor/browser/stableEditorScroll.js";
 import {
   LineSource,
-  RenderOptions,
-  renderLines
+  renderLines,
+  RenderOptions
 } from "../../../../editor/browser/widget/diffEditor/components/diffEditorViewZones/renderLines.js";
 import { EditorOption } from "../../../../editor/common/config/editorOptions.js";
 import { LineRange } from "../../../../editor/common/core/lineRange.js";
@@ -220,7 +220,9 @@ let LiveStrategy = class extends EditModeStrategy {
     this._ctxCurrentChangeHasDiff = CTX_INLINE_CHAT_CHANGE_HAS_DIFF.bindTo(contextKeyService);
     this._ctxCurrentChangeShowsDiff = CTX_INLINE_CHAT_CHANGE_SHOWS_DIFF.bindTo(contextKeyService);
     this._progressiveEditingDecorations = this._editor.createDecorationsCollection();
-    this._lensActionsFactory = this._store.add(new ConflictActionsFactory(this._editor));
+    this._lensActionsFactory = this._store.add(
+      new ConflictActionsFactory(this._editor)
+    );
   }
   _decoInsertedText = ModelDecorationOptions.register({
     description: "inline-modified-line",
@@ -693,21 +695,37 @@ let InlineChangeOverlay = class {
     this._instaService = _instaService;
     this._domNode.classList.add("inline-chat-diff-overlay");
     if (_hunkInfo.getState() === HunkState.Pending) {
-      const menuBar = this._store.add(this._instaService.createInstance(MenuWorkbenchButtonBar, this._domNode, MENU_INLINE_CHAT_ZONE, {
-        menuOptions: { arg: _hunkInfo },
-        telemetrySource: "inlineChat-changesZone",
-        buttonConfigProvider: (_action, idx) => {
-          return {
-            isSecondary: idx > 0,
-            showIcon: true,
-            showLabel: false
-          };
-        }
-      }));
-      this._store.add(menuBar.onDidChange(() => this._editor.layoutOverlayWidget(this)));
+      const menuBar = this._store.add(
+        this._instaService.createInstance(
+          MenuWorkbenchButtonBar,
+          this._domNode,
+          MENU_INLINE_CHAT_ZONE,
+          {
+            menuOptions: { arg: _hunkInfo },
+            telemetrySource: "inlineChat-changesZone",
+            buttonConfigProvider: (_action, idx) => {
+              return {
+                isSecondary: idx > 0,
+                showIcon: true,
+                showLabel: false
+              };
+            }
+          }
+        )
+      );
+      this._store.add(
+        menuBar.onDidChange(
+          () => this._editor.layoutOverlayWidget(this)
+        )
+      );
     }
     this._editor.addOverlayWidget(this);
-    this._store.add(Event.any(this._editor.onDidLayoutChange, this._editor.onDidScrollChange)(() => this._editor.layoutOverlayWidget(this)));
+    this._store.add(
+      Event.any(
+        this._editor.onDidLayoutChange,
+        this._editor.onDidScrollChange
+      )(() => this._editor.layoutOverlayWidget(this))
+    );
     queueMicrotask(() => this._editor.layoutOverlayWidget(this));
   }
   allowEditorOverflow = false;
