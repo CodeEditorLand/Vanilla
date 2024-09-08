@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import type { IKeyboardEvent } from "../../../../platform/keybinding/common/keybinding.js";
-import { IKeyboardLayoutService, type IKeyboardLayoutInfo, type IKeyboardMapping } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
-import { type IKeyboardMapper } from "../../../../platform/keyboardLayout/common/keyboardMapper.js";
-import { INativeKeyboardLayoutService } from "./nativeKeyboardLayoutService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IKeyboardLayoutInfo, IKeyboardLayoutService, IKeyboardMapping } from '../../../../platform/keyboardLayout/common/keyboardLayout.js';
+import { IKeyboardMapper } from '../../../../platform/keyboardLayout/common/keyboardMapper.js';
+import { IKeyboardEvent } from '../../../../platform/keybinding/common/keybinding.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { INativeKeyboardLayoutService } from './nativeKeyboardLayoutService.js';
 export declare class KeyboardLayoutService extends Disposable implements IKeyboardLayoutService {
     private readonly _nativeKeyboardLayoutService;
     private readonly _configurationService;

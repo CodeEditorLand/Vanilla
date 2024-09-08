@@ -1,8 +1,8 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import { ILogService } from "../../log/common/log.js";
-import { IProductService } from "../../product/common/productService.js";
-import { type IRemoteAuthorityResolverService, type IRemoteConnectionData, type ResolvedAuthority, type ResolvedOptions, type ResolverResult } from "../common/remoteAuthorityResolver.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { ILogService } from '../../log/common/log.js';
+import { IProductService } from '../../product/common/productService.js';
+import { IRemoteAuthorityResolverService, IRemoteConnectionData, ResolvedAuthority, ResolvedOptions, ResolverResult } from '../common/remoteAuthorityResolver.js';
 export declare class RemoteAuthorityResolverService extends Disposable implements IRemoteAuthorityResolverService {
     private readonly _logService;
     readonly _serviceBrand: undefined;

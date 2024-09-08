@@ -1,7 +1,7 @@
-import type { OperatingSystem } from "../../../../base/common/platform.js";
-import type { IBrowser } from "../../../browser/controller/editContext/textArea/textAreaEditContextInput.js";
+import { OperatingSystem } from '../../../../base/common/platform.js';
+import { IBrowser } from '../../../browser/controller/editContext/textArea/textAreaEditContextInput.js';
 export interface IRecordedTextareaState {
-    selectionDirection: "forward" | "backward" | "none";
+    selectionDirection: 'forward' | 'backward' | 'none';
     selectionEnd: number;
     selectionStart: number;
     value: string;
@@ -9,7 +9,7 @@ export interface IRecordedTextareaState {
 export interface IRecordedKeyboardEvent {
     timeStamp: number;
     state: IRecordedTextareaState;
-    type: "keydown" | "keypress" | "keyup";
+    type: 'keydown' | 'keypress' | 'keyup';
     altKey: boolean;
     charCode: number;
     code: string;
@@ -25,13 +25,13 @@ export interface IRecordedKeyboardEvent {
 export interface IRecordedCompositionEvent {
     timeStamp: number;
     state: IRecordedTextareaState;
-    type: "compositionstart" | "compositionupdate" | "compositionend";
+    type: 'compositionstart' | 'compositionupdate' | 'compositionend';
     data: string;
 }
 export interface IRecordedInputEvent {
     timeStamp: number;
     state: IRecordedTextareaState;
-    type: "beforeinput" | "input";
+    type: 'beforeinput' | 'input';
     data: string | null;
     inputType: string;
     isComposing: boolean | undefined;

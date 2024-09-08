@@ -1,7 +1,4 @@
-import assert from "assert";
-import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../base/test/common/utils.js";
-import { merge } from "../../common/snippetsMerge.js";
-const tsSnippet1 = `{
+import e from"assert";import{ensureNoDisposablesAreLeakedInTestSuite as p}from"../../../../base/test/common/utils.js";import{merge as r}from"../../common/snippetsMerge.js";const c=`{
 
 	// Place your snippets for TypeScript here. Each snippet is defined under a snippet name and has a prefix, body and
 	// description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
@@ -17,8 +14,7 @@ const tsSnippet1 = `{
 			"description": "Log output to console",
 	}
 
-}`;
-const tsSnippet2 = `{
+}`,i=`{
 
 	// Place your snippets for TypeScript here. Each snippet is defined under a snippet name and has a prefix, body and
 	// description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
@@ -34,8 +30,7 @@ const tsSnippet2 = `{
 			"description": "Log output to console always",
 	}
 
-}`;
-const htmlSnippet1 = `{
+}`,d=`{
 /*
 	// Place your snippets for HTML here. Each snippet is defined under a snippet name and has a prefix, body and
 	// description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted.
@@ -58,8 +53,7 @@ const htmlSnippet1 = `{
 		],
 			"description": "New div"
 	}
-}`;
-const htmlSnippet2 = `{
+}`,s=`{
 /*
 	// Place your snippets for HTML here. Each snippet is defined under a snippet name and has a prefix, body and
 	// description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted.
@@ -82,8 +76,7 @@ const htmlSnippet2 = `{
 		],
 			"description": "New div changed"
 	}
-}`;
-const cSnippet = `{
+}`,n=`{
 	// Place your snippets for c here. Each snippet is defined under a snippet name and has a prefix, body and
 	// description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
 	// $1, $2 for tab stops, $0 for the final cursor position.Placeholders with the
@@ -97,363 +90,4 @@ const cSnippet = `{
 		],
 			"description": "Log output to console"
 	}
-}`;
-suite("SnippetsMerge", () => {
-  ensureNoDisposablesAreLeakedInTestSuite();
-  test("merge when local and remote are same with one snippet", async () => {
-    const local = { "html.json": htmlSnippet1 };
-    const remote = { "html.json": htmlSnippet1 };
-    const actual = merge(local, remote, null);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when local and remote are same with multiple entries", async () => {
-    const local = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const remote = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const actual = merge(local, remote, null);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when local and remote are same with multiple entries in different order", async () => {
-    const local = {
-      "typescript.json": tsSnippet1,
-      "html.json": htmlSnippet1
-    };
-    const remote = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const actual = merge(local, remote, null);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when local and remote are same with different base content", async () => {
-    const local = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const remote = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const base = {
-      "html.json": htmlSnippet2,
-      "typescript.json": tsSnippet2
-    };
-    const actual = merge(local, remote, base);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when a new entry is added to remote", async () => {
-    const local = { "html.json": htmlSnippet1 };
-    const remote = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const actual = merge(local, remote, null);
-    assert.deepStrictEqual(actual.local.added, {
-      "typescript.json": tsSnippet1
-    });
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when multiple new entries are added to remote", async () => {
-    const local = {};
-    const remote = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const actual = merge(local, remote, null);
-    assert.deepStrictEqual(actual.local.added, remote);
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when new entry is added to remote from base and local has not changed", async () => {
-    const local = { "html.json": htmlSnippet1 };
-    const remote = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const actual = merge(local, remote, local);
-    assert.deepStrictEqual(actual.local.added, {
-      "typescript.json": tsSnippet1
-    });
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when an entry is removed from remote from base and local has not changed", async () => {
-    const local = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const remote = { "html.json": htmlSnippet1 };
-    const actual = merge(local, remote, local);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, ["typescript.json"]);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when all entries are removed from base and local has not changed", async () => {
-    const local = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const remote = {};
-    const actual = merge(local, remote, local);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, [
-      "html.json",
-      "typescript.json"
-    ]);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when an entry is updated in remote from base and local has not changed", async () => {
-    const local = { "html.json": htmlSnippet1 };
-    const remote = { "html.json": htmlSnippet2 };
-    const actual = merge(local, remote, local);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {
-      "html.json": htmlSnippet2
-    });
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when remote has moved forwarded with multiple changes and local stays with base", async () => {
-    const local = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const remote = { "html.json": htmlSnippet2, "c.json": cSnippet };
-    const actual = merge(local, remote, local);
-    assert.deepStrictEqual(actual.local.added, { "c.json": cSnippet });
-    assert.deepStrictEqual(actual.local.updated, {
-      "html.json": htmlSnippet2
-    });
-    assert.deepStrictEqual(actual.local.removed, ["typescript.json"]);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when a new entries are added to local", async () => {
-    const local = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1,
-      "c.json": cSnippet
-    };
-    const remote = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const actual = merge(local, remote, null);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, { "c.json": cSnippet });
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when multiple new entries are added to local from base and remote is not changed", async () => {
-    const local = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1,
-      "c.json": cSnippet
-    };
-    const remote = { "typescript.json": tsSnippet1 };
-    const actual = merge(local, remote, remote);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {
-      "html.json": htmlSnippet1,
-      "c.json": cSnippet
-    });
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when an entry is removed from local from base and remote has not changed", async () => {
-    const local = { "html.json": htmlSnippet1 };
-    const remote = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const actual = merge(local, remote, remote);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, ["typescript.json"]);
-  });
-  test("merge when an entry is updated in local from base and remote has not changed", async () => {
-    const local = {
-      "html.json": htmlSnippet2,
-      "typescript.json": tsSnippet1
-    };
-    const remote = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const actual = merge(local, remote, remote);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {
-      "html.json": htmlSnippet2
-    });
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when local has moved forwarded with multiple changes and remote stays with base", async () => {
-    const local = { "html.json": htmlSnippet2, "c.json": cSnippet };
-    const remote = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const actual = merge(local, remote, remote);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, { "c.json": cSnippet });
-    assert.deepStrictEqual(actual.remote.updated, {
-      "html.json": htmlSnippet2
-    });
-    assert.deepStrictEqual(actual.remote.removed, ["typescript.json"]);
-  });
-  test("merge when local and remote with one entry but different value", async () => {
-    const local = { "html.json": htmlSnippet1 };
-    const remote = { "html.json": htmlSnippet2 };
-    const actual = merge(local, remote, null);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, ["html.json"]);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when the entry is removed in remote but updated in local and a new entry is added in remote", async () => {
-    const base = { "html.json": htmlSnippet1 };
-    const local = { "html.json": htmlSnippet2 };
-    const remote = { "typescript.json": tsSnippet1 };
-    const actual = merge(local, remote, base);
-    assert.deepStrictEqual(actual.local.added, {
-      "typescript.json": tsSnippet1
-    });
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, ["html.json"]);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge with single entry and local is empty", async () => {
-    const base = { "html.json": htmlSnippet1 };
-    const local = {};
-    const remote = { "html.json": htmlSnippet2 };
-    const actual = merge(local, remote, base);
-    assert.deepStrictEqual(actual.local.added, {
-      "html.json": htmlSnippet2
-    });
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, []);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when local and remote has moved forwareded with conflicts", async () => {
-    const base = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const local = { "html.json": htmlSnippet2, "c.json": cSnippet };
-    const remote = { "typescript.json": tsSnippet2 };
-    const actual = merge(local, remote, base);
-    assert.deepStrictEqual(actual.local.added, {
-      "typescript.json": tsSnippet2
-    });
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, ["html.json"]);
-    assert.deepStrictEqual(actual.remote.added, { "c.json": cSnippet });
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-  test("merge when local and remote has moved forwareded with multiple conflicts", async () => {
-    const base = {
-      "html.json": htmlSnippet1,
-      "typescript.json": tsSnippet1
-    };
-    const local = {
-      "html.json": htmlSnippet2,
-      "typescript.json": tsSnippet2,
-      "c.json": cSnippet
-    };
-    const remote = { "c.json": cSnippet };
-    const actual = merge(local, remote, base);
-    assert.deepStrictEqual(actual.local.added, {});
-    assert.deepStrictEqual(actual.local.updated, {});
-    assert.deepStrictEqual(actual.local.removed, []);
-    assert.deepStrictEqual(actual.conflicts, [
-      "html.json",
-      "typescript.json"
-    ]);
-    assert.deepStrictEqual(actual.remote.added, {});
-    assert.deepStrictEqual(actual.remote.updated, {});
-    assert.deepStrictEqual(actual.remote.removed, []);
-  });
-});
+}`;suite("SnippetsMerge",()=>{p(),test("merge when local and remote are same with one snippet",async()=>{const t=r({"html.json":d},{"html.json":d},null);e.deepStrictEqual(t.local.added,{}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when local and remote are same with multiple entries",async()=>{const t=r({"html.json":d,"typescript.json":c},{"html.json":d,"typescript.json":c},null);e.deepStrictEqual(t.local.added,{}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when local and remote are same with multiple entries in different order",async()=>{const t=r({"typescript.json":c,"html.json":d},{"html.json":d,"typescript.json":c},null);e.deepStrictEqual(t.local.added,{}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when local and remote are same with different base content",async()=>{const o=r({"html.json":d,"typescript.json":c},{"html.json":d,"typescript.json":c},{"html.json":s,"typescript.json":i});e.deepStrictEqual(o.local.added,{}),e.deepStrictEqual(o.local.updated,{}),e.deepStrictEqual(o.local.removed,[]),e.deepStrictEqual(o.conflicts,[]),e.deepStrictEqual(o.remote.added,{}),e.deepStrictEqual(o.remote.updated,{}),e.deepStrictEqual(o.remote.removed,[])}),test("merge when a new entry is added to remote",async()=>{const t=r({"html.json":d},{"html.json":d,"typescript.json":c},null);e.deepStrictEqual(t.local.added,{"typescript.json":c}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when multiple new entries are added to remote",async()=>{const a={},l={"html.json":d,"typescript.json":c},t=r(a,l,null);e.deepStrictEqual(t.local.added,l),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when new entry is added to remote from base and local has not changed",async()=>{const a={"html.json":d},t=r(a,{"html.json":d,"typescript.json":c},a);e.deepStrictEqual(t.local.added,{"typescript.json":c}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when an entry is removed from remote from base and local has not changed",async()=>{const a={"html.json":d,"typescript.json":c},t=r(a,{"html.json":d},a);e.deepStrictEqual(t.local.added,{}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,["typescript.json"]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when all entries are removed from base and local has not changed",async()=>{const a={"html.json":d,"typescript.json":c},t=r(a,{},a);e.deepStrictEqual(t.local.added,{}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,["html.json","typescript.json"]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when an entry is updated in remote from base and local has not changed",async()=>{const a={"html.json":d},t=r(a,{"html.json":s},a);e.deepStrictEqual(t.local.added,{}),e.deepStrictEqual(t.local.updated,{"html.json":s}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when remote has moved forwarded with multiple changes and local stays with base",async()=>{const a={"html.json":d,"typescript.json":c},t=r(a,{"html.json":s,"c.json":n},a);e.deepStrictEqual(t.local.added,{"c.json":n}),e.deepStrictEqual(t.local.updated,{"html.json":s}),e.deepStrictEqual(t.local.removed,["typescript.json"]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when a new entries are added to local",async()=>{const t=r({"html.json":d,"typescript.json":c,"c.json":n},{"html.json":d,"typescript.json":c},null);e.deepStrictEqual(t.local.added,{}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{"c.json":n}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when multiple new entries are added to local from base and remote is not changed",async()=>{const a={"html.json":d,"typescript.json":c,"c.json":n},l={"typescript.json":c},t=r(a,l,l);e.deepStrictEqual(t.local.added,{}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{"html.json":d,"c.json":n}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when an entry is removed from local from base and remote has not changed",async()=>{const a={"html.json":d},l={"html.json":d,"typescript.json":c},t=r(a,l,l);e.deepStrictEqual(t.local.added,{}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,["typescript.json"])}),test("merge when an entry is updated in local from base and remote has not changed",async()=>{const a={"html.json":s,"typescript.json":c},l={"html.json":d,"typescript.json":c},t=r(a,l,l);e.deepStrictEqual(t.local.added,{}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{"html.json":s}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when local has moved forwarded with multiple changes and remote stays with base",async()=>{const a={"html.json":s,"c.json":n},l={"html.json":d,"typescript.json":c},t=r(a,l,l);e.deepStrictEqual(t.local.added,{}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,[]),e.deepStrictEqual(t.remote.added,{"c.json":n}),e.deepStrictEqual(t.remote.updated,{"html.json":s}),e.deepStrictEqual(t.remote.removed,["typescript.json"])}),test("merge when local and remote with one entry but different value",async()=>{const t=r({"html.json":d},{"html.json":s},null);e.deepStrictEqual(t.local.added,{}),e.deepStrictEqual(t.local.updated,{}),e.deepStrictEqual(t.local.removed,[]),e.deepStrictEqual(t.conflicts,["html.json"]),e.deepStrictEqual(t.remote.added,{}),e.deepStrictEqual(t.remote.updated,{}),e.deepStrictEqual(t.remote.removed,[])}),test("merge when the entry is removed in remote but updated in local and a new entry is added in remote",async()=>{const o=r({"html.json":s},{"typescript.json":c},{"html.json":d});e.deepStrictEqual(o.local.added,{"typescript.json":c}),e.deepStrictEqual(o.local.updated,{}),e.deepStrictEqual(o.local.removed,[]),e.deepStrictEqual(o.conflicts,["html.json"]),e.deepStrictEqual(o.remote.added,{}),e.deepStrictEqual(o.remote.updated,{}),e.deepStrictEqual(o.remote.removed,[])}),test("merge with single entry and local is empty",async()=>{const o=r({},{"html.json":s},{"html.json":d});e.deepStrictEqual(o.local.added,{"html.json":s}),e.deepStrictEqual(o.local.updated,{}),e.deepStrictEqual(o.local.removed,[]),e.deepStrictEqual(o.conflicts,[]),e.deepStrictEqual(o.remote.added,{}),e.deepStrictEqual(o.remote.updated,{}),e.deepStrictEqual(o.remote.removed,[])}),test("merge when local and remote has moved forwareded with conflicts",async()=>{const o=r({"html.json":s,"c.json":n},{"typescript.json":i},{"html.json":d,"typescript.json":c});e.deepStrictEqual(o.local.added,{"typescript.json":i}),e.deepStrictEqual(o.local.updated,{}),e.deepStrictEqual(o.local.removed,[]),e.deepStrictEqual(o.conflicts,["html.json"]),e.deepStrictEqual(o.remote.added,{"c.json":n}),e.deepStrictEqual(o.remote.updated,{}),e.deepStrictEqual(o.remote.removed,[])}),test("merge when local and remote has moved forwareded with multiple conflicts",async()=>{const o=r({"html.json":s,"typescript.json":i,"c.json":n},{"c.json":n},{"html.json":d,"typescript.json":c});e.deepStrictEqual(o.local.added,{}),e.deepStrictEqual(o.local.updated,{}),e.deepStrictEqual(o.local.removed,[]),e.deepStrictEqual(o.conflicts,["html.json","typescript.json"]),e.deepStrictEqual(o.remote.added,{}),e.deepStrictEqual(o.remote.updated,{}),e.deepStrictEqual(o.remote.removed,[])})});

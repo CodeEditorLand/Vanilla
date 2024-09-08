@@ -3,7 +3,7 @@
  * those pioneered in FinalTerm. The decision to move to entirely custom sequences was to try to
  * improve reliability and prevent the possibility of applications confusing the terminal.
  */
-export declare enum VSCodeOscPt {
+export declare const enum VSCodeOscPt {
     /**
      * The start of the prompt, this is expected to always appear at the start of a line.
      * Based on FinalTerm's `OSC 133 ; A ST`.
@@ -54,14 +54,14 @@ export declare enum VSCodeOscPt {
      */
     Property = "P"
 }
-export declare enum VSCodeOscProperty {
+export declare const enum VSCodeOscProperty {
     Task = "Task",
     Cwd = "Cwd"
 }
 /**
  * ITerm sequences
  */
-export declare enum ITermOscPt {
+export declare const enum ITermOscPt {
     /**
      * Based on ITerm's `OSC 1337 ; SetMark` sets a mark on the scrollbar
      */

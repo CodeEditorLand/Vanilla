@@ -2,12 +2,12 @@
  * Create a syntax highighter with a fully declarative JSON style lexer description
  * using regular expressions.
  */
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import * as languages from "../../../common/languages.js";
-import type { ILanguageService } from "../../../common/languages/language.js";
-import type { IStandaloneThemeService } from "../standaloneTheme.js";
-import * as monarchCommon from "./monarchCommon.js";
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import * as languages from '../../../common/languages.js';
+import { ILanguageService } from '../../../common/languages/language.js';
+import * as monarchCommon from './monarchCommon.js';
+import { IStandaloneThemeService } from '../standaloneTheme.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 export type ILoadStatus = {
     loaded: true;
 } | {

@@ -1,6 +1,6 @@
-import type { IJSONSchema } from "../../../../base/common/jsonSchema.js";
-import type { ILocalizedString } from "../../../../platform/action/common/action.js";
-import { type ExtensionMessageCollector } from "../../extensions/common/extensionsRegistry.js";
+import { IJSONSchema } from '../../../../base/common/jsonSchema.js';
+import { ExtensionMessageCollector } from '../../extensions/common/extensionsRegistry.js';
+import { ILocalizedString } from '../../../../platform/action/common/action.js';
 declare namespace schema {
     interface IUserFriendlyMenuItem {
         command: string;

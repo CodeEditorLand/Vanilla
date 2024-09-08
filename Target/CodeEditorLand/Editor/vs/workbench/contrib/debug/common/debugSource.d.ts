@@ -1,9 +1,9 @@
-import { URI } from "../../../../base/common/uri.js";
-import type { IRange } from "../../../../editor/common/core/range.js";
-import type { ILogService } from "../../../../platform/log/common/log.js";
-import type { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import type { IEditorPane } from "../../../common/editor.js";
-import { type IEditorService } from "../../../services/editor/common/editorService.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IEditorPane } from '../../../common/editor.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare const UNKNOWN_SOURCE_LABEL: string;
 /**
  * Debug URI format

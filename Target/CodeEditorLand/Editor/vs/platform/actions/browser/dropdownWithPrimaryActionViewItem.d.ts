@@ -1,15 +1,15 @@
-import { BaseActionViewItem } from "../../../base/browser/ui/actionbar/actionViewItems.js";
-import type { IHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegate.js";
-import type { IAction, IActionRunner } from "../../../base/common/actions.js";
-import type { Event } from "../../../base/common/event.js";
-import type { ResolvedKeybinding } from "../../../base/common/keybindings.js";
-import { IAccessibilityService } from "../../accessibility/common/accessibility.js";
-import { IContextKeyService } from "../../contextkey/common/contextkey.js";
-import type { IContextMenuService } from "../../contextview/browser/contextView.js";
-import { IKeybindingService } from "../../keybinding/common/keybinding.js";
-import { INotificationService } from "../../notification/common/notification.js";
-import { IThemeService } from "../../theme/common/themeService.js";
-import type { MenuItemAction } from "../common/actions.js";
+import { BaseActionViewItem } from '../../../base/browser/ui/actionbar/actionViewItems.js';
+import { IAction, IActionRunner } from '../../../base/common/actions.js';
+import { Event } from '../../../base/common/event.js';
+import { ResolvedKeybinding } from '../../../base/common/keybindings.js';
+import { MenuItemAction } from '../common/actions.js';
+import { IContextKeyService } from '../../contextkey/common/contextkey.js';
+import { IKeybindingService } from '../../keybinding/common/keybinding.js';
+import { INotificationService } from '../../notification/common/notification.js';
+import { IThemeService } from '../../theme/common/themeService.js';
+import { IContextMenuService } from '../../contextview/browser/contextView.js';
+import { IAccessibilityService } from '../../accessibility/common/accessibility.js';
+import { IHoverDelegate } from '../../../base/browser/ui/hover/hoverDelegate.js';
 export interface IDropdownWithPrimaryActionViewItemOptions {
     actionRunner?: IActionRunner;
     getKeyBinding?: (action: IAction) => ResolvedKeybinding | undefined;

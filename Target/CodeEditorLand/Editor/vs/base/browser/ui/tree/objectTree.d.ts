@@ -1,9 +1,9 @@
-import type { Event } from "../../../common/event.js";
-import type { IIdentityProvider, IKeyboardNavigationLabelProvider, IListVirtualDelegate } from "../list/list.js";
-import { AbstractTree, type IAbstractTreeOptions, type IAbstractTreeOptionsUpdate } from "./abstractTree.js";
-import { CompressibleObjectTreeModel, type ElementMapper, type ICompressedTreeElement, type ICompressedTreeNode } from "./compressedObjectTreeModel.js";
-import { type IObjectTreeModel } from "./objectTreeModel.js";
-import { type ICollapseStateChangeEvent, type IObjectTreeElement, type ITreeModel, type ITreeNode, type ITreeRenderer, type ITreeSorter } from "./tree.js";
+import { IIdentityProvider, IKeyboardNavigationLabelProvider, IListVirtualDelegate } from '../list/list.js';
+import { AbstractTree, IAbstractTreeOptions, IAbstractTreeOptionsUpdate } from './abstractTree.js';
+import { CompressibleObjectTreeModel, ElementMapper, ICompressedTreeElement, ICompressedTreeNode } from './compressedObjectTreeModel.js';
+import { IObjectTreeModel } from './objectTreeModel.js';
+import { ICollapseStateChangeEvent, IObjectTreeElement, ITreeModel, ITreeNode, ITreeRenderer, ITreeSorter } from './tree.js';
+import { Event } from '../../../common/event.js';
 export interface IObjectTreeOptions<T, TFilterData = void> extends IAbstractTreeOptions<T, TFilterData> {
     readonly sorter?: ITreeSorter<T>;
 }

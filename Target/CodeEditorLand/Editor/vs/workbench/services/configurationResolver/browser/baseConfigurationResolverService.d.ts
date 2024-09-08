@@ -1,15 +1,15 @@
-import type { IStringDictionary } from "../../../../base/common/collections.js";
-import type { IProcessEnvironment } from "../../../../base/common/platform.js";
-import type { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { ConfigurationTarget, type IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import type { ILabelService } from "../../../../platform/label/common/label.js";
-import type { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { type IStorageService } from "../../../../platform/storage/common/storage.js";
-import { type IWorkspaceContextService, type IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import type { IEditorService } from "../../editor/common/editorService.js";
-import type { IExtensionService } from "../../extensions/common/extensions.js";
-import type { IPathService } from "../../path/common/pathService.js";
-import { AbstractVariableResolverService } from "../common/variableResolver.js";
+import { IStringDictionary } from '../../../../base/common/collections.js';
+import { IProcessEnvironment } from '../../../../base/common/platform.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { ConfigurationTarget, IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IWorkspaceContextService, IWorkspaceFolder } from '../../../../platform/workspace/common/workspace.js';
+import { AbstractVariableResolverService } from '../common/variableResolver.js';
+import { IEditorService } from '../../editor/common/editorService.js';
+import { IExtensionService } from '../../extensions/common/extensions.js';
+import { IPathService } from '../../path/common/pathService.js';
 export declare abstract class BaseConfigurationResolverService extends AbstractVariableResolverService {
     private readonly configurationService;
     private readonly commandService;

@@ -1,8 +1,1 @@
-var SnapshotContext = /* @__PURE__ */ ((SnapshotContext2) => {
-  SnapshotContext2[SnapshotContext2["Save"] = 1] = "Save";
-  SnapshotContext2[SnapshotContext2["Backup"] = 2] = "Backup";
-  return SnapshotContext2;
-})(SnapshotContext || {});
-export {
-  SnapshotContext
-};
+import"../../../../base/common/lifecycle.js";import"../../../../base/common/event.js";import"../../../../base/common/cancellation.js";import"../../../../base/common/buffer.js";import"../../../../base/common/uri.js";import"./workingCopy.js";var o=(e=>(e[e.Save=1]="Save",e[e.Backup=2]="Backup",e))(o||{});export{o as SnapshotContext};

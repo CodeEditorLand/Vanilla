@@ -1,7 +1,7 @@
-import type { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { EditorAction } from "../../../../editor/browser/editorExtensions.js";
-import type { ILocalizedString } from "../../../../platform/action/common/action.js";
-import type { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { EditorAction } from '../../../../editor/browser/editorExtensions.js';
+import { ILocalizedString } from '../../../../platform/action/common/action.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 export declare class RunToCursorAction extends EditorAction {
     static readonly ID = "editor.debug.action.runToCursor";
     static readonly LABEL: ILocalizedString;

@@ -1,8 +1,8 @@
-import { type OperatingSystem } from "../../../../base/common/platform.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { EditorModel } from "../../../common/editor/editorModel.js";
-import { IExtensionService } from "../../extensions/common/extensions.js";
-import type { IKeybindingItemEntry } from "../common/preferences.js";
+import { OperatingSystem } from '../../../../base/common/platform.js';
+import { EditorModel } from '../../../common/editor/editorModel.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IKeybindingItemEntry } from '../common/preferences.js';
+import { IExtensionService } from '../../extensions/common/extensions.js';
 export declare const KEYBINDING_ENTRY_TEMPLATE_ID = "keybinding.entry.template";
 export declare function createKeybindingCommandQuery(commandId: string, when?: string): string;
 export declare class KeybindingsEditorModel extends EditorModel {

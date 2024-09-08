@@ -1,6 +1,6 @@
-import type { UriComponents } from "../../../base/common/uri.js";
-import type { ISandboxConfiguration } from "../../../base/parts/sandbox/common/sandboxTypes.js";
-import type { PerformanceInfo, SystemInfo } from "../../diagnostics/common/diagnostics.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import { ISandboxConfiguration } from '../../../base/parts/sandbox/common/sandboxTypes.js';
+import { PerformanceInfo, SystemInfo } from '../../diagnostics/common/diagnostics.js';
 export interface WindowStyles {
     backgroundColor?: string;
     color?: string;
@@ -9,7 +9,7 @@ export interface WindowData {
     styles: WindowStyles;
     zoomLevel: number;
 }
-export declare enum OldIssueType {
+export declare const enum OldIssueType {
     Bug = 0,
     PerformanceIssue = 1,
     FeatureRequest = 2

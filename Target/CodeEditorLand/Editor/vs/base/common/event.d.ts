@@ -1,8 +1,8 @@
-import type { CancellationToken } from "./cancellation.js";
-import { DisposableStore, type IDisposable } from "./lifecycle.js";
-import { LinkedList } from "./linkedList.js";
-import type { IObservable } from "./observable.js";
-import type { MicrotaskDelay } from "./symbols.js";
+import { CancellationToken } from './cancellation.js';
+import { DisposableStore, IDisposable } from './lifecycle.js';
+import { LinkedList } from './linkedList.js';
+import { IObservable } from './observable.js';
+import { MicrotaskDelay } from './symbols.js';
 /**
  * An event with zero or one parameters that can be subscribed to. The event is a function itself.
  */
@@ -424,7 +424,7 @@ export interface IWaitUntil {
     token: CancellationToken;
     waitUntil(thenable: Promise<unknown>): void;
 }
-export type IWaitUntilData<T> = Omit<Omit<T, "waitUntil">, "token">;
+export type IWaitUntilData<T> = Omit<Omit<T, 'waitUntil'>, 'token'>;
 export declare class AsyncEmitter<T extends IWaitUntil> extends Emitter<T> {
     private _asyncDeliveryQueue?;
     fireAsync(data: IWaitUntilData<T>, token: CancellationToken, promiseJoin?: (p: Promise<unknown>, listener: Function) => Promise<unknown>): Promise<void>;

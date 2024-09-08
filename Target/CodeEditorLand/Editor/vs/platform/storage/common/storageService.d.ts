@@ -1,9 +1,9 @@
-import { type IStorage } from "../../../base/parts/storage/common/storage.js";
-import type { IEnvironmentService } from "../../environment/common/environment.js";
-import type { IRemoteService } from "../../ipc/common/services.js";
-import { type IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
-import type { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
-import { AbstractStorageService, StorageScope } from "./storage.js";
+import { IStorage } from '../../../base/parts/storage/common/storage.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IRemoteService } from '../../ipc/common/services.js';
+import { AbstractStorageService, StorageScope } from './storage.js';
+import { IUserDataProfile } from '../../userDataProfile/common/userDataProfile.js';
+import { IAnyWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 export declare class RemoteStorageService extends AbstractStorageService {
     private readonly initialWorkspace;
     private readonly initialProfiles;

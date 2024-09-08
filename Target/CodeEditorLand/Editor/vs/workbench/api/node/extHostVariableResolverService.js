@@ -1,10 +1,1 @@
-import { homedir } from "os";
-import { ExtHostVariableResolverProviderService } from "../common/extHostVariableResolverService.js";
-class NodeExtHostVariableResolverProviderService extends ExtHostVariableResolverProviderService {
-  homeDir() {
-    return homedir();
-  }
-}
-export {
-  NodeExtHostVariableResolverProviderService
-};
+import{homedir as e}from"os";import{ExtHostVariableResolverProviderService as r}from"../common/extHostVariableResolverService.js";class d extends r{homeDir(){return e()}}export{d as NodeExtHostVariableResolverProviderService};

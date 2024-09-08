@@ -1,4 +1,4 @@
-export declare enum Constants {
+export declare const enum Constants {
     /**
      * MAX SMI (SMall Integer) as defined in v8.
      * one bit is lost for boxing/unboxing flag.

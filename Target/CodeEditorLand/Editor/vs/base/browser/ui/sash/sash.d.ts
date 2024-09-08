@@ -1,6 +1,6 @@
-import { type Event } from "../../../common/event.js";
-import { Disposable } from "../../../common/lifecycle.js";
-import "./sash.css";
+import { Event } from '../../../common/event.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import './sash.css';
 /**
  * A vertical sash layout provider provides position and height for a sash.
  */
@@ -75,11 +75,11 @@ export interface IVerticalSashOptions extends ISashOptions {
 export interface IHorizontalSashOptions extends ISashOptions {
     readonly orientation: Orientation.HORIZONTAL;
 }
-export declare enum Orientation {
+export declare const enum Orientation {
     VERTICAL = 0,
     HORIZONTAL = 1
 }
-export declare enum SashState {
+export declare const enum SashState {
     /**
      * Disable any UI interaction.
      */

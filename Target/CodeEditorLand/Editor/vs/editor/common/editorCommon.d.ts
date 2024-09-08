@@ -1,16 +1,16 @@
-import type { Event } from "../../base/common/event.js";
-import type { IMarkdownString } from "../../base/common/htmlContent.js";
-import type { IDisposable } from "../../base/common/lifecycle.js";
-import type { ThemeColor } from "../../base/common/themables.js";
-import type { URI, UriComponents } from "../../base/common/uri.js";
-import type { ICommandMetadata } from "../../platform/commands/common/commands.js";
-import type { IEditorOptions } from "./config/editorOptions.js";
-import type { IDimension } from "./core/dimension.js";
-import type { IPosition, Position } from "./core/position.js";
-import type { IRange, Range } from "./core/range.js";
-import type { ISelection, Selection } from "./core/selection.js";
-import type { IModelDecoration, IModelDecorationsChangeAccessor, IModelDeltaDecoration, ITextModel, IValidEditOperation, OverviewRulerLane, TrackedRangeStickiness } from "./model.js";
-import type { IModelDecorationsChangedEvent } from "./textModelEvents.js";
+import { Event } from '../../base/common/event.js';
+import { IMarkdownString } from '../../base/common/htmlContent.js';
+import { IDisposable } from '../../base/common/lifecycle.js';
+import { ThemeColor } from '../../base/common/themables.js';
+import { URI, UriComponents } from '../../base/common/uri.js';
+import { IEditorOptions } from './config/editorOptions.js';
+import { IDimension } from './core/dimension.js';
+import { IPosition, Position } from './core/position.js';
+import { IRange, Range } from './core/range.js';
+import { ISelection, Selection } from './core/selection.js';
+import { IModelDecoration, IModelDecorationsChangeAccessor, IModelDeltaDecoration, ITextModel, IValidEditOperation, OverviewRulerLane, TrackedRangeStickiness } from './model.js';
+import { IModelDecorationsChangedEvent } from './textModelEvents.js';
+import { ICommandMetadata } from '../../platform/commands/common/commands.js';
 /**
  * A builder and helper for edit operations for a command.
  */
@@ -178,7 +178,7 @@ export interface IDiffEditorViewState {
  * An editor view state.
  */
 export type IEditorViewState = ICodeEditorViewState | IDiffEditorViewState;
-export declare enum ScrollType {
+export declare const enum ScrollType {
     Smooth = 0,
     Immediate = 1
 }
@@ -638,7 +638,7 @@ export declare const EditorType: {
  * Built-in commands.
  * @internal
  */
-export declare enum Handler {
+export declare const enum Handler {
     CompositionStart = "compositionStart",
     CompositionEnd = "compositionEnd",
     Type = "type",

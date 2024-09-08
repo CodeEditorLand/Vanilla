@@ -1,5 +1,5 @@
-import type { IDisposable } from "../../../common/lifecycle.js";
-import { Client as MessagePortClient } from "../common/ipc.mp.js";
+import { IDisposable } from '../../../common/lifecycle.js';
+import { Client as MessagePortClient } from '../common/ipc.mp.js';
 /**
  * An implementation of a `IPCClient` on top of DOM `MessagePort`.
  */

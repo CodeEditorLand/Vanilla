@@ -1,9 +1,9 @@
-import { type Event } from "../../../base/common/event.js";
-import { type ICommandEvent, type ICommandService } from "../../../platform/commands/common/commands.js";
-import type { IResourceEditorInput } from "../../../platform/editor/common/editor.js";
-import type { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import type { ICodeEditor } from "../../browser/editorBrowser.js";
-import { AbstractCodeEditorService, GlobalStyleSheet } from "../../browser/services/abstractCodeEditorService.js";
+import { Event } from '../../../base/common/event.js';
+import { ICodeEditor } from '../../browser/editorBrowser.js';
+import { AbstractCodeEditorService, GlobalStyleSheet } from '../../browser/services/abstractCodeEditorService.js';
+import { ICommandEvent, ICommandService } from '../../../platform/commands/common/commands.js';
+import { IResourceEditorInput } from '../../../platform/editor/common/editor.js';
+import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
 export declare class TestCodeEditorService extends AbstractCodeEditorService {
     readonly globalStyleSheet: TestGlobalStyleSheet;
     protected _createGlobalStyleSheet(): GlobalStyleSheet;

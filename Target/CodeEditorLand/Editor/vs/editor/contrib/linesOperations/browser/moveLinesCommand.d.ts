@@ -1,8 +1,8 @@
-import { EditorAutoIndentStrategy } from "../../../common/config/editorOptions.js";
-import { Selection } from "../../../common/core/selection.js";
-import type { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../../../common/editorCommon.js";
-import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import type { ITextModel } from "../../../common/model.js";
+import { EditorAutoIndentStrategy } from '../../../common/config/editorOptions.js';
+import { Selection } from '../../../common/core/selection.js';
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from '../../../common/editorCommon.js';
+import { ITextModel } from '../../../common/model.js';
+import { ILanguageConfigurationService } from '../../../common/languages/languageConfigurationRegistry.js';
 export declare class MoveLinesCommand implements ICommand {
     private readonly _languageConfigurationService;
     private readonly _selection;

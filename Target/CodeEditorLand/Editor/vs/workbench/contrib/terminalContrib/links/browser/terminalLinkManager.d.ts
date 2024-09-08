@@ -1,16 +1,16 @@
-import type { ILink, Terminal } from "@xterm/xterm";
-import { DisposableStore } from "../../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService } from "../../../../../platform/notification/common/notification.js";
-import type { ITerminalCapabilityStore } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
-import { ITunnelService } from "../../../../../platform/tunnel/common/tunnel.js";
-import { ITerminalConfigurationService, type ITerminalExternalLinkProvider } from "../../../terminal/browser/terminal.js";
-import type { TerminalWidgetManager } from "../../../terminal/browser/widgets/widgetManager.js";
-import { type ITerminalProcessInfo } from "../../../terminal/common/terminal.js";
-import { type ITerminalLinkResolver, type OmitFirstArg } from "./links.js";
-import type { TerminalLink } from "./terminalLink.js";
+import { DisposableStore } from '../../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { ITunnelService } from '../../../../../platform/tunnel/common/tunnel.js';
+import { ITerminalLinkResolver, OmitFirstArg } from './links.js';
+import { TerminalLink } from './terminalLink.js';
+import { ITerminalConfigurationService, ITerminalExternalLinkProvider } from '../../../terminal/browser/terminal.js';
+import { TerminalWidgetManager } from '../../../terminal/browser/widgets/widgetManager.js';
+import { ITerminalCapabilityStore } from '../../../../../platform/terminal/common/capabilities/capabilities.js';
+import { ITerminalProcessInfo } from '../../../terminal/common/terminal.js';
+import type { ILink, Terminal } from '@xterm/xterm';
+import { ITerminalLogService } from '../../../../../platform/terminal/common/terminal.js';
+import { INotificationService } from '../../../../../platform/notification/common/notification.js';
 export type XtermLinkMatcherHandler = (event: MouseEvent | undefined, link: string) => Promise<void>;
 /**
  * An object responsible for managing registration of link matchers and link providers.
@@ -30,17 +30,17 @@ export declare class TerminalLinkManager extends DisposableStore {
     private readonly _linkProvidersDisposables;
     private readonly _externalLinkProviders;
     private readonly _openers;
-    externalProvideLinksCb?: OmitFirstArg<ITerminalExternalLinkProvider["provideLinks"]>;
+    externalProvideLinksCb?: OmitFirstArg<ITerminalExternalLinkProvider['provideLinks']>;
     constructor(_xterm: Terminal, _processInfo: ITerminalProcessInfo, capabilities: ITerminalCapabilityStore, _linkResolver: ITerminalLinkResolver, _configurationService: IConfigurationService, _terminalConfigurationService: ITerminalConfigurationService, _instantiationService: IInstantiationService, _notificationService: INotificationService, _logService: ITerminalLogService, _tunnelService: ITunnelService);
     private _setupLinkDetector;
     private _openLink;
-    openRecentLink(type: "localFile" | "url"): Promise<ILink | undefined>;
+    openRecentLink(type: 'localFile' | 'url'): Promise<ILink | undefined>;
     getLinks(): Promise<{
         viewport: IDetectedLinks;
         all: Promise<IDetectedLinks>;
     }>;
     private _getLinksForLine;
-    protected _getLinksForType(y: number, type: "word" | "url" | "localFile" | "localFolder"): Promise<ILink[] | undefined>;
+    protected _getLinksForType(y: number, type: 'word' | 'url' | 'localFile' | 'localFolder'): Promise<ILink[] | undefined>;
     private _tooltipCallback;
     private _showHover;
     setWidgetManager(widgetManager: TerminalWidgetManager): void;

@@ -1,7 +1,7 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { MutableObservableValue, type IObservableValue } from "./observableValue.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IObservableValue, MutableObservableValue } from './observableValue.js';
 export interface ITestExplorerFilterState {
     _serviceBrand: undefined;
     /** Current filter text */
@@ -80,7 +80,7 @@ export declare class TestExplorerFilterState extends Disposable implements ITest
     /** @inheritdoc */
     toggleFilteringFor(term: TestFilterTerm, shouldFilter?: boolean): void;
 }
-export declare enum TestFilterTerm {
+export declare const enum TestFilterTerm {
     Failed = "@failed",
     Executed = "@executed",
     CurrentDoc = "@doc",

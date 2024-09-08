@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IEditorResolverService } from '../../../services/editor/common/editorResolverService.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
 export declare class DynamicEditorConfigurations extends Disposable implements IWorkbenchContribution {
     private readonly editorResolverService;
     private readonly environmentService;

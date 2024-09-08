@@ -1,22 +1,22 @@
-import "./media/multieditortabscontrol.css";
-import { Dimension } from "../../../../base/browser/dom.js";
-import { ITreeViewsDnDService } from "../../../../editor/common/services/treeViewsDndService.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { type IEditorPartOptions, type IToolbarActions } from "../../../common/editor.js";
-import type { IReadonlyEditorGroupModel } from "../../../common/editor/editorGroupModel.js";
-import type { EditorInput } from "../../../common/editor/editorInput.js";
-import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
-import { IHostService } from "../../../services/host/browser/host.js";
-import { IPathService } from "../../../services/path/common/pathService.js";
-import type { EditorServiceImpl, IEditorGroupView, IEditorGroupsView, IEditorPartsView, IInternalEditorOpenOptions } from "./editor.js";
-import { EditorTabsControl } from "./editorTabsControl.js";
-import type { IEditorTitleControlDimensions } from "./editorTitleControl.js";
+import './media/multieditortabscontrol.css';
+import { IEditorPartOptions, IToolbarActions } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { EditorTabsControl } from './editorTabsControl.js';
+import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { Dimension } from '../../../../base/browser/dom.js';
+import { IEditorGroupsView, EditorServiceImpl, IEditorGroupView, IInternalEditorOpenOptions, IEditorPartsView } from './editor.js';
+import { IPathService } from '../../../services/path/common/pathService.js';
+import { ITreeViewsDnDService } from '../../../../editor/common/services/treeViewsDndService.js';
+import { IEditorResolverService } from '../../../services/editor/common/editorResolverService.js';
+import { IEditorTitleControlDimensions } from './editorTitleControl.js';
+import { IReadonlyEditorGroupModel } from '../../../common/editor/editorGroupModel.js';
+import { IHostService } from '../../../services/host/browser/host.js';
 interface IMultiEditorTabsControlLayoutOptions {
     /**
      * Whether to force revealing the active tab, even when

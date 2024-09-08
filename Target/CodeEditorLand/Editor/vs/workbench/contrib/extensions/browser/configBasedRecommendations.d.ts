@@ -1,6 +1,6 @@
-import { IExtensionTipsService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { ExtensionRecommendations, type ExtensionRecommendation } from "./extensionRecommendations.js";
+import { IExtensionTipsService } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { ExtensionRecommendations, ExtensionRecommendation } from './extensionRecommendations.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
 type ConfigBasedExtensionRecommendation = ExtensionRecommendation & {
     whenNotInstalled: string[] | undefined;
 };

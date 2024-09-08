@@ -1,8 +1,8 @@
-import type { IListVirtualDelegate } from "../list/list.js";
-import { AbstractTree, type IAbstractTreeOptions } from "./abstractTree.js";
-import { IndexTreeModel } from "./indexTreeModel.js";
-import { type ITreeElement, type ITreeModel, type ITreeRenderer } from "./tree.js";
-import "./media/tree.css";
+import { IListVirtualDelegate } from '../list/list.js';
+import { AbstractTree, IAbstractTreeOptions } from './abstractTree.js';
+import { IndexTreeModel } from './indexTreeModel.js';
+import { ITreeElement, ITreeModel, ITreeRenderer } from './tree.js';
+import './media/tree.css';
 export interface IIndexTreeOptions<T, TFilterData = void> extends IAbstractTreeOptions<T, TFilterData> {
 }
 export declare class IndexTree<T, TFilterData = void> extends AbstractTree<T, TFilterData, number[]> {

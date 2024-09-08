@@ -1,7 +1,7 @@
-import { StandardMouseEvent } from "../../base/browser/mouseEvent.js";
-import { Disposable, type IDisposable } from "../../base/common/lifecycle.js";
-import type { ThemeColor } from "../../base/common/themables.js";
-import type { ICodeEditor } from "./editorBrowser.js";
+import { StandardMouseEvent } from '../../base/browser/mouseEvent.js';
+import { Disposable, IDisposable } from '../../base/common/lifecycle.js';
+import { ICodeEditor } from './editorBrowser.js';
+import { ThemeColor } from '../../base/common/themables.js';
 /**
  * Coordinates relative to the whole document (e.g. mouse event's pageX and pageY)
  */
@@ -106,7 +106,7 @@ export declare class GlobalEditorPointerMoveMonitor extends Disposable {
  * A helper to create dynamic css rules, bound to a class name.
  * Rules are reused.
  * Reference counting and delayed garbage collection ensure that no rules leak.
- */
+*/
 export declare class DynamicCssRules {
     private readonly _editor;
     private static _idPool;

@@ -1,5 +1,5 @@
-import { type ExtHostSecretStateShape } from "./extHost.protocol.js";
-import type { IExtHostRpcService } from "./extHostRpcService.js";
+import { ExtHostSecretStateShape } from './extHost.protocol.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
 export declare class ExtHostSecretState implements ExtHostSecretStateShape {
     private _proxy;
     private _onDidChangePassword;

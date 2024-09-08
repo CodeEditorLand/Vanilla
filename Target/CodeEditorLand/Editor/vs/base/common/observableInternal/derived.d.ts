@@ -1,7 +1,7 @@
-import { type EqualityComparer } from "../equals.js";
-import { DisposableStore, type IDisposable } from "../lifecycle.js";
-import { BaseObservable, type IChangeContext, type IObservable, type IObserver, type IReader, type ISettableObservable, type ITransaction } from "./base.js";
-import { DebugNameData, type DebugOwner, type IDebugNameData } from "./debugName.js";
+import { EqualityComparer } from '../equals.js';
+import { DisposableStore, IDisposable } from '../lifecycle.js';
+import { BaseObservable, IChangeContext, IObservable, IObserver, IReader, ISettableObservable, ITransaction } from './base.js';
+import { DebugNameData, IDebugNameData, DebugOwner } from './debugName.js';
 /**
  * Creates an observable that is derived from other observables.
  * The value is only recomputed when absolutely needed.
@@ -13,7 +13,7 @@ export declare function derived<T>(owner: DebugOwner, computeFn: (reader: IReade
 export declare function derivedWithSetter<T>(owner: DebugOwner | undefined, computeFn: (reader: IReader) => T, setter: (value: T, transaction: ITransaction | undefined) => void): ISettableObservable<T>;
 export declare function derivedOpts<T>(options: IDebugNameData & {
     equalsFn?: EqualityComparer<T>;
-    onLastObserverRemoved?: () => void;
+    onLastObserverRemoved?: (() => void);
 }, computeFn: (reader: IReader) => T): IObservable<T>;
 /**
  * Represents an observable that is derived from other observables.

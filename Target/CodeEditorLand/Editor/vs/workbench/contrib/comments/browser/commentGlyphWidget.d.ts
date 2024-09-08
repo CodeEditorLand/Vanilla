@@ -1,6 +1,6 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { type ICodeEditor, type IContentWidgetPosition } from "../../../../editor/browser/editorBrowser.js";
-import { CommentThreadState } from "../../../../editor/common/languages.js";
+import { ICodeEditor, IContentWidgetPosition } from '../../../../editor/browser/editorBrowser.js';
+import { CommentThreadState } from '../../../../editor/common/languages.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 export declare const overviewRulerCommentingRangeForeground: string;
 export declare class CommentGlyphWidget extends Disposable {
     static description: string;

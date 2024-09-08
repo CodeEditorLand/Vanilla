@@ -1,13 +1,13 @@
-import * as glob from "../../../../base/common/glob.js";
-import { URI, URI as uri, type UriComponents } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkspaceContextService, type IWorkspaceFolderData } from "../../../../platform/workspace/common/workspace.js";
-import { IEditorGroupsService } from "../../editor/common/editorGroupsService.js";
-import { IPathService } from "../../path/common/pathService.js";
-import { type IFileQuery, type IPatternInfo, type ITextQuery, type ITextSearchPreviewOptions } from "./search.js";
-import type { GlobPattern } from "./searchExtTypes.js";
+import * as glob from '../../../../base/common/glob.js';
+import { URI, URI as uri, UriComponents } from '../../../../base/common/uri.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IWorkspaceContextService, IWorkspaceFolderData } from '../../../../platform/workspace/common/workspace.js';
+import { IEditorGroupsService } from '../../editor/common/editorGroupsService.js';
+import { IPathService } from '../../path/common/pathService.js';
+import { IFileQuery, IPatternInfo, ITextQuery, ITextSearchPreviewOptions } from './search.js';
+import { GlobPattern } from './searchExtTypes.js';
 /**
  * One folder to search and a set of glob expressions that should be applied.
  */

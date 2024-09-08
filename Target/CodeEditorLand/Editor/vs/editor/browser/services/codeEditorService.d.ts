@@ -1,10 +1,10 @@
-import type { Event } from "../../../base/common/event.js";
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import type { ITextResourceEditorInput } from "../../../platform/editor/common/editor.js";
-import type { IDecorationRenderOptions } from "../../common/editorCommon.js";
-import type { IModelDecorationOptions, ITextModel } from "../../common/model.js";
-import type { ICodeEditor, IDiffEditor } from "../editorBrowser.js";
+import { Event } from '../../../base/common/event.js';
+import { ICodeEditor, IDiffEditor } from '../editorBrowser.js';
+import { IDecorationRenderOptions } from '../../common/editorCommon.js';
+import { IModelDecorationOptions, ITextModel } from '../../common/model.js';
+import { ITextResourceEditorInput } from '../../../platform/editor/common/editor.js';
+import { URI } from '../../../base/common/uri.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
 export declare const ICodeEditorService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ICodeEditorService>;
 export interface ICodeEditorService {
     readonly _serviceBrand: undefined;

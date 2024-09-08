@@ -1,6 +1,6 @@
-import { type CancellationToken } from "../../../../base/common/cancellation.js";
-import { type IFileMatch, type IFileQuery, type ISearchCompleteStats } from "./search.js";
-import type { FileSearchProviderNew } from "./searchExtTypes.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IFileMatch, ISearchCompleteStats, IFileQuery } from './search.js';
+import { FileSearchProviderNew } from './searchExtTypes.js';
 export declare class FileSearchManager {
     private static readonly BATCH_SIZE;
     private readonly sessions;

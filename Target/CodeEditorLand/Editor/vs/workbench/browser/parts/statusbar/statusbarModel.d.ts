@@ -1,6 +1,6 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { type IStorageService } from "../../../../platform/storage/common/storage.js";
-import { type IStatusbarEntryPriority, StatusbarAlignment } from "../../../services/statusbar/browser/statusbar.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IStatusbarEntryPriority, StatusbarAlignment } from '../../../services/statusbar/browser/statusbar.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
 export interface IStatusbarViewModelEntry {
     readonly id: string;
     readonly name: string;

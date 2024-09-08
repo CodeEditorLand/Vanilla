@@ -1,10 +1,10 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IResourceEditorInputIdentifier } from "../../../../platform/editor/common/editor.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { type IEditorIdentifier } from "../../../common/editor.js";
-import { type IEditorGroupsContainer, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorIdentifier } from '../../../common/editor.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { Event } from '../../../../base/common/event.js';
+import { IEditorGroupsService, IEditorGroupsContainer } from '../../../services/editor/common/editorGroupsService.js';
+import { IResourceEditorInputIdentifier } from '../../../../platform/editor/common/editor.js';
+import { URI } from '../../../../base/common/uri.js';
 /**
  * A observer of opened editors across all editor groups by most recently used.
  * Rules:

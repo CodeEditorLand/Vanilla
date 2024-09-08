@@ -1,9 +1,9 @@
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { ITerminalOutputMatch, ITerminalOutputMatcher } from "../terminal.js";
-import type { ReplayEntry } from "../terminalProcess.js";
-import type { IPromptInputModel, ISerializedPromptInputModel } from "./commandDetection/promptInputModel.js";
-import type { ICurrentPartialCommand } from "./commandDetection/terminalCommand.js";
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import type { IPromptInputModel, ISerializedPromptInputModel } from './commandDetection/promptInputModel.js';
+import { ICurrentPartialCommand } from './commandDetection/terminalCommand.js';
+import { ITerminalOutputMatch, ITerminalOutputMatcher } from '../terminal.js';
+import { ReplayEntry } from '../terminalProcess.js';
 interface IEvent<T, U = void> {
     (listener: (arg1: T, arg2: U) => any): IDisposable;
 }
@@ -32,7 +32,7 @@ export interface IMarker extends IDisposable {
  * Primarily driven by the shell integration feature, a terminal capability is the mechanism for
  * progressively enhancing various features that may not be supported in all terminals/shells.
  */
-export declare enum TerminalCapability {
+export declare const enum TerminalCapability {
     /**
      * The terminal can reliably detect the current working directory as soon as the change happens
      * within the buffer.
@@ -119,7 +119,7 @@ export interface ICwdDetectionCapability {
     getCwd(): string;
     updateCwd(cwd: string): void;
 }
-export declare enum CommandInvalidationReason {
+export declare const enum CommandInvalidationReason {
     Windows = "windows",
     NoProblemsReported = "noProblemsReported"
 }
@@ -206,7 +206,7 @@ export interface IPartialCommandDetectionCapability {
 }
 interface IBaseTerminalCommand {
     command: string;
-    commandLineConfidence: "low" | "medium" | "high";
+    commandLineConfidence: 'low' | 'medium' | 'high';
     isTrusted: boolean;
     timestamp: number;
     duration: number;

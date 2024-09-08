@@ -1,11 +1,11 @@
-import type * as vscode from "vscode";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import type { EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
-import * as extHostProtocol from "./extHost.protocol.js";
-import { type ExtHostWebview, type ExtHostWebviews } from "./extHostWebview.js";
-import type { IExtHostWorkspace } from "./extHostWorkspace.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ExtHostWebview, ExtHostWebviews } from './extHostWebview.js';
+import { IExtHostWorkspace } from './extHostWorkspace.js';
+import { EditorGroupColumn } from '../../services/editor/common/editorGroupColumn.js';
+import type * as vscode from 'vscode';
+import * as extHostProtocol from './extHost.protocol.js';
 type IconPath = URI | {
     readonly light: URI;
     readonly dark: URI;
@@ -52,7 +52,7 @@ export declare class ExtHostWebviewPanels extends Disposable implements extHostP
     createWebviewPanel(extension: IExtensionDescription, viewType: string, title: string, showOptions: vscode.ViewColumn | {
         viewColumn: vscode.ViewColumn;
         preserveFocus?: boolean;
-    }, options?: vscode.WebviewPanelOptions & vscode.WebviewOptions): vscode.WebviewPanel;
+    }, options?: (vscode.WebviewPanelOptions & vscode.WebviewOptions)): vscode.WebviewPanel;
     $onDidChangeWebviewPanelViewStates(newStates: extHostProtocol.WebviewPanelViewStateData): void;
     $onDidDisposeWebviewPanel(handle: extHostProtocol.WebviewHandle): Promise<void>;
     registerWebviewPanelSerializer(extension: IExtensionDescription, viewType: string, serializer: vscode.WebviewPanelSerializer): vscode.Disposable;

@@ -1,4 +1,4 @@
-export declare enum TerminalFindCommandId {
+export declare const enum TerminalFindCommandId {
     FindFocus = "workbench.action.terminal.focusFind",
     FindHide = "workbench.action.terminal.hideFind",
     FindNext = "workbench.action.terminal.findNext",

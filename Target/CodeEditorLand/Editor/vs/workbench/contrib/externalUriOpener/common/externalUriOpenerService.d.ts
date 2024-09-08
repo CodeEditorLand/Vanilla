@@ -1,12 +1,12 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import * as languages from "../../../../editor/common/languages.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IOpenerService, type IExternalOpener } from "../../../../platform/opener/common/opener.js";
-import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import * as languages from '../../../../editor/common/languages.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IExternalOpener, IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
+import { IPreferencesService } from '../../../services/preferences/common/preferences.js';
 export declare const IExternalUriOpenerService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExternalUriOpenerService>;
 export interface IExternalOpenerProvider {
     getOpeners(targetUri: URI): AsyncIterable<IExternalUriOpener>;

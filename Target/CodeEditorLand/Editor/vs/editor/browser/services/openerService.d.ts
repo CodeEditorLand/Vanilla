@@ -1,8 +1,8 @@
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { ICommandService } from "../../../platform/commands/common/commands.js";
-import { type IExternalOpener, type IExternalUriResolver, type IOpener, type IOpenerService, type IResolvedExternalUri, type IValidator, type OpenOptions, type ResolveExternalUriOptions } from "../../../platform/opener/common/opener.js";
-import { ICodeEditorService } from "./codeEditorService.js";
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { ICodeEditorService } from './codeEditorService.js';
+import { ICommandService } from '../../../platform/commands/common/commands.js';
+import { IExternalOpener, IExternalUriResolver, IOpener, IOpenerService, IResolvedExternalUri, IValidator, OpenOptions, ResolveExternalUriOptions } from '../../../platform/opener/common/opener.js';
 export declare class OpenerService implements IOpenerService {
     readonly _serviceBrand: undefined;
     private readonly _openers;

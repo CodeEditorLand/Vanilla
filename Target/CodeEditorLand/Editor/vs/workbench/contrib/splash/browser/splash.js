@@ -1,7 +1,1 @@
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-const ISplashStorageService = createDecorator(
-  "ISplashStorageService"
-);
-export {
-  ISplashStorageService
-};
+import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/theme/common/themeService.js";const s=e("ISplashStorageService");export{s as ISplashStorageService};

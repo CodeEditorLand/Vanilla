@@ -1,6 +1,6 @@
-import { type Event } from "../../../../base/common/event.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ChatAgentLocation } from "./chatAgents.js";
+import { Event } from '../../../../base/common/event.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { ChatAgentLocation } from './chatAgents.js';
 export interface IChatHistoryEntry {
     text: string;
     state?: any;

@@ -1,4 +1,4 @@
-export declare enum TerminalStorageKeys {
+export declare const enum TerminalStorageKeys {
     SuggestedRendererType = "terminal.integrated.suggestedRendererType",
     TabsListWidthHorizontal = "tabs-list-width-horizontal",
     TabsListWidthVertical = "tabs-list-width-vertical",

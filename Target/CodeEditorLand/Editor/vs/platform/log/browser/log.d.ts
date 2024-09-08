@@ -1,6 +1,6 @@
-import type { IEnvironmentService } from "../../environment/common/environment.js";
-import type { IFileService } from "../../files/common/files.js";
-import { AdapterLogger, type ILogger, LogLevel } from "../common/log.js";
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IFileService } from '../../files/common/files.js';
+import { AdapterLogger, ILogger, LogLevel } from '../common/log.js';
 export interface IAutomatedWindow {
     codeAutomationLog(type: string, args: any[]): void;
     codeAutomationExit(code: number, logs: Array<ILogFile>): void;

@@ -1,12 +1,12 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Range } from "../../../common/core/range.js";
-import type { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
-import type { Command, InlayHint, InlayHintsProvider } from "../../../common/languages.js";
-import type { ITextModel } from "../../../common/model.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Range } from '../../../common/core/range.js';
+import { LanguageFeatureRegistry } from '../../../common/languageFeatureRegistry.js';
+import { InlayHint, InlayHintsProvider, Command } from '../../../common/languages.js';
+import { ITextModel } from '../../../common/model.js';
 export declare class InlayHintAnchor {
     readonly range: Range;
-    readonly direction: "before" | "after";
-    constructor(range: Range, direction: "before" | "after");
+    readonly direction: 'before' | 'after';
+    constructor(range: Range, direction: 'before' | 'after');
 }
 export declare class InlayHintItem {
     readonly hint: InlayHint;

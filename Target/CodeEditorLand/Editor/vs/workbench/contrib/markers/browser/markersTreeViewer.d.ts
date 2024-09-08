@@ -1,25 +1,25 @@
-import { CountBadge } from "../../../../base/browser/ui/countBadge/countBadge.js";
-import { HighlightedLabel } from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
-import type { IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
-import type { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
-import { TreeVisibility, type ITreeFilter, type ITreeNode, type ITreeRenderer, type TreeFilterResult } from "../../../../base/browser/ui/tree/tree.js";
-import { type Event } from "../../../../base/common/event.js";
-import type { IMatch } from "../../../../base/common/filters.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import type { IResourceLabel, ResourceLabels } from "../../../browser/labels.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { MarkersViewMode } from "../common/markers.js";
-import { FilterOptions } from "./markersFilterOptions.js";
-import { Marker, MarkerTableItem, RelatedInformation, ResourceMarkers, type MarkerElement } from "./markersModel.js";
-import { QuickFixAction } from "./markersViewActions.js";
+import { CountBadge } from '../../../../base/browser/ui/countBadge/countBadge.js';
+import { ResourceLabels, IResourceLabel } from '../../../browser/labels.js';
+import { HighlightedLabel } from '../../../../base/browser/ui/highlightedlabel/highlightedLabel.js';
+import { ResourceMarkers, Marker, RelatedInformation, MarkerElement, MarkerTableItem } from './markersModel.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { QuickFixAction } from './markersViewActions.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { IListVirtualDelegate } from '../../../../base/browser/ui/list/list.js';
+import { ITreeFilter, TreeVisibility, TreeFilterResult, ITreeRenderer, ITreeNode } from '../../../../base/browser/ui/tree/tree.js';
+import { FilterOptions } from './markersFilterOptions.js';
+import { IMatch } from '../../../../base/common/filters.js';
+import { Event } from '../../../../base/common/event.js';
+import { IListAccessibilityProvider } from '../../../../base/browser/ui/list/listWidget.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { ILanguageFeaturesService } from '../../../../editor/common/services/languageFeatures.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { MarkersViewMode } from '../common/markers.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 interface IResourceMarkersTemplateData {
     readonly resourceLabel: IResourceLabel;
     readonly count: CountBadge;
@@ -38,7 +38,7 @@ export declare class MarkersWidgetAccessibilityProvider implements IListAccessib
     getWidgetAriaLabel(): string;
     getAriaLabel(element: MarkerElement | MarkerTableItem): string | null;
 }
-declare enum TemplateId {
+declare const enum TemplateId {
     ResourceMarkers = "rm",
     Marker = "m",
     RelatedInformation = "ri"
@@ -50,7 +50,7 @@ export declare class VirtualDelegate implements IListVirtualDelegate<MarkerEleme
     getHeight(element: MarkerElement): number;
     getTemplateId(element: MarkerElement): string;
 }
-declare enum FilterDataType {
+declare const enum FilterDataType {
     ResourceMarkers = 0,
     Marker = 1,
     RelatedInformation = 2

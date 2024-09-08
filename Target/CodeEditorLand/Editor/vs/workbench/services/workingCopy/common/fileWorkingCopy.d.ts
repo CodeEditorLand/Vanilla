@@ -1,9 +1,9 @@
-import type { VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IWorkingCopy } from "./workingCopy.js";
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { Event } from '../../../../base/common/event.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { VSBufferReadableStream } from '../../../../base/common/buffer.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IWorkingCopy } from './workingCopy.js';
 export interface IFileWorkingCopyModelFactory<M extends IFileWorkingCopyModel> {
     /**
      * Create a model for the untitled or stored working copy
@@ -25,7 +25,7 @@ export interface IFileWorkingCopyModelConfiguration {
      */
     readonly backupDelay?: number;
 }
-export declare enum SnapshotContext {
+export declare const enum SnapshotContext {
     Save = 1,
     Backup = 2
 }

@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import type { OffsetRange } from "../../../common/core/offsetRange.js";
-import { DiffEditorWidget } from "../diffEditor/diffEditorWidget.js";
-import type { DocumentDiffItemViewModel } from "./multiDiffEditorViewModel.js";
-import type { IObjectData, IPooledObject } from "./objectPool.js";
-import type { IWorkbenchUIElementFactory } from "./workbenchUIElementFactory.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { DiffEditorWidget } from '../diffEditor/diffEditorWidget.js';
+import { DocumentDiffItemViewModel } from './multiDiffEditorViewModel.js';
+import { IWorkbenchUIElementFactory } from './workbenchUIElementFactory.js';
+import { OffsetRange } from '../../../common/core/offsetRange.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IObjectData, IPooledObject } from './objectPool.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 export declare class TemplateData implements IObjectData {
     readonly viewModel: DocumentDiffItemViewModel;
     readonly deltaScrollVertical: (delta: number) => void;

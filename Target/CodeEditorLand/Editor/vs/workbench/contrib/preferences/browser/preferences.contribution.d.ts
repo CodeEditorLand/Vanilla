@@ -1,1 +1,1 @@
-import "./media/preferences.css";
+import './media/preferences.css';

@@ -1,11 +1,1 @@
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-const INTERACTIVE_INPUT_CURSOR_BOUNDARY = new RawContextKey("interactiveInputCursorAtBoundary", "none");
-const InteractiveWindowSetting = {
-  interactiveWindowAlwaysScrollOnNewCell: "interactiveWindow.alwaysScrollOnNewCell",
-  executeWithShiftEnter: "interactiveWindow.executeWithShiftEnter",
-  showExecutionHint: "interactiveWindow.showExecutionHint"
-};
-export {
-  INTERACTIVE_INPUT_CURSOR_BOUNDARY,
-  InteractiveWindowSetting
-};
+import{RawContextKey as t}from"../../../../platform/contextkey/common/contextkey.js";const n=new t("interactiveInputCursorAtBoundary","none"),i={interactiveWindowAlwaysScrollOnNewCell:"interactiveWindow.alwaysScrollOnNewCell",executeWithShiftEnter:"interactiveWindow.executeWithShiftEnter",showExecutionHint:"interactiveWindow.showExecutionHint"};export{n as INTERACTIVE_INPUT_CURSOR_BOUNDARY,i as InteractiveWindowSetting};

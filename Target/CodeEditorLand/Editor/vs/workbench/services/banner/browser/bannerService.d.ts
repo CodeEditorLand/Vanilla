@@ -1,7 +1,7 @@
-import type { MarkdownString } from "../../../../base/common/htmlContent.js";
-import type { ThemeIcon } from "../../../../base/common/themables.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { ILinkDescriptor } from "../../../../platform/opener/browser/link.js";
+import { MarkdownString } from '../../../../base/common/htmlContent.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ILinkDescriptor } from '../../../../platform/opener/browser/link.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
 export interface IBannerItem {
     readonly id: string;
     readonly icon: ThemeIcon | URI | undefined;

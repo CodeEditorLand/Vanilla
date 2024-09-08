@@ -1,17 +1,17 @@
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import type { Selection } from "../../../../editor/common/core/selection.js";
-import type { MenuId } from "../../../../platform/actions/common/actions.js";
-import type { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IViewsService } from "../../../services/views/common/viewsService.js";
-import type { ChatAgentLocation, IChatAgentCommand, IChatAgentData } from "../common/chatAgents.js";
-import type { IChatRequestVariableEntry, IChatResponseModel } from "../common/chatModel.js";
-import type { IParsedChatRequest } from "../common/chatParserTypes.js";
-import type { IChatRequestViewModel, IChatResponseViewModel, IChatViewModel, IChatWelcomeMessageViewModel } from "../common/chatViewModel.js";
-import type { IChatViewState, IChatWidgetContrib } from "./chatWidget.js";
-import type { ICodeBlockActionContext } from "./codeBlockPart.js";
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { Selection } from '../../../../editor/common/core/selection.js';
+import { MenuId } from '../../../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IChatViewState, IChatWidgetContrib } from './chatWidget.js';
+import { ICodeBlockActionContext } from './codeBlockPart.js';
+import { ChatAgentLocation, IChatAgentCommand, IChatAgentData } from '../common/chatAgents.js';
+import { IChatRequestVariableEntry, IChatResponseModel } from '../common/chatModel.js';
+import { IParsedChatRequest } from '../common/chatParserTypes.js';
+import { IChatRequestViewModel, IChatResponseViewModel, IChatViewModel, IChatWelcomeMessageViewModel } from '../common/chatViewModel.js';
+import { IViewsService } from '../../../services/views/common/viewsService.js';
 export declare const IChatWidgetService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IChatWidgetService>;
 export interface IChatWidgetService {
     readonly _serviceBrand: undefined;
@@ -68,7 +68,7 @@ export interface IChatFileTreeInfo {
 }
 export type ChatTreeItem = IChatRequestViewModel | IChatResponseViewModel | IChatWelcomeMessageViewModel;
 export interface IChatListItemRendererOptions {
-    readonly renderStyle?: "default" | "compact" | "minimal";
+    readonly renderStyle?: 'default' | 'compact' | 'minimal';
     readonly noHeader?: boolean;
     readonly noPadding?: boolean;
     readonly editableCodeBlock?: boolean;
@@ -77,7 +77,7 @@ export interface IChatListItemRendererOptions {
 export interface IChatWidgetViewOptions {
     renderInputOnTop?: boolean;
     renderFollowups?: boolean;
-    renderStyle?: "default" | "compact" | "minimal";
+    renderStyle?: 'default' | 'compact' | 'minimal';
     supportsFileReferences?: boolean;
     filter?: (item: ChatTreeItem) => boolean;
     rendererOptions?: IChatListItemRendererOptions;
@@ -133,7 +133,7 @@ export interface IChatWidget {
     getContrib<T extends IChatWidgetContrib>(id: string): T | undefined;
     reveal(item: ChatTreeItem): void;
     focus(item: ChatTreeItem): void;
-    getSibling(item: ChatTreeItem, type: "next" | "previous"): ChatTreeItem | undefined;
+    getSibling(item: ChatTreeItem, type: 'next' | 'previous'): ChatTreeItem | undefined;
     getFocus(): ChatTreeItem | undefined;
     setInput(query?: string): void;
     getInput(): string;

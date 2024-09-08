@@ -1,5 +1,5 @@
-import { Event } from "../../../../base/common/event.js";
-import { AbstractLogger, type ILogger, type ILoggerService, LogLevel } from "../../../log/common/log.js";
+import { Event } from '../../../../base/common/event.js';
+import { AbstractLogger, ILogger, ILoggerService, LogLevel } from '../../../log/common/log.js';
 declare class TestTelemetryLogger extends AbstractLogger implements ILogger {
     logs: string[];
     constructor(logLevel?: LogLevel);

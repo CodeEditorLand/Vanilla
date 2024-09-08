@@ -1,4 +1,4 @@
-export declare enum MonarchBracket {
+export declare const enum MonarchBracket {
     None = 0,
     Open = 1,
     Close = -1

@@ -1,7 +1,7 @@
-import { Disposable, type IDisposable } from "../../../../../base/common/lifecycle.js";
-import { type IReader } from "../../../../../base/common/observable.js";
-import type { CodeEditorWidget } from "../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
-import { LineRange } from "../model/lineRange.js";
+import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js';
+import { IReader } from '../../../../../base/common/observable.js';
+import { CodeEditorWidget } from '../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js';
+import { LineRange } from '../model/lineRange.js';
 export declare class EditorGutter<T extends IGutterItemInfo = IGutterItemInfo> extends Disposable {
     private readonly _editor;
     private readonly _domNode;

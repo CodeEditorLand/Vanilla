@@ -1,9 +1,9 @@
-import type { VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IRevertOptions, ISaveOptions, SaveReason, SaveSource } from "../../../common/editor.js";
-export declare enum WorkingCopyCapabilities {
+import { Event } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ISaveOptions, IRevertOptions, SaveReason, SaveSource } from '../../../common/editor.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { VSBufferReadable, VSBufferReadableStream } from '../../../../base/common/buffer.js';
+export declare const enum WorkingCopyCapabilities {
     /**
      * Signals no specific capability for the working copy.
      */

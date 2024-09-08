@@ -1,6 +1,6 @@
-import type { URI } from "../../../base/common/uri.js";
-import { IFileService } from "../../../platform/files/common/files.js";
-import { EditorModel } from "./editorModel.js";
+import { EditorModel } from './editorModel.js';
+import { URI } from '../../../base/common/uri.js';
+import { IFileService } from '../../../platform/files/common/files.js';
 /**
  * An editor model that just represents a resource that can be loaded.
  */

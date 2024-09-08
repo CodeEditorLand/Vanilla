@@ -1,14 +1,14 @@
-import type { IMouseEvent } from "../../../../base/browser/mouseEvent.js";
-import { ContentWidgetPositionPreference, type ICodeEditor, type IContentWidget, type IContentWidgetPosition } from "../../../../editor/browser/editorBrowser.js";
-import type { IDimension } from "../../../../editor/common/core/dimension.js";
-import type { Position } from "../../../../editor/common/core/position.js";
-import { IMenuService } from "../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IDebugService, type IExpression, type IStackFrame } from "../common/debug.js";
-export declare enum ShowDebugHoverResult {
+import { IMouseEvent } from '../../../../base/browser/mouseEvent.js';
+import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from '../../../../editor/browser/editorBrowser.js';
+import { IDimension } from '../../../../editor/common/core/dimension.js';
+import { Position } from '../../../../editor/common/core/position.js';
+import { IMenuService } from '../../../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IDebugService, IExpression, IStackFrame } from '../common/debug.js';
+export declare const enum ShowDebugHoverResult {
     NOT_CHANGED = 0,
     NOT_AVAILABLE = 1,
     CANCELLED = 2

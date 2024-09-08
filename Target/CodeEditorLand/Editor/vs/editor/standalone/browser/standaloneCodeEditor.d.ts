@@ -1,30 +1,30 @@
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import { IAccessibilityService } from "../../../platform/accessibility/common/accessibility.js";
-import { IAccessibilitySignalService } from "../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
-import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
-import { type ICommandHandler, ICommandService } from "../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { type ContextKeyValue, type IContextKey, IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
-import { INotificationService } from "../../../platform/notification/common/notification.js";
-import { IEditorProgressService } from "../../../platform/progress/common/progress.js";
-import { IThemeService } from "../../../platform/theme/common/themeService.js";
-import type { IEditorConstructionOptions } from "../../browser/config/editorConfiguration.js";
-import type { ICodeEditor, IDiffEditor, IDiffEditorConstructionOptions } from "../../browser/editorBrowser.js";
-import { ICodeEditorService } from "../../browser/services/codeEditorService.js";
-import { CodeEditorWidget } from "../../browser/widget/codeEditor/codeEditorWidget.js";
-import { DiffEditorWidget } from "../../browser/widget/diffEditor/diffEditorWidget.js";
-import type { IDiffEditorOptions, IEditorOptions } from "../../common/config/editorOptions.js";
-import { ILanguageService } from "../../common/languages/language.js";
-import { ILanguageConfigurationService } from "../../common/languages/languageConfigurationRegistry.js";
-import type { ITextModel } from "../../common/model.js";
-import { ILanguageFeaturesService } from "../../common/services/languageFeatures.js";
-import { IModelService } from "../../common/services/model.js";
-import { IStandaloneThemeService } from "../common/standaloneTheme.js";
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ICodeEditor, IDiffEditor, IDiffEditorConstructionOptions } from '../../browser/editorBrowser.js';
+import { ICodeEditorService } from '../../browser/services/codeEditorService.js';
+import { CodeEditorWidget } from '../../browser/widget/codeEditor/codeEditorWidget.js';
+import { IDiffEditorOptions, IEditorOptions } from '../../common/config/editorOptions.js';
+import { ITextModel } from '../../common/model.js';
+import { IStandaloneThemeService } from '../common/standaloneTheme.js';
+import { ICommandHandler, ICommandService } from '../../../platform/commands/common/commands.js';
+import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
+import { ContextKeyValue, IContextKey, IContextKeyService } from '../../../platform/contextkey/common/contextkey.js';
+import { IContextMenuService } from '../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../platform/keybinding/common/keybinding.js';
+import { INotificationService } from '../../../platform/notification/common/notification.js';
+import { IThemeService } from '../../../platform/theme/common/themeService.js';
+import { IAccessibilityService } from '../../../platform/accessibility/common/accessibility.js';
+import { IClipboardService } from '../../../platform/clipboard/common/clipboardService.js';
+import { IEditorProgressService } from '../../../platform/progress/common/progress.js';
+import { IModelService } from '../../common/services/model.js';
+import { ILanguageService } from '../../common/languages/language.js';
+import { URI } from '../../../base/common/uri.js';
+import { ILanguageConfigurationService } from '../../common/languages/languageConfigurationRegistry.js';
+import { IEditorConstructionOptions } from '../../browser/config/editorConfiguration.js';
+import { ILanguageFeaturesService } from '../../common/services/languageFeatures.js';
+import { DiffEditorWidget } from '../../browser/widget/diffEditor/diffEditorWidget.js';
+import { IAccessibilitySignalService } from '../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
+import { IHoverService } from '../../../platform/hover/browser/hover.js';
 /**
  * Description of an action contribution
  */
@@ -104,7 +104,7 @@ export interface IGlobalEditorOptions {
      * Controls whether completions should be computed based on words in the document.
      * Defaults to true.
      */
-    wordBasedSuggestions?: "off" | "currentDocument" | "matchingDocuments" | "allDocuments";
+    wordBasedSuggestions?: 'off' | 'currentDocument' | 'matchingDocuments' | 'allDocuments';
     /**
      * Controls whether word based completions should be included from opened documents of the same language or any language.
      */
@@ -116,7 +116,7 @@ export interface IGlobalEditorOptions {
      * 'configuredByTheme': semanticHighlighting is controlled by the current color theme's semanticHighlighting setting.
      * Defaults to 'byTheme'.
      */
-    "semanticHighlighting.enabled"?: true | false | "configuredByTheme";
+    'semanticHighlighting.enabled'?: true | false | 'configuredByTheme';
     /**
      * Keep peek editors open even when double-clicking their content or when hitting `Escape`.
      * Defaults to false.

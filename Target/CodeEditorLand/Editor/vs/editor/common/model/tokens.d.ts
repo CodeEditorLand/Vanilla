@@ -1,13 +1,13 @@
-import { Emitter, type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { LineRange } from "../core/lineRange.js";
-import type { StandardTokenType } from "../encodedTokenAttributes.js";
-import type { ILanguageIdCodec } from "../languages.js";
-import type { IAttachedView } from "../model.js";
-import type { IModelContentChangedEvent, IModelTokensChangedEvent } from "../textModelEvents.js";
-import { BackgroundTokenizationState, type ITokenizeLineWithEditResult, type LineEditWithAdditionalLines } from "../tokenizationTextModelPart.js";
-import type { LineTokens } from "../tokens/lineTokens.js";
-import type { TextModel } from "./textModel.js";
+import { Emitter, Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { LineRange } from '../core/lineRange.js';
+import { StandardTokenType } from '../encodedTokenAttributes.js';
+import { ILanguageIdCodec } from '../languages.js';
+import { IAttachedView } from '../model.js';
+import { TextModel } from './textModel.js';
+import { IModelContentChangedEvent, IModelTokensChangedEvent } from '../textModelEvents.js';
+import { BackgroundTokenizationState, ITokenizeLineWithEditResult, LineEditWithAdditionalLines } from '../tokenizationTextModelPart.js';
+import { LineTokens } from '../tokens/lineTokens.js';
 /**
  * @internal
  */

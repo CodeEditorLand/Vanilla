@@ -1,8 +1,8 @@
-import type { ThemeIcon } from "../../../../base/common/themables.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import type { IUntypedEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { KeybindingsEditorModel } from "./keybindingsEditorModel.js";
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IUntypedEditorInput } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { KeybindingsEditorModel } from './keybindingsEditorModel.js';
 export interface IKeybindingsEditorSearchOptions {
     searchValue: string;
     recordKeybindings: boolean;

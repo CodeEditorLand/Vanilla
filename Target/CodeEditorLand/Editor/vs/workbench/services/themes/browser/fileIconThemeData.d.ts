@@ -1,8 +1,8 @@
-import type { URI } from "../../../../base/common/uri.js";
-import type { ILanguageService } from "../../../../editor/common/languages/language.js";
-import type { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
-import { type IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ExtensionData, type IThemeExtensionPoint, type IWorkbenchFileIconTheme } from "../common/workbenchThemeService.js";
+import { URI } from '../../../../base/common/uri.js';
+import { ExtensionData, IThemeExtensionPoint, IWorkbenchFileIconTheme } from '../common/workbenchThemeService.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IExtensionResourceLoaderService } from '../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
 export declare class FileIconThemeData implements IWorkbenchFileIconTheme {
     static readonly STORAGE_KEY = "iconThemeData";
     id: string;

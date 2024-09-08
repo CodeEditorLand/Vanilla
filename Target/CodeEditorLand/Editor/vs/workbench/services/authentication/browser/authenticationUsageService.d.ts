@@ -1,4 +1,4 @@
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
 export interface IAccountUsage {
     extensionId: string;
     extensionName: string;

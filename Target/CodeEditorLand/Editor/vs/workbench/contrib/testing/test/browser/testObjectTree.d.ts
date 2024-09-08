@@ -1,11 +1,11 @@
-import { ObjectTree } from "../../../../../base/browser/ui/tree/objectTree.js";
-import type { ITreeSorter } from "../../../../../base/browser/ui/tree/tree.js";
-import { Emitter } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { IWorkspaceFoldersChangeEvent } from "../../../../../platform/workspace/common/workspace.js";
-import { type ITestTreeProjection, type TestExplorerTreeElement } from "../../browser/explorerProjections/index.js";
-import type { ITestService } from "../../common/testService.js";
-import type { TestsDiffOp } from "../../common/testTypes.js";
+import { ObjectTree } from '../../../../../base/browser/ui/tree/objectTree.js';
+import { Emitter } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IWorkspaceFoldersChangeEvent } from '../../../../../platform/workspace/common/workspace.js';
+import { ITestTreeProjection, TestExplorerTreeElement } from '../../browser/explorerProjections/index.js';
+import { TestsDiffOp } from '../../common/testTypes.js';
+import { ITestService } from '../../common/testService.js';
+import { ITreeSorter } from '../../../../../base/browser/ui/tree/tree.js';
 type SerializedTree = {
     e: string;
     children?: SerializedTree[];

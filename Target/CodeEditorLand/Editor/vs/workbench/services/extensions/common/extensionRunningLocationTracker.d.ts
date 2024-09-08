@@ -1,13 +1,13 @@
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import type { ExtensionKind } from "../../../../platform/environment/common/environment.js";
-import { ExtensionIdentifierMap, type ExtensionIdentifier, type IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import type { IReadOnlyExtensionDescriptionRegistry } from "./extensionDescriptionRegistry.js";
-import { ExtensionHostKind, type IExtensionHostKindPicker } from "./extensionHostKind.js";
-import type { IExtensionHostManager } from "./extensionHostManagers.js";
-import { IExtensionManifestPropertiesService } from "./extensionManifestPropertiesService.js";
-import { type ExtensionRunningLocation } from "./extensionRunningLocation.js";
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ExtensionKind } from '../../../../platform/environment/common/environment.js';
+import { ExtensionIdentifier, ExtensionIdentifierMap, IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IWorkbenchEnvironmentService } from '../../environment/common/environmentService.js';
+import { IReadOnlyExtensionDescriptionRegistry } from './extensionDescriptionRegistry.js';
+import { ExtensionHostKind, IExtensionHostKindPicker } from './extensionHostKind.js';
+import { IExtensionHostManager } from './extensionHostManagers.js';
+import { IExtensionManifestPropertiesService } from './extensionManifestPropertiesService.js';
+import { ExtensionRunningLocation } from './extensionRunningLocation.js';
 export declare class ExtensionRunningLocationTracker {
     private readonly _registry;
     private readonly _extensionHostKindPicker;

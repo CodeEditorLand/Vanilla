@@ -1,10 +1,10 @@
-import { AbstractIdleValue, type IdleDeadline, IntervalTimer } from "../common/async.js";
-import * as event from "../common/event.js";
-import { Disposable, DisposableStore, type IDisposable } from "../common/lifecycle.js";
-import { URI } from "../common/uri.js";
-import { type IKeyboardEvent } from "./keyboardEvent.js";
-import { type IMouseEvent } from "./mouseEvent.js";
-import { type CodeWindow } from "./window.js";
+import { IKeyboardEvent } from './keyboardEvent.js';
+import { IMouseEvent } from './mouseEvent.js';
+import { AbstractIdleValue, IntervalTimer, IdleDeadline } from '../common/async.js';
+import * as event from '../common/event.js';
+import { Disposable, DisposableStore, IDisposable } from '../common/lifecycle.js';
+import { URI } from '../common/uri.js';
+import { CodeWindow } from './window.js';
 export interface IRegisteredCodeWindow {
     readonly window: CodeWindow;
     readonly disposables: DisposableStore;
@@ -18,14 +18,14 @@ export declare function addDisposableListener<K extends keyof GlobalEventHandler
 export declare function addDisposableListener(node: EventTarget, type: string, handler: (event: any) => void, useCapture?: boolean): IDisposable;
 export declare function addDisposableListener(node: EventTarget, type: string, handler: (event: any) => void, options: AddEventListenerOptions): IDisposable;
 export interface IAddStandardDisposableListenerSignature {
-    (node: HTMLElement, type: "click", handler: (event: IMouseEvent) => void, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: "mousedown", handler: (event: IMouseEvent) => void, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: "keydown", handler: (event: IKeyboardEvent) => void, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: "keypress", handler: (event: IKeyboardEvent) => void, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: "keyup", handler: (event: IKeyboardEvent) => void, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: "pointerdown", handler: (event: PointerEvent) => void, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: "pointermove", handler: (event: PointerEvent) => void, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: "pointerup", handler: (event: PointerEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'click', handler: (event: IMouseEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'mousedown', handler: (event: IMouseEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'keydown', handler: (event: IKeyboardEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'keypress', handler: (event: IKeyboardEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'keyup', handler: (event: IKeyboardEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'pointerdown', handler: (event: PointerEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'pointermove', handler: (event: PointerEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'pointerup', handler: (event: PointerEvent) => void, useCapture?: boolean): IDisposable;
     (node: HTMLElement, type: string, handler: (event: any) => void, useCapture?: boolean): IDisposable;
 }
 export declare const addStandardDisposableListener: IAddStandardDisposableListenerSignature;
@@ -417,7 +417,7 @@ export declare function safeInnerHtml(node: HTMLElement, value: string): void;
  * of throwing an exception.
  */
 export declare function multibyteAwareBtoa(str: string): string;
-type ModifierKey = "alt" | "ctrl" | "shift" | "meta";
+type ModifierKey = 'alt' | 'ctrl' | 'shift' | 'meta';
 export interface IModifierKeyStatus {
     altKey: boolean;
     shiftKey: boolean;
@@ -466,10 +466,10 @@ type HTMLElementAttributeKeys<T> = Partial<{
 }>;
 type ElementAttributes<T> = HTMLElementAttributeKeys<T> & Record<string, any>;
 type RemoveHTMLElement<T> = T extends HTMLElement ? never : T;
-type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never;
 type ArrayToObj<T extends readonly any[]> = UnionToIntersection<RemoveHTMLElement<T[number]>>;
 type HHTMLElementTagNameMap = HTMLElementTagNameMap & {
-    "": HTMLDivElement;
+    '': HTMLDivElement;
 };
 type TagToElement<T> = T extends `${infer TStart}#${string}` ? TStart extends keyof HHTMLElementTagNameMap ? HHTMLElementTagNameMap[TStart] : HTMLElement : T extends `${infer TStart}.${string}` ? TStart extends keyof HHTMLElementTagNameMap ? HHTMLElementTagNameMap[TStart] : HTMLElement : T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement;
 type TagToElementAndId<TTag> = TTag extends `${infer TTag}@${infer TId}` ? {
@@ -477,12 +477,12 @@ type TagToElementAndId<TTag> = TTag extends `${infer TTag}@${infer TId}` ? {
     id: TId;
 } : {
     element: TagToElement<TTag>;
-    id: "root";
+    id: 'root';
 };
 type TagToRecord<TTag> = TagToElementAndId<TTag> extends {
     element: infer TElement;
     id: infer TId;
-} ? Record<(TId extends string ? TId : never) | "root", TElement> : never;
+} ? Record<(TId extends string ? TId : never) | 'root', TElement> : never;
 type Child = HTMLElement | string | Record<string, HTMLElement>;
 /**
  * A helper function to create nested dom nodes.
@@ -498,29 +498,29 @@ type Child = HTMLElement | string | Record<string, HTMLElement>;
  * ]);
  * const editor = createEditor(elements.editor);
  * ```
- */
+*/
 export declare function h<TTag extends string>(tag: TTag): TagToRecord<TTag> extends infer Y ? {
     [TKey in keyof Y]: Y[TKey];
 } : never;
-export declare function h<TTag extends string, T extends Child[]>(tag: TTag, children: [...T]): ArrayToObj<T> & TagToRecord<TTag> extends infer Y ? {
+export declare function h<TTag extends string, T extends Child[]>(tag: TTag, children: [...T]): (ArrayToObj<T> & TagToRecord<TTag>) extends infer Y ? {
     [TKey in keyof Y]: Y[TKey];
 } : never;
 export declare function h<TTag extends string>(tag: TTag, attributes: Partial<ElementAttributes<TagToElement<TTag>>>): TagToRecord<TTag> extends infer Y ? {
     [TKey in keyof Y]: Y[TKey];
 } : never;
-export declare function h<TTag extends string, T extends Child[]>(tag: TTag, attributes: Partial<ElementAttributes<TagToElement<TTag>>>, children: [...T]): ArrayToObj<T> & TagToRecord<TTag> extends infer Y ? {
+export declare function h<TTag extends string, T extends Child[]>(tag: TTag, attributes: Partial<ElementAttributes<TagToElement<TTag>>>, children: [...T]): (ArrayToObj<T> & TagToRecord<TTag>) extends infer Y ? {
     [TKey in keyof Y]: Y[TKey];
 } : never;
 export declare function svgElem<TTag extends string>(tag: TTag): TagToRecord<TTag> extends infer Y ? {
     [TKey in keyof Y]: Y[TKey];
 } : never;
-export declare function svgElem<TTag extends string, T extends Child[]>(tag: TTag, children: [...T]): ArrayToObj<T> & TagToRecord<TTag> extends infer Y ? {
+export declare function svgElem<TTag extends string, T extends Child[]>(tag: TTag, children: [...T]): (ArrayToObj<T> & TagToRecord<TTag>) extends infer Y ? {
     [TKey in keyof Y]: Y[TKey];
 } : never;
 export declare function svgElem<TTag extends string>(tag: TTag, attributes: Partial<ElementAttributes<TagToElement<TTag>>>): TagToRecord<TTag> extends infer Y ? {
     [TKey in keyof Y]: Y[TKey];
 } : never;
-export declare function svgElem<TTag extends string, T extends Child[]>(tag: TTag, attributes: Partial<ElementAttributes<TagToElement<TTag>>>, children: [...T]): ArrayToObj<T> & TagToRecord<TTag> extends infer Y ? {
+export declare function svgElem<TTag extends string, T extends Child[]>(tag: TTag, attributes: Partial<ElementAttributes<TagToElement<TTag>>>, children: [...T]): (ArrayToObj<T> & TagToRecord<TTag>) extends infer Y ? {
     [TKey in keyof Y]: Y[TKey];
 } : never;
 export declare function copyAttributes(from: Element, to: Element, filter?: string[]): void;

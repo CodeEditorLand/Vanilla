@@ -1,4 +1,4 @@
-import * as streams from "./stream.js";
+import * as streams from './stream.js';
 export declare class VSBuffer {
     /**
      * When running in a nodejs context, the backing store for the returned `VSBuffer` instance

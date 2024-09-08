@@ -1,14 +1,14 @@
-import "./textAreaEditContext.css";
-import { type FastDomNode } from "../../../../../base/browser/fastDomNode.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import { Position } from "../../../../common/core/position.js";
-import * as viewEvents from "../../../../common/viewEvents.js";
-import type { ViewContext } from "../../../../common/viewModel/viewContext.js";
-import type { IEditorAriaOptions } from "../../../editorBrowser.js";
-import type { HorizontalPosition, RenderingContext, RestrictedRenderingContext } from "../../../view/renderingContext.js";
-import type { ViewController } from "../../../view/viewController.js";
-import { AbstractEditContext } from "../editContextUtils.js";
+import './textAreaEditContext.css';
+import { FastDomNode } from '../../../../../base/browser/fastDomNode.js';
+import { ViewController } from '../../../view/viewController.js';
+import { Position } from '../../../../common/core/position.js';
+import { RenderingContext, RestrictedRenderingContext, HorizontalPosition } from '../../../view/renderingContext.js';
+import { ViewContext } from '../../../../common/viewModel/viewContext.js';
+import * as viewEvents from '../../../../common/viewEvents.js';
+import { IEditorAriaOptions } from '../../../editorBrowser.js';
+import { IKeybindingService } from '../../../../../platform/keybinding/common/keybinding.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { AbstractEditContext } from '../editContextUtils.js';
 export interface IVisibleRangeProvider {
     visibleRangeForPosition(position: Position): HorizontalPosition | null;
 }

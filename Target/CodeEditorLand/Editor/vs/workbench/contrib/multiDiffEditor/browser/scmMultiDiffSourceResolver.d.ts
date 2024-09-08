@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI, type UriComponents } from "../../../../base/common/uri.js";
-import type { IMultiDiffEditorOptions } from "../../../../editor/browser/widget/multiDiffEditor/multiDiffEditorWidgetImpl.js";
-import { Action2 } from "../../../../platform/actions/common/actions.js";
-import { IInstantiationService, type ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { IActivityService } from "../../../services/activity/common/activity.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { ISCMService } from "../../scm/common/scm.js";
-import { IMultiDiffSourceResolverService, type IMultiDiffSourceResolver, type IResolvedMultiDiffSource } from "./multiDiffSourceResolverService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI, UriComponents } from '../../../../base/common/uri.js';
+import { IMultiDiffEditorOptions } from '../../../../editor/browser/widget/multiDiffEditor/multiDiffEditorWidgetImpl.js';
+import { Action2 } from '../../../../platform/actions/common/actions.js';
+import { IInstantiationService, ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { IMultiDiffSourceResolver, IMultiDiffSourceResolverService, IResolvedMultiDiffSource } from './multiDiffSourceResolverService.js';
+import { ISCMService } from '../../scm/common/scm.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IActivityService } from '../../../services/activity/common/activity.js';
 export declare class ScmMultiDiffSourceResolver implements IMultiDiffSourceResolver {
     private readonly _scmService;
     private readonly _activityService;

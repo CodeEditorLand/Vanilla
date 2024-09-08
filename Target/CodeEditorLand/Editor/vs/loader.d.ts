@@ -1,5 +1,5 @@
 export = RequireFunc;
-declare function RequireFunc(): any;
+declare function RequireFunc(...args: any[]): any;
 declare namespace RequireFunc {
     export { _requireFunc_config as config };
     export function getConfig(): any;

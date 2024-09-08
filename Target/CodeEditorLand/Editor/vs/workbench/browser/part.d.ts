@@ -1,12 +1,12 @@
-import "./media/part.css";
-import { Dimension, type IDimension, type IDomPosition } from "../../base/browser/dom.js";
-import type { ISerializableView, IViewSize } from "../../base/browser/ui/grid/grid.js";
-import { Emitter, type Event } from "../../base/common/event.js";
-import { type IDisposable } from "../../base/common/lifecycle.js";
-import type { IStorageService } from "../../platform/storage/common/storage.js";
-import type { IColorTheme, IThemeService } from "../../platform/theme/common/themeService.js";
-import { Component } from "../common/component.js";
-import type { IWorkbenchLayoutService } from "../services/layout/browser/layoutService.js";
+import './media/part.css';
+import { Component } from '../common/component.js';
+import { IThemeService, IColorTheme } from '../../platform/theme/common/themeService.js';
+import { Dimension, IDimension, IDomPosition } from '../../base/browser/dom.js';
+import { IStorageService } from '../../platform/storage/common/storage.js';
+import { ISerializableView, IViewSize } from '../../base/browser/ui/grid/grid.js';
+import { Event, Emitter } from '../../base/common/event.js';
+import { IWorkbenchLayoutService } from '../services/layout/browser/layoutService.js';
+import { IDisposable } from '../../base/common/lifecycle.js';
 export interface IPartOptions {
     readonly hasTitle?: boolean;
     readonly borderWidth?: () => number;

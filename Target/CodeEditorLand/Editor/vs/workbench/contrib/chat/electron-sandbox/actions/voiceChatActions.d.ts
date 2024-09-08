@@ -1,19 +1,19 @@
-import "./media/voiceChatActions.css";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { Action2, type IAction2Options } from "../../../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService, type ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
-import type { IWorkbenchContribution } from "../../../../common/contributions.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { IHostService } from "../../../../services/host/browser/host.js";
-import { ISpeechService } from "../../../speech/common/speechService.js";
-import type { IChatExecuteActionContext } from "../../browser/actions/chatExecuteActions.js";
-import { IChatAgentService } from "../../common/chatAgents.js";
+import './media/voiceChatActions.css';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { Action2, IAction2Options } from '../../../../../platform/actions/common/actions.js';
+import { ICommandService } from '../../../../../platform/commands/common/commands.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IInstantiationService, ServicesAccessor } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IWorkbenchContribution } from '../../../../common/contributions.js';
+import { IChatExecuteActionContext } from '../../browser/actions/chatExecuteActions.js';
+import { IChatAgentService } from '../../common/chatAgents.js';
+import { ISpeechService } from '../../../speech/common/speechService.js';
+import { IEditorService } from '../../../../services/editor/common/editorService.js';
+import { IHostService } from '../../../../services/host/browser/host.js';
 export declare const VOICE_KEY_HOLD_THRESHOLD = 500;
 declare class VoiceChatWithHoldModeAction extends Action2 {
     private readonly target;
-    constructor(desc: Readonly<IAction2Options>, target: "view" | "inline" | "quick");
+    constructor(desc: Readonly<IAction2Options>, target: 'view' | 'inline' | 'quick');
     run(accessor: ServicesAccessor, context?: IChatExecuteActionContext): Promise<void>;
 }
 export declare class VoiceChatInChatViewAction extends VoiceChatWithHoldModeAction {

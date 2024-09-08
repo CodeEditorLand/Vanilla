@@ -1,11 +1,11 @@
-import type { IAction } from "../../../base/common/actions.js";
-import type { Event } from "../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../base/common/lifecycle.js";
-import type { IKeyboardEvent } from "../../keybinding/common/keybinding.js";
-import type { IPickerQuickAccessItem } from "../../quickinput/browser/pickerQuickAccess.js";
-import type { IQuickPickItem } from "../../quickinput/common/quickInput.js";
+import { IKeyboardEvent } from '../../keybinding/common/keybinding.js';
+import { IPickerQuickAccessItem } from '../../quickinput/browser/pickerQuickAccess.js';
+import { Event } from '../../../base/common/event.js';
+import { IAction } from '../../../base/common/actions.js';
+import { IQuickPickItem } from '../../quickinput/common/quickInput.js';
+import { IDisposable, Disposable } from '../../../base/common/lifecycle.js';
 export declare const IAccessibleViewService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IAccessibleViewService>;
-export declare enum AccessibleViewProviderId {
+export declare const enum AccessibleViewProviderId {
     Terminal = "terminal",
     TerminalChat = "terminal-chat",
     TerminalHelp = "terminal-help",
@@ -25,11 +25,11 @@ export declare enum AccessibleViewProviderId {
     RunAndDebug = "runAndDebug",
     Walkthrough = "walkthrough"
 }
-export declare enum AccessibleViewType {
+export declare const enum AccessibleViewType {
     Help = "help",
     View = "view"
 }
-export declare enum NavigationType {
+export declare const enum NavigationType {
     Previous = "previous",
     Next = "next"
 }
@@ -45,7 +45,7 @@ export interface IAccessibleViewOptions {
      * If set to 'initial-bottom', places the cursor on the bottom line of the accessible view and preserves it henceforth.
      * If set to 'bottom', places the cursor on the bottom line of the accessible view.
      */
-    position?: "bottom" | "initial-bottom";
+    position?: 'bottom' | 'initial-bottom';
     /**
      * @returns a string that will be used as the content of the help dialog
      * instead of the one provided by default.
@@ -98,7 +98,7 @@ export interface IAccessibleViewService {
     showAccessibleViewHelp(): void;
     next(): void;
     previous(): void;
-    navigateToCodeBlock(type: "next" | "previous"): void;
+    navigateToCodeBlock(type: 'next' | 'previous'): void;
     goToSymbol(): void;
     disableHint(): void;
     getPosition(id: AccessibleViewProviderId): IPosition | undefined;

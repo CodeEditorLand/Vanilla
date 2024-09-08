@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { type IObservable } from "../../../../../base/common/observable.js";
-import { type IContextKeyService, RawContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
-import type { InlineCompletionsModel } from "../model/inlineCompletionsModel.js";
+import { IObservable } from '../../../../../base/common/observable.js';
+import { InlineCompletionsModel } from '../model/inlineCompletionsModel.js';
+import { RawContextKey, IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
 export declare class InlineCompletionContextKeys extends Disposable {
     private readonly contextKeyService;
     private readonly model;

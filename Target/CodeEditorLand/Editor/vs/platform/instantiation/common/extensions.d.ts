@@ -1,6 +1,6 @@
-import { SyncDescriptor } from "./descriptors.js";
-import type { BrandedService, ServiceIdentifier } from "./instantiation.js";
-export declare enum InstantiationType {
+import { SyncDescriptor } from './descriptors.js';
+import { BrandedService, ServiceIdentifier } from './instantiation.js';
+export declare const enum InstantiationType {
     /**
      * Instantiate this service as soon as a consumer depends on it. _Note_ that this
      * is more costly as some upfront work is done that is likely not needed
@@ -14,7 +14,4 @@ export declare enum InstantiationType {
 }
 export declare function registerSingleton<T, Services extends BrandedService[]>(id: ServiceIdentifier<T>, ctor: new (...services: Services) => T, supportsDelayedInstantiation: InstantiationType): void;
 export declare function registerSingleton<T, Services extends BrandedService[]>(id: ServiceIdentifier<T>, descriptor: SyncDescriptor<any>): void;
-export declare function getSingletonServiceDescriptors(): [
-    ServiceIdentifier<any>,
-    SyncDescriptor<any>
-][];
+export declare function getSingletonServiceDescriptors(): [ServiceIdentifier<any>, SyncDescriptor<any>][];

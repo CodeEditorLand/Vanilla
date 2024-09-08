@@ -1,11 +1,11 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IExtensionGalleryService, IExtensionManagementService, IGlobalExtensionEnablementService, type IExtensionIdentifier } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ProfileResourceType, type IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import { IUserDataProfileStorageService } from "../../../../platform/userDataProfile/common/userDataProfileStorageService.js";
-import { TreeItemCollapsibleState, type ITreeItemCheckboxState } from "../../../common/views.js";
-import { IUserDataProfileService, type IProfileResource, type IProfileResourceChildTreeItem, type IProfileResourceInitializer, type IProfileResourceTreeItem } from "../common/userDataProfile.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IExtensionGalleryService, IExtensionIdentifier, IExtensionManagementService, IGlobalExtensionEnablementService } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IUserDataProfile, ProfileResourceType } from '../../../../platform/userDataProfile/common/userDataProfile.js';
+import { IUserDataProfileStorageService } from '../../../../platform/userDataProfile/common/userDataProfileStorageService.js';
+import { ITreeItemCheckboxState, TreeItemCollapsibleState } from '../../../common/views.js';
+import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem, IUserDataProfileService } from '../common/userDataProfile.js';
 interface IProfileExtension {
     identifier: IExtensionIdentifier;
     displayName?: string;

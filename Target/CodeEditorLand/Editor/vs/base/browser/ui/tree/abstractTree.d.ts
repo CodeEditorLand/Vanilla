@@ -1,16 +1,16 @@
-import { Event } from "../../../common/event.js";
-import { FuzzyScore } from "../../../common/filters.js";
-import { Disposable, DisposableStore, type IDisposable } from "../../../common/lifecycle.js";
-import { SetMap } from "../../../common/map.js";
-import type { ScrollEvent } from "../../../common/scrollable.js";
-import type { IContextViewProvider } from "../contextview/contextview.js";
-import { type IInputBoxStyles } from "../inputbox/inputBox.js";
-import type { IIdentityProvider, IListRenderer, IListVirtualDelegate } from "../list/list.js";
-import { type IListOptions, type IListStyles, List, MouseController, type TypeNavigationMode } from "../list/listWidget.js";
-import { type IToggleStyles, Toggle } from "../toggle/toggle.js";
-import { type ICollapseStateChangeEvent, type ITreeContextMenuEvent, type ITreeDragAndDrop, type ITreeEvent, type ITreeFilter, type ITreeModel, type ITreeModelSpliceEvent, type ITreeMouseEvent, type ITreeNavigator, type ITreeNode, type ITreeRenderer, TreeVisibility } from "./tree.js";
-import "./media/tree.css";
-import type { IHoverDelegate } from "../hover/hoverDelegate.js";
+import { IContextViewProvider } from '../contextview/contextview.js';
+import { IInputBoxStyles } from '../inputbox/inputBox.js';
+import { IIdentityProvider, IListRenderer, IListVirtualDelegate } from '../list/list.js';
+import { IListOptions, IListStyles, List, MouseController, TypeNavigationMode } from '../list/listWidget.js';
+import { IToggleStyles, Toggle } from '../toggle/toggle.js';
+import { ICollapseStateChangeEvent, ITreeContextMenuEvent, ITreeDragAndDrop, ITreeEvent, ITreeFilter, ITreeModel, ITreeModelSpliceEvent, ITreeMouseEvent, ITreeNavigator, ITreeNode, ITreeRenderer, TreeVisibility } from './tree.js';
+import { SetMap } from '../../../common/map.js';
+import { Event } from '../../../common/event.js';
+import { FuzzyScore } from '../../../common/filters.js';
+import { Disposable, DisposableStore, IDisposable } from '../../../common/lifecycle.js';
+import { ScrollEvent } from '../../../common/scrollable.js';
+import './media/tree.css';
+import { IHoverDelegate } from '../hover/hoverDelegate.js';
 export declare class ComposedTreeDelegate<T, N extends {
     element: T;
 }> implements IListVirtualDelegate<N> {
@@ -225,7 +225,7 @@ declare class Trait<T> {
     get(): T[];
     getNodes(): readonly ITreeNode<T, any>[];
     has(node: ITreeNode<T, any>): boolean;
-    onDidModelSplice({ insertedNodes, deletedNodes, }: ITreeModelSpliceEvent<T, any>): void;
+    onDidModelSplice({ insertedNodes, deletedNodes }: ITreeModelSpliceEvent<T, any>): void;
     private createNodeSet;
 }
 interface ITreeNodeListOptions<T, TFilterData, TRef> extends IListOptions<ITreeNode<T, TFilterData>> {
@@ -247,7 +247,7 @@ declare class TreeNodeList<T, TFilterData, TRef> extends List<ITreeNode<T, TFilt
     setSelection(indexes: number[], browserEvent?: UIEvent, fromAPI?: boolean): void;
     setAnchor(index: number | undefined, fromAPI?: boolean): void;
 }
-export declare enum AbstractTreePart {
+export declare const enum AbstractTreePart {
     Tree = 0,
     StickyScroll = 1
 }

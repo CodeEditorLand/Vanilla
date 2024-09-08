@@ -1,4 +1,4 @@
-export declare enum TerminalLinksCommandId {
+export declare const enum TerminalLinksCommandId {
     OpenDetectedLink = "workbench.action.terminal.openDetectedLink",
     OpenWordLink = "workbench.action.terminal.openWordLink",
     OpenFileLink = "workbench.action.terminal.openFileLink",

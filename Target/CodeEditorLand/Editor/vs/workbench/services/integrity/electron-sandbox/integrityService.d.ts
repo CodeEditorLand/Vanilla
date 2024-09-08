@@ -1,11 +1,11 @@
-import { IChecksumService } from "../../../../platform/checksum/common/checksumService.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
-import { IIntegrityService, type IntegrityTestResult } from "../common/integrity.js";
+import { IIntegrityService, IntegrityTestResult } from '../common/integrity.js';
+import { ILifecycleService } from '../../lifecycle/common/lifecycle.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IChecksumService } from '../../../../platform/checksum/common/checksumService.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare class IntegrityService implements IIntegrityService {
     private readonly notificationService;
     private readonly storageService;

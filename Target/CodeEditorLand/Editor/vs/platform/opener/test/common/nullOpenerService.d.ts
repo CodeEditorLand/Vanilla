@@ -1,2 +1,2 @@
-import type { IOpenerService } from "../../common/opener.js";
+import { IOpenerService } from '../../common/opener.js';
 export declare const NullOpenerService: Readonly<IOpenerService>;

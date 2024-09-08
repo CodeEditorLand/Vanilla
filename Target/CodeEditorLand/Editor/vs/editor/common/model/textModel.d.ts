@@ -1,32 +1,32 @@
-import type { VSBufferReadableStream } from "../../../base/common/buffer.js";
-import { Color } from "../../../base/common/color.js";
-import { type Event } from "../../../base/common/event.js";
-import type { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { Disposable, type IDisposable } from "../../../base/common/lifecycle.js";
-import type { ThemeColor } from "../../../base/common/themables.js";
-import { URI } from "../../../base/common/uri.js";
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import type { IColorTheme } from "../../../platform/theme/common/themeService.js";
-import { IUndoRedoService, type ResourceEditStackSnapshot, type UndoRedoGroup } from "../../../platform/undoRedo/common/undoRedo.js";
-import { Position, type IPosition } from "../core/position.js";
-import { Range, type IRange } from "../core/range.js";
-import { Selection } from "../core/selection.js";
-import type { TextChange } from "../core/textChange.js";
-import type { IWordAtPosition } from "../core/wordHelper.js";
-import type { FormattingOptions } from "../languages.js";
-import { ILanguageService, type ILanguageSelection } from "../languages/language.js";
-import { ILanguageConfigurationService } from "../languages/languageConfigurationRegistry.js";
-import * as model from "../model.js";
-import type { IBracketPairsTextModelPart } from "../textModelBracketPairs.js";
-import { InternalModelContentChangeEvent, ModelInjectedTextChangedEvent, type IModelContentChangedEvent, type IModelDecorationsChangedEvent, type IModelOptionsChangedEvent } from "../textModelEvents.js";
-import type { IGuidesTextModelPart } from "../textModelGuides.js";
-import type { ITokenizationTextModelPart } from "../tokenizationTextModelPart.js";
-import type { TokenArray } from "../tokens/tokenArray.js";
+import { VSBufferReadableStream } from '../../../base/common/buffer.js';
+import { Color } from '../../../base/common/color.js';
+import { Event } from '../../../base/common/event.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { ThemeColor } from '../../../base/common/themables.js';
+import { URI } from '../../../base/common/uri.js';
+import { IPosition, Position } from '../core/position.js';
+import { IRange, Range } from '../core/range.js';
+import { Selection } from '../core/selection.js';
+import { TextChange } from '../core/textChange.js';
+import { IWordAtPosition } from '../core/wordHelper.js';
+import { FormattingOptions } from '../languages.js';
+import { ILanguageSelection, ILanguageService } from '../languages/language.js';
+import { ILanguageConfigurationService } from '../languages/languageConfigurationRegistry.js';
+import * as model from '../model.js';
+import { IBracketPairsTextModelPart } from '../textModelBracketPairs.js';
+import { IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelOptionsChangedEvent, InternalModelContentChangeEvent, ModelInjectedTextChangedEvent } from '../textModelEvents.js';
+import { IGuidesTextModelPart } from '../textModelGuides.js';
+import { ITokenizationTextModelPart } from '../tokenizationTextModelPart.js';
+import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
+import { IColorTheme } from '../../../platform/theme/common/themeService.js';
+import { IUndoRedoService, ResourceEditStackSnapshot, UndoRedoGroup } from '../../../platform/undoRedo/common/undoRedo.js';
+import { TokenArray } from '../tokens/tokenArray.js';
 export declare function createTextBufferFactory(text: string): model.ITextBufferFactory;
 interface ITextStream {
-    on(event: "data", callback: (data: string) => void): void;
-    on(event: "error", callback: (err: Error) => void): void;
-    on(event: "end", callback: () => void): void;
+    on(event: 'data', callback: (data: string) => void): void;
+    on(event: 'error', callback: (err: Error) => void): void;
+    on(event: 'end', callback: () => void): void;
     on(event: string, callback: any): void;
 }
 export declare function createTextBufferFactoryFromStream(stream: ITextStream): Promise<model.ITextBufferFactory>;
@@ -227,7 +227,7 @@ export declare class TextModel extends Disposable implements model.ITextModel, I
     /**
      * Gets the column at which indentation stops at a given line.
      * @internal
-     */
+    */
     getLineIndentColumn(lineNumber: number): number;
 }
 export declare function indentOfLine(line: string): number;

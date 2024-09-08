@@ -19,7 +19,7 @@ export interface IIndexTransformer {
 }
 /**
  * Can only be called with increasing values of `index`.
- */
+*/
 export declare class MonotonousIndexTransformer implements IIndexTransformer {
     private readonly transformation;
     static fromMany(transformations: ArrayEdit[]): IIndexTransformer;

@@ -1,4 +1,4 @@
-import type { Piece, PieceTreeBase } from "./pieceTreeBase.js";
+import { Piece, PieceTreeBase } from './pieceTreeBase.js';
 export declare class TreeNode {
     parent: TreeNode;
     left: TreeNode;
@@ -12,7 +12,7 @@ export declare class TreeNode {
     prev(): TreeNode;
     detach(): void;
 }
-export declare enum NodeColor {
+export declare const enum NodeColor {
     Black = 0,
     Red = 1
 }

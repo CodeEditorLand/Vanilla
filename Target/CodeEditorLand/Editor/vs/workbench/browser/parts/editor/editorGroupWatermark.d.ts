@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 export declare class EditorGroupWatermark extends Disposable {
     private readonly keybindingService;
     private readonly contextService;

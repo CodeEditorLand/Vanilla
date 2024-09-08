@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IProgressService } from "../../../../platform/progress/common/progress.js";
-import { type IWorkbenchContribution } from "../../../common/contributions.js";
-import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
-import { ITaskService } from "../common/taskService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IProgressService } from '../../../../platform/progress/common/progress.js';
+import { IStatusbarService } from '../../../services/statusbar/browser/statusbar.js';
+import { ITaskService } from '../common/taskService.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
 export declare class TaskStatusBarContributions extends Disposable implements IWorkbenchContribution {
     private readonly _taskService;
     private readonly _statusbarService;

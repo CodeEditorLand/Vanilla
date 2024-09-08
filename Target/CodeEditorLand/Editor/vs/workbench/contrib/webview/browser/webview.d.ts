@@ -1,13 +1,13 @@
-import type { Dimension } from "../../../../base/browser/dom.js";
-import type { IMouseWheelEvent } from "../../../../base/browser/mouseEvent.js";
-import type { CodeWindow } from "../../../../base/browser/window.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { RawContextKey, type IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import type { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import type { IWebviewPortMapping } from "../../../../platform/webview/common/webviewPortMapping.js";
+import { Dimension } from '../../../../base/browser/dom.js';
+import { IMouseWheelEvent } from '../../../../base/browser/mouseEvent.js';
+import { CodeWindow } from '../../../../base/browser/window.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IWebviewPortMapping } from '../../../../platform/webview/common/webviewPortMapping.js';
 /**
  * Set when the find widget in a webview in a webview is visible.
  */
@@ -55,7 +55,7 @@ export interface WebviewInitInfo {
     readonly contentOptions: WebviewContentOptions;
     readonly extension: WebviewExtensionDescription | undefined;
 }
-export declare enum WebviewContentPurpose {
+export declare const enum WebviewContentPurpose {
     NotebookRenderer = "notebookRenderer",
     CustomEditor = "customEditor",
     WebviewView = "webviewView"

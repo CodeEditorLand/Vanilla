@@ -1,12 +1,12 @@
-import type { Event } from "../../../../base/common/event.js";
-import type { DisposableStore } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IDiffEditor, IEditor } from "../../../../editor/common/editorCommon.js";
-import type { IEditorOptions, IResourceEditorInput, IResourceEditorInputIdentifier, ITextResourceEditorInput } from "../../../../platform/editor/common/editor.js";
-import type { EditorsOrder, GroupIdentifier, IEditorCloseEvent, IEditorIdentifier, IEditorPane, IEditorWillOpenEvent, IFindEditorOptions, IResourceDiffEditorInput, IRevertOptions, ISaveOptions, ITextDiffEditorPane, IUntitledTextResourceEditorInput, IUntypedEditorInput, IVisibleEditorPane } from "../../../common/editor.js";
-import type { IGroupModelChangeEvent } from "../../../common/editor/editorGroupModel.js";
-import type { EditorInput } from "../../../common/editor/editorInput.js";
-import { type ICloseEditorOptions, type IEditorGroup, type IEditorGroupsContainer } from "./editorGroupsService.js";
+import { IResourceEditorInput, IEditorOptions, IResourceEditorInputIdentifier, ITextResourceEditorInput } from '../../../../platform/editor/common/editor.js';
+import { IEditorPane, GroupIdentifier, IUntitledTextResourceEditorInput, IResourceDiffEditorInput, ITextDiffEditorPane, IEditorIdentifier, ISaveOptions, IRevertOptions, EditorsOrder, IVisibleEditorPane, IEditorCloseEvent, IUntypedEditorInput, IFindEditorOptions, IEditorWillOpenEvent } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { Event } from '../../../../base/common/event.js';
+import { IEditor, IDiffEditor } from '../../../../editor/common/editorCommon.js';
+import { ICloseEditorOptions, IEditorGroup, IEditorGroupsContainer } from './editorGroupsService.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IGroupModelChangeEvent } from '../../../common/editor/editorGroupModel.js';
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
 export declare const IEditorService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditorService>;
 /**
  * Open an editor in the currently active group.
@@ -53,7 +53,7 @@ export interface IUntypedEditorReplacement {
     /**
      * Skips asking the user for confirmation and doesn't
      * save the document. Only use this if you really need to!
-     */
+    */
     forceReplaceDirty?: boolean;
 }
 export interface IBaseSaveRevertAllEditorOptions {
@@ -291,5 +291,5 @@ export interface IEditorService {
      * editor group container. Use `main` to create a scoped editor service
      * to the main editor group container of the main window.
      */
-    createScoped(editorGroupsContainer: IEditorGroupsContainer | "main", disposables: DisposableStore): IEditorService;
+    createScoped(editorGroupsContainer: IEditorGroupsContainer | 'main', disposables: DisposableStore): IEditorService;
 }

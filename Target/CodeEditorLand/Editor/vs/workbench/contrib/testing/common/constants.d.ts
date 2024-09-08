@@ -1,5 +1,5 @@
-import { TestResultState, TestRunProfileBitset } from "./testTypes.js";
-export declare enum Testing {
+import { TestResultState, TestRunProfileBitset } from './testTypes.js';
+export declare const enum Testing {
     ViewletId = "workbench.view.extension.test",
     ExplorerViewId = "workbench.view.testing",
     OutputPeekContributionId = "editor.contrib.testingOutputPeek",
@@ -10,18 +10,18 @@ export declare enum Testing {
     ResultsViewId = "workbench.panel.testResults.view",
     MessageLanguageId = "vscodeInternalTestMessage"
 }
-export declare enum TestExplorerViewMode {
+export declare const enum TestExplorerViewMode {
     List = "list",
     Tree = "true"
 }
-export declare enum TestExplorerViewSorting {
+export declare const enum TestExplorerViewSorting {
     ByLocation = "location",
     ByStatus = "status",
     ByDuration = "duration"
 }
 export declare const labelForTestInState: (label: string, state: TestResultState) => string;
 export declare const testConfigurationGroupNames: Partial<Record<TestRunProfileBitset, string | undefined>>;
-export declare enum TestCommandId {
+export declare const enum TestCommandId {
     CancelTestRefreshAction = "testing.cancelTestRefresh",
     CancelTestRunAction = "testing.cancelRun",
     ClearTestResultsAction = "testing.clearTestResults",

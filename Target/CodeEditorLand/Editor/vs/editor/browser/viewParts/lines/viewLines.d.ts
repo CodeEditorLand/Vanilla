@@ -1,12 +1,12 @@
-import type { FastDomNode } from "../../../../base/browser/fastDomNode.js";
-import "./viewLines.css";
-import { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import * as viewEvents from "../../../common/viewEvents.js";
-import type { ViewportData } from "../../../common/viewLayout/viewLinesViewportData.js";
-import type { ViewContext } from "../../../common/viewModel/viewContext.js";
-import { HorizontalPosition, type IViewLines, LineVisibleRanges } from "../../view/renderingContext.js";
-import { ViewPart } from "../../view/viewPart.js";
+import { FastDomNode } from '../../../../base/browser/fastDomNode.js';
+import './viewLines.css';
+import { HorizontalPosition, IViewLines, LineVisibleRanges } from '../../view/renderingContext.js';
+import { ViewPart } from '../../view/viewPart.js';
+import { Position } from '../../../common/core/position.js';
+import { Range } from '../../../common/core/range.js';
+import * as viewEvents from '../../../common/viewEvents.js';
+import { ViewportData } from '../../../common/viewLayout/viewLinesViewportData.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
 export declare class ViewLines extends ViewPart implements IViewLines {
     /**
      * Adds this amount of pixels to the right of lines (no-one wants to type near the edge of the viewport)

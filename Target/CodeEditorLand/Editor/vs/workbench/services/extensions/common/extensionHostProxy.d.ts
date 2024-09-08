@@ -1,11 +1,11 @@
-import type { VSBuffer } from "../../../../base/common/buffer.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import type { IRemoteConnectionData, RemoteAuthorityResolverErrorCode, ResolverResult } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
-import type { IExtensionDescriptionDelta } from "./extensionHostProtocol.js";
-import type { ActivationKind, ExtensionActivationReason } from "./extensions.js";
+import { VSBuffer } from '../../../../base/common/buffer.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { IRemoteConnectionData, RemoteAuthorityResolverErrorCode, ResolverResult } from '../../../../platform/remote/common/remoteAuthorityResolver.js';
+import { IExtensionDescriptionDelta } from './extensionHostProtocol.js';
+import { ActivationKind, ExtensionActivationReason } from './extensions.js';
 export interface IResolveAuthorityErrorResult {
-    type: "error";
+    type: 'error';
     error: {
         message: string | undefined;
         code: RemoteAuthorityResolverErrorCode;
@@ -13,7 +13,7 @@ export interface IResolveAuthorityErrorResult {
     };
 }
 export interface IResolveAuthorityOKResult {
-    type: "ok";
+    type: 'ok';
     value: ResolverResult;
 }
 export type IResolveAuthorityResult = IResolveAuthorityErrorResult | IResolveAuthorityOKResult;

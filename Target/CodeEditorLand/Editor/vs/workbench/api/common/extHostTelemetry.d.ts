@@ -1,11 +1,11 @@
-import type * as vscode from "vscode";
-import { type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILoggerService, type ILogger } from "../../../platform/log/common/log.js";
-import { TelemetryLevel, type ICommonProperties } from "../../../platform/telemetry/common/telemetry.js";
-import type { ExtHostTelemetryShape } from "./extHost.protocol.js";
-import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import type * as vscode from 'vscode';
+import { Event } from '../../../base/common/event.js';
+import { ExtHostTelemetryShape } from './extHost.protocol.js';
+import { ICommonProperties, TelemetryLevel } from '../../../platform/telemetry/common/telemetry.js';
+import { ILogger, ILoggerService } from '../../../platform/log/common/log.js';
+import { IExtHostInitDataService } from './extHostInitDataService.js';
+import { ExtensionIdentifier, IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
 export declare class ExtHostTelemetry extends Disposable implements ExtHostTelemetryShape {
     private readonly initData;
     private readonly loggerService;

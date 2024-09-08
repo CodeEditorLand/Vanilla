@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IWorkbenchThemeService, type IWorkbenchColorTheme } from "../../../services/themes/common/workbenchThemeService.js";
-import type { WebviewStyles } from "./webview.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IWorkbenchColorTheme, IWorkbenchThemeService } from '../../../services/themes/common/workbenchThemeService.js';
+import { WebviewStyles } from './webview.js';
 interface WebviewThemeData {
     readonly activeTheme: string;
     readonly themeLabel: string;

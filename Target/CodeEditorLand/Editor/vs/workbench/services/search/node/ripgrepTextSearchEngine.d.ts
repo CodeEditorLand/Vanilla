@@ -1,11 +1,11 @@
-import { EventEmitter } from "events";
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { URI } from "../../../../base/common/uri.js";
-import type { Progress } from "../../../../platform/progress/common/progress.js";
-import { type ITextSearchPreviewOptions } from "../common/search.js";
-import { type TextSearchCompleteNew, type TextSearchProviderOptions, type TextSearchQueryNew, type TextSearchResultNew } from "../common/searchExtTypes.js";
-import type { RipgrepTextSearchOptions } from "../common/searchExtTypesInternal.js";
-import { type IOutputChannel } from "./ripgrepSearchUtils.js";
+import { EventEmitter } from 'events';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { URI } from '../../../../base/common/uri.js';
+import { Progress } from '../../../../platform/progress/common/progress.js';
+import { ITextSearchPreviewOptions } from '../common/search.js';
+import { TextSearchCompleteNew, TextSearchProviderOptions, TextSearchQueryNew, TextSearchResultNew } from '../common/searchExtTypes.js';
+import { IOutputChannel } from './ripgrepSearchUtils.js';
+import type { RipgrepTextSearchOptions } from '../common/searchExtTypesInternal.js';
 export declare class RipgrepTextSearchEngine {
     private outputChannel;
     private readonly _numThreads?;
@@ -25,8 +25,8 @@ export declare class RipgrepParser extends EventEmitter {
     constructor(maxResults: number, root: URI, previewOptions: ITextSearchPreviewOptions);
     cancel(): void;
     flush(): void;
-    on(event: "result", listener: (result: TextSearchResultNew) => void): this;
-    on(event: "hitLimit", listener: () => void): this;
+    on(event: 'result', listener: (result: TextSearchResultNew) => void): this;
+    on(event: 'hitLimit', listener: () => void): this;
     handleData(data: Buffer | string): void;
     private handleDecodedData;
     private handleLine;
@@ -37,7 +37,7 @@ export declare class RipgrepParser extends EventEmitter {
 export declare function getRgArgs(query: TextSearchQueryNew, options: RipgrepTextSearchOptions): string[];
 export declare function unicodeEscapesToPCRE2(pattern: string): string;
 export interface IRgMessage {
-    type: "match" | "context" | string;
+    type: 'match' | 'context' | string;
     data: IRgMatch;
 }
 export interface IRgMatch {

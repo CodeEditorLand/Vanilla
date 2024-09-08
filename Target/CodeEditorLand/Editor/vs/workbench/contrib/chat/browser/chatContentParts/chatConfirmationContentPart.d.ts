@@ -1,8 +1,8 @@
-import { Disposable, type IDisposable } from "../../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import type { IChatProgressRenderableResponseContent } from "../../common/chatModel.js";
-import { type IChatConfirmation, IChatService } from "../../common/chatService.js";
-import type { IChatContentPart, IChatContentPartRenderContext } from "./chatContentParts.js";
+import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IChatContentPart, IChatContentPartRenderContext } from './chatContentParts.js';
+import { IChatProgressRenderableResponseContent } from '../../common/chatModel.js';
+import { IChatConfirmation, IChatService } from '../../common/chatService.js';
 export declare class ChatConfirmationContentPart extends Disposable implements IChatContentPart {
     private readonly instantiationService;
     private readonly chatService;

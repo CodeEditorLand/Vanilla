@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { WebviewThemeDataProvider } from "./themeing.js";
-import type { IOverlayWebview, IWebview, IWebviewElement, IWebviewService, WebviewInitInfo } from "./webview.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { WebviewThemeDataProvider } from './themeing.js';
+import { IOverlayWebview, IWebview, IWebviewElement, IWebviewService, WebviewInitInfo } from './webview.js';
 export declare class WebviewService extends Disposable implements IWebviewService {
     protected readonly _instantiationService: IInstantiationService;
     readonly _serviceBrand: undefined;

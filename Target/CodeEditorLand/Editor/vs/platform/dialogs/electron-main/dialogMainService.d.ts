@@ -1,7 +1,7 @@
-import electron from "electron";
-import { ILogService } from "../../log/common/log.js";
-import { IProductService } from "../../product/common/productService.js";
-import { type INativeOpenDialogOptions } from "../common/dialogs.js";
+import electron from 'electron';
+import { INativeOpenDialogOptions } from '../common/dialogs.js';
+import { ILogService } from '../../log/common/log.js';
+import { IProductService } from '../../product/common/productService.js';
 export declare const IDialogMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IDialogMainService>;
 export interface IDialogMainService {
     readonly _serviceBrand: undefined;

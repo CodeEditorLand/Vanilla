@@ -1,10 +1,10 @@
-import type { IDisposable } from "../../../../../base/common/lifecycle.js";
-import { URI } from "../../../../../base/common/uri.js";
-import type { IModelService } from "../../../../../editor/common/services/model.js";
-import type { TestInstantiationService } from "../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
-import type { IFileMatch } from "../../../../services/search/common/search.js";
-import type { INotebookEditorService } from "../../../notebook/browser/services/notebookEditorService.js";
-import type { SearchResult } from "../../browser/searchModel.js";
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { IModelService } from '../../../../../editor/common/services/model.js';
+import { TestInstantiationService } from '../../../../../platform/instantiation/test/common/instantiationServiceMock.js';
+import { INotebookEditorService } from '../../../notebook/browser/services/notebookEditorService.js';
+import { SearchResult } from '../../browser/searchModel.js';
+import { IFileMatch } from '../../../../services/search/common/search.js';
 export declare function createFileUriFromPathFromRoot(path?: string): URI;
 export declare function getRootName(): string;
 export declare function stubModelService(instantiationService: TestInstantiationService, addDisposable: (e: IDisposable) => void): IModelService;

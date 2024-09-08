@@ -1,6 +1,6 @@
-import type * as vscode from "vscode";
-import type { MainThreadNotebookEditorsShape } from "./extHost.protocol.js";
-import type { ExtHostNotebookDocument } from "./extHostNotebookDocument.js";
+import { MainThreadNotebookEditorsShape } from './extHost.protocol.js';
+import * as vscode from 'vscode';
+import { ExtHostNotebookDocument } from './extHostNotebookDocument.js';
 export declare class ExtHostNotebookEditor {
     readonly id: string;
     private readonly _proxy;

@@ -1,19 +1,19 @@
-import type { IJSONSchema } from "../../../../../base/common/jsonSchema.js";
-import type { TypeConstraint } from "../../../../../base/common/types.js";
-import { type UriComponents } from "../../../../../base/common/uri.js";
-import type { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
-import { Action2, type IAction2Options } from "../../../../../platform/actions/common/actions.js";
-import type { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
-import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { type IActiveNotebookEditor, type ICellOutputViewModel, type ICellViewModel } from "../notebookBrowser.js";
+import { UriComponents } from '../../../../../base/common/uri.js';
+import { Action2, IAction2Options } from '../../../../../platform/actions/common/actions.js';
+import { ServicesAccessor } from '../../../../../platform/instantiation/common/instantiation.js';
+import { KeybindingWeight } from '../../../../../platform/keybinding/common/keybindingsRegistry.js';
+import { IActiveNotebookEditor, ICellViewModel, ICellOutputViewModel } from '../notebookBrowser.js';
+import { IEditorService } from '../../../../services/editor/common/editorService.js';
+import { TypeConstraint } from '../../../../../base/common/types.js';
+import { IJSONSchema } from '../../../../../base/common/jsonSchema.js';
+import { ICodeEditor } from '../../../../../editor/browser/editorBrowser.js';
 export declare const SELECT_KERNEL_ID = "_notebook.selectKernel";
 export declare const NOTEBOOK_ACTIONS_CATEGORY: import("../../../../../nls.js").ILocalizedString;
 export declare const CELL_TITLE_CELL_GROUP_ID = "inline/cell";
 export declare const CELL_TITLE_OUTPUT_GROUP_ID = "inline/output";
 export declare const NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT = KeybindingWeight.EditorContrib;
 export declare const NOTEBOOK_OUTPUT_WEBVIEW_ACTION_WEIGHT: number;
-export declare enum CellToolbarOrder {
+export declare const enum CellToolbarOrder {
     EditCell = 0,
     ExecuteAboveCells = 1,
     ExecuteCellAndBelow = 2,
@@ -21,7 +21,7 @@ export declare enum CellToolbarOrder {
     SplitCell = 4,
     ClearCellOutput = 5
 }
-export declare enum CellOverflowToolbarGroups {
+export declare const enum CellOverflowToolbarGroups {
     Copy = "1_copy",
     Insert = "2_insert",
     Edit = "3_edit",

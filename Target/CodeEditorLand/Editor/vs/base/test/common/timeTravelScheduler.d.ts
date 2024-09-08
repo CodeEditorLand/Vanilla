@@ -1,5 +1,5 @@
-import { Event } from "../../common/event.js";
-import { Disposable, type IDisposable } from "../../common/lifecycle.js";
+import { Event } from '../../common/event.js';
+import { Disposable, IDisposable } from '../../common/lifecycle.js';
 export type TimeOffset = number;
 export interface Scheduler {
     schedule(task: ScheduledTask): IDisposable;

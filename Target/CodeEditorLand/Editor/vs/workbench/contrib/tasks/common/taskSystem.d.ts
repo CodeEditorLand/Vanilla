@@ -1,12 +1,12 @@
-import type { Event } from "../../../../base/common/event.js";
-import type { Platform } from "../../../../base/common/platform.js";
-import type { TerminateResponse } from "../../../../base/common/processes.js";
-import type Severity from "../../../../base/common/severity.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
-import type { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import type { ITaskEvent, KeyedTaskIdentifier, Task } from "./tasks.js";
-export declare enum TaskErrors {
+import { URI } from '../../../../base/common/uri.js';
+import Severity from '../../../../base/common/severity.js';
+import { TerminateResponse } from '../../../../base/common/processes.js';
+import { Event } from '../../../../base/common/event.js';
+import { Platform } from '../../../../base/common/platform.js';
+import { IWorkspaceFolder } from '../../../../platform/workspace/common/workspace.js';
+import { Task, ITaskEvent, KeyedTaskIdentifier } from './tasks.js';
+import { ConfigurationTarget } from '../../../../platform/configuration/common/configuration.js';
+export declare const enum TaskErrors {
     NotConfigured = 0,
     RunningTask = 1,
     NoBuildTask = 2,
@@ -33,7 +33,7 @@ export interface ITaskSummary {
      */
     exitCode?: number;
 }
-export declare enum TaskExecuteKind {
+export declare const enum TaskExecuteKind {
     Started = 1,
     Active = 2
 }

@@ -1,7 +1,7 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { IWorkspaceStateFolder } from "../../../../platform/userDataSync/common/userDataSync.js";
-import { IEditSessionIdentityService } from "../../../../platform/workspace/common/editSessions.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IWorkspaceStateFolder } from '../../../../platform/userDataSync/common/userDataSync.js';
+import { IEditSessionIdentityService } from '../../../../platform/workspace/common/editSessions.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
 export declare const IWorkspaceIdentityService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkspaceIdentityService>;
 export interface IWorkspaceIdentityService {
     _serviceBrand: undefined;

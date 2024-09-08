@@ -1,11 +1,11 @@
 export interface NewWorkerMessage {
-    type: "_newWorker";
+    type: '_newWorker';
     id: string;
     port: any;
     url: string;
     options: any | undefined;
 }
 export interface TerminateWorkerMessage {
-    type: "_terminateWorker";
+    type: '_terminateWorker';
     id: string;
 }

@@ -1,10 +1,10 @@
-import type { URI } from "../../base/common/uri.js";
-import { ILanguageService } from "../../editor/common/languages/language.js";
-import { IModelService } from "../../editor/common/services/model.js";
-import { IContextKeyService, RawContextKey, type IContextKey } from "../../platform/contextkey/common/contextkey.js";
-import { IFileService } from "../../platform/files/common/files.js";
-import type { IEditorResolverService } from "../services/editor/common/editorResolverService.js";
-import type { EditorInput } from "./editor/editorInput.js";
+import { URI } from '../../base/common/uri.js';
+import { IContextKeyService, IContextKey, RawContextKey } from '../../platform/contextkey/common/contextkey.js';
+import { ILanguageService } from '../../editor/common/languages/language.js';
+import { IFileService } from '../../platform/files/common/files.js';
+import { IModelService } from '../../editor/common/services/model.js';
+import { EditorInput } from './editor/editorInput.js';
+import { IEditorResolverService } from '../services/editor/common/editorResolverService.js';
 export declare const WorkbenchStateContext: RawContextKey<string>;
 export declare const WorkspaceFolderCountContext: RawContextKey<number>;
 export declare const OpenFolderWorkspaceSupportContext: RawContextKey<boolean>;

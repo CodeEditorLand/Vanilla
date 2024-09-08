@@ -1,5 +1,5 @@
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { TestResultState } from "../common/testTypes.js";
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { TestResultState } from '../common/testTypes.js';
 export declare const testingViewIcon: ThemeIcon;
 export declare const testingResultsIcon: ThemeIcon;
 export declare const testingRunIcon: ThemeIcon;

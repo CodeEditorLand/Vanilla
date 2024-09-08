@@ -1,6 +1,6 @@
-import type { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import type { ITextResourcePropertiesService } from "../../../common/services/textResourceConfiguration.js";
+import { URI } from '../../../../base/common/uri.js';
+import { ITextResourcePropertiesService } from '../../../common/services/textResourceConfiguration.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 export declare class TestTextResourcePropertiesService implements ITextResourcePropertiesService {
     private readonly configurationService;
     readonly _serviceBrand: undefined;

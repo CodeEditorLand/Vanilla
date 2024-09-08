@@ -1,9 +1,9 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import type { IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import type { IEnvironmentVariableCollectionWithPersistence, IEnvironmentVariableService } from "./environmentVariable.js";
+import { Event } from '../../../../base/common/event.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { IEnvironmentVariableCollectionWithPersistence, IEnvironmentVariableService } from './environmentVariable.js';
+import { IMergedEnvironmentVariableCollection } from '../../../../platform/terminal/common/environmentVariable.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 /**
  * Tracks and persists environment variable collections as defined by extensions.
  */

@@ -1,13 +1,13 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import { type IExtensionIdentifier } from "../../extensions/common/extensions.js";
-import { type IFileService } from "../../files/common/files.js";
-import type { ILogService } from "../../log/common/log.js";
-import type { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import type { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import type { IExtensionsProfileScannerService } from "../common/extensionsProfileScannerService.js";
-import type { IExtensionsScannerService } from "../common/extensionsScannerService.js";
-import type { INativeServerExtensionManagementService } from "./extensionManagementService.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IExtensionsProfileScannerService } from '../common/extensionsProfileScannerService.js';
+import { IExtensionsScannerService } from '../common/extensionsScannerService.js';
+import { INativeServerExtensionManagementService } from './extensionManagementService.js';
+import { IExtensionIdentifier } from '../../extensions/common/extensions.js';
+import { IFileService } from '../../files/common/files.js';
+import { ILogService } from '../../log/common/log.js';
+import { IUriIdentityService } from '../../uriIdentity/common/uriIdentity.js';
+import { IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
 export interface DidChangeProfileExtensionsEvent {
     readonly added?: {
         readonly extensions: readonly IExtensionIdentifier[];

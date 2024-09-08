@@ -1,9 +1,9 @@
-import { Widget } from "../../../base/browser/ui/widget.js";
-import type { IAction } from "../../../base/common/actions.js";
-import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { IMenuService, type MenuId } from "../common/actions.js";
+import { Widget } from '../../../base/browser/ui/widget.js';
+import { IAction } from '../../../base/common/actions.js';
+import { Disposable, DisposableStore } from '../../../base/common/lifecycle.js';
+import { IMenuService, MenuId } from '../common/actions.js';
+import { IContextKeyService } from '../../contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../instantiation/common/instantiation.js';
 export declare class FloatingClickWidget extends Widget {
     private label;
     private readonly _onClick;

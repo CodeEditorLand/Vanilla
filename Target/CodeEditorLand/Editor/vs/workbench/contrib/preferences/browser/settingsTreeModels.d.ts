@@ -1,15 +1,15 @@
-import { Emitter } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { type IConfigurationValue } from "../../../../platform/configuration/common/configuration.js";
-import { type ConfigurationDefaultValueSource } from "../../../../platform/configuration/common/configurationRegistry.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IWorkbenchConfigurationService } from "../../../services/configuration/common/configuration.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { SettingValueType, type ISearchResult, type ISetting } from "../../../services/preferences/common/preferences.js";
-import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
-import type { SettingsTarget } from "./preferencesWidgets.js";
-import { type ITOCEntry } from "./settingsLayout.js";
+import { IConfigurationValue } from '../../../../platform/configuration/common/configuration.js';
+import { SettingsTarget } from './preferencesWidgets.js';
+import { ITOCEntry } from './settingsLayout.js';
+import { ISearchResult, ISetting, SettingValueType } from '../../../services/preferences/common/preferences.js';
+import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
+import { IWorkbenchConfigurationService } from '../../../services/configuration/common/configuration.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Emitter } from '../../../../base/common/event.js';
+import { ConfigurationDefaultValueSource } from '../../../../platform/configuration/common/configurationRegistry.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { IUserDataProfileService } from '../../../services/userDataProfile/common/userDataProfile.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
 export declare const ONLINE_SERVICES_SETTING_TAG = "usesOnlineServices";
 export interface ISettingsEditorViewState {
     settingsTarget: SettingsTarget;
@@ -31,7 +31,7 @@ export declare abstract class SettingsTreeElement extends Disposable {
     get tabbable(): boolean;
     set tabbable(value: boolean);
 }
-export type SettingsTreeGroupChild = SettingsTreeGroupElement | SettingsTreeSettingElement | SettingsTreeNewExtensionsElement;
+export type SettingsTreeGroupChild = (SettingsTreeGroupElement | SettingsTreeSettingElement | SettingsTreeNewExtensionsElement);
 export declare class SettingsTreeGroupElement extends SettingsTreeElement {
     count?: number;
     label: string;
@@ -144,7 +144,7 @@ export declare class SettingsTreeModel {
 interface IInspectResult {
     isConfigured: boolean;
     inspected: IConfigurationValue<unknown>;
-    targetSelector: "applicationValue" | "userLocalValue" | "userRemoteValue" | "workspaceValue" | "workspaceFolderValue";
+    targetSelector: 'applicationValue' | 'userLocalValue' | 'userRemoteValue' | 'workspaceValue' | 'workspaceFolderValue';
     inspectedLanguageOverrides: Map<string, IConfigurationValue<unknown>>;
     languageSelector: string | undefined;
 }
@@ -154,7 +154,7 @@ export declare function settingKeyToDisplayFormat(key: string, groupId?: string,
     label: string;
 };
 export declare function objectSettingSupportsRemoveDefaultValue(key: string): boolean;
-export declare enum SearchResultIdx {
+export declare const enum SearchResultIdx {
     Local = 0,
     Remote = 1,
     NewExtensions = 2

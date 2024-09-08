@@ -1,8 +1,8 @@
-import { type Event } from "../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../base/common/lifecycle.js";
-import { type ReadableStreamEvents } from "../../../base/common/stream.js";
-import type { URI } from "../../../base/common/uri.js";
-import { FileSystemProviderCapabilities, FileType, type IFileChange, type IFileDeleteOptions, type IFileOpenOptions, type IFileOverwriteOptions, type IFileSystemProviderWithFileAtomicDeleteCapability, type IFileSystemProviderWithFileAtomicReadCapability, type IFileSystemProviderWithFileAtomicWriteCapability, type IFileSystemProviderWithFileReadStreamCapability, type IFileSystemProviderWithFileReadWriteCapability, type IFileSystemProviderWithOpenReadWriteCloseCapability, type IFileWriteOptions, type IStat, type IWatchOptions } from "./files.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { ReadableStreamEvents } from '../../../base/common/stream.js';
+import { URI } from '../../../base/common/uri.js';
+import { IFileDeleteOptions, IFileOverwriteOptions, FileSystemProviderCapabilities, FileType, IFileWriteOptions, IFileChange, IFileSystemProviderWithFileReadWriteCapability, IStat, IWatchOptions, IFileSystemProviderWithOpenReadWriteCloseCapability, IFileOpenOptions, IFileSystemProviderWithFileAtomicDeleteCapability, IFileSystemProviderWithFileAtomicReadCapability, IFileSystemProviderWithFileAtomicWriteCapability, IFileSystemProviderWithFileReadStreamCapability } from './files.js';
 declare class File implements IStat {
     readonly type: FileType.File;
     readonly ctime: number;

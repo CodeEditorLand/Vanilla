@@ -1,7 +1,7 @@
-import type { IExpression } from "../../../../../base/common/glob.js";
-import { URI as uri } from "../../../../../base/common/uri.js";
-import { type ISearchPathsInfo } from "../../common/queryBuilder.js";
-import { type IFileQuery, type ITextQuery } from "../../common/search.js";
+import { IExpression } from '../../../../../base/common/glob.js';
+import { URI as uri } from '../../../../../base/common/uri.js';
+import { ISearchPathsInfo } from '../../common/queryBuilder.js';
+import { IFileQuery, ITextQuery } from '../../common/search.js';
 export declare function assertEqualQueries(actual: ITextQuery | IFileQuery, expected: ITextQuery | IFileQuery): void;
 export declare function assertEqualSearchPathResults(actual: ISearchPathsInfo, expected: ISearchPathsInfo, message?: string): void;
 /**

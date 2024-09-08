@@ -1,11 +1,11 @@
-import { type VSBuffer } from "../../../base/common/buffer.js";
-import { IBulkEditService } from "../../../editor/browser/services/bulkEditService.js";
-import type { WorkspaceEdit } from "../../../editor/common/languages.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import type { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
-import { type IWorkspaceEditDto, type MainThreadBulkEditsShape } from "../common/extHost.protocol.js";
+import { VSBuffer } from '../../../base/common/buffer.js';
+import { IBulkEditService } from '../../../editor/browser/services/bulkEditService.js';
+import { WorkspaceEdit } from '../../../editor/common/languages.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { IUriIdentityService } from '../../../platform/uriIdentity/common/uriIdentity.js';
+import { IWorkspaceEditDto, MainThreadBulkEditsShape } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { SerializableObjectWithBuffers } from '../../services/extensions/common/proxyIdentifier.js';
 export declare class MainThreadBulkEdits implements MainThreadBulkEditsShape {
     private readonly _bulkEditService;
     private readonly _logService;

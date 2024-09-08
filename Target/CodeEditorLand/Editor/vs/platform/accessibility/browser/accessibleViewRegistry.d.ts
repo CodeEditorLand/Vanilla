@@ -1,7 +1,7 @@
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import type { ContextKeyExpression } from "../../contextkey/common/contextkey.js";
-import type { ServicesAccessor } from "../../instantiation/common/instantiation.js";
-import type { AccessibleContentProvider, AccessibleViewType, ExtensionContentProvider } from "./accessibleView.js";
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { AccessibleViewType, AccessibleContentProvider, ExtensionContentProvider } from './accessibleView.js';
+import { ContextKeyExpression } from '../../contextkey/common/contextkey.js';
+import { ServicesAccessor } from '../../instantiation/common/instantiation.js';
 export interface IAccessibleViewImplentation {
     type: AccessibleViewType;
     priority: number;

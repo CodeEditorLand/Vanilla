@@ -1,12 +1,12 @@
-import { LineRange } from "../core/lineRange.js";
-import { OffsetRange } from "../core/offsetRange.js";
-import type { Position } from "../core/position.js";
-import { StandardTokenType } from "../encodedTokenAttributes.js";
-import type { IBackgroundTokenizationStore, IBackgroundTokenizer, ILanguageIdCodec, IState, ITokenizationSupport } from "../languages.js";
-import type { ITextModel } from "../model.js";
-import type { IModelContentChange } from "../textModelEvents.js";
-import type { ITokenizeLineWithEditResult, LineEditWithAdditionalLines } from "../tokenizationTextModelPart.js";
-import { ContiguousMultilineTokensBuilder } from "../tokens/contiguousMultilineTokensBuilder.js";
+import { LineRange } from '../core/lineRange.js';
+import { OffsetRange } from '../core/offsetRange.js';
+import { Position } from '../core/position.js';
+import { StandardTokenType } from '../encodedTokenAttributes.js';
+import { IBackgroundTokenizationStore, IBackgroundTokenizer, ILanguageIdCodec, IState, ITokenizationSupport } from '../languages.js';
+import { ITextModel } from '../model.js';
+import { IModelContentChange } from '../textModelEvents.js';
+import { ITokenizeLineWithEditResult, LineEditWithAdditionalLines } from '../tokenizationTextModelPart.js';
+import { ContiguousMultilineTokensBuilder } from '../tokens/contiguousMultilineTokensBuilder.js';
 export declare class TokenizerWithStateStore<TState extends IState = IState> {
     readonly tokenizationSupport: ITokenizationSupport;
     private readonly initialState;

@@ -1,15 +1,15 @@
-import type { IExtUri } from "../../../../base/common/resources.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { type IEditorOpenContext } from "../../../common/editor.js";
-import type { EditorInput } from "../../../common/editor/editorInput.js";
-import { type IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { EditorPane } from "./editorPane.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IEditorOpenContext } from '../../../common/editor.js';
+import { EditorPane } from './editorPane.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { ITextResourceConfigurationService } from '../../../../editor/common/services/textResourceConfiguration.js';
+import { IEditorGroupsService, IEditorGroup } from '../../../services/editor/common/editorGroupsService.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IExtUri } from '../../../../base/common/resources.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
 /**
  * Base class of editors that want to store and restore view state.
  */

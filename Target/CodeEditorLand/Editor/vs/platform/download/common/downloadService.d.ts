@@ -1,8 +1,8 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import type { URI } from "../../../base/common/uri.js";
-import { IFileService } from "../../files/common/files.js";
-import { IRequestService } from "../../request/common/request.js";
-import type { IDownloadService } from "./download.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { URI } from '../../../base/common/uri.js';
+import { IDownloadService } from './download.js';
+import { IFileService } from '../../files/common/files.js';
+import { IRequestService } from '../../request/common/request.js';
 export declare class DownloadService implements IDownloadService {
     private readonly requestService;
     private readonly fileService;

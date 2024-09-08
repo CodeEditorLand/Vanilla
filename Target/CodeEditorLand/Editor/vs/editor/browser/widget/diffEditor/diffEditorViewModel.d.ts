@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { type IObservable, type IReader, type ISettableObservable, type ITransaction } from "../../../../base/common/observable.js";
-import { type ISerializedLineRange, LineRange } from "../../../common/core/lineRange.js";
-import type { IDocumentDiff } from "../../../common/diff/documentDiffProvider.js";
-import type { MovedText } from "../../../common/diff/linesDiffComputer.js";
-import { DetailedLineRangeMapping, LineRangeMapping } from "../../../common/diff/rangeMapping.js";
-import type { IDiffEditorModel, IDiffEditorViewModel } from "../../../common/editorCommon.js";
-import type { DiffEditorOptions } from "./diffEditorOptions.js";
-import { IDiffProviderFactoryService } from "./diffProviderFactoryService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IObservable, IReader, ISettableObservable, ITransaction } from '../../../../base/common/observable.js';
+import { IDiffProviderFactoryService } from './diffProviderFactoryService.js';
+import { ISerializedLineRange, LineRange } from '../../../common/core/lineRange.js';
+import { IDocumentDiff } from '../../../common/diff/documentDiffProvider.js';
+import { MovedText } from '../../../common/diff/linesDiffComputer.js';
+import { DetailedLineRangeMapping, LineRangeMapping } from '../../../common/diff/rangeMapping.js';
+import { IDiffEditorModel, IDiffEditorViewModel } from '../../../common/editorCommon.js';
+import { DiffEditorOptions } from './diffEditorOptions.js';
 export declare class DiffEditorViewModel extends Disposable implements IDiffEditorViewModel {
     readonly model: IDiffEditorModel;
     private readonly _options;
@@ -79,7 +79,7 @@ export declare class UnchangedRegion {
     collapseAll(tx: ITransaction | undefined): void;
     setState(visibleLineCountTop: number, visibleLineCountBottom: number, tx: ITransaction | undefined): void;
 }
-export declare enum RevealPreference {
+export declare const enum RevealPreference {
     FromCloserSide = 0,
     FromTop = 1,
     FromBottom = 2

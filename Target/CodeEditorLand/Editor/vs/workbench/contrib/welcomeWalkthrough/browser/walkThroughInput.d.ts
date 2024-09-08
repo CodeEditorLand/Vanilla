@@ -1,11 +1,11 @@
-import type { Dimension } from "../../../../base/browser/dom.js";
-import type { DisposableStore, IReference } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { ITextModelService, type ITextEditorModel } from "../../../../editor/common/services/resolverService.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { EditorInputCapabilities, type IUntypedEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { EditorModel } from "../../../common/editor/editorModel.js";
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { EditorModel } from '../../../common/editor/editorModel.js';
+import { URI } from '../../../../base/common/uri.js';
+import { DisposableStore, IReference } from '../../../../base/common/lifecycle.js';
+import { ITextEditorModel, ITextModelService } from '../../../../editor/common/services/resolverService.js';
+import { Dimension } from '../../../../base/browser/dom.js';
+import { EditorInputCapabilities, IUntypedEditorInput } from '../../../common/editor.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 declare class WalkThroughModel extends EditorModel {
     private mainRef;
     private snippetRefs;

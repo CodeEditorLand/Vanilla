@@ -1,9 +1,9 @@
-import type { IDisposable } from "../../../common/lifecycle.js";
-import type { IDragAndDropData } from "../../dnd.js";
-import type { IKeyboardEvent } from "../../keyboardEvent.js";
-import type { IMouseEvent } from "../../mouseEvent.js";
-import type { GestureEvent } from "../../touch.js";
-import type { ListViewTargetSector } from "./listView.js";
+import { IDragAndDropData } from '../../dnd.js';
+import { IKeyboardEvent } from '../../keyboardEvent.js';
+import { IMouseEvent } from '../../mouseEvent.js';
+import { GestureEvent } from '../../touch.js';
+import { ListViewTargetSector } from './listView.js';
+import { IDisposable } from '../../../common/lifecycle.js';
 export interface IListVirtualDelegate<T> {
     getHeight(element: T): number;
     getTemplateId(element: T): string;
@@ -73,11 +73,11 @@ export interface IKeyboardNavigationLabelProvider<T> {
 export interface IKeyboardNavigationDelegate {
     mightProducePrintableCharacter(event: IKeyboardEvent): boolean;
 }
-export declare enum ListDragOverEffectType {
+export declare const enum ListDragOverEffectType {
     Copy = 0,
     Move = 1
 }
-export declare enum ListDragOverEffectPosition {
+export declare const enum ListDragOverEffectPosition {
     Over = "drop-target",
     Before = "drop-target-before",
     After = "drop-target-after"

@@ -1,8 +1,8 @@
-import { Position } from "../../core/position.js";
-import { Range } from "../../core/range.js";
-import { FindMatch, type ITextSnapshot, type SearchData } from "../../model.js";
-import { Searcher } from "../textModelSearch.js";
-import { TreeNode } from "./rbTreeBase.js";
+import { Position } from '../../core/position.js';
+import { Range } from '../../core/range.js';
+import { FindMatch, ITextSnapshot, SearchData } from '../../model.js';
+import { TreeNode } from './rbTreeBase.js';
+import { Searcher } from '../textModelSearch.js';
 declare class LineStarts {
     readonly lineStarts: Uint32Array | Uint16Array | number[];
     readonly cr: number;
@@ -20,7 +20,7 @@ interface NodePosition {
     node: TreeNode;
     /**
      * remainder in current piece.
-     */
+    */
     remainder: number;
     /**
      * node start offset in document.
@@ -55,17 +55,17 @@ export declare class PieceTreeBase {
     protected _buffers: StringBuffer[];
     protected _lineCnt: number;
     protected _length: number;
-    protected _EOL: "\r\n" | "\n";
+    protected _EOL: '\r\n' | '\n';
     protected _EOLLength: number;
     protected _EOLNormalized: boolean;
     private _lastChangeBufferPos;
     private _searchCache;
     private _lastVisitedLine;
-    constructor(chunks: StringBuffer[], eol: "\r\n" | "\n", eolNormalized: boolean);
-    create(chunks: StringBuffer[], eol: "\r\n" | "\n", eolNormalized: boolean): void;
-    normalizeEOL(eol: "\r\n" | "\n"): void;
-    getEOL(): "\r\n" | "\n";
-    setEOL(newEOL: "\r\n" | "\n"): void;
+    constructor(chunks: StringBuffer[], eol: '\r\n' | '\n', eolNormalized: boolean);
+    create(chunks: StringBuffer[], eol: '\r\n' | '\n', eolNormalized: boolean): void;
+    normalizeEOL(eol: '\r\n' | '\n'): void;
+    getEOL(): '\r\n' | '\n';
+    setEOL(newEOL: '\r\n' | '\n'): void;
     createSnapshot(BOM: string): ITextSnapshot;
     equal(other: PieceTreeBase): boolean;
     getOffsetAt(lineNumber: number, column: number): number;

@@ -1,12 +1,12 @@
-import "../../../../base/browser/ui/codicons/codiconStyles.js";
-import "../../../contrib/symbolIcons/browser/symbolIcons.js";
-import { Event } from "../../../../base/common/event.js";
-import type { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { EditorAction } from "../../../browser/editorExtensions.js";
-import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { IOutlineModelService } from "../../../contrib/documentSymbols/browser/outlineModel.js";
-import { AbstractGotoSymbolQuickAccessProvider } from "../../../contrib/quickAccess/browser/gotoSymbolQuickAccess.js";
+import '../../../../base/browser/ui/codicons/codiconStyles.js';
+import '../../../contrib/symbolIcons/browser/symbolIcons.js';
+import { AbstractGotoSymbolQuickAccessProvider } from '../../../contrib/quickAccess/browser/gotoSymbolQuickAccess.js';
+import { ICodeEditorService } from '../../../browser/services/codeEditorService.js';
+import { Event } from '../../../../base/common/event.js';
+import { EditorAction } from '../../../browser/editorExtensions.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { IOutlineModelService } from '../../../contrib/documentSymbols/browser/outlineModel.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
 export declare class StandaloneGotoSymbolQuickAccessProvider extends AbstractGotoSymbolQuickAccessProvider {
     private readonly editorService;
     protected readonly onDidActiveTextEditorControlChange: Event<any>;

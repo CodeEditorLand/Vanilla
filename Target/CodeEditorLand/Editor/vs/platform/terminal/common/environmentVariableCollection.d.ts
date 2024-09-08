@@ -1,5 +1,5 @@
-import { type IProcessEnvironment } from "../../../base/common/platform.js";
-import { type EnvironmentVariableScope, type IEnvironmentVariableCollection, type IExtensionOwnedEnvironmentVariableMutator, type IMergedEnvironmentVariableCollection, type IMergedEnvironmentVariableCollectionDiff } from "./environmentVariable.js";
+import { IProcessEnvironment } from '../../../base/common/platform.js';
+import { EnvironmentVariableScope, IEnvironmentVariableCollection, IExtensionOwnedEnvironmentVariableMutator, IMergedEnvironmentVariableCollection, IMergedEnvironmentVariableCollectionDiff } from './environmentVariable.js';
 type VariableResolver = (str: string) => Promise<string>;
 export declare class MergedEnvironmentVariableCollection implements IMergedEnvironmentVariableCollection {
     readonly collections: ReadonlyMap<string, IEnvironmentVariableCollection>;

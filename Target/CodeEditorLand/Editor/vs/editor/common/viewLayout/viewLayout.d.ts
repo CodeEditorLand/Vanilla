@@ -1,11 +1,11 @@
-import { type Event } from "../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../base/common/lifecycle.js";
-import { Scrollable, type INewScrollPosition, type IScrollPosition, type ScrollEvent } from "../../../base/common/scrollable.js";
-import type { IEditorConfiguration } from "../config/editorConfiguration.js";
-import { type ConfigurationChangedEvent } from "../config/editorOptions.js";
-import { ScrollType } from "../editorCommon.js";
-import { Viewport, type IEditorWhitespace, type IPartialViewLinesViewportData, type IViewLayout, type IViewWhitespaceViewportData, type IWhitespaceChangeAccessor } from "../viewModel.js";
-import { ContentSizeChangedEvent } from "../viewModelEventDispatcher.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { IScrollPosition, ScrollEvent, Scrollable, INewScrollPosition } from '../../../base/common/scrollable.js';
+import { ConfigurationChangedEvent } from '../config/editorOptions.js';
+import { ScrollType } from '../editorCommon.js';
+import { IEditorConfiguration } from '../config/editorConfiguration.js';
+import { IEditorWhitespace, IPartialViewLinesViewportData, IViewLayout, IViewWhitespaceViewportData, IWhitespaceChangeAccessor, Viewport } from '../viewModel.js';
+import { ContentSizeChangedEvent } from '../viewModelEventDispatcher.js';
 export declare class ViewLayout extends Disposable implements IViewLayout {
     private readonly _configuration;
     private readonly _linesLayout;

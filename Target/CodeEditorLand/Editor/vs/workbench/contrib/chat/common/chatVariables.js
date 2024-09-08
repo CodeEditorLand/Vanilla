@@ -1,7 +1,1 @@
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-const IChatVariablesService = createDecorator(
-  "IChatVariablesService"
-);
-export {
-  IChatVariablesService
-};
+import"../../../../base/common/cancellation.js";import"../../../../base/common/lifecycle.js";import"../../../../base/common/themables.js";import"../../../../base/common/uri.js";import"../../../../editor/common/core/range.js";import"../../../../editor/common/languages.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"./chatAgents.js";import"./chatModel.js";import"./chatParserTypes.js";import"./chatService.js";const P=e("IChatVariablesService");export{P as IChatVariablesService};

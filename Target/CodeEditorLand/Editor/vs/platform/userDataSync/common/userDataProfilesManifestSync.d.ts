@@ -1,14 +1,14 @@
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import type { URI } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IFileService } from "../../files/common/files.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import { type IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { AbstractSynchroniser, type IAcceptResult, type IMergeResult, type IResourcePreview } from "./abstractSynchronizer.js";
-import { type IRemoteUserData, type ISyncData, type ISyncUserDataProfile, type IUserDataResourceManifest, IUserDataSyncEnablementService, IUserDataSyncLocalStoreService, IUserDataSyncLogService, IUserDataSyncStoreService, type IUserDataSynchroniser } from "./userDataSync.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { URI } from '../../../base/common/uri.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IFileService } from '../../files/common/files.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+import { IUriIdentityService } from '../../uriIdentity/common/uriIdentity.js';
+import { IUserDataProfile, IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
+import { AbstractSynchroniser, IAcceptResult, IMergeResult, IResourcePreview } from './abstractSynchronizer.js';
+import { IRemoteUserData, IUserDataSyncLocalStoreService, IUserDataSynchroniser, IUserDataSyncLogService, IUserDataSyncEnablementService, IUserDataSyncStoreService, ISyncUserDataProfile, ISyncData, IUserDataResourceManifest } from './userDataSync.js';
 interface IUserDataProfileManifestResourceMergeResult extends IAcceptResult {
     readonly local: {
         added: ISyncUserDataProfile[];
@@ -42,10 +42,7 @@ export declare class UserDataProfilesManifestSynchroniser extends AbstractSynchr
     protected getAcceptResult(resourcePreview: IUserDataProfilesManifestResourcePreview, resource: URI, content: string | null | undefined, token: CancellationToken): Promise<IAcceptResult>;
     private acceptLocal;
     private acceptRemote;
-    protected applyResult(remoteUserData: IRemoteUserData, lastSyncUserData: IRemoteUserData | null, resourcePreviews: [
-        IUserDataProfilesManifestResourcePreview,
-        IUserDataProfileManifestResourceMergeResult
-    ][], force: boolean): Promise<void>;
+    protected applyResult(remoteUserData: IRemoteUserData, lastSyncUserData: IRemoteUserData | null, resourcePreviews: [IUserDataProfilesManifestResourcePreview, IUserDataProfileManifestResourceMergeResult][], force: boolean): Promise<void>;
     updateRemoteProfiles(profiles: ISyncUserDataProfile[], ref: string | null): Promise<IRemoteUserData>;
     hasLocalData(): Promise<boolean>;
     resolveContent(uri: URI): Promise<string | null>;

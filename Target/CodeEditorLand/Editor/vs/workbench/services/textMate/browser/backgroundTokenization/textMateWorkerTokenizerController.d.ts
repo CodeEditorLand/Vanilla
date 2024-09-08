@@ -1,10 +1,10 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { type IObservable } from "../../../../../base/common/observable.js";
-import type { Proxied } from "../../../../../base/common/worker/simpleWorker.js";
-import type { IBackgroundTokenizationStore, ILanguageIdCodec } from "../../../../../editor/common/languages.js";
-import type { ITextModel } from "../../../../../editor/common/model.js";
-import type { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import type { StateDeltas, TextMateTokenizationWorker } from "./worker/textMateTokenizationWorker.worker.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../../base/common/observable.js';
+import { Proxied } from '../../../../../base/common/worker/simpleWorker.js';
+import { IBackgroundTokenizationStore, ILanguageIdCodec } from '../../../../../editor/common/languages.js';
+import { ITextModel } from '../../../../../editor/common/model.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import type { StateDeltas, TextMateTokenizationWorker } from './worker/textMateTokenizationWorker.worker.js';
 export declare class TextMateWorkerTokenizerController extends Disposable {
     private readonly _model;
     private readonly _worker;

@@ -1,15 +1,15 @@
-import { type EditorLayoutInfo } from "../../common/config/editorOptions.js";
-import { Position } from "../../common/core/position.js";
-import { Range as EditorRange } from "../../common/core/range.js";
-import type { InjectedText } from "../../common/modelLineProjectionData.js";
-import type { IViewModel } from "../../common/viewModel.js";
-import type { ViewContext } from "../../common/viewModel/viewContext.js";
-import { type IMouseTarget, type IMouseTargetContentEmpty, type IMouseTargetContentEmptyData, type IMouseTargetContentText, type IMouseTargetContentTextData, type IMouseTargetContentWidget, type IMouseTargetMargin, type IMouseTargetMarginData, type IMouseTargetOutsideEditor, type IMouseTargetOverlayWidget, type IMouseTargetScrollbar, type IMouseTargetTextarea, type IMouseTargetUnknown, type IMouseTargetViewZone, type IMouseTargetViewZoneData, MouseTargetType } from "../editorBrowser.js";
-import { type CoordinatesRelativeToEditor, type EditorMouseEvent, type EditorPagePosition, PageCoordinates } from "../editorDom.js";
-import type { HorizontalPosition } from "../view/renderingContext.js";
-import type { IViewCursorRenderData } from "../viewParts/viewCursors/viewCursor.js";
-import type { IPointerHandlerHelper } from "./mouseHandler.js";
-declare enum HitTestResultType {
+import { IPointerHandlerHelper } from './mouseHandler.js';
+import { IMouseTargetContentEmptyData, IMouseTargetMarginData, IMouseTarget, IMouseTargetContentEmpty, IMouseTargetContentText, IMouseTargetContentWidget, IMouseTargetMargin, IMouseTargetOutsideEditor, IMouseTargetOverlayWidget, IMouseTargetScrollbar, IMouseTargetTextarea, IMouseTargetUnknown, IMouseTargetViewZone, IMouseTargetContentTextData, IMouseTargetViewZoneData, MouseTargetType } from '../editorBrowser.js';
+import { EditorMouseEvent, EditorPagePosition, PageCoordinates, CoordinatesRelativeToEditor } from '../editorDom.js';
+import { IViewCursorRenderData } from '../viewParts/viewCursors/viewCursor.js';
+import { EditorLayoutInfo } from '../../common/config/editorOptions.js';
+import { Position } from '../../common/core/position.js';
+import { Range as EditorRange } from '../../common/core/range.js';
+import { HorizontalPosition } from '../view/renderingContext.js';
+import { ViewContext } from '../../common/viewModel/viewContext.js';
+import { IViewModel } from '../../common/viewModel.js';
+import { InjectedText } from '../../common/modelLineProjectionData.js';
+declare const enum HitTestResultType {
     Unknown = 0,
     Content = 1
 }
@@ -46,7 +46,7 @@ export declare class MouseTarget {
     static createContentWidget(element: HTMLElement | null, mouseColumn: number, detail: string): IMouseTargetContentWidget;
     static createScrollbar(element: HTMLElement | null, mouseColumn: number, position: Position): IMouseTargetScrollbar;
     static createOverlayWidget(element: HTMLElement | null, mouseColumn: number, detail: string): IMouseTargetOverlayWidget;
-    static createOutsideEditor(mouseColumn: number, position: Position, outsidePosition: "above" | "below" | "left" | "right", outsideDistance: number): IMouseTargetOutsideEditor;
+    static createOutsideEditor(mouseColumn: number, position: Position, outsidePosition: 'above' | 'below' | 'left' | 'right', outsideDistance: number): IMouseTargetOutsideEditor;
     private static _typeToString;
     static toString(target: IMouseTarget): string;
 }

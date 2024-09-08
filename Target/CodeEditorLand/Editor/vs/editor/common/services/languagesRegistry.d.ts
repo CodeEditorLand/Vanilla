@@ -1,9 +1,9 @@
-import { type Event } from "../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import { LanguageId } from "../encodedTokenAttributes.js";
-import type { ILanguageIdCodec } from "../languages.js";
-import type { ILanguageExtensionPoint, ILanguageIcon, ILanguageNameIdPair } from "../languages/language.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { ILanguageIdCodec } from '../languages.js';
+import { LanguageId } from '../encodedTokenAttributes.js';
+import { ILanguageExtensionPoint, ILanguageNameIdPair, ILanguageIcon } from '../languages/language.js';
 export declare class LanguageIdCodec implements ILanguageIdCodec {
     private _nextLanguageId;
     private readonly _languageIdToLanguage;

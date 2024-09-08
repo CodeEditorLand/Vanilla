@@ -1,13 +1,13 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import "./postEditWidget.css";
-import { type RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { type ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IBulkEditService } from "../../../browser/services/bulkEditService.js";
-import type { Range } from "../../../common/core/range.js";
-import type { DocumentDropEdit, DocumentPasteEdit } from "../../../common/languages.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import './postEditWidget.css';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IBulkEditService } from '../../../browser/services/bulkEditService.js';
+import { Range } from '../../../common/core/range.js';
+import { DocumentDropEdit, DocumentPasteEdit } from '../../../common/languages.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
 interface EditSet<Edit extends DocumentPasteEdit | DocumentDropEdit> {
     readonly activeEditIndex: number;
     readonly allEdits: ReadonlyArray<Edit>;

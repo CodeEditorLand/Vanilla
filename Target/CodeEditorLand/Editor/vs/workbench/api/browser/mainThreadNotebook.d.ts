@@ -1,9 +1,9 @@
-import { ILogService } from "../../../platform/log/common/log.js";
-import { INotebookCellStatusBarService } from "../../contrib/notebook/common/notebookCellStatusBarService.js";
-import type { INotebookContributionData, NotebookExtensionDescription, TransientOptions } from "../../contrib/notebook/common/notebookCommon.js";
-import { INotebookService } from "../../contrib/notebook/common/notebookService.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { type MainThreadNotebookShape } from "../common/extHost.protocol.js";
+import { ILogService } from '../../../platform/log/common/log.js';
+import { INotebookCellStatusBarService } from '../../contrib/notebook/common/notebookCellStatusBarService.js';
+import { INotebookContributionData, NotebookExtensionDescription, TransientOptions } from '../../contrib/notebook/common/notebookCommon.js';
+import { INotebookService } from '../../contrib/notebook/common/notebookService.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { MainThreadNotebookShape } from '../common/extHost.protocol.js';
 export declare class MainThreadNotebooks implements MainThreadNotebookShape {
     private readonly _notebookService;
     private readonly _cellStatusBarService;

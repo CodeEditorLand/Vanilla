@@ -1,4 +1,4 @@
-import { type IMatch } from "./filters.js";
+import { IMatch } from './filters.js';
 export type FuzzyScore = [number, number[]];
 export type FuzzyScorerCache = {
     [key: string]: IItemScore;

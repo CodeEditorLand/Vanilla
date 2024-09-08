@@ -1,7 +1,7 @@
-import { type CancellationToken } from "../../../../base/common/cancellation.js";
-import { Progress } from "../../../../platform/progress/common/progress.js";
-import type { TextSearchCompleteNew, TextSearchProviderNew, TextSearchProviderOptions, TextSearchQueryNew, TextSearchResultNew } from "../common/searchExtTypes.js";
-import type { OutputChannel } from "./ripgrepSearchUtils.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { OutputChannel } from './ripgrepSearchUtils.js';
+import { TextSearchProviderNew, TextSearchCompleteNew, TextSearchResultNew, TextSearchQueryNew, TextSearchProviderOptions } from '../common/searchExtTypes.js';
+import { Progress } from '../../../../platform/progress/common/progress.js';
 export declare class RipgrepSearchProvider implements TextSearchProviderNew {
     private outputChannel;
     private getNumThreads;

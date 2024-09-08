@@ -1,4 +1,4 @@
-import type { DisposableStore, IDisposable } from "./lifecycle.js";
+import { DisposableStore, IDisposable } from './lifecycle.js';
 export interface CancellationToken {
     /**
      * A flag signalling is cancellation has been requested.

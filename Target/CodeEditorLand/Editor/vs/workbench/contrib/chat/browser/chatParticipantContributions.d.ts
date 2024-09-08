@@ -1,9 +1,9 @@
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import type { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
-import { IChatAgentService } from "../common/chatAgents.js";
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { IExtensionsWorkbenchService } from '../../extensions/common/extensions.js';
+import { IChatAgentService } from '../common/chatAgents.js';
 export declare class ChatExtensionPointHandler implements IWorkbenchContribution {
     private readonly _chatAgentService;
     private readonly logService;

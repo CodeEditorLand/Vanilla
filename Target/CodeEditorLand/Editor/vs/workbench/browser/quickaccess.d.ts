@@ -1,10 +1,10 @@
-import { Disposable } from "../../base/common/lifecycle.js";
-import type { ICommandHandler } from "../../platform/commands/common/commands.js";
-import { RawContextKey } from "../../platform/contextkey/common/contextkey.js";
-import type { IResourceEditorInput, ITextResourceEditorInput } from "../../platform/editor/common/editor.js";
-import type { GroupIdentifier, IEditorPane, IUntitledTextResourceEditorInput, IUntypedEditorInput } from "../common/editor.js";
-import { type IEditorGroup, IEditorGroupsService } from "../services/editor/common/editorGroupsService.js";
-import { type ACTIVE_GROUP_TYPE, type AUX_WINDOW_GROUP_TYPE, IEditorService, type SIDE_GROUP_TYPE } from "../services/editor/common/editorService.js";
+import { RawContextKey } from '../../platform/contextkey/common/contextkey.js';
+import { ICommandHandler } from '../../platform/commands/common/commands.js';
+import { Disposable } from '../../base/common/lifecycle.js';
+import { IResourceEditorInput, ITextResourceEditorInput } from '../../platform/editor/common/editor.js';
+import { IEditorGroup, IEditorGroupsService } from '../services/editor/common/editorGroupsService.js';
+import { ACTIVE_GROUP_TYPE, AUX_WINDOW_GROUP_TYPE, IEditorService, SIDE_GROUP_TYPE } from '../services/editor/common/editorService.js';
+import { IUntitledTextResourceEditorInput, IUntypedEditorInput, GroupIdentifier, IEditorPane } from '../common/editor.js';
 export declare const inQuickPickContextKeyValue = "inQuickOpen";
 export declare const InQuickPickContextKey: RawContextKey<boolean>;
 export declare const inQuickPickContext: import("../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
@@ -18,7 +18,7 @@ export interface IWorkbenchQuickAccessConfiguration {
             readonly experimental: {
                 readonly suggestCommands: boolean;
                 readonly enableNaturalLanguageSearch: boolean;
-                readonly askChatLocation: "quickChat" | "chatView";
+                readonly askChatLocation: 'quickChat' | 'chatView';
             };
         };
         readonly quickOpen: {

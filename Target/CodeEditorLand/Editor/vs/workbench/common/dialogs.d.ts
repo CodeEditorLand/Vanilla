@@ -1,6 +1,6 @@
-import { type Event } from "../../base/common/event.js";
-import { Disposable } from "../../base/common/lifecycle.js";
-import type { IDialogArgs, IDialogResult } from "../../platform/dialogs/common/dialogs.js";
+import { Event } from '../../base/common/event.js';
+import { Disposable } from '../../base/common/lifecycle.js';
+import { IDialogArgs, IDialogResult } from '../../platform/dialogs/common/dialogs.js';
 export interface IDialogViewItem {
     readonly args: IDialogArgs;
     close(result?: IDialogResult | Error): void;

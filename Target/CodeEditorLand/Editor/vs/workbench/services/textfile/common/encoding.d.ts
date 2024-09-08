@@ -1,5 +1,5 @@
-import { VSBuffer, type VSBufferReadable, type VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import { type Readable, type ReadableStream } from "../../../../base/common/stream.js";
+import { Readable, ReadableStream } from '../../../../base/common/stream.js';
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from '../../../../base/common/buffer.js';
 export declare const UTF8 = "utf8";
 export declare const UTF8_with_bom = "utf8bom";
 export declare const UTF16be = "utf16be";
@@ -20,7 +20,7 @@ export interface IDecodeStreamResult {
     stream: ReadableStream<string>;
     detected: IDetectedEncodingResult;
 }
-export declare enum DecodeStreamErrorKind {
+export declare const enum DecodeStreamErrorKind {
     /**
      * Error indicating that the stream is binary even
      * though `acceptTextOnly` was specified.

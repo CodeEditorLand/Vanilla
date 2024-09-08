@@ -1,5 +1,1 @@
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-const IBackupMainService = createDecorator("backupMainService");
-export {
-  IBackupMainService
-};
+import"../node/backup.js";import{createDecorator as r}from"../../instantiation/common/instantiation.js";import"../common/backup.js";const i=r("backupMainService");export{i as IBackupMainService};

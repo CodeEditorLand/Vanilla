@@ -1,12 +1,12 @@
-import type * as vscode from "vscode";
-import type { IRelativePattern } from "../../../base/common/glob.js";
-import { type MarkdownStringTrustedOptions } from "../../../base/common/htmlContent.js";
-import { URI } from "../../../base/common/uri.js";
-import { ExtensionIdentifier, type IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { FileSystemProviderErrorCode } from "../../../platform/files/common/files.js";
-import { RemoteAuthorityResolverErrorCode } from "../../../platform/remote/common/remoteAuthorityResolver.js";
-import { type ICellMetadataEdit, type IDocumentMetadataEdit } from "../../contrib/notebook/common/notebookCommon.js";
-import type { IRelativePatternDto } from "./extHost.protocol.js";
+import { IRelativePattern } from '../../../base/common/glob.js';
+import { MarkdownStringTrustedOptions } from '../../../base/common/htmlContent.js';
+import { URI } from '../../../base/common/uri.js';
+import { ExtensionIdentifier, IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { FileSystemProviderErrorCode } from '../../../platform/files/common/files.js';
+import { RemoteAuthorityResolverErrorCode } from '../../../platform/remote/common/remoteAuthorityResolver.js';
+import { IRelativePatternDto } from './extHost.protocol.js';
+import { ICellMetadataEdit, IDocumentMetadataEdit } from '../../contrib/notebook/common/notebookCommon.js';
+import type * as vscode from 'vscode';
 export declare enum TerminalOutputAnchor {
     Top = 0,
     Bottom = 1
@@ -177,7 +177,7 @@ export interface IFileOperationOptions {
     readonly recursive?: boolean;
     readonly contents?: Uint8Array | vscode.DataTransferFile;
 }
-export declare enum FileEditType {
+export declare const enum FileEditType {
     File = 1,
     Text = 2,
     Cell = 3,
@@ -244,15 +244,9 @@ export declare class WorkspaceEdit implements vscode.WorkspaceEdit {
     delete(resource: URI, range: Range, metadata?: vscode.WorkspaceEditEntryMetadata): void;
     has(uri: URI): boolean;
     set(uri: URI, edits: ReadonlyArray<TextEdit | SnippetTextEdit>): void;
-    set(uri: URI, edits: ReadonlyArray<[
-        TextEdit | SnippetTextEdit,
-        vscode.WorkspaceEditEntryMetadata | undefined
-    ]>): void;
+    set(uri: URI, edits: ReadonlyArray<[TextEdit | SnippetTextEdit, vscode.WorkspaceEditEntryMetadata | undefined]>): void;
     set(uri: URI, edits: readonly NotebookEdit[]): void;
-    set(uri: URI, edits: ReadonlyArray<[
-        NotebookEdit,
-        vscode.WorkspaceEditEntryMetadata | undefined
-    ]>): void;
+    set(uri: URI, edits: ReadonlyArray<[NotebookEdit, vscode.WorkspaceEditEntryMetadata | undefined]>): void;
     get(uri: URI): TextEdit[];
     entries(): [URI, TextEdit[]][];
     get size(): number;
@@ -692,7 +686,7 @@ export declare enum SyntaxTokenType {
     RegEx = 3
 }
 export declare namespace SyntaxTokenType {
-    function toString(v: SyntaxTokenType | unknown): "other" | "comment" | "string" | "regex";
+    function toString(v: SyntaxTokenType | unknown): 'other' | 'comment' | 'string' | 'regex';
 }
 export declare class DocumentLink {
     range: Range;
@@ -833,7 +827,7 @@ export declare class CustomExecution implements vscode.CustomExecution {
     constructor(callback: (resolvedDefinition: vscode.TaskDefinition) => Thenable<vscode.Pseudoterminal>);
     computeId(): string;
     set callback(value: (resolvedDefinition: vscode.TaskDefinition) => Thenable<vscode.Pseudoterminal>);
-    get callback(): (resolvedDefinition: vscode.TaskDefinition) => Thenable<vscode.Pseudoterminal>;
+    get callback(): ((resolvedDefinition: vscode.TaskDefinition) => Thenable<vscode.Pseudoterminal>);
 }
 export declare class Task implements vscode.Task {
     private static ExtensionCallbackType;
@@ -958,10 +952,7 @@ export declare class DataTransfer implements vscode.DataTransfer {
     get(mimeType: string): DataTransferItem | undefined;
     set(mimeType: string, value: DataTransferItem): void;
     forEach(callbackfn: (value: DataTransferItem, key: string, dataTransfer: DataTransfer) => void, thisArg?: unknown): void;
-    [Symbol.iterator](): IterableIterator<[
-        mimeType: string,
-        item: vscode.DataTransferItem
-    ]>;
+    [Symbol.iterator](): IterableIterator<[mimeType: string, item: vscode.DataTransferItem]>;
 }
 export declare class DocumentDropEdit {
     title?: string;

@@ -1,17 +1,17 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { Event } from "../../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { IPager } from "../../../../base/common/paging.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { MenuId } from "../../../../platform/actions/common/actions.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IDeprecationInfo, IExtensionIdentifier, IExtensionInfo, IExtensionQueryOptions, IGalleryExtension, ILocalExtension, InstallExtensionResult, InstallOptions, IQueryOptions } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import type { ExtensionType, IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
-import type { ProgressLocation } from "../../../../platform/progress/common/progress.js";
-import type { IView, IViewPaneContainer } from "../../../common/views.js";
-import type { EnablementState, IExtensionManagementServer, IResourceExtension } from "../../../services/extensionManagement/common/extensionManagement.js";
-import type { IExtensionsStatus } from "../../../services/extensions/common/extensions.js";
-import type { IExtensionEditorOptions } from "./extensionsInput.js";
+import { Event } from '../../../../base/common/event.js';
+import { IPager } from '../../../../base/common/paging.js';
+import { IQueryOptions, ILocalExtension, IGalleryExtension, IExtensionIdentifier, InstallOptions, IExtensionInfo, IExtensionQueryOptions, IDeprecationInfo, InstallExtensionResult } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { EnablementState, IExtensionManagementServer, IResourceExtension } from '../../../services/extensionManagement/common/extensionManagement.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IExtensionManifest, ExtensionType } from '../../../../platform/extensions/common/extensions.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IView, IViewPaneContainer } from '../../../common/views.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IExtensionsStatus } from '../../../services/extensions/common/extensions.js';
+import { IExtensionEditorOptions } from './extensionsInput.js';
+import { MenuId } from '../../../../platform/actions/common/actions.js';
+import { ProgressLocation } from '../../../../platform/progress/common/progress.js';
 export declare const VIEWLET_ID = "workbench.view.extensions";
 export interface IExtensionsViewPaneContainer extends IViewPaneContainer {
     readonly searchValue: string | undefined;
@@ -21,13 +21,13 @@ export interface IExtensionsViewPaneContainer extends IViewPaneContainer {
 export interface IWorkspaceRecommendedExtensionsView extends IView {
     installWorkspaceRecommendations(): Promise<void>;
 }
-export declare enum ExtensionState {
+export declare const enum ExtensionState {
     Installing = 0,
     Installed = 1,
     Uninstalling = 2,
     Uninstalled = 3
 }
-export declare enum ExtensionRuntimeActionType {
+export declare const enum ExtensionRuntimeActionType {
     ReloadWindow = "reloadWindow",
     RestartExtensions = "restartExtensions",
     DownloadUpdate = "downloadUpdate",
@@ -142,7 +142,7 @@ export interface IExtensionsWorkbenchService {
     toggleExtensionIgnoredToSync(extension: IExtension): Promise<void>;
     toggleApplyExtensionToAllProfiles(extension: IExtension): Promise<void>;
 }
-export declare enum ExtensionEditorTab {
+export declare const enum ExtensionEditorTab {
     Readme = "readme",
     Features = "features",
     Changelog = "changelog",
@@ -154,7 +154,7 @@ export declare const AutoUpdateConfigurationKey = "extensions.autoUpdate";
 export declare const AutoCheckUpdatesConfigurationKey = "extensions.autoCheckUpdates";
 export declare const CloseExtensionDetailsOnViewChangeKey = "extensions.closeExtensionDetailsOnViewChange";
 export declare const AutoRestartConfigurationKey = "extensions.autoRestart";
-export type AutoUpdateConfigurationValue = boolean | "onlyEnabledExtensions" | "onlySelectedExtensions";
+export type AutoUpdateConfigurationValue = boolean | 'onlyEnabledExtensions' | 'onlySelectedExtensions';
 export interface IExtensionsConfiguration {
     autoUpdate: boolean;
     autoCheckUpdates: boolean;

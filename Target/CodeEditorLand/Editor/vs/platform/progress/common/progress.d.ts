@@ -1,7 +1,7 @@
-import type { IAction } from "../../../base/common/actions.js";
-import { type CancellationToken } from "../../../base/common/cancellation.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { INotificationSource, NotificationPriority } from "../../notification/common/notification.js";
+import { IAction } from '../../../base/common/actions.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { INotificationSource, NotificationPriority } from '../../notification/common/notification.js';
 export declare const IProgressService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IProgressService>;
 /**
  * A progress service that can be used to report progress to various locations of the UI.
@@ -22,7 +22,7 @@ export interface IProgressIndicator {
      */
     showWhile(promise: Promise<unknown>, delay?: number): Promise<void>;
 }
-export declare enum ProgressLocation {
+export declare const enum ProgressLocation {
     Explorer = 1,
     Scm = 3,
     Extensions = 5,
@@ -44,7 +44,7 @@ export interface IProgressNotificationOptions extends IProgressOptions {
     readonly secondaryActions?: readonly IAction[];
     readonly delay?: number;
     readonly priority?: NotificationPriority;
-    readonly type?: "loading" | "syncing";
+    readonly type?: 'loading' | 'syncing';
 }
 export interface IProgressDialogOptions extends IProgressOptions {
     readonly delay?: number;
@@ -54,7 +54,7 @@ export interface IProgressDialogOptions extends IProgressOptions {
 export interface IProgressWindowOptions extends IProgressOptions {
     readonly location: ProgressLocation.Window;
     readonly command?: string;
-    readonly type?: "loading" | "syncing";
+    readonly type?: 'loading' | 'syncing';
 }
 export interface IProgressCompositeOptions extends IProgressOptions {
     readonly location: ProgressLocation.Explorer | ProgressLocation.Extensions | ProgressLocation.Scm | string;

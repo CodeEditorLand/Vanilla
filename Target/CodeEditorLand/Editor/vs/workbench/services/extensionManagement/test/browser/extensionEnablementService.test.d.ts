@@ -1,6 +1,6 @@
-import { TestInstantiationService } from "../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
-import { ExtensionEnablementService } from "../../browser/extensionEnablementService.js";
-import { type IExtensionManagementServer, IExtensionManagementServerService } from "../../common/extensionManagement.js";
+import { IExtensionManagementServerService, IExtensionManagementServer } from '../../common/extensionManagement.js';
+import { ExtensionEnablementService } from '../../browser/extensionEnablementService.js';
+import { TestInstantiationService } from '../../../../../platform/instantiation/test/common/instantiationServiceMock.js';
 export declare class TestExtensionEnablementService extends ExtensionEnablementService {
     constructor(instantiationService: TestInstantiationService);
     waitUntilInitialized(): Promise<void>;

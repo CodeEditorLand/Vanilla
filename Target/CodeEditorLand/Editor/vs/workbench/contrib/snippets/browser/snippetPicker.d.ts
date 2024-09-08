@@ -1,3 +1,3 @@
-import type { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { type Snippet } from "./snippetsFile.js";
+import { Snippet } from './snippetsFile.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 export declare function pickSnippet(accessor: ServicesAccessor, languageIdOrSnippets: string | Snippet[]): Promise<Snippet | undefined>;

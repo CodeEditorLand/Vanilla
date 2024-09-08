@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, type ServicesAccessor } from "../../../browser/editorExtensions.js";
-import { Range } from "../../../common/core/range.js";
-import { Selection } from "../../../common/core/selection.js";
-import { type IEditorContribution, ScrollType } from "../../../common/editorCommon.js";
-import type { FindMatch } from "../../../common/model.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { CommonFindController } from "../../find/browser/findController.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { EditorAction, ServicesAccessor } from '../../../browser/editorExtensions.js';
+import { Range } from '../../../common/core/range.js';
+import { Selection } from '../../../common/core/selection.js';
+import { IEditorContribution, ScrollType } from '../../../common/editorCommon.js';
+import { FindMatch } from '../../../common/model.js';
+import { CommonFindController } from '../../find/browser/findController.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
 export declare class InsertCursorAbove extends EditorAction {
     constructor();
     run(accessor: ServicesAccessor, editor: ICodeEditor, args: any): void;

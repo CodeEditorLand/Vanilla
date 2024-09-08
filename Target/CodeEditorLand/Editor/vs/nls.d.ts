@@ -1,4 +1,4 @@
-export { getNLSLanguage, getNLSMessages } from "./nls.messages.js";
+export { getNLSLanguage, getNLSMessages } from './nls.messages.js';
 export interface ILocalizeInfo {
     key: string;
     comment: string[];

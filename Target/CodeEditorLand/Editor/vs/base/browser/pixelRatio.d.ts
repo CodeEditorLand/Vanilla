@@ -1,4 +1,4 @@
-import { Event } from "../common/event.js";
+import { Event } from '../common/event.js';
 export interface IPixelRatioMonitor {
     readonly value: number;
     readonly onDidChange: Event<number>;

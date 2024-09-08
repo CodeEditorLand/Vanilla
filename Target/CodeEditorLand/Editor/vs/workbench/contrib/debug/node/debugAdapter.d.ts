@@ -1,8 +1,8 @@
-import * as net from "net";
-import type * as stream from "stream";
-import type { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import { AbstractDebugAdapter } from "../common/abstractDebugAdapter.js";
-import type { IDebugAdapterExecutable, IDebugAdapterNamedPipeServer, IDebugAdapterServer } from "../common/debug.js";
+import * as net from 'net';
+import * as stream from 'stream';
+import { IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { IDebugAdapterExecutable, IDebugAdapterNamedPipeServer, IDebugAdapterServer } from '../common/debug.js';
+import { AbstractDebugAdapter } from '../common/abstractDebugAdapter.js';
 /**
  * An implementation that communicates via two streams with the debug adapter.
  */
@@ -26,7 +26,7 @@ export declare abstract class NetworkDebugAdapter extends StreamDebugAdapter {
 }
 /**
  * An implementation that connects to a debug adapter via a socket.
- */
+*/
 export declare class SocketDebugAdapter extends NetworkDebugAdapter {
     private adapterServer;
     constructor(adapterServer: IDebugAdapterServer);
@@ -42,7 +42,7 @@ export declare class NamedPipeDebugAdapter extends NetworkDebugAdapter {
 }
 /**
  * An implementation that launches the debug adapter as a separate process and communicates via stdin/stdout.
- */
+*/
 export declare class ExecutableDebugAdapter extends StreamDebugAdapter {
     private adapterExecutable;
     private debugType;

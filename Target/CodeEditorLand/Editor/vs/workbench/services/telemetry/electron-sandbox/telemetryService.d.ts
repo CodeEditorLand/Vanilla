@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ISharedProcessService } from "../../../../platform/ipc/electron-sandbox/services.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import type { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "../../../../platform/telemetry/common/gdprTypings.js";
-import { ITelemetryService, type ITelemetryData, type TelemetryLevel } from "../../../../platform/telemetry/common/telemetry.js";
-import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { ITelemetryService, ITelemetryData, TelemetryLevel } from '../../../../platform/telemetry/common/telemetry.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { INativeWorkbenchEnvironmentService } from '../../environment/electron-sandbox/environmentService.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { ISharedProcessService } from '../../../../platform/ipc/electron-sandbox/services.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { ClassifiedEvent, StrictPropertyCheck, OmitMetadata, IGDPRProperty } from '../../../../platform/telemetry/common/gdprTypings.js';
 export declare class TelemetryService extends Disposable implements ITelemetryService {
     readonly _serviceBrand: undefined;
     private impl;

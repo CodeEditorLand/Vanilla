@@ -1,4 +1,4 @@
-import type { IExtensionTerminalProfile } from "../../../../platform/terminal/common/terminal.js";
+import { IExtensionTerminalProfile } from '../../../../platform/terminal/common/terminal.js';
 export interface ITerminalContributionService {
     readonly _serviceBrand: undefined;
     readonly terminalProfiles: ReadonlyArray<IExtensionTerminalProfile>;

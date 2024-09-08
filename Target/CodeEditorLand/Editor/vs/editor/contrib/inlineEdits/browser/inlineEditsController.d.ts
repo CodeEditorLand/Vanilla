@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { InlineEditsModel } from "./inlineEditsModel.js";
-import { InlineEditsWidget } from "./inlineEditsWidget.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { ILanguageFeatureDebounceService } from '../../../common/services/languageFeatureDebounce.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { InlineEditsModel } from './inlineEditsModel.js';
+import { InlineEditsWidget } from './inlineEditsWidget.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 export declare class InlineEditsController extends Disposable {
     readonly editor: ICodeEditor;
     private readonly _instantiationService;

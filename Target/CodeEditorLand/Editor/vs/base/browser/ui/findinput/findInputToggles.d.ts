@@ -1,5 +1,5 @@
-import type { IHoverDelegate } from "../hover/hoverDelegate.js";
-import { Toggle } from "../toggle/toggle.js";
+import { IHoverDelegate } from '../hover/hoverDelegate.js';
+import { Toggle } from '../toggle/toggle.js';
 export interface IFindInputToggleOpts {
     readonly appendTitle: string;
     readonly isChecked: boolean;

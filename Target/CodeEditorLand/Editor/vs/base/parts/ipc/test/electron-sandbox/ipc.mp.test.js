@@ -1,17 +1,1 @@
-import assert from "assert";
-import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../test/common/utils.js";
-import { Client as MessagePortClient } from "../../browser/ipc.mp.js";
-suite("IPC, MessagePorts", () => {
-  test("message port close event", async () => {
-    const { port1, port2 } = new MessageChannel();
-    const client1 = new MessagePortClient(port1, "client1");
-    const client2 = new MessagePortClient(port2, "client2");
-    const whenClosed = new Promise(
-      (resolve) => port1.addEventListener("close", () => resolve(true))
-    );
-    client2.dispose();
-    assert.ok(await whenClosed);
-    client1.dispose();
-  });
-  ensureNoDisposablesAreLeakedInTestSuite();
-});
+import a from"assert";import{Client as s}from"../../browser/ipc.mp.js";import{ensureNoDisposablesAreLeakedInTestSuite as l}from"../../../../test/common/utils.js";suite("IPC, MessagePorts",()=>{test("message port close event",async()=>{const{port1:e,port2:t}=new MessageChannel,o=new s(e,"client1"),n=new s(t,"client2"),i=new Promise(r=>e.addEventListener("close",()=>r(!0)));n.dispose(),a.ok(await i),o.dispose()}),l()});

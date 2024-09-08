@@ -1,12 +1,12 @@
-import "../colorPicker.css";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { IContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import { type ICodeEditor, type IContentWidget, type IContentWidgetPosition } from "../../../../browser/editorBrowser.js";
-import { IEditorWorkerService } from "../../../../common/services/editorWorker.js";
-import { ILanguageFeaturesService } from "../../../../common/services/languageFeatures.js";
-import { type StandaloneColorPickerHover } from "./standaloneColorPickerParticipant.js";
+import '../colorPicker.css';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ICodeEditor, IContentWidget, IContentWidgetPosition } from '../../../../browser/editorBrowser.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../../../platform/keybinding/common/keybinding.js';
+import { ILanguageFeaturesService } from '../../../../common/services/languageFeatures.js';
+import { IContextKey } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IEditorWorkerService } from '../../../../common/services/editorWorker.js';
+import { StandaloneColorPickerHover } from './standaloneColorPickerParticipant.js';
 declare class StandaloneColorPickerResult {
     readonly value: StandaloneColorPickerHover;
     readonly foundInEditor: boolean;

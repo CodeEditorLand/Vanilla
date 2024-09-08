@@ -1,8 +1,8 @@
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
-import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";
-import { INotebookKernelService } from "../../common/notebookKernelService.js";
-import { type INotebookEditorDelegate } from "../notebookBrowser.js";
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { INotebookEditorDelegate } from '../notebookBrowser.js';
+import { INotebookExecutionStateService } from '../../common/notebookExecutionStateService.js';
+import { INotebookKernelService } from '../../common/notebookKernelService.js';
+import { IExtensionService } from '../../../../services/extensions/common/extensions.js';
 export declare class NotebookEditorContextKeys {
     private readonly _editor;
     private readonly _notebookKernelService;

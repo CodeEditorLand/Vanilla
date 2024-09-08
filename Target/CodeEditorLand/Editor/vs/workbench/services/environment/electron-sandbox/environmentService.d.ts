@@ -1,10 +1,10 @@
-import type { PerformanceMark } from "../../../../base/common/performance.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { type INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { AbstractNativeEnvironmentService } from "../../../../platform/environment/common/environmentService.js";
-import type { IProductService } from "../../../../platform/product/common/productService.js";
-import type { IColorScheme, INativeWindowConfiguration, IOSConfiguration, IPath, IPathsToWaitFor } from "../../../../platform/window/common/window.js";
-import type { IBrowserWorkbenchEnvironmentService } from "../browser/environmentService.js";
+import { PerformanceMark } from '../../../../base/common/performance.js';
+import { IBrowserWorkbenchEnvironmentService } from '../browser/environmentService.js';
+import { IColorScheme, INativeWindowConfiguration, IOSConfiguration, IPath, IPathsToWaitFor } from '../../../../platform/window/common/window.js';
+import { INativeEnvironmentService } from '../../../../platform/environment/common/environment.js';
+import { AbstractNativeEnvironmentService } from '../../../../platform/environment/common/environmentService.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
 export declare const INativeWorkbenchEnvironmentService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INativeWorkbenchEnvironmentService>;
 /**
  * A subclass of the `IWorkbenchEnvironmentService` to be used only in native

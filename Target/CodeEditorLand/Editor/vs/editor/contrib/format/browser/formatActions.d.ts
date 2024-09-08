@@ -1,8 +1,8 @@
-import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import type { IEditorContribution } from "../../../common/editorCommon.js";
-import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { IEditorWorkerService } from '../../../common/services/editorWorker.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { IAccessibilitySignalService } from '../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
 export declare class FormatOnType implements IEditorContribution {
     private readonly _editor;
     private readonly _languageFeaturesService;

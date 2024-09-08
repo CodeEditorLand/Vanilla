@@ -1,6 +1,6 @@
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
 export interface IExtHostApiDeprecationService {
     readonly _serviceBrand: undefined;
     report(apiId: string, extension: IExtensionDescription, migrationSuggestion: string): void;

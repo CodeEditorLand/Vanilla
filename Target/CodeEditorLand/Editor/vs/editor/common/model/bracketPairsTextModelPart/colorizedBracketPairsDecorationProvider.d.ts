@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { Range } from "../../core/range.js";
-import type { IModelDecoration } from "../../model.js";
-import type { IModelOptionsChangedEvent } from "../../textModelEvents.js";
-import type { DecorationProvider } from "../decorationProvider.js";
-import type { TextModel } from "../textModel.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Range } from '../../core/range.js';
+import { IModelDecoration } from '../../model.js';
+import { DecorationProvider } from '../decorationProvider.js';
+import { TextModel } from '../textModel.js';
+import { IModelOptionsChangedEvent } from '../../textModelEvents.js';
 export declare class ColorizedBracketPairsDecorationProvider extends Disposable implements DecorationProvider {
     private readonly textModel;
     private colorizationOptions;

@@ -1,12 +1,12 @@
-import type { IListStyles } from "../../../../base/browser/ui/list/listWidget.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IListService, WorkbenchAsyncDataTree } from "../../../../platform/list/browser/listService.js";
-import type { IStyleOverride } from "../../../../platform/theme/browser/defaultStyles.js";
-import { IExtensionsWorkbenchService, type IExtension } from "../common/extensions.js";
-import { type Delegate } from "./extensionsList.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IExtensionsWorkbenchService, IExtension } from '../common/extensions.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IListService, WorkbenchAsyncDataTree } from '../../../../platform/list/browser/listService.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { Delegate } from './extensionsList.js';
+import { IListStyles } from '../../../../base/browser/ui/list/listWidget.js';
+import { IStyleOverride } from '../../../../platform/theme/browser/defaultStyles.js';
 export declare class ExtensionsGridView extends Disposable {
     private readonly instantiationService;
     readonly element: HTMLElement;

@@ -1,8 +1,8 @@
-import type * as vscode from "vscode";
-import type Severity from "../../../base/common/severity.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { type IMainContext } from "./extHost.protocol.js";
+import Severity from '../../../base/common/severity.js';
+import type * as vscode from 'vscode';
+import { IMainContext } from './extHost.protocol.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
 export declare class ExtHostMessageService {
     private readonly _logService;
     private _proxy;

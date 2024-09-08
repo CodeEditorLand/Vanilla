@@ -1,7 +1,7 @@
-import { IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
-import { IThemeService } from "../../../platform/theme/common/themeService.js";
-import type { ICodeEditor } from "../../browser/editorBrowser.js";
-import { AbstractCodeEditorService } from "../../browser/services/abstractCodeEditorService.js";
+import { ICodeEditor } from '../../browser/editorBrowser.js';
+import { AbstractCodeEditorService } from '../../browser/services/abstractCodeEditorService.js';
+import { IContextKeyService } from '../../../platform/contextkey/common/contextkey.js';
+import { IThemeService } from '../../../platform/theme/common/themeService.js';
 export declare class StandaloneCodeEditorService extends AbstractCodeEditorService {
     private readonly _editorIsOpen;
     private _activeCodeEditor;

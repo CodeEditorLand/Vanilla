@@ -1,17 +1,1 @@
-import assert from "assert";
-import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../test/common/utils.js";
-import {
-  ipcRenderer,
-  process,
-  webFrame,
-  webUtils
-} from "../../electron-sandbox/globals.js";
-suite("Sandbox", () => {
-  test("globals", async () => {
-    assert.ok(typeof ipcRenderer.send === "function");
-    assert.ok(typeof webFrame.setZoomLevel === "function");
-    assert.ok(typeof process.platform === "string");
-    assert.ok(typeof webUtils.getPathForFile === "function");
-  });
-  ensureNoDisposablesAreLeakedInTestSuite();
-});
+import e from"assert";import{ipcRenderer as o,process as t,webFrame as s,webUtils as r}from"../../electron-sandbox/globals.js";import{ensureNoDisposablesAreLeakedInTestSuite as i}from"../../../../test/common/utils.js";suite("Sandbox",()=>{test("globals",async()=>{e.ok(typeof o.send=="function"),e.ok(typeof s.setZoomLevel=="function"),e.ok(typeof t.platform=="string"),e.ok(typeof r.getPathForFile=="function")}),i()});

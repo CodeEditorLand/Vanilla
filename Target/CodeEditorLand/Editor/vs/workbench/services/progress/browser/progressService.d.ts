@@ -1,15 +1,15 @@
-import "./media/progressService.css";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IProgressService, type IProgress, type IProgressOptions, type IProgressStep } from "../../../../platform/progress/common/progress.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { IActivityService } from "../../activity/common/activity.js";
-import { IPaneCompositePartService } from "../../panecomposite/browser/panecomposite.js";
-import { IStatusbarService } from "../../statusbar/browser/statusbar.js";
-import { IUserActivityService } from "../../userActivity/common/userActivityService.js";
-import { IViewsService } from "../../views/common/viewsService.js";
+import './media/progressService.css';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IProgressService, IProgressOptions, IProgressStep, IProgress } from '../../../../platform/progress/common/progress.js';
+import { IStatusbarService } from '../../statusbar/browser/statusbar.js';
+import { IActivityService } from '../../activity/common/activity.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { ILayoutService } from '../../../../platform/layout/browser/layoutService.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IViewDescriptorService } from '../../../common/views.js';
+import { IViewsService } from '../../views/common/viewsService.js';
+import { IPaneCompositePartService } from '../../panecomposite/browser/panecomposite.js';
+import { IUserActivityService } from '../../userActivity/common/userActivityService.js';
 export declare class ProgressService extends Disposable implements IProgressService {
     private readonly activityService;
     private readonly paneCompositeService;

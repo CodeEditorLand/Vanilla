@@ -1,8 +1,8 @@
-import type { Range } from "../core/range.js";
-import type { Selection } from "../core/selection.js";
-import { type CursorConfiguration, EditOperationResult, EditOperationType, type ICursorSimpleModel } from "../cursorCommon.js";
-import type { ICommand } from "../editorCommon.js";
-import type { ITextModel } from "../model.js";
+import { CursorConfiguration, EditOperationResult, EditOperationType, ICursorSimpleModel } from '../cursorCommon.js';
+import { Range } from '../core/range.js';
+import { Selection } from '../core/selection.js';
+import { ICommand } from '../editorCommon.js';
+import { ITextModel } from '../model.js';
 export declare class TypeOperations {
     static indent(config: CursorConfiguration, model: ICursorSimpleModel | null, selections: Selection[] | null): ICommand[];
     static outdent(config: CursorConfiguration, model: ICursorSimpleModel, selections: Selection[]): ICommand[];

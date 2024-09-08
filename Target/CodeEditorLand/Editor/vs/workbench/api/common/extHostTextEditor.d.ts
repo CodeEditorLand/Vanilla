@@ -1,9 +1,9 @@
-import type * as vscode from "vscode";
-import type { Lazy } from "../../../base/common/lazy.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import type { ILogService } from "../../../platform/log/common/log.js";
-import type { IResolvedTextEditorConfiguration, MainThreadTextEditorsShape } from "./extHost.protocol.js";
-import { EndOfLine, Range, Selection } from "./extHostTypes.js";
+import { IResolvedTextEditorConfiguration, MainThreadTextEditorsShape } from './extHost.protocol.js';
+import { EndOfLine, Range, Selection } from './extHostTypes.js';
+import type * as vscode from 'vscode';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { Lazy } from '../../../base/common/lazy.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
 export declare class TextEditorDecorationType {
     private static readonly _Keys;
     readonly value: vscode.TextEditorDecorationType;

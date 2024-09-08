@@ -1,9 +1,9 @@
-import type { IJSONSchema } from "../../../../base/common/jsonSchema.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { ExtensionKind } from "../../../../platform/environment/common/environment.js";
-import { type IActivationEventsGenerator } from "../../../../platform/extensionManagement/common/implicitActivationEvents.js";
-import { type IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import type { IMessage } from "./extensions.js";
+import { IJSONSchema } from '../../../../base/common/jsonSchema.js';
+import { IMessage } from './extensions.js';
+import { IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { ExtensionKind } from '../../../../platform/environment/common/environment.js';
+import { IActivationEventsGenerator } from '../../../../platform/extensionManagement/common/implicitActivationEvents.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
 export declare class ExtensionMessageCollector {
     private readonly _messageHandler;
     private readonly _extension;

@@ -1,7 +1,7 @@
-import type { CancellationToken, RelatedInformationProvider, RelatedInformationResult, RelatedInformationType } from "vscode";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { type ExtHostAiRelatedInformationShape, type IMainContext } from "./extHost.protocol.js";
-import { Disposable } from "./extHostTypes.js";
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ExtHostAiRelatedInformationShape, IMainContext } from './extHost.protocol.js';
+import type { CancellationToken, RelatedInformationProvider, RelatedInformationType, RelatedInformationResult } from 'vscode';
+import { Disposable } from './extHostTypes.js';
 export declare class ExtHostRelatedInformation implements ExtHostAiRelatedInformationShape {
     private _relatedInformationProviders;
     private _nextHandle;

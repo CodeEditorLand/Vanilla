@@ -1,8 +1,8 @@
-import { Event } from "../../../../base/common/event.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { FileSystemProviderCapabilities, FileType, type IFileDeleteOptions, type IFileOverwriteOptions, type IFileSystemProviderWithFileReadWriteCapability, type IStat, type IWatchOptions } from "../../../../platform/files/common/files.js";
-import { IEditSessionsStorageService } from "../common/editSessions.js";
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { Event } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { FileSystemProviderCapabilities, FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability, IStat, IWatchOptions } from '../../../../platform/files/common/files.js';
+import { IEditSessionsStorageService } from '../common/editSessions.js';
 export declare class EditSessionsFileSystemProvider implements IFileSystemProviderWithFileReadWriteCapability {
     private editSessionsStorageService;
     static readonly SCHEMA = "vscode-edit-sessions";

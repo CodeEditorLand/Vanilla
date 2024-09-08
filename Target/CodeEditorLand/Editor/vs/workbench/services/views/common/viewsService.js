@@ -1,5 +1,1 @@
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-const IViewsService = createDecorator("viewsService");
-export {
-  IViewsService
-};
+import"../../../../base/common/event.js";import{createDecorator as i}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/progress/common/progress.js";import"../../../common/panecomposite.js";import"../../../common/views.js";const g=i("viewsService");export{g as IViewsService};

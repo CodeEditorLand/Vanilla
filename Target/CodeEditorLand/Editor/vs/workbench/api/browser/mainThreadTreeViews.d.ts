@@ -1,13 +1,13 @@
-import type { VSBuffer } from "../../../base/common/buffer.js";
-import type { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { INotificationService } from "../../../platform/notification/common/notification.js";
-import { type IRevealOptions, type ITreeItem, type IViewBadge } from "../../common/views.js";
-import { IExtensionService } from "../../services/extensions/common/extensions.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { IViewsService } from "../../services/views/common/viewsService.js";
-import { type MainThreadTreeViewsShape } from "../common/extHost.protocol.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { MainThreadTreeViewsShape } from '../common/extHost.protocol.js';
+import { ITreeItem, IRevealOptions, IViewBadge } from '../../common/views.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { INotificationService } from '../../../platform/notification/common/notification.js';
+import { IExtensionService } from '../../services/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { VSBuffer } from '../../../base/common/buffer.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { IViewsService } from '../../services/views/common/viewsService.js';
 export declare class MainThreadTreeViews extends Disposable implements MainThreadTreeViewsShape {
     private readonly viewsService;
     private readonly notificationService;

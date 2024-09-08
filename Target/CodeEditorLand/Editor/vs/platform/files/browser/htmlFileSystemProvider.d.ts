@@ -1,11 +1,11 @@
-import type { IndexedDB } from "../../../base/browser/indexedDB.js";
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import { type ReadableStreamEvents } from "../../../base/common/stream.js";
-import { URI } from "../../../base/common/uri.js";
-import type { ILogService } from "../../log/common/log.js";
-import { FileSystemProviderCapabilities, FileType, type IFileDeleteOptions, type IFileOverwriteOptions, type IFileReadStreamOptions, type IFileSystemProviderWithFileReadStreamCapability, type IFileSystemProviderWithFileReadWriteCapability, type IFileWriteOptions, type IStat, type IWatchOptions } from "../common/files.js";
+import { URI } from '../../../base/common/uri.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ReadableStreamEvents } from '../../../base/common/stream.js';
+import { IFileDeleteOptions, IFileOverwriteOptions, IFileReadStreamOptions, FileSystemProviderCapabilities, FileType, IFileWriteOptions, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileReadWriteCapability, IStat, IWatchOptions } from '../common/files.js';
+import { IndexedDB } from '../../../base/browser/indexedDB.js';
+import { ILogService } from '../../log/common/log.js';
 export declare class HTMLFileSystemProvider implements IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithFileReadStreamCapability {
     private indexedDB;
     private readonly store;

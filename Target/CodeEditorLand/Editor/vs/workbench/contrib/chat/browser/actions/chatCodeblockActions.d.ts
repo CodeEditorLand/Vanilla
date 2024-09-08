@@ -1,5 +1,5 @@
-import { type IChatResponseViewModel } from "../../common/chatViewModel.js";
-import { type ICodeBlockActionContext, type ICodeCompareBlockActionContext } from "../codeBlockPart.js";
+import { ICodeBlockActionContext, ICodeCompareBlockActionContext } from '../codeBlockPart.js';
+import { IChatResponseViewModel } from '../../common/chatViewModel.js';
 export interface IChatCodeBlockActionContext extends ICodeBlockActionContext {
     element: IChatResponseViewModel;
 }

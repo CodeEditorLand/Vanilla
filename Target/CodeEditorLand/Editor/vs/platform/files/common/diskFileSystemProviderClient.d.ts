@@ -1,10 +1,10 @@
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../base/common/lifecycle.js";
-import { type ReadableStreamEvents } from "../../../base/common/stream.js";
-import type { URI } from "../../../base/common/uri.js";
-import type { IChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { FileSystemProviderCapabilities, type FileType, type IFileAtomicReadOptions, type IFileChange, type IFileDeleteOptions, type IFileOpenOptions, type IFileOverwriteOptions, type IFileReadStreamOptions, type IFileSystemProviderWithFileAtomicReadCapability, type IFileSystemProviderWithFileCloneCapability, type IFileSystemProviderWithFileFolderCopyCapability, type IFileSystemProviderWithFileReadStreamCapability, type IFileSystemProviderWithFileReadWriteCapability, type IFileSystemProviderWithOpenReadWriteCloseCapability, type IFileWriteOptions, type IStat, type IWatchOptions } from "./files.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { ReadableStreamEvents } from '../../../base/common/stream.js';
+import { URI } from '../../../base/common/uri.js';
+import { IChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { IFileAtomicReadOptions, IFileDeleteOptions, IFileOpenOptions, IFileOverwriteOptions, IFileReadStreamOptions, FileSystemProviderCapabilities, FileType, IFileWriteOptions, IFileChange, IFileSystemProviderWithFileAtomicReadCapability, IFileSystemProviderWithFileCloneCapability, IFileSystemProviderWithFileFolderCopyCapability, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithOpenReadWriteCloseCapability, IStat, IWatchOptions } from './files.js';
 export declare const LOCAL_FILE_SYSTEM_CHANNEL_NAME = "localFilesystem";
 /**
  * An implementation of a local disk file system provider

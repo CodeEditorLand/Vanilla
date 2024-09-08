@@ -1,10 +1,10 @@
-import type { IEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import type { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import type { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import type { EditorInput } from "../../../common/editor/editorInput.js";
-import type { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
-import { EditorPlaceholder, type IEditorPlaceholderContents } from "./editorPlaceholder.js";
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { EditorPlaceholder, IEditorPlaceholderContents } from './editorPlaceholder.js';
+import { IEditorGroup } from '../../../services/editor/common/editorGroupsService.js';
 export interface IOpenCallbacks {
     openInternal: (input: EditorInput, options: IEditorOptions | undefined) => Promise<void>;
 }

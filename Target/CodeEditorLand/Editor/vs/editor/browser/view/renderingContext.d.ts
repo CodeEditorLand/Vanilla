@@ -1,7 +1,7 @@
-import type { Position } from "../../common/core/position.js";
-import type { Range } from "../../common/core/range.js";
-import type { ViewportData } from "../../common/viewLayout/viewLinesViewportData.js";
-import type { IViewLayout, ViewModelDecoration } from "../../common/viewModel.js";
+import { Position } from '../../common/core/position.js';
+import { Range } from '../../common/core/range.js';
+import { ViewportData } from '../../common/viewLayout/viewLinesViewportData.js';
+import { IViewLayout, ViewModelDecoration } from '../../common/viewModel.js';
 export interface IViewLines {
     linesVisibleRangesForRange(range: Range, includeNewLines: boolean): LineVisibleRanges[] | null;
     visibleRangeForPosition(position: Position): HorizontalPosition | null;

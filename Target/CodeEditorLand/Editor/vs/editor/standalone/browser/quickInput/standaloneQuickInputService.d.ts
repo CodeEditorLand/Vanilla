@@ -1,11 +1,11 @@
-import "./standaloneQuickInput.css";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import type { IInputBox, IInputOptions, IPickOptions, IQuickInputService, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, IQuickWidget, QuickPickInput } from "../../../../platform/quickinput/common/quickInput.js";
-import { type ICodeEditor, type IOverlayWidget, type IOverlayWidgetPosition } from "../../../browser/editorBrowser.js";
-import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
-import type { IEditorContribution } from "../../../common/editorCommon.js";
+import './standaloneQuickInput.css';
+import { Event } from '../../../../base/common/event.js';
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from '../../../browser/editorBrowser.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { IQuickInputService, IQuickPickItem, IQuickPick, IInputBox, IQuickNavigateConfiguration, IPickOptions, QuickPickInput, IInputOptions, IQuickWidget } from '../../../../platform/quickinput/common/quickInput.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ICodeEditorService } from '../../../browser/services/codeEditorService.js';
 export declare class StandaloneQuickInputService implements IQuickInputService {
     private readonly instantiationService;
     private readonly codeEditorService;

@@ -1,5 +1,5 @@
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { ExtensionRecommendations, type GalleryExtensionRecommendation } from "./extensionRecommendations.js";
+import { ExtensionRecommendations, GalleryExtensionRecommendation } from './extensionRecommendations.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
 export declare class RemoteRecommendations extends ExtensionRecommendations {
     private readonly productService;
     private _recommendations;

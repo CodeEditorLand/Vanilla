@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IMenuService } from "../../../../platform/actions/common/actions.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITerminalConfigurationService, ITerminalGroupService, ITerminalService } from "./terminal.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ITerminalConfigurationService, ITerminalGroupService, ITerminalService } from './terminal.js';
+import { IMenuService } from '../../../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 export declare class TerminalTabbedView extends Disposable {
     private readonly _terminalService;
     private readonly _terminalConfigurationService;

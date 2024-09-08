@@ -1,8 +1,8 @@
-import type { DragMouseEvent } from "../../../base/browser/mouseEvent.js";
-import { VSBuffer } from "../../../base/common/buffer.js";
-import { URI } from "../../../base/common/uri.js";
-import type { IBaseTextResourceEditorInput } from "../../editor/common/editor.js";
-import { type ServicesAccessor } from "../../instantiation/common/instantiation.js";
+import { DragMouseEvent } from '../../../base/browser/mouseEvent.js';
+import { VSBuffer } from '../../../base/common/buffer.js';
+import { URI } from '../../../base/common/uri.js';
+import { IBaseTextResourceEditorInput } from '../../editor/common/editor.js';
+import { ServicesAccessor } from '../../instantiation/common/instantiation.js';
 export interface FileAdditionalNativeProperties {
     /**
      * The real path to the file on the users filesystem. Only available on electron.

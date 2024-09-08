@@ -1,21 +1,21 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IActiveCodeEditor, ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { type GoToLocationValues } from "../../../../editor/common/config/editorOptions.js";
-import { Position } from "../../../../editor/common/core/position.js";
-import type { ITextModel } from "../../../../editor/common/model.js";
-import { SymbolNavigationAction } from "../../../../editor/contrib/gotoSymbol/browser/goToCommands.js";
-import { ReferencesModel } from "../../../../editor/contrib/gotoSymbol/browser/referencesModel.js";
-import { Action2, type IAction2Options } from "../../../../platform/actions/common/actions.js";
-import type { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { IProgressService } from "../../../../platform/progress/common/progress.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { ViewAction } from "../../../browser/parts/views/viewPane.js";
-import type { ITestResult } from "../common/testResult.js";
-import { ITestService, type IMainThreadTestCollection } from "../common/testService.js";
-import { ExtTestRunProfileKind, TestRunProfileBitset, type InternalTestItem } from "../common/testTypes.js";
-import { TestItemTreeElement, type TestExplorerTreeElement } from "./explorerProjections/index.js";
-import type { TestingExplorerView } from "./testingExplorerView.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IActiveCodeEditor, ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { GoToLocationValues } from '../../../../editor/common/config/editorOptions.js';
+import { Position } from '../../../../editor/common/core/position.js';
+import { ITextModel } from '../../../../editor/common/model.js';
+import { SymbolNavigationAction } from '../../../../editor/contrib/gotoSymbol/browser/goToCommands.js';
+import { ReferencesModel } from '../../../../editor/contrib/gotoSymbol/browser/referencesModel.js';
+import { Action2, IAction2Options } from '../../../../platform/actions/common/actions.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { IProgressService } from '../../../../platform/progress/common/progress.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { ViewAction } from '../../../browser/parts/views/viewPane.js';
+import { TestExplorerTreeElement, TestItemTreeElement } from './explorerProjections/index.js';
+import { TestingExplorerView } from './testingExplorerView.js';
+import { ITestResult } from '../common/testResult.js';
+import { IMainThreadTestCollection, ITestService } from '../common/testService.js';
+import { ExtTestRunProfileKind, InternalTestItem, TestRunProfileBitset } from '../common/testTypes.js';
 export declare class HideTestAction extends Action2 {
     constructor();
     run(accessor: ServicesAccessor, ...elements: TestItemTreeElement[]): Promise<void>;
@@ -320,5 +320,5 @@ declare abstract class GoToRelatedCodeAction extends TestNavigationAction {
 declare class GoToRelatedCode extends GoToRelatedCodeAction {
     constructor();
 }
-export declare const allTestActions: (typeof ReRunLastRun | typeof DebugLastRun | typeof UnhideTestAction | typeof DebugAction | typeof RunUsingProfileAction | typeof SelectDefaultTestProfiles | typeof StopContinuousRunAction | typeof TestingViewAsListAction | typeof RunTestsUnderUri | typeof GoToRelatedTest | typeof GoToRelatedCode)[];
+export declare const allTestActions: (typeof UnhideTestAction | typeof DebugAction | typeof RunUsingProfileAction | typeof SelectDefaultTestProfiles | typeof StopContinuousRunAction | typeof TestingViewAsListAction | typeof RunTestsUnderUri | typeof GoToRelatedTest | typeof GoToRelatedCode)[];
 export {};

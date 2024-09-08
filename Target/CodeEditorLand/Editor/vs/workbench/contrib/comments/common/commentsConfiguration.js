@@ -1,4 +1,1 @@
-const COMMENTS_SECTION = "comments";
-export {
-  COMMENTS_SECTION
-};
+const e="comments";export{e as COMMENTS_SECTION};

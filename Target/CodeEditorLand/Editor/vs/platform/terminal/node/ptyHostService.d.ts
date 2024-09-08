@@ -1,13 +1,13 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type * as performance from "../../../base/common/performance.js";
-import { type IProcessEnvironment, type OperatingSystem } from "../../../base/common/platform.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { ILogService, ILoggerService } from "../../log/common/log.js";
-import type { IPtyHostProcessReplayEvent } from "../common/capabilities/capabilities.js";
-import { type IProcessDataEvent, type IProcessProperty, type IProcessPropertyMap, type IProcessReadyEvent, type IPtyHostLatencyMeasurement, type IPtyHostService, type IRequestResolveVariablesEvent, type ISerializedTerminalState, type IShellLaunchConfig, type ITerminalLaunchError, type ITerminalProcessOptions, type ITerminalProfile, type ITerminalsLayoutInfo, type ProcessPropertyType, type TerminalIcon, type TitleEventSource } from "../common/terminal.js";
-import type { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from "../common/terminalProcess.js";
-import type { IPtyHostStarter } from "./ptyHost.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IProcessEnvironment, OperatingSystem } from '../../../base/common/platform.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { ILogService, ILoggerService } from '../../log/common/log.js';
+import { IPtyHostProcessReplayEvent } from '../common/capabilities/capabilities.js';
+import { IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IPtyHostLatencyMeasurement, IPtyHostService, IRequestResolveVariablesEvent, ISerializedTerminalState, IShellLaunchConfig, ITerminalLaunchError, ITerminalProcessOptions, ITerminalProfile, ITerminalsLayoutInfo, ProcessPropertyType, TerminalIcon, TitleEventSource } from '../common/terminal.js';
+import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from '../common/terminalProcess.js';
+import { IPtyHostStarter } from './ptyHost.js';
+import * as performance from '../../../base/common/performance.js';
 /**
  * This service implements IPtyService by launching a pty host process, forwarding messages to and
  * from the pty host process and manages the connection.
@@ -84,7 +84,7 @@ export declare class PtyHostService extends Disposable implements IPtyHostServic
     private _refreshIgnoreProcessNames;
     private _resolveShellEnv;
     private _startPtyHost;
-    createProcess(shellLaunchConfig: IShellLaunchConfig, cwd: string, cols: number, rows: number, unicodeVersion: "6" | "11", env: IProcessEnvironment, executableEnv: IProcessEnvironment, options: ITerminalProcessOptions, shouldPersist: boolean, workspaceId: string, workspaceName: string): Promise<number>;
+    createProcess(shellLaunchConfig: IShellLaunchConfig, cwd: string, cols: number, rows: number, unicodeVersion: '6' | '11', env: IProcessEnvironment, executableEnv: IProcessEnvironment, options: ITerminalProcessOptions, shouldPersist: boolean, workspaceId: string, workspaceName: string): Promise<number>;
     updateTitle(id: number, title: string, titleSource: TitleEventSource): Promise<void>;
     updateIcon(id: number, userInitiated: boolean, icon: TerminalIcon, color?: string): Promise<void>;
     attachToProcess(id: number): Promise<void>;
@@ -102,7 +102,7 @@ export declare class PtyHostService extends Disposable implements IPtyHostServic
     resize(id: number, cols: number, rows: number): Promise<void>;
     clearBuffer(id: number): Promise<void>;
     acknowledgeDataEvent(id: number, charCount: number): Promise<void>;
-    setUnicodeVersion(id: number, version: "6" | "11"): Promise<void>;
+    setUnicodeVersion(id: number, version: '6' | '11'): Promise<void>;
     getInitialCwd(id: number): Promise<string>;
     getCwd(id: number): Promise<string>;
     getLatency(): Promise<IPtyHostLatencyMeasurement[]>;
@@ -113,7 +113,7 @@ export declare class PtyHostService extends Disposable implements IPtyHostServic
     getDefaultSystemShell(osOverride?: OperatingSystem): Promise<string>;
     getProfiles(workspaceId: string, profiles: unknown, defaultProfile: unknown, includeDetectedProfiles?: boolean): Promise<ITerminalProfile[]>;
     getEnvironment(): Promise<IProcessEnvironment>;
-    getWslPath(original: string, direction: "unix-to-win" | "win-to-unix"): Promise<string>;
+    getWslPath(original: string, direction: 'unix-to-win' | 'win-to-unix'): Promise<string>;
     getRevivedPtyNewId(workspaceId: string, id: number): Promise<number | undefined>;
     setTerminalLayoutInfo(args: ISetTerminalLayoutInfoArgs): Promise<void>;
     getTerminalLayoutInfo(args: IGetTerminalLayoutInfoArgs): Promise<ITerminalsLayoutInfo | undefined>;

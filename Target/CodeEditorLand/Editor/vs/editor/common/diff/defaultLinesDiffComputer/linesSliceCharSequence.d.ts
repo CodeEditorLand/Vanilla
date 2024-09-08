@@ -1,7 +1,7 @@
-import { OffsetRange } from "../../core/offsetRange.js";
-import { Position } from "../../core/position.js";
-import { Range } from "../../core/range.js";
-import type { ISequence } from "./algorithms/diffAlgorithm.js";
+import { OffsetRange } from '../../core/offsetRange.js';
+import { Position } from '../../core/position.js';
+import { Range } from '../../core/range.js';
+import { ISequence } from './algorithms/diffAlgorithm.js';
 export declare class LinesSliceCharSequence implements ISequence {
     readonly lines: string[];
     private readonly range;
@@ -17,7 +17,7 @@ export declare class LinesSliceCharSequence implements ISequence {
     getElement(offset: number): number;
     get length(): number;
     getBoundaryScore(length: number): number;
-    translateOffset(offset: number, preference?: "left" | "right"): Position;
+    translateOffset(offset: number, preference?: 'left' | 'right'): Position;
     translateRange(range: OffsetRange): Range;
     /**
      * Finds the word that contains the character at the given offset

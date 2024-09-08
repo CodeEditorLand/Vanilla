@@ -1,6 +1,6 @@
-import { MenuId } from "../../../../platform/actions/common/actions.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-export declare enum InlineChatConfigKeys {
+import { MenuId } from '../../../../platform/actions/common/actions.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+export declare const enum InlineChatConfigKeys {
     Mode = "inlineChat.mode",
     FinishOnType = "inlineChat.finishOnType",
     AcceptedOrDiscardBeforeSave = "inlineChat.acceptedOrDiscardBeforeSave",
@@ -9,13 +9,13 @@ export declare enum InlineChatConfigKeys {
     HoldToSpeech = "inlineChat.holdToSpeech",
     AccessibleDiffView = "inlineChat.accessibleDiffView"
 }
-export declare enum EditMode {
+export declare const enum EditMode {
     Live = "live",
     Preview = "preview"
 }
 export declare const INLINE_CHAT_ID = "interactiveEditor";
 export declare const INTERACTIVE_EDITOR_ACCESSIBILITY_HELP_ID = "interactiveEditorAccessiblityHelp";
-export declare enum InlineChatResponseType {
+export declare const enum InlineChatResponseType {
     None = "none",
     Messages = "messages",
     MessagesAndEdits = "messagesAndEdits"

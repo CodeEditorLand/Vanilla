@@ -1,10 +1,10 @@
-import type { Event } from "../../../base/common/event.js";
-import type { IJSONSchema } from "../../../base/common/jsonSchema.js";
-import type { KeyCode } from "../../../base/common/keyCodes.js";
-import type { Keybinding, ResolvedKeybinding } from "../../../base/common/keybindings.js";
-import type { IContextKeyService, IContextKeyServiceTarget } from "../../contextkey/common/contextkey.js";
-import type { ResolutionResult } from "./keybindingResolver.js";
-import type { ResolvedKeybindingItem } from "./resolvedKeybindingItem.js";
+import { Event } from '../../../base/common/event.js';
+import { IJSONSchema } from '../../../base/common/jsonSchema.js';
+import { KeyCode } from '../../../base/common/keyCodes.js';
+import { ResolvedKeybinding, Keybinding } from '../../../base/common/keybindings.js';
+import { IContextKeyService, IContextKeyServiceTarget } from '../../contextkey/common/contextkey.js';
+import { ResolutionResult } from './keybindingResolver.js';
+import { ResolvedKeybindingItem } from './resolvedKeybindingItem.js';
 export interface IUserFriendlyKeybinding {
     key: string;
     command: string;

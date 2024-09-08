@@ -1,7 +1,7 @@
-import { Event } from "../../../../base/common/event.js";
-import { EditorAction, type ServicesAccessor } from "../../../browser/editorExtensions.js";
-import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
-import { AbstractGotoLineQuickAccessProvider } from "../../../contrib/quickAccess/browser/gotoLineQuickAccess.js";
+import { AbstractGotoLineQuickAccessProvider } from '../../../contrib/quickAccess/browser/gotoLineQuickAccess.js';
+import { ICodeEditorService } from '../../../browser/services/codeEditorService.js';
+import { Event } from '../../../../base/common/event.js';
+import { EditorAction, ServicesAccessor } from '../../../browser/editorExtensions.js';
 export declare class StandaloneGotoLineQuickAccessProvider extends AbstractGotoLineQuickAccessProvider {
     private readonly editorService;
     protected readonly onDidActiveTextEditorControlChange: Event<any>;

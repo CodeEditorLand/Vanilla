@@ -1,5 +1,5 @@
-import { type WorkbenchCompressibleObjectTree } from "../../../../platform/list/browser/listService.js";
-import { type RenderableMatch } from "./searchModel.js";
+import { WorkbenchCompressibleObjectTree } from '../../../../platform/list/browser/listService.js';
+import { RenderableMatch } from './searchModel.js';
 export interface ISearchActionContext {
     readonly viewer: WorkbenchCompressibleObjectTree<RenderableMatch>;
     readonly element: RenderableMatch;

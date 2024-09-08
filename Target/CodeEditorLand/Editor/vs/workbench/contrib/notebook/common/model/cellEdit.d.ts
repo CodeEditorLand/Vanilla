@@ -1,7 +1,7 @@
-import type { URI } from "../../../../../base/common/uri.js";
-import { UndoRedoElementType, type IResourceUndoRedoElement } from "../../../../../platform/undoRedo/common/undoRedo.js";
-import type { ISelectionState, NotebookCellMetadata } from "../notebookCommon.js";
-import type { NotebookCellTextModel } from "./notebookCellTextModel.js";
+import { IResourceUndoRedoElement, UndoRedoElementType } from '../../../../../platform/undoRedo/common/undoRedo.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { NotebookCellTextModel } from './notebookCellTextModel.js';
+import { ISelectionState, NotebookCellMetadata } from '../notebookCommon.js';
 /**
  * It should not modify Undo/Redo stack
  */
@@ -36,11 +36,7 @@ export declare class SpliceCellsEdit implements IResourceUndoRedoElement {
     type: UndoRedoElementType.Resource;
     get label(): "Insert Cells" | "Insert Cell" | "Delete Cells" | "Delete Cell";
     code: string;
-    constructor(resource: URI, diffs: [
-        number,
-        NotebookCellTextModel[],
-        NotebookCellTextModel[]
-    ][], editingDelegate: ITextCellEditingDelegate, beforeHandles: ISelectionState | undefined, endHandles: ISelectionState | undefined);
+    constructor(resource: URI, diffs: [number, NotebookCellTextModel[], NotebookCellTextModel[]][], editingDelegate: ITextCellEditingDelegate, beforeHandles: ISelectionState | undefined, endHandles: ISelectionState | undefined);
     undo(): void;
     redo(): void;
 }

@@ -1,16 +1,1 @@
-class MockChatWidgetService {
-  _serviceBrand;
-  /**
-   * Returns the most recently focused widget if any.
-   */
-  lastFocusedWidget;
-  getWidgetByInputUri(uri) {
-    return void 0;
-  }
-  getWidgetBySessionId(sessionId) {
-    return void 0;
-  }
-}
-export {
-  MockChatWidgetService
-};
+import"../../../../../base/common/uri.js";import"../../browser/chat.js";class a{_serviceBrand;lastFocusedWidget;getWidgetByInputUri(e){}getWidgetBySessionId(e){}}export{a as MockChatWidgetService};

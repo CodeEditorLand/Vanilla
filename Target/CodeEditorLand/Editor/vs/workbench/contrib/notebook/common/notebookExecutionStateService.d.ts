@@ -1,9 +1,9 @@
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { URI, UriComponents } from "../../../../base/common/uri.js";
-import type { IRange } from "../../../../editor/common/core/range.js";
-import type { NotebookCellExecutionState, NotebookExecutionState } from "./notebookCommon.js";
-import type { CellExecutionUpdateType, ICellExecuteOutputEdit, ICellExecuteOutputItemEdit } from "./notebookExecutionService.js";
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI, UriComponents } from '../../../../base/common/uri.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { NotebookCellExecutionState, NotebookExecutionState } from './notebookCommon.js';
+import { CellExecutionUpdateType, ICellExecuteOutputEdit, ICellExecuteOutputItemEdit } from './notebookExecutionService.js';
 export type ICellExecuteUpdate = ICellExecuteOutputEdit | ICellExecuteOutputItemEdit | ICellExecutionStateUpdate;
 export interface ICellExecutionStateUpdate {
     editType: CellExecutionUpdateType.ExecutionState;

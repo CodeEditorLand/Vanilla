@@ -1,5 +1,5 @@
-import { Disposable, type IDisposable } from "../lifecycle.js";
-import type { URI } from "../uri.js";
+import { Disposable, IDisposable } from '../lifecycle.js';
+import { URI } from '../uri.js';
 export interface IWorker extends IDisposable {
     getId(): number;
     postMessage(message: Message, transfer: ArrayBuffer[]): void;
@@ -16,7 +16,7 @@ export interface IWorkerDescriptor {
     readonly label: string | undefined;
 }
 export declare function logOnceWebWorkerWarning(err: any): void;
-declare enum MessageType {
+declare const enum MessageType {
     Request = 0,
     Reply = 1,
     SubscribeEvent = 2,
@@ -63,9 +63,9 @@ declare class UnsubscribeEventMessage {
     constructor(vsWorker: number, req: string);
 }
 type Message = RequestMessage | ReplyMessage | SubscribeEventMessage | EventMessage | UnsubscribeEventMessage;
-type ProxiedMethodName = `$${string}` | `on${string}`;
+type ProxiedMethodName = (`$${string}` | `on${string}`);
 export type Proxied<T> = {
-    [K in keyof T]: T[K] extends (...args: infer A) => infer R ? K extends ProxiedMethodName ? (...args: A) => Promise<Awaited<R>> : never : never;
+    [K in keyof T]: T[K] extends (...args: infer A) => infer R ? (K extends ProxiedMethodName ? (...args: A) => Promise<Awaited<R>> : never) : never;
 };
 export interface IWorkerClient<W> {
     proxy: Proxied<W>;

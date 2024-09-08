@@ -1,9 +1,9 @@
-import { type FastDomNode } from "../../../../../base/browser/fastDomNode.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { INotebookViewCellsUpdateEvent, INotebookViewZoneChangeAccessor } from "../notebookBrowser.js";
-import type { NotebookCellListView } from "../view/notebookCellListView.js";
-import type { ICoordinatesConverter } from "../view/notebookRenderingCommon.js";
-import type { CellViewModel } from "../viewModel/notebookViewModelImpl.js";
+import { FastDomNode } from '../../../../../base/browser/fastDomNode.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { INotebookViewCellsUpdateEvent, INotebookViewZoneChangeAccessor } from '../notebookBrowser.js';
+import { NotebookCellListView } from '../view/notebookCellListView.js';
+import { ICoordinatesConverter } from '../view/notebookRenderingCommon.js';
+import { CellViewModel } from '../viewModel/notebookViewModelImpl.js';
 export declare class NotebookViewZones extends Disposable {
     private readonly listView;
     private readonly coordinator;

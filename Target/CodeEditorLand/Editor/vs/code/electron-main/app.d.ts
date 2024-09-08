@@ -1,15 +1,15 @@
-import { Disposable } from "../../base/common/lifecycle.js";
-import { type IProcessEnvironment } from "../../base/common/platform.js";
-import type { Server as NodeIPCServer } from "../../base/parts/ipc/node/ipc.net.js";
-import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
-import { IEnvironmentMainService } from "../../platform/environment/electron-main/environmentMainService.js";
-import { IFileService } from "../../platform/files/common/files.js";
-import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
-import { ILifecycleMainService } from "../../platform/lifecycle/electron-main/lifecycleMainService.js";
-import { ILoggerService, ILogService } from "../../platform/log/common/log.js";
-import { IProductService } from "../../platform/product/common/productService.js";
-import { IStateService } from "../../platform/state/node/state.js";
-import { IUserDataProfilesMainService } from "../../platform/userDataProfile/electron-main/userDataProfile.js";
+import { Disposable } from '../../base/common/lifecycle.js';
+import { IProcessEnvironment } from '../../base/common/platform.js';
+import { Server as NodeIPCServer } from '../../base/parts/ipc/node/ipc.net.js';
+import { IConfigurationService } from '../../platform/configuration/common/configuration.js';
+import { IEnvironmentMainService } from '../../platform/environment/electron-main/environmentMainService.js';
+import { IFileService } from '../../platform/files/common/files.js';
+import { IInstantiationService } from '../../platform/instantiation/common/instantiation.js';
+import { ILifecycleMainService } from '../../platform/lifecycle/electron-main/lifecycleMainService.js';
+import { ILoggerService, ILogService } from '../../platform/log/common/log.js';
+import { IProductService } from '../../platform/product/common/productService.js';
+import { IStateService } from '../../platform/state/node/state.js';
+import { IUserDataProfilesMainService } from '../../platform/userDataProfile/electron-main/userDataProfile.js';
 /**
  * The main VS Code application. There will only ever be one instance,
  * even if the user starts many instances (e.g. from the command line).

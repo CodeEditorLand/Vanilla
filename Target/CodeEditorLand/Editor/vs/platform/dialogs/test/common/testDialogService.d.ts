@@ -1,5 +1,5 @@
-import { Event } from "../../../../base/common/event.js";
-import type { IConfirmation, IConfirmationResult, IDialogService, IInputResult, IPrompt, IPromptResult, IPromptResultWithCancel, IPromptWithCustomCancel, IPromptWithDefaultCancel } from "../../common/dialogs.js";
+import { Event } from '../../../../base/common/event.js';
+import { IConfirmation, IConfirmationResult, IDialogService, IInputResult, IPrompt, IPromptResult, IPromptResultWithCancel, IPromptWithCustomCancel, IPromptWithDefaultCancel } from '../../common/dialogs.js';
 export declare class TestDialogService implements IDialogService {
     private defaultConfirmResult;
     private defaultPromptResult;

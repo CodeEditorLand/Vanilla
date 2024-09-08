@@ -1,7 +1,7 @@
-import { Keybinding, type ResolvedKeybinding } from "../../../../base/common/keybindings.js";
-import type { OperatingSystem } from "../../../../base/common/platform.js";
-import type { IKeyboardEvent } from "../../../../platform/keybinding/common/keybinding.js";
-import type { IKeyboardMapper } from "../../../../platform/keyboardLayout/common/keyboardMapper.js";
+import { ResolvedKeybinding, Keybinding } from '../../../../base/common/keybindings.js';
+import { OperatingSystem } from '../../../../base/common/platform.js';
+import { IKeyboardEvent } from '../../../../platform/keybinding/common/keybinding.js';
+import { IKeyboardMapper } from '../../../../platform/keyboardLayout/common/keyboardMapper.js';
 /**
  * A keyboard mapper to be used when reading the keymap from the OS fails.
  */

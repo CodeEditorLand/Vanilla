@@ -1,6 +1,6 @@
-import { IShareService } from "../../contrib/share/common/share.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { type IDocumentFilterDto, type MainThreadShareShape } from "../common/extHost.protocol.js";
+import { IDocumentFilterDto, MainThreadShareShape } from '../common/extHost.protocol.js';
+import { IShareService } from '../../contrib/share/common/share.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
 export declare class MainThreadShare implements MainThreadShareShape {
     private readonly shareService;
     private readonly proxy;

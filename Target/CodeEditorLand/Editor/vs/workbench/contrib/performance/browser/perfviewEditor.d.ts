@@ -1,14 +1,14 @@
-import { URI } from "../../../../base/common/uri.js";
-import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { TextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
-import { ICustomEditorLabelService } from "../../../services/editor/common/customEditorLabelService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
-import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { URI } from '../../../../base/common/uri.js';
+import { TextResourceEditorInput } from '../../../common/editor/textResourceEditorInput.js';
+import { ITextModelService } from '../../../../editor/common/services/resolverService.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ITextFileService } from '../../../services/textfile/common/textfiles.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { IFilesConfigurationService } from '../../../services/filesConfiguration/common/filesConfigurationService.js';
+import { ITextResourceConfigurationService } from '../../../../editor/common/services/textResourceConfiguration.js';
+import { ICustomEditorLabelService } from '../../../services/editor/common/customEditorLabelService.js';
 export declare class PerfviewContrib {
     private readonly _instaService;
     static get(): PerfviewContrib;

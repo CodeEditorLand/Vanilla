@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { type IStorageService } from "../../../../platform/storage/common/storage.js";
-import { CustomEditorInfo } from "./customEditor.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { CustomEditorInfo } from './customEditor.js';
 export declare class ContributedCustomEditors extends Disposable {
     private static readonly CUSTOM_EDITORS_STORAGE_ID;
     private static readonly CUSTOM_EDITORS_ENTRY_ID;

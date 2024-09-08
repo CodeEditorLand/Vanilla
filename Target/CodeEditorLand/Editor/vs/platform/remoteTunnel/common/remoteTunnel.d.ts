@@ -1,4 +1,4 @@
-import type { Event } from "../../../base/common/event.js";
+import { Event } from '../../../base/common/event.js';
 export interface IRemoteTunnelSession {
     readonly providerId: string;
     readonly sessionId: string;
@@ -32,19 +32,19 @@ export type TunnelMode = ActiveTunnelMode | InactiveTunnelMode;
 export type TunnelStatus = TunnelStates.Connected | TunnelStates.Disconnected | TunnelStates.Connecting | TunnelStates.Uninitialized;
 export declare namespace TunnelStates {
     interface Uninitialized {
-        readonly type: "uninitialized";
+        readonly type: 'uninitialized';
     }
     interface Connecting {
-        readonly type: "connecting";
+        readonly type: 'connecting';
         readonly progress?: string;
     }
     interface Connected {
-        readonly type: "connected";
+        readonly type: 'connected';
         readonly info: ConnectionInfo;
         readonly serviceInstallFailed: boolean;
     }
     interface Disconnected {
-        readonly type: "disconnected";
+        readonly type: 'disconnected';
         readonly onTokenFailed?: IRemoteTunnelSession;
     }
     const disconnected: (onTokenFailed?: IRemoteTunnelSession) => Disconnected;

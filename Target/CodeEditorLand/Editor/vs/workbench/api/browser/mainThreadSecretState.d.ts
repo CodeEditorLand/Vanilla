@@ -1,9 +1,9 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { ISecretStorageService } from "../../../platform/secrets/common/secrets.js";
-import { IBrowserWorkbenchEnvironmentService } from "../../services/environment/browser/environmentService.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { type MainThreadSecretStateShape } from "../common/extHost.protocol.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { MainThreadSecretStateShape } from '../common/extHost.protocol.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { ISecretStorageService } from '../../../platform/secrets/common/secrets.js';
+import { IBrowserWorkbenchEnvironmentService } from '../../services/environment/browser/environmentService.js';
 export declare class MainThreadSecretState extends Disposable implements MainThreadSecretStateShape {
     private readonly secretStorageService;
     private readonly logService;

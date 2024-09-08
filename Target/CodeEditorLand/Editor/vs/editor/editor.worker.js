@@ -1,1 +1,1 @@
-export * from "./common/services/editorWorkerBootstrap.js";
+export*from"./common/services/editorWorkerBootstrap.js";

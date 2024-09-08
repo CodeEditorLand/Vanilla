@@ -1,9 +1,9 @@
-import { type UriComponents } from "../../../base/common/uri.js";
-import { IOpenerService } from "../../../platform/opener/common/opener.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { IHostService } from "../../services/host/browser/host.js";
-import { IUserActivityService } from "../../services/userActivity/common/userActivityService.js";
-import { type IOpenUriOptions, type MainThreadWindowShape } from "../common/extHost.protocol.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import { IOpenerService } from '../../../platform/opener/common/opener.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IOpenUriOptions, MainThreadWindowShape } from '../common/extHost.protocol.js';
+import { IHostService } from '../../services/host/browser/host.js';
+import { IUserActivityService } from '../../services/userActivity/common/userActivityService.js';
 export declare class MainThreadWindow implements MainThreadWindowShape {
     private readonly hostService;
     private readonly openerService;

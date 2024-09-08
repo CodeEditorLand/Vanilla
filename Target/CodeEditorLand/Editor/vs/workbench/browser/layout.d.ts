@@ -1,11 +1,11 @@
-import { type IDimension } from "../../base/browser/dom.js";
-import { Direction } from "../../base/browser/ui/grid/grid.js";
-import { type CodeWindow } from "../../base/browser/window.js";
-import { type Event } from "../../base/common/event.js";
-import { Disposable, DisposableStore, type IDisposable } from "../../base/common/lifecycle.js";
-import type { ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
-import { type IWorkbenchLayoutService, type MULTI_WINDOW_PARTS, type PanelAlignment, Parts, Position, type SINGLE_WINDOW_PARTS } from "../services/layout/browser/layoutService.js";
-import { Part } from "./part.js";
+import { Disposable, DisposableStore, IDisposable } from '../../base/common/lifecycle.js';
+import { Event } from '../../base/common/event.js';
+import { IDimension } from '../../base/browser/dom.js';
+import { Position, Parts, IWorkbenchLayoutService, PanelAlignment, MULTI_WINDOW_PARTS, SINGLE_WINDOW_PARTS } from '../services/layout/browser/layoutService.js';
+import { ServicesAccessor } from '../../platform/instantiation/common/instantiation.js';
+import { Direction } from '../../base/browser/ui/grid/grid.js';
+import { Part } from './part.js';
+import { CodeWindow } from '../../base/browser/window.js';
 export declare const TITLE_BAR_SETTINGS: string[];
 export declare abstract class Layout extends Disposable implements IWorkbenchLayoutService {
     protected readonly parent: HTMLElement;

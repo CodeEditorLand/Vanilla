@@ -1,16 +1,1 @@
-class NotebookPerfMarks {
-  _marks = {};
-  get value() {
-    return { ...this._marks };
-  }
-  mark(name) {
-    if (this._marks[name]) {
-      console.error(`Skipping overwrite of notebook perf value: ${name}`);
-      return;
-    }
-    this._marks[name] = Date.now();
-  }
-}
-export {
-  NotebookPerfMarks
-};
+class o{_marks={};get value(){return{...this._marks}}mark(e){if(this._marks[e]){console.error(`Skipping overwrite of notebook perf value: ${e}`);return}this._marks[e]=Date.now()}}export{o as NotebookPerfMarks};

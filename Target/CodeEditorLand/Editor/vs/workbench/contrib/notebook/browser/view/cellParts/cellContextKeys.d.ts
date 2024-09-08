@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
-import { type ICellViewModel, type INotebookEditorDelegate } from "../../notebookBrowser.js";
-import { CellContentPart } from "../cellPart.js";
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { IContextKeyService } from '../../../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
+import { ICellViewModel, INotebookEditorDelegate } from '../../notebookBrowser.js';
+import { CellContentPart } from '../cellPart.js';
+import { INotebookExecutionStateService } from '../../../common/notebookExecutionStateService.js';
 export declare class CellContextKeyPart extends CellContentPart {
     private readonly instantiationService;
     private cellContextKeyManager;

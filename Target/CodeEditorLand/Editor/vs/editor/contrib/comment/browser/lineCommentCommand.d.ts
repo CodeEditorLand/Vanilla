@@ -1,8 +1,8 @@
-import { type ISingleEditOperation } from "../../../common/core/editOperation.js";
-import { Selection } from "../../../common/core/selection.js";
-import type { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../../../common/editorCommon.js";
-import type { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import type { ITextModel } from "../../../common/model.js";
+import { ISingleEditOperation } from '../../../common/core/editOperation.js';
+import { Selection } from '../../../common/core/selection.js';
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from '../../../common/editorCommon.js';
+import { ITextModel } from '../../../common/model.js';
+import { ILanguageConfigurationService } from '../../../common/languages/languageConfigurationRegistry.js';
 export interface IInsertionPoint {
     ignore: boolean;
     commentStrOffset: number;
@@ -25,7 +25,7 @@ export type IPreflightData = IPreflightDataSupported | IPreflightDataUnsupported
 export interface ISimpleModel {
     getLineContent(lineNumber: number): string;
 }
-export declare enum Type {
+export declare const enum Type {
     Toggle = 0,
     ForceAdd = 1,
     ForceRemove = 2

@@ -1,6 +1,6 @@
-import { type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ILogService } from "../../log/common/log.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { ILogService } from '../../log/common/log.js';
 export declare const ISharedProcessLifecycleService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ISharedProcessLifecycleService>;
 export interface ISharedProcessLifecycleService {
     readonly _serviceBrand: undefined;

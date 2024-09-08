@@ -1,8 +1,8 @@
-import "./lineNumbers.css";
-import type * as viewEvents from "../../../common/viewEvents.js";
-import type { ViewContext } from "../../../common/viewModel/viewContext.js";
-import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
-import type { RenderingContext } from "../../view/renderingContext.js";
+import './lineNumbers.css';
+import { DynamicViewOverlay } from '../../view/dynamicViewOverlay.js';
+import { RenderingContext } from '../../view/renderingContext.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
+import * as viewEvents from '../../../common/viewEvents.js';
 export declare class LineNumbersOverlay extends DynamicViewOverlay {
     static readonly CLASS_NAME = "line-numbers";
     private readonly _context;

@@ -1,5 +1,5 @@
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
 export declare const IProtocolMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IProtocolMainService>;
 export interface IIPCObjectUrl<T> extends IDisposable {
     /**

@@ -1,4 +1,4 @@
-export declare enum MarshalledId {
+export declare const enum MarshalledId {
     Uri = 1,
     Regexp = 2,
     ScmResource = 3,

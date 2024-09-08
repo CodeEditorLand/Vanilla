@@ -1,11 +1,1 @@
-import * as dom from "../../../../base/browser/dom.js";
-function isMousePositionWithinElement(element, posx, posy) {
-  const elementRect = dom.getDomNodePagePosition(element);
-  if (posx < elementRect.left || posx > elementRect.left + elementRect.width || posy < elementRect.top || posy > elementRect.top + elementRect.height) {
-    return false;
-  }
-  return true;
-}
-export {
-  isMousePositionWithinElement
-};
+import*as i from"../../../../base/browser/dom.js";function r(n,t,o){const e=i.getDomNodePagePosition(n);return!(t<e.left||t>e.left+e.width||o<e.top||o>e.top+e.height)}export{r as isMousePositionWithinElement};

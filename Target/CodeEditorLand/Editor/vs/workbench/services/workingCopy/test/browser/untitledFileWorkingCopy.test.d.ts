@@ -1,9 +1,9 @@
-import { type VSBufferReadableStream } from "../../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { URI } from "../../../../../base/common/uri.js";
-import type { SnapshotContext } from "../../common/fileWorkingCopy.js";
-import { type IUntitledFileWorkingCopyModel, type IUntitledFileWorkingCopyModelContentChangedEvent, type IUntitledFileWorkingCopyModelFactory } from "../../common/untitledFileWorkingCopy.js";
+import { VSBufferReadableStream } from '../../../../../base/common/buffer.js';
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { SnapshotContext } from '../../common/fileWorkingCopy.js';
+import { IUntitledFileWorkingCopyModel, IUntitledFileWorkingCopyModelContentChangedEvent, IUntitledFileWorkingCopyModelFactory } from '../../common/untitledFileWorkingCopy.js';
 export declare class TestUntitledFileWorkingCopyModel extends Disposable implements IUntitledFileWorkingCopyModel {
     readonly resource: URI;
     contents: string;

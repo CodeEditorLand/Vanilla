@@ -1,4 +1,4 @@
-import type * as webviewMessages from "./webviewMessages.js";
+import type * as webviewMessages from './webviewMessages.js';
 interface PreloadStyles {
     readonly outputNodePadding: number;
     readonly outputNodeLeftPadding: number;

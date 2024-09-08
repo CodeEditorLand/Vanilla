@@ -1,10 +1,10 @@
-import "./style.js";
-import { Event } from "../../base/common/event.js";
-import type { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
-import type { ServiceCollection } from "../../platform/instantiation/common/serviceCollection.js";
-import type { ILogService } from "../../platform/log/common/log.js";
-import { type WillShutdownEvent } from "../services/lifecycle/common/lifecycle.js";
-import { Layout } from "./layout.js";
+import './style.js';
+import { Event } from '../../base/common/event.js';
+import { IInstantiationService } from '../../platform/instantiation/common/instantiation.js';
+import { ServiceCollection } from '../../platform/instantiation/common/serviceCollection.js';
+import { WillShutdownEvent } from '../services/lifecycle/common/lifecycle.js';
+import { ILogService } from '../../platform/log/common/log.js';
+import { Layout } from './layout.js';
 export interface IWorkbenchOptions {
     /**
      * Extra classes to be added to the workbench container.

@@ -1,6 +1,6 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import type { IKeyboardLayoutData, INativeKeyboardLayoutService } from "../common/keyboardLayoutService.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IKeyboardLayoutData, INativeKeyboardLayoutService } from '../common/keyboardLayoutService.js';
+import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
 export declare const IKeyboardLayoutMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IKeyboardLayoutMainService>;
 export interface IKeyboardLayoutMainService extends INativeKeyboardLayoutService {
 }

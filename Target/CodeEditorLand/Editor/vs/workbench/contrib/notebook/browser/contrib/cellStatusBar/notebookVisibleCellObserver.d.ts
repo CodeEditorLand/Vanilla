@@ -1,5 +1,5 @@
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import type { ICellViewModel, INotebookEditor } from "../../notebookBrowser.js";
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { ICellViewModel, INotebookEditor } from '../../notebookBrowser.js';
 export interface ICellVisibilityChangeEvent {
     added: ICellViewModel[];
     removed: ICellViewModel[];

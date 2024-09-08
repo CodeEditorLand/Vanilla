@@ -1,20 +1,20 @@
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ConfigurationTarget, type IConfigurationChangeEvent, type IConfigurationData, type IConfigurationOverrides, type IConfigurationUpdateOptions, type IConfigurationUpdateOverrides, type IConfigurationValue } from "../../../../platform/configuration/common/configuration.js";
-import { ConfigurationModel } from "../../../../platform/configuration/common/configurationModels.js";
-import type { IFileService } from "../../../../platform/files/common/files.js";
-import type { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import type { ILogService } from "../../../../platform/log/common/log.js";
-import { type IPolicyService } from "../../../../platform/policy/common/policy.js";
-import type { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import type { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import { Workspace as BaseWorkspace, IWorkspaceContextService, WorkbenchState, type IAnyWorkspaceIdentifier, type ISingleFolderWorkspaceIdentifier, type IWorkspaceFolder, type IWorkspaceFoldersChangeEvent, type IWorkspaceFoldersWillChangeEvent, type IWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
-import { type IWorkspaceFolderCreationData } from "../../../../platform/workspaces/common/workspaces.js";
-import type { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
-import type { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
-import type { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
-import { type IConfigurationCache, type IWorkbenchConfigurationService, type RestrictedSettings } from "../common/configuration.js";
+import { URI } from '../../../../base/common/uri.js';
+import { Event, Emitter } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IWorkspaceContextService, Workspace as BaseWorkspace, WorkbenchState, IWorkspaceFolder, IWorkspaceFoldersChangeEvent, IWorkspaceFoldersWillChangeEvent, ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier, IAnyWorkspaceIdentifier } from '../../../../platform/workspace/common/workspace.js';
+import { ConfigurationModel } from '../../../../platform/configuration/common/configurationModels.js';
+import { IConfigurationChangeEvent, ConfigurationTarget, IConfigurationOverrides, IConfigurationData, IConfigurationValue, IConfigurationUpdateOverrides, IConfigurationUpdateOptions } from '../../../../platform/configuration/common/configuration.js';
+import { IConfigurationCache, IWorkbenchConfigurationService, RestrictedSettings } from '../common/configuration.js';
+import { IWorkspaceFolderCreationData } from '../../../../platform/workspaces/common/workspaces.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IRemoteAgentService } from '../../remote/common/remoteAgentService.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IUserDataProfileService } from '../../userDataProfile/common/userDataProfile.js';
+import { IPolicyService } from '../../../../platform/policy/common/policy.js';
+import { IUserDataProfilesService } from '../../../../platform/userDataProfile/common/userDataProfile.js';
+import { IBrowserWorkbenchEnvironmentService } from '../../environment/browser/environmentService.js';
 declare class Workspace extends BaseWorkspace {
     initialized: boolean;
 }
@@ -59,7 +59,7 @@ export declare class WorkspaceService extends Disposable implements IWorkbenchCo
     private readonly configurationRegistry;
     private instantiationService;
     private configurationEditing;
-    constructor({ remoteAuthority, configurationCache, }: {
+    constructor({ remoteAuthority, configurationCache }: {
         remoteAuthority?: string;
         configurationCache: IConfigurationCache;
     }, environmentService: IBrowserWorkbenchEnvironmentService, userDataProfileService: IUserDataProfileService, userDataProfilesService: IUserDataProfilesService, fileService: IFileService, remoteAgentService: IRemoteAgentService, uriIdentityService: IUriIdentityService, logService: ILogService, policyService: IPolicyService);

@@ -1,9 +1,9 @@
-import { URI } from "../../../base/common/uri.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { type ExtHostLocalizationShape, type IStringDetails } from "./extHost.protocol.js";
-import { IExtHostInitDataService } from "./extHostInitDataService.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import { URI } from '../../../base/common/uri.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { ExtHostLocalizationShape, IStringDetails } from './extHost.protocol.js';
+import { IExtHostInitDataService } from './extHostInitDataService.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
 export declare class ExtHostLocalizationService implements ExtHostLocalizationShape {
     private readonly logService;
     readonly _serviceBrand: undefined;

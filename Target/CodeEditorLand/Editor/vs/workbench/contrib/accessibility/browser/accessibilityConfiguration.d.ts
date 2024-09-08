@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { type IConfigurationNode, type IConfigurationPropertySchema } from "../../../../platform/configuration/common/configurationRegistry.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import type { IWorkbenchContribution } from "../../../common/contributions.js";
-import { AccessibilityVoiceSettingId, ISpeechService } from "../../speech/common/speechService.js";
+import { IConfigurationNode, IConfigurationPropertySchema } from '../../../../platform/configuration/common/configurationRegistry.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { AccessibilityVoiceSettingId, ISpeechService } from '../../speech/common/speechService.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
 export declare const accessibilityHelpIsShown: RawContextKey<boolean>;
 export declare const accessibleViewIsShown: RawContextKey<boolean>;
 export declare const accessibleViewSupportsNavigation: RawContextKey<boolean>;
@@ -19,18 +19,18 @@ export declare const accessibleViewHasAssignedKeybindings: RawContextKey<boolean
  * Miscellaneous settings tagged with accessibility and implemented in the accessibility contrib but
  * were better to live under workbench for discoverability.
  */
-export declare enum AccessibilityWorkbenchSettingId {
+export declare const enum AccessibilityWorkbenchSettingId {
     DimUnfocusedEnabled = "accessibility.dimUnfocused.enabled",
     DimUnfocusedOpacity = "accessibility.dimUnfocused.opacity",
     HideAccessibleView = "accessibility.hideAccessibleView",
     AccessibleViewCloseOnKeyPress = "accessibility.accessibleView.closeOnKeyPress"
 }
-export declare enum ViewDimUnfocusedOpacityProperties {
+export declare const enum ViewDimUnfocusedOpacityProperties {
     Default = 0.75,
     Minimum = 0.2,
     Maximum = 1
 }
-export declare enum AccessibilityVerbositySettingId {
+export declare const enum AccessibilityVerbositySettingId {
     Terminal = "accessibility.verbosity.terminal",
     DiffEditor = "accessibility.verbosity.diffEditor",
     Chat = "accessibility.verbosity.panelChat",

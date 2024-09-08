@@ -1,9 +1,9 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IStateService } from "../../state/node/state.js";
-import type { IColorScheme } from "../../window/common/window.js";
-import type { IPartsSplash } from "../common/themeService.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IStateService } from '../../state/node/state.js';
+import { IPartsSplash } from '../common/themeService.js';
+import { IColorScheme } from '../../window/common/window.js';
 export declare const IThemeMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IThemeMainService>;
 export interface IThemeMainService {
     readonly _serviceBrand: undefined;

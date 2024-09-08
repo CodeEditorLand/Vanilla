@@ -1,14 +1,14 @@
-import type * as vscode from "vscode";
-import type { VSBuffer } from "../../../base/common/buffer.js";
-import { Emitter, type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import type { ILogService } from "../../../platform/log/common/log.js";
-import { type WebviewRemoteInfo } from "../../contrib/webview/common/webview.js";
-import type { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
-import * as extHostProtocol from "./extHost.protocol.js";
-import type { IExtHostApiDeprecationService } from "./extHostApiDeprecationService.js";
-import type { IExtHostWorkspace } from "./extHostWorkspace.js";
+import { VSBuffer } from '../../../base/common/buffer.js';
+import { Emitter, Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { IExtHostApiDeprecationService } from './extHostApiDeprecationService.js';
+import { IExtHostWorkspace } from './extHostWorkspace.js';
+import { WebviewRemoteInfo } from '../../contrib/webview/common/webview.js';
+import { SerializableObjectWithBuffers } from '../../services/extensions/common/proxyIdentifier.js';
+import type * as vscode from 'vscode';
+import * as extHostProtocol from './extHost.protocol.js';
 export declare class ExtHostWebview implements vscode.Webview {
     #private;
     constructor(handle: extHostProtocol.WebviewHandle, proxy: extHostProtocol.MainThreadWebviewsShape, options: vscode.WebviewOptions, remoteInfo: WebviewRemoteInfo, workspace: IExtHostWorkspace | undefined, extension: IExtensionDescription, deprecationService: IExtHostApiDeprecationService);

@@ -1,8 +1,8 @@
-import type { ICommandMetadata } from "../../../platform/commands/common/commands.js";
-import { type IPosition } from "../core/position.js";
-import { Range } from "../core/range.js";
-import { CursorState, type PartialCursorState } from "../cursorCommon.js";
-import type { IViewModel } from "../viewModel.js";
+import { CursorState, PartialCursorState } from '../cursorCommon.js';
+import { IPosition } from '../core/position.js';
+import { Range } from '../core/range.js';
+import { ICommandMetadata } from '../../../platform/commands/common/commands.js';
+import { IViewModel } from '../viewModel.js';
 export declare class CursorMoveCommands {
     static addCursorDown(viewModel: IViewModel, cursors: CursorState[], useLogicalLine: boolean): PartialCursorState[];
     static addCursorUp(viewModel: IViewModel, cursors: CursorState[], useLogicalLine: boolean): PartialCursorState[];
@@ -102,7 +102,7 @@ export declare namespace CursorMove {
         select: boolean;
         value: number;
     }
-    enum Direction {
+    const enum Direction {
         Left = 0,
         Right = 1,
         Up = 2,
@@ -119,9 +119,9 @@ export declare namespace CursorMove {
         ViewPortBottom = 13,
         ViewPortIfOutside = 14
     }
-    type SimpleMoveDirection = Direction.Left | Direction.Right | Direction.Up | Direction.Down | Direction.PrevBlankLine | Direction.NextBlankLine | Direction.WrappedLineStart | Direction.WrappedLineFirstNonWhitespaceCharacter | Direction.WrappedLineColumnCenter | Direction.WrappedLineEnd | Direction.WrappedLineLastNonWhitespaceCharacter;
-    type ViewportDirection = Direction.ViewPortTop | Direction.ViewPortCenter | Direction.ViewPortBottom | Direction.ViewPortIfOutside;
-    enum Unit {
+    type SimpleMoveDirection = (Direction.Left | Direction.Right | Direction.Up | Direction.Down | Direction.PrevBlankLine | Direction.NextBlankLine | Direction.WrappedLineStart | Direction.WrappedLineFirstNonWhitespaceCharacter | Direction.WrappedLineColumnCenter | Direction.WrappedLineEnd | Direction.WrappedLineLastNonWhitespaceCharacter);
+    type ViewportDirection = (Direction.ViewPortTop | Direction.ViewPortCenter | Direction.ViewPortBottom | Direction.ViewPortIfOutside);
+    const enum Unit {
         None = 0,
         Line = 1,
         WrappedLine = 2,

@@ -1,7 +1,7 @@
-import type { TargetPlatform } from "../../extensions/common/extensions.js";
-import { ILogService } from "../../log/common/log.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import type { IGalleryExtension } from "../common/extensionManagement.js";
+import { IGalleryExtension } from '../common/extensionManagement.js';
+import { TargetPlatform } from '../../extensions/common/extensions.js';
+import { ILogService } from '../../log/common/log.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 export declare const IExtensionSignatureVerificationService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionSignatureVerificationService>;
 /**
  * A service for verifying signed extensions.
@@ -21,32 +21,32 @@ export interface IExtensionSignatureVerificationService {
     verify(extension: IGalleryExtension, vsixFilePath: string, signatureArchiveFilePath: string, clientTargetPlatform?: TargetPlatform): Promise<boolean>;
 }
 export declare enum ExtensionSignatureVerificationCode {
-    Success = "Success",
-    RequiredArgumentMissing = "RequiredArgumentMissing",
-    InvalidArgument = "InvalidArgument",
-    PackageIsUnreadable = "PackageIsUnreadable",
-    UnhandledException = "UnhandledException",
-    SignatureManifestIsMissing = "SignatureManifestIsMissing",
-    SignatureManifestIsUnreadable = "SignatureManifestIsUnreadable",
-    SignatureIsMissing = "SignatureIsMissing",
-    SignatureIsUnreadable = "SignatureIsUnreadable",
-    CertificateIsUnreadable = "CertificateIsUnreadable",
-    SignatureArchiveIsUnreadable = "SignatureArchiveIsUnreadable",
-    FileAlreadyExists = "FileAlreadyExists",
-    SignatureArchiveIsInvalidZip = "SignatureArchiveIsInvalidZip",
-    SignatureArchiveHasSameSignatureFile = "SignatureArchiveHasSameSignatureFile",
-    PackageIntegrityCheckFailed = "PackageIntegrityCheckFailed",
-    SignatureIsInvalid = "SignatureIsInvalid",
-    SignatureManifestIsInvalid = "SignatureManifestIsInvalid",
-    SignatureIntegrityCheckFailed = "SignatureIntegrityCheckFailed",
-    EntryIsMissing = "EntryIsMissing",
-    EntryIsTampered = "EntryIsTampered",
-    Untrusted = "Untrusted",
-    CertificateRevoked = "CertificateRevoked",
-    SignatureIsNotValid = "SignatureIsNotValid",
-    UnknownError = "UnknownError",
-    PackageIsInvalidZip = "PackageIsInvalidZip",
-    SignatureArchiveHasTooManyEntries = "SignatureArchiveHasTooManyEntries"
+    'Success' = "Success",
+    'RequiredArgumentMissing' = "RequiredArgumentMissing",
+    'InvalidArgument' = "InvalidArgument",
+    'PackageIsUnreadable' = "PackageIsUnreadable",
+    'UnhandledException' = "UnhandledException",
+    'SignatureManifestIsMissing' = "SignatureManifestIsMissing",
+    'SignatureManifestIsUnreadable' = "SignatureManifestIsUnreadable",
+    'SignatureIsMissing' = "SignatureIsMissing",
+    'SignatureIsUnreadable' = "SignatureIsUnreadable",
+    'CertificateIsUnreadable' = "CertificateIsUnreadable",
+    'SignatureArchiveIsUnreadable' = "SignatureArchiveIsUnreadable",
+    'FileAlreadyExists' = "FileAlreadyExists",
+    'SignatureArchiveIsInvalidZip' = "SignatureArchiveIsInvalidZip",
+    'SignatureArchiveHasSameSignatureFile' = "SignatureArchiveHasSameSignatureFile",
+    'PackageIntegrityCheckFailed' = "PackageIntegrityCheckFailed",
+    'SignatureIsInvalid' = "SignatureIsInvalid",
+    'SignatureManifestIsInvalid' = "SignatureManifestIsInvalid",
+    'SignatureIntegrityCheckFailed' = "SignatureIntegrityCheckFailed",
+    'EntryIsMissing' = "EntryIsMissing",
+    'EntryIsTampered' = "EntryIsTampered",
+    'Untrusted' = "Untrusted",
+    'CertificateRevoked' = "CertificateRevoked",
+    'SignatureIsNotValid' = "SignatureIsNotValid",
+    'UnknownError' = "UnknownError",
+    'PackageIsInvalidZip' = "PackageIsInvalidZip",
+    'SignatureArchiveHasTooManyEntries' = "SignatureArchiveHasTooManyEntries"
 }
 /**
  * Extension signature verification result

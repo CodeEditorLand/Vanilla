@@ -1,8 +1,8 @@
-import { BaseActionViewItem, type IBaseActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import { type IAction } from "../../../../base/common/actions.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ITestExplorerFilterState } from "../common/testExplorerFilterState.js";
-import { ITestService } from "../common/testService.js";
+import { BaseActionViewItem, IBaseActionViewItemOptions } from '../../../../base/browser/ui/actionbar/actionViewItems.js';
+import { IAction } from '../../../../base/common/actions.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ITestExplorerFilterState } from '../common/testExplorerFilterState.js';
+import { ITestService } from '../common/testService.js';
 export declare class TestingExplorerFilter extends BaseActionViewItem {
     private readonly state;
     private readonly instantiationService;

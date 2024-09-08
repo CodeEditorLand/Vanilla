@@ -1,14 +1,14 @@
-import { VSBuffer, type VSBufferReadableStream, type VSBufferWriteableStream } from "../../../../base/common/buffer.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { StoredValue } from "./storedValue.js";
-import { HydratedTestResult, type ITestResult } from "./testResult.js";
-import type { ISerializedTestResults } from "./testTypes.js";
+import { VSBuffer, VSBufferReadableStream, VSBufferWriteableStream } from '../../../../base/common/buffer.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IEnvironmentService } from '../../../../platform/environment/common/environment.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { StoredValue } from './storedValue.js';
+import { HydratedTestResult, ITestResult } from './testResult.js';
+import { ISerializedTestResults } from './testTypes.js';
 export declare const RETAIN_MAX_RESULTS = 128;
 export interface ITestResultStorage {
     _serviceBrand: undefined;

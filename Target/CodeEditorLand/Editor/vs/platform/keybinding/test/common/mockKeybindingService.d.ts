@@ -1,9 +1,9 @@
-import { Event } from "../../../../base/common/event.js";
-import { type Keybinding, type ResolvedKeybinding } from "../../../../base/common/keybindings.js";
-import type { ContextKeyExpression, ContextKeyValue, IContextKey, IContextKeyChangeEvent, IContextKeyService, IContextKeyServiceTarget, IScopedContextKeyService } from "../../../contextkey/common/contextkey.js";
-import type { IKeybindingService, IKeyboardEvent } from "../../common/keybinding.js";
-import { type ResolutionResult } from "../../common/keybindingResolver.js";
-import type { ResolvedKeybindingItem } from "../../common/resolvedKeybindingItem.js";
+import { Event } from '../../../../base/common/event.js';
+import { ResolvedKeybinding, Keybinding } from '../../../../base/common/keybindings.js';
+import { ContextKeyExpression, ContextKeyValue, IContextKey, IContextKeyChangeEvent, IContextKeyService, IContextKeyServiceTarget, IScopedContextKeyService } from '../../../contextkey/common/contextkey.js';
+import { IKeybindingService, IKeyboardEvent } from '../../common/keybinding.js';
+import { ResolutionResult } from '../../common/keybindingResolver.js';
+import { ResolvedKeybindingItem } from '../../common/resolvedKeybindingItem.js';
 export declare class MockContextKeyService implements IContextKeyService {
     _serviceBrand: undefined;
     private _keys;

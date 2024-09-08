@@ -1,4 +1,4 @@
-import type { CharacterPair } from "../../../../common/languages/languageConfiguration.js";
+import { CharacterPair } from '../../../../common/languages/languageConfiguration.js';
 export declare const rubyBracketRules: CharacterPair[];
 export declare const cppBracketRules: CharacterPair[];
 export declare const goBracketRules: CharacterPair[];

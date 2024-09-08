@@ -1,4 +1,4 @@
-export declare enum TerminalAccessibilityCommandId {
+export declare const enum TerminalAccessibilityCommandId {
     FocusAccessibleBuffer = "workbench.action.terminal.focusAccessibleBuffer",
     AccessibleBufferGoToNextCommand = "workbench.action.terminal.accessibleBufferGoToNextCommand",
     AccessibleBufferGoToPreviousCommand = "workbench.action.terminal.accessibleBufferGoToPreviousCommand",

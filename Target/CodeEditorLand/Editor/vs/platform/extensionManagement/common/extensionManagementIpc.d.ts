@@ -1,10 +1,10 @@
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { type IURITransformer } from "../../../base/common/uriIpc.js";
-import type { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import type { ExtensionType, IExtensionManifest, TargetPlatform } from "../../extensions/common/extensions.js";
-import { type DidUninstallExtensionEvent, type DidUpdateExtensionMetadata, type IExtensionIdentifier, type IExtensionManagementService, type IExtensionTipsService, type IExtensionsControlManifest, type IGalleryExtension, type ILocalExtension, type IProductVersion, type InstallExtensionEvent, type InstallExtensionInfo, type InstallExtensionResult, type InstallOperation, type InstallOptions, type Metadata, type UninstallExtensionEvent, type UninstallExtensionInfo, type UninstallOptions } from "./extensionManagement.js";
+import { Emitter, Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IURITransformer } from '../../../base/common/uriIpc.js';
+import { IChannel, IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { IExtensionIdentifier, IExtensionTipsService, IGalleryExtension, ILocalExtension, IExtensionsControlManifest, InstallOptions, UninstallOptions, Metadata, IExtensionManagementService, DidUninstallExtensionEvent, InstallExtensionEvent, InstallExtensionResult, UninstallExtensionEvent, InstallOperation, InstallExtensionInfo, IProductVersion, DidUpdateExtensionMetadata, UninstallExtensionInfo } from './extensionManagement.js';
+import { ExtensionType, IExtensionManifest, TargetPlatform } from '../../extensions/common/extensions.js';
 export declare class ExtensionManagementChannel implements IServerChannel {
     private service;
     private getUriTransformer;

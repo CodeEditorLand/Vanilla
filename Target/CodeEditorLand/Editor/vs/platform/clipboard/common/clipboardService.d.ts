@@ -1,4 +1,4 @@
-import type { URI } from "../../../base/common/uri.js";
+import { URI } from '../../../base/common/uri.js';
 export declare const IClipboardService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IClipboardService>;
 export interface IClipboardService {
     readonly _serviceBrand: undefined;

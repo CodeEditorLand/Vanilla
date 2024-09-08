@@ -1,6 +1,6 @@
-import type { Event } from "../../../base/common/event.js";
-import type { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import type { IExtensionRecommendationNotificationService, IExtensionRecommendations, RecommendationsNotificationResult } from "./extensionRecommendations.js";
+import { Event } from '../../../base/common/event.js';
+import { IChannel, IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { IExtensionRecommendationNotificationService, IExtensionRecommendations, RecommendationsNotificationResult } from './extensionRecommendations.js';
 export declare class ExtensionRecommendationNotificationServiceChannelClient implements IExtensionRecommendationNotificationService {
     private readonly channel;
     readonly _serviceBrand: undefined;

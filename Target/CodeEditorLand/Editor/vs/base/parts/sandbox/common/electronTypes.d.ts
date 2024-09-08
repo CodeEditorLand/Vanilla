@@ -8,7 +8,7 @@ export interface MessageBoxOptions {
      * displays the same icon as `info`, unless you set an icon using the `icon`
      * option. On macOS, both `warning` and `error` display the same warning icon.
      */
-    type?: "none" | "info" | "error" | "question" | "warning";
+    type?: ('none' | 'info' | 'error' | 'question' | 'warning');
     /**
      * Array of texts for buttons. On Windows, an empty array will result in one button
      * labeled "OK".
@@ -116,7 +116,7 @@ export interface SaveDialogOptions {
      * @platform darwin
      */
     showsTagField?: boolean;
-    properties?: Array<"showHiddenFiles" | "createDirectory" | "treatPackageAsDirectory" | "showOverwriteConfirmation" | "dontAddToRecent">;
+    properties?: Array<'showHiddenFiles' | 'createDirectory' | 'treatPackageAsDirectory' | 'showOverwriteConfirmation' | 'dontAddToRecent'>;
     /**
      * Create a security scoped bookmark when packaged for the Mac App Store. If this
      * option is enabled and the file doesn't already exist a blank file will be
@@ -157,7 +157,7 @@ export interface OpenDialogOptions {
      * Contains which features the dialog should use. The following values are
      * supported:
      */
-    properties?: Array<"openFile" | "openDirectory" | "multiSelections" | "showHiddenFiles" | "createDirectory" | "promptToCreate" | "noResolveAliases" | "treatPackageAsDirectory" | "dontAddToRecent">;
+    properties?: Array<'openFile' | 'openDirectory' | 'multiSelections' | 'showHiddenFiles' | 'createDirectory' | 'promptToCreate' | 'noResolveAliases' | 'treatPackageAsDirectory' | 'dontAddToRecent'>;
     /**
      * Message to display above input boxes.
      *
@@ -200,7 +200,7 @@ interface InputEvent {
      * `meta`, `command`, `cmd`, `isKeypad`, `isAutoRepeat`, `leftButtonDown`,
      * `middleButtonDown`, `rightButtonDown`, `capsLock`, `numLock`, `left`, `right`.
      */
-    modifiers?: Array<"shift" | "control" | "ctrl" | "alt" | "meta" | "command" | "cmd" | "isKeypad" | "isAutoRepeat" | "leftButtonDown" | "middleButtonDown" | "rightButtonDown" | "capsLock" | "numLock" | "left" | "right">;
+    modifiers?: Array<'shift' | 'control' | 'ctrl' | 'alt' | 'meta' | 'command' | 'cmd' | 'isKeypad' | 'isAutoRepeat' | 'leftButtonDown' | 'middleButtonDown' | 'rightButtonDown' | 'capsLock' | 'numLock' | 'left' | 'right'>;
     /**
      * Can be `undefined`, `mouseDown`, `mouseUp`, `mouseMove`, `mouseEnter`,
      * `mouseLeave`, `contextMenu`, `mouseWheel`, `rawKeyDown`, `keyDown`, `keyUp`,
@@ -213,13 +213,13 @@ interface InputEvent {
      * `touchScrollStarted`, `pointerDown`, `pointerUp`, `pointerMove`,
      * `pointerRawUpdate`, `pointerCancel` or `pointerCausedUaAction`.
      */
-    type: "undefined" | "mouseDown" | "mouseUp" | "mouseMove" | "mouseEnter" | "mouseLeave" | "contextMenu" | "mouseWheel" | "rawKeyDown" | "keyDown" | "keyUp" | "char" | "gestureScrollBegin" | "gestureScrollEnd" | "gestureScrollUpdate" | "gestureFlingStart" | "gestureFlingCancel" | "gesturePinchBegin" | "gesturePinchEnd" | "gesturePinchUpdate" | "gestureTapDown" | "gestureShowPress" | "gestureTap" | "gestureTapCancel" | "gestureShortPress" | "gestureLongPress" | "gestureLongTap" | "gestureTwoFingerTap" | "gestureTapUnconfirmed" | "gestureDoubleTap" | "touchStart" | "touchMove" | "touchEnd" | "touchCancel" | "touchScrollStarted" | "pointerDown" | "pointerUp" | "pointerMove" | "pointerRawUpdate" | "pointerCancel" | "pointerCausedUaAction";
+    type: ('undefined' | 'mouseDown' | 'mouseUp' | 'mouseMove' | 'mouseEnter' | 'mouseLeave' | 'contextMenu' | 'mouseWheel' | 'rawKeyDown' | 'keyDown' | 'keyUp' | 'char' | 'gestureScrollBegin' | 'gestureScrollEnd' | 'gestureScrollUpdate' | 'gestureFlingStart' | 'gestureFlingCancel' | 'gesturePinchBegin' | 'gesturePinchEnd' | 'gesturePinchUpdate' | 'gestureTapDown' | 'gestureShowPress' | 'gestureTap' | 'gestureTapCancel' | 'gestureShortPress' | 'gestureLongPress' | 'gestureLongTap' | 'gestureTwoFingerTap' | 'gestureTapUnconfirmed' | 'gestureDoubleTap' | 'touchStart' | 'touchMove' | 'touchEnd' | 'touchCancel' | 'touchScrollStarted' | 'pointerDown' | 'pointerUp' | 'pointerMove' | 'pointerRawUpdate' | 'pointerCancel' | 'pointerCausedUaAction');
 }
 export interface MouseInputEvent extends InputEvent {
     /**
      * The button pressed, can be `left`, `middle`, `right`.
      */
-    button?: "left" | "middle" | "right";
+    button?: ('left' | 'middle' | 'right');
     clickCount?: number;
     globalX?: number;
     globalY?: number;
@@ -229,7 +229,7 @@ export interface MouseInputEvent extends InputEvent {
      * The type of the event, can be `mouseDown`, `mouseUp`, `mouseEnter`,
      * `mouseLeave`, `contextMenu`, `mouseWheel` or `mouseMove`.
      */
-    type: "mouseDown" | "mouseUp" | "mouseEnter" | "mouseLeave" | "contextMenu" | "mouseWheel" | "mouseMove";
+    type: ('mouseDown' | 'mouseUp' | 'mouseEnter' | 'mouseLeave' | 'contextMenu' | 'mouseWheel' | 'mouseMove');
     x: number;
     y: number;
 }

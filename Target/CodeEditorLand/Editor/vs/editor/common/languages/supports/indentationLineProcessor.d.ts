@@ -1,10 +1,10 @@
-import type { Position } from "../../core/position.js";
-import type { Range } from "../../core/range.js";
-import type { ITextModel } from "../../model.js";
-import { type IViewLineTokens } from "../../tokens/lineTokens.js";
-import type { IVirtualModel } from "../autoIndent.js";
-import type { ILanguageConfigurationService } from "../languageConfigurationRegistry.js";
-import type { IndentRulesSupport } from "./indentRules.js";
+import { Range } from '../../core/range.js';
+import { ITextModel } from '../../model.js';
+import { ILanguageConfigurationService } from '../languageConfigurationRegistry.js';
+import { IVirtualModel } from '../autoIndent.js';
+import { IViewLineTokens } from '../../tokens/lineTokens.js';
+import { IndentRulesSupport } from './indentRules.js';
+import { Position } from '../../core/position.js';
 /**
  * This class is a wrapper class around {@link IndentRulesSupport}.
  * It processes the lines by removing the language configuration brackets from the regex, string and comment tokens.

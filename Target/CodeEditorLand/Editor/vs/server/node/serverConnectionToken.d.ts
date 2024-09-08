@@ -1,7 +1,7 @@
-import type * as http from "http";
-import type * as url from "url";
-import type { ServerParsedArgs } from "./serverEnvironmentService.js";
-export declare enum ServerConnectionTokenType {
+import * as http from 'http';
+import * as url from 'url';
+import { ServerParsedArgs } from './serverEnvironmentService.js';
+export declare const enum ServerConnectionTokenType {
     None = 0,
     Optional = 1,// TODO: Remove this soon
     Mandatory = 2

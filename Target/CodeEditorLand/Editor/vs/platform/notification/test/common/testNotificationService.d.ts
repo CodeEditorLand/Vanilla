@@ -1,6 +1,6 @@
-import { Event } from "../../../../base/common/event.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import { type INotification, type INotificationHandle, type INotificationService, type INotificationSource, type INotificationSourceFilter, type IPromptChoice, type IPromptOptions, type IStatusMessageOptions, NotificationsFilter, Severity } from "../../common/notification.js";
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { INotification, INotificationHandle, INotificationService, INotificationSource, INotificationSourceFilter, IPromptChoice, IPromptOptions, IStatusMessageOptions, NotificationsFilter, Severity } from '../../common/notification.js';
 export declare class TestNotificationService implements INotificationService {
     readonly onDidAddNotification: Event<INotification>;
     readonly onDidRemoveNotification: Event<INotification>;

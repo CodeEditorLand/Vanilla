@@ -1,4 +1,4 @@
-import { type IKeyboardLayoutInfo } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
+import { IKeyboardLayoutInfo } from '../../../../platform/keyboardLayout/common/keyboardLayout.js';
 export interface IRawMixedKeyboardMapping {
     [key: string]: {
         value: string;

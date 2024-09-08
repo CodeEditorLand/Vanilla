@@ -1,12 +1,12 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { IAuxiliaryWindow } from "../../auxiliaryWindow/electron-main/auxiliaryWindow.js";
-import type { NativeParsedArgs } from "../../environment/common/argv.js";
-import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { IStateService } from "../../state/node/state.js";
-import { type ICodeWindow, type LoadReason, UnloadReason } from "../../window/electron-main/window.js";
-import type { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { NativeParsedArgs } from '../../environment/common/argv.js';
+import { ILogService } from '../../log/common/log.js';
+import { IStateService } from '../../state/node/state.js';
+import { ICodeWindow, LoadReason, UnloadReason } from '../../window/electron-main/window.js';
+import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from '../../workspace/common/workspace.js';
+import { IEnvironmentMainService } from '../../environment/electron-main/environmentMainService.js';
+import { IAuxiliaryWindow } from '../../auxiliaryWindow/electron-main/auxiliaryWindow.js';
 export declare const ILifecycleMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILifecycleMainService>;
 interface WindowLoadEvent {
     /**
@@ -22,7 +22,7 @@ interface WindowLoadEvent {
      */
     readonly reason: LoadReason;
 }
-export declare enum ShutdownReason {
+export declare const enum ShutdownReason {
     /**
      * The application exits normally.
      */
@@ -138,7 +138,7 @@ export interface ILifecycleMainService {
      */
     when(phase: LifecycleMainPhase): Promise<void>;
 }
-export declare enum LifecycleMainPhase {
+export declare const enum LifecycleMainPhase {
     /**
      * The first phase signals that we are about to startup.
      */

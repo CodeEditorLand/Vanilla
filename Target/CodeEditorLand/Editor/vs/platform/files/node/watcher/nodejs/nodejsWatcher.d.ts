@@ -1,7 +1,7 @@
-import { Event } from "../../../../../base/common/event.js";
-import type { INonRecursiveWatchRequest, INonRecursiveWatcher, IRecursiveWatcherWithSubscribe } from "../../../common/watcher.js";
-import { BaseWatcher } from "../baseWatcher.js";
-import { NodeJSFileWatcherLibrary } from "./nodejsWatcherLib.js";
+import { Event } from '../../../../../base/common/event.js';
+import { BaseWatcher } from '../baseWatcher.js';
+import { INonRecursiveWatchRequest, INonRecursiveWatcher, IRecursiveWatcherWithSubscribe } from '../../../common/watcher.js';
+import { NodeJSFileWatcherLibrary } from './nodejsWatcherLib.js';
 export interface INodeJSWatcherInstance {
     /**
      * The watcher instance.

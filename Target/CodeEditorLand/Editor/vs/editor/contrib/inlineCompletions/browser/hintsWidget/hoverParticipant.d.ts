@@ -1,13 +1,13 @@
-import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
-import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import { type ICodeEditor, type IEditorMouseEvent } from "../../../../browser/editorBrowser.js";
-import { Range } from "../../../../common/core/range.js";
-import { ILanguageService } from "../../../../common/languages/language.js";
-import type { IModelDecoration } from "../../../../common/model.js";
-import { type HoverAnchor, type IEditorHoverParticipant, type IEditorHoverRenderContext, type IHoverPart, type IRenderedHoverParts } from "../../../hover/browser/hoverTypes.js";
-import { InlineCompletionsController } from "../controller/inlineCompletionsController.js";
+import { ICodeEditor, IEditorMouseEvent } from '../../../../browser/editorBrowser.js';
+import { Range } from '../../../../common/core/range.js';
+import { ILanguageService } from '../../../../common/languages/language.js';
+import { IModelDecoration } from '../../../../common/model.js';
+import { HoverAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts } from '../../../hover/browser/hoverTypes.js';
+import { InlineCompletionsController } from '../controller/inlineCompletionsController.js';
+import { IAccessibilityService } from '../../../../../platform/accessibility/common/accessibility.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IOpenerService } from '../../../../../platform/opener/common/opener.js';
+import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
 export declare class InlineCompletionsHover implements IHoverPart {
     readonly owner: IEditorHoverParticipant<InlineCompletionsHover>;
     readonly range: Range;

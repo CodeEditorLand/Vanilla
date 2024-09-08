@@ -1,4 +1,4 @@
-import { type ContributedNotebookRendererEntrypoint, type RendererMessagingSpec } from "../common/notebookCommon.js";
+import { ContributedNotebookRendererEntrypoint, RendererMessagingSpec } from '../common/notebookCommon.js';
 declare const NotebookEditorContribution: Readonly<{
     type: "type";
     displayName: "displayName";

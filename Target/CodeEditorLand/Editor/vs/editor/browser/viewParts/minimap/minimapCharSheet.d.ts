@@ -1,4 +1,4 @@
-export declare enum Constants {
+export declare const enum Constants {
     START_CH_CODE = 32,// Space
     END_CH_CODE = 126,// Tilde (~)
     UNKNOWN_CODE = 65533,// UTF placeholder code

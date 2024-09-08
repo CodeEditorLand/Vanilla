@@ -1,8 +1,8 @@
-import type { FastDomNode } from "../../../../../base/browser/fastDomNode.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import type { ViewConfigurationChangedEvent, ViewCursorStateChangedEvent } from "../../../../common/viewEvents.js";
-import type { ViewContext } from "../../../../common/viewModel/viewContext.js";
-import type { RenderingContext, RestrictedRenderingContext } from "../../../view/renderingContext.js";
+import { FastDomNode } from '../../../../../base/browser/fastDomNode.js';
+import { IKeybindingService } from '../../../../../platform/keybinding/common/keybinding.js';
+import { ViewConfigurationChangedEvent, ViewCursorStateChangedEvent } from '../../../../common/viewEvents.js';
+import { ViewContext } from '../../../../common/viewModel/viewContext.js';
+import { RestrictedRenderingContext, RenderingContext } from '../../../view/renderingContext.js';
 export declare class ScreenReaderSupport {
     private readonly _domNode;
     private readonly _context;

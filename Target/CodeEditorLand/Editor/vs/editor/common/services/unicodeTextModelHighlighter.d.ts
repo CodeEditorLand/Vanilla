@@ -1,10 +1,10 @@
-import { type IRange } from "../core/range.js";
-import type { IUnicodeHighlightsResult } from "./editorWorker.js";
+import { IRange } from '../core/range.js';
+import { IUnicodeHighlightsResult } from './editorWorker.js';
 export declare class UnicodeTextModelHighlighter {
     static computeUnicodeHighlights(model: IUnicodeCharacterSearcherTarget, options: UnicodeHighlighterOptions, range?: IRange): IUnicodeHighlightsResult;
     static computeUnicodeHighlightReason(char: string, options: UnicodeHighlighterOptions): UnicodeHighlighterReason | null;
 }
-export declare enum UnicodeHighlighterReasonKind {
+export declare const enum UnicodeHighlighterReasonKind {
     Ambiguous = 0,
     Invisible = 1,
     NonBasicAscii = 2

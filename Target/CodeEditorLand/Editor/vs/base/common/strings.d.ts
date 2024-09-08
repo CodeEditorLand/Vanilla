@@ -204,7 +204,7 @@ export declare function getNLines(str: string, n?: number): string;
  */
 export declare function singleLetterHash(n: number): string;
 export declare function getGraphemeBreakType(codePoint: number): GraphemeBreakType;
-export declare enum GraphemeBreakType {
+export declare const enum GraphemeBreakType {
     Other = 0,
     Prepend = 1,
     CR = 2,
@@ -224,7 +224,7 @@ export declare enum GraphemeBreakType {
 /**
  * Computes the offset after performing a left delete on the given string,
  * while considering unicode grapheme/emoji rules.
- */
+*/
 export declare function getLeftDeleteOffset(offset: number, str: string): number;
 export declare const noBreakWhitespace = "\u00A0";
 export declare class AmbiguousCharacters {

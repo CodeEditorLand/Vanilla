@@ -1,10 +1,10 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { IRange } from "../../../../editor/common/core/range.js";
-import type * as languages from "../../../../editor/common/languages.js";
-import type { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import type { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import type { CommentMenus } from "./commentMenus.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import * as languages from '../../../../editor/common/languages.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { CommentMenus } from './commentMenus.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
 export declare class CommentThreadHeader<T = IRange> extends Disposable {
     private _delegate;
     private _commentMenus;

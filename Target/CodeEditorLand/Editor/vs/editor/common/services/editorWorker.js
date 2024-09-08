@@ -1,7 +1,1 @@
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-const IEditorWorkerService = createDecorator(
-  "editorWorkerService"
-);
-export {
-  IEditorWorkerService
-};
+import"../../../base/common/uri.js";import"../core/range.js";import"../diff/documentDiffProvider.js";import"../diff/legacyLinesDiffComputer.js";import"../languages.js";import"./unicodeTextModelHighlighter.js";import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";import"./findSectionHeaders.js";const C=e("editorWorkerService");export{C as IEditorWorkerService};

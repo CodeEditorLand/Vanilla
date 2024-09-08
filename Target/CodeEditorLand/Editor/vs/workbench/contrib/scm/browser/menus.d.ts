@@ -1,10 +1,10 @@
-import type { IAction } from "../../../../base/common/actions.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import "./media/scm.css";
-import { IMenuService, type IMenu } from "../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ISCMService, type ISCMMenus, type ISCMProvider, type ISCMRepositoryMenus, type ISCMResource, type ISCMResourceGroup } from "../common/scm.js";
+import { IAction } from '../../../../base/common/actions.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import './media/scm.css';
+import { IMenu, IMenuService } from '../../../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ISCMMenus, ISCMProvider, ISCMRepositoryMenus, ISCMResource, ISCMResourceGroup, ISCMService } from '../common/scm.js';
 export declare class SCMTitleMenu implements IDisposable {
     private _actions;
     get actions(): IAction[];

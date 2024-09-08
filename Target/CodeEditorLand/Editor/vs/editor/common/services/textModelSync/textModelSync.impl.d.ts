@@ -1,15 +1,15 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import type { IWorkerClient, IWorkerServer } from "../../../../base/common/worker/simpleWorker.js";
-import { type IPosition } from "../../core/position.js";
-import { Range, type IRange } from "../../core/range.js";
-import { type IWordAtPosition } from "../../core/wordHelper.js";
-import type { IDocumentColorComputerTarget } from "../../languages/defaultDocumentColorsComputer.js";
-import type { ILinkComputerTarget } from "../../languages/linkComputer.js";
-import { MirrorTextModel as BaseMirrorModel, type IModelChangedEvent } from "../../model/mirrorTextModel.js";
-import type { IMirrorModel } from "../editorSimpleWorker.js";
-import type { IModelService } from "../model.js";
-import type { IRawModelData, IWorkerTextModelSyncChannelServer } from "./textModelSync.protocol.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IWorkerClient, IWorkerServer } from '../../../../base/common/worker/simpleWorker.js';
+import { IPosition } from '../../core/position.js';
+import { IRange, Range } from '../../core/range.js';
+import { IWordAtPosition } from '../../core/wordHelper.js';
+import { IDocumentColorComputerTarget } from '../../languages/defaultDocumentColorsComputer.js';
+import { ILinkComputerTarget } from '../../languages/linkComputer.js';
+import { MirrorTextModel as BaseMirrorModel, IModelChangedEvent } from '../../model/mirrorTextModel.js';
+import { IMirrorModel } from '../editorSimpleWorker.js';
+import { IModelService } from '../model.js';
+import { IRawModelData, IWorkerTextModelSyncChannelServer } from './textModelSync.protocol.js';
 /**
  * Stop syncing a model to the worker if it was not needed for 1 min.
  */

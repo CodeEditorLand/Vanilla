@@ -1,13 +1,14 @@
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import { type IMarkerData } from "../../../platform/markers/common/markers.js";
-import { Range } from "../../common/core/range.js";
-import type { LanguageSelector } from "../../common/languageSelector.js";
-import * as languages from "../../common/languages.js";
-import { type ILanguageExtensionPoint, ILanguageService } from "../../common/languages/language.js";
-import type { LanguageConfiguration } from "../../common/languages/languageConfiguration.js";
-import type { IMonarchLanguage } from "../common/monarch/monarchTypes.js";
-import { IStandaloneThemeService } from "../common/standaloneTheme.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { Range } from '../../common/core/range.js';
+import * as languages from '../../common/languages.js';
+import { ILanguageExtensionPoint, ILanguageService } from '../../common/languages/language.js';
+import { LanguageConfiguration } from '../../common/languages/languageConfiguration.js';
+import { LanguageSelector } from '../../common/languageSelector.js';
+import * as model from '../../common/model.js';
+import { IMonarchLanguage } from '../common/monarch/monarchTypes.js';
+import { IStandaloneThemeService } from '../common/standaloneTheme.js';
+import { IMarkerData } from '../../../platform/markers/common/markers.js';
 /**
  * Register information about a new language.
  */

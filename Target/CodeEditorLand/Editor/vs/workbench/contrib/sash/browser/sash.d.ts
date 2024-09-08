@@ -1,7 +1,7 @@
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import type { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { ILayoutService } from '../../../../platform/layout/browser/layoutService.js';
 export declare const minSize = 1;
 export declare const maxSize = 20;
 export declare class SashSettingsController implements IWorkbenchContribution, IDisposable {

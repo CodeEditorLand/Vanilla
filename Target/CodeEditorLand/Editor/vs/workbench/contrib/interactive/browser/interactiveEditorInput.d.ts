@@ -1,15 +1,15 @@
-import type { URI } from "../../../../base/common/uri.js";
-import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { EditorInputCapabilities, type GroupIdentifier, type IRevertOptions, type ISaveOptions, type IUntypedEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { type IResolvedNotebookEditorModel } from "../../notebook/common/notebookCommon.js";
-import { NotebookEditorInput, type ICompositeNotebookEditorInput } from "../../notebook/common/notebookEditorInput.js";
-import { INotebookService } from "../../notebook/common/notebookService.js";
-import { IInteractiveDocumentService } from "./interactiveDocumentService.js";
-import { IInteractiveHistoryService } from "./interactiveHistoryService.js";
+import { URI } from '../../../../base/common/uri.js';
+import { ITextModelService } from '../../../../editor/common/services/resolverService.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IFileDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { EditorInputCapabilities, GroupIdentifier, IRevertOptions, ISaveOptions, IUntypedEditorInput } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IInteractiveDocumentService } from './interactiveDocumentService.js';
+import { IInteractiveHistoryService } from './interactiveHistoryService.js';
+import { IResolvedNotebookEditorModel } from '../../notebook/common/notebookCommon.js';
+import { ICompositeNotebookEditorInput, NotebookEditorInput } from '../../notebook/common/notebookEditorInput.js';
+import { INotebookService } from '../../notebook/common/notebookService.js';
 export declare class InteractiveEditorInput extends EditorInput implements ICompositeNotebookEditorInput {
     private readonly _notebookService;
     private readonly _fileDialogService;

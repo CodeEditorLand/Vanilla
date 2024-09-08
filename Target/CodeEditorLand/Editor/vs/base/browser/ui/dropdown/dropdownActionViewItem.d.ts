@@ -1,11 +1,11 @@
-import { type IAction, type IActionRunner } from "../../../common/actions.js";
-import type { ResolvedKeybinding } from "../../../common/keybindings.js";
-import type { IContextMenuProvider } from "../../contextmenu.js";
-import { ActionViewItem, BaseActionViewItem, type IActionViewItemOptions, type IBaseActionViewItemOptions } from "../actionbar/actionViewItems.js";
-import type { IActionViewItemProvider } from "../actionbar/actionbar.js";
-import type { AnchorAlignment } from "../contextview/contextview.js";
-import { type IActionProvider } from "./dropdown.js";
-import "./dropdown.css";
+import { IContextMenuProvider } from '../../contextmenu.js';
+import { IActionViewItemProvider } from '../actionbar/actionbar.js';
+import { ActionViewItem, BaseActionViewItem, IActionViewItemOptions, IBaseActionViewItemOptions } from '../actionbar/actionViewItems.js';
+import { AnchorAlignment } from '../contextview/contextview.js';
+import { IActionProvider } from './dropdown.js';
+import { IAction, IActionRunner } from '../../../common/actions.js';
+import { ResolvedKeybinding } from '../../../common/keybindings.js';
+import './dropdown.css';
 export interface IKeybindingProvider {
     (action: IAction): ResolvedKeybinding | undefined;
 }

@@ -1,10 +1,10 @@
-import { Event } from "../../../common/event.js";
-import { type IDisposable } from "../../../common/lifecycle.js";
-import type { IPagedModel } from "../../../common/paging.js";
-import type { ScrollbarVisibility } from "../../../common/scrollable.js";
-import "./list.css";
-import type { IListContextMenuEvent, IListEvent, IListMouseEvent, IListRenderer, IListVirtualDelegate } from "./list.js";
-import { type IListAccessibilityProvider, type IListOptionsUpdate, type IListStyles, List, type TypeNavigationMode } from "./listWidget.js";
+import { Event } from '../../../common/event.js';
+import { IDisposable } from '../../../common/lifecycle.js';
+import { IPagedModel } from '../../../common/paging.js';
+import { ScrollbarVisibility } from '../../../common/scrollable.js';
+import './list.css';
+import { IListContextMenuEvent, IListEvent, IListMouseEvent, IListRenderer, IListVirtualDelegate } from './list.js';
+import { IListAccessibilityProvider, IListOptionsUpdate, IListStyles, List, TypeNavigationMode } from './listWidget.js';
 export interface IPagedRenderer<TElement, TTemplateData> extends IListRenderer<TElement, TTemplateData> {
     renderPlaceholder(index: number, templateData: TTemplateData): void;
 }

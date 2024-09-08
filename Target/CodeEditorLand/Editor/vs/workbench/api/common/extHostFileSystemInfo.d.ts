@@ -1,6 +1,6 @@
-import { type IExtUri } from "../../../base/common/resources.js";
-import type { UriComponents } from "../../../base/common/uri.js";
-import type { ExtHostFileSystemInfoShape } from "./extHost.protocol.js";
+import { IExtUri } from '../../../base/common/resources.js';
+import { UriComponents } from '../../../base/common/uri.js';
+import { ExtHostFileSystemInfoShape } from './extHost.protocol.js';
 export declare class ExtHostFileSystemInfo implements ExtHostFileSystemInfoShape {
     readonly _serviceBrand: undefined;
     private readonly _systemSchemes;

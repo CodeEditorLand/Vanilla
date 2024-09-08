@@ -1,5 +1,5 @@
-import { type IRelativePattern } from "../../base/common/glob.js";
-import type { URI } from "../../base/common/uri.js";
+import { IRelativePattern } from '../../base/common/glob.js';
+import { URI } from '../../base/common/uri.js';
 export interface LanguageFilter {
     readonly language?: string;
     readonly scheme?: string;

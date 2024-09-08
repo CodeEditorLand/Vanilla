@@ -1,15 +1,15 @@
-import { type Event } from "../../../base/common/event.js";
-import type { ICodeEditor } from "../../../editor/browser/editorBrowser.js";
-import type { ISingleEditOperation } from "../../../editor/common/core/editOperation.js";
-import { Range, type IRange } from "../../../editor/common/core/range.js";
-import { Selection, type ISelection } from "../../../editor/common/core/selection.js";
-import { type IDecorationOptions } from "../../../editor/common/editorCommon.js";
-import type { ITextModel } from "../../../editor/common/model.js";
-import type { IModelService } from "../../../editor/common/services/model.js";
-import type { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
-import type { IEditorPane } from "../../common/editor.js";
-import { TextEditorRevealType, type IApplyEditsOptions, type IEditorPropertiesChangeData, type IResolvedTextEditorConfiguration, type ITextEditorConfigurationUpdate, type IUndoStopOptions } from "../common/extHost.protocol.js";
-import type { MainThreadDocuments } from "./mainThreadDocuments.js";
+import { Event } from '../../../base/common/event.js';
+import { ICodeEditor } from '../../../editor/browser/editorBrowser.js';
+import { IRange, Range } from '../../../editor/common/core/range.js';
+import { ISelection, Selection } from '../../../editor/common/core/selection.js';
+import { IDecorationOptions } from '../../../editor/common/editorCommon.js';
+import { ITextModel } from '../../../editor/common/model.js';
+import { ISingleEditOperation } from '../../../editor/common/core/editOperation.js';
+import { IModelService } from '../../../editor/common/services/model.js';
+import { IApplyEditsOptions, IEditorPropertiesChangeData, IResolvedTextEditorConfiguration, ITextEditorConfigurationUpdate, IUndoStopOptions, TextEditorRevealType } from '../common/extHost.protocol.js';
+import { IEditorPane } from '../../common/editor.js';
+import { IClipboardService } from '../../../platform/clipboard/common/clipboardService.js';
+import { MainThreadDocuments } from './mainThreadDocuments.js';
 export interface IFocusTracker {
     onGainedFocus(): void;
     onLostFocus(): void;

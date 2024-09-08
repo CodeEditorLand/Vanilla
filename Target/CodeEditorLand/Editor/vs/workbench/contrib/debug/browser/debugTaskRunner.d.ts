@@ -1,15 +1,15 @@
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IMarkerService } from "../../../../platform/markers/common/markers.js";
-import { IProgressService } from "../../../../platform/progress/common/progress.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import type { IWorkspace, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { type ITaskIdentifier } from "../../tasks/common/tasks.js";
-import { ITaskService, type ITaskSummary } from "../../tasks/common/taskService.js";
-export declare enum TaskRunResult {
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IMarkerService } from '../../../../platform/markers/common/markers.js';
+import { IProgressService } from '../../../../platform/progress/common/progress.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IWorkspace, IWorkspaceFolder } from '../../../../platform/workspace/common/workspace.js';
+import { ITaskIdentifier } from '../../tasks/common/tasks.js';
+import { ITaskService, ITaskSummary } from '../../tasks/common/taskService.js';
+import { IViewsService } from '../../../services/views/common/viewsService.js';
+export declare const enum TaskRunResult {
     Failure = 0,
     Success = 1
 }

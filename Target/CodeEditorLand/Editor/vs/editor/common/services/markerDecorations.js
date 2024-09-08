@@ -1,5 +1,1 @@
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-const IMarkerDecorationsService = createDecorator("markerDecorationsService");
-export {
-  IMarkerDecorationsService
-};
+import"../model.js";import{createDecorator as r}from"../../../platform/instantiation/common/instantiation.js";import"../../../platform/markers/common/markers.js";import"../../../base/common/event.js";import"../core/range.js";import"../../../base/common/uri.js";const f=r("markerDecorationsService");export{f as IMarkerDecorationsService};

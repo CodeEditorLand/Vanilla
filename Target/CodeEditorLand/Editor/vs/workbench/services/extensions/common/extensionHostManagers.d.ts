@@ -1,12 +1,12 @@
-import type { Event } from "../../../../base/common/event.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import type { ExtensionHostKind } from "./extensionHostKind.js";
-import type { IExtensionDescriptionDelta } from "./extensionHostProtocol.js";
-import type { IResolveAuthorityResult } from "./extensionHostProxy.js";
-import type { ExtensionRunningLocation } from "./extensionRunningLocation.js";
-import type { ActivationKind, ExtensionActivationReason, ExtensionHostStartup } from "./extensions.js";
-import type { ResponsiveState } from "./rpcProtocol.js";
+import { Event } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ExtensionIdentifier, IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { ExtensionHostKind } from './extensionHostKind.js';
+import { IExtensionDescriptionDelta } from './extensionHostProtocol.js';
+import { IResolveAuthorityResult } from './extensionHostProxy.js';
+import { ExtensionRunningLocation } from './extensionRunningLocation.js';
+import { ActivationKind, ExtensionActivationReason, ExtensionHostStartup } from './extensions.js';
+import { ResponsiveState } from './rpcProtocol.js';
 export interface IExtensionHostManager {
     readonly pid: number | null;
     readonly kind: ExtensionHostKind;

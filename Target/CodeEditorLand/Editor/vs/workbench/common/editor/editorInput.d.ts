@@ -1,10 +1,10 @@
-import { Emitter } from "../../../base/common/event.js";
-import type { IMarkdownString } from "../../../base/common/htmlContent.js";
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import type { ThemeIcon } from "../../../base/common/themables.js";
-import type { URI } from "../../../base/common/uri.js";
-import type { ConfirmResult } from "../../../platform/dialogs/common/dialogs.js";
-import { AbstractEditorInput, EditorInputCapabilities, Verbosity, type GroupIdentifier, type IEditorDescriptor, type IEditorIdentifier, type IEditorPane, type IMoveResult, type IRevertOptions, type ISaveOptions, type IUntypedEditorInput } from "../editor.js";
+import { Emitter } from '../../../base/common/event.js';
+import { URI } from '../../../base/common/uri.js';
+import { EditorInputCapabilities, Verbosity, GroupIdentifier, ISaveOptions, IRevertOptions, IMoveResult, IEditorDescriptor, IEditorPane, IUntypedEditorInput, AbstractEditorInput, IEditorIdentifier } from '../editor.js';
+import { ConfirmResult } from '../../../platform/dialogs/common/dialogs.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ThemeIcon } from '../../../base/common/themables.js';
 export interface IEditorCloseHandler {
     /**
      * If `true`, will call into the `confirm` method to ask for confirmation

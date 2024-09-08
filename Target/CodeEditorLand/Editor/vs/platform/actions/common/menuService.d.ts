@@ -1,9 +1,9 @@
-import { type IAction } from "../../../base/common/actions.js";
-import { ICommandService } from "../../commands/common/commands.js";
-import { type ContextKeyExpression, IContextKeyService } from "../../contextkey/common/contextkey.js";
-import { IKeybindingService } from "../../keybinding/common/keybinding.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import { type IMenu, type IMenuActionOptions, type IMenuCreateOptions, type IMenuService, type MenuId, MenuItemAction, SubmenuItemAction } from "./actions.js";
+import { IMenu, IMenuActionOptions, IMenuCreateOptions, IMenuService, MenuId, MenuItemAction, SubmenuItemAction } from './actions.js';
+import { ICommandService } from '../../commands/common/commands.js';
+import { ContextKeyExpression, IContextKeyService } from '../../contextkey/common/contextkey.js';
+import { IAction } from '../../../base/common/actions.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { IKeybindingService } from '../../keybinding/common/keybinding.js';
 export declare class MenuService implements IMenuService {
     private readonly _commandService;
     private readonly _keybindingService;

@@ -1,4 +1,4 @@
-import { type IProcessEnvironment } from "./platform.js";
+import { IProcessEnvironment } from './platform.js';
 /**
  * Options to be passed to the external program or shell.
  */
@@ -39,7 +39,7 @@ export interface Executable {
 export interface ForkOptions extends CommandOptions {
     execArgv?: string[];
 }
-export declare enum Source {
+export declare const enum Source {
     stdout = 0,
     stderr = 1
 }
@@ -65,7 +65,7 @@ export interface TerminateResponse {
     code?: TerminateResponseCode;
     error?: any;
 }
-export declare enum TerminateResponseCode {
+export declare const enum TerminateResponseCode {
     Success = 0,
     Unknown = 1,
     AccessDenied = 2,

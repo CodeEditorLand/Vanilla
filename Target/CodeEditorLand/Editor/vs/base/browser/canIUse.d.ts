@@ -1,4 +1,4 @@
-export declare enum KeyboardSupport {
+export declare const enum KeyboardSupport {
     Always = 0,
     FullScreen = 1,
     None = 2

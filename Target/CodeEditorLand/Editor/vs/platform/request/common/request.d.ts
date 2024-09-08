@@ -1,8 +1,8 @@
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { IRequestContext, IRequestOptions } from "../../../base/parts/request/common/request.js";
-import { ConfigurationScope } from "../../configuration/common/configurationRegistry.js";
-import type { ILogger } from "../../log/common/log.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IRequestContext, IRequestOptions } from '../../../base/parts/request/common/request.js';
+import { ConfigurationScope } from '../../configuration/common/configurationRegistry.js';
+import { ILogger } from '../../log/common/log.js';
 export declare const IRequestService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IRequestService>;
 export interface AuthInfo {
     isProxy: boolean;

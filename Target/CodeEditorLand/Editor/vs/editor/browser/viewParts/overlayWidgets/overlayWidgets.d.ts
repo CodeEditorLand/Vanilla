@@ -1,10 +1,10 @@
-import "./overlayWidgets.css";
-import { type FastDomNode } from "../../../../base/browser/fastDomNode.js";
-import type * as viewEvents from "../../../common/viewEvents.js";
-import type { ViewContext } from "../../../common/viewModel/viewContext.js";
-import { type IOverlayWidget, type IOverlayWidgetPosition } from "../../editorBrowser.js";
-import type { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
-import { ViewPart } from "../../view/viewPart.js";
+import './overlayWidgets.css';
+import { FastDomNode } from '../../../../base/browser/fastDomNode.js';
+import { IOverlayWidget, IOverlayWidgetPosition } from '../../editorBrowser.js';
+import { ViewPart } from '../../view/viewPart.js';
+import { RenderingContext, RestrictedRenderingContext } from '../../view/renderingContext.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
+import * as viewEvents from '../../../common/viewEvents.js';
 export declare class ViewOverlayWidgets extends ViewPart {
     private readonly _viewDomNode;
     private _widgets;

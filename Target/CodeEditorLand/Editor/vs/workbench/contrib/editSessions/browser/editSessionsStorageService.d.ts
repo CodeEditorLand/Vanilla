@@ -1,17 +1,17 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { ISecretStorageService } from "../../../../platform/secrets/common/secrets.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { type IResourceRefHandle } from "../../../../platform/userDataSync/common/userDataSync.js";
-import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { IEditSessionsLogService, type EditSession, type IEditSessionsStorageService, type SyncResource } from "../common/editSessions.js";
-import type { EditSessionsStoreClient } from "../common/editSessionsStorageClient.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IEnvironmentService } from '../../../../platform/environment/common/environment.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IResourceRefHandle } from '../../../../platform/userDataSync/common/userDataSync.js';
+import { IAuthenticationService } from '../../../services/authentication/common/authentication.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { EditSession, IEditSessionsStorageService, IEditSessionsLogService, SyncResource } from '../common/editSessions.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { EditSessionsStoreClient } from '../common/editSessionsStorageClient.js';
+import { ISecretStorageService } from '../../../../platform/secrets/common/secrets.js';
 export declare class EditSessionsWorkbenchService extends Disposable implements IEditSessionsStorageService {
     private readonly fileService;
     private readonly storageService;
@@ -68,7 +68,7 @@ export declare class EditSessionsWorkbenchService extends Disposable implements 
     } | undefined>;
     delete(resource: SyncResource, ref: string | null): Promise<void>;
     list(resource: SyncResource): Promise<IResourceRefHandle[]>;
-    initialize(reason: "read" | "write", silent?: boolean): Promise<boolean>;
+    initialize(reason: 'read' | 'write', silent?: boolean): Promise<boolean>;
     /**
      *
      * Ensures that the store client is initialized,

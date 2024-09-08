@@ -1,13 +1,13 @@
-import type { IMarkdownString } from "../../../base/common/htmlContent.js";
-import type { URI } from "../../../base/common/uri.js";
-import { ILanguageService, type ILanguageSelection } from "../../../editor/common/languages/language.js";
-import { type ITextBufferFactory, type ITextModel, type ITextSnapshot } from "../../../editor/common/model.js";
-import { IModelService } from "../../../editor/common/services/model.js";
-import type { IResolvedTextEditorModel, ITextEditorModel } from "../../../editor/common/services/resolverService.js";
-import { IAccessibilityService } from "../../../platform/accessibility/common/accessibility.js";
-import { ILanguageDetectionService } from "../../services/languageDetection/common/languageDetectionWorkerService.js";
-import type { ILanguageSupport } from "../../services/textfile/common/textfiles.js";
-import { EditorModel } from "./editorModel.js";
+import { ITextModel, ITextBufferFactory, ITextSnapshot } from '../../../editor/common/model.js';
+import { EditorModel } from './editorModel.js';
+import { ILanguageSupport } from '../../services/textfile/common/textfiles.js';
+import { URI } from '../../../base/common/uri.js';
+import { ITextEditorModel, IResolvedTextEditorModel } from '../../../editor/common/services/resolverService.js';
+import { ILanguageService, ILanguageSelection } from '../../../editor/common/languages/language.js';
+import { IModelService } from '../../../editor/common/services/model.js';
+import { ILanguageDetectionService } from '../../services/languageDetection/common/languageDetectionWorkerService.js';
+import { IAccessibilityService } from '../../../platform/accessibility/common/accessibility.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
 /**
  * The base text editor model leverages the code editor model. This class is only intended to be subclassed and not instantiated.
  */

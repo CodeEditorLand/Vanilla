@@ -1,7 +1,7 @@
-import { type CancellationToken } from "../../../base/common/cancellation.js";
-import { Disposable, DisposableStore, type IDisposable } from "../../../base/common/lifecycle.js";
-import type { IQuickAccessProvider, IQuickAccessProviderRunOptions } from "../common/quickAccess.js";
-import type { IKeyMods, IQuickPick, IQuickPickDidAcceptEvent, IQuickPickItem, IQuickPickSeparator } from "../common/quickInput.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Disposable, DisposableStore, IDisposable } from '../../../base/common/lifecycle.js';
+import { IKeyMods, IQuickPickDidAcceptEvent, IQuickPickSeparator, IQuickPick, IQuickPickItem } from '../common/quickInput.js';
+import { IQuickAccessProvider, IQuickAccessProviderRunOptions } from '../common/quickAccess.js';
 export declare enum TriggerAction {
     /**
      * Do nothing after the button was clicked.
@@ -22,12 +22,12 @@ export declare enum TriggerAction {
 }
 export interface IPickerQuickAccessItem extends IQuickPickItem {
     /**
-     * A method that will be executed when the pick item is accepted from
-     * the picker. The picker will close automatically before running this.
-     *
-     * @param keyMods the state of modifier keys when the item was accepted.
-     * @param event the underlying event that caused the accept to trigger.
-     */
+    * A method that will be executed when the pick item is accepted from
+    * the picker. The picker will close automatically before running this.
+    *
+    * @param keyMods the state of modifier keys when the item was accepted.
+    * @param event the underlying event that caused the accept to trigger.
+    */
     accept?(keyMods: IKeyMods, event: IQuickPickDidAcceptEvent): void;
     /**
      * A method that will be executed when a button of the pick item was

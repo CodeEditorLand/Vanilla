@@ -1,6 +1,6 @@
-import { Action } from "../../../../base/common/actions.js";
-import type { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import { IWorkbenchIssueService } from "../../issue/common/issue.js";
+import { Action } from '../../../../base/common/actions.js';
+import { IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { IWorkbenchIssueService } from '../../issue/common/issue.js';
 export declare class ReportExtensionIssueAction extends Action {
     private extension;
     private readonly issueService;

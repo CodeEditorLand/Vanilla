@@ -1,6 +1,6 @@
-import { DisposableStore, type IDisposable } from "../lifecycle.js";
-import type { IChangeContext, IObservable, IObserver, IReader } from "./base.js";
-import { DebugNameData, type IDebugNameData } from "./debugName.js";
+import { DisposableStore, IDisposable } from '../lifecycle.js';
+import { IChangeContext, IObservable, IObserver, IReader } from './base.js';
+import { DebugNameData, IDebugNameData } from './debugName.js';
 /**
  * Runs immediately and whenever a transaction ends and an observed observable changed.
  * {@link fn} should start with a JS Doc using `@description` to name the autorun.

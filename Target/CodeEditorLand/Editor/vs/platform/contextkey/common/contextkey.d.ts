@@ -1,9 +1,9 @@
-import type { Event } from "../../../base/common/event.js";
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import { type LexingError } from "./scanner.js";
+import { Event } from '../../../base/common/event.js';
+import { LexingError } from './scanner.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
 /** allow register constant context keys that are known only after startup; requires running `substituteConstants` on the context key - https://github.com/microsoft/vscode/issues/174218#issuecomment-1437972127 */
 export declare function setConstant(key: string, value: boolean): void;
-export declare enum ContextKeyExprType {
+export declare const enum ContextKeyExprType {
     False = 0,
     True = 1,
     Defined = 2,
@@ -44,7 +44,7 @@ export interface IContextKeyExpression {
     map(mapFnc: IContextKeyExprMapper): ContextKeyExpression;
     negate(): ContextKeyExpression;
 }
-export type ContextKeyExpression = ContextKeyFalseExpr | ContextKeyTrueExpr | ContextKeyDefinedExpr | ContextKeyNotExpr | ContextKeyEqualsExpr | ContextKeyNotEqualsExpr | ContextKeyRegexExpr | ContextKeyNotRegexExpr | ContextKeyAndExpr | ContextKeyOrExpr | ContextKeyInExpr | ContextKeyNotInExpr | ContextKeyGreaterExpr | ContextKeyGreaterEqualsExpr | ContextKeySmallerExpr | ContextKeySmallerEqualsExpr;
+export type ContextKeyExpression = (ContextKeyFalseExpr | ContextKeyTrueExpr | ContextKeyDefinedExpr | ContextKeyNotExpr | ContextKeyEqualsExpr | ContextKeyNotEqualsExpr | ContextKeyRegexExpr | ContextKeyNotRegexExpr | ContextKeyAndExpr | ContextKeyOrExpr | ContextKeyInExpr | ContextKeyNotInExpr | ContextKeyGreaterExpr | ContextKeyGreaterEqualsExpr | ContextKeySmallerExpr | ContextKeySmallerEqualsExpr);
 export type ParserConfig = {
     /**
      * with this option enabled, the parser can recover from regex parsing errors, e.g., unescaped slashes: `/src//` is accepted as `/src\//` would be

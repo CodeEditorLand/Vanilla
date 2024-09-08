@@ -1,4 +1,4 @@
-import type { URI } from "./uri.js";
+import { URI } from './uri.js';
 export interface IKeyIterator<K> {
     reset(key: K): this;
     next(): this;

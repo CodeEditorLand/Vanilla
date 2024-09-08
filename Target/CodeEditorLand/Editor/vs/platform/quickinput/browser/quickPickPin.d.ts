@@ -1,6 +1,6 @@
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import { type IStorageService } from "../../storage/common/storage.js";
-import type { IQuickPick, IQuickPickItem } from "../common/quickInput.js";
+import { IQuickPick, IQuickPickItem } from '../common/quickInput.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
 /**
  * Initially, adds pin buttons to all @param quickPick items.
  * When pinned, a copy of the item will be moved to the end of the pinned list and any duplicate within the pinned list will

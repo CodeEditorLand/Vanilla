@@ -1,9 +1,9 @@
-import "./media/notificationsList.css";
-import type { IListOptions } from "../../../../base/browser/ui/list/listWidget.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import type { INotificationViewItem } from "../../../common/notifications.js";
+import './media/notificationsList.css';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IListOptions } from '../../../../base/browser/ui/list/listWidget.js';
+import { INotificationViewItem } from '../../../common/notifications.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 export interface INotificationsListOptions extends IListOptions<INotificationViewItem> {
     readonly widgetAriaLabel?: string;
 }

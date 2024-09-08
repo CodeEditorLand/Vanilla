@@ -1,8 +1,8 @@
-import { Disposable, type IDisposable } from "../../../common/lifecycle.js";
-import type { OmitOptional } from "../../../common/types.js";
-import type { StandardMouseEvent } from "../../mouseEvent.js";
-import "./contextview.css";
-export declare enum ContextViewDOMPosition {
+import { StandardMouseEvent } from '../../mouseEvent.js';
+import { Disposable, IDisposable } from '../../../common/lifecycle.js';
+import { OmitOptional } from '../../../common/types.js';
+import './contextview.css';
+export declare const enum ContextViewDOMPosition {
     ABSOLUTE = 1,
     FIXED = 2,
     FIXED_SHADOW = 3
@@ -14,15 +14,15 @@ export interface IAnchor {
     height?: number;
 }
 export declare function isAnchor(obj: unknown): obj is IAnchor | OmitOptional<IAnchor>;
-export declare enum AnchorAlignment {
+export declare const enum AnchorAlignment {
     LEFT = 0,
     RIGHT = 1
 }
-export declare enum AnchorPosition {
+export declare const enum AnchorPosition {
     BELOW = 0,
     ABOVE = 1
 }
-export declare enum AnchorAxisAlignment {
+export declare const enum AnchorAxisAlignment {
     VERTICAL = 0,
     HORIZONTAL = 1
 }
@@ -60,7 +60,7 @@ export interface ISize {
 }
 export interface IView extends IPosition, ISize {
 }
-export declare enum LayoutAnchorPosition {
+export declare const enum LayoutAnchorPosition {
     Before = 0,
     After = 1
 }

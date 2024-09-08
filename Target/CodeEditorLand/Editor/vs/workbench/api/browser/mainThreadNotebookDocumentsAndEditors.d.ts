@@ -1,10 +1,10 @@
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { INotebookEditorService } from "../../contrib/notebook/browser/services/notebookEditorService.js";
-import { INotebookService } from "../../contrib/notebook/common/notebookService.js";
-import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../services/editor/common/editorService.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { INotebookEditorService } from '../../contrib/notebook/browser/services/notebookEditorService.js';
+import { INotebookService } from '../../contrib/notebook/common/notebookService.js';
+import { IEditorGroupsService } from '../../services/editor/common/editorGroupsService.js';
+import { IEditorService } from '../../services/editor/common/editorService.js';
 export declare class MainThreadNotebooksAndEditors {
     private readonly _notebookService;
     private readonly _notebookEditorService;

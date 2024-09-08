@@ -1,9 +1,9 @@
-import type { Event } from "../../../common/event.js";
-import type { IDragAndDropData } from "../../dnd.js";
-import type { IMouseEvent } from "../../mouseEvent.js";
-import { type IListDragAndDrop, type IListDragOverReaction, type IListRenderer } from "../list/list.js";
-import type { ListViewTargetSector } from "../list/listView.js";
-export declare enum TreeVisibility {
+import { IDragAndDropData } from '../../dnd.js';
+import { IMouseEvent } from '../../mouseEvent.js';
+import { IListDragAndDrop, IListDragOverReaction, IListRenderer } from '../list/list.js';
+import { ListViewTargetSector } from '../list/listView.js';
+import { Event } from '../../../common/event.js';
+export declare const enum TreeVisibility {
     /**
      * The tree node should be hidden.
      */
@@ -167,7 +167,7 @@ export interface IAsyncDataSource<TInput, T> {
     getChildren(element: TInput | T): Iterable<T> | Promise<Iterable<T>>;
     getParent?(element: T): TInput | T;
 }
-export declare enum TreeDragOverBubble {
+export declare const enum TreeDragOverBubble {
     Down = 0,
     Up = 1
 }

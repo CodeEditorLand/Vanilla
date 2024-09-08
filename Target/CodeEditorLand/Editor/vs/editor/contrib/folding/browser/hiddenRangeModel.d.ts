@@ -1,8 +1,8 @@
-import { type Event } from "../../../../base/common/event.js";
-import { type IRange } from "../../../common/core/range.js";
-import type { Selection } from "../../../common/core/selection.js";
-import type { IModelContentChangedEvent } from "../../../common/textModelEvents.js";
-import type { FoldingModel } from "./foldingModel.js";
+import { Event } from '../../../../base/common/event.js';
+import { IRange } from '../../../common/core/range.js';
+import { Selection } from '../../../common/core/selection.js';
+import { IModelContentChangedEvent } from '../../../common/textModelEvents.js';
+import { FoldingModel } from './foldingModel.js';
 export declare class HiddenRangeModel {
     private readonly _foldingModel;
     private _hiddenRanges;

@@ -1,7 +1,7 @@
-import type { Range } from "../core/range.js";
-import { type TrackedRangeStickiness as ActualTrackedRangeStickiness } from "../model.js";
-import type { ModelDecorationOptions } from "./textModel.js";
-export declare enum ClassName {
+import { Range } from '../core/range.js';
+import { TrackedRangeStickiness as ActualTrackedRangeStickiness } from '../model.js';
+import { ModelDecorationOptions } from './textModel.js';
+export declare const enum ClassName {
     EditorHintDecoration = "squiggly-hint",
     EditorInfoDecoration = "squiggly-info",
     EditorWarningDecoration = "squiggly-warning",
@@ -10,7 +10,7 @@ export declare enum ClassName {
     EditorUnnecessaryInlineDecoration = "squiggly-inline-unnecessary",
     EditorDeprecatedInlineDecoration = "squiggly-inline-deprecated"
 }
-export declare enum NodeColor {
+export declare const enum NodeColor {
     Black = 0,
     Red = 1
 }

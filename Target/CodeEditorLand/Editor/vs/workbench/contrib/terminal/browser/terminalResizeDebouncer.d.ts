@@ -1,5 +1,5 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { XtermTerminal } from "./xterm/xtermTerminal.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import type { XtermTerminal } from './xterm/xtermTerminal.js';
 export declare class TerminalResizeDebouncer extends Disposable {
     private readonly _isVisible;
     private readonly _getXterm;

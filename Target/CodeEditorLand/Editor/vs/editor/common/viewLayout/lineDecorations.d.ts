@@ -1,4 +1,4 @@
-import { InlineDecorationType, type InlineDecoration } from "../viewModel.js";
+import { InlineDecoration, InlineDecorationType } from '../viewModel.js';
 export declare class LineDecoration {
     readonly startColumn: number;
     readonly endColumn: number;

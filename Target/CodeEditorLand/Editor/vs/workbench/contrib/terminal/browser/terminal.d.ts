@@ -1,30 +1,30 @@
-import type { IBufferRange, IMarker, ITheme, Terminal as RawXtermTerminal } from "@xterm/xterm";
-import type { IDimension } from "../../../../base/browser/dom.js";
-import type { Orientation } from "../../../../base/browser/ui/splitview/splitview.js";
-import type { Barrier } from "../../../../base/common/async.js";
-import type { Color } from "../../../../base/common/color.js";
-import type { DynamicListEventMultiplexer, Event, IDynamicListEventMultiplexer } from "../../../../base/common/event.js";
-import type { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
-import type { OperatingSystem } from "../../../../base/common/platform.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IMenu } from "../../../../platform/actions/common/actions.js";
-import type { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IKeyMods } from "../../../../platform/quickinput/common/quickInput.js";
-import type { IMarkProperties, ITerminalCapabilityImplMap, ITerminalCapabilityStore, ITerminalCommand, TerminalCapability } from "../../../../platform/terminal/common/capabilities/capabilities.js";
-import type { ICurrentPartialCommand } from "../../../../platform/terminal/common/capabilities/commandDetection/terminalCommand.js";
-import type { IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
-import type { IExtensionTerminalProfile, IReconnectionProperties, IShellIntegration, IShellLaunchConfig, ITerminalBackend, ITerminalDimensions, ITerminalLaunchError, ITerminalProfile, ITerminalTabLayoutInfoById, TerminalExitReason, TerminalIcon, TerminalLocation, TerminalShellType, TerminalType, TitleEventSource, WaitOnExitValue } from "../../../../platform/terminal/common/terminal.js";
-import type { IColorTheme } from "../../../../platform/theme/common/themeService.js";
-import type { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import type { GroupIdentifier } from "../../../common/editor.js";
-import type { EditorInput } from "../../../common/editor/editorInput.js";
-import type { IEditableData } from "../../../common/views.js";
-import type { ACTIVE_GROUP_TYPE, AUX_WINDOW_GROUP_TYPE, SIDE_GROUP_TYPE } from "../../../services/editor/common/editorService.js";
-import type { IRegisterContributedProfileArgs, IRemoteTerminalAttachTarget, IStartExtensionTerminalRequest, ITerminalConfiguration, ITerminalFont, ITerminalProcessExtHostProxy, ITerminalProcessInfo } from "../common/terminal.js";
-import type { ITerminalStatusList } from "./terminalStatusList.js";
-import type { IXtermCore } from "./xterm-private.js";
-import type { ScrollPosition } from "./xterm/markNavigationAddon.js";
-import type { XtermTerminal } from "./xterm/xtermTerminal.js";
+import { IDimension } from '../../../../base/browser/dom.js';
+import { Orientation } from '../../../../base/browser/ui/splitview/splitview.js';
+import { Color } from '../../../../base/common/color.js';
+import { Event, IDynamicListEventMultiplexer, type DynamicListEventMultiplexer } from '../../../../base/common/event.js';
+import { DisposableStore, IDisposable } from '../../../../base/common/lifecycle.js';
+import { OperatingSystem } from '../../../../base/common/platform.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IKeyMods } from '../../../../platform/quickinput/common/quickInput.js';
+import { IMarkProperties, ITerminalCapabilityImplMap, ITerminalCapabilityStore, ITerminalCommand, TerminalCapability } from '../../../../platform/terminal/common/capabilities/capabilities.js';
+import { IMergedEnvironmentVariableCollection } from '../../../../platform/terminal/common/environmentVariable.js';
+import { IExtensionTerminalProfile, IReconnectionProperties, IShellIntegration, IShellLaunchConfig, ITerminalBackend, ITerminalDimensions, ITerminalLaunchError, ITerminalProfile, ITerminalTabLayoutInfoById, TerminalExitReason, TerminalIcon, TerminalLocation, TerminalShellType, TerminalType, TitleEventSource, WaitOnExitValue } from '../../../../platform/terminal/common/terminal.js';
+import { IColorTheme } from '../../../../platform/theme/common/themeService.js';
+import { IWorkspaceFolder } from '../../../../platform/workspace/common/workspace.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IEditableData } from '../../../common/views.js';
+import { ITerminalStatusList } from './terminalStatusList.js';
+import { XtermTerminal } from './xterm/xtermTerminal.js';
+import { IRegisterContributedProfileArgs, IRemoteTerminalAttachTarget, IStartExtensionTerminalRequest, ITerminalConfiguration, ITerminalFont, ITerminalProcessExtHostProxy, ITerminalProcessInfo } from '../common/terminal.js';
+import type { IMarker, ITheme, Terminal as RawXtermTerminal, IBufferRange } from '@xterm/xterm';
+import { ScrollPosition } from './xterm/markNavigationAddon.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { GroupIdentifier } from '../../../common/editor.js';
+import { ACTIVE_GROUP_TYPE, AUX_WINDOW_GROUP_TYPE, SIDE_GROUP_TYPE } from '../../../services/editor/common/editorService.js';
+import type { ICurrentPartialCommand } from '../../../../platform/terminal/common/capabilities/commandDetection/terminalCommand.js';
+import type { IXtermCore } from './xterm-private.js';
+import type { IMenu } from '../../../../platform/actions/common/actions.js';
+import type { Barrier } from '../../../../base/common/async.js';
 export declare const ITerminalService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITerminalService>;
 export declare const ITerminalConfigurationService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITerminalConfigurationService>;
 export declare const ITerminalEditorService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITerminalEditorService>;
@@ -80,7 +80,7 @@ export interface ITerminalInstanceService {
     getRegisteredBackends(): IterableIterator<ITerminalBackend>;
     didRegisterBackend(remoteAuthority?: string): void;
 }
-export declare enum Direction {
+export declare const enum Direction {
     Left = 0,
     Right = 1,
     Up = 2,
@@ -129,14 +129,14 @@ export interface ITerminalGroup {
     attachToElement(element: HTMLElement): void;
     addInstance(instance: ITerminalInstance): void;
     removeInstance(instance: ITerminalInstance): void;
-    moveInstance(instances: ITerminalInstance | ITerminalInstance[], index: number, position: "before" | "after"): void;
+    moveInstance(instances: ITerminalInstance | ITerminalInstance[], index: number, position: 'before' | 'after'): void;
     setVisible(visible: boolean): void;
     layout(width: number, height: number): void;
     addDisposable(disposable: IDisposable): void;
     split(shellLaunchConfig: IShellLaunchConfig): ITerminalInstance;
     getLayoutInfo(isActive: boolean): ITerminalTabLayoutInfoById;
 }
-export declare enum TerminalConnectionState {
+export declare const enum TerminalConnectionState {
     Connecting = 0,
     Connected = 1
 }
@@ -279,7 +279,7 @@ export interface ITerminalService extends ITerminalInstanceHost {
      */
     refreshActiveGroup(): void;
     registerProcessSupport(isSupported: boolean): void;
-    showProfileQuickPick(type: "setDefault" | "createInstance", cwd?: string | URI): Promise<ITerminalInstance | undefined>;
+    showProfileQuickPick(type: 'setDefault' | 'createInstance', cwd?: string | URI): Promise<ITerminalInstance | undefined>;
     setContainers(panelContainer: HTMLElement, terminalContainer: HTMLElement): void;
     requestStartExtensionTerminal(proxy: ITerminalProcessExtHostProxy, cols: number, rows: number): Promise<ITerminalLaunchError | undefined>;
     isAttachedToTerminal(remoteTerm: IRemoteTerminalAttachTarget): boolean;
@@ -416,7 +416,7 @@ export interface ITerminalGroupService extends ITerminalInstanceHost {
     /**
      * Gets or sets the last accessed menu, this is used to select the instance(s) for menu actions.
      */
-    lastAccessedMenu: "inline-tab" | "tab-list";
+    lastAccessedMenu: 'inline-tab' | 'tab-list';
     readonly onDidChangeActiveGroup: Event<ITerminalGroup | undefined>;
     readonly onDidDisposeGroup: Event<ITerminalGroup>;
     /** Fires when a group is created, disposed of, or shown (in the case of a background group). */
@@ -434,7 +434,7 @@ export interface ITerminalGroupService extends ITerminalInstanceHost {
      */
     moveGroup(source: ITerminalInstance | ITerminalInstance[], target: ITerminalInstance): void;
     moveGroupToEnd(source: ITerminalInstance | ITerminalInstance[]): void;
-    moveInstance(source: ITerminalInstance, target: ITerminalInstance, side: "before" | "after"): void;
+    moveInstance(source: ITerminalInstance, target: ITerminalInstance, side: 'before' | 'after'): void;
     unsplitInstance(instance: ITerminalInstance): void;
     joinInstances(instances: ITerminalInstance[]): void;
     instanceIsSplit(instance: ITerminalInstance): boolean;
@@ -898,7 +898,7 @@ export interface ITerminalInstance extends IBaseTerminalInstance {
      * Triggers a quick pick that displays recent commands or cwds. Selecting one will
      * rerun it in the active terminal.
      */
-    runRecent(type: "command" | "cwd"): Promise<void>;
+    runRecent(type: 'command' | 'cwd'): Promise<void>;
     /**
      * Attempts to detect and kill the process listening on specified port.
      * If successful, places commandToRun on the command line
@@ -924,7 +924,7 @@ export interface ITerminalInstance extends IBaseTerminalInstance {
      */
     pauseInputEvents(barrier: Barrier): void;
 }
-export declare enum XtermTerminalConstants {
+export declare const enum XtermTerminalConstants {
     SearchHighlightLimit = 1000
 }
 export interface IXtermAttachToElementOptions {
@@ -980,7 +980,7 @@ export interface IXtermTerminal extends IDisposable {
     };
     /**
      * Find the next instance of the term
-     */
+    */
     findNext(term: string, searchOptions: ISearchOptions): Promise<boolean>;
     /**
      * Find the previous instance of the term
@@ -1088,14 +1088,14 @@ export interface IXtermColorProvider {
 }
 export interface IRequestAddInstanceToGroupEvent {
     uri: URI;
-    side: "before" | "after";
+    side: 'before' | 'after';
 }
-export declare enum LinuxDistro {
+export declare const enum LinuxDistro {
     Unknown = 1,
     Fedora = 2,
     Ubuntu = 3
 }
-export declare enum TerminalDataTransfers {
+export declare const enum TerminalDataTransfers {
     Terminals = "Terminals"
 }
 export {};

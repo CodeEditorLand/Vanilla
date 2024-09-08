@@ -1,30 +1,30 @@
-import "./media/scm.css";
-import type { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
-import type { ICompressibleKeyboardNavigationLabelProvider, ICompressibleTreeRenderer } from "../../../../base/browser/ui/tree/objectTree.js";
-import type { ITreeNode, ITreeSorter } from "../../../../base/browser/ui/tree/tree.js";
-import { Event } from "../../../../base/common/event.js";
-import { type FuzzyScore } from "../../../../base/common/filters.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import { type IResourceNode } from "../../../../base/common/resourceTree.js";
-import { IMenuService } from "../../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { ViewPane, type IViewPaneOptions } from "../../../browser/parts/views/viewPane.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { ISCMService, ISCMViewService, type ISCMActionButton, type ISCMActionButtonDescriptor, type ISCMInput, type ISCMRepository, type ISCMResource, type ISCMResourceGroup } from "../common/scm.js";
+import './media/scm.css';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ViewPane, IViewPaneOptions } from '../../../browser/parts/views/viewPane.js';
+import { ISCMResourceGroup, ISCMResource, ISCMRepository, ISCMInput, ISCMViewService, ISCMService, ISCMActionButton, ISCMActionButtonDescriptor } from '../common/scm.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IMenuService } from '../../../../platform/actions/common/actions.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ITreeNode, ITreeSorter } from '../../../../base/browser/ui/tree/tree.js';
+import { IResourceNode } from '../../../../base/common/resourceTree.js';
+import { ICompressibleTreeRenderer, ICompressibleKeyboardNavigationLabelProvider } from '../../../../base/browser/ui/tree/objectTree.js';
+import { FuzzyScore } from '../../../../base/common/filters.js';
+import { IViewDescriptorService } from '../../../common/views.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IListAccessibilityProvider } from '../../../../base/browser/ui/list/listWidget.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 type TreeElement = ISCMRepository | ISCMInput | ISCMActionButton | ISCMResourceGroup | ISCMResource | IResourceNode<ISCMResource, ISCMResourceGroup>;
 interface ActionButtonTemplate {
     readonly actionButton: SCMActionButton;
@@ -72,11 +72,11 @@ export declare class SCMAccessibilityProvider implements IListAccessibilityProvi
     getWidgetAriaLabel(): string;
     getAriaLabel(element: TreeElement): string;
 }
-declare enum ViewMode {
+declare const enum ViewMode {
     List = "list",
     Tree = "tree"
 }
-declare enum ViewSortKey {
+declare const enum ViewSortKey {
     Path = "path",
     Name = "name",
     Status = "status"

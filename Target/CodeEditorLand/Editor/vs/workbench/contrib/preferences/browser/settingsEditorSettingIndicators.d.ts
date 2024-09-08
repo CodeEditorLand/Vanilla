@@ -1,13 +1,13 @@
-import type { Emitter } from "../../../../base/common/event.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import { IUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSync.js";
-import { IWorkbenchConfigurationService } from "../../../services/configuration/common/configuration.js";
-import type { SettingsTreeSettingElement } from "./settingsTreeModels.js";
-type ScopeString = "workspace" | "user" | "remote" | "default";
+import { Emitter } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IUserDataProfilesService } from '../../../../platform/userDataProfile/common/userDataProfile.js';
+import { IUserDataSyncEnablementService } from '../../../../platform/userDataSync/common/userDataSync.js';
+import { SettingsTreeSettingElement } from './settingsTreeModels.js';
+import { IWorkbenchConfigurationService } from '../../../services/configuration/common/configuration.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+type ScopeString = 'workspace' | 'user' | 'remote' | 'default';
 export interface ISettingOverrideClickEvent {
     scope: ScopeString;
     language: string;

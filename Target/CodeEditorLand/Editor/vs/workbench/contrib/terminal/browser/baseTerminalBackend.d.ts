@@ -1,10 +1,10 @@
-import { Emitter } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { IPtyHostController, ISerializedTerminalState, ITerminalLogService } from "../../../../platform/terminal/common/terminal.js";
-import type { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import type { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
-import type { IHistoryService } from "../../../services/history/common/history.js";
-import { type IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { Emitter } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IPtyHostController, ISerializedTerminalState, ITerminalLogService } from '../../../../platform/terminal/common/terminal.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IConfigurationResolverService } from '../../../services/configurationResolver/common/configurationResolver.js';
+import { IHistoryService } from '../../../services/history/common/history.js';
+import { IStatusbarService } from '../../../services/statusbar/browser/statusbar.js';
 export declare abstract class BaseTerminalBackend extends Disposable {
     private readonly _ptyHostController;
     protected readonly _logService: ITerminalLogService;

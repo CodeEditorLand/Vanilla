@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import { type IEditorOptions } from "../../../../common/config/editorOptions.js";
-import { Position } from "../../../../common/core/position.js";
-import type { IContentSizeChangedEvent } from "../../../../common/editorCommon.js";
-import type { CodeEditorWidget, ICodeEditorWidgetOptions } from "../../codeEditor/codeEditorWidget.js";
-import type { DiffEditorOptions } from "../diffEditorOptions.js";
-import type { IDiffCodeEditorWidgetOptions } from "../diffEditorWidget.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { CodeEditorWidget, ICodeEditorWidgetOptions } from '../../codeEditor/codeEditorWidget.js';
+import { IDiffCodeEditorWidgetOptions } from '../diffEditorWidget.js';
+import { IEditorOptions } from '../../../../common/config/editorOptions.js';
+import { Position } from '../../../../common/core/position.js';
+import { IContentSizeChangedEvent } from '../../../../common/editorCommon.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../../../platform/keybinding/common/keybinding.js';
+import { DiffEditorOptions } from '../diffEditorOptions.js';
 export declare class DiffEditorEditors extends Disposable {
     private readonly originalEditorElement;
     private readonly modifiedEditorElement;

@@ -1,5 +1,5 @@
-import type { Position } from "../common/core/position.js";
-import type { ICodeEditor } from "./editorBrowser.js";
+import { ICodeEditor } from './editorBrowser.js';
+import { Position } from '../common/core/position.js';
 export declare class StableEditorScrollState {
     private readonly _initialScrollTop;
     private readonly _initialContentHeight;

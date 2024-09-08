@@ -1,5 +1,5 @@
-import type { IProcessEnvironment } from "../../../../base/common/platform.js";
-export declare enum ExtHostConnectionType {
+import { IProcessEnvironment } from '../../../../base/common/platform.js';
+export declare const enum ExtHostConnectionType {
     IPC = 1,
     Socket = 2,
     MessagePort = 3

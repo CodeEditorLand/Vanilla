@@ -1,14 +1,14 @@
-import type * as vscode from "vscode";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { type SerializedError } from "../../../base/common/errors.js";
-import { Event } from "../../../base/common/event.js";
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import { ExtensionIdentifier, type IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import type { IChatMessage, IChatResponseFragment, ILanguageModelChatMetadata } from "../../contrib/chat/common/languageModels.js";
-import { type ExtHostLanguageModelsShape } from "./extHost.protocol.js";
-import { IExtHostAuthentication } from "./extHostAuthentication.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { SerializedError } from '../../../base/common/errors.js';
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ExtensionIdentifier, IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { ExtHostLanguageModelsShape } from './extHost.protocol.js';
+import { IExtHostAuthentication } from './extHostAuthentication.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { IChatMessage, IChatResponseFragment, ILanguageModelChatMetadata } from '../../contrib/chat/common/languageModels.js';
+import type * as vscode from 'vscode';
 export interface IExtHostLanguageModels extends ExtHostLanguageModels {
 }
 export declare const IExtHostLanguageModels: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtHostLanguageModels>;

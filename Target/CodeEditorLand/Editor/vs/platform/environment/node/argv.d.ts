@@ -1,4 +1,4 @@
-import type { NativeParsedArgs } from "../common/argv.js";
+import { NativeParsedArgs } from '../common/argv.js';
 /**
  * This code is also used by standalone cli's. Avoid adding any other dependencies.
  */
@@ -19,13 +19,13 @@ export interface Option<OptionType> {
     global?: boolean;
 }
 export interface Subcommand<T> {
-    type: "subcommand";
+    type: 'subcommand';
     description?: string;
     deprecationMessage?: string;
     options: OptionDescriptions<Required<T>>;
 }
 export type OptionDescriptions<T> = {
-    [P in keyof T]: T[P] extends boolean | undefined ? Option<"boolean"> : T[P] extends string | undefined ? Option<"string"> : T[P] extends string[] | undefined ? Option<"string[]"> : Subcommand<T[P]>;
+    [P in keyof T]: T[P] extends boolean | undefined ? Option<'boolean'> : T[P] extends string | undefined ? Option<'string'> : T[P] extends string[] | undefined ? Option<'string[]'> : Subcommand<T[P]>;
 };
 export declare const NATIVE_CLI_COMMANDS: readonly ["tunnel", "serve-web"];
 export declare const OPTIONS: OptionDescriptions<Required<NativeParsedArgs>>;

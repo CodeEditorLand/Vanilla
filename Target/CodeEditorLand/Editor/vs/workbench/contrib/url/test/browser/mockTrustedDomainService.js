@@ -1,15 +1,1 @@
-import {
-  isURLDomainTrusted
-} from "../../browser/trustedDomainService.js";
-class MockTrustedDomainService {
-  constructor(_trustedDomains = []) {
-    this._trustedDomains = _trustedDomains;
-  }
-  _serviceBrand;
-  isValid(resource) {
-    return isURLDomainTrusted(resource, this._trustedDomains);
-  }
-}
-export {
-  MockTrustedDomainService
-};
+import"../../../../../base/common/uri.js";import{isURLDomainTrusted as r}from"../../browser/trustedDomainService.js";class a{constructor(e=[]){this._trustedDomains=e}_serviceBrand;isValid(e){return r(e,this._trustedDomains)}}export{a as MockTrustedDomainService};

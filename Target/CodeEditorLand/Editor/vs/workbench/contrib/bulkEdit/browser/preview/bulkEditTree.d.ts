@@ -1,15 +1,15 @@
-import type { AriaRole } from "../../../../../base/browser/ui/aria/aria.js";
-import { IconLabel } from "../../../../../base/browser/ui/iconLabel/iconLabel.js";
-import type { IIdentityProvider, IKeyboardNavigationLabelProvider, IListVirtualDelegate } from "../../../../../base/browser/ui/list/list.js";
-import type { IListAccessibilityProvider } from "../../../../../base/browser/ui/list/listWidget.js";
-import type { IAsyncDataSource, ITreeNode, ITreeRenderer, ITreeSorter } from "../../../../../base/browser/ui/tree/tree.js";
-import { type FuzzyScore } from "../../../../../base/common/filters.js";
-import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import type { ResourceLabels } from "../../../../browser/labels.js";
-import { type BulkCategory, type BulkFileOperation, BulkFileOperations, type BulkTextEdit } from "./bulkEditPreview.js";
+import { IAsyncDataSource, ITreeRenderer, ITreeNode, ITreeSorter } from '../../../../../base/browser/ui/tree/tree.js';
+import { ITextModelService } from '../../../../../editor/common/services/resolverService.js';
+import { FuzzyScore } from '../../../../../base/common/filters.js';
+import { ResourceLabels } from '../../../../browser/labels.js';
+import { IIdentityProvider, IListVirtualDelegate, IKeyboardNavigationLabelProvider } from '../../../../../base/browser/ui/list/list.js';
+import { BulkFileOperations, BulkFileOperation, BulkTextEdit, BulkCategory } from './bulkEditPreview.js';
+import { ILabelService } from '../../../../../platform/label/common/label.js';
+import type { IListAccessibilityProvider } from '../../../../../base/browser/ui/list/listWidget.js';
+import { IconLabel } from '../../../../../base/browser/ui/iconLabel/iconLabel.js';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { AriaRole } from '../../../../../base/browser/ui/aria/aria.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
 export interface ICheckable {
     isChecked(): boolean;
     setChecked(value: boolean): void;

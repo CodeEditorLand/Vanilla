@@ -1,18 +1,18 @@
-import { OperatingSystem, type IProcessEnvironment } from "../../../../base/common/platform.js";
-import { URI } from "../../../../base/common/uri.js";
-import type { ILogService } from "../../../../platform/log/common/log.js";
-import { type IShellLaunchConfig, type ITerminalBackend, type ITerminalEnvironment, type TerminalShellType } from "../../../../platform/terminal/common/terminal.js";
-import type { IWorkspaceContextService, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import type { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
-import type { IHistoryService } from "../../../services/history/common/history.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IWorkspaceContextService, IWorkspaceFolder } from '../../../../platform/workspace/common/workspace.js';
+import { IConfigurationResolverService } from '../../../services/configurationResolver/common/configurationResolver.js';
+import { IShellLaunchConfig, ITerminalBackend, ITerminalEnvironment, TerminalShellType } from '../../../../platform/terminal/common/terminal.js';
+import { IProcessEnvironment, OperatingSystem } from '../../../../base/common/platform.js';
+import { IHistoryService } from '../../../services/history/common/history.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare function mergeEnvironments(parent: IProcessEnvironment, other: ITerminalEnvironment | undefined): void;
-export declare function addTerminalEnvironmentKeys(env: IProcessEnvironment, version: string | undefined, locale: string | undefined, detectLocale: "auto" | "off" | "on"): void;
-export declare function shouldSetLangEnvVariable(env: IProcessEnvironment, detectLocale: "auto" | "off" | "on"): boolean;
+export declare function addTerminalEnvironmentKeys(env: IProcessEnvironment, version: string | undefined, locale: string | undefined, detectLocale: 'auto' | 'off' | 'on'): void;
+export declare function shouldSetLangEnvVariable(env: IProcessEnvironment, detectLocale: 'auto' | 'off' | 'on'): boolean;
 export declare function getLangEnvVariable(locale?: string): string;
 export declare function getCwd(shell: IShellLaunchConfig, userHome: string | undefined, variableResolver: VariableResolver | undefined, root: URI | undefined, customCwd: string | undefined, logService?: ILogService): Promise<string>;
 export type VariableResolver = (str: string) => Promise<string>;
 export declare function createVariableResolver(lastActiveWorkspace: IWorkspaceFolder | undefined, env: IProcessEnvironment, configurationResolverService: IConfigurationResolverService | undefined): VariableResolver | undefined;
-export declare function createTerminalEnvironment(shellLaunchConfig: IShellLaunchConfig, envFromConfig: ITerminalEnvironment | undefined, variableResolver: VariableResolver | undefined, version: string | undefined, detectLocale: "auto" | "off" | "on", baseEnv: IProcessEnvironment): Promise<IProcessEnvironment>;
+export declare function createTerminalEnvironment(shellLaunchConfig: IShellLaunchConfig, envFromConfig: ITerminalEnvironment | undefined, variableResolver: VariableResolver | undefined, version: string | undefined, detectLocale: 'auto' | 'off' | 'on', baseEnv: IProcessEnvironment): Promise<IProcessEnvironment>;
 /**
  * Takes a path and returns the properly escaped path to send to a given shell. On Windows, this
  * included trying to prepare the path for WSL if needed.
@@ -26,5 +26,5 @@ export declare function createTerminalEnvironment(shellLaunchConfig: IShellLaunc
  * tests.
  * @returns An escaped version of the path to be execuded in the terminal.
  */
-export declare function preparePathForShell(resource: string | URI, executable: string | undefined, title: string, shellType: TerminalShellType | undefined, backend: Pick<ITerminalBackend, "getWslPath"> | undefined, os: OperatingSystem | undefined, isWindowsFrontend?: boolean): Promise<string>;
+export declare function preparePathForShell(resource: string | URI, executable: string | undefined, title: string, shellType: TerminalShellType | undefined, backend: Pick<ITerminalBackend, 'getWslPath'> | undefined, os: OperatingSystem | undefined, isWindowsFrontend?: boolean): Promise<string>;
 export declare function getWorkspaceForTerminal(cwd: URI | string | undefined, workspaceContextService: IWorkspaceContextService, historyService: IHistoryService): IWorkspaceFolder | undefined;

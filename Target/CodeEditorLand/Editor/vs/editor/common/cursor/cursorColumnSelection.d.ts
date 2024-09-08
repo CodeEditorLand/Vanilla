@@ -1,4 +1,4 @@
-import { type CursorConfiguration, type IColumnSelectData, type ICursorSimpleModel, SingleCursorState } from "../cursorCommon.js";
+import { CursorConfiguration, ICursorSimpleModel, SingleCursorState, IColumnSelectData } from '../cursorCommon.js';
 export declare class ColumnSelection {
     static columnSelect(config: CursorConfiguration, model: ICursorSimpleModel, fromLineNumber: number, fromVisibleColumn: number, toLineNumber: number, toVisibleColumn: number): IColumnSelectResult;
     static columnSelectLeft(config: CursorConfiguration, model: ICursorSimpleModel, prevColumnSelectData: IColumnSelectData): IColumnSelectResult;

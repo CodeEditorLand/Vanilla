@@ -1,4 +1,4 @@
-import { URI, type UriComponents } from "./uri.js";
+import { URI, UriComponents } from './uri.js';
 export interface IURITransformer {
     transformIncoming(uri: UriComponents): UriComponents;
     transformOutgoing(uri: UriComponents): UriComponents;

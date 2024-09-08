@@ -1,1 +1,1 @@
-import "./media/actions.css";
+import './media/actions.css';

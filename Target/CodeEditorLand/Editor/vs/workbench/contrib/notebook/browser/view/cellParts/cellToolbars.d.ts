@@ -1,10 +1,10 @@
-import { type Event } from "../../../../../../base/common/event.js";
-import { IMenuService, type MenuId } from "../../../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import type { ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
-import { CellOverlayPart } from "../cellPart.js";
+import { Event } from '../../../../../../base/common/event.js';
+import { IMenuService, MenuId } from '../../../../../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../../../../../platform/contextkey/common/contextkey.js';
+import { IContextMenuService } from '../../../../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
+import { ICellViewModel, INotebookEditorDelegate } from '../../notebookBrowser.js';
+import { CellOverlayPart } from '../cellPart.js';
 export declare class BetweenCellToolbar extends CellOverlayPart {
     private readonly _notebookEditor;
     private readonly _bottomCellToolbarContainer;

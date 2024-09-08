@@ -1,4 +1,4 @@
-import { MinimapCharRenderer } from "./minimapCharRenderer.js";
+import { MinimapCharRenderer } from './minimapCharRenderer.js';
 /**
  * Creates character renderers. It takes a 'scale' that determines how large
  * characters should be drawn. Using this, it draws data into a canvas and

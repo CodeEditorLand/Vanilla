@@ -1,13 +1,13 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IProgressIndicator } from "../../../../platform/progress/common/progress.js";
-import type { IPaneComposite } from "../../../common/panecomposite.js";
-import { IViewDescriptorService, ViewContainerLocation, type IView, type IViewPaneContainer, type ViewContainer } from "../../../common/views.js";
-import { IEditorService } from "../../editor/common/editorService.js";
-import { IWorkbenchLayoutService, Parts } from "../../layout/browser/layoutService.js";
-import { IPaneCompositePartService } from "../../panecomposite/browser/panecomposite.js";
-import { IViewsService } from "../common/viewsService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IViewDescriptorService, ViewContainer, IView, ViewContainerLocation, IViewPaneContainer } from '../../../common/views.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { Event } from '../../../../base/common/event.js';
+import { IPaneComposite } from '../../../common/panecomposite.js';
+import { IWorkbenchLayoutService, Parts } from '../../layout/browser/layoutService.js';
+import { IProgressIndicator } from '../../../../platform/progress/common/progress.js';
+import { IPaneCompositePartService } from '../../panecomposite/browser/panecomposite.js';
+import { IEditorService } from '../../editor/common/editorService.js';
+import { IViewsService } from '../common/viewsService.js';
 export declare class ViewsService extends Disposable implements IViewsService {
     private readonly viewDescriptorService;
     private readonly paneCompositeService;

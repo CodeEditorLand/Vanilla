@@ -1,5 +1,5 @@
-import { ThemeIcon } from "../../../common/themables.js";
-import { Widget } from "../widget.js";
+import { Widget } from '../widget.js';
+import { ThemeIcon } from '../../../common/themables.js';
 /**
  * The arrow image size.
  */

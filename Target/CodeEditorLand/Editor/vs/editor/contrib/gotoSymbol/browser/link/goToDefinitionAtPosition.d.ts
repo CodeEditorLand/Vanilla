@@ -1,10 +1,10 @@
-import "./goToDefinitionAtPosition.css";
-import { type ICodeEditor } from "../../../../browser/editorBrowser.js";
-import type { Position } from "../../../../common/core/position.js";
-import type { IEditorContribution } from "../../../../common/editorCommon.js";
-import { ILanguageService } from "../../../../common/languages/language.js";
-import { ILanguageFeaturesService } from "../../../../common/services/languageFeatures.js";
-import { ITextModelService } from "../../../../common/services/resolverService.js";
+import './goToDefinitionAtPosition.css';
+import { ICodeEditor } from '../../../../browser/editorBrowser.js';
+import { Position } from '../../../../common/core/position.js';
+import { IEditorContribution } from '../../../../common/editorCommon.js';
+import { ILanguageService } from '../../../../common/languages/language.js';
+import { ITextModelService } from '../../../../common/services/resolverService.js';
+import { ILanguageFeaturesService } from '../../../../common/services/languageFeatures.js';
 export declare class GotoDefinitionAtPositionEditorContribution implements IEditorContribution {
     private readonly textModelResolverService;
     private readonly languageService;

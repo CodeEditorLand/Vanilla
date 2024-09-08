@@ -1,4 +1,4 @@
-export declare enum TerminalSuggestCommandId {
+export declare const enum TerminalSuggestCommandId {
     SelectPrevSuggestion = "workbench.action.terminal.selectPrevSuggestion",
     SelectPrevPageSuggestion = "workbench.action.terminal.selectPrevPageSuggestion",
     SelectNextSuggestion = "workbench.action.terminal.selectNextSuggestion",

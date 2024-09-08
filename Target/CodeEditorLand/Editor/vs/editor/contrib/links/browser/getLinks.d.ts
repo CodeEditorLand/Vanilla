@@ -1,9 +1,9 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { URI } from "../../../../base/common/uri.js";
-import { type IRange } from "../../../common/core/range.js";
-import type { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
-import type { ILink, ILinksList, LinkProvider } from "../../../common/languages.js";
-import type { ITextModel } from "../../../common/model.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IRange } from '../../../common/core/range.js';
+import { ITextModel } from '../../../common/model.js';
+import { ILink, ILinksList, LinkProvider } from '../../../common/languages.js';
+import { LanguageFeatureRegistry } from '../../../common/languageFeatureRegistry.js';
 export declare class Link implements ILink {
     private _link;
     private readonly _provider;

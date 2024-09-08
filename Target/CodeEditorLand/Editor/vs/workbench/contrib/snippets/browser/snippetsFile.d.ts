@@ -1,7 +1,7 @@
-import type { URI } from "../../../../base/common/uri.js";
-import type { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
-import type { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import type { IFileService } from "../../../../platform/files/common/files.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { ExtensionIdentifier, IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { IExtensionResourceLoaderService } from '../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js';
 export declare class Snippet {
     readonly isFileTemplate: boolean;
     readonly scopes: string[];
@@ -22,7 +22,7 @@ export declare class Snippet {
     get needsClipboard(): boolean;
     get usesSelection(): boolean;
 }
-export declare enum SnippetSource {
+export declare const enum SnippetSource {
     User = 1,
     Workspace = 2,
     Extension = 3

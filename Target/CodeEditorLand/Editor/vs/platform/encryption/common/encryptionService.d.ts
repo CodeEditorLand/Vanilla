@@ -12,13 +12,13 @@ export interface ICommonEncryptionService {
     decrypt(value: string): Promise<string>;
     isEncryptionAvailable(): Promise<boolean>;
 }
-export declare enum PasswordStoreCLIOption {
+export declare const enum PasswordStoreCLIOption {
     kwallet = "kwallet",
     kwallet5 = "kwallet5",
     gnomeLibsecret = "gnome-libsecret",
     basic = "basic"
 }
-export declare enum KnownStorageProvider {
+export declare const enum KnownStorageProvider {
     unknown = "unknown",
     basicText = "basic_text",
     gnomeAny = "gnome_any",

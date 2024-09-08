@@ -1,18 +1,18 @@
-import { ErrorNoTelemetry } from "../../../../base/common/errors.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import type { IConfigurationUpdateOptions, IConfigurationUpdateOverrides } from "../../../../platform/configuration/common/configuration.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IEditorService } from "../../editor/common/editorService.js";
-import { IPreferencesService } from "../../preferences/common/preferences.js";
-import { ITextFileService } from "../../textfile/common/textfiles.js";
-import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
-import { IWorkbenchConfigurationService } from "./configuration.js";
-export declare enum ConfigurationEditingErrorCode {
+import { URI } from '../../../../base/common/uri.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { ITextFileService } from '../../textfile/common/textfiles.js';
+import { IConfigurationUpdateOptions, IConfigurationUpdateOverrides } from '../../../../platform/configuration/common/configuration.js';
+import { IWorkbenchConfigurationService } from './configuration.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { ITextModelService } from '../../../../editor/common/services/resolverService.js';
+import { IEditorService } from '../../editor/common/editorService.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IPreferencesService } from '../../preferences/common/preferences.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IUserDataProfileService } from '../../userDataProfile/common/userDataProfile.js';
+import { IUserDataProfilesService } from '../../../../platform/userDataProfile/common/userDataProfile.js';
+import { ErrorNoTelemetry } from '../../../../base/common/errors.js';
+export declare const enum ConfigurationEditingErrorCode {
     /**
      * Error when trying to write a configuration key that is not registered.
      */
@@ -84,7 +84,7 @@ export interface IConfigurationEditingOptions extends IConfigurationUpdateOption
      */
     scopes?: IConfigurationUpdateOverrides;
 }
-export declare enum EditableConfigurationTarget {
+export declare const enum EditableConfigurationTarget {
     USER_LOCAL = 1,
     USER_REMOTE = 2,
     WORKSPACE = 3,

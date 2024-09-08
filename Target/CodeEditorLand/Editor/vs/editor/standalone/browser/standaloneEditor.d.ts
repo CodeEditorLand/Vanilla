@@ -1,20 +1,20 @@
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import "./standalone-tokens.css";
-import { type ICommandHandler } from "../../../platform/commands/common/commands.js";
-import { type IMarker, type IMarkerData } from "../../../platform/markers/common/markers.js";
-import type { ICodeEditor } from "../../browser/editorBrowser.js";
-import { MultiDiffEditorWidget } from "../../browser/widget/multiDiffEditor/multiDiffEditorWidget.js";
-import type { IPosition } from "../../common/core/position.js";
-import type { IRange } from "../../common/core/range.js";
-import { type IDiffEditor } from "../../common/editorCommon.js";
-import * as languages from "../../common/languages.js";
-import { type ITextModel } from "../../common/model.js";
-import { type IStandaloneThemeData } from "../common/standaloneTheme.js";
-import { type IColorizerElementOptions, type IColorizerOptions } from "./colorizer.js";
-import { type IActionDescriptor, type IStandaloneCodeEditor, type IStandaloneDiffEditor, type IStandaloneDiffEditorConstructionOptions, type IStandaloneEditorConstructionOptions } from "./standaloneCodeEditor.js";
-import { type IEditorOverrideServices } from "./standaloneServices.js";
-import { type IWebWorkerOptions, type MonacoWebWorker } from "./standaloneWebWorker.js";
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import './standalone-tokens.css';
+import { ICodeEditor } from '../../browser/editorBrowser.js';
+import { IWebWorkerOptions, MonacoWebWorker } from './standaloneWebWorker.js';
+import { IPosition } from '../../common/core/position.js';
+import { IRange } from '../../common/core/range.js';
+import { IDiffEditor } from '../../common/editorCommon.js';
+import * as languages from '../../common/languages.js';
+import { ITextModel } from '../../common/model.js';
+import { IColorizerElementOptions, IColorizerOptions } from './colorizer.js';
+import { IActionDescriptor, IStandaloneCodeEditor, IStandaloneDiffEditor, IStandaloneDiffEditorConstructionOptions, IStandaloneEditorConstructionOptions } from './standaloneCodeEditor.js';
+import { IEditorOverrideServices } from './standaloneServices.js';
+import { IStandaloneThemeData } from '../common/standaloneTheme.js';
+import { ICommandHandler } from '../../../platform/commands/common/commands.js';
+import { IMarker, IMarkerData } from '../../../platform/markers/common/markers.js';
+import { MultiDiffEditorWidget } from '../../browser/widget/multiDiffEditor/multiDiffEditorWidget.js';
 /**
  * Create a new editor under `domElement`.
  * `domElement` should be empty (not contain other dom nodes).

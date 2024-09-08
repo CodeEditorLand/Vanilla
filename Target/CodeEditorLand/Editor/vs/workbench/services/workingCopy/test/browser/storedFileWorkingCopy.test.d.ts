@@ -1,11 +1,11 @@
-import { type VSBufferReadableStream } from "../../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { type IFileStatWithMetadata, type IWriteFileOptions } from "../../../../../platform/files/common/files.js";
-import type { SnapshotContext } from "../../common/fileWorkingCopy.js";
-import { type IStoredFileWorkingCopyModel, type IStoredFileWorkingCopyModelContentChangedEvent, type IStoredFileWorkingCopyModelFactory } from "../../common/storedFileWorkingCopy.js";
+import { Event } from '../../../../../base/common/event.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { IStoredFileWorkingCopyModel, IStoredFileWorkingCopyModelContentChangedEvent, IStoredFileWorkingCopyModelFactory } from '../../common/storedFileWorkingCopy.js';
+import { VSBufferReadableStream } from '../../../../../base/common/buffer.js';
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IFileStatWithMetadata, IWriteFileOptions } from '../../../../../platform/files/common/files.js';
+import { SnapshotContext } from '../../common/fileWorkingCopy.js';
 export declare class TestStoredFileWorkingCopyModel extends Disposable implements IStoredFileWorkingCopyModel {
     readonly resource: URI;
     contents: string;

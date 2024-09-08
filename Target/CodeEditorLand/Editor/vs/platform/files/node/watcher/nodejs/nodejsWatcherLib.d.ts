@@ -1,7 +1,7 @@
-import { type CancellationToken } from "../../../../../base/common/cancellation.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { type IFileChange } from "../../../common/files.js";
-import { type ILogMessage, type INonRecursiveWatchRequest, type IRecursiveWatcherWithSubscribe } from "../../../common/watcher.js";
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IFileChange } from '../../../common/files.js';
+import { ILogMessage, INonRecursiveWatchRequest, IRecursiveWatcherWithSubscribe } from '../../../common/watcher.js';
 export declare class NodeJSFileWatcherLibrary extends Disposable {
     private readonly request;
     private readonly recursiveWatcher;

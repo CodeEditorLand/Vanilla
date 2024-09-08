@@ -1,10 +1,10 @@
-import { type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import type { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import type { ILogService } from "../../log/common/log.js";
-import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { type ISyncResourceHandle, type IUserDataManualSyncTask, type IUserDataSyncResource, type IUserDataSyncResourceConflicts, type IUserDataSyncResourceError, type IUserDataSyncService, type IUserDataSyncTask, type SyncResource, SyncStatus } from "./userDataSync.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IChannel, IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { ILogService } from '../../log/common/log.js';
+import { IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
+import { IUserDataManualSyncTask, IUserDataSyncResourceConflicts, IUserDataSyncResourceError, IUserDataSyncResource, ISyncResourceHandle, IUserDataSyncTask, IUserDataSyncService, SyncResource, SyncStatus } from './userDataSync.js';
 export declare class UserDataSyncServiceChannel implements IServerChannel {
     private readonly service;
     private readonly userDataProfilesService;

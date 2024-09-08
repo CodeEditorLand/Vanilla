@@ -1,9 +1,9 @@
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { type ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IPreferencesService, type ISetting } from "../../../services/preferences/common/preferences.js";
-import { type SettingsEditorModel } from "../../../services/preferences/common/preferencesModels.js";
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IPreferencesService, ISetting } from '../../../services/preferences/common/preferences.js';
+import { SettingsEditorModel } from '../../../services/preferences/common/preferencesModels.js';
 export interface IPreferencesRenderer extends IDisposable {
     render(): void;
     updatePreference(key: string, value: any, source: ISetting): void;

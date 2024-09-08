@@ -1,15 +1,15 @@
-import type { IMouseEvent } from "../../../../base/browser/mouseEvent.js";
-import { type ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { Position } from "../../../../editor/common/core/position.js";
-import { ILanguageFeatureDebounceService } from "../../../../editor/common/services/languageFeatureDebounce.js";
-import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IHostService } from "../../../services/host/browser/host.js";
-import { IDebugService, type IDebugEditorContribution } from "../common/debug.js";
+import { IMouseEvent } from '../../../../base/browser/mouseEvent.js';
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { Position } from '../../../../editor/common/core/position.js';
+import { ILanguageFeatureDebounceService } from '../../../../editor/common/services/languageFeatureDebounce.js';
+import { ILanguageFeaturesService } from '../../../../editor/common/services/languageFeatures.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IDebugEditorContribution, IDebugService } from '../common/debug.js';
+import { IHostService } from '../../../services/host/browser/host.js';
 export declare const debugInlineForeground: string;
 export declare const debugInlineBackground: string;
 export declare class DebugEditorContribution implements IDebugEditorContribution {

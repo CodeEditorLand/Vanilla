@@ -1,13 +1,13 @@
-import type { Terminal } from "@xterm/xterm";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IAccessibleViewService, NavigationType } from "../../../../../platform/accessibility/browser/accessibleView.js";
-import { IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ITerminalService, type ITerminalContribution, type ITerminalInstance, type IXtermTerminal } from "../../../terminal/browser/terminal.js";
-import type { TerminalWidgetManager } from "../../../terminal/browser/widgets/widgetManager.js";
-import type { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { ITerminalContribution, ITerminalInstance, ITerminalService, IXtermTerminal } from '../../../terminal/browser/terminal.js';
+import { TerminalWidgetManager } from '../../../terminal/browser/widgets/widgetManager.js';
+import { ITerminalProcessManager } from '../../../terminal/common/terminal.js';
+import type { Terminal } from '@xterm/xterm';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IAccessibilitySignalService } from '../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
+import { IAccessibleViewService, NavigationType } from '../../../../../platform/accessibility/browser/accessibleView.js';
 export declare class TerminalAccessibleViewContribution extends Disposable implements ITerminalContribution {
     private readonly _instance;
     private readonly _accessibleViewService;
@@ -34,6 +34,6 @@ export declare class TerminalAccessibleViewContribution extends Disposable imple
     private _getEditorLineForCommand;
 }
 export declare class TerminalAccessibilityHelpContribution extends Disposable {
-    static ID: "terminalAccessibilityHelpContribution";
+    static ID: 'terminalAccessibilityHelpContribution';
     constructor();
 }

@@ -1,5 +1,5 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
 export interface IAccessibleViewInformationService {
     _serviceBrand: undefined;
     hasShownAccessibleView(viewId: string): boolean;

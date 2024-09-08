@@ -1,12 +1,12 @@
-import type { IDimension } from "../../../../base/browser/dom.js";
-import type { Direction } from "../../../../base/browser/ui/grid/grid.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import type { Part } from "../../../browser/part.js";
+import { Event } from '../../../../base/common/event.js';
+import { ILayoutService } from '../../../../platform/layout/browser/layoutService.js';
+import { Part } from '../../../browser/part.js';
+import { IDimension } from '../../../../base/browser/dom.js';
+import { Direction } from '../../../../base/browser/ui/grid/grid.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
 export declare const IWorkbenchLayoutService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkbenchLayoutService>;
-export declare enum Parts {
+export declare const enum Parts {
     TITLEBAR_PART = "workbench.parts.titlebar",
     BANNER_PART = "workbench.parts.banner",
     ACTIVITYBAR_PART = "workbench.parts.activitybar",
@@ -16,7 +16,7 @@ export declare enum Parts {
     EDITOR_PART = "workbench.parts.editor",
     STATUSBAR_PART = "workbench.parts.statusbar"
 }
-export declare enum ZenModeSettings {
+export declare const enum ZenModeSettings {
     SHOW_TABS = "zenMode.showTabs",
     HIDE_LINENUMBERS = "zenMode.hideLineNumbers",
     HIDE_STATUSBAR = "zenMode.hideStatusBar",
@@ -26,42 +26,42 @@ export declare enum ZenModeSettings {
     RESTORE = "zenMode.restore",
     SILENT_NOTIFICATIONS = "zenMode.silentNotifications"
 }
-export declare enum LayoutSettings {
+export declare const enum LayoutSettings {
     ACTIVITY_BAR_LOCATION = "workbench.activityBar.location",
     EDITOR_TABS_MODE = "workbench.editor.showTabs",
     EDITOR_ACTIONS_LOCATION = "workbench.editor.editorActionsLocation",
     COMMAND_CENTER = "window.commandCenter",
     LAYOUT_ACTIONS = "workbench.layoutControl.enabled"
 }
-export declare enum ActivityBarPosition {
+export declare const enum ActivityBarPosition {
     DEFAULT = "default",
     TOP = "top",
     BOTTOM = "bottom",
     HIDDEN = "hidden"
 }
-export declare enum EditorTabsMode {
+export declare const enum EditorTabsMode {
     MULTIPLE = "multiple",
     SINGLE = "single",
     NONE = "none"
 }
-export declare enum EditorActionsLocation {
+export declare const enum EditorActionsLocation {
     DEFAULT = "default",
     TITLEBAR = "titleBar",
     HIDDEN = "hidden"
 }
-export declare enum Position {
+export declare const enum Position {
     LEFT = 0,
     RIGHT = 1,
     BOTTOM = 2,
     TOP = 3
 }
 export declare function isHorizontal(position: Position): boolean;
-export declare enum PanelOpensMaximizedOptions {
+export declare const enum PanelOpensMaximizedOptions {
     ALWAYS = 0,
     NEVER = 1,
     REMEMBER_LAST = 2
 }
-export type PanelAlignment = "left" | "center" | "right" | "justify";
+export type PanelAlignment = 'left' | 'center' | 'right' | 'justify';
 export declare function positionToString(position: Position): string;
 export declare function positionFromString(str: string): Position;
 export declare function panelOpensMaximizedFromString(str: string): PanelOpensMaximizedOptions;

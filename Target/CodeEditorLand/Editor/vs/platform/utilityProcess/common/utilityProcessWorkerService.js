@@ -1,4 +1,1 @@
-const ipcUtilityProcessWorkerChannelName = "utilityProcessWorker";
-export {
-  ipcUtilityProcessWorkerChannelName
-};
+const r="utilityProcessWorker";export{r as ipcUtilityProcessWorkerChannelName};

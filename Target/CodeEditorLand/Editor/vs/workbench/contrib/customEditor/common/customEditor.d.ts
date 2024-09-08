@@ -1,10 +1,10 @@
-import type { Event } from "../../../../base/common/event.js";
-import type { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import type { IDisposable, IReference } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IRevertOptions, ISaveOptions } from "../../../common/editor.js";
-import { RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+import { Event } from '../../../../base/common/event.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { IDisposable, IReference } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IRevertOptions, ISaveOptions } from '../../../common/editor.js';
+import { RegisteredEditorPriority } from '../../../services/editor/common/editorResolverService.js';
 export declare const ICustomEditorService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ICustomEditorService>;
 export declare const CONTEXT_ACTIVE_CUSTOM_EDITOR_ID: RawContextKey<string>;
 export declare const CONTEXT_FOCUSED_CUSTOM_EDITOR_IS_EDITABLE: RawContextKey<boolean>;
@@ -43,7 +43,7 @@ export interface ICustomEditorModel extends IDisposable {
     saveCustomEditor(options?: ISaveOptions): Promise<URI | undefined>;
     saveCustomEditorAs(resource: URI, targetResource: URI, currentOptions?: ISaveOptions): Promise<boolean>;
 }
-export declare enum CustomEditorPriority {
+export declare const enum CustomEditorPriority {
     default = "default",
     builtin = "builtin",
     option = "option"

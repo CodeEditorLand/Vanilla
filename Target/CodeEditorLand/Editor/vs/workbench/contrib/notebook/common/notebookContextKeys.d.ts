@@ -1,4 +1,4 @@
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 export declare const HAS_OPENED_NOTEBOOK: RawContextKey<boolean>;
 export declare const KEYBINDING_CONTEXT_NOTEBOOK_FIND_WIDGET_FOCUSED: RawContextKey<boolean>;
 export declare const InteractiveWindowOpen: RawContextKey<boolean>;
@@ -24,7 +24,7 @@ export declare const NOTEBOOK_CELL_FOCUSED: RawContextKey<boolean>;
 export declare const NOTEBOOK_CELL_EDITOR_FOCUSED: RawContextKey<boolean>;
 export declare const NOTEBOOK_CELL_MARKDOWN_EDIT_MODE: RawContextKey<boolean>;
 export declare const NOTEBOOK_CELL_LINE_NUMBERS: RawContextKey<"on" | "off" | "inherit">;
-export type NotebookCellExecutionStateContext = "idle" | "pending" | "executing" | "succeeded" | "failed";
+export type NotebookCellExecutionStateContext = 'idle' | 'pending' | 'executing' | 'succeeded' | 'failed';
 export declare const NOTEBOOK_CELL_EXECUTION_STATE: RawContextKey<NotebookCellExecutionStateContext>;
 export declare const NOTEBOOK_CELL_EXECUTING: RawContextKey<boolean>;
 export declare const NOTEBOOK_CELL_HAS_OUTPUTS: RawContextKey<boolean>;

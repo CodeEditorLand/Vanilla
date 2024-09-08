@@ -1,9 +1,9 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { ViewContext } from "../../common/viewModel/viewContext.js";
-import { type IMouseTarget } from "../editorBrowser.js";
-import { EditorMouseEvent } from "../editorDom.js";
-import type { ViewController } from "../view/viewController.js";
-import { type IPointerHandlerHelper, MouseHandler } from "./mouseHandler.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IPointerHandlerHelper, MouseHandler } from './mouseHandler.js';
+import { IMouseTarget } from '../editorBrowser.js';
+import { EditorMouseEvent } from '../editorDom.js';
+import { ViewController } from '../view/viewController.js';
+import { ViewContext } from '../../common/viewModel/viewContext.js';
 /**
  * Currently only tested on iOS 13/ iPadOS.
  */

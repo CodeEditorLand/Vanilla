@@ -1,10 +1,10 @@
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkbenchExtensionManagementService } from "../../../services/extensionManagement/common/extensionManagement.js";
-import { IWorkspaceExtensionsConfigService } from "../../../services/extensionRecommendations/common/workspaceExtensionsConfig.js";
-import { ExtensionRecommendations, type ExtensionRecommendation } from "./extensionRecommendations.js";
+import { ExtensionRecommendations, ExtensionRecommendation } from './extensionRecommendations.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IWorkspaceExtensionsConfigService } from '../../../services/extensionRecommendations/common/workspaceExtensionsConfig.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IWorkbenchExtensionManagementService } from '../../../services/extensionManagement/common/extensionManagement.js';
 export declare class WorkspaceRecommendations extends ExtensionRecommendations {
     private readonly workspaceExtensionsConfigService;
     private readonly contextService;

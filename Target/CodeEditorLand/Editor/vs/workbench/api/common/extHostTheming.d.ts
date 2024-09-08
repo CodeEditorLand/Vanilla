@@ -1,7 +1,7 @@
-import { type Event } from "../../../base/common/event.js";
-import type { ExtHostThemingShape } from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
-import { ColorTheme } from "./extHostTypes.js";
+import { ColorTheme } from './extHostTypes.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { ExtHostThemingShape } from './extHost.protocol.js';
+import { Event } from '../../../base/common/event.js';
 export declare class ExtHostTheming implements ExtHostThemingShape {
     readonly _serviceBrand: undefined;
     private _actual;

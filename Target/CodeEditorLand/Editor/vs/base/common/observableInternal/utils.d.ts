@@ -1,8 +1,8 @@
-import { type EqualityComparer } from "../equals.js";
-import { Event, type IValueWithChangeEvent } from "../event.js";
-import { DisposableStore, type IDisposable } from "../lifecycle.js";
-import { BaseObservable, type IObservable, type IObserver, type IReader, type ITransaction } from "./base.js";
-import { DebugNameData, type DebugOwner, type IDebugNameData } from "./debugName.js";
+import { Event, IValueWithChangeEvent } from '../event.js';
+import { DisposableStore, IDisposable } from '../lifecycle.js';
+import { BaseObservable, IObservable, IObserver, IReader, ITransaction } from './base.js';
+import { DebugNameData, IDebugNameData, DebugOwner } from './debugName.js';
+import { EqualityComparer } from '../equals.js';
 /**
  * Represents an efficient observable whose value never changes.
  */
@@ -96,13 +96,13 @@ export declare function observableFromValueWithChangeEvent<T>(owner: DebugOwner,
  * Initially (and when not observed), it has the value of the last observable.
  * When observed and any of the observables change, it has the value of the last changed observable.
  * If multiple observables change in the same transaction, the last observable wins.
- */
-export declare function latestChangedValue<T extends IObservable<any>[]>(owner: DebugOwner, observables: T): IObservable<ReturnType<T[number]["get"]>>;
+*/
+export declare function latestChangedValue<T extends IObservable<any>[]>(owner: DebugOwner, observables: T): IObservable<ReturnType<T[number]['get']>>;
 /**
  * Works like a derived.
  * However, if the value is not undefined, it is cached and will not be recomputed anymore.
  * In that case, the derived will unsubscribe from its dependencies.
- */
+*/
 export declare function derivedConstOnceDefined<T>(owner: DebugOwner, fn: (reader: IReader) => T): IObservable<T | undefined>;
 type RemoveUndefined<T> = T extends undefined ? never : T;
 export declare function runOnChange<T, TChange>(observable: IObservable<T, TChange>, cb: (value: T, deltas: RemoveUndefined<TChange>[]) => void): IDisposable;

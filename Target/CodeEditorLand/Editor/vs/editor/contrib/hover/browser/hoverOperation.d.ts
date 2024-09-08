@@ -1,7 +1,7 @@
-import { type AsyncIterableObject } from "../../../../base/common/async.js";
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { AsyncIterableObject } from '../../../../base/common/async.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
 export interface IHoverComputer<TArgs, TResult> {
     /**
      * This is called after half the hover time
@@ -12,11 +12,11 @@ export interface IHoverComputer<TArgs, TResult> {
      */
     computeSync?: (args: TArgs) => TResult[];
 }
-export declare enum HoverStartMode {
+export declare const enum HoverStartMode {
     Delayed = 0,
     Immediate = 1
 }
-export declare enum HoverStartSource {
+export declare const enum HoverStartSource {
     Mouse = 0,
     Keyboard = 1
 }

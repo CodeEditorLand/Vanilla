@@ -1,14 +1,14 @@
-import type { IStringDictionary } from "../../../base/common/collections.js";
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../base/common/map.js";
-import type { IExtUri } from "../../../base/common/resources.js";
-import { URI } from "../../../base/common/uri.js";
-import { type IFileService } from "../../files/common/files.js";
-import type { ILogService } from "../../log/common/log.js";
-import type { Workspace } from "../../workspace/common/workspace.js";
-import { type ConfigurationTarget, type IConfigurationChange, type IConfigurationChangeEvent, type IConfigurationData, type IConfigurationModel, type IConfigurationOverrides, type IConfigurationUpdateOverrides, type IConfigurationValue, type IInspectValue, type IOverrides } from "./configuration.js";
-import { ConfigurationScope } from "./configurationRegistry.js";
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { Emitter, Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { ResourceMap } from '../../../base/common/map.js';
+import { IExtUri } from '../../../base/common/resources.js';
+import { URI } from '../../../base/common/uri.js';
+import { ConfigurationTarget, IConfigurationChange, IConfigurationChangeEvent, IConfigurationData, IConfigurationModel, IConfigurationOverrides, IConfigurationUpdateOverrides, IConfigurationValue, IInspectValue, IOverrides } from './configuration.js';
+import { ConfigurationScope } from './configurationRegistry.js';
+import { IFileService } from '../../files/common/files.js';
+import { ILogService } from '../../log/common/log.js';
+import { Workspace } from '../../workspace/common/workspace.js';
 type InspectValue<V> = IInspectValue<V> & {
     merged?: V;
 };

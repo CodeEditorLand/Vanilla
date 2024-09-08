@@ -1,48 +1,48 @@
-import "./media/extensionActions.css";
-import type { IContextMenuProvider } from "../../../../base/browser/contextmenu.js";
-import { ActionViewItem, type IActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import { ActionWithDropdownActionViewItem, type IActionWithDropdownActionViewItemOptions } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
-import { Action, type IAction, type IActionChangeEvent } from "../../../../base/common/actions.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { type IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IExtensionGalleryService, InstallOperation, type InstallOptions } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { type IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IProgressService } from "../../../../platform/progress/common/progress.js";
-import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IUpdateService } from "../../../../platform/update/common/update.js";
-import { IUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSync.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkspaceTrustEnablementService, IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
-import { IJSONEditingService } from "../../../services/configuration/common/jsonEditing.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IExtensionFeaturesManagementService } from "../../../services/extensionManagement/common/extensionFeatures.js";
-import { IExtensionManagementServerService, IWorkbenchExtensionEnablementService, IWorkbenchExtensionManagementService, type IExtensionManagementServer } from "../../../services/extensionManagement/common/extensionManagement.js";
-import { IExtensionIgnoredRecommendationsService } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
-import { IExtensionManifestPropertiesService } from "../../../services/extensions/common/extensionManifestPropertiesService.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { IHostService } from "../../../services/host/browser/host.js";
-import { ILocaleService } from "../../../services/localization/common/locale.js";
-import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
-import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
-import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import { IWorkbenchThemeService } from "../../../services/themes/common/workbenchThemeService.js";
-import { IExtensionsWorkbenchService, type IExtension, type IExtensionContainer } from "../common/extensions.js";
+import './media/extensionActions.css';
+import { IAction, Action, IActionChangeEvent } from '../../../../base/common/actions.js';
+import { Emitter, Event } from '../../../../base/common/event.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IExtension, IExtensionsWorkbenchService, IExtensionContainer } from '../common/extensions.js';
+import { IExtensionGalleryService, InstallOptions, InstallOperation } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { IWorkbenchExtensionEnablementService, IExtensionManagementServerService, IExtensionManagementServer, IWorkbenchExtensionManagementService } from '../../../services/extensionManagement/common/extensionManagement.js';
+import { IExtensionIgnoredRecommendationsService } from '../../../services/extensionRecommendations/common/extensionRecommendations.js';
+import { IExtensionManifest } from '../../../../platform/extensions/common/extensions.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IHostService } from '../../../services/host/browser/host.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { IJSONEditingService } from '../../../services/configuration/common/jsonEditing.js';
+import { ITextModelService } from '../../../../editor/common/services/resolverService.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
+import { IWorkbenchThemeService } from '../../../services/themes/common/workbenchThemeService.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { ITextFileService } from '../../../services/textfile/common/textfiles.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IProgressService } from '../../../../platform/progress/common/progress.js';
+import { IActionViewItemOptions, ActionViewItem } from '../../../../base/browser/ui/actionbar/actionViewItems.js';
+import { IUserDataSyncEnablementService } from '../../../../platform/userDataSync/common/userDataSync.js';
+import { IContextMenuProvider } from '../../../../base/browser/contextmenu.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IExtensionManifestPropertiesService } from '../../../services/extensions/common/extensionManifestPropertiesService.js';
+import { IWorkspaceTrustEnablementService, IWorkspaceTrustManagementService } from '../../../../platform/workspace/common/workspaceTrust.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { IPaneCompositePartService } from '../../../services/panecomposite/browser/panecomposite.js';
+import { IPreferencesService } from '../../../services/preferences/common/preferences.js';
+import { ILocaleService } from '../../../services/localization/common/locale.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IExtensionFeaturesManagementService } from '../../../services/extensionManagement/common/extensionFeatures.js';
+import { IUpdateService } from '../../../../platform/update/common/update.js';
+import { ActionWithDropdownActionViewItem, IActionWithDropdownActionViewItemOptions } from '../../../../base/browser/ui/dropdown/dropdownActionViewItem.js';
 export declare class PromptExtensionInstallFailureAction extends Action {
     private readonly extension;
     private readonly version;
@@ -228,7 +228,7 @@ export declare abstract class DropDownExtensionAction extends ExtensionAction {
     constructor(id: string, label: string, cssClass: string, enabled: boolean, instantiationService: IInstantiationService);
     private _actionViewItem;
     createActionViewItem(options: IActionViewItemOptions): DropDownExtensionActionViewItem;
-    run({ actionGroups, disposeActionsOnHide, }: {
+    run({ actionGroups, disposeActionsOnHide }: {
         actionGroups: IAction[][];
         disposeActionsOnHide: boolean;
     }): Promise<any>;
@@ -360,7 +360,7 @@ export declare class SetColorThemeAction extends ExtensionAction {
     constructor(extensionService: IExtensionService, workbenchThemeService: IWorkbenchThemeService, quickInputService: IQuickInputService, extensionEnablementService: IWorkbenchExtensionEnablementService);
     update(): void;
     private computeEnablement;
-    run({ showCurrentTheme, ignoreFocusLost, }?: {
+    run({ showCurrentTheme, ignoreFocusLost }?: {
         showCurrentTheme: boolean;
         ignoreFocusLost: boolean;
     }): Promise<any>;
@@ -376,7 +376,7 @@ export declare class SetFileIconThemeAction extends ExtensionAction {
     constructor(extensionService: IExtensionService, workbenchThemeService: IWorkbenchThemeService, quickInputService: IQuickInputService, extensionEnablementService: IWorkbenchExtensionEnablementService);
     update(): void;
     private computeEnablement;
-    run({ showCurrentTheme, ignoreFocusLost, }?: {
+    run({ showCurrentTheme, ignoreFocusLost }?: {
         showCurrentTheme: boolean;
         ignoreFocusLost: boolean;
     }): Promise<any>;
@@ -392,7 +392,7 @@ export declare class SetProductIconThemeAction extends ExtensionAction {
     constructor(extensionService: IExtensionService, workbenchThemeService: IWorkbenchThemeService, quickInputService: IQuickInputService, extensionEnablementService: IWorkbenchExtensionEnablementService);
     update(): void;
     private computeEnablement;
-    run({ showCurrentTheme, ignoreFocusLost, }?: {
+    run({ showCurrentTheme, ignoreFocusLost }?: {
         showCurrentTheme: boolean;
         ignoreFocusLost: boolean;
     }): Promise<any>;

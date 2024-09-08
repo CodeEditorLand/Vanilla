@@ -1,13 +1,13 @@
-import type { Dimension } from "../../../../base/browser/dom.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { type ICodeEditorWidgetOptions } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
-import type { IEditorOptions as ICodeEditorOptions } from "../../../../editor/common/config/editorOptions.js";
-import { type IEditorViewState } from "../../../../editor/common/editorCommon.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import type { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
-import type { ITextEditorPane } from "../../../common/editor.js";
-import { AbstractTextEditor } from "./textEditor.js";
+import { URI } from '../../../../base/common/uri.js';
+import { ITextEditorPane } from '../../../common/editor.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { ITextEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { IEditorOptions as ICodeEditorOptions } from '../../../../editor/common/config/editorOptions.js';
+import { ICodeEditorWidgetOptions } from '../../../../editor/browser/widget/codeEditor/codeEditorWidget.js';
+import { IEditorViewState } from '../../../../editor/common/editorCommon.js';
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { AbstractTextEditor } from './textEditor.js';
+import { Dimension } from '../../../../base/browser/dom.js';
 /**
  * A text editor using the code editor widget.
  */

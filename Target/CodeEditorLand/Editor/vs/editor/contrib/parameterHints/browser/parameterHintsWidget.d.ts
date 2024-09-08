@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import "./parameterHints.css";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { type ICodeEditor, type IContentWidget, type IContentWidgetPosition } from "../../../browser/editorBrowser.js";
-import type * as languages from "../../../common/languages.js";
-import { ILanguageService } from "../../../common/languages/language.js";
-import type { ParameterHintsModel } from "./parameterHintsModel.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import './parameterHints.css';
+import { ICodeEditor, IContentWidget, IContentWidgetPosition } from '../../../browser/editorBrowser.js';
+import * as languages from '../../../common/languages.js';
+import { ILanguageService } from '../../../common/languages/language.js';
+import { ParameterHintsModel } from './parameterHintsModel.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
 export declare class ParameterHintsWidget extends Disposable implements IContentWidget {
     private readonly editor;
     private readonly model;

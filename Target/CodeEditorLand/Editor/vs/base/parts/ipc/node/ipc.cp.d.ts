@@ -1,7 +1,7 @@
-import { CancellationToken } from "../../../common/cancellation.js";
-import { Event } from "../../../common/event.js";
-import { type IDisposable } from "../../../common/lifecycle.js";
-import { type IChannel, type IChannelClient, ChannelServer as IPCServer } from "../common/ipc.js";
+import { CancellationToken } from '../../../common/cancellation.js';
+import { Event } from '../../../common/event.js';
+import { IDisposable } from '../../../common/lifecycle.js';
+import { ChannelServer as IPCServer, IChannel, IChannelClient } from '../common/ipc.js';
 /**
  * This implementation doesn't perform well since it uses base64 encoding for buffers.
  * We should move all implementations to use named ipc.net, so we stop depending on cp.fork.

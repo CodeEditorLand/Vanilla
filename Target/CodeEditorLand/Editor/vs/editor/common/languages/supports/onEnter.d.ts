@@ -1,5 +1,5 @@
-import { EditorAutoIndentStrategy } from "../../config/editorOptions.js";
-import { type CharacterPair, type EnterAction, type OnEnterRule } from "../languageConfiguration.js";
+import { CharacterPair, EnterAction, OnEnterRule } from '../languageConfiguration.js';
+import { EditorAutoIndentStrategy } from '../../config/editorOptions.js';
 export interface IOnEnterSupportOptions {
     brackets?: CharacterPair[];
     onEnterRules?: OnEnterRule[];

@@ -1,18 +1,1 @@
-import * as assert from "assert";
-import { isPointWithinTriangle } from "../../common/numbers.js";
-import { ensureNoDisposablesAreLeakedInTestSuite } from "./utils.js";
-suite("isPointWithinTriangle", () => {
-  ensureNoDisposablesAreLeakedInTestSuite();
-  test("should return true if the point is within the triangle", () => {
-    const result = isPointWithinTriangle(0.25, 0.25, 0, 0, 1, 0, 0, 1);
-    assert.ok(result);
-  });
-  test("should return false if the point is outside the triangle", () => {
-    const result = isPointWithinTriangle(2, 2, 0, 0, 1, 0, 0, 1);
-    assert.ok(!result);
-  });
-  test("should return true if the point is on the edge of the triangle", () => {
-    const result = isPointWithinTriangle(0.5, 0, 0, 0, 1, 0, 0, 1);
-    assert.ok(result);
-  });
-});
+import*as e from"assert";import{isPointWithinTriangle as i}from"../../common/numbers.js";import{ensureNoDisposablesAreLeakedInTestSuite as s}from"./utils.js";suite("isPointWithinTriangle",()=>{s(),test("should return true if the point is within the triangle",()=>{const t=i(.25,.25,0,0,1,0,0,1);e.ok(t)}),test("should return false if the point is outside the triangle",()=>{const t=i(2,2,0,0,1,0,0,1);e.ok(!t)}),test("should return true if the point is on the edge of the triangle",()=>{const t=i(.5,0,0,0,1,0,0,1);e.ok(t)})});

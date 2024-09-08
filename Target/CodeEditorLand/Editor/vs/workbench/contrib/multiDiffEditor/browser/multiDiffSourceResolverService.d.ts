@@ -1,7 +1,7 @@
-import type { IValueWithChangeEvent } from "../../../../base/common/event.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { ContextKeyValue } from "../../../../platform/contextkey/common/contextkey.js";
+import { IValueWithChangeEvent } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ContextKeyValue } from '../../../../platform/contextkey/common/contextkey.js';
 export declare const IMultiDiffSourceResolverService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IMultiDiffSourceResolverService>;
 export interface IMultiDiffSourceResolverService {
     readonly _serviceBrand: undefined;

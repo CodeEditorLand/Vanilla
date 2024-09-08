@@ -1,4 +1,4 @@
-import type { IConfigurationPropertySchema } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IConfigurationPropertySchema } from '../../../../platform/configuration/common/configurationRegistry.js';
 export declare enum ViewsWelcomeExtensionPointFields {
     view = "view",
     contents = "contents",

@@ -1,8 +1,8 @@
-import { Disposable, type IDisposable } from "../../../../../base/common/lifecycle.js";
-import { type IObservable } from "../../../../../base/common/observable.js";
-import type { ICodeEditor, IViewZoneChangeAccessor } from "../../../../../editor/browser/editorBrowser.js";
-import { type ModifiedBaseRange } from "../model/modifiedBaseRange.js";
-import type { MergeEditorViewModel } from "./viewModel.js";
+import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../../base/common/observable.js';
+import { ICodeEditor, IViewZoneChangeAccessor } from '../../../../../editor/browser/editorBrowser.js';
+import { ModifiedBaseRange } from '../model/modifiedBaseRange.js';
+import { MergeEditorViewModel } from './viewModel.js';
 export declare class ConflictActionsFactory extends Disposable {
     private readonly _editor;
     private readonly _styleClassName;

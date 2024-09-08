@@ -1,5 +1,5 @@
-import { type CancellationToken } from "./cancellation.js";
-import type { IDisposable } from "./lifecycle.js";
+import { CancellationToken } from './cancellation.js';
+import { IDisposable } from './lifecycle.js';
 export interface CacheResult<T> extends IDisposable {
     promise: Promise<T>;
 }
@@ -14,13 +14,13 @@ interface ICacheOptions<TArg> {
     /**
      * The cache key is used to identify the cache entry.
      * Strict equality is used to compare cache keys.
-     */
+    */
     getCacheKey: (arg: TArg) => unknown;
 }
 /**
  * Uses a LRU cache to make a given parametrized function cached.
  * Caches just the last key/value.
- */
+*/
 export declare class LRUCachedFunction<TArg, TComputed> {
     private lastCache;
     private lastArgKey;
@@ -32,7 +32,7 @@ export declare class LRUCachedFunction<TArg, TComputed> {
 }
 /**
  * Uses an unbounded cache to memoize the results of the given function.
- */
+*/
 export declare class CachedFunction<TArg, TComputed> {
     private readonly _map;
     private readonly _map2;

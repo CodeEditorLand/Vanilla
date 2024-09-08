@@ -1,13 +1,13 @@
-import { type IAction } from "../../../../../../base/common/actions.js";
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { type IObservable, type ITransaction } from "../../../../../../base/common/observable.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { InputState, type ModifiedBaseRange } from "../../model/modifiedBaseRange.js";
-import { type IGutterItemInfo, type IGutterItemView } from "../editorGutter.js";
-import type { MergeEditorViewModel } from "../viewModel.js";
-import { CodeEditorView } from "./codeEditorView.js";
+import { IAction } from '../../../../../../base/common/actions.js';
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { IObservable, ITransaction } from '../../../../../../base/common/observable.js';
+import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
+import { IContextMenuService } from '../../../../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
+import { InputState, ModifiedBaseRange } from '../../model/modifiedBaseRange.js';
+import { MergeEditorViewModel } from '../viewModel.js';
+import { IGutterItemInfo, IGutterItemView } from '../editorGutter.js';
+import { CodeEditorView } from './codeEditorView.js';
 export declare class InputCodeEditorView extends CodeEditorView {
     readonly inputNumber: 1 | 2;
     readonly otherInputNumber: number;

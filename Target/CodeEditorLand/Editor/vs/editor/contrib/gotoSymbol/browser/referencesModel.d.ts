@@ -1,11 +1,11 @@
-import { Emitter, type Event } from "../../../../base/common/event.js";
-import type { IMatch } from "../../../../base/common/filters.js";
-import { type IDisposable, type IReference } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { Position } from "../../../common/core/position.js";
-import { type IRange } from "../../../common/core/range.js";
-import type { LocationLink } from "../../../common/languages.js";
-import type { ITextEditorModel, ITextModelService } from "../../../common/services/resolverService.js";
+import { Emitter, Event } from '../../../../base/common/event.js';
+import { IMatch } from '../../../../base/common/filters.js';
+import { IDisposable, IReference } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { Position } from '../../../common/core/position.js';
+import { IRange } from '../../../common/core/range.js';
+import { LocationLink } from '../../../common/languages.js';
+import { ITextEditorModel, ITextModelService } from '../../../common/services/resolverService.js';
 export declare class OneReference {
     readonly isProviderFirst: boolean;
     readonly parent: FileReferences;

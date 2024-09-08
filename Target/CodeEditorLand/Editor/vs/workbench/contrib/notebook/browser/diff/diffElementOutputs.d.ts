@@ -1,11 +1,11 @@
-import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
-import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
-import type { NotebookTextModel } from "../../common/model/notebookTextModel.js";
-import { INotebookService } from "../../common/notebookService.js";
-import { type ICellOutputViewModel, type IInsetRenderOutput } from "../notebookBrowser.js";
-import { type DiffElementCellViewModelBase } from "./diffElementViewModel.js";
-import type { DiffNestedCellViewModel } from "./diffNestedCellViewModel.js";
-import { DiffSide, type INotebookTextDiffEditor } from "./notebookDiffEditorBrowser.js";
+import { Disposable, DisposableStore } from '../../../../../base/common/lifecycle.js';
+import { DiffElementCellViewModelBase } from './diffElementViewModel.js';
+import { DiffSide, INotebookTextDiffEditor } from './notebookDiffEditorBrowser.js';
+import { ICellOutputViewModel, IInsetRenderOutput } from '../notebookBrowser.js';
+import { NotebookTextModel } from '../../common/model/notebookTextModel.js';
+import { INotebookService } from '../../common/notebookService.js';
+import { DiffNestedCellViewModel } from './diffNestedCellViewModel.js';
+import { IQuickInputService } from '../../../../../platform/quickinput/common/quickInput.js';
 export declare class OutputElement extends Disposable {
     private _notebookEditor;
     private _notebookTextModel;

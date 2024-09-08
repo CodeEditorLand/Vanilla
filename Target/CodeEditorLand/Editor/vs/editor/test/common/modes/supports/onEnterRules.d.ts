@@ -1,4 +1,4 @@
-import { IndentAction } from "../../../../common/languages/languageConfiguration.js";
+import { IndentAction } from '../../../../common/languages/languageConfiguration.js';
 export declare const javascriptOnEnterRules: ({
     beforeText: RegExp;
     afterText: RegExp;

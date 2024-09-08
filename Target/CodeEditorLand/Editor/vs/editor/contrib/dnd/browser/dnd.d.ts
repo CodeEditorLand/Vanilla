@@ -1,9 +1,9 @@
-import { KeyCode } from "../../../../base/common/keyCodes.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import "./dnd.css";
-import { type ICodeEditor } from "../../../browser/editorBrowser.js";
-import { Position } from "../../../common/core/position.js";
-import { type IEditorContribution } from "../../../common/editorCommon.js";
+import { KeyCode } from '../../../../base/common/keyCodes.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import './dnd.css';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { Position } from '../../../common/core/position.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
 export declare class DragAndDropController extends Disposable implements IEditorContribution {
     static readonly ID = "editor.contrib.dragAndDrop";
     private readonly _editor;

@@ -1,6 +1,6 @@
-import { type ColorId, type ITokenPresentation, type StandardTokenType } from "../../../common/encodedTokenAttributes.js";
-import type { ILanguageIdCodec } from "../../../common/languages.js";
-import type { IViewLineTokens } from "../../../common/tokens/lineTokens.js";
+import { IViewLineTokens } from '../../../common/tokens/lineTokens.js';
+import { ColorId, ITokenPresentation, StandardTokenType } from '../../../common/encodedTokenAttributes.js';
+import { ILanguageIdCodec } from '../../../common/languages.js';
 /**
  * A token on a line.
  */

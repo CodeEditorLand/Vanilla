@@ -1,5 +1,5 @@
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 export declare class WordContextKey {
     private readonly _editor;
     static readonly AtEnd: RawContextKey<boolean>;

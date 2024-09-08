@@ -1,4 +1,4 @@
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 export interface IUserDataInitializer {
     requiresInitialization(): Promise<boolean>;
     whenInitializationFinished(): Promise<void>;

@@ -1,12 +1,12 @@
-import { type UriComponents } from "../../../base/common/uri.js";
-import { ILanguageService } from "../../../editor/common/languages/language.js";
-import { INotebookEditorService } from "../../contrib/notebook/browser/services/notebookEditorService.js";
-import { INotebookExecutionStateService } from "../../contrib/notebook/common/notebookExecutionStateService.js";
-import { INotebookKernelService, type VariablesResult } from "../../contrib/notebook/common/notebookKernelService.js";
-import { INotebookService } from "../../contrib/notebook/common/notebookService.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import type { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
-import { type ICellExecuteUpdateDto, type ICellExecutionCompleteDto, type INotebookKernelDto2, type MainThreadNotebookKernelsShape } from "../common/extHost.protocol.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import { ILanguageService } from '../../../editor/common/languages/language.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { INotebookEditorService } from '../../contrib/notebook/browser/services/notebookEditorService.js';
+import { INotebookExecutionStateService } from '../../contrib/notebook/common/notebookExecutionStateService.js';
+import { INotebookKernelService, VariablesResult } from '../../contrib/notebook/common/notebookKernelService.js';
+import { SerializableObjectWithBuffers } from '../../services/extensions/common/proxyIdentifier.js';
+import { ICellExecuteUpdateDto, ICellExecutionCompleteDto, INotebookKernelDto2, MainThreadNotebookKernelsShape } from '../common/extHost.protocol.js';
+import { INotebookService } from '../../contrib/notebook/common/notebookService.js';
 export declare class MainThreadNotebookKernels implements MainThreadNotebookKernelsShape {
     private readonly _languageService;
     private readonly _notebookKernelService;

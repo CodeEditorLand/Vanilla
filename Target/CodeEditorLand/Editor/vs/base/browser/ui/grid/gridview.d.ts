@@ -1,10 +1,10 @@
-import { Event } from "../../../common/event.js";
-import { type IDisposable } from "../../../common/lifecycle.js";
-import { type IBoundarySashes, Orientation, type Sash } from "../sash/sash.js";
-import { type AutoSizing, type DistributeSizing, type IView as ISplitView, type ISplitViewStyles, LayoutPriority, Sizing } from "../splitview/splitview.js";
-import "./gridview.css";
-export { Orientation } from "../sash/sash.js";
-export { LayoutPriority, Sizing } from "../splitview/splitview.js";
+import { IBoundarySashes, Orientation, Sash } from '../sash/sash.js';
+import { DistributeSizing, ISplitViewStyles, IView as ISplitView, LayoutPriority, Sizing, AutoSizing } from '../splitview/splitview.js';
+import { Event } from '../../../common/event.js';
+import { IDisposable } from '../../../common/lifecycle.js';
+import './gridview.css';
+export { Orientation } from '../sash/sash.js';
+export { LayoutPriority, Sizing } from '../splitview/splitview.js';
 export interface IGridViewStyles extends ISplitViewStyles {
 }
 export interface IViewSize {
@@ -111,14 +111,14 @@ export interface IViewDeserializer<T extends ISerializableView> {
     fromJSON(json: any): T;
 }
 export interface ISerializedLeafNode {
-    type: "leaf";
+    type: 'leaf';
     data: any;
     size: number;
     visible?: boolean;
     maximized?: boolean;
 }
 export interface ISerializedBranchNode {
-    type: "branch";
+    type: 'branch';
     data: ISerializedNode[];
     size: number;
     visible?: boolean;

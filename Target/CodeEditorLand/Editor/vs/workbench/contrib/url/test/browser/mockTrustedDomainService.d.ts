@@ -1,5 +1,5 @@
-import type { URI } from "../../../../../base/common/uri.js";
-import { type ITrustedDomainService } from "../../browser/trustedDomainService.js";
+import { URI } from '../../../../../base/common/uri.js';
+import { ITrustedDomainService } from '../../browser/trustedDomainService.js';
 export declare class MockTrustedDomainService implements ITrustedDomainService {
     private readonly _trustedDomains;
     _serviceBrand: undefined;

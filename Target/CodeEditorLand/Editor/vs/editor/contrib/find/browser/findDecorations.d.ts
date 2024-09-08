@@ -1,9 +1,9 @@
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { IActiveCodeEditor } from "../../../browser/editorBrowser.js";
-import type { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import { type FindMatch } from "../../../common/model.js";
-import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IActiveCodeEditor } from '../../../browser/editorBrowser.js';
+import { Position } from '../../../common/core/position.js';
+import { Range } from '../../../common/core/range.js';
+import { FindMatch } from '../../../common/model.js';
+import { ModelDecorationOptions } from '../../../common/model/textModel.js';
 export declare class FindDecorations implements IDisposable {
     private readonly _editor;
     private _decorations;

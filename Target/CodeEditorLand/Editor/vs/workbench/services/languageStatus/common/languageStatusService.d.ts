@@ -1,11 +1,11 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type Severity from "../../../../base/common/severity.js";
-import type { Command } from "../../../../editor/common/languages.js";
-import type { LanguageSelector } from "../../../../editor/common/languageSelector.js";
-import type { ITextModel } from "../../../../editor/common/model.js";
-import type { IAccessibilityInformation } from "../../../../platform/accessibility/common/accessibility.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import Severity from '../../../../base/common/severity.js';
+import { ITextModel } from '../../../../editor/common/model.js';
+import { Command } from '../../../../editor/common/languages.js';
+import { LanguageSelector } from '../../../../editor/common/languageSelector.js';
+import { IAccessibilityInformation } from '../../../../platform/accessibility/common/accessibility.js';
 export interface ILanguageStatus {
     readonly id: string;
     readonly name: string;

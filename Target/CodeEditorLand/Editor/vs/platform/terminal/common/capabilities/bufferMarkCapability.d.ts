@@ -1,6 +1,6 @@
-import type { IMarker, Terminal } from "@xterm/headless";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { type IBufferMarkCapability, type IMarkProperties, TerminalCapability } from "./capabilities.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IBufferMarkCapability, TerminalCapability, IMarkProperties } from './capabilities.js';
+import type { IMarker, Terminal } from '@xterm/headless';
 /**
  * Manages "marks" in the buffer which are lines that are tracked when lines are added to or removed
  * from the buffer.

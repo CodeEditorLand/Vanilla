@@ -1,13 +1,13 @@
-import "./nativeEditContext.css";
-import { FastDomNode } from "../../../../../base/browser/fastDomNode.js";
-import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { Position } from "../../../../common/core/position.js";
-import type { ViewConfigurationChangedEvent, ViewCursorStateChangedEvent } from "../../../../common/viewEvents.js";
-import type { ViewContext } from "../../../../common/viewModel/viewContext.js";
-import type { RenderingContext, RestrictedRenderingContext } from "../../../view/renderingContext.js";
-import type { ViewController } from "../../../view/viewController.js";
-import { AbstractEditContext } from "../editContextUtils.js";
+import './nativeEditContext.css';
+import { FastDomNode } from '../../../../../base/browser/fastDomNode.js';
+import { IClipboardService } from '../../../../../platform/clipboard/common/clipboardService.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { ViewConfigurationChangedEvent, ViewCursorStateChangedEvent } from '../../../../common/viewEvents.js';
+import { ViewContext } from '../../../../common/viewModel/viewContext.js';
+import { RestrictedRenderingContext, RenderingContext } from '../../../view/renderingContext.js';
+import { ViewController } from '../../../view/viewController.js';
+import { AbstractEditContext } from '../editContextUtils.js';
+import { Position } from '../../../../common/core/position.js';
 export declare class NativeEditContext extends AbstractEditContext {
     readonly domNode: FastDomNode<HTMLDivElement>;
     private readonly _editContext;

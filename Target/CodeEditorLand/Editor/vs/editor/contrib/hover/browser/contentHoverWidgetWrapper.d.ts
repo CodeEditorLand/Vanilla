@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { type ICodeEditor, type IEditorMouseEvent } from "../../../browser/editorBrowser.js";
-import type { Range } from "../../../common/core/range.js";
-import type { HoverVerbosityAction } from "../../../common/standalone/standaloneEnums.js";
-import { ContentHoverWidget } from "./contentHoverWidget.js";
-import { HoverStartMode, HoverStartSource } from "./hoverOperation.js";
-import { type IHoverWidget } from "./hoverTypes.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor, IEditorMouseEvent } from '../../../browser/editorBrowser.js';
+import { Range } from '../../../common/core/range.js';
+import { HoverStartMode, HoverStartSource } from './hoverOperation.js';
+import { IHoverWidget } from './hoverTypes.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { HoverVerbosityAction } from '../../../common/standalone/standaloneEnums.js';
+import { ContentHoverWidget } from './contentHoverWidget.js';
 export declare class ContentHoverWidgetWrapper extends Disposable implements IHoverWidget {
     private readonly _editor;
     private readonly _instantiationService;

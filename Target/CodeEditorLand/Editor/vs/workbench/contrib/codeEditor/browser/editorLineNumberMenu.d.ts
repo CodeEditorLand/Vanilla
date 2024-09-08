@@ -1,11 +1,11 @@
-import { type IAction } from "../../../../base/common/actions.js";
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { type ICodeEditor, type IEditorMouseEvent } from "../../../../editor/browser/editorBrowser.js";
-import type { IEditorContribution } from "../../../../editor/common/editorCommon.js";
-import { IMenuService } from "../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService, type ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IAction } from '../../../../base/common/actions.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor, IEditorMouseEvent } from '../../../../editor/browser/editorBrowser.js';
+import { IEditorContribution } from '../../../../editor/common/editorCommon.js';
+import { IMenuService } from '../../../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService, ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 export interface IGutterActionsGenerator {
     (context: {
         lineNumber: number;

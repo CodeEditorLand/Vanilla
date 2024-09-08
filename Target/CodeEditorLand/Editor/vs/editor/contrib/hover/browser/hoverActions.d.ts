@@ -1,6 +1,6 @@
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, type ServicesAccessor } from "../../../browser/editorExtensions.js";
-import "./hover.css";
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { EditorAction, ServicesAccessor } from '../../../browser/editorExtensions.js';
+import './hover.css';
 export declare class ShowOrFocusHoverAction extends EditorAction {
     constructor();
     run(accessor: ServicesAccessor, editor: ICodeEditor, args: any): void;

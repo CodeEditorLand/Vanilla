@@ -1,9 +1,9 @@
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import type { Event } from "../../../base/common/event.js";
-import { URI } from "../../../base/common/uri.js";
-import type { Client, IChannel, IClientRouter, IConnectionHub, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import type { ILogService } from "../../log/common/log.js";
-import type { IOpenURLOptions, IURLHandler } from "./url.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { URI } from '../../../base/common/uri.js';
+import { Client, IChannel, IClientRouter, IConnectionHub, IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { ILogService } from '../../log/common/log.js';
+import { IOpenURLOptions, IURLHandler } from './url.js';
 export declare class URLHandlerChannel implements IServerChannel {
     private handler;
     constructor(handler: IURLHandler);

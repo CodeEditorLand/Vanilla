@@ -1,10 +1,10 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import type { IRevertOptions, ISaveOptions } from "../../../common/editor.js";
-import type { IWorkingCopy, IWorkingCopyBackup, IWorkingCopySaveEvent, WorkingCopyCapabilities } from "./workingCopy.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { ISaveOptions, IRevertOptions } from '../../../common/editor.js';
+import { IWorkingCopy, IWorkingCopyBackup, IWorkingCopySaveEvent, WorkingCopyCapabilities } from './workingCopy.js';
 /**
  * A resource based `IWorkingCopy` is backed by a `URI` from a
  * known file system provider.

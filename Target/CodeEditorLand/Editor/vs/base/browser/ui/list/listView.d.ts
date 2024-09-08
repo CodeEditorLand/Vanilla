@@ -1,18 +1,18 @@
-import { Event, type IValueWithChangeEvent } from "../../../common/event.js";
-import { type IDisposable } from "../../../common/lifecycle.js";
-import { type IRange } from "../../../common/range.js";
-import { type ScrollEvent, ScrollbarVisibility } from "../../../common/scrollable.js";
-import type { ISpliceable } from "../../../common/sequence.js";
-import { type IDragAndDropData } from "../../dnd.js";
-import { type Dimension } from "../../dom.js";
-import type { IMouseWheelEvent } from "../../mouseEvent.js";
-import type { AriaRole } from "../aria/aria.js";
-import { type IListDragAndDrop, type IListGestureEvent, type IListMouseEvent, type IListRenderer, type IListTouchEvent, type IListVirtualDelegate } from "./list.js";
-import { type IRangeMap } from "./rangeMap.js";
+import { IDragAndDropData } from '../../dnd.js';
+import { Dimension } from '../../dom.js';
+import { IMouseWheelEvent } from '../../mouseEvent.js';
+import { Event, IValueWithChangeEvent } from '../../../common/event.js';
+import { IDisposable } from '../../../common/lifecycle.js';
+import { IRange } from '../../../common/range.js';
+import { ScrollbarVisibility, ScrollEvent } from '../../../common/scrollable.js';
+import { ISpliceable } from '../../../common/sequence.js';
+import { IListDragAndDrop, IListGestureEvent, IListMouseEvent, IListRenderer, IListTouchEvent, IListVirtualDelegate } from './list.js';
+import { IRangeMap } from './rangeMap.js';
+import { AriaRole } from '../aria/aria.js';
 export interface IListViewDragAndDrop<T> extends IListDragAndDrop<T> {
     getDragElements(element: T): T[];
 }
-export declare enum ListViewTargetSector {
+export declare const enum ListViewTargetSector {
     TOP = 0,// [0%-25%)
     CENTER_TOP = 1,// [25%-50%)
     CENTER_BOTTOM = 2,// [50%-75%)

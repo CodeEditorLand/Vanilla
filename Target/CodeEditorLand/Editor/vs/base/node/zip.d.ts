@@ -1,4 +1,4 @@
-import type { CancellationToken } from "../common/cancellation.js";
+import { CancellationToken } from '../common/cancellation.js';
 export declare const CorruptZipMessage: string;
 export interface IExtractOptions {
     overwrite?: boolean;
@@ -8,7 +8,7 @@ export interface IExtractOptions {
      */
     sourcePath?: string;
 }
-export type ExtractErrorType = "CorruptZip" | "Incomplete";
+export type ExtractErrorType = 'CorruptZip' | 'Incomplete';
 export declare class ExtractError extends Error {
     readonly type?: ExtractErrorType;
     constructor(type: ExtractErrorType | undefined, cause: Error);

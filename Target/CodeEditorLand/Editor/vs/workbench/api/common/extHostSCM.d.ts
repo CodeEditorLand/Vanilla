@@ -1,13 +1,13 @@
-import type * as vscode from "vscode";
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import type { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { URI, type UriComponents } from "../../../base/common/uri.js";
-import { type IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { type ExtHostSCMShape, type IMainContext, type MainThreadSCMShape, type SCMHistoryItemChangeDto, type SCMHistoryItemDto } from "./extHost.protocol.js";
-import type { ExtHostCommands } from "./extHostCommands.js";
-import type { ExtHostDocuments } from "./extHostDocuments.js";
+import { URI, UriComponents } from '../../../base/common/uri.js';
+import { Event } from '../../../base/common/event.js';
+import { ExtHostCommands } from './extHostCommands.js';
+import { MainThreadSCMShape, IMainContext, ExtHostSCMShape, SCMHistoryItemDto, SCMHistoryItemChangeDto } from './extHost.protocol.js';
+import type * as vscode from 'vscode';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { ExtHostDocuments } from './extHostDocuments.js';
 export interface IValidateInput {
     (value: string, cursorPosition: number): vscode.ProviderResult<vscode.SourceControlInputBoxValidation | undefined | null>;
 }

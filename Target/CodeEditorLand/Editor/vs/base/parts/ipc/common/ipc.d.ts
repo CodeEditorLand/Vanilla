@@ -1,7 +1,7 @@
-import { VSBuffer } from "../../../common/buffer.js";
-import { CancellationToken } from "../../../common/cancellation.js";
-import { Event } from "../../../common/event.js";
-import { DisposableStore, type IDisposable } from "../../../common/lifecycle.js";
+import { VSBuffer } from '../../../common/buffer.js';
+import { CancellationToken } from '../../../common/cancellation.js';
+import { Event } from '../../../common/event.js';
+import { DisposableStore, IDisposable } from '../../../common/lifecycle.js';
 /**
  * An `IChannel` is an abstraction over a collection of commands.
  * You can `call` several commands on a channel, each taking at
@@ -111,7 +111,7 @@ export declare class ChannelServer<TContext = string> implements IChannelServer<
     private flushPendingRequests;
     dispose(): void;
 }
-export declare enum RequestInitiator {
+export declare const enum RequestInitiator {
     LocalSide = 0,
     OtherSide = 1
 }

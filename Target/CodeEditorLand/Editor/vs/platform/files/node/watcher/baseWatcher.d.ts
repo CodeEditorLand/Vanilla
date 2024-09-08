@@ -1,7 +1,7 @@
-import { Emitter, type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { type IFileChange } from "../../common/files.js";
-import { type ILogMessage, type IRecursiveWatcherWithSubscribe, type IUniversalWatchRequest, type IWatchRequestWithCorrelation, type IWatcher, type IWatcherErrorEvent } from "../../common/watcher.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ILogMessage, IRecursiveWatcherWithSubscribe, IUniversalWatchRequest, IWatchRequestWithCorrelation, IWatcher, IWatcherErrorEvent } from '../../common/watcher.js';
+import { Emitter, Event } from '../../../../base/common/event.js';
+import { IFileChange } from '../../common/files.js';
 export declare abstract class BaseWatcher extends Disposable implements IWatcher {
     protected readonly _onDidChangeFile: Emitter<IFileChange[]>;
     readonly onDidChangeFile: Event<IFileChange[]>;
@@ -22,7 +22,7 @@ export declare abstract class BaseWatcher extends Disposable implements IWatcher
     watch(requests: IUniversalWatchRequest[]): Promise<void>;
     private updateWatchers;
     protected getUpdateWatchersDelay(): number;
-    isSuspended(request: IUniversalWatchRequest): "polling" | boolean;
+    isSuspended(request: IUniversalWatchRequest): 'polling' | boolean;
     private suspendWatchRequest;
     private resumeWatchRequest;
     private monitorSuspendedWatchRequest;

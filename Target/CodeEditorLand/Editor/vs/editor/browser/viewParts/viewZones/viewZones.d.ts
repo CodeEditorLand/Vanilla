@@ -1,9 +1,9 @@
-import { type FastDomNode } from "../../../../base/browser/fastDomNode.js";
-import type * as viewEvents from "../../../common/viewEvents.js";
-import type { ViewContext } from "../../../common/viewModel/viewContext.js";
-import type { IViewZoneChangeAccessor } from "../../editorBrowser.js";
-import type { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
-import { ViewPart } from "../../view/viewPart.js";
+import { FastDomNode } from '../../../../base/browser/fastDomNode.js';
+import { IViewZoneChangeAccessor } from '../../editorBrowser.js';
+import { ViewPart } from '../../view/viewPart.js';
+import { RenderingContext, RestrictedRenderingContext } from '../../view/renderingContext.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
+import * as viewEvents from '../../../common/viewEvents.js';
 export declare class ViewZones extends ViewPart {
     private _zones;
     private _lineHeight;

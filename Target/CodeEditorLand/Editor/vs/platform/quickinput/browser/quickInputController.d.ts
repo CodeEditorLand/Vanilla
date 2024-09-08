@@ -1,13 +1,13 @@
-import * as dom from "../../../base/browser/dom.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { ILayoutService } from "../../layout/browser/layoutService.js";
-import { type IInputBox, type IInputOptions, type IKeyMods, type IPickOptions, type IQuickInput, type IQuickNavigateConfiguration, type IQuickPick, type IQuickPickItem, type IQuickWidget, QuickInputHideReason, type QuickPickInput } from "../common/quickInput.js";
-import { type IQuickInputOptions, type IQuickInputStyles } from "./quickInput.js";
-import "./quickInputActions.js";
+import * as dom from '../../../base/browser/dom.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IInputBox, IInputOptions, IKeyMods, IPickOptions, IQuickInput, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, IQuickWidget, QuickInputHideReason, QuickPickInput } from '../common/quickInput.js';
+import { IQuickInputStyles, IQuickInputOptions } from './quickInput.js';
+import { ILayoutService } from '../../layout/browser/layoutService.js';
+import { IInstantiationService } from '../../instantiation/common/instantiation.js';
+import { IContextKeyService } from '../../contextkey/common/contextkey.js';
+import './quickInputActions.js';
 export declare class QuickInputController extends Disposable {
     private options;
     private readonly layoutService;

@@ -1,6 +1,1 @@
-const ShowCurrentReleaseNotesActionId = "update.showCurrentReleaseNotes";
-const ShowCurrentReleaseNotesFromCurrentFileActionId = "developer.showCurrentFileAsReleaseNotes";
-export {
-  ShowCurrentReleaseNotesActionId,
-  ShowCurrentReleaseNotesFromCurrentFileActionId
-};
+const e="update.showCurrentReleaseNotes",o="developer.showCurrentFileAsReleaseNotes";export{e as ShowCurrentReleaseNotesActionId,o as ShowCurrentReleaseNotesFromCurrentFileActionId};

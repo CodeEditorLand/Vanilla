@@ -1,9 +1,9 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { IRequestContext, IRequestOptions } from "../../../../base/parts/request/common/request.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILoggerService } from "../../../../platform/log/common/log.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { AbstractRequestService, IRequestService, type AuthInfo, type Credentials } from "../../../../platform/request/common/request.js";
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from '../../../../platform/request/common/request.js';
+import { INativeHostService } from '../../../../platform/native/common/native.js';
+import { IRequestContext, IRequestOptions } from '../../../../base/parts/request/common/request.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ILoggerService } from '../../../../platform/log/common/log.js';
 export declare class NativeRequestService extends AbstractRequestService implements IRequestService {
     private readonly nativeHostService;
     private readonly configurationService;

@@ -1,8 +1,8 @@
-import type { IViewLineTokens } from "../../../tokens/lineTokens.js";
-import { TextAstNode, type BracketAstNode } from "./ast.js";
-import type { BracketTokens, LanguageAgnosticBracketTokens } from "./brackets.js";
-import { type Length } from "./length.js";
-import { SmallImmutableSet } from "./smallImmutableSet.js";
+import { IViewLineTokens } from '../../../tokens/lineTokens.js';
+import { BracketAstNode, TextAstNode } from './ast.js';
+import { BracketTokens, LanguageAgnosticBracketTokens } from './brackets.js';
+import { Length } from './length.js';
+import { SmallImmutableSet } from './smallImmutableSet.js';
 export interface Tokenizer {
     readonly offset: Length;
     readonly length: Length;
@@ -11,7 +11,7 @@ export interface Tokenizer {
     skip(length: Length): void;
     getText(): string;
 }
-export declare enum TokenKind {
+export declare const enum TokenKind {
     Text = 0,
     OpeningBracket = 1,
     ClosingBracket = 2

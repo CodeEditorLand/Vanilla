@@ -1,13 +1,13 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IDiffProviderFactoryService } from "../../../browser/widget/diffEditor/diffProviderFactoryService.js";
-import { Range } from "../../../common/core/range.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { IModelService } from "../../../common/services/model.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { Range } from '../../../common/core/range.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IDiffProviderFactoryService } from '../../../browser/widget/diffEditor/diffProviderFactoryService.js';
+import { IModelService } from '../../../common/services/model.js';
 export declare class InlineEditController extends Disposable {
     readonly editor: ICodeEditor;
     private readonly instantiationService;

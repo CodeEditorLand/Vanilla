@@ -1,4 +1,4 @@
-import { URI } from "./uri.js";
+import { URI } from './uri.js';
 export declare function originalFSPath(uri: URI): string;
 export interface IExtUri {
     /**

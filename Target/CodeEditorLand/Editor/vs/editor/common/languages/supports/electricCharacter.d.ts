@@ -1,5 +1,5 @@
-import { type ScopedLineTokens } from "../supports.js";
-import { type RichEditBrackets } from "./richEditBrackets.js";
+import { ScopedLineTokens } from '../supports.js';
+import { RichEditBrackets } from './richEditBrackets.js';
 /**
  * Interface used to support electric characters
  * @internal

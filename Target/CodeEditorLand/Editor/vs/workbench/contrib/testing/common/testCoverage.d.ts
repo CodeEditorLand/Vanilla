@@ -1,12 +1,12 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { ResourceMap } from "../../../../base/common/map.js";
-import { type ITransaction } from "../../../../base/common/observable.js";
-import { WellDefinedPrefixTree, type IPrefixTreeNode } from "../../../../base/common/prefixTree.js";
-import { URI } from "../../../../base/common/uri.js";
-import type { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import type { TestId } from "./testId.js";
-import type { LiveTestResult } from "./testResult.js";
-import { ICoverageCount, type CoverageDetails, type IFileCoverage } from "./testTypes.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ResourceMap } from '../../../../base/common/map.js';
+import { ITransaction } from '../../../../base/common/observable.js';
+import { IPrefixTreeNode, WellDefinedPrefixTree } from '../../../../base/common/prefixTree.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { TestId } from './testId.js';
+import { LiveTestResult } from './testResult.js';
+import { CoverageDetails, ICoverageCount, IFileCoverage } from './testTypes.js';
 export interface ICoverageAccessor {
     getCoverageDetails: (id: string, testId: string | undefined, token: CancellationToken) => Promise<CoverageDetails[]>;
 }

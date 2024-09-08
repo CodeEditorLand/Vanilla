@@ -1,14 +1,14 @@
-import { URI } from "../../../../base/common/uri.js";
-import type { ResourceFileEdit } from "../../../../editor/browser/services/bulkEditService.js";
-import { type ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { IListService } from "../../../../platform/list/browser/listService.js";
-import type { ProgressLocation } from "../../../../platform/progress/common/progress.js";
-import { type IEditorIdentifier } from "../../../common/editor.js";
-import type { IEditableData } from "../../../common/views.js";
-import type { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import type { IEditorService } from "../../../services/editor/common/editorService.js";
-import { ExplorerItem } from "../common/explorerModel.js";
-import { type ISortOrderConfiguration } from "../common/files.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IListService } from '../../../../platform/list/browser/listService.js';
+import { ISortOrderConfiguration } from '../common/files.js';
+import { IEditorIdentifier } from '../../../common/editor.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { ExplorerItem } from '../common/explorerModel.js';
+import { IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { IEditableData } from '../../../common/views.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { ResourceFileEdit } from '../../../../editor/browser/services/bulkEditService.js';
+import { ProgressLocation } from '../../../../platform/progress/common/progress.js';
 export interface IExplorerService {
     readonly _serviceBrand: undefined;
     readonly roots: ExplorerItem[];
@@ -42,7 +42,7 @@ export interface IExplorerService {
 }
 export declare const IExplorerService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExplorerService>;
 export interface IExplorerView {
-    autoReveal: boolean | "force" | "focusNoScroll";
+    autoReveal: boolean | 'force' | 'focusNoScroll';
     getContext(respectMultiSelection: boolean): ExplorerItem[];
     refresh(recursive: boolean, item?: ExplorerItem, cancelEditing?: boolean): Promise<void>;
     selectResource(resource: URI | undefined, reveal?: boolean | string, retry?: number): Promise<void>;

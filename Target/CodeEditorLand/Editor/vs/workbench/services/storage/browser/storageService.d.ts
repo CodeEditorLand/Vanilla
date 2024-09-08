@@ -1,10 +1,10 @@
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { type IStorage, type IStorageDatabase, type IStorageItemsChangeEvent, type IUpdateRequest } from "../../../../base/parts/storage/common/storage.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { AbstractStorageService, StorageScope } from "../../../../platform/storage/common/storage.js";
-import { type IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import type { IAnyWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
-import type { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IStorage, IStorageDatabase, IStorageItemsChangeEvent, IUpdateRequest } from '../../../../base/parts/storage/common/storage.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { AbstractStorageService, StorageScope } from '../../../../platform/storage/common/storage.js';
+import { IUserDataProfile } from '../../../../platform/userDataProfile/common/userDataProfile.js';
+import { IAnyWorkspaceIdentifier } from '../../../../platform/workspace/common/workspace.js';
+import { IUserDataProfileService } from '../../userDataProfile/common/userDataProfile.js';
 export declare class BrowserStorageService extends AbstractStorageService {
     private readonly workspace;
     private readonly userDataProfileService;

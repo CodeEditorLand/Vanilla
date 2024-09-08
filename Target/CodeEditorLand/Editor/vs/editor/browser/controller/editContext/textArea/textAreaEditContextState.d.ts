@@ -1,6 +1,6 @@
-import type { Position } from "../../../../common/core/position.js";
-import type { Range } from "../../../../common/core/range.js";
-import type { ScreenReaderContentState } from "../screenReaderUtils.js";
+import { Position } from '../../../../common/core/position.js';
+import { Range } from '../../../../common/core/range.js';
+import { ScreenReaderContentState } from '../screenReaderUtils.js';
 export declare const _debugComposition = false;
 export interface ITextAreaWrapper {
     getValue(): string;

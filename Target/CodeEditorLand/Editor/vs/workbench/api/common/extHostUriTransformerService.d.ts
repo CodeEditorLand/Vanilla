@@ -1,5 +1,5 @@
-import type { URI, UriComponents } from "../../../base/common/uri.js";
-import type { IURITransformer } from "../../../base/common/uriIpc.js";
+import { IURITransformer } from '../../../base/common/uriIpc.js';
+import { URI, UriComponents } from '../../../base/common/uri.js';
 export interface IURITransformerService extends IURITransformer {
     readonly _serviceBrand: undefined;
 }

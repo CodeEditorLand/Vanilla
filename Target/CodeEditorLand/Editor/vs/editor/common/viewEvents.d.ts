@@ -1,12 +1,12 @@
-import type { ScrollEvent } from "../../base/common/scrollable.js";
-import type { IColorTheme } from "../../platform/theme/common/themeService.js";
-import type { ConfigurationChangedEvent, EditorOption } from "./config/editorOptions.js";
-import type { Range } from "./core/range.js";
-import type { Selection } from "./core/selection.js";
-import type { CursorChangeReason } from "./cursorEvents.js";
-import type { ScrollType } from "./editorCommon.js";
-import type { IModelDecorationsChangedEvent } from "./textModelEvents.js";
-export declare enum ViewEventType {
+import { ScrollEvent } from '../../base/common/scrollable.js';
+import { ConfigurationChangedEvent, EditorOption } from './config/editorOptions.js';
+import { Range } from './core/range.js';
+import { Selection } from './core/selection.js';
+import { CursorChangeReason } from './cursorEvents.js';
+import { ScrollType } from './editorCommon.js';
+import { IModelDecorationsChangedEvent } from './textModelEvents.js';
+import { IColorTheme } from '../../platform/theme/common/themeService.js';
+export declare const enum ViewEventType {
     ViewCompositionStart = 0,
     ViewCompositionEnd = 1,
     ViewConfigurationChanged = 2,
@@ -115,7 +115,7 @@ export declare class ViewLinesInsertedEvent {
     readonly toLineNumber: number;
     constructor(fromLineNumber: number, toLineNumber: number);
 }
-export declare enum VerticalRevealType {
+export declare const enum VerticalRevealType {
     Simple = 0,
     Center = 1,
     CenterIfOutsideViewport = 2,
@@ -228,4 +228,4 @@ export declare class ViewZonesChangedEvent {
     readonly type = ViewEventType.ViewZonesChanged;
     constructor();
 }
-export type ViewEvent = ViewCompositionStartEvent | ViewCompositionEndEvent | ViewConfigurationChangedEvent | ViewCursorStateChangedEvent | ViewDecorationsChangedEvent | ViewFlushedEvent | ViewFocusChangedEvent | ViewLanguageConfigurationEvent | ViewLineMappingChangedEvent | ViewLinesChangedEvent | ViewLinesDeletedEvent | ViewLinesInsertedEvent | ViewRevealRangeRequestEvent | ViewScrollChangedEvent | ViewThemeChangedEvent | ViewTokensChangedEvent | ViewTokensColorsChangedEvent | ViewZonesChangedEvent;
+export type ViewEvent = (ViewCompositionStartEvent | ViewCompositionEndEvent | ViewConfigurationChangedEvent | ViewCursorStateChangedEvent | ViewDecorationsChangedEvent | ViewFlushedEvent | ViewFocusChangedEvent | ViewLanguageConfigurationEvent | ViewLineMappingChangedEvent | ViewLinesChangedEvent | ViewLinesDeletedEvent | ViewLinesInsertedEvent | ViewRevealRangeRequestEvent | ViewScrollChangedEvent | ViewThemeChangedEvent | ViewTokensChangedEvent | ViewTokensColorsChangedEvent | ViewZonesChangedEvent);

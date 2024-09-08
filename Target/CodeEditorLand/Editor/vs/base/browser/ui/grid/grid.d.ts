@@ -1,11 +1,11 @@
-import type { Event } from "../../../common/event.js";
-import { Disposable } from "../../../common/lifecycle.js";
-import { type IBoundarySashes, Orientation } from "../sash/sash.js";
-import "./gridview.css";
-import { type Box, type GridLocation, GridView, Sizing as GridViewSizing, type IGridViewOptions, type IGridViewStyles, type IView as IGridViewView, type IViewSize } from "./gridview.js";
+import { IBoundarySashes, Orientation } from '../sash/sash.js';
+import { Event } from '../../../common/event.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import './gridview.css';
+import { Box, GridView, IGridViewOptions, IGridViewStyles, IView as IGridViewView, IViewSize, Sizing as GridViewSizing, GridLocation } from './gridview.js';
 export type { IViewSize };
-export { LayoutPriority, Orientation, orthogonal } from "./gridview.js";
-export declare enum Direction {
+export { LayoutPriority, Orientation, orthogonal } from './gridview.js';
+export declare const enum Direction {
     Up = 0,
     Down = 1,
     Left = 2,
@@ -40,16 +40,16 @@ export type GridNode<T extends IView> = GridLeafNode<T> | GridBranchNode<T>;
 export declare function isGridBranchNode<T extends IView>(node: GridNode<T>): node is GridBranchNode<T>;
 export declare function getRelativeLocation(rootOrientation: Orientation, location: GridLocation, direction: Direction): GridLocation;
 export type DistributeSizing = {
-    type: "distribute";
+    type: 'distribute';
 };
 export type SplitSizing = {
-    type: "split";
+    type: 'split';
 };
 export type AutoSizing = {
-    type: "auto";
+    type: 'auto';
 };
 export type InvisibleSizing = {
-    type: "invisible";
+    type: 'invisible';
     cachedVisibleSize: number;
 };
 export type Sizing = DistributeSizing | SplitSizing | AutoSizing | InvisibleSizing;
@@ -326,14 +326,14 @@ export interface IViewDeserializer<T extends ISerializableView> {
     fromJSON(json: any): T;
 }
 export interface ISerializedLeafNode {
-    type: "leaf";
+    type: 'leaf';
     data: any;
     size: number;
     visible?: boolean;
     maximized?: boolean;
 }
 export interface ISerializedBranchNode {
-    type: "branch";
+    type: 'branch';
     data: ISerializedNode[];
     size: number;
     visible?: boolean;

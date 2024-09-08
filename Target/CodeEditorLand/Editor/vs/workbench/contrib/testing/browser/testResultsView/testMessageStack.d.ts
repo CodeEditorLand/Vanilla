@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { type AnyStackFrame } from "../../../debug/browser/callStackWidget.js";
-import type { ITestMessageStackFrame } from "../../common/testTypes.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../../../editor/browser/editorBrowser.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { AnyStackFrame } from '../../../debug/browser/callStackWidget.js';
+import { ITestMessageStackFrame } from '../../common/testTypes.js';
 export declare class TestResultStackWidget extends Disposable {
     private readonly container;
     private readonly widget;

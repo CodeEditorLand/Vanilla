@@ -1,6 +1,6 @@
-import { Disposable } from "../../../common/lifecycle.js";
-import { ScrollbarVisibility } from "../../../common/scrollable.js";
-import type { FastDomNode } from "../../fastDomNode.js";
+import { FastDomNode } from '../../fastDomNode.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import { ScrollbarVisibility } from '../../../common/scrollable.js';
 export declare class ScrollbarVisibilityController extends Disposable {
     private _visibility;
     private _visibleClassName;

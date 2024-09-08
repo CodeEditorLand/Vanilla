@@ -1,6 +1,6 @@
-import { MenuId } from "../../../../../platform/actions/common/actions.js";
-import { RawContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
-export declare enum TerminalChatCommandId {
+import { MenuId } from '../../../../../platform/actions/common/actions.js';
+import { RawContextKey } from '../../../../../platform/contextkey/common/contextkey.js';
+export declare const enum TerminalChatCommandId {
     Start = "workbench.action.terminal.chat.start",
     Close = "workbench.action.terminal.chat.close",
     FocusResponse = "workbench.action.terminal.chat.focusResponse",
@@ -20,7 +20,7 @@ export declare const MENU_TERMINAL_CHAT_INPUT: MenuId;
 export declare const MENU_TERMINAL_CHAT_WIDGET: MenuId;
 export declare const MENU_TERMINAL_CHAT_WIDGET_STATUS: MenuId;
 export declare const MENU_TERMINAL_CHAT_WIDGET_TOOLBAR: MenuId;
-export declare enum TerminalChatContextKeyStrings {
+export declare const enum TerminalChatContextKeyStrings {
     ChatFocus = "terminalChatFocus",
     ChatVisible = "terminalChatVisible",
     ChatActiveRequest = "terminalChatActiveRequest",

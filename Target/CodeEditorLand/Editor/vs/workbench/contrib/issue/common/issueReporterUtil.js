@@ -1,17 +1,1 @@
-import { rtrim } from "../../../../base/common/strings.js";
-function normalizeGitHubUrl(url) {
-  if (url.endsWith(".git")) {
-    url = url.substr(0, url.length - 4);
-  }
-  url = rtrim(url, "/");
-  if (url.endsWith("/new")) {
-    url = rtrim(url, "/new");
-  }
-  if (url.endsWith("/issues")) {
-    url = rtrim(url, "/issues");
-  }
-  return url;
-}
-export {
-  normalizeGitHubUrl
-};
+import{rtrim as t}from"../../../../base/common/strings.js";function n(i){return i.endsWith(".git")&&(i=i.substr(0,i.length-4)),i=t(i,"/"),i.endsWith("/new")&&(i=t(i,"/new")),i.endsWith("/issues")&&(i=t(i,"/issues")),i}export{n as normalizeGitHubUrl};

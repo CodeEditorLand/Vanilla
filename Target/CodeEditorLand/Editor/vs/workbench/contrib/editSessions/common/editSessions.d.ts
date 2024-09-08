@@ -1,12 +1,12 @@
-import { VSBuffer } from "../../../../base/common/buffer.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { ILocalizedString } from "../../../../platform/action/common/action.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { ILogService } from "../../../../platform/log/common/log.js";
-import type { IResourceRefHandle } from "../../../../platform/userDataSync/common/userDataSync.js";
-import type { EditSessionsStoreClient } from "./editSessionsStorageClient.js";
+import { VSBuffer } from '../../../../base/common/buffer.js';
+import { ILocalizedString } from '../../../../platform/action/common/action.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IResourceRefHandle } from '../../../../platform/userDataSync/common/userDataSync.js';
+import { Event } from '../../../../base/common/event.js';
+import { EditSessionsStoreClient } from './editSessionsStorageClient.js';
 export declare const EDIT_SESSION_SYNC_CATEGORY: import("../../../../nls.js").ILocalizedString;
-export type SyncResource = "editSessions" | "workspaceState";
+export type SyncResource = 'editSessions' | 'workspaceState';
 export declare const IEditSessionsStorageService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditSessionsStorageService>;
 export interface IEditSessionsStorageService {
     _serviceBrand: undefined;
@@ -23,7 +23,7 @@ export interface IEditSessionsStorageService {
         ref: string;
         content: string;
     }>;
-    initialize(reason: "read" | "write", silent?: boolean): Promise<boolean>;
+    initialize(reason: 'read' | 'write', silent?: boolean): Promise<boolean>;
     read(resource: SyncResource, ref: string | undefined): Promise<{
         ref: string;
         content: string;

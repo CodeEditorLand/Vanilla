@@ -1,7 +1,7 @@
-import type { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import type { InternalTestItem } from "./testTypes.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { InternalTestItem } from './testTypes.js';
 export declare class TestExclusions extends Disposable {
     private readonly storageService;
     private readonly excluded;

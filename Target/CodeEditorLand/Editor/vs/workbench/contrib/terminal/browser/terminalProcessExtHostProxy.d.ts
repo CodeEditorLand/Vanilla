@@ -1,8 +1,8 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ProcessPropertyType, type IProcessProperty, type IProcessPropertyMap, type IProcessReadyEvent, type IShellLaunchConfig, type ITerminalChildProcess, type ITerminalDimensions, type ITerminalLaunchError } from "../../../../platform/terminal/common/terminal.js";
-import type { ITerminalProcessExtHostProxy } from "../common/terminal.js";
-import { ITerminalService } from "./terminal.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IProcessReadyEvent, IShellLaunchConfig, ITerminalChildProcess, ITerminalDimensions, ITerminalLaunchError, IProcessProperty, ProcessPropertyType, IProcessPropertyMap } from '../../../../platform/terminal/common/terminal.js';
+import { ITerminalService } from './terminal.js';
+import { ITerminalProcessExtHostProxy } from '../common/terminal.js';
 export declare class TerminalProcessExtHostProxy extends Disposable implements ITerminalChildProcess, ITerminalProcessExtHostProxy {
     instanceId: number;
     private _cols;
@@ -55,7 +55,7 @@ export declare class TerminalProcessExtHostProxy extends Disposable implements I
     resize(cols: number, rows: number): void;
     clearBuffer(): void | Promise<void>;
     acknowledgeDataEvent(): void;
-    setUnicodeVersion(version: "6" | "11"): Promise<void>;
+    setUnicodeVersion(version: '6' | '11'): Promise<void>;
     processBinary(data: string): Promise<void>;
     getInitialCwd(): Promise<string>;
     getCwd(): Promise<string>;

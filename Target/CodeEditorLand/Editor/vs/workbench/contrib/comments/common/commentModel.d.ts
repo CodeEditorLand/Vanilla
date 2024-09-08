@@ -1,6 +1,6 @@
-import type { URI } from "../../../../base/common/uri.js";
-import type { IRange } from "../../../../editor/common/core/range.js";
-import type { Comment, CommentThread, CommentThreadApplicability, CommentThreadChangedEvent, CommentThreadState } from "../../../../editor/common/languages.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { Comment, CommentThread, CommentThreadChangedEvent, CommentThreadApplicability, CommentThreadState } from '../../../../editor/common/languages.js';
 export interface ICommentThreadChangedEvent extends CommentThreadChangedEvent<IRange> {
     uniqueOwner: string;
     owner: string;

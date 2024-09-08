@@ -1,4 +1,4 @@
-import type { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 interface INativeWindowDriverHelper {
     exitApplication(): Promise<void>;
 }

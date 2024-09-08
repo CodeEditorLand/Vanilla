@@ -1,16 +1,16 @@
-import type { IStringDictionary } from "../../../base/common/collections.js";
-import type { PerformanceMark } from "../../../base/common/performance.js";
-import type { URI, UriComponents, UriDto } from "../../../base/common/uri.js";
-import type { ISandboxConfiguration } from "../../../base/parts/sandbox/common/sandboxTypes.js";
-import type { IConfigurationService } from "../../configuration/common/configuration.js";
-import type { IEditorOptions } from "../../editor/common/editor.js";
-import type { NativeParsedArgs } from "../../environment/common/argv.js";
-import type { FileType } from "../../files/common/files.js";
-import type { ILoggerResource, LogLevel } from "../../log/common/log.js";
-import type { PolicyDefinition, PolicyValue } from "../../policy/common/policy.js";
-import type { IPartsSplash } from "../../theme/common/themeService.js";
-import type { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
-import type { IAnyWorkspaceIdentifier, ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { PerformanceMark } from '../../../base/common/performance.js';
+import { URI, UriComponents, UriDto } from '../../../base/common/uri.js';
+import { ISandboxConfiguration } from '../../../base/parts/sandbox/common/sandboxTypes.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IEditorOptions } from '../../editor/common/editor.js';
+import { NativeParsedArgs } from '../../environment/common/argv.js';
+import { FileType } from '../../files/common/files.js';
+import { ILoggerResource, LogLevel } from '../../log/common/log.js';
+import { PolicyDefinition, PolicyValue } from '../../policy/common/policy.js';
+import { IPartsSplash } from '../../theme/common/themeService.js';
+import { IUserDataProfile } from '../../userDataProfile/common/userDataProfile.js';
+import { IAnyWorkspaceIdentifier, ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 export declare const WindowMinimumSize: {
     WIDTH: number;
     WIDTH_WITH_VERTICAL_PANEL: number;
@@ -84,23 +84,23 @@ export interface IFileToOpen extends IBaseWindowOpenable {
 export declare function isWorkspaceToOpen(uriToOpen: IWindowOpenable): uriToOpen is IWorkspaceToOpen;
 export declare function isFolderToOpen(uriToOpen: IWindowOpenable): uriToOpen is IFolderToOpen;
 export declare function isFileToOpen(uriToOpen: IWindowOpenable): uriToOpen is IFileToOpen;
-export type MenuBarVisibility = "classic" | "visible" | "toggle" | "hidden" | "compact";
+export type MenuBarVisibility = 'classic' | 'visible' | 'toggle' | 'hidden' | 'compact';
 export declare function getMenuBarVisibility(configurationService: IConfigurationService): MenuBarVisibility;
 export interface IWindowsConfiguration {
     readonly window: IWindowSettings;
 }
 export interface IWindowSettings {
-    readonly openFilesInNewWindow: "on" | "off" | "default";
-    readonly openFoldersInNewWindow: "on" | "off" | "default";
-    readonly openWithoutArgumentsInNewWindow: "on" | "off";
-    readonly restoreWindows: "preserve" | "all" | "folders" | "one" | "none";
+    readonly openFilesInNewWindow: 'on' | 'off' | 'default';
+    readonly openFoldersInNewWindow: 'on' | 'off' | 'default';
+    readonly openWithoutArgumentsInNewWindow: 'on' | 'off';
+    readonly restoreWindows: 'preserve' | 'all' | 'folders' | 'one' | 'none';
     readonly restoreFullscreen: boolean;
     readonly zoomLevel: number;
     readonly titleBarStyle: TitlebarStyle;
     readonly autoDetectHighContrast: boolean;
     readonly autoDetectColorScheme: boolean;
     readonly menuBarVisibility: MenuBarVisibility;
-    readonly newWindowDimensions: "default" | "inherit" | "offset" | "maximized" | "fullscreen";
+    readonly newWindowDimensions: 'default' | 'inherit' | 'offset' | 'maximized' | 'fullscreen';
     readonly nativeTabs: boolean;
     readonly nativeFullScreen: boolean;
     readonly enableMenuBarMnemonics: boolean;
@@ -111,17 +111,17 @@ export interface IWindowSettings {
     readonly experimentalControlOverlay?: boolean;
 }
 export interface IDensitySettings {
-    readonly editorTabHeight: "default" | "compact";
+    readonly editorTabHeight: 'default' | 'compact';
 }
-export declare enum TitleBarSetting {
+export declare const enum TitleBarSetting {
     TITLE_BAR_STYLE = "window.titleBarStyle",
     CUSTOM_TITLE_BAR_VISIBILITY = "window.customTitleBarVisibility"
 }
-export declare enum TitlebarStyle {
+export declare const enum TitlebarStyle {
     NATIVE = "native",
     CUSTOM = "custom"
 }
-export declare enum CustomTitleBarVisibility {
+export declare const enum CustomTitleBarVisibility {
     AUTO = "auto",
     WINDOWED = "windowed",
     NEVER = "never"
@@ -186,7 +186,7 @@ export interface INativeOpenFileRequest extends IOpenFileRequest {
 }
 export interface INativeRunActionInWindowRequest {
     readonly id: string;
-    readonly from: "menu" | "touchbar" | "mouse";
+    readonly from: 'menu' | 'touchbar' | 'mouse';
     readonly args?: any[];
 }
 export interface INativeRunKeybindingInWindowRequest {

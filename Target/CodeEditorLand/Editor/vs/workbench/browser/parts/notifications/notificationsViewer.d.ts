@@ -1,15 +1,15 @@
-import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import type { IListRenderer, IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
-import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
-import { type IActionRunner } from "../../../../base/common/actions.js";
-import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { type INotificationViewItem } from "../../../common/notifications.js";
+import { IListVirtualDelegate, IListRenderer } from '../../../../base/browser/ui/list/list.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { ActionBar } from '../../../../base/browser/ui/actionbar/actionbar.js';
+import { IActionRunner } from '../../../../base/common/actions.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { DisposableStore, Disposable } from '../../../../base/common/lifecycle.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { INotificationViewItem } from '../../../common/notifications.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { ProgressBar } from '../../../../base/browser/ui/progressbar/progressbar.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 export declare class NotificationsListDelegate implements IListVirtualDelegate<INotificationViewItem> {
     private static readonly ROW_HEIGHT;
     private static readonly LINE_HEIGHT;

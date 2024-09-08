@@ -1,4 +1,4 @@
-import { CharCode } from "./charCode.js";
+import { CharCode } from './charCode.js';
 export declare function isPathSeparator(code: number): code is CharCode.Slash | CharCode.Backslash;
 /**
  * Takes a Windows OS path and changes backward slashes to forward slashes.

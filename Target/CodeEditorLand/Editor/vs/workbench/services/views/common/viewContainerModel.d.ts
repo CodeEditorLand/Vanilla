@@ -1,11 +1,11 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILoggerService } from "../../../../platform/log/common/log.js";
-import { type IAddedViewDescriptorRef, type IAddedViewDescriptorState, type IViewContainerModel, type IViewDescriptor, type IViewDescriptorRef, type ViewContainer } from "../../../common/views.js";
+import { ViewContainer, IViewDescriptor, IViewContainerModel, IAddedViewDescriptorRef, IViewDescriptorRef, IAddedViewDescriptorState } from '../../../common/views.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Event } from '../../../../base/common/event.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { ILoggerService } from '../../../../platform/log/common/log.js';
 export declare function getViewsStateStorageId(viewContainerStorageId: string): string;
 export declare class ViewContainerModel extends Disposable implements IViewContainerModel {
     readonly viewContainer: ViewContainer;

@@ -1,5 +1,5 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ILogService } from "../../log/common/log.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { ILogService } from '../../log/common/log.js';
 export declare const ignoreProcessNames: string[];
 /**
  * Monitors a process for child processes, checking at differing times depending on input and output

@@ -1,7 +1,7 @@
-import type { Parser } from "@vscode/tree-sitter-wasm";
-import { Event } from "../../../../base/common/event.js";
-import type { ITextModel } from "../../../common/model.js";
-import type { ITreeSitterParseResult, ITreeSitterParserService } from "../../../common/services/treeSitterParserService.js";
+import type { Parser } from '@vscode/tree-sitter-wasm';
+import { Event } from '../../../../base/common/event.js';
+import { ITextModel } from '../../../common/model.js';
+import { ITreeSitterParserService, ITreeSitterParseResult } from '../../../common/services/treeSitterParserService.js';
 export declare class TestTreeSitterParserService implements ITreeSitterParserService {
     onDidAddLanguage: Event<{
         id: string;

@@ -1,4 +1,1 @@
-var empty_default = () => ``;
-export {
-  empty_default as default
-};
+var e=()=>"";export{e as default};

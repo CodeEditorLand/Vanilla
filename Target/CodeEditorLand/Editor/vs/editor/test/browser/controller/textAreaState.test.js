@@ -1,462 +1,117 @@
-import assert from "assert";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../base/test/common/utils.js";
-import { PagedScreenReaderStrategy } from "../../../browser/controller/editContext/screenReaderUtils.js";
-import {
-  TextAreaState
-} from "../../../browser/controller/editContext/textArea/textAreaEditContextState.js";
-import { Range } from "../../../common/core/range.js";
-import { Selection } from "../../../common/core/selection.js";
-import { createTextModel } from "../../common/testTextModel.js";
-class MockTextAreaWrapper extends Disposable {
-  _value;
-  _selectionStart;
-  _selectionEnd;
-  constructor() {
-    super();
-    this._value = "";
-    this._selectionStart = 0;
-    this._selectionEnd = 0;
-  }
-  getValue() {
-    return this._value;
-  }
-  setValue(reason, value) {
-    this._value = value;
-    this._selectionStart = this._value.length;
-    this._selectionEnd = this._value.length;
-  }
-  getSelectionStart() {
-    return this._selectionStart;
-  }
-  getSelectionEnd() {
-    return this._selectionEnd;
-  }
-  setSelectionRange(reason, selectionStart, selectionEnd) {
-    if (selectionStart < 0) {
-      selectionStart = 0;
-    }
-    if (selectionStart > this._value.length) {
-      selectionStart = this._value.length;
-    }
-    if (selectionEnd < 0) {
-      selectionEnd = 0;
-    }
-    if (selectionEnd > this._value.length) {
-      selectionEnd = this._value.length;
-    }
-    this._selectionStart = selectionStart;
-    this._selectionEnd = selectionEnd;
-  }
-}
-function equalsTextAreaState(a, b) {
-  return a.value === b.value && a.selectionStart === b.selectionStart && a.selectionEnd === b.selectionEnd && Range.equalsRange(a.selection, b.selection) && a.newlineCountBeforeSelection === b.newlineCountBeforeSelection;
-}
-suite("TextAreaState", () => {
-  ensureNoDisposablesAreLeakedInTestSuite();
-  function assertTextAreaState(actual, value, selectionStart, selectionEnd) {
-    const desired = new TextAreaState(
-      value,
-      selectionStart,
-      selectionEnd,
-      null,
-      void 0
-    );
-    assert.ok(
-      equalsTextAreaState(desired, actual),
-      desired.toString() + " == " + actual.toString()
-    );
-  }
-  test("fromTextArea", () => {
-    const textArea = new MockTextAreaWrapper();
-    textArea._value = "Hello world!";
-    textArea._selectionStart = 1;
-    textArea._selectionEnd = 12;
-    let actual = TextAreaState.readFromTextArea(textArea, null);
-    assertTextAreaState(actual, "Hello world!", 1, 12);
-    assert.strictEqual(actual.value, "Hello world!");
-    assert.strictEqual(actual.selectionStart, 1);
-    actual = actual.collapseSelection();
-    assertTextAreaState(actual, "Hello world!", 12, 12);
-    textArea.dispose();
-  });
-  test("applyToTextArea", () => {
-    const textArea = new MockTextAreaWrapper();
-    textArea._value = "Hello world!";
-    textArea._selectionStart = 1;
-    textArea._selectionEnd = 12;
-    let state = new TextAreaState("Hi world!", 2, 2, null, void 0);
-    state.writeToTextArea("test", textArea, false);
-    assert.strictEqual(textArea._value, "Hi world!");
-    assert.strictEqual(textArea._selectionStart, 9);
-    assert.strictEqual(textArea._selectionEnd, 9);
-    state = new TextAreaState("Hi world!", 3, 3, null, void 0);
-    state.writeToTextArea("test", textArea, false);
-    assert.strictEqual(textArea._value, "Hi world!");
-    assert.strictEqual(textArea._selectionStart, 9);
-    assert.strictEqual(textArea._selectionEnd, 9);
-    state = new TextAreaState("Hi world!", 0, 2, null, void 0);
-    state.writeToTextArea("test", textArea, true);
-    assert.strictEqual(textArea._value, "Hi world!");
-    assert.strictEqual(textArea._selectionStart, 0);
-    assert.strictEqual(textArea._selectionEnd, 2);
-    textArea.dispose();
-  });
-  function testDeduceInput(prevState, value, selectionStart, selectionEnd, couldBeEmojiInput, expected, expectedCharReplaceCnt) {
-    prevState = prevState || TextAreaState.EMPTY;
-    const textArea = new MockTextAreaWrapper();
-    textArea._value = value;
-    textArea._selectionStart = selectionStart;
-    textArea._selectionEnd = selectionEnd;
-    const newState = TextAreaState.readFromTextArea(textArea, null);
-    const actual = TextAreaState.deduceInput(
-      prevState,
-      newState,
-      couldBeEmojiInput
-    );
-    assert.deepStrictEqual(actual, {
-      text: expected,
-      replacePrevCharCnt: expectedCharReplaceCnt,
-      replaceNextCharCnt: 0,
-      positionDelta: 0
-    });
-    textArea.dispose();
-  }
-  test("extractNewText - no previous state with selection", () => {
-    testDeduceInput(null, "a", 0, 1, true, "a", 0);
-  });
-  test("issue #2586: Replacing selected end-of-line with newline locks up the document", () => {
-    testDeduceInput(
-      new TextAreaState("]\n", 1, 2, null, void 0),
-      "]\n",
-      2,
-      2,
-      true,
-      "\n",
-      0
-    );
-  });
-  test("extractNewText - no previous state without selection", () => {
-    testDeduceInput(null, "a", 1, 1, true, "a", 0);
-  });
-  test("extractNewText - typing does not cause a selection", () => {
-    testDeduceInput(TextAreaState.EMPTY, "a", 0, 1, true, "a", 0);
-  });
-  test("extractNewText - had the textarea empty", () => {
-    testDeduceInput(TextAreaState.EMPTY, "a", 1, 1, true, "a", 0);
-  });
-  test("extractNewText - had the entire line selected", () => {
-    testDeduceInput(
-      new TextAreaState("Hello world!", 0, 12, null, void 0),
-      "H",
-      1,
-      1,
-      true,
-      "H",
-      0
-    );
-  });
-  test("extractNewText - had previous text 1", () => {
-    testDeduceInput(
-      new TextAreaState("Hello world!", 12, 12, null, void 0),
-      "Hello world!a",
-      13,
-      13,
-      true,
-      "a",
-      0
-    );
-  });
-  test("extractNewText - had previous text 2", () => {
-    testDeduceInput(
-      new TextAreaState("Hello world!", 0, 0, null, void 0),
-      "aHello world!",
-      1,
-      1,
-      true,
-      "a",
-      0
-    );
-  });
-  test("extractNewText - had previous text 3", () => {
-    testDeduceInput(
-      new TextAreaState("Hello world!", 6, 11, null, void 0),
-      "Hello other!",
-      11,
-      11,
-      true,
-      "other",
-      0
-    );
-  });
-  test("extractNewText - IME", () => {
-    testDeduceInput(TextAreaState.EMPTY, "\u3053\u308C\u306F", 3, 3, true, "\u3053\u308C\u306F", 0);
-  });
-  test("extractNewText - isInOverwriteMode", () => {
-    testDeduceInput(
-      new TextAreaState("Hello world!", 0, 0, null, void 0),
-      "Aello world!",
-      1,
-      1,
-      true,
-      "A",
-      0
-    );
-  });
-  test("extractMacReplacedText - does nothing if there is selection", () => {
-    testDeduceInput(
-      new TextAreaState("Hello world!", 5, 5, null, void 0),
-      "Hell\xF6 world!",
-      4,
-      5,
-      true,
-      "\xF6",
-      0
-    );
-  });
-  test("extractMacReplacedText - does nothing if there is more than one extra char", () => {
-    testDeduceInput(
-      new TextAreaState("Hello world!", 5, 5, null, void 0),
-      "Hell\xF6\xF6 world!",
-      5,
-      5,
-      true,
-      "\xF6\xF6",
-      1
-    );
-  });
-  test("extractMacReplacedText - does nothing if there is more than one changed char", () => {
-    testDeduceInput(
-      new TextAreaState("Hello world!", 5, 5, null, void 0),
-      "Hel\xF6\xF6 world!",
-      5,
-      5,
-      true,
-      "\xF6\xF6",
-      2
-    );
-  });
-  test("extractMacReplacedText", () => {
-    testDeduceInput(
-      new TextAreaState("Hello world!", 5, 5, null, void 0),
-      "Hell\xF6 world!",
-      5,
-      5,
-      true,
-      "\xF6",
-      1
-    );
-  });
-  test("issue #25101 - First key press ignored", () => {
-    testDeduceInput(
-      new TextAreaState("a", 0, 1, null, void 0),
-      "a",
-      1,
-      1,
-      true,
-      "a",
-      0
-    );
-  });
-  test("issue #16520 - Cmd-d of single character followed by typing same character as has no effect", () => {
-    testDeduceInput(
-      new TextAreaState("x x", 0, 1, null, void 0),
-      "x x",
-      1,
-      1,
-      true,
-      "x",
-      0
-    );
-  });
-  function testDeduceAndroidCompositionInput(prevState, value, selectionStart, selectionEnd, expected, expectedReplacePrevCharCnt, expectedReplaceNextCharCnt, expectedPositionDelta) {
-    prevState = prevState || TextAreaState.EMPTY;
-    const textArea = new MockTextAreaWrapper();
-    textArea._value = value;
-    textArea._selectionStart = selectionStart;
-    textArea._selectionEnd = selectionEnd;
-    const newState = TextAreaState.readFromTextArea(textArea, null);
-    const actual = TextAreaState.deduceAndroidCompositionInput(
-      prevState,
-      newState
-    );
-    assert.deepStrictEqual(actual, {
-      text: expected,
-      replacePrevCharCnt: expectedReplacePrevCharCnt,
-      replaceNextCharCnt: expectedReplaceNextCharCnt,
-      positionDelta: expectedPositionDelta
-    });
-    textArea.dispose();
-  }
-  test("Android composition input 1", () => {
-    testDeduceAndroidCompositionInput(
-      new TextAreaState("Microsoft", 4, 4, null, void 0),
-      "Microsoft",
-      4,
-      4,
-      "",
-      0,
-      0,
-      0
-    );
-  });
-  test("Android composition input 2", () => {
-    testDeduceAndroidCompositionInput(
-      new TextAreaState("Microsoft", 4, 4, null, void 0),
-      "Microsoft",
-      0,
-      9,
-      "",
-      0,
-      0,
-      5
-    );
-  });
-  test("Android composition input 3", () => {
-    testDeduceAndroidCompositionInput(
-      new TextAreaState("Microsoft", 0, 9, null, void 0),
-      "Microsoft's",
-      11,
-      11,
-      "'s",
-      0,
-      0,
-      0
-    );
-  });
-  test("Android backspace", () => {
-    testDeduceAndroidCompositionInput(
-      new TextAreaState("undefinedVariable", 2, 2, null, void 0),
-      "udefinedVariable",
-      1,
-      1,
-      "",
-      1,
-      0,
-      0
-    );
-  });
-  suite("PagedScreenReaderStrategy", () => {
-    function testPagedScreenReaderStrategy(lines, selection, expected) {
-      const model = createTextModel(lines.join("\n"));
-      const screenReaderContentState = PagedScreenReaderStrategy.fromEditorSelection(
-        model,
-        selection,
-        10,
-        true
-      );
-      const textAreaState = TextAreaState.fromScreenReaderContentState(
-        screenReaderContentState
-      );
-      assert.ok(equalsTextAreaState(textAreaState, expected));
-      model.dispose();
-    }
-    test("simple", () => {
-      testPagedScreenReaderStrategy(
-        ["Hello world!"],
-        new Selection(1, 13, 1, 13),
-        new TextAreaState(
-          "Hello world!",
-          12,
-          12,
-          new Range(1, 13, 1, 13),
-          0
-        )
-      );
-      testPagedScreenReaderStrategy(
-        ["Hello world!"],
-        new Selection(1, 1, 1, 1),
-        new TextAreaState(
-          "Hello world!",
-          0,
-          0,
-          new Range(1, 1, 1, 1),
-          0
-        )
-      );
-      testPagedScreenReaderStrategy(
-        ["Hello world!"],
-        new Selection(1, 1, 1, 6),
-        new TextAreaState(
-          "Hello world!",
-          0,
-          5,
-          new Range(1, 1, 1, 6),
-          0
-        )
-      );
-    });
-    test("multiline", () => {
-      testPagedScreenReaderStrategy(
-        ["Hello world!", "How are you?"],
-        new Selection(1, 1, 1, 1),
-        new TextAreaState(
-          "Hello world!\nHow are you?",
-          0,
-          0,
-          new Range(1, 1, 1, 1),
-          0
-        )
-      );
-      testPagedScreenReaderStrategy(
-        ["Hello world!", "How are you?"],
-        new Selection(2, 1, 2, 1),
-        new TextAreaState(
-          "Hello world!\nHow are you?",
-          13,
-          13,
-          new Range(2, 1, 2, 1),
-          1
-        )
-      );
-    });
-    test("page", () => {
-      testPagedScreenReaderStrategy(
-        [
-          "L1\nL2\nL3\nL4\nL5\nL6\nL7\nL8\nL9\nL10\nL11\nL12\nL13\nL14\nL15\nL16\nL17\nL18\nL19\nL20\nL21"
-        ],
-        new Selection(1, 1, 1, 1),
-        new TextAreaState(
-          "L1\nL2\nL3\nL4\nL5\nL6\nL7\nL8\nL9\nL10\n",
-          0,
-          0,
-          new Range(1, 1, 1, 1),
-          0
-        )
-      );
-      testPagedScreenReaderStrategy(
-        [
-          "L1\nL2\nL3\nL4\nL5\nL6\nL7\nL8\nL9\nL10\nL11\nL12\nL13\nL14\nL15\nL16\nL17\nL18\nL19\nL20\nL21"
-        ],
-        new Selection(11, 1, 11, 1),
-        new TextAreaState(
-          "L11\nL12\nL13\nL14\nL15\nL16\nL17\nL18\nL19\nL20\n",
-          0,
-          0,
-          new Range(11, 1, 11, 1),
-          0
-        )
-      );
-      testPagedScreenReaderStrategy(
-        [
-          "L1\nL2\nL3\nL4\nL5\nL6\nL7\nL8\nL9\nL10\nL11\nL12\nL13\nL14\nL15\nL16\nL17\nL18\nL19\nL20\nL21"
-        ],
-        new Selection(12, 1, 12, 1),
-        new TextAreaState(
-          "L11\nL12\nL13\nL14\nL15\nL16\nL17\nL18\nL19\nL20\n",
-          4,
-          4,
-          new Range(12, 1, 12, 1),
-          1
-        )
-      );
-      testPagedScreenReaderStrategy(
-        [
-          "L1\nL2\nL3\nL4\nL5\nL6\nL7\nL8\nL9\nL10\nL11\nL12\nL13\nL14\nL15\nL16\nL17\nL18\nL19\nL20\nL21"
-        ],
-        new Selection(21, 1, 21, 1),
-        new TextAreaState("L21", 0, 0, new Range(21, 1, 21, 1), 0)
-      );
-    });
-  });
-});
+import r from"assert";import{Disposable as S}from"../../../../base/common/lifecycle.js";import{ensureNoDisposablesAreLeakedInTestSuite as H}from"../../../../base/test/common/utils.js";import{TextAreaState as t}from"../../../browser/controller/editContext/textArea/textAreaEditContextState.js";import{Range as i}from"../../../common/core/range.js";import{Selection as u}from"../../../common/core/selection.js";import{createTextModel as g}from"../../common/testTextModel.js";import{PagedScreenReaderStrategy as _}from"../../../browser/controller/editContext/screenReaderUtils.js";class f extends S{_value;_selectionStart;_selectionEnd;constructor(){super(),this._value="",this._selectionStart=0,this._selectionEnd=0}getValue(){return this._value}setValue(n,o){this._value=o,this._selectionStart=this._value.length,this._selectionEnd=this._value.length}getSelectionStart(){return this._selectionStart}getSelectionEnd(){return this._selectionEnd}setSelectionRange(n,o,e){o<0&&(o=0),o>this._value.length&&(o=this._value.length),e<0&&(e=0),e>this._value.length&&(e=this._value.length),this._selectionStart=o,this._selectionEnd=e}}function m(a,n){return a.value===n.value&&a.selectionStart===n.selectionStart&&a.selectionEnd===n.selectionEnd&&i.equalsRange(a.selection,n.selection)&&a.newlineCountBeforeSelection===n.newlineCountBeforeSelection}suite("TextAreaState",()=>{H();function a(e,l,d,c){const s=new t(l,d,c,null,void 0);r.ok(m(s,e),s.toString()+" == "+e.toString())}test("fromTextArea",()=>{const e=new f;e._value="Hello world!",e._selectionStart=1,e._selectionEnd=12;let l=t.readFromTextArea(e,null);a(l,"Hello world!",1,12),r.strictEqual(l.value,"Hello world!"),r.strictEqual(l.selectionStart,1),l=l.collapseSelection(),a(l,"Hello world!",12,12),e.dispose()}),test("applyToTextArea",()=>{const e=new f;e._value="Hello world!",e._selectionStart=1,e._selectionEnd=12;let l=new t("Hi world!",2,2,null,void 0);l.writeToTextArea("test",e,!1),r.strictEqual(e._value,"Hi world!"),r.strictEqual(e._selectionStart,9),r.strictEqual(e._selectionEnd,9),l=new t("Hi world!",3,3,null,void 0),l.writeToTextArea("test",e,!1),r.strictEqual(e._value,"Hi world!"),r.strictEqual(e._selectionStart,9),r.strictEqual(e._selectionEnd,9),l=new t("Hi world!",0,2,null,void 0),l.writeToTextArea("test",e,!0),r.strictEqual(e._value,"Hi world!"),r.strictEqual(e._selectionStart,0),r.strictEqual(e._selectionEnd,2),e.dispose()});function n(e,l,d,c,s,x,p){e=e||t.EMPTY;const L=new f;L._value=l,L._selectionStart=d,L._selectionEnd=c;const w=t.readFromTextArea(L,null),h=t.deduceInput(e,w,s);r.deepStrictEqual(h,{text:x,replacePrevCharCnt:p,replaceNextCharCnt:0,positionDelta:0}),L.dispose()}test("extractNewText - no previous state with selection",()=>{n(null,"a",0,1,!0,"a",0)}),test("issue #2586: Replacing selected end-of-line with newline locks up the document",()=>{n(new t(`]
+`,1,2,null,void 0),`]
+`,2,2,!0,`
+`,0)}),test("extractNewText - no previous state without selection",()=>{n(null,"a",1,1,!0,"a",0)}),test("extractNewText - typing does not cause a selection",()=>{n(t.EMPTY,"a",0,1,!0,"a",0)}),test("extractNewText - had the textarea empty",()=>{n(t.EMPTY,"a",1,1,!0,"a",0)}),test("extractNewText - had the entire line selected",()=>{n(new t("Hello world!",0,12,null,void 0),"H",1,1,!0,"H",0)}),test("extractNewText - had previous text 1",()=>{n(new t("Hello world!",12,12,null,void 0),"Hello world!a",13,13,!0,"a",0)}),test("extractNewText - had previous text 2",()=>{n(new t("Hello world!",0,0,null,void 0),"aHello world!",1,1,!0,"a",0)}),test("extractNewText - had previous text 3",()=>{n(new t("Hello world!",6,11,null,void 0),"Hello other!",11,11,!0,"other",0)}),test("extractNewText - IME",()=>{n(t.EMPTY,"\u3053\u308C\u306F",3,3,!0,"\u3053\u308C\u306F",0)}),test("extractNewText - isInOverwriteMode",()=>{n(new t("Hello world!",0,0,null,void 0),"Aello world!",1,1,!0,"A",0)}),test("extractMacReplacedText - does nothing if there is selection",()=>{n(new t("Hello world!",5,5,null,void 0),"Hell\xF6 world!",4,5,!0,"\xF6",0)}),test("extractMacReplacedText - does nothing if there is more than one extra char",()=>{n(new t("Hello world!",5,5,null,void 0),"Hell\xF6\xF6 world!",5,5,!0,"\xF6\xF6",1)}),test("extractMacReplacedText - does nothing if there is more than one changed char",()=>{n(new t("Hello world!",5,5,null,void 0),"Hel\xF6\xF6 world!",5,5,!0,"\xF6\xF6",2)}),test("extractMacReplacedText",()=>{n(new t("Hello world!",5,5,null,void 0),"Hell\xF6 world!",5,5,!0,"\xF6",1)}),test("issue #25101 - First key press ignored",()=>{n(new t("a",0,1,null,void 0),"a",1,1,!0,"a",0)}),test("issue #16520 - Cmd-d of single character followed by typing same character as has no effect",()=>{n(new t("x x",0,1,null,void 0),"x x",1,1,!0,"x",0)});function o(e,l,d,c,s,x,p,L){e=e||t.EMPTY;const w=new f;w._value=l,w._selectionStart=d,w._selectionEnd=c;const h=t.readFromTextArea(w,null),T=t.deduceAndroidCompositionInput(e,h);r.deepStrictEqual(T,{text:s,replacePrevCharCnt:x,replaceNextCharCnt:p,positionDelta:L}),w.dispose()}test("Android composition input 1",()=>{o(new t("Microsoft",4,4,null,void 0),"Microsoft",4,4,"",0,0,0)}),test("Android composition input 2",()=>{o(new t("Microsoft",4,4,null,void 0),"Microsoft",0,9,"",0,0,5)}),test("Android composition input 3",()=>{o(new t("Microsoft",0,9,null,void 0),"Microsoft's",11,11,"'s",0,0,0)}),test("Android backspace",()=>{o(new t("undefinedVariable",2,2,null,void 0),"udefinedVariable",1,1,"",1,0,0)}),suite("PagedScreenReaderStrategy",()=>{function e(l,d,c){const s=g(l.join(`
+`)),x=_.fromEditorSelection(s,d,10,!0),p=t.fromScreenReaderContentState(x);r.ok(m(p,c)),s.dispose()}test("simple",()=>{e(["Hello world!"],new u(1,13,1,13),new t("Hello world!",12,12,new i(1,13,1,13),0)),e(["Hello world!"],new u(1,1,1,1),new t("Hello world!",0,0,new i(1,1,1,1),0)),e(["Hello world!"],new u(1,1,1,6),new t("Hello world!",0,5,new i(1,1,1,6),0))}),test("multiline",()=>{e(["Hello world!","How are you?"],new u(1,1,1,1),new t(`Hello world!
+How are you?`,0,0,new i(1,1,1,1),0)),e(["Hello world!","How are you?"],new u(2,1,2,1),new t(`Hello world!
+How are you?`,13,13,new i(2,1,2,1),1))}),test("page",()=>{e([`L1
+L2
+L3
+L4
+L5
+L6
+L7
+L8
+L9
+L10
+L11
+L12
+L13
+L14
+L15
+L16
+L17
+L18
+L19
+L20
+L21`],new u(1,1,1,1),new t(`L1
+L2
+L3
+L4
+L5
+L6
+L7
+L8
+L9
+L10
+`,0,0,new i(1,1,1,1),0)),e([`L1
+L2
+L3
+L4
+L5
+L6
+L7
+L8
+L9
+L10
+L11
+L12
+L13
+L14
+L15
+L16
+L17
+L18
+L19
+L20
+L21`],new u(11,1,11,1),new t(`L11
+L12
+L13
+L14
+L15
+L16
+L17
+L18
+L19
+L20
+`,0,0,new i(11,1,11,1),0)),e([`L1
+L2
+L3
+L4
+L5
+L6
+L7
+L8
+L9
+L10
+L11
+L12
+L13
+L14
+L15
+L16
+L17
+L18
+L19
+L20
+L21`],new u(12,1,12,1),new t(`L11
+L12
+L13
+L14
+L15
+L16
+L17
+L18
+L19
+L20
+`,4,4,new i(12,1,12,1),1)),e([`L1
+L2
+L3
+L4
+L5
+L6
+L7
+L8
+L9
+L10
+L11
+L12
+L13
+L14
+L15
+L16
+L17
+L18
+L19
+L20
+L21`],new u(21,1,21,1),new t("L21",0,0,new i(21,1,21,1),0))})})});

@@ -1,9 +1,9 @@
-import type { BreadcrumbsWidget } from "../../../../base/browser/ui/breadcrumbs/breadcrumbsWidget.js";
-import { type Event } from "../../../../base/common/event.js";
-import type * as glob from "../../../../base/common/glob.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { IConfigurationOverrides, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import type { GroupIdentifier } from "../../../common/editor.js";
+import { BreadcrumbsWidget } from '../../../../base/browser/ui/breadcrumbs/breadcrumbsWidget.js';
+import { Event } from '../../../../base/common/event.js';
+import * as glob from '../../../../base/common/glob.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IConfigurationOverrides, IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { GroupIdentifier } from '../../../common/editor.js';
 export declare const IBreadcrumbsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IBreadcrumbsService>;
 export interface IBreadcrumbsService {
     readonly _serviceBrand: undefined;

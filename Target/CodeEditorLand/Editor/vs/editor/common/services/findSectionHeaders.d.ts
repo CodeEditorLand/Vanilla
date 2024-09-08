@@ -1,5 +1,5 @@
-import type { IRange } from "../core/range.js";
-import type { FoldingRules } from "../languages/languageConfiguration.js";
+import { IRange } from '../core/range.js';
+import { FoldingRules } from '../languages/languageConfiguration.js';
 export interface ISectionHeaderFinderTarget {
     getLineCount(): number;
     getLineContent(lineNumber: number): string;

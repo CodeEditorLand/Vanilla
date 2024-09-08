@@ -21,13 +21,13 @@ export interface INodeProcess {
     type?: string;
     cwd: () => string;
 }
-export declare enum Platform {
+export declare const enum Platform {
     Web = 0,
     Mac = 1,
     Linux = 2,
     Windows = 3
 }
-export type PlatformName = "Web" | "Windows" | "Mac" | "Linux";
+export type PlatformName = 'Web' | 'Windows' | 'Mac' | 'Linux';
 export declare function PlatformToString(platform: Platform): PlatformName;
 export declare const isWindows: boolean;
 export declare const isMacintosh: boolean;
@@ -84,7 +84,7 @@ export declare const setTimeout0IsFaster: boolean;
  * that browsers set when the nesting level is > 5.
  */
 export declare const setTimeout0: (callback: () => void) => void;
-export declare enum OperatingSystem {
+export declare const enum OperatingSystem {
     Windows = 1,
     Macintosh = 2,
     Linux = 3

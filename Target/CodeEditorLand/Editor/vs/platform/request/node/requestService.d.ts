@@ -1,11 +1,11 @@
-import type * as http from "http";
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import type { IRequestContext, IRequestOptions } from "../../../base/parts/request/common/request.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { INativeEnvironmentService } from "../../environment/common/environment.js";
-import { ILogService, type ILogger } from "../../log/common/log.js";
-import { AbstractRequestService, type AuthInfo, type Credentials, type IRequestService } from "../common/request.js";
-import { type Agent } from "./proxy.js";
+import * as http from 'http';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IRequestContext, IRequestOptions } from '../../../base/parts/request/common/request.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { INativeEnvironmentService } from '../../environment/common/environment.js';
+import { ILogService, ILogger } from '../../log/common/log.js';
+import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from '../common/request.js';
+import { Agent } from './proxy.js';
 export interface IRawRequestFunction {
     (options: http.RequestOptions, callback?: (res: http.IncomingMessage) => void): http.ClientRequest;
 }

@@ -1,8 +1,8 @@
-import { type IMarkdownString } from "../../../../base/common/htmlContent.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { GlyphMarginLane } from "../../../common/model.js";
-import type { IHoverComputer } from "./hoverOperation.js";
-export type LaneOrLineNumber = GlyphMarginLane | "lineNo";
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IHoverComputer } from './hoverOperation.js';
+import { GlyphMarginLane } from '../../../common/model.js';
+export type LaneOrLineNumber = GlyphMarginLane | 'lineNo';
 export interface IHoverMessage {
     value: IMarkdownString;
 }

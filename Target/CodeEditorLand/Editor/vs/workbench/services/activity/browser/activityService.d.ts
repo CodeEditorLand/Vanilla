@@ -1,8 +1,8 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IViewDescriptorService, type ViewContainer } from "../../../common/views.js";
-import { IActivityService, type IActivity } from "../common/activity.js";
+import { IActivityService, IActivity } from '../common/activity.js';
+import { IDisposable, Disposable } from '../../../../base/common/lifecycle.js';
+import { IViewDescriptorService, ViewContainer } from '../../../common/views.js';
+import { Event } from '../../../../base/common/event.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 export declare class ActivityService extends Disposable implements IActivityService {
     private readonly viewDescriptorService;
     private readonly instantiationService;

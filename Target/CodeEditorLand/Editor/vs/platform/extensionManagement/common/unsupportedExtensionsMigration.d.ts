@@ -1,6 +1,6 @@
-import type { ILogService } from "../../log/common/log.js";
-import { type IExtensionGalleryService, type IExtensionManagementService, type IGlobalExtensionEnablementService } from "./extensionManagement.js";
-import type { IExtensionStorageService } from "./extensionStorage.js";
+import { IExtensionGalleryService, IExtensionManagementService, IGlobalExtensionEnablementService } from './extensionManagement.js';
+import { IExtensionStorageService } from './extensionStorage.js';
+import { ILogService } from '../../log/common/log.js';
 /**
  * Migrates the installed unsupported nightly extension to a supported pre-release extension. It includes following:
  * 	- Uninstall the Unsupported extension

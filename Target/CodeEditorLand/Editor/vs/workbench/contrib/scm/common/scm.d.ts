@@ -1,15 +1,15 @@
-import type { IAction } from "../../../../base/common/actions.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { IObservable } from "../../../../base/common/observable.js";
-import type { ResourceTree } from "../../../../base/common/resourceTree.js";
-import type { ThemeIcon } from "../../../../base/common/themables.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { Command } from "../../../../editor/common/languages.js";
-import type { ITextModel } from "../../../../editor/common/model.js";
-import type { IMenu } from "../../../../platform/actions/common/actions.js";
-import type { ISCMHistoryProvider } from "./history.js";
+import { URI } from '../../../../base/common/uri.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { Command } from '../../../../editor/common/languages.js';
+import { IAction } from '../../../../base/common/actions.js';
+import { IMenu } from '../../../../platform/actions/common/actions.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { ResourceTree } from '../../../../base/common/resourceTree.js';
+import { ISCMHistoryProvider } from './history.js';
+import { ITextModel } from '../../../../editor/common/model.js';
+import { IObservable } from '../../../../base/common/observable.js';
 export declare const VIEWLET_ID = "workbench.view.scm";
 export declare const VIEW_PANE_ID = "workbench.scm";
 export declare const REPOSITORIES_VIEW_PANE_ID = "workbench.scm.repositories";
@@ -69,7 +69,7 @@ export interface ISCMInputValueProviderContext {
     readonly resourceGroupId: string;
     readonly resources: readonly URI[];
 }
-export declare enum InputValidationType {
+export declare const enum InputValidationType {
     Error = 0,
     Warning = 1,
     Information = 2
@@ -96,7 +96,7 @@ export interface ISCMActionButtonDescriptor {
     enabled: boolean;
 }
 export interface ISCMActionButton {
-    readonly type: "actionButton";
+    readonly type: 'actionButton';
     readonly repository: ISCMRepository;
     readonly button?: ISCMActionButtonDescriptor;
 }
@@ -152,7 +152,7 @@ export interface ISCMRepositoryMenus {
 export interface ISCMMenus {
     getRepositoryMenus(provider: ISCMProvider): ISCMRepositoryMenus;
 }
-export declare enum ISCMRepositorySortKey {
+export declare const enum ISCMRepositorySortKey {
     DiscoveryTime = "discoveryTime",
     Name = "name",
     Path = "path"
@@ -181,4 +181,5 @@ export interface ISCMViewService {
     readonly activeRepository: IObservable<ISCMRepository | undefined>;
 }
 export declare const SCM_CHANGES_EDITOR_ID = "workbench.editor.scmChangesEditor";
-export type ISCMChangesEditor = {};
+export interface ISCMChangesEditor {
+}

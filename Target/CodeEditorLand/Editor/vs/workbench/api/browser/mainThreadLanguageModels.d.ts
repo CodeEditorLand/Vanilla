@@ -1,14 +1,14 @@
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { type SerializedError } from "../../../base/common/errors.js";
-import type { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { ILanguageModelsService, type IChatMessage, type IChatResponseFragment, type ILanguageModelChatMetadata, type ILanguageModelChatSelector } from "../../contrib/chat/common/languageModels.js";
-import { ILanguageModelStatsService } from "../../contrib/chat/common/languageModelStats.js";
-import { IAuthenticationAccessService } from "../../services/authentication/browser/authenticationAccessService.js";
-import { IAuthenticationService } from "../../services/authentication/common/authentication.js";
-import { IExtensionService } from "../../services/extensions/common/extensions.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { type MainThreadLanguageModelsShape } from "../common/extHost.protocol.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { SerializedError } from '../../../base/common/errors.js';
+import { ExtensionIdentifier } from '../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { MainThreadLanguageModelsShape } from '../common/extHost.protocol.js';
+import { ILanguageModelStatsService } from '../../contrib/chat/common/languageModelStats.js';
+import { ILanguageModelChatMetadata, IChatResponseFragment, ILanguageModelsService, IChatMessage, ILanguageModelChatSelector } from '../../contrib/chat/common/languageModels.js';
+import { IAuthenticationAccessService } from '../../services/authentication/browser/authenticationAccessService.js';
+import { IAuthenticationService } from '../../services/authentication/common/authentication.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IExtensionService } from '../../services/extensions/common/extensions.js';
 export declare class MainThreadLanguageModels implements MainThreadLanguageModelsShape {
     private readonly _chatProviderService;
     private readonly _languageModelStatsService;

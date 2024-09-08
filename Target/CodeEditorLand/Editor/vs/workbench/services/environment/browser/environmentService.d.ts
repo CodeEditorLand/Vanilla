@@ -1,10 +1,10 @@
-import { URI } from "../../../../base/common/uri.js";
-import type { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { type ExtensionKind, type IExtensionHostDebugParams } from "../../../../platform/environment/common/environment.js";
-import type { IProductService } from "../../../../platform/product/common/productService.js";
-import type { IPath } from "../../../../platform/window/common/window.js";
-import type { IWorkbenchConstructionOptions } from "../../../browser/web.api.js";
-import type { IWorkbenchEnvironmentService } from "../common/environmentService.js";
+import { URI } from '../../../../base/common/uri.js';
+import { ExtensionKind, IExtensionHostDebugParams } from '../../../../platform/environment/common/environment.js';
+import { IPath } from '../../../../platform/window/common/window.js';
+import { IWorkbenchEnvironmentService } from '../common/environmentService.js';
+import { IWorkbenchConstructionOptions } from '../../../browser/web.api.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { ITextEditorOptions } from '../../../../platform/editor/common/editor.js';
 export declare const IBrowserWorkbenchEnvironmentService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IBrowserWorkbenchEnvironmentService>;
 /**
  * A subclass of the `IWorkbenchEnvironmentService` to be used only environments
@@ -48,7 +48,7 @@ export declare class BrowserWorkbenchEnvironmentService implements IBrowserWorkb
      * is capable of handling opening same workspace in multiple windows.
      */
     get userDataSyncHome(): URI;
-    get sync(): "on" | "off" | undefined;
+    get sync(): 'on' | 'off' | undefined;
     get keyboardLayoutResource(): URI;
     get untitledWorkspacesHome(): URI;
     get serviceMachineIdResource(): URI;

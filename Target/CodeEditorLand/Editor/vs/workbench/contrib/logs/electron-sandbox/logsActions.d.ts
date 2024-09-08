@@ -1,8 +1,8 @@
-import { Action } from "../../../../base/common/actions.js";
-import * as nls from "../../../../nls.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { Action } from '../../../../base/common/actions.js';
+import * as nls from '../../../../nls.js';
+import { INativeHostService } from '../../../../platform/native/common/native.js';
+import { INativeWorkbenchEnvironmentService } from '../../../services/environment/electron-sandbox/environmentService.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
 export declare class OpenLogsFolderAction extends Action {
     private readonly environmentService;
     private readonly nativeHostService;

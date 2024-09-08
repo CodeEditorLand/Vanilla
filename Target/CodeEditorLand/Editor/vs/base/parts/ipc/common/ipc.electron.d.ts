@@ -1,6 +1,6 @@
-import type { VSBuffer } from "../../../common/buffer.js";
-import type { Event } from "../../../common/event.js";
-import type { IMessagePassingProtocol } from "./ipc.js";
+import { VSBuffer } from '../../../common/buffer.js';
+import { Event } from '../../../common/event.js';
+import { IMessagePassingProtocol } from './ipc.js';
 export interface Sender {
     send(channel: string, msg: unknown): void;
 }

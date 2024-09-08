@@ -1,4 +1,4 @@
-import type { URI } from "../../../../base/common/uri.js";
+import { URI } from '../../../../base/common/uri.js';
 export declare const INotebookDocumentService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<INotebookDocumentService>;
 export interface INotebookDocument {
     readonly uri: URI;

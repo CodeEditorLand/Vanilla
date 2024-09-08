@@ -1,9 +1,9 @@
-import type { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import type { IEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { EditorInputCapabilities, type IUntypedEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import type { ExtensionEditorTab, IExtension } from "./extensions.js";
+import { URI } from '../../../../base/common/uri.js';
+import { EditorInputCapabilities, IUntypedEditorInput } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { ExtensionEditorTab, IExtension } from './extensions.js';
+import { IEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
 export interface IExtensionEditorOptions extends IEditorOptions {
     showPreReleaseVersion?: boolean;
     tab?: ExtensionEditorTab;

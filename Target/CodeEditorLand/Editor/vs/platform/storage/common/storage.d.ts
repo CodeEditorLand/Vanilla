@@ -1,8 +1,8 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable, type DisposableStore } from "../../../base/common/lifecycle.js";
-import { type IStorage, type IStorageChangeEvent, type StorageValue } from "../../../base/parts/storage/common/storage.js";
-import { type IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
-import type { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable, DisposableStore } from '../../../base/common/lifecycle.js';
+import { IStorage, IStorageChangeEvent, StorageValue } from '../../../base/parts/storage/common/storage.js';
+import { IUserDataProfile } from '../../userDataProfile/common/userDataProfile.js';
+import { IAnyWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 export declare const IS_NEW_KEY = "__$__isNewStorageMarker";
 export declare const TARGET_KEY = "__$__targetStorageMarker";
 export declare const IStorageService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IStorageService>;
@@ -181,7 +181,7 @@ export interface IStorageService {
      */
     flush(reason?: WillSaveStateReason): Promise<void>;
 }
-export declare enum StorageScope {
+export declare const enum StorageScope {
     /**
      * The stored data will be scoped to all workspaces across all profiles.
      */
@@ -195,7 +195,7 @@ export declare enum StorageScope {
      */
     WORKSPACE = 1
 }
-export declare enum StorageTarget {
+export declare const enum StorageTarget {
     /**
      * The stored data is user specific and applies across machines.
      */

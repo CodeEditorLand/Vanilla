@@ -1,7 +1,7 @@
-import { Color } from "../../../base/common/color.js";
-import { type Event } from "../../../base/common/event.js";
-import type { IJSONSchema } from "../../../base/common/jsonSchema.js";
-import type { IColorTheme } from "./themeService.js";
+import { Color } from '../../../base/common/color.js';
+import { Event } from '../../../base/common/event.js';
+import { IJSONSchema } from '../../../base/common/jsonSchema.js';
+import { IColorTheme } from './themeService.js';
 export type ColorIdentifier = string;
 export interface ColorContribution {
     readonly id: ColorIdentifier;
@@ -19,7 +19,7 @@ export interface ColorContribution {
 export declare function asCssVariableName(colorIdent: ColorIdentifier): string;
 export declare function asCssVariable(color: ColorIdentifier): string;
 export declare function asCssVariableWithDefault(color: ColorIdentifier, defaultCssValue: string): string;
-export declare enum ColorTransformType {
+export declare const enum ColorTransformType {
     Darken = 0,
     Lighten = 1,
     Transparent = 2,

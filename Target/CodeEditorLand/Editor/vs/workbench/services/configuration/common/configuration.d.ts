@@ -1,9 +1,9 @@
-import type { Event } from "../../../../base/common/event.js";
-import type { ResourceMap } from "../../../../base/common/map.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ConfigurationScope } from "../../../../platform/configuration/common/configurationRegistry.js";
-import type { IAnyWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
+import { ConfigurationScope } from '../../../../platform/configuration/common/configurationRegistry.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { Event } from '../../../../base/common/event.js';
+import { ResourceMap } from '../../../../base/common/map.js';
+import { IAnyWorkspaceIdentifier } from '../../../../platform/workspace/common/workspace.js';
 export declare const FOLDER_CONFIG_FOLDER_NAME = ".vscode";
 export declare const FOLDER_SETTINGS_NAME = "settings";
 export declare const FOLDER_SETTINGS_PATH = ".vscode/settings.json";
@@ -27,7 +27,7 @@ export declare const LAUNCH_CONFIGURATION_KEY = "launch";
 export declare const WORKSPACE_STANDALONE_CONFIGURATIONS: any;
 export declare const USER_STANDALONE_CONFIGURATIONS: any;
 export type ConfigurationKey = {
-    type: "defaults" | "user" | "workspaces" | "folder";
+    type: 'defaults' | 'user' | 'workspaces' | 'folder';
     key: string;
 };
 export interface IConfigurationCache {

@@ -1,6 +1,6 @@
-import type { ITreeNavigator } from "../../../../../base/browser/ui/tree/tree.js";
-import type { IDisposable } from "../../../../../base/common/lifecycle.js";
-import type { RenderableMatch } from "../../browser/searchModel.js";
+import { ITreeNavigator } from '../../../../../base/browser/ui/tree/tree.js';
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { RenderableMatch } from '../../browser/searchModel.js';
 /**
  * Add stub methods as needed
  */

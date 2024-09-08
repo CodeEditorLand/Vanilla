@@ -1,5 +1,5 @@
-import type { ContentHoverComputerOptions } from "./contentHoverComputer.js";
-import type { HoverAnchor, IHoverPart } from "./hoverTypes.js";
+import { ContentHoverComputerOptions } from './contentHoverComputer.js';
+import { HoverAnchor, IHoverPart } from './hoverTypes.js';
 export declare class ContentHoverResult {
     readonly hoverParts: IHoverPart[];
     readonly isComplete: boolean;

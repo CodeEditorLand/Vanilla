@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { type CharacterPair, type CommentRule, type ExplicitLanguageConfiguration, type IAutoClosingPair, type IAutoClosingPairConditional } from "../../../../editor/common/languages/languageConfiguration.js";
-import { ILanguageConfigurationService } from "../../../../editor/common/languages/languageConfigurationRegistry.js";
-import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { CharacterPair, CommentRule, ExplicitLanguageConfiguration, IAutoClosingPair, IAutoClosingPairConditional } from '../../../../editor/common/languages/languageConfiguration.js';
+import { ILanguageConfigurationService } from '../../../../editor/common/languages/languageConfigurationRegistry.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { IExtensionResourceLoaderService } from '../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 interface IRegExp {
     pattern: string;
     flags?: string;
@@ -15,7 +15,7 @@ interface IIndentationRules {
     unIndentedLinePattern?: string | IRegExp;
 }
 interface IEnterAction {
-    indent: "none" | "indent" | "indentOutdent" | "outdent";
+    indent: 'none' | 'indent' | 'indentOutdent' | 'outdent';
     appendText?: string;
     removeText?: number;
 }

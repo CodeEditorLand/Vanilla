@@ -1,4 +1,4 @@
-import { type IMatch } from "./filters.js";
+import { IMatch } from './filters.js';
 export declare function escapeIcons(text: string): string;
 export declare function markdownEscapeEscapedIcons(text: string): string;
 /**

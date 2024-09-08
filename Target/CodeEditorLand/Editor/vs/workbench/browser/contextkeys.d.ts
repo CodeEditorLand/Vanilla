@@ -1,14 +1,14 @@
-import { Disposable } from "../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
-import { IProductService } from "../../platform/product/common/productService.js";
-import { IWorkspaceContextService } from "../../platform/workspace/common/workspace.js";
-import { IEditorGroupsService } from "../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../services/editor/common/editorService.js";
-import { IWorkbenchEnvironmentService } from "../services/environment/common/environmentService.js";
-import { IWorkbenchLayoutService } from "../services/layout/browser/layoutService.js";
-import { IPaneCompositePartService } from "../services/panecomposite/browser/panecomposite.js";
-import { IWorkingCopyService } from "../services/workingCopy/common/workingCopyService.js";
+import { Disposable } from '../../base/common/lifecycle.js';
+import { IContextKeyService } from '../../platform/contextkey/common/contextkey.js';
+import { IEditorGroupsService } from '../services/editor/common/editorGroupsService.js';
+import { IConfigurationService } from '../../platform/configuration/common/configuration.js';
+import { IWorkbenchEnvironmentService } from '../services/environment/common/environmentService.js';
+import { IWorkspaceContextService } from '../../platform/workspace/common/workspace.js';
+import { IWorkbenchLayoutService } from '../services/layout/browser/layoutService.js';
+import { IWorkingCopyService } from '../services/workingCopy/common/workingCopyService.js';
+import { IPaneCompositePartService } from '../services/panecomposite/browser/panecomposite.js';
+import { IProductService } from '../../platform/product/common/productService.js';
+import { IEditorService } from '../services/editor/common/editorService.js';
 export declare class WorkbenchContextKeysHandler extends Disposable {
     private readonly contextKeyService;
     private readonly contextService;

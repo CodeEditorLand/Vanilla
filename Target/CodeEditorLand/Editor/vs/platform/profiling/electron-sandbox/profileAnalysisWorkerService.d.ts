@@ -1,7 +1,7 @@
-import type { URI } from "../../../base/common/uri.js";
-import type { IV8Profile } from "../common/profiling.js";
-import type { BottomUpSample } from "../common/profilingModel.js";
-export declare enum ProfilingOutput {
+import { URI } from '../../../base/common/uri.js';
+import { IV8Profile } from '../common/profiling.js';
+import { BottomUpSample } from '../common/profilingModel.js';
+export declare const enum ProfilingOutput {
     Failure = 0,
     Irrelevant = 1,
     Interesting = 2

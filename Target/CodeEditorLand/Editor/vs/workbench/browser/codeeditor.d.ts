@@ -1,15 +1,15 @@
-import type { IAction } from "../../base/common/actions.js";
-import { Disposable } from "../../base/common/lifecycle.js";
-import type { URI } from "../../base/common/uri.js";
-import { type ICodeEditor, type IOverlayWidget, type IOverlayWidgetPosition } from "../../editor/browser/editorBrowser.js";
-import type { IRange } from "../../editor/common/core/range.js";
-import type { IEditorContribution } from "../../editor/common/editorCommon.js";
-import { AbstractFloatingClickMenu, FloatingClickWidget } from "../../platform/actions/browser/floatingMenu.js";
-import { IMenuService } from "../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../platform/keybinding/common/keybinding.js";
-import { IEditorService } from "../services/editor/common/editorService.js";
+import { IAction } from '../../base/common/actions.js';
+import { Disposable } from '../../base/common/lifecycle.js';
+import { URI } from '../../base/common/uri.js';
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from '../../editor/browser/editorBrowser.js';
+import { IRange } from '../../editor/common/core/range.js';
+import { IEditorContribution } from '../../editor/common/editorCommon.js';
+import { AbstractFloatingClickMenu, FloatingClickWidget } from '../../platform/actions/browser/floatingMenu.js';
+import { IMenuService } from '../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../platform/keybinding/common/keybinding.js';
+import { IEditorService } from '../services/editor/common/editorService.js';
 export interface IRangeHighlightDecoration {
     resource: URI;
     range: IRange;

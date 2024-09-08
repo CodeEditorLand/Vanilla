@@ -1,9 +1,9 @@
-import type * as vscode from "vscode";
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import type { IChatRequestVariableValue } from "../../contrib/chat/common/chatVariables.js";
-import { type ExtHostChatVariablesShape, type IMainContext } from "./extHost.protocol.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ExtHostChatVariablesShape, IMainContext } from './extHost.protocol.js';
+import { IChatRequestVariableValue } from '../../contrib/chat/common/chatVariables.js';
+import type * as vscode from 'vscode';
 export declare class ExtHostChatVariables implements ExtHostChatVariablesShape {
     private static _idPool;
     private readonly _resolver;

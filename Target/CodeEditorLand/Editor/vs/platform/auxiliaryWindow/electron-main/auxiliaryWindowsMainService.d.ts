@@ -1,10 +1,10 @@
-import { type BrowserWindowConstructorOptions, type HandlerDetails, type WebContents } from "electron";
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { ILogService } from "../../log/common/log.js";
-import { AuxiliaryWindow, type IAuxiliaryWindow } from "./auxiliaryWindow.js";
-import type { IAuxiliaryWindowsMainService } from "./auxiliaryWindows.js";
+import { BrowserWindowConstructorOptions, HandlerDetails, WebContents } from 'electron';
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { AuxiliaryWindow, IAuxiliaryWindow } from './auxiliaryWindow.js';
+import { IAuxiliaryWindowsMainService } from './auxiliaryWindows.js';
+import { IInstantiationService } from '../../instantiation/common/instantiation.js';
+import { ILogService } from '../../log/common/log.js';
 export declare class AuxiliaryWindowsMainService extends Disposable implements IAuxiliaryWindowsMainService {
     private readonly instantiationService;
     private readonly logService;

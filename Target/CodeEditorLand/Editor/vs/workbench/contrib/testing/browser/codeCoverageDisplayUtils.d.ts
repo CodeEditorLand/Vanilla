@@ -1,8 +1,8 @@
-import { TestingDisplayedCoveragePercent, type ITestingCoverageBarThresholds } from "../common/configuration.js";
-import type { TestId } from "../common/testId.js";
-import type { LiveTestResult } from "../common/testResult.js";
-import type { ICoverageCount } from "../common/testTypes.js";
-import type { CoverageBarSource } from "./testCoverageBars.js";
+import { CoverageBarSource } from './testCoverageBars.js';
+import { ITestingCoverageBarThresholds, TestingDisplayedCoveragePercent } from '../common/configuration.js';
+import { TestId } from '../common/testId.js';
+import { LiveTestResult } from '../common/testResult.js';
+import { ICoverageCount } from '../common/testTypes.js';
 export declare const percent: (cc: ICoverageCount) => number;
 export declare const getCoverageColor: (pct: number, thresholds: ITestingCoverageBarThresholds) => `var(${string})`;
 export declare const displayPercent: (value: number, precision?: number) => string;

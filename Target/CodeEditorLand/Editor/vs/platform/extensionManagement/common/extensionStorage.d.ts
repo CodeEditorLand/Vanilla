@@ -1,11 +1,11 @@
-import type { IStringDictionary } from "../../../base/common/collections.js";
-import { type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { IExtension } from "../../extensions/common/extensions.js";
-import { ILogService } from "../../log/common/log.js";
-import { IProductService } from "../../product/common/productService.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import type { IExtensionManagementService, IGalleryExtension } from "./extensionManagement.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { IProductService } from '../../product/common/productService.js';
+import { ILogService } from '../../log/common/log.js';
+import { IExtension } from '../../extensions/common/extensions.js';
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { IExtensionManagementService, IGalleryExtension } from './extensionManagement.js';
 export interface IExtensionIdWithVersion {
     id: string;
     version: string;

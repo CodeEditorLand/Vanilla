@@ -1,8 +1,8 @@
-import type * as vscode from "vscode";
-import { type UriComponents } from "../../../base/common/uri.js";
-import type { ILogService } from "../../../platform/log/common/log.js";
-import { type ExtHostDocumentContentProvidersShape, type IMainContext } from "./extHost.protocol.js";
-import type { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import type * as vscode from 'vscode';
+import { ExtHostDocumentContentProvidersShape, IMainContext } from './extHost.protocol.js';
+import { ExtHostDocumentsAndEditors } from './extHostDocumentsAndEditors.js';
+import { ILogService } from '../../../platform/log/common/log.js';
 export declare class ExtHostDocumentContentProvider implements ExtHostDocumentContentProvidersShape {
     private readonly _documentsAndEditors;
     private readonly _logService;

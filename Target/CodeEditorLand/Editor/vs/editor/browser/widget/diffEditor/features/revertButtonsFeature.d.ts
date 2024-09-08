@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { type IObservable } from "../../../../../base/common/observable.js";
-import { LineRangeMapping, type RangeMapping } from "../../../../common/diff/rangeMapping.js";
-import type { IGlyphMarginWidget, IGlyphMarginWidgetPosition } from "../../../editorBrowser.js";
-import type { DiffEditorEditors } from "../components/diffEditorEditors.js";
-import type { DiffEditorOptions } from "../diffEditorOptions.js";
-import type { DiffEditorViewModel } from "../diffEditorViewModel.js";
-import type { DiffEditorWidget } from "../diffEditorWidget.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../../base/common/observable.js';
+import { IGlyphMarginWidget, IGlyphMarginWidgetPosition } from '../../../editorBrowser.js';
+import { DiffEditorEditors } from '../components/diffEditorEditors.js';
+import { DiffEditorOptions } from '../diffEditorOptions.js';
+import { DiffEditorViewModel } from '../diffEditorViewModel.js';
+import { DiffEditorWidget } from '../diffEditorWidget.js';
+import { LineRangeMapping, RangeMapping } from '../../../../common/diff/rangeMapping.js';
 export declare class RevertButtonsFeature extends Disposable {
     private readonly _editors;
     private readonly _diffModel;

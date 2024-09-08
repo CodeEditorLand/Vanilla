@@ -1,12 +1,12 @@
-import type { IMarkdownString } from "../../../base/common/htmlContent.js";
-import type { URI } from "../../../base/common/uri.js";
-import { ITextResourceConfigurationService } from "../../../editor/common/services/textResourceConfiguration.js";
-import { IFileService, type IFileReadLimits } from "../../../platform/files/common/files.js";
-import { ILabelService } from "../../../platform/label/common/label.js";
-import { ICustomEditorLabelService } from "../../services/editor/common/customEditorLabelService.js";
-import { IFilesConfigurationService } from "../../services/filesConfiguration/common/filesConfigurationService.js";
-import { EditorInputCapabilities, Verbosity, type EditorInputWithPreferredResource, type IFileLimitedEditorInputOptions } from "../editor.js";
-import { EditorInput } from "./editorInput.js";
+import { Verbosity, EditorInputWithPreferredResource, EditorInputCapabilities, IFileLimitedEditorInputOptions } from '../editor.js';
+import { EditorInput } from './editorInput.js';
+import { URI } from '../../../base/common/uri.js';
+import { IFileReadLimits, IFileService } from '../../../platform/files/common/files.js';
+import { ILabelService } from '../../../platform/label/common/label.js';
+import { IFilesConfigurationService } from '../../services/filesConfiguration/common/filesConfigurationService.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { ITextResourceConfigurationService } from '../../../editor/common/services/textResourceConfiguration.js';
+import { ICustomEditorLabelService } from '../../services/editor/common/customEditorLabelService.js';
 /**
  * The base class for all editor inputs that open resources.
  */

@@ -1,15 +1,15 @@
-import { type CancellationToken } from "../../../base/common/cancellation.js";
-import { type Event } from "../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IExtensionGalleryService } from "../../extensionManagement/common/extensionManagement.js";
-import { IFileService } from "../../files/common/files.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { type IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { type ISyncResourceHandle, type ISyncUserDataProfile, type IUserDataManifest, type IUserDataManualSyncTask, IUserDataSyncEnablementService, IUserDataSyncLocalStoreService, IUserDataSyncLogService, type IUserDataSyncResource, type IUserDataSyncResourceConflicts, type IUserDataSyncResourceError, IUserDataSyncResourceProviderService, type IUserDataSyncService, IUserDataSyncStoreManagementService, IUserDataSyncStoreService, type IUserDataSyncTask, type IUserDataSynchroniser, SyncResource, SyncStatus, UserDataSyncError } from "./userDataSync.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IExtensionGalleryService } from '../../extensionManagement/common/extensionManagement.js';
+import { IFileService } from '../../files/common/files.js';
+import { IInstantiationService } from '../../instantiation/common/instantiation.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+import { IUserDataProfile, IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
+import { IUserDataManualSyncTask, IUserDataSyncResourceConflicts, IUserDataSyncResourceError, IUserDataSyncResource, ISyncResourceHandle, IUserDataSyncTask, ISyncUserDataProfile, IUserDataManifest, IUserDataSyncEnablementService, IUserDataSynchroniser, IUserDataSyncLogService, IUserDataSyncService, IUserDataSyncStoreManagementService, IUserDataSyncStoreService, SyncResource, SyncStatus, UserDataSyncError, IUserDataSyncResourceProviderService, IUserDataSyncLocalStoreService } from './userDataSync.js';
 export declare class UserDataSyncService extends Disposable implements IUserDataSyncService {
     private readonly fileService;
     private readonly userDataSyncStoreService;

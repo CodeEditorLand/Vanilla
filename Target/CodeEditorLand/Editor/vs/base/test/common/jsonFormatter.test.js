@@ -1,335 +1,54 @@
-import assert from "assert";
-import * as Formatter from "../../common/jsonFormatter.js";
-import { ensureNoDisposablesAreLeakedInTestSuite } from "./utils.js";
-suite("JSON - formatter", () => {
-  ensureNoDisposablesAreLeakedInTestSuite();
-  function format(content, expected, insertSpaces = true) {
-    let range;
-    const rangeStart = content.indexOf("|");
-    const rangeEnd = content.lastIndexOf("|");
-    if (rangeStart !== -1 && rangeEnd !== -1) {
-      content = content.substring(0, rangeStart) + content.substring(rangeStart + 1, rangeEnd) + content.substring(rangeEnd + 1);
-      range = { offset: rangeStart, length: rangeEnd - rangeStart };
-    }
-    const edits = Formatter.format(content, range, {
-      tabSize: 2,
-      insertSpaces,
-      eol: "\n"
-    });
-    let lastEditOffset = content.length;
-    for (let i = edits.length - 1; i >= 0; i--) {
-      const edit = edits[i];
-      assert(
-        edit.offset >= 0 && edit.length >= 0 && edit.offset + edit.length <= content.length
-      );
-      assert(typeof edit.content === "string");
-      assert(lastEditOffset >= edit.offset + edit.length);
-      lastEditOffset = edit.offset;
-      content = content.substring(0, edit.offset) + edit.content + content.substring(edit.offset + edit.length);
-    }
-    assert.strictEqual(content, expected);
-  }
-  test("object - single property", () => {
-    const content = ['{"x" : 1}'].join("\n");
-    const expected = ["{", '  "x": 1', "}"].join("\n");
-    format(content, expected);
-  });
-  test("object - multiple properties", () => {
-    const content = ['{"x" : 1,  "y" : "foo", "z"  : true}'].join("\n");
-    const expected = [
-      "{",
-      '  "x": 1,',
-      '  "y": "foo",',
-      '  "z": true',
-      "}"
-    ].join("\n");
-    format(content, expected);
-  });
-  test("object - no properties ", () => {
-    const content = ['{"x" : {    },  "y" : {}}'].join("\n");
-    const expected = ["{", '  "x": {},', '  "y": {}', "}"].join("\n");
-    format(content, expected);
-  });
-  test("object - nesting", () => {
-    const content = ['{"x" : {  "y" : { "z"  : { }}, "a": true}}'].join(
-      "\n"
-    );
-    const expected = [
-      "{",
-      '  "x": {',
-      '    "y": {',
-      '      "z": {}',
-      "    },",
-      '    "a": true',
-      "  }",
-      "}"
-    ].join("\n");
-    format(content, expected);
-  });
-  test("array - single items", () => {
-    const content = ['["[]"]'].join("\n");
-    const expected = ["[", '  "[]"', "]"].join("\n");
-    format(content, expected);
-  });
-  test("array - multiple items", () => {
-    const content = ["[true,null,1.2]"].join("\n");
-    const expected = ["[", "  true,", "  null,", "  1.2", "]"].join("\n");
-    format(content, expected);
-  });
-  test("array - no items", () => {
-    const content = ["[      ]"].join("\n");
-    const expected = ["[]"].join("\n");
-    format(content, expected);
-  });
-  test("array - nesting", () => {
-    const content = ['[ [], [ [ {} ], "a" ]  ]'].join("\n");
-    const expected = [
-      "[",
-      "  [],",
-      "  [",
-      "    [",
-      "      {}",
-      "    ],",
-      '    "a"',
-      "  ]",
-      "]"
-    ].join("\n");
-    format(content, expected);
-  });
-  test("syntax errors", () => {
-    const content = ["[ null 1.2 ]"].join("\n");
-    const expected = ["[", "  null 1.2", "]"].join("\n");
-    format(content, expected);
-  });
-  test("empty lines", () => {
-    const content = ["{", '"a": true,', "", '"b": true', "}"].join("\n");
-    const expected = ["{", '	"a": true,', '	"b": true', "}"].join("\n");
-    format(content, expected, false);
-  });
-  test("single line comment", () => {
-    const content = ["[ ", "//comment", '"foo", "bar"', "] "].join("\n");
-    const expected = ["[", "  //comment", '  "foo",', '  "bar"', "]"].join(
-      "\n"
-    );
-    format(content, expected);
-  });
-  test("block line comment", () => {
-    const content = [
-      "[{",
-      "        /*comment*/     ",
-      '"foo" : true',
-      "}] "
-    ].join("\n");
-    const expected = [
-      "[",
-      "  {",
-      "    /*comment*/",
-      '    "foo": true',
-      "  }",
-      "]"
-    ].join("\n");
-    format(content, expected);
-  });
-  test("single line comment on same line", () => {
-    const content = [" {  ", '        "a": {}// comment    ', " } "].join(
-      "\n"
-    );
-    const expected = ["{", '  "a": {} // comment    ', "}"].join("\n");
-    format(content, expected);
-  });
-  test("single line comment on same line 2", () => {
-    const content = ["{ //comment", "}"].join("\n");
-    const expected = ["{ //comment", "}"].join("\n");
-    format(content, expected);
-  });
-  test("block comment on same line", () => {
-    const content = [
-      '{      "a": {}, /*comment*/    ',
-      '        /*comment*/ "b": {},    ',
-      '        "c": {/*comment*/}    } '
-    ].join("\n");
-    const expected = [
-      "{",
-      '  "a": {}, /*comment*/',
-      '  /*comment*/ "b": {},',
-      '  "c": { /*comment*/}',
-      "}"
-    ].join("\n");
-    format(content, expected);
-  });
-  test("block comment on same line advanced", () => {
-    const content = [
-      ' {       "d": [',
-      "             null",
-      "        ] /*comment*/",
-      '        ,"e": /*comment*/ [null] }'
-    ].join("\n");
-    const expected = [
-      "{",
-      '  "d": [',
-      "    null",
-      "  ] /*comment*/,",
-      '  "e": /*comment*/ [',
-      "    null",
-      "  ]",
-      "}"
-    ].join("\n");
-    format(content, expected);
-  });
-  test("multiple block comments on same line", () => {
-    const content = [
-      '{      "a": {} /*comment*/, /*comment*/   ',
-      '        /*comment*/ "b": {}  /*comment*/  } '
-    ].join("\n");
-    const expected = [
-      "{",
-      '  "a": {} /*comment*/, /*comment*/',
-      '  /*comment*/ "b": {} /*comment*/',
-      "}"
-    ].join("\n");
-    format(content, expected);
-  });
-  test("multiple mixed comments on same line", () => {
-    const content = ["[ /*comment*/  /*comment*/   // comment ", "]"].join(
-      "\n"
-    );
-    const expected = ["[ /*comment*/ /*comment*/ // comment ", "]"].join(
-      "\n"
-    );
-    format(content, expected);
-  });
-  test("range", () => {
-    const content = ['{ "a": {},', '|"b": [null, null]|', "} "].join("\n");
-    const expected = [
-      '{ "a": {},',
-      '"b": [',
-      "  null,",
-      "  null",
-      "]",
-      "} "
-    ].join("\n");
-    format(content, expected);
-  });
-  test("range with existing indent", () => {
-    const content = [
-      '{ "a": {},',
-      '   |"b": [null],',
-      '"c": {}',
-      "}|"
-    ].join("\n");
-    const expected = [
-      '{ "a": {},',
-      '   "b": [',
-      "    null",
-      "  ],",
-      '  "c": {}',
-      "}"
-    ].join("\n");
-    format(content, expected);
-  });
-  test("range with existing indent - tabs", () => {
-    const content = [
-      '{ "a": {},',
-      '|  "b": [null],   ',
-      '"c": {}',
-      "} |    "
-    ].join("\n");
-    const expected = [
-      '{ "a": {},',
-      '	"b": [',
-      "		null",
-      "	],",
-      '	"c": {}',
-      "}"
-    ].join("\n");
-    format(content, expected, false);
-  });
-  test("block comment none-line breaking symbols", () => {
-    const content = [
-      '{ "a": [ 1',
-      "/* comment */",
-      ", 2",
-      "/* comment */",
-      "]",
-      "/* comment */",
-      ",",
-      ' "b": true',
-      "/* comment */",
-      "}"
-    ].join("\n");
-    const expected = [
-      "{",
-      '  "a": [',
-      "    1",
-      "    /* comment */",
-      "    ,",
-      "    2",
-      "    /* comment */",
-      "  ]",
-      "  /* comment */",
-      "  ,",
-      '  "b": true',
-      "  /* comment */",
-      "}"
-    ].join("\n");
-    format(content, expected);
-  });
-  test("line comment after none-line breaking symbols", () => {
-    const content = [
-      '{ "a":',
-      "// comment",
-      "null,",
-      ' "b"',
-      "// comment",
-      ": null",
-      "// comment",
-      "}"
-    ].join("\n");
-    const expected = [
-      "{",
-      '  "a":',
-      "  // comment",
-      "  null,",
-      '  "b"',
-      "  // comment",
-      "  : null",
-      "  // comment",
-      "}"
-    ].join("\n");
-    format(content, expected);
-  });
-  test("toFormattedString", () => {
-    const obj = {
-      a: { b: 1, d: ["hello"] }
-    };
-    const getExpected = (tab, eol) => {
-      return [
-        `{`,
-        `${tab}"a": {`,
-        `${tab}${tab}"b": 1,`,
-        `${tab}${tab}"d": [`,
-        `${tab}${tab}${tab}"hello"`,
-        `${tab}${tab}]`,
-        `${tab}}`,
-        "}"
-      ].join(eol);
-    };
-    let actual = Formatter.toFormattedString(obj, {
-      insertSpaces: true,
-      tabSize: 2,
-      eol: "\n"
-    });
-    assert.strictEqual(actual, getExpected("  ", "\n"));
-    actual = Formatter.toFormattedString(obj, {
-      insertSpaces: true,
-      tabSize: 2,
-      eol: "\r\n"
-    });
-    assert.strictEqual(actual, getExpected("  ", "\r\n"));
-    actual = Formatter.toFormattedString(obj, {
-      insertSpaces: false,
-      eol: "\r\n"
-    });
-    assert.strictEqual(actual, getExpected("	", "\r\n"));
-  });
-});
+import i from"assert";import*as r from"../../common/jsonFormatter.js";import{ensureNoDisposablesAreLeakedInTestSuite as d}from"./utils.js";suite("JSON - formatter",()=>{d();function e(n,t,s=!0){let o;const m=n.indexOf("|"),l=n.lastIndexOf("|");m!==-1&&l!==-1&&(n=n.substring(0,m)+n.substring(m+1,l)+n.substring(l+1),o={offset:m,length:l-m});const u=r.format(n,o,{tabSize:2,insertSpaces:s,eol:`
+`});let j=n.length;for(let a=u.length-1;a>=0;a--){const c=u[a];i(c.offset>=0&&c.length>=0&&c.offset+c.length<=n.length),i(typeof c.content=="string"),i(j>=c.offset+c.length),j=c.offset,n=n.substring(0,c.offset)+c.content+n.substring(c.offset+c.length)}i.strictEqual(n,t)}test("object - single property",()=>{const n=['{"x" : 1}'].join(`
+`),t=["{",'  "x": 1',"}"].join(`
+`);e(n,t)}),test("object - multiple properties",()=>{const n=['{"x" : 1,  "y" : "foo", "z"  : true}'].join(`
+`),t=["{",'  "x": 1,','  "y": "foo",','  "z": true',"}"].join(`
+`);e(n,t)}),test("object - no properties ",()=>{const n=['{"x" : {    },  "y" : {}}'].join(`
+`),t=["{",'  "x": {},','  "y": {}',"}"].join(`
+`);e(n,t)}),test("object - nesting",()=>{const n=['{"x" : {  "y" : { "z"  : { }}, "a": true}}'].join(`
+`),t=["{",'  "x": {','    "y": {','      "z": {}',"    },",'    "a": true',"  }","}"].join(`
+`);e(n,t)}),test("array - single items",()=>{const n=['["[]"]'].join(`
+`),t=["[",'  "[]"',"]"].join(`
+`);e(n,t)}),test("array - multiple items",()=>{const n=["[true,null,1.2]"].join(`
+`),t=["[","  true,","  null,","  1.2","]"].join(`
+`);e(n,t)}),test("array - no items",()=>{const n=["[      ]"].join(`
+`),t=["[]"].join(`
+`);e(n,t)}),test("array - nesting",()=>{const n=['[ [], [ [ {} ], "a" ]  ]'].join(`
+`),t=["[","  [],","  [","    [","      {}","    ],",'    "a"',"  ]","]"].join(`
+`);e(n,t)}),test("syntax errors",()=>{const n=["[ null 1.2 ]"].join(`
+`),t=["[","  null 1.2","]"].join(`
+`);e(n,t)}),test("empty lines",()=>{const n=["{",'"a": true,',"",'"b": true',"}"].join(`
+`),t=["{",'	"a": true,','	"b": true',"}"].join(`
+`);e(n,t,!1)}),test("single line comment",()=>{const n=["[ ","//comment",'"foo", "bar"',"] "].join(`
+`),t=["[","  //comment",'  "foo",','  "bar"',"]"].join(`
+`);e(n,t)}),test("block line comment",()=>{const n=["[{","        /*comment*/     ",'"foo" : true',"}] "].join(`
+`),t=["[","  {","    /*comment*/",'    "foo": true',"  }","]"].join(`
+`);e(n,t)}),test("single line comment on same line",()=>{const n=[" {  ",'        "a": {}// comment    '," } "].join(`
+`),t=["{",'  "a": {} // comment    ',"}"].join(`
+`);e(n,t)}),test("single line comment on same line 2",()=>{const n=["{ //comment","}"].join(`
+`),t=["{ //comment","}"].join(`
+`);e(n,t)}),test("block comment on same line",()=>{const n=['{      "a": {}, /*comment*/    ','        /*comment*/ "b": {},    ','        "c": {/*comment*/}    } '].join(`
+`),t=["{",'  "a": {}, /*comment*/','  /*comment*/ "b": {},','  "c": { /*comment*/}',"}"].join(`
+`);e(n,t)}),test("block comment on same line advanced",()=>{const n=[' {       "d": [',"             null","        ] /*comment*/",'        ,"e": /*comment*/ [null] }'].join(`
+`),t=["{",'  "d": [',"    null","  ] /*comment*/,",'  "e": /*comment*/ [',"    null","  ]","}"].join(`
+`);e(n,t)}),test("multiple block comments on same line",()=>{const n=['{      "a": {} /*comment*/, /*comment*/   ','        /*comment*/ "b": {}  /*comment*/  } '].join(`
+`),t=["{",'  "a": {} /*comment*/, /*comment*/','  /*comment*/ "b": {} /*comment*/',"}"].join(`
+`);e(n,t)}),test("multiple mixed comments on same line",()=>{const n=["[ /*comment*/  /*comment*/   // comment ","]"].join(`
+`),t=["[ /*comment*/ /*comment*/ // comment ","]"].join(`
+`);e(n,t)}),test("range",()=>{const n=['{ "a": {},','|"b": [null, null]|',"} "].join(`
+`),t=['{ "a": {},','"b": [',"  null,","  null","]","} "].join(`
+`);e(n,t)}),test("range with existing indent",()=>{const n=['{ "a": {},','   |"b": [null],','"c": {}',"}|"].join(`
+`),t=['{ "a": {},','   "b": [',"    null","  ],",'  "c": {}',"}"].join(`
+`);e(n,t)}),test("range with existing indent - tabs",()=>{const n=['{ "a": {},','|  "b": [null],   ','"c": {}',"} |    "].join(`
+`),t=['{ "a": {},','	"b": [',"		null","	],",'	"c": {}',"}"].join(`
+`);e(n,t,!1)}),test("block comment none-line breaking symbols",()=>{const n=['{ "a": [ 1',"/* comment */",", 2","/* comment */","]","/* comment */",",",' "b": true',"/* comment */","}"].join(`
+`),t=["{",'  "a": [',"    1","    /* comment */","    ,","    2","    /* comment */","  ]","  /* comment */","  ,",'  "b": true',"  /* comment */","}"].join(`
+`);e(n,t)}),test("line comment after none-line breaking symbols",()=>{const n=['{ "a":',"// comment","null,",' "b"',"// comment",": null","// comment","}"].join(`
+`),t=["{",'  "a":',"  // comment","  null,",'  "b"',"  // comment","  : null","  // comment","}"].join(`
+`);e(n,t)}),test("toFormattedString",()=>{const n={a:{b:1,d:["hello"]}},t=(o,m)=>["{",`${o}"a": {`,`${o}${o}"b": 1,`,`${o}${o}"d": [`,`${o}${o}${o}"hello"`,`${o}${o}]`,`${o}}`,"}"].join(m);let s=r.toFormattedString(n,{insertSpaces:!0,tabSize:2,eol:`
+`});i.strictEqual(s,t("  ",`
+`)),s=r.toFormattedString(n,{insertSpaces:!0,tabSize:2,eol:`\r
+`}),i.strictEqual(s,t("  ",`\r
+`)),s=r.toFormattedString(n,{insertSpaces:!1,eol:`\r
+`}),i.strictEqual(s,t("	",`\r
+`))})});

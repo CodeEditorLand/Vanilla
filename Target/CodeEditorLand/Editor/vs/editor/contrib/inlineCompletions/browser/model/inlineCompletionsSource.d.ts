@@ -1,14 +1,14 @@
-import { Disposable, type IDisposable } from "../../../../../base/common/lifecycle.js";
-import { type IObservable, type IReader, type ITransaction } from "../../../../../base/common/observable.js";
-import type { Position } from "../../../../common/core/position.js";
-import { Range } from "../../../../common/core/range.js";
-import { SingleTextEdit } from "../../../../common/core/textEdit.js";
-import { type InlineCompletionContext } from "../../../../common/languages.js";
-import { ILanguageConfigurationService } from "../../../../common/languages/languageConfigurationRegistry.js";
-import { type ITextModel } from "../../../../common/model.js";
-import type { IFeatureDebounceInformation } from "../../../../common/services/languageFeatureDebounce.js";
-import { ILanguageFeaturesService } from "../../../../common/services/languageFeatures.js";
-import { type InlineCompletionItem, type InlineCompletionProviderResult } from "./provideInlineCompletions.js";
+import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable, IReader, ITransaction } from '../../../../../base/common/observable.js';
+import { Position } from '../../../../common/core/position.js';
+import { Range } from '../../../../common/core/range.js';
+import { SingleTextEdit } from '../../../../common/core/textEdit.js';
+import { InlineCompletionContext } from '../../../../common/languages.js';
+import { ILanguageConfigurationService } from '../../../../common/languages/languageConfigurationRegistry.js';
+import { ITextModel } from '../../../../common/model.js';
+import { IFeatureDebounceInformation } from '../../../../common/services/languageFeatureDebounce.js';
+import { ILanguageFeaturesService } from '../../../../common/services/languageFeatures.js';
+import { InlineCompletionItem, InlineCompletionProviderResult } from './provideInlineCompletions.js';
 export declare class InlineCompletionsSource extends Disposable {
     private readonly textModel;
     private readonly versionId;

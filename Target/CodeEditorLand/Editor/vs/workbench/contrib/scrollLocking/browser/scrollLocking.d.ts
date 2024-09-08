@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IStatusbarService } from '../../../services/statusbar/browser/statusbar.js';
 export declare class SyncScroll extends Disposable implements IWorkbenchContribution {
     private readonly editorService;
     private readonly statusbarService;

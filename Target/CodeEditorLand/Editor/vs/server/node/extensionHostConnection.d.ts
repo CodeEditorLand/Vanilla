@@ -1,13 +1,13 @@
-import { VSBuffer } from "../../base/common/buffer.js";
-import { Event } from "../../base/common/event.js";
-import { Disposable } from "../../base/common/lifecycle.js";
-import { type IProcessEnvironment } from "../../base/common/platform.js";
-import { NodeSocket, type WebSocketNodeSocket } from "../../base/parts/ipc/node/ipc.net.js";
-import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
-import { ILogService } from "../../platform/log/common/log.js";
-import type { IRemoteExtensionHostStartParams } from "../../platform/remote/common/remoteAgentConnection.js";
-import { IExtensionHostStatusService } from "./extensionHostStatusService.js";
-import { IServerEnvironmentService } from "./serverEnvironmentService.js";
+import { VSBuffer } from '../../base/common/buffer.js';
+import { Event } from '../../base/common/event.js';
+import { Disposable } from '../../base/common/lifecycle.js';
+import { IProcessEnvironment } from '../../base/common/platform.js';
+import { NodeSocket, WebSocketNodeSocket } from '../../base/parts/ipc/node/ipc.net.js';
+import { IConfigurationService } from '../../platform/configuration/common/configuration.js';
+import { ILogService } from '../../platform/log/common/log.js';
+import { IRemoteExtensionHostStartParams } from '../../platform/remote/common/remoteAgentConnection.js';
+import { IExtensionHostStatusService } from './extensionHostStatusService.js';
+import { IServerEnvironmentService } from './serverEnvironmentService.js';
 export declare function buildUserEnvironment(startParamsEnv: {
     [key: string]: string | null;
 } | undefined, withUserShellEnvironment: boolean, language: string, environmentService: IServerEnvironmentService, logService: ILogService, configurationService: IConfigurationService): Promise<IProcessEnvironment>;

@@ -1,7 +1,7 @@
-import type { Event } from "../../../../base/common/event.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { IExtensionManagementService, type DidUninstallExtensionEvent, type IGalleryExtension, type ILocalExtension, type InstallExtensionEvent, type InstallExtensionResult, type InstallOptions, type Metadata, type UninstallExtensionEvent } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import type { ExtensionType, IExtension, IExtensionIdentifier, IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
+import { Event } from '../../../../base/common/event.js';
+import { IExtension, ExtensionType, IExtensionManifest, IExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { IExtensionManagementService, IGalleryExtension, ILocalExtension, InstallOptions, InstallExtensionEvent, DidUninstallExtensionEvent, InstallExtensionResult, Metadata, UninstallExtensionEvent } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { URI } from '../../../../base/common/uri.js';
 export type DidChangeProfileEvent = {
     readonly added: ILocalExtension[];
     readonly removed: ILocalExtension[];
@@ -15,7 +15,7 @@ export interface IExtensionManagementServer {
     readonly label: string;
     readonly extensionManagementService: IProfileAwareExtensionManagementService;
 }
-export declare enum ExtensionInstallLocation {
+export declare const enum ExtensionInstallLocation {
     Local = 1,
     Remote = 2,
     Web = 3
@@ -31,7 +31,7 @@ export interface IExtensionManagementServerService {
 }
 export declare const DefaultIconPath: string;
 export interface IResourceExtension {
-    readonly type: "resource";
+    readonly type: 'resource';
     readonly identifier: IExtensionIdentifier;
     readonly location: URI;
     readonly manifest: IExtensionManifest;
@@ -75,7 +75,7 @@ export declare const extensionsConfigurationNodeBase: {
     title: string;
     type: string;
 };
-export declare enum EnablementState {
+export declare const enum EnablementState {
     DisabledByTrustRequirement = 0,
     DisabledByExtensionKind = 1,
     DisabledByEnvironment = 2,

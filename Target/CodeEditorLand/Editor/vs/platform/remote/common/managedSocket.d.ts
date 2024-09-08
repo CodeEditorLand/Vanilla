@@ -1,7 +1,7 @@
-import { VSBuffer } from "../../../base/common/buffer.js";
-import { Emitter, type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { type ISocket, type SocketCloseEvent, type SocketDiagnosticsEventType } from "../../../base/parts/ipc/common/ipc.net.js";
+import { VSBuffer } from '../../../base/common/buffer.js';
+import { Emitter, Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { ISocket, SocketCloseEvent, SocketDiagnosticsEventType } from '../../../base/parts/ipc/common/ipc.net.js';
 export declare const makeRawSocketHeaders: (path: string, query: string, deubgLabel: string) => string;
 export declare const socketRawEndHeaderSequence: VSBuffer;
 export interface RemoteSocketHalf {

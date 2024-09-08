@@ -1,8 +1,8 @@
-import * as sinon from "sinon";
-import { type DisposableStore, type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { ServiceIdentifier } from "../../common/instantiation.js";
-import { InstantiationService } from "../../common/instantiationService.js";
-import { ServiceCollection } from "../../common/serviceCollection.js";
+import * as sinon from 'sinon';
+import { DisposableStore, IDisposable } from '../../../../base/common/lifecycle.js';
+import { ServiceIdentifier } from '../../common/instantiation.js';
+import { InstantiationService } from '../../common/instantiationService.js';
+import { ServiceCollection } from '../../common/serviceCollection.js';
 export declare class TestInstantiationService extends InstantiationService implements IDisposable {
     private _serviceCollection;
     private _properDispose?;
@@ -28,8 +28,5 @@ export declare class TestInstantiationService extends InstantiationService imple
     createChild(services: ServiceCollection): TestInstantiationService;
     dispose(): void;
 }
-export type ServiceIdCtorPair<T> = [
-    id: ServiceIdentifier<T>,
-    ctorOrInstance: T | (new (...args: any[]) => T)
-];
+export type ServiceIdCtorPair<T> = [id: ServiceIdentifier<T>, ctorOrInstance: T | (new (...args: any[]) => T)];
 export declare function createServices(disposables: DisposableStore, services: ServiceIdCtorPair<any>[]): TestInstantiationService;

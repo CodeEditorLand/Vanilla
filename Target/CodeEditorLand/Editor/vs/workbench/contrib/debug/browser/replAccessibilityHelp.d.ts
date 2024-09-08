@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
-import { AccessibleViewProviderId, AccessibleViewType, type IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
-import type { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
-import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
-import { type Repl } from "./repl.js";
+import { ServicesAccessor } from '../../../../editor/browser/editorExtensions.js';
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from '../../../../platform/accessibility/browser/accessibleView.js';
+import { IAccessibleViewImplentation } from '../../../../platform/accessibility/browser/accessibleViewRegistry.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Repl } from './repl.js';
+import { AccessibilityVerbositySettingId } from '../../accessibility/browser/accessibilityConfiguration.js';
 export declare class ReplAccessibilityHelp implements IAccessibleViewImplentation {
     priority: number;
     name: string;

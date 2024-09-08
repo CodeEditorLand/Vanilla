@@ -1,6 +1,6 @@
-import * as cp from "child_process";
-import type { ITerminalEnvironment } from "../../terminal/common/terminal.js";
-import { type IExternalTerminalService, type IExternalTerminalSettings, type ITerminalForPlatform } from "../common/externalTerminal.js";
+import * as cp from 'child_process';
+import { IExternalTerminalService, IExternalTerminalSettings, ITerminalForPlatform } from '../common/externalTerminal.js';
+import { ITerminalEnvironment } from '../../terminal/common/terminal.js';
 declare abstract class ExternalTerminalService {
     _serviceBrand: undefined;
     getDefaultTerminalForPlatforms(): Promise<ITerminalForPlatform>;

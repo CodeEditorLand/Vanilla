@@ -1,5 +1,5 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { type IProgressMessage, type ISerializedFileMatch, type ISerializedSearchSuccess, type ITextQuery } from "../common/search.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IProgressMessage, ITextQuery, ISerializedFileMatch, ISerializedSearchSuccess } from '../common/search.js';
 export declare class TextSearchEngineAdapter {
     private query;
     private numThreads?;

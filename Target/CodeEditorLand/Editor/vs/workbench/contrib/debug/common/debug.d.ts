@@ -1,27 +1,27 @@
-import type { IAction } from "../../../../base/common/actions.js";
-import type { VSBuffer } from "../../../../base/common/buffer.js";
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { Color } from "../../../../base/common/color.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IJSONSchemaSnippet } from "../../../../base/common/jsonSchema.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type severity from "../../../../base/common/severity.js";
-import { URI, type URI as uri, type UriComponents } from "../../../../base/common/uri.js";
-import type { IPosition, Position } from "../../../../editor/common/core/position.js";
-import type { IRange } from "../../../../editor/common/core/range.js";
-import type * as editorCommon from "../../../../editor/common/editorCommon.js";
-import type { ITextModel as EditorIModel } from "../../../../editor/common/model.js";
-import type { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { ITelemetryEndpoint } from "../../../../platform/telemetry/common/telemetry.js";
-import type { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import type { IEditorPane } from "../../../common/editor.js";
-import type { IEditorService } from "../../../services/editor/common/editorService.js";
-import type { ITaskIdentifier } from "../../tasks/common/tasks.js";
-import type { LiveTestResult } from "../../testing/common/testResult.js";
-import type { DebugCompoundRoot } from "./debugCompoundRoot.js";
-import type { IDataBreakpointOptions, IFunctionBreakpointOptions, IInstructionBreakpointOptions } from "./debugModel.js";
-import type { Source } from "./debugSource.js";
+import { IAction } from '../../../../base/common/actions.js';
+import { VSBuffer } from '../../../../base/common/buffer.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Color } from '../../../../base/common/color.js';
+import { Event } from '../../../../base/common/event.js';
+import { IJSONSchemaSnippet } from '../../../../base/common/jsonSchema.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import severity from '../../../../base/common/severity.js';
+import { URI, UriComponents, URI as uri } from '../../../../base/common/uri.js';
+import { IPosition, Position } from '../../../../editor/common/core/position.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import * as editorCommon from '../../../../editor/common/editorCommon.js';
+import { ITextModel as EditorIModel } from '../../../../editor/common/model.js';
+import { ConfigurationTarget } from '../../../../platform/configuration/common/configuration.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { ITelemetryEndpoint } from '../../../../platform/telemetry/common/telemetry.js';
+import { IWorkspaceFolder } from '../../../../platform/workspace/common/workspace.js';
+import { IEditorPane } from '../../../common/editor.js';
+import { DebugCompoundRoot } from './debugCompoundRoot.js';
+import { IDataBreakpointOptions, IFunctionBreakpointOptions, IInstructionBreakpointOptions } from './debugModel.js';
+import { Source } from './debugSource.js';
+import { ITaskIdentifier } from '../../tasks/common/tasks.js';
+import { LiveTestResult } from '../../testing/common/testResult.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
 export declare const VIEWLET_ID = "workbench.view.debug";
 export declare const VARIABLES_VIEW_ID = "workbench.debug.variablesView";
 export declare const WATCH_VIEW_ID = "workbench.debug.watchExpressionsView";
@@ -167,7 +167,7 @@ export interface IDebuggerMetadata {
     };
     interestedInLanguage(languageId: string): boolean;
 }
-export declare enum State {
+export declare const enum State {
     Inactive = 0,
     Initializing = 1,
     Stopped = 2,
@@ -180,10 +180,10 @@ export interface AdapterEndEvent {
     emittedStopped: boolean;
 }
 export interface LoadedSourceEvent {
-    reason: "new" | "changed" | "removed";
+    reason: 'new' | 'changed' | 'removed';
     source: Source;
 }
-export type IDebugSessionReplMode = "separate" | "mergeWithParent";
+export type IDebugSessionReplMode = 'separate' | 'mergeWithParent';
 export interface IDebugTestRunReference {
     runId: string;
     taskId: string;
@@ -216,7 +216,7 @@ export interface IMemoryInvalidationEvent {
     fromOffset: number;
     toOffset: number;
 }
-export declare enum MemoryRangeType {
+export declare const enum MemoryRangeType {
     Valid = 0,
     Unreadable = 1,
     Error = 2
@@ -370,7 +370,7 @@ export interface IDebugSession extends ITreeElement {
     stackTrace(threadId: number, startFrame: number, levels: number, token: CancellationToken): Promise<DebugProtocol.StackTraceResponse | undefined>;
     exceptionInfo(threadId: number): Promise<IExceptionInfo | undefined>;
     scopes(frameId: number, threadId: number): Promise<DebugProtocol.ScopesResponse | undefined>;
-    variables(variablesReference: number, threadId: number | undefined, filter: "indexed" | "named" | undefined, start: number | undefined, count: number | undefined): Promise<DebugProtocol.VariablesResponse | undefined>;
+    variables(variablesReference: number, threadId: number | undefined, filter: 'indexed' | 'named' | undefined, start: number | undefined, count: number | undefined): Promise<DebugProtocol.VariablesResponse | undefined>;
     evaluate(expression: string, frameId?: number, context?: string, location?: IDebugEvaluatePosition): Promise<DebugProtocol.EvaluateResponse | undefined>;
     customRequest(request: string, args: any): Promise<DebugProtocol.Response | undefined>;
     cancel(progressId: string): Promise<DebugProtocol.CancelResponse | undefined>;
@@ -540,7 +540,7 @@ export interface IExceptionBreakpoint extends IBaseBreakpoint {
     readonly label: string;
     readonly description: string | undefined;
 }
-export declare enum DataBreakpointSetType {
+export declare const enum DataBreakpointSetType {
     Variable = 0,
     Address = 1
 }
@@ -590,9 +590,9 @@ export interface IViewModel extends ITreeElement {
      * Returns the focused stack frame or undefined if there are no stack frames.
      */
     readonly focusedStackFrame: IStackFrame | undefined;
-    setVisualizedExpression(original: IExpression, visualized: (IExpression & {
+    setVisualizedExpression(original: IExpression, visualized: IExpression & {
         treeId: string;
-    }) | undefined): void;
+    } | undefined): void;
     /** Returns the visualized expression if loaded, or a tree it should be visualized with, or undefined */
     getVisualizedExpression(expression: IExpression): IExpression | string | undefined;
     getSelectedExpression(): {
@@ -658,7 +658,7 @@ export interface IDebugModel extends ITreeElement {
     getInstructionBreakpoints(): ReadonlyArray<IInstructionBreakpoint>;
     getWatchExpressions(): ReadonlyArray<IExpression & IEvaluate>;
     registerBreakpointModes(debugType: string, modes: DebugProtocol.BreakpointMode[]): void;
-    getBreakpointModes(forBreakpointType: "source" | "exception" | "data" | "instruction"): DebugProtocol.BreakpointMode[];
+    getBreakpointModes(forBreakpointType: 'source' | 'exception' | 'data' | 'instruction'): DebugProtocol.BreakpointMode[];
     onDidChangeBreakpoints: Event<IBreakpointsChangeEvent | undefined>;
     onDidChangeCallStack: Event<void>;
     /**
@@ -682,13 +682,13 @@ export interface IBreakpointsChangeEvent {
 }
 export interface IDebugConfiguration {
     allowBreakpointsEverywhere: boolean;
-    gutterMiddleClickAction: "logpoint" | "conditionalBreakpoint" | "triggeredBreakpoint" | "none";
-    openDebug: "neverOpen" | "openOnSessionStart" | "openOnFirstSessionStart" | "openOnDebugBreak";
+    gutterMiddleClickAction: 'logpoint' | 'conditionalBreakpoint' | 'triggeredBreakpoint' | 'none';
+    openDebug: 'neverOpen' | 'openOnSessionStart' | 'openOnFirstSessionStart' | 'openOnDebugBreak';
     openExplorerOnEnd: boolean;
-    inlineValues: boolean | "auto" | "on" | "off";
-    toolBarLocation: "floating" | "docked" | "commandCenter" | "hidden";
-    showInStatusBar: "never" | "always" | "onFirstSessionStart";
-    internalConsoleOptions: "neverOpen" | "openOnSessionStart" | "openOnFirstSessionStart";
+    inlineValues: boolean | 'auto' | 'on' | 'off';
+    toolBarLocation: 'floating' | 'docked' | 'commandCenter' | 'hidden';
+    showInStatusBar: 'never' | 'always' | 'onFirstSessionStart';
+    internalConsoleOptions: 'neverOpen' | 'openOnSessionStart' | 'openOnFirstSessionStart';
     extensionHostDebugAdapter: boolean;
     enableAllHovers: boolean;
     showSubSessionsInToolBar: boolean;
@@ -701,18 +701,18 @@ export interface IDebugConfiguration {
         closeOnEnd: boolean;
         collapseIdenticalLines: boolean;
         historySuggestions: boolean;
-        acceptSuggestionOnEnter: "off" | "on";
+        acceptSuggestionOnEnter: 'off' | 'on';
     };
     focusWindowOnBreak: boolean;
     focusEditorOnBreak: boolean;
-    onTaskErrors: "debugAnyway" | "showErrors" | "prompt" | "abort";
+    onTaskErrors: 'debugAnyway' | 'showErrors' | 'prompt' | 'abort';
     showBreakpointsInOverviewRuler: boolean;
     showInlineBreakpointCandidates: boolean;
-    confirmOnExit: "always" | "never";
+    confirmOnExit: 'always' | 'never';
     disassemblyView: {
         showSourceCode: boolean;
     };
-    autoExpandLazyVariables: "auto" | "off" | "on";
+    autoExpandLazyVariables: 'auto' | 'off' | 'on';
     enableStatusBarColor: boolean;
     showVariableTypes: boolean;
 }
@@ -722,7 +722,7 @@ export interface IGlobalConfig {
     configurations: IConfig[];
 }
 interface IEnvConfig {
-    internalConsoleOptions?: "neverOpen" | "openOnSessionStart" | "openOnFirstSessionStart";
+    internalConsoleOptions?: 'neverOpen' | 'openOnSessionStart' | 'openOnFirstSessionStart';
     preRestartTask?: string | ITaskIdentifier;
     postRestartTask?: string | ITaskIdentifier;
     preLaunchTask?: string | ITaskIdentifier;
@@ -782,18 +782,18 @@ export interface IDebugAdapterExecutableOptions {
     };
 }
 export interface IDebugAdapterExecutable {
-    readonly type: "executable";
+    readonly type: 'executable';
     readonly command: string;
     readonly args: string[];
     readonly options?: IDebugAdapterExecutableOptions;
 }
 export interface IDebugAdapterServer {
-    readonly type: "server";
+    readonly type: 'server';
     readonly port: number;
     readonly host?: string;
 }
 export interface IDebugAdapterNamedPipeServer {
-    readonly type: "pipeServer";
+    readonly type: 'pipeServer';
     readonly path: string;
 }
 export interface IDebugAdapterInlineImpl extends IDisposable {
@@ -801,8 +801,7 @@ export interface IDebugAdapterInlineImpl extends IDisposable {
     handleMessage(message: DebugProtocol.Message): void;
 }
 export interface IDebugAdapterImpl {
-    readonly type: "implementation";
-    readonly implementation: IDebugAdapterInlineImpl;
+    readonly type: 'implementation';
 }
 export type IAdapterDescriptor = IDebugAdapterExecutable | IDebugAdapterServer | IDebugAdapterNamedPipeServer | IDebugAdapterImpl;
 export interface IPlatformSpecificAdapterContribution {
@@ -1160,7 +1159,7 @@ export interface IDebugService {
      */
     runTo(uri: uri, lineNumber: number, column?: number): Promise<void>;
 }
-export declare enum BreakpointWidgetContext {
+export declare const enum BreakpointWidgetContext {
     CONDITION = 0,
     HIT_COUNT = 1,
     LOG_MESSAGE = 2,
@@ -1194,7 +1193,7 @@ export interface IDebugVisualizationContext {
     threadId: number;
     sessionId: string;
 }
-export declare enum DebugVisualizationType {
+export declare const enum DebugVisualizationType {
     Command = 0,
     Tree = 1
 }
@@ -1204,7 +1203,7 @@ export type MainThreadDebugVisualization = {
     type: DebugVisualizationType.Tree;
     id: string;
 };
-export declare enum DebugTreeItemCollapsibleState {
+export declare const enum DebugTreeItemCollapsibleState {
     None = 0,
     Collapsed = 1,
     Expanded = 2

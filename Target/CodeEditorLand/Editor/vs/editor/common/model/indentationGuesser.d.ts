@@ -1,4 +1,4 @@
-import type { ITextBuffer } from "../model.js";
+import { ITextBuffer } from '../model.js';
 /**
  * Result for a guessIndentation
  */

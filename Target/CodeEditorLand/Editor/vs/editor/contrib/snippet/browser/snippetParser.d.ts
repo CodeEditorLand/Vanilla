@@ -1,4 +1,4 @@
-export declare enum TokenType {
+export declare const enum TokenType {
     Dollar = 0,
     Colon = 1,
     Comma = 2,

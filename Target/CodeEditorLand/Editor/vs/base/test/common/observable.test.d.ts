@@ -1,5 +1,5 @@
-import { type ISettableObservable, type ITransaction } from "../../common/observable.js";
-import { BaseObservable, type IObservable, type IObserver } from "../../common/observableInternal/base.js";
+import { ISettableObservable, ITransaction } from '../../common/observable.js';
+import { BaseObservable, IObservable, IObserver } from '../../common/observableInternal/base.js';
 export declare class LoggingObserver implements IObserver {
     readonly debugName: string;
     private readonly log;

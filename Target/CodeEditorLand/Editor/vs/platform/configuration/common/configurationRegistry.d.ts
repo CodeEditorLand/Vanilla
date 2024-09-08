@@ -1,7 +1,7 @@
-import type { IStringDictionary } from "../../../base/common/collections.js";
-import { type Event } from "../../../base/common/event.js";
-import type { IJSONSchema } from "../../../base/common/jsonSchema.js";
-import type { PolicyName } from "../../policy/common/policy.js";
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { Event } from '../../../base/common/event.js';
+import { IJSONSchema } from '../../../base/common/jsonSchema.js';
+import { PolicyName } from '../../policy/common/policy.js';
 export declare enum EditPresentationTypes {
     Multiline = "multilineText",
     Singleline = "singlelineText"
@@ -97,7 +97,7 @@ export interface IConfigurationRegistry {
      */
     registerOverrideIdentifiers(identifiers: string[]): void;
 }
-export declare enum ConfigurationScope {
+export declare const enum ConfigurationScope {
     /**
      * Application specific configuration, which can be configured only in local user settings.
      */

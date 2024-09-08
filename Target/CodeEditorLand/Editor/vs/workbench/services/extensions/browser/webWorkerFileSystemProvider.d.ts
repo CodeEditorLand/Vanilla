@@ -1,7 +1,7 @@
-import { Event } from "../../../../base/common/event.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { FileType, type IFileDeleteOptions, type IFileOverwriteOptions, type IFileSystemProviderWithFileReadWriteCapability, type IFileWriteOptions, type IStat } from "../../../../platform/files/common/files.js";
+import { IStat, FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileWriteOptions, IFileSystemProviderWithFileReadWriteCapability } from '../../../../platform/files/common/files.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
 export declare class FetchFileSystemProvider implements IFileSystemProviderWithFileReadWriteCapability {
     readonly capabilities: number;
     readonly onDidChangeCapabilities: Event<any>;

@@ -1,10 +1,10 @@
-import { type IDisposable } from "../../base/common/lifecycle.js";
-import { type PerformanceMark } from "../../base/common/performance.js";
-import type { URI } from "../../base/common/uri.js";
-import type { LogLevel } from "../../platform/log/common/log.js";
-import type { IProgress, IProgressCompositeOptions, IProgressDialogOptions, IProgressNotificationOptions, IProgressOptions, IProgressStep, IProgressWindowOptions } from "../../platform/progress/common/progress.js";
-import type { IEmbedderTerminalOptions } from "../services/terminal/common/embedderTerminalService.js";
-import { type ITunnel, type ITunnelOptions, type IWorkbenchConstructionOptions } from "./web.api.js";
+import { ITunnel, ITunnelOptions, IWorkbenchConstructionOptions } from './web.api.js';
+import { URI } from '../../base/common/uri.js';
+import { IDisposable } from '../../base/common/lifecycle.js';
+import { PerformanceMark } from '../../base/common/performance.js';
+import { IProgress, IProgressCompositeOptions, IProgressDialogOptions, IProgressNotificationOptions, IProgressOptions, IProgressStep, IProgressWindowOptions } from '../../platform/progress/common/progress.js';
+import { LogLevel } from '../../platform/log/common/log.js';
+import { IEmbedderTerminalOptions } from '../services/terminal/common/embedderTerminalService.js';
 /**
  * Creates the workbench with the provided options in the provided container.
  *
@@ -28,10 +28,7 @@ export declare namespace env {
     /**
      * {@linkcode IWorkbench.env IWorkbench.env.retrievePerformanceMarks}
      */
-    function retrievePerformanceMarks(): Promise<[
-        string,
-        readonly PerformanceMark[]
-    ][]>;
+    function retrievePerformanceMarks(): Promise<[string, readonly PerformanceMark[]][]>;
     /**
      * {@linkcode IWorkbench.env IWorkbench.env.getUriScheme}
      */

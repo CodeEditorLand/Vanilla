@@ -1,6 +1,6 @@
-import { type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { IDimension } from "../../common/core/dimension.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IDimension } from '../../common/core/dimension.js';
+import { Event } from '../../../base/common/event.js';
 export declare class ElementSizeObserver extends Disposable {
     private _onDidChange;
     readonly onDidChange: Event<void>;

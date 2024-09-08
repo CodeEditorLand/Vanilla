@@ -1,5 +1,5 @@
-import { KeyCode, ScanCode } from "./keyCodes.js";
-import { OperatingSystem } from "./platform.js";
+import { KeyCode, ScanCode } from './keyCodes.js';
+import { OperatingSystem } from './platform.js';
 export declare function decodeKeybinding(keybinding: number | number[], OS: OperatingSystem): Keybinding | null;
 export declare function createSimpleKeybinding(keybinding: number, OS: OperatingSystem): KeyCodeChord;
 export interface Modifiers {
@@ -65,7 +65,7 @@ export declare class ResolvedChord {
     readonly keyAriaLabel: string | null;
     constructor(ctrlKey: boolean, shiftKey: boolean, altKey: boolean, metaKey: boolean, keyLabel: string | null, keyAriaLabel: string | null);
 }
-export type SingleModifierChord = "ctrl" | "shift" | "alt" | "meta";
+export type SingleModifierChord = 'ctrl' | 'shift' | 'alt' | 'meta';
 /**
  * A resolved keybinding. Consists of one or multiple chords.
  */

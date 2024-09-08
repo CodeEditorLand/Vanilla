@@ -1,7 +1,7 @@
-import type { IView } from "../../../common/views.js";
-import type { MarkersViewMode } from "../common/markers.js";
-import type { MarkerElement, ResourceMarkers } from "./markersModel.js";
-import type { MarkersFilters } from "./markersViewActions.js";
+import { MarkersFilters } from './markersViewActions.js';
+import { IView } from '../../../common/views.js';
+import { MarkerElement, ResourceMarkers } from './markersModel.js';
+import { MarkersViewMode } from '../common/markers.js';
 export interface IMarkersView extends IView {
     readonly filters: MarkersFilters;
     focusFilter(): void;

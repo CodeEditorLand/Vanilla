@@ -1,19 +1,19 @@
-import type { IStringDictionary } from "../../../../base/common/collections.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IMatch } from "../../../../base/common/filters.js";
-import type { IJSONSchema, IJSONSchemaMap } from "../../../../base/common/jsonSchema.js";
-import type { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IRange } from "../../../../editor/common/core/range.js";
-import type { IEditorContribution } from "../../../../editor/common/editorCommon.js";
-import type { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
-import type { ConfigurationDefaultValueSource, ConfigurationScope, EditPresentationTypes, IExtensionInfo } from "../../../../platform/configuration/common/configurationRegistry.js";
-import type { IEditorOptions } from "../../../../platform/editor/common/editor.js";
-import type { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import type { ResolvedKeybindingItem } from "../../../../platform/keybinding/common/resolvedKeybindingItem.js";
-import { type IEditorPane } from "../../../common/editor.js";
-import type { EditorInput } from "../../../common/editor/editorInput.js";
-import type { Settings2EditorModel } from "./preferencesModels.js";
+import { IStringDictionary } from '../../../../base/common/collections.js';
+import { Event } from '../../../../base/common/event.js';
+import { IMatch } from '../../../../base/common/filters.js';
+import { IJSONSchema, IJSONSchemaMap } from '../../../../base/common/jsonSchema.js';
+import { ResolvedKeybinding } from '../../../../base/common/keybindings.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { IEditorContribution } from '../../../../editor/common/editorCommon.js';
+import { ConfigurationTarget } from '../../../../platform/configuration/common/configuration.js';
+import { ConfigurationDefaultValueSource, ConfigurationScope, EditPresentationTypes, IExtensionInfo } from '../../../../platform/configuration/common/configurationRegistry.js';
+import { IEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { ResolvedKeybindingItem } from '../../../../platform/keybinding/common/resolvedKeybindingItem.js';
+import { IEditorPane } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { Settings2EditorModel } from './preferencesModels.js';
 export declare enum SettingValueType {
     Null = "null",
     Enum = "enum",
@@ -210,7 +210,7 @@ export interface IPreferencesService {
     openRemoteSettings(options?: IOpenSettingsOptions): Promise<IEditorPane | undefined>;
     openWorkspaceSettings(options?: IOpenSettingsOptions): Promise<IEditorPane | undefined>;
     openFolderSettings(options: IOpenSettingsOptions & {
-        folderUri: IOpenSettingsOptions["folderUri"];
+        folderUri: IOpenSettingsOptions['folderUri'];
     }): Promise<IEditorPane | undefined>;
     openGlobalKeybindingSettings(textual: boolean, options?: IKeybindingsEditorOptions): Promise<void>;
     openDefaultKeybindingsFile(): Promise<IEditorPane | undefined>;

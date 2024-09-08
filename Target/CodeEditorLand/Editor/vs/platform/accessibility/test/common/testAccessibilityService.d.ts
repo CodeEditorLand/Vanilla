@@ -1,5 +1,5 @@
-import { Event } from "../../../../base/common/event.js";
-import { AccessibilitySupport, type IAccessibilityService } from "../../common/accessibility.js";
+import { Event } from '../../../../base/common/event.js';
+import { IAccessibilityService, AccessibilitySupport } from '../../common/accessibility.js';
 export declare class TestAccessibilityService implements IAccessibilityService {
     readonly _serviceBrand: undefined;
     onDidChangeScreenReaderOptimized: Event<any>;

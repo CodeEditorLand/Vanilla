@@ -1,7 +1,7 @@
-import type { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-export declare enum ExplorerExtensions {
+import { DisposableStore, IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+export declare const enum ExplorerExtensions {
     FileContributionRegistry = "workbench.registry.explorer.fileContributions"
 }
 /**

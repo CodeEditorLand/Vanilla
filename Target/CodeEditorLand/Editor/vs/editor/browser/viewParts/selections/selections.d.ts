@@ -1,8 +1,8 @@
-import "./selections.css";
-import type * as viewEvents from "../../../common/viewEvents.js";
-import type { ViewContext } from "../../../common/viewModel/viewContext.js";
-import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
-import type { RenderingContext } from "../../view/renderingContext.js";
+import './selections.css';
+import { DynamicViewOverlay } from '../../view/dynamicViewOverlay.js';
+import { RenderingContext } from '../../view/renderingContext.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
+import * as viewEvents from '../../../common/viewEvents.js';
 export declare class SelectionsOverlay extends DynamicViewOverlay {
     private static readonly SELECTION_CLASS_NAME;
     private static readonly SELECTION_TOP_LEFT;

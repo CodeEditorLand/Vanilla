@@ -1,4 +1,1 @@
-const flatTestItemDelimiter = " \u203A ";
-export {
-  flatTestItemDelimiter
-};
+const t=" \u203A ";export{t as flatTestItemDelimiter};

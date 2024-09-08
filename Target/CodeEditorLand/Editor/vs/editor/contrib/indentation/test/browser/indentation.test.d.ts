@@ -1,8 +1,8 @@
-import { type IDisposable } from "../../../../../base/common/lifecycle.js";
-import type { TestInstantiationService } from "../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
-import { StandardTokenType } from "../../../../common/encodedTokenAttributes.js";
-import { ILanguageService } from "../../../../common/languages/language.js";
-import { ILanguageConfigurationService } from "../../../../common/languages/languageConfigurationRegistry.js";
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { ILanguageConfigurationService } from '../../../../common/languages/languageConfigurationRegistry.js';
+import { TestInstantiationService } from '../../../../../platform/instantiation/test/common/instantiationServiceMock.js';
+import { StandardTokenType } from '../../../../common/encodedTokenAttributes.js';
+import { ILanguageService } from '../../../../common/languages/language.js';
 export declare enum Language {
     TypeScript = "ts-test",
     Ruby = "ruby-test",

@@ -1,4 +1,4 @@
-import { ITerminalQuickFixInternalOptions } from "./quickFix.js";
+import { ITerminalQuickFixInternalOptions } from './quickFix.js';
 export declare const GitCommandLineRegex: RegExp;
 export declare const GitPullOutputRegex: RegExp;
 export declare const GitPushCommandLineRegex: RegExp;

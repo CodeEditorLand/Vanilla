@@ -1,8 +1,1 @@
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-const CommentsViewFilterFocusContextKey = new RawContextKey(
-  "commentsFilterFocus",
-  false
-);
-export {
-  CommentsViewFilterFocusContextKey
-};
+import{RawContextKey as e}from"../../../../platform/contextkey/common/contextkey.js";import"../../../common/views.js";import"./commentsViewActions.js";const m=new e("commentsFilterFocus",!1);export{m as CommentsViewFilterFocusContextKey};

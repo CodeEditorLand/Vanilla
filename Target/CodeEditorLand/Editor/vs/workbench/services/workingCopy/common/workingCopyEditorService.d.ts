@@ -1,9 +1,9 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { type IEditorIdentifier } from "../../../common/editor.js";
-import type { EditorInput } from "../../../common/editor/editorInput.js";
-import { IEditorService } from "../../editor/common/editorService.js";
-import type { IWorkingCopy, IWorkingCopyIdentifier } from "./workingCopy.js";
+import { Event } from '../../../../base/common/event.js';
+import { IEditorIdentifier } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IWorkingCopy, IWorkingCopyIdentifier } from './workingCopy.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IEditorService } from '../../editor/common/editorService.js';
 export declare const IWorkingCopyEditorService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkingCopyEditorService>;
 export interface IWorkingCopyEditorHandler {
     /**

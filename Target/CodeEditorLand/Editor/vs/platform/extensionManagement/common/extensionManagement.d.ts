@@ -1,10 +1,10 @@
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import type { IStringDictionary } from "../../../base/common/collections.js";
-import type { Event } from "../../../base/common/event.js";
-import type { IPager } from "../../../base/common/paging.js";
-import { Platform } from "../../../base/common/platform.js";
-import type { URI } from "../../../base/common/uri.js";
-import { type ExtensionType, type IExtension, type IExtensionManifest, TargetPlatform } from "../../extensions/common/extensions.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { Event } from '../../../base/common/event.js';
+import { IPager } from '../../../base/common/paging.js';
+import { Platform } from '../../../base/common/platform.js';
+import { URI } from '../../../base/common/uri.js';
+import { ExtensionType, IExtension, IExtensionManifest, TargetPlatform } from '../../extensions/common/extensions.js';
 export declare const EXTENSION_IDENTIFIER_PATTERN = "^([a-z0-9A-Z][a-z0-9-A-Z]*)\\.([a-z0-9A-Z][a-z0-9-A-Z]*)$";
 export declare const EXTENSION_IDENTIFIER_REGEX: RegExp;
 export declare const WEB_EXTENSION_TAG = "__web_extension";
@@ -12,7 +12,7 @@ export declare const EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT = "skipWalkthrou
 export declare const EXTENSION_INSTALL_SOURCE_CONTEXT = "extensionInstallSource";
 export declare const EXTENSION_INSTALL_DEP_PACK_CONTEXT = "dependecyOrPackExtensionInstall";
 export declare const EXTENSION_INSTALL_CLIENT_TARGET_PLATFORM_CONTEXT = "clientTargetPlatform";
-export declare enum ExtensionInstallSource {
+export declare const enum ExtensionInstallSource {
     COMMAND = "command",
     SETTINGS_SYNC = "settingsSync"
 }
@@ -22,7 +22,7 @@ export interface IProductVersion {
 }
 export declare function TargetPlatformToString(targetPlatform: TargetPlatform): "Web" | "Mac" | TargetPlatform.UNIVERSAL | TargetPlatform.UNKNOWN | TargetPlatform.UNDEFINED | "Windows 64 bit" | "Windows ARM" | "Linux 64 bit" | "Linux ARM 64" | "Linux ARM" | "Alpine Linux 64 bit" | "Alpine ARM 64" | "Mac Silicon";
 export declare function toTargetPlatform(targetPlatform: string): TargetPlatform;
-export declare function getTargetPlatform(platform: Platform | "alpine", arch: string | undefined): TargetPlatform;
+export declare function getTargetPlatform(platform: Platform | 'alpine', arch: string | undefined): TargetPlatform;
 export declare function isNotWebExtensionInWebTargetPlatform(allTargetPlatforms: TargetPlatform[], productTargetPlatform: TargetPlatform): boolean;
 export declare function isTargetPlatformCompatible(extensionTargetPlatform: TargetPlatform, allTargetPlatforms: TargetPlatform[], productTargetPlatform: TargetPlatform): boolean;
 export interface IGalleryExtensionProperties {
@@ -64,7 +64,7 @@ export interface IGalleryExtensionVersion {
     isPreReleaseVersion: boolean;
 }
 export interface IGalleryExtension {
-    type: "gallery";
+    type: 'gallery';
     name: string;
     identifier: IGalleryExtensionIdentifier;
     version: string;
@@ -96,7 +96,7 @@ export interface IGalleryExtension {
     queryContext?: IStringDictionary<any>;
     supportLink?: string;
 }
-export type InstallSource = "gallery" | "vsix" | "resource";
+export type InstallSource = 'gallery' | 'vsix' | 'resource';
 export interface IGalleryMetadata {
     id: string;
     publisherId: string;
@@ -129,7 +129,7 @@ export interface ILocalExtension extends IExtension {
     pinned: boolean;
     source: InstallSource;
 }
-export declare enum SortBy {
+export declare const enum SortBy {
     NoneOrRelevance = 0,
     LastUpdatedDate = 1,
     Title = 2,
@@ -139,7 +139,7 @@ export declare enum SortBy {
     AverageRating = 6,
     WeightedRating = 12
 }
-export declare enum SortOrder {
+export declare const enum SortOrder {
     Default = 0,
     Ascending = 1,
     Descending = 2
@@ -155,7 +155,7 @@ export interface IQueryOptions {
     includePreRelease?: boolean;
     productVersion?: IProductVersion;
 }
-export declare enum StatisticType {
+export declare const enum StatisticType {
     Install = "install",
     Uninstall = "uninstall"
 }
@@ -182,7 +182,7 @@ export interface IExtensionsControlManifest {
     readonly search: ISearchPrefferedResults[];
     readonly extensionsEnabledWithPreRelease?: string[];
 }
-export declare enum InstallOperation {
+export declare const enum InstallOperation {
     None = 1,
     Install = 2,
     Update = 3,
@@ -263,7 +263,7 @@ export interface DidUpdateExtensionMetadata {
     readonly profileLocation: URI;
     readonly local: ILocalExtension;
 }
-export declare enum ExtensionGalleryErrorCode {
+export declare const enum ExtensionGalleryErrorCode {
     Timeout = "Timeout",
     Cancelled = "Cancelled",
     Failed = "Failed",
@@ -274,7 +274,7 @@ export declare class ExtensionGalleryError extends Error {
     readonly code: ExtensionGalleryErrorCode;
     constructor(message: string, code: ExtensionGalleryErrorCode);
 }
-export declare enum ExtensionManagementErrorCode {
+export declare const enum ExtensionManagementErrorCode {
     Unsupported = "Unsupported",
     Deprecated = "Deprecated",
     Malicious = "Malicious",

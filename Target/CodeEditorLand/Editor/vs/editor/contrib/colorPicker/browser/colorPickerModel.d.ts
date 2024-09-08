@@ -1,6 +1,6 @@
-import type { Color } from "../../../../base/common/color.js";
-import { type Event } from "../../../../base/common/event.js";
-import type { IColorPresentation } from "../../../common/languages.js";
+import { Color } from '../../../../base/common/color.js';
+import { Event } from '../../../../base/common/event.js';
+import { IColorPresentation } from '../../../common/languages.js';
 export declare class ColorPickerModel {
     private presentationIndex;
     readonly originalColor: Color;

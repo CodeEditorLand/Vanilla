@@ -1,7 +1,7 @@
-import { OffsetRange } from "../../../core/offsetRange.js";
+import { OffsetRange } from '../../../core/offsetRange.js';
 /**
  * Represents a synchronous diff algorithm. Should be executed in a worker.
- */
+*/
 export interface IDiffAlgorithm {
     compute(sequence1: ISequence, sequence2: ISequence, timeout?: ITimeout): DiffAlgorithmResult;
 }
@@ -56,7 +56,7 @@ export interface ISequence {
      * The higher the score, the better that offset can be used to split the sequence.
      * Is used to optimize insertions.
      * Must not be negative.
-     */
+    */
     getBoundaryScore?(length: number): number;
     /**
      * For line sequences, getElement returns a number representing trimmed lines.

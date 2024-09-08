@@ -1,17 +1,18 @@
-import { Disposable } from "../../base/common/lifecycle.js";
-import { type BrandedService, type IConstructorSignature, type ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
-import { LifecyclePhase } from "../services/lifecycle/common/lifecycle.js";
+import { IConstructorSignature, ServicesAccessor, BrandedService } from '../../platform/instantiation/common/instantiation.js';
+import { LifecyclePhase } from '../services/lifecycle/common/lifecycle.js';
+import { Disposable } from '../../base/common/lifecycle.js';
 /**
  * A workbench contribution that will be loaded when the workbench starts and disposed when the workbench shuts down.
  */
-export type IWorkbenchContribution = {};
+export interface IWorkbenchContribution {
+}
 export declare namespace Extensions {
     /**
      * @deprecated use `registerWorkbenchContribution2` instead.
      */
     const Workbench = "workbench.contributions.kind";
 }
-export declare enum WorkbenchPhase {
+export declare const enum WorkbenchPhase {
     /**
      * The first phase signals that we are about to startup getting ready.
      *

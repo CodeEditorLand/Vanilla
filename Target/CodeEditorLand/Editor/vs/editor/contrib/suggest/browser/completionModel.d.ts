@@ -1,8 +1,8 @@
-import { FuzzyScoreOptions } from "../../../../base/common/filters.js";
-import type { InternalSuggestOptions } from "../../../common/config/editorOptions.js";
-import { type CompletionItemProvider } from "../../../common/languages.js";
-import type { CompletionItem } from "./suggest.js";
-import type { WordDistance } from "./wordDistance.js";
+import { FuzzyScoreOptions } from '../../../../base/common/filters.js';
+import { InternalSuggestOptions } from '../../../common/config/editorOptions.js';
+import { CompletionItemProvider } from '../../../common/languages.js';
+import { WordDistance } from './wordDistance.js';
+import { CompletionItem } from './suggest.js';
 export interface ICompletionStats {
     pLabelLen: number;
 }
@@ -27,7 +27,7 @@ export declare class CompletionModel {
     private _filteredItems?;
     private _itemsByProvider?;
     private _stats?;
-    constructor(items: CompletionItem[], column: number, lineContext: LineContext, wordDistance: WordDistance, options: InternalSuggestOptions, snippetSuggestions: "top" | "bottom" | "inline" | "none", fuzzyScoreOptions?: FuzzyScoreOptions | undefined, clipboardText?: string | undefined);
+    constructor(items: CompletionItem[], column: number, lineContext: LineContext, wordDistance: WordDistance, options: InternalSuggestOptions, snippetSuggestions: 'top' | 'bottom' | 'inline' | 'none', fuzzyScoreOptions?: FuzzyScoreOptions | undefined, clipboardText?: string | undefined);
     get lineContext(): LineContext;
     set lineContext(value: LineContext);
     get items(): CompletionItem[];

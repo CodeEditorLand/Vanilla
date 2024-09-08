@@ -1,9 +1,9 @@
-import { type UriComponents } from "../../../base/common/uri.js";
-import { ICodeEditorService } from "../../../editor/browser/services/codeEditorService.js";
-import type { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
-import { IWebviewService } from "../../contrib/webview/browser/webview.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { type IWebviewContentOptions, type MainThreadEditorInsetsShape } from "../common/extHost.protocol.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import { ICodeEditorService } from '../../../editor/browser/services/codeEditorService.js';
+import { ExtensionIdentifier } from '../../../platform/extensions/common/extensions.js';
+import { IWebviewContentOptions, MainThreadEditorInsetsShape } from '../common/extHost.protocol.js';
+import { IWebviewService } from '../../contrib/webview/browser/webview.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
 export declare class MainThreadEditorInsets implements MainThreadEditorInsetsShape {
     private readonly _editorService;
     private readonly _webviewService;

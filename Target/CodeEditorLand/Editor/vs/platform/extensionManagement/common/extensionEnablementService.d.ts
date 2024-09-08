@@ -1,7 +1,7 @@
-import { type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IStorageService, StorageScope } from "../../storage/common/storage.js";
-import { type IExtensionIdentifier, IExtensionManagementService, type IGlobalExtensionEnablementService } from "./extensionManagement.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IExtensionIdentifier, IExtensionManagementService, IGlobalExtensionEnablementService } from './extensionManagement.js';
+import { IStorageService, StorageScope } from '../../storage/common/storage.js';
 export declare class GlobalExtensionEnablementService extends Disposable implements IGlobalExtensionEnablementService {
     readonly _serviceBrand: undefined;
     private _onDidChangeEnablement;

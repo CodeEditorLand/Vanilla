@@ -1,8 +1,8 @@
-import { Barrier } from "../../../../base/common/async.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { TestId } from "./testId.js";
-import { TestItemExpandState, type ITestItem, type ITestTag, type TestsDiff, type TestsDiffOp } from "./testTypes.js";
+import { Barrier } from '../../../../base/common/async.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ITestItem, ITestTag, TestItemExpandState, TestsDiff, TestsDiffOp } from './testTypes.js';
+import { TestId } from './testId.js';
+import { URI } from '../../../../base/common/uri.js';
 /**
  * @private
  */
@@ -16,7 +16,7 @@ interface CollectionItem<T> {
     expandLevels?: number;
     resolveBarrier?: Barrier;
 }
-export declare enum TestItemEventOp {
+export declare const enum TestItemEventOp {
     Upsert = 0,
     SetTags = 1,
     UpdateCanResolveChildren = 2,

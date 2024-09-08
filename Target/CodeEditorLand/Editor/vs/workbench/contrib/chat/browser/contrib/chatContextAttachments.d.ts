@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { IChatRequestVariableEntry } from "../../common/chatModel.js";
-import type { IChatWidget } from "../chat.js";
-import { type IChatWidgetContrib } from "../chatWidget.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IChatWidget } from '../chat.js';
+import { IChatWidgetContrib } from '../chatWidget.js';
+import { IChatRequestVariableEntry } from '../../common/chatModel.js';
 export declare class ChatContextAttachments extends Disposable implements IChatWidgetContrib {
     readonly widget: IChatWidget;
     private _attachedContext;

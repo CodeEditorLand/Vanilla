@@ -1,5 +1,5 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { type NotebookCellStateChangedEvent, type NotebookLayoutChangedEvent, type NotebookMetadataChangedEvent, type NotebookViewEvent } from "../notebookViewEvents.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { NotebookCellStateChangedEvent, NotebookLayoutChangedEvent, NotebookMetadataChangedEvent, NotebookViewEvent } from '../notebookViewEvents.js';
 export declare class NotebookEventDispatcher extends Disposable {
     private readonly _onDidChangeLayout;
     readonly onDidChangeLayout: import("../../../../../base/common/event.js").Event<NotebookLayoutChangedEvent>;

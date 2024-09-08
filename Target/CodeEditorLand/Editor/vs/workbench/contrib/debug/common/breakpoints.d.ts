@@ -1,5 +1,5 @@
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IBreakpointContribution } from "./debug.js";
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IBreakpointContribution } from './debug.js';
 export declare class Breakpoints {
     private readonly breakpointContribution;
     private readonly contextKeyService;

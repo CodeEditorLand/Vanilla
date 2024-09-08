@@ -1,4 +1,4 @@
-import "./symbolIcons.css";
+import './symbolIcons.css';
 export declare const SYMBOL_ICON_ARRAY_FOREGROUND: string;
 export declare const SYMBOL_ICON_BOOLEAN_FOREGROUND: string;
 export declare const SYMBOL_ICON_CLASS_FOREGROUND: string;

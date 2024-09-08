@@ -1,6 +1,6 @@
-import type { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import type { IConfigurationNode } from "../../../../platform/configuration/common/configurationRegistry.js";
-export declare enum TestingConfigKeys {
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IConfigurationNode } from '../../../../platform/configuration/common/configurationRegistry.js';
+export declare const enum TestingConfigKeys {
     AutoRunDelay = "testing.autoRun.delay",
     AutoOpenPeekView = "testing.automaticallyOpenPeekView",
     AutoOpenPeekViewDuringContinuousRun = "testing.automaticallyOpenPeekViewDuringAutoRun",
@@ -17,30 +17,30 @@ export declare enum TestingConfigKeys {
     CoverageBarThresholds = "testing.coverageBarThresholds",
     CoverageToolbarEnabled = "testing.coverageToolbarEnabled"
 }
-export declare enum AutoOpenTesting {
+export declare const enum AutoOpenTesting {
     NeverOpen = "neverOpen",
     OpenOnTestStart = "openOnTestStart",
     OpenOnTestFailure = "openOnTestFailure",
     OpenExplorerOnTestStart = "openExplorerOnTestStart"
 }
-export declare enum AutoOpenPeekViewWhen {
+export declare const enum AutoOpenPeekViewWhen {
     FailureVisible = "failureInVisibleDocument",
     FailureAnywhere = "failureAnywhere",
     Never = "never"
 }
-export declare enum DefaultGutterClickAction {
+export declare const enum DefaultGutterClickAction {
     Run = "run",
     Debug = "debug",
     Coverage = "runWithCoverage",
     ContextMenu = "contextMenu"
 }
-export declare enum TestingCountBadge {
+export declare const enum TestingCountBadge {
     Failed = "failed",
     Off = "off",
     Passed = "passed",
     Skipped = "skipped"
 }
-export declare enum TestingDisplayedCoveragePercent {
+export declare const enum TestingDisplayedCoveragePercent {
     TotalCoverage = "totalCoverage",
     Statement = "statement",
     Minimum = "minimum"

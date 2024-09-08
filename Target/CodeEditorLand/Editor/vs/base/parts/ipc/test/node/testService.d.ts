@@ -1,5 +1,5 @@
-import { type Event } from "../../../../common/event.js";
-import type { IChannel, IServerChannel } from "../../common/ipc.js";
+import { Event } from '../../../../common/event.js';
+import { IChannel, IServerChannel } from '../../common/ipc.js';
 export interface IMarcoPoloEvent {
     answer: string;
 }

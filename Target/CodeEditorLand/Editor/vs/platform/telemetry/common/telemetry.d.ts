@@ -1,4 +1,4 @@
-import type { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "./gdprTypings.js";
+import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from './gdprTypings.js';
 export declare const ITelemetryService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ITelemetryService>;
 export interface ITelemetryData {
     from?: string;
@@ -55,13 +55,13 @@ export declare const TELEMETRY_SECTION_ID = "telemetry";
 export declare const TELEMETRY_SETTING_ID = "telemetry.telemetryLevel";
 export declare const TELEMETRY_CRASH_REPORTER_SETTING_ID = "telemetry.enableCrashReporter";
 export declare const TELEMETRY_OLD_SETTING_ID = "telemetry.enableTelemetry";
-export declare enum TelemetryLevel {
+export declare const enum TelemetryLevel {
     NONE = 0,
     CRASH = 1,
     ERROR = 2,
     USAGE = 3
 }
-export declare enum TelemetryConfiguration {
+export declare const enum TelemetryConfiguration {
     OFF = "off",
     CRASH = "crash",
     ERROR = "error",

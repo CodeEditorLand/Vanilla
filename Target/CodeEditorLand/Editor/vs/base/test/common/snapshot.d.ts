@@ -1,4 +1,4 @@
-import { URI } from "../../common/uri.js";
+import { URI } from '../../common/uri.js';
 export interface ISnapshotOptions {
     /** Name for snapshot file, rather than an incremented number */
     name?: string;

@@ -1,9 +1,9 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { Position } from "../../core/position.js";
-import { Range } from "../../core/range.js";
-import { ApplyEditsResult, EndOfLinePreference, type FindMatch, type ISingleEditOperationIdentifier, type ITextBuffer, type ITextSnapshot, type SearchData, type ValidAnnotatedEditOperation } from "../../model.js";
-import { PieceTreeBase, type StringBuffer } from "./pieceTreeBase.js";
+import { Event } from '../../../../base/common/event.js';
+import { Position } from '../../core/position.js';
+import { Range } from '../../core/range.js';
+import { ApplyEditsResult, EndOfLinePreference, FindMatch, ISingleEditOperationIdentifier, ITextBuffer, ITextSnapshot, ValidAnnotatedEditOperation, SearchData } from '../../model.js';
+import { PieceTreeBase, StringBuffer } from './pieceTreeBase.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 export interface IValidatedEditOperation {
     sortIndex: number;
     identifier: ISingleEditOperationIdentifier | null;
@@ -25,14 +25,14 @@ export declare class PieceTreeTextBuffer extends Disposable implements ITextBuff
     private _mightContainNonBasicASCII;
     private readonly _onDidChangeContent;
     readonly onDidChangeContent: Event<void>;
-    constructor(chunks: StringBuffer[], BOM: string, eol: "\r\n" | "\n", containsRTL: boolean, containsUnusualLineTerminators: boolean, isBasicASCII: boolean, eolNormalized: boolean);
+    constructor(chunks: StringBuffer[], BOM: string, eol: '\r\n' | '\n', containsRTL: boolean, containsUnusualLineTerminators: boolean, isBasicASCII: boolean, eolNormalized: boolean);
     equals(other: ITextBuffer): boolean;
     mightContainRTL(): boolean;
     mightContainUnusualLineTerminators(): boolean;
     resetMightContainUnusualLineTerminators(): void;
     mightContainNonBasicASCII(): boolean;
     getBOM(): string;
-    getEOL(): "\r\n" | "\n";
+    getEOL(): '\r\n' | '\n';
     createSnapshot(preserveBOM: boolean): ITextSnapshot;
     getOffsetAt(lineNumber: number, column: number): number;
     getPositionAt(offset: number): Position;
@@ -53,7 +53,7 @@ export declare class PieceTreeTextBuffer extends Disposable implements ITextBuff
     getLineFirstNonWhitespaceColumn(lineNumber: number): number;
     getLineLastNonWhitespaceColumn(lineNumber: number): number;
     private _getEndOfLine;
-    setEOL(newEOL: "\r\n" | "\n"): void;
+    setEOL(newEOL: '\r\n' | '\n'): void;
     applyEdits(rawOperations: ValidAnnotatedEditOperation[], recordTrimAutoWhitespace: boolean, computeUndoEdits: boolean): ApplyEditsResult;
     /**
      * Transform operations such that they represent the same logic edit,

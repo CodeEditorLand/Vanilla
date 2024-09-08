@@ -1,9 +1,9 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { type ITerminalConfiguration, type ITerminalFont } from "../common/terminal.js";
-import { LinuxDistro, type ITerminalConfigurationService } from "./terminal.js";
-import type { IXtermCore } from "./xterm-private.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ITerminalConfigurationService, LinuxDistro } from './terminal.js';
+import type { IXtermCore } from './xterm-private.js';
+import { ITerminalConfiguration, type ITerminalFont } from '../common/terminal.js';
 export declare class TerminalConfigurationService extends Disposable implements ITerminalConfigurationService {
     private readonly _configurationService;
     _serviceBrand: undefined;

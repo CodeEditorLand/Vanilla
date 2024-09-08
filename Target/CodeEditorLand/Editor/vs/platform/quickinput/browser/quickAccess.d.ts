@@ -1,7 +1,7 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { type IQuickAccessController, type IQuickAccessOptions } from "../common/quickAccess.js";
-import { IQuickInputService, type IQuickPickItem } from "../common/quickInput.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IInstantiationService } from '../../instantiation/common/instantiation.js';
+import { IQuickAccessController, IQuickAccessOptions } from '../common/quickAccess.js';
+import { IQuickInputService, IQuickPickItem } from '../common/quickInput.js';
 export declare class QuickAccessController extends Disposable implements IQuickAccessController {
     private readonly quickInputService;
     private readonly instantiationService;

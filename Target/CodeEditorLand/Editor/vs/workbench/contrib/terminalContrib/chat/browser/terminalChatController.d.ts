@@ -1,18 +1,18 @@
-import type { Terminal as RawXtermTerminal } from "@xterm/xterm";
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../../platform/storage/common/storage.js";
-import { IViewsService } from "../../../../services/views/common/viewsService.js";
-import { IChatCodeBlockContextProviderService } from "../../../chat/browser/chat.js";
-import type { IChatResponseModel } from "../../../chat/common/chatModel.js";
-import { IChatService } from "../../../chat/common/chatService.js";
-import { ITerminalService, type ITerminalContribution, type ITerminalInstance, type IXtermTerminal } from "../../../terminal/browser/terminal.js";
-import type { TerminalWidgetManager } from "../../../terminal/browser/widgets/widgetManager.js";
-import type { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
-import { TerminalChatWidget } from "./terminalChatWidget.js";
-declare enum Message {
+import type { Terminal as RawXtermTerminal } from '@xterm/xterm';
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IChatCodeBlockContextProviderService } from '../../../chat/browser/chat.js';
+import { IChatService } from '../../../chat/common/chatService.js';
+import { ITerminalContribution, ITerminalInstance, ITerminalService, IXtermTerminal } from '../../../terminal/browser/terminal.js';
+import { TerminalWidgetManager } from '../../../terminal/browser/widgets/widgetManager.js';
+import { ITerminalProcessManager } from '../../../terminal/common/terminal.js';
+import { TerminalChatWidget } from './terminalChatWidget.js';
+import { IChatResponseModel } from '../../../chat/common/chatModel.js';
+import { IViewsService } from '../../../../services/views/common/viewsService.js';
+import { IStorageService } from '../../../../../platform/storage/common/storage.js';
+declare const enum Message {
     NONE = 0,
     ACCEPT_SESSION = 1,
     CANCEL_SESSION = 2,

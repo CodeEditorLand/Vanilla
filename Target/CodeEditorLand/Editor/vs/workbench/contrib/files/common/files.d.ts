@@ -1,19 +1,19 @@
-import type { IExpression } from "../../../../base/common/glob.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IEditorOptions } from "../../../../editor/common/config/editorOptions.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import type { ITextModel } from "../../../../editor/common/model.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import type { ITextModelContentProvider } from "../../../../editor/common/services/resolverService.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { IFileService, type IFilesConfiguration as PlatformIFilesConfiguration } from "../../../../platform/files/common/files.js";
-import { type IEditorIdentifier, type IWorkbenchEditorConfiguration } from "../../../common/editor.js";
-import type { EditorInput } from "../../../common/editor/editorInput.js";
-import type { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
-import type { IEditorService } from "../../../services/editor/common/editorService.js";
-import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IEditorOptions } from '../../../../editor/common/config/editorOptions.js';
+import { IWorkbenchEditorConfiguration, IEditorIdentifier } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IFilesConfiguration as PlatformIFilesConfiguration, IFileService } from '../../../../platform/files/common/files.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { ITextModelContentProvider } from '../../../../editor/common/services/resolverService.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ITextModel } from '../../../../editor/common/model.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { ITextFileService } from '../../../services/textfile/common/textfiles.js';
+import { IEditorGroup } from '../../../services/editor/common/editorGroupsService.js';
+import { ITextEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IExpression } from '../../../../base/common/glob.js';
 /**
  * Explorer viewlet id.
  */
@@ -66,9 +66,9 @@ export interface IFilesConfiguration extends PlatformIFilesConfiguration, IWorkb
     explorer: {
         openEditors: {
             visible: number;
-            sortOrder: "editorOrder" | "alphabetical" | "fullPath";
+            sortOrder: 'editorOrder' | 'alphabetical' | 'fullPath';
         };
-        autoReveal: boolean | "focusNoScroll";
+        autoReveal: boolean | 'focusNoScroll';
         autoRevealExclude: IExpression;
         enableDragAndDrop: boolean;
         confirmDelete: boolean;
@@ -82,7 +82,7 @@ export interface IFilesConfiguration extends PlatformIFilesConfiguration, IWorkb
             colors: boolean;
             badges: boolean;
         };
-        incrementalNaming: "simple" | "smart" | "disabled";
+        incrementalNaming: 'simple' | 'smart' | 'disabled';
         excludeGitIgnore: boolean;
         fileNesting: {
             enabled: boolean;
@@ -99,7 +99,7 @@ export interface IFileResource {
     resource: URI;
     isDirectory?: boolean;
 }
-export declare enum SortOrder {
+export declare const enum SortOrder {
     Default = "default",
     Mixed = "mixed",
     FilesFirst = "filesFirst",
@@ -107,12 +107,12 @@ export declare enum SortOrder {
     Modified = "modified",
     FoldersNestsFiles = "foldersNestsFiles"
 }
-export declare enum UndoConfirmLevel {
+export declare const enum UndoConfirmLevel {
     Verbose = "verbose",
     Default = "default",
     Light = "light"
 }
-export declare enum LexicographicOptions {
+export declare const enum LexicographicOptions {
     Default = "default",
     Upper = "upper",
     Lower = "lower",

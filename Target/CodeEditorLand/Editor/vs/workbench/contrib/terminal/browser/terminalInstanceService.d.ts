@@ -1,11 +1,11 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { type IShellLaunchConfig, type ITerminalBackend, type ITerminalProfile, type TerminalLocation } from "../../../../platform/terminal/common/terminal.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { ITerminalInstanceService, type ITerminalInstance } from "./terminal.js";
+import { ITerminalInstance, ITerminalInstanceService } from './terminal.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IShellLaunchConfig, ITerminalBackend, ITerminalProfile, TerminalLocation } from '../../../../platform/terminal/common/terminal.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { URI } from '../../../../base/common/uri.js';
+import { Event } from '../../../../base/common/event.js';
+import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
 export declare class TerminalInstanceService extends Disposable implements ITerminalInstanceService {
     private readonly _instantiationService;
     private readonly _contextKeyService;

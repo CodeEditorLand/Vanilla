@@ -1,5 +1,5 @@
-import type { LineRange } from "../../core/lineRange.js";
-import type { DetailedLineRangeMapping } from "../rangeMapping.js";
+import { LineRange } from '../../core/lineRange.js';
+import { DetailedLineRangeMapping } from '../rangeMapping.js';
 export declare class Array2D<T> {
     readonly width: number;
     readonly height: number;

@@ -1,10 +1,10 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import "./lightBulbWidget.css";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { type ICodeEditor, type IContentWidget, type IContentWidgetPosition } from "../../../browser/editorBrowser.js";
-import type { IPosition } from "../../../common/core/position.js";
-import type { CodeActionSet, CodeActionTrigger } from "../common/types.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import './lightBulbWidget.css';
+import { ICodeEditor, IContentWidget, IContentWidgetPosition } from '../../../browser/editorBrowser.js';
+import { IPosition } from '../../../common/core/position.js';
+import { CodeActionSet, CodeActionTrigger } from '../common/types.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 export declare class LightBulbWidget extends Disposable implements IContentWidget {
     private readonly _editor;
     private readonly _keybindingService;

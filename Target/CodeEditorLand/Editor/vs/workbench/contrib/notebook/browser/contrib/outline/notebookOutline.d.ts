@@ -1,23 +1,23 @@
-import type { IDataSource } from "../../../../../../base/browser/ui/tree/tree.js";
-import { CancellationToken } from "../../../../../../base/common/cancellation.js";
-import { type Event } from "../../../../../../base/common/event.js";
-import { type IDisposable, type IReference } from "../../../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../../../base/common/uri.js";
-import { ILanguageFeaturesService } from "../../../../../../editor/common/services/languageFeatures.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { RawContextKey } from "../../../../../../platform/contextkey/common/contextkey.js";
-import type { IEditorOptions } from "../../../../../../platform/editor/common/editor.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
-import type { IEditorPane } from "../../../../../common/editor.js";
-import { IEditorService } from "../../../../../services/editor/common/editorService.js";
-import { IOutlineService, OutlineTarget, type IBreadcrumbsDataSource, type IOutline, type IOutlineCreator, type IOutlineListConfig, type IQuickPickDataSource, type IQuickPickOutlineElement, type OutlineChangeEvent } from "../../../../../services/outline/browser/outline.js";
-import { CellKind } from "../../../common/notebookCommon.js";
-import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
-import { CellFoldingState, type INotebookEditorPane } from "../../notebookBrowser.js";
-import { NotebookEditor } from "../../notebookEditor.js";
-import type { INotebookCellOutlineDataSource } from "../../viewModel/notebookOutlineDataSource.js";
-import type { OutlineEntry } from "../../viewModel/OutlineEntry.js";
+import { IDataSource } from '../../../../../../base/browser/ui/tree/tree.js';
+import { Event } from '../../../../../../base/common/event.js';
+import { IDisposable, type IReference } from '../../../../../../base/common/lifecycle.js';
+import { URI } from '../../../../../../base/common/uri.js';
+import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
+import { IEditorOptions } from '../../../../../../platform/editor/common/editor.js';
+import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
+import { IThemeService } from '../../../../../../platform/theme/common/themeService.js';
+import { IEditorPane } from '../../../../../common/editor.js';
+import { CellFoldingState, INotebookEditorPane } from '../../notebookBrowser.js';
+import { NotebookEditor } from '../../notebookEditor.js';
+import { INotebookCellOutlineDataSource } from '../../viewModel/notebookOutlineDataSource.js';
+import { CellKind } from '../../../common/notebookCommon.js';
+import { IEditorService } from '../../../../../services/editor/common/editorService.js';
+import { IBreadcrumbsDataSource, IOutline, IOutlineCreator, IOutlineListConfig, IOutlineService, IQuickPickDataSource, IQuickPickOutlineElement, OutlineChangeEvent, OutlineTarget } from '../../../../../services/outline/browser/outline.js';
+import { OutlineEntry } from '../../viewModel/OutlineEntry.js';
+import { CancellationToken } from '../../../../../../base/common/cancellation.js';
+import { RawContextKey } from '../../../../../../platform/contextkey/common/contextkey.js';
+import { INotebookExecutionStateService } from '../../../common/notebookExecutionStateService.js';
+import { ILanguageFeaturesService } from '../../../../../../editor/common/services/languageFeatures.js';
 export declare class NotebookQuickPickProvider implements IQuickPickDataSource<OutlineEntry> {
     private readonly notebookCellOutlineDataSourceRef;
     private readonly _configurationService;
@@ -79,7 +79,6 @@ export declare class NotebookCellOutline implements IOutline<OutlineEntry> {
     private _treeDataSource;
     private _quickPickDataSource;
     private _breadcrumbsDataSource;
-    private gotoShowCodeCellSymbols;
     private outlineShowCodeCellSymbols;
     get activeElement(): OutlineEntry | undefined;
     get entries(): OutlineEntry[];
@@ -97,6 +96,7 @@ export declare class NotebookCellOutline implements IOutline<OutlineEntry> {
      */
     private setModelListeners;
     private computeSymbols;
+    doComputeSymbols(cancelToken: CancellationToken): Promise<void>;
     private delayedComputeSymbols;
     private recomputeState;
     private delayedRecomputeState;
@@ -112,7 +112,7 @@ export declare class NotebookOutlineCreator implements IOutlineCreator<NotebookE
     readonly dispose: () => void;
     constructor(outlineService: IOutlineService, _instantiationService: IInstantiationService);
     matches(candidate: IEditorPane): candidate is NotebookEditor;
-    createOutline(editor: NotebookEditor, target: OutlineTarget, cancelToken: CancellationToken): Promise<IOutline<OutlineEntry> | undefined>;
+    createOutline(editor: INotebookEditorPane, target: OutlineTarget, cancelToken: CancellationToken): Promise<IOutline<OutlineEntry> | undefined>;
 }
 export declare const NotebookOutlineContext: {
     CellKind: RawContextKey<CellKind>;

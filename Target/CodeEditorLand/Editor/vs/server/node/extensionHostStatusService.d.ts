@@ -1,4 +1,4 @@
-import type { IExtensionHostExitInfo } from "../../workbench/services/remote/common/remoteAgentService.js";
+import { IExtensionHostExitInfo } from '../../workbench/services/remote/common/remoteAgentService.js';
 export declare const IExtensionHostStatusService: import("../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionHostStatusService>;
 export interface IExtensionHostStatusService {
     readonly _serviceBrand: undefined;

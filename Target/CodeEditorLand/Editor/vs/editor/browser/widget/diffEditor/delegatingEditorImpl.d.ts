@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { IEditorOptions } from "../../../common/config/editorOptions.js";
-import type { IDimension } from "../../../common/core/dimension.js";
-import type { IPosition, Position } from "../../../common/core/position.js";
-import type { IRange, Range } from "../../../common/core/range.js";
-import type { ISelection, Selection } from "../../../common/core/selection.js";
-import { type IDiffEditorViewModel, type IEditor, type IEditorAction, type IEditorDecorationsCollection, type IEditorModel, type IEditorViewState, ScrollType } from "../../../common/editorCommon.js";
-import type { IModelDecorationsChangeAccessor, IModelDeltaDecoration } from "../../../common/model.js";
-import type { CodeEditorWidget } from "../codeEditor/codeEditorWidget.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { CodeEditorWidget } from '../codeEditor/codeEditorWidget.js';
+import { IEditorOptions } from '../../../common/config/editorOptions.js';
+import { IDimension } from '../../../common/core/dimension.js';
+import { IPosition, Position } from '../../../common/core/position.js';
+import { IRange, Range } from '../../../common/core/range.js';
+import { ISelection, Selection } from '../../../common/core/selection.js';
+import { IDiffEditorViewModel, IEditor, IEditorAction, IEditorDecorationsCollection, IEditorModel, IEditorViewState, ScrollType } from '../../../common/editorCommon.js';
+import { IModelDecorationsChangeAccessor, IModelDeltaDecoration } from '../../../common/model.js';
 export declare abstract class DelegatingEditor extends Disposable implements IEditor {
     private static idCounter;
     private readonly _id;

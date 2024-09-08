@@ -1,12 +1,12 @@
-import electron from "electron";
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import type { Event } from "../../../base/common/event.js";
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import type { ISerializableCommandAction } from "../../action/common/action.js";
-import type { NativeParsedArgs } from "../../environment/common/argv.js";
-import type { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
-import type { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
-import type { INativeWindowConfiguration } from "../common/window.js";
+import electron from 'electron';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ISerializableCommandAction } from '../../action/common/action.js';
+import { NativeParsedArgs } from '../../environment/common/argv.js';
+import { IUserDataProfile } from '../../userDataProfile/common/userDataProfile.js';
+import { INativeWindowConfiguration } from '../common/window.js';
+import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 export interface IBaseWindow extends IDisposable {
     readonly onDidMaximize: Event<void>;
     readonly onDidUnmaximize: Event<void>;
@@ -65,7 +65,7 @@ export interface ICodeWindow extends IBaseWindow {
     notifyZoomLevel(zoomLevel: number | undefined): void;
     serializeWindowState(): IWindowState;
 }
-export declare enum LoadReason {
+export declare const enum LoadReason {
     /**
      * The window is loaded for the first time.
      */
@@ -79,7 +79,7 @@ export declare enum LoadReason {
      */
     RELOAD = 3
 }
-export declare enum UnloadReason {
+export declare const enum UnloadReason {
     /**
      * The window is closed.
      */
@@ -108,7 +108,7 @@ export interface IWindowState {
 }
 export declare const defaultWindowState: (mode?: WindowMode) => IWindowState;
 export declare const defaultAuxWindowState: () => IWindowState;
-export declare enum WindowMode {
+export declare const enum WindowMode {
     Maximized = 0,
     Normal = 1,
     Minimized = 2,// not used anymore, but also cannot remove due to existing stored UI state (needs migration)
@@ -118,7 +118,7 @@ export interface ILoadEvent {
     readonly workspace: IWorkspaceIdentifier | ISingleFolderWorkspaceIdentifier | undefined;
     readonly reason: LoadReason;
 }
-export declare enum WindowError {
+export declare const enum WindowError {
     /**
      * Maps to the `unresponsive` event on a `BrowserWindow`.
      */

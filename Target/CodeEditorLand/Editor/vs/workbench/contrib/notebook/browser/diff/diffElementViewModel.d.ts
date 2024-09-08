@@ -1,18 +1,18 @@
-import { Emitter } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../../base/common/uri.js";
-import type { FontInfo } from "../../../../../editor/common/config/fontInfo.js";
-import type * as editorCommon from "../../../../../editor/common/editorCommon.js";
-import type { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { type NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
-import type { NotebookTextModel } from "../../common/model/notebookTextModel.js";
-import type { ICellOutput, INotebookTextModel, IOutputDto, IOutputItemDto } from "../../common/notebookCommon.js";
-import type { INotebookService } from "../../common/notebookService.js";
-import { type IGenericCellViewModel } from "../notebookBrowser.js";
-import type { NotebookLayoutInfo } from "../notebookViewEvents.js";
-import { DiffNestedCellViewModel } from "./diffNestedCellViewModel.js";
-import { type NotebookDiffEditorEventDispatcher } from "./eventDispatcher.js";
-import { DiffSide, type CellDiffViewModelLayoutChangeEvent, type IDiffElementLayoutInfo } from "./notebookDiffEditorBrowser.js";
+import { Emitter } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { FontInfo } from '../../../../../editor/common/config/fontInfo.js';
+import * as editorCommon from '../../../../../editor/common/editorCommon.js';
+import { DiffNestedCellViewModel } from './diffNestedCellViewModel.js';
+import { NotebookDiffEditorEventDispatcher } from './eventDispatcher.js';
+import { CellDiffViewModelLayoutChangeEvent, DiffSide, IDiffElementLayoutInfo } from './notebookDiffEditorBrowser.js';
+import { IGenericCellViewModel } from '../notebookBrowser.js';
+import { NotebookLayoutInfo } from '../notebookViewEvents.js';
+import { NotebookCellTextModel } from '../../common/model/notebookCellTextModel.js';
+import { NotebookTextModel } from '../../common/model/notebookTextModel.js';
+import { ICellOutput, INotebookTextModel, IOutputDto, IOutputItemDto } from '../../common/notebookCommon.js';
+import { INotebookService } from '../../common/notebookService.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
 export declare enum PropertyFoldingState {
     Expanded = 0,
     Collapsed = 1
@@ -46,7 +46,7 @@ export declare abstract class DiffElementViewModelBase extends Disposable {
     abstract get totalHeight(): number;
 }
 export declare class DiffElementPlaceholderViewModel extends DiffElementViewModelBase {
-    readonly type: "placeholder";
+    readonly type: 'placeholder';
     hiddenCells: DiffElementCellViewModelBase[];
     protected _unfoldHiddenCells: Emitter<void>;
     onUnfoldHiddenCells: import("../../../../../base/common/event.js").Event<void>;
@@ -61,7 +61,7 @@ export declare class DiffElementPlaceholderViewModel extends DiffElementViewMode
     showHiddenCells(): void;
 }
 export declare abstract class DiffElementCellViewModelBase extends DiffElementViewModelBase {
-    readonly type: "unchanged" | "insert" | "delete" | "modified";
+    readonly type: 'unchanged' | 'insert' | 'delete' | 'modified';
     private readonly configurationService;
     cellFoldingState: PropertyFoldingState;
     metadataFoldingState: PropertyFoldingState;
@@ -102,7 +102,7 @@ export declare abstract class DiffElementCellViewModelBase extends DiffElementVi
     private _metadataEditorViewState;
     readonly original: DiffNestedCellViewModel | undefined;
     readonly modified: DiffNestedCellViewModel | undefined;
-    constructor(mainDocumentTextModel: INotebookTextModel, original: NotebookCellTextModel | undefined, modified: NotebookCellTextModel | undefined, type: "unchanged" | "insert" | "delete" | "modified", editorEventDispatcher: NotebookDiffEditorEventDispatcher, initData: {
+    constructor(mainDocumentTextModel: INotebookTextModel, original: NotebookCellTextModel | undefined, modified: NotebookCellTextModel | undefined, type: 'unchanged' | 'insert' | 'delete' | 'modified', editorEventDispatcher: NotebookDiffEditorEventDispatcher, initData: {
         metadataStatusHeight: number;
         outputStatusHeight: number;
         fontInfo: FontInfo | undefined;
@@ -145,8 +145,8 @@ export declare class SideBySideDiffElementViewModel extends DiffElementCellViewM
     get modifiedDocument(): INotebookTextModel;
     readonly original: DiffNestedCellViewModel;
     readonly modified: DiffNestedCellViewModel;
-    readonly type: "unchanged" | "modified";
-    constructor(mainDocumentTextModel: NotebookTextModel, otherDocumentTextModel: NotebookTextModel, original: NotebookCellTextModel, modified: NotebookCellTextModel, type: "unchanged" | "modified", editorEventDispatcher: NotebookDiffEditorEventDispatcher, initData: {
+    readonly type: 'unchanged' | 'modified';
+    constructor(mainDocumentTextModel: NotebookTextModel, otherDocumentTextModel: NotebookTextModel, original: NotebookCellTextModel, modified: NotebookCellTextModel, type: 'unchanged' | 'modified', editorEventDispatcher: NotebookDiffEditorEventDispatcher, initData: {
         metadataStatusHeight: number;
         outputStatusHeight: number;
         fontInfo: FontInfo | undefined;
@@ -174,8 +174,8 @@ export declare class SingleSideDiffElementViewModel extends DiffElementCellViewM
     get cellViewModel(): DiffNestedCellViewModel;
     get originalDocument(): NotebookTextModel | INotebookTextModel;
     get modifiedDocument(): NotebookTextModel | INotebookTextModel;
-    readonly type: "insert" | "delete";
-    constructor(mainDocumentTextModel: NotebookTextModel, otherDocumentTextModel: NotebookTextModel, original: NotebookCellTextModel | undefined, modified: NotebookCellTextModel | undefined, type: "insert" | "delete", editorEventDispatcher: NotebookDiffEditorEventDispatcher, initData: {
+    readonly type: 'insert' | 'delete';
+    constructor(mainDocumentTextModel: NotebookTextModel, otherDocumentTextModel: NotebookTextModel, original: NotebookCellTextModel | undefined, modified: NotebookCellTextModel | undefined, type: 'insert' | 'delete', editorEventDispatcher: NotebookDiffEditorEventDispatcher, initData: {
         metadataStatusHeight: number;
         outputStatusHeight: number;
         fontInfo: FontInfo | undefined;
@@ -197,7 +197,7 @@ export declare class SingleSideDiffElementViewModel extends DiffElementCellViewM
     getRichOutputTotalHeight(): number;
     getCellByUri(cellUri: URI): IGenericCellViewModel;
 }
-export declare enum OutputComparison {
+export declare const enum OutputComparison {
     Unchanged = 0,
     Metadata = 1,
     Other = 2

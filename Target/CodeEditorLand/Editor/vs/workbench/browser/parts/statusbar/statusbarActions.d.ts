@@ -1,5 +1,5 @@
-import { Action } from "../../../../base/common/actions.js";
-import type { StatusbarViewModel } from "./statusbarModel.js";
+import { Action } from '../../../../base/common/actions.js';
+import { StatusbarViewModel } from './statusbarModel.js';
 export declare class ToggleStatusbarEntryVisibilityAction extends Action {
     private model;
     constructor(id: string, label: string, model: StatusbarViewModel);

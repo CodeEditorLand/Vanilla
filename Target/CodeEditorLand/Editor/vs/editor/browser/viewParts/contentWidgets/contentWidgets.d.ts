@@ -1,12 +1,12 @@
-import { type FastDomNode } from "../../../../base/browser/fastDomNode.js";
-import type { IPosition } from "../../../common/core/position.js";
-import { PositionAffinity } from "../../../common/model.js";
-import type * as viewEvents from "../../../common/viewEvents.js";
-import type { ViewportData } from "../../../common/viewLayout/viewLinesViewportData.js";
-import type { ViewContext } from "../../../common/viewModel/viewContext.js";
-import { ContentWidgetPositionPreference, type IContentWidget } from "../../editorBrowser.js";
-import type { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
-import { ViewPart } from "../../view/viewPart.js";
+import { FastDomNode } from '../../../../base/browser/fastDomNode.js';
+import { ContentWidgetPositionPreference, IContentWidget } from '../../editorBrowser.js';
+import { ViewPart } from '../../view/viewPart.js';
+import { RenderingContext, RestrictedRenderingContext } from '../../view/renderingContext.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
+import * as viewEvents from '../../../common/viewEvents.js';
+import { ViewportData } from '../../../common/viewLayout/viewLinesViewportData.js';
+import { PositionAffinity } from '../../../common/model.js';
+import { IPosition } from '../../../common/core/position.js';
 export declare class ViewContentWidgets extends ViewPart {
     private readonly _viewDomNode;
     private _widgets;

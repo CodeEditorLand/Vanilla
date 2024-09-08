@@ -1,10 +1,10 @@
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import type { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { type ILogFile } from "../../../../platform/log/browser/log.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
-import type { IElement, ILocaleInfo, ILocalizedStrings, IWindowDriver } from "../common/driver.js";
+import { IEnvironmentService } from '../../../../platform/environment/common/environment.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ILogFile } from '../../../../platform/log/browser/log.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IWindowDriver, IElement, ILocaleInfo, ILocalizedStrings } from '../common/driver.js';
+import { ILifecycleService } from '../../lifecycle/common/lifecycle.js';
 export declare class BrowserWindowDriver implements IWindowDriver {
     private readonly fileService;
     private readonly environmentService;

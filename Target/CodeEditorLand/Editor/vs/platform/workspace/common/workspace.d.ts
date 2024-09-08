@@ -1,6 +1,6 @@
-import type { Event } from "../../../base/common/event.js";
-import { URI, type UriComponents } from "../../../base/common/uri.js";
-import type { IEnvironmentService } from "../../environment/common/environment.js";
+import { Event } from '../../../base/common/event.js';
+import { URI, UriComponents } from '../../../base/common/uri.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
 export declare const IWorkspaceContextService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWorkspaceContextService>;
 export interface IWorkspaceContextService {
     readonly _serviceBrand: undefined;
@@ -116,7 +116,7 @@ export declare function reviveIdentifier(identifier: ISerializedWorkspaceIdentif
 export declare function reviveIdentifier(identifier: ISerializedSingleFolderWorkspaceIdentifier): ISingleFolderWorkspaceIdentifier;
 export declare function reviveIdentifier(identifier: IEmptyWorkspaceIdentifier): IEmptyWorkspaceIdentifier;
 export declare function reviveIdentifier(identifier: ISerializedWorkspaceIdentifier | ISerializedSingleFolderWorkspaceIdentifier | IEmptyWorkspaceIdentifier | undefined): IAnyWorkspaceIdentifier | undefined;
-export declare enum WorkbenchState {
+export declare const enum WorkbenchState {
     EMPTY = 1,
     FOLDER = 2,
     WORKSPACE = 3

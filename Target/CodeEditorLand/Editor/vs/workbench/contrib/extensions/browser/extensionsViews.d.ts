@@ -1,35 +1,35 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { type IPagedModel } from "../../../../base/common/paging.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { SortBy as GallerySortBy, type IQueryOptions as IGalleryQueryOptions } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
-import { ViewPane } from "../../../browser/parts/views/viewPane.js";
-import type { IViewletViewOptions } from "../../../browser/parts/views/viewsViewlet.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { IExtensionFeaturesManagementService } from "../../../services/extensionManagement/common/extensionFeatures.js";
-import { IExtensionManagementServerService, IWorkbenchExtensionEnablementService, IWorkbenchExtensionManagementService, type IExtensionManagementServer } from "../../../services/extensionManagement/common/extensionManagement.js";
-import { IExtensionRecommendationsService } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
-import { IExtensionManifestPropertiesService } from "../../../services/extensions/common/extensionManifestPropertiesService.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
-import { IExtensionsWorkbenchService, type IExtension, type IWorkspaceRecommendedExtensionsView } from "../common/extensions.js";
+import { Event } from '../../../../base/common/event.js';
+import { IPagedModel } from '../../../../base/common/paging.js';
+import { IQueryOptions as IGalleryQueryOptions, SortBy as GallerySortBy } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { IExtensionManagementServer, IExtensionManagementServerService, IWorkbenchExtensionManagementService, IWorkbenchExtensionEnablementService } from '../../../services/extensionManagement/common/extensionManagement.js';
+import { IExtensionRecommendationsService } from '../../../services/extensionRecommendations/common/extensionRecommendations.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IExtension, IExtensionsWorkbenchService, IWorkspaceRecommendedExtensionsView } from '../common/extensions.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IViewletViewOptions } from '../../../browser/parts/views/viewsViewlet.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { ViewPane } from '../../../browser/parts/views/viewPane.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IViewDescriptorService } from '../../../common/views.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IPreferencesService } from '../../../services/preferences/common/preferences.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IExtensionManifestPropertiesService } from '../../../services/extensions/common/extensionManifestPropertiesService.js';
+import { IWorkspaceTrustManagementService } from '../../../../platform/workspace/common/workspaceTrust.js';
+import { IWorkbenchLayoutService } from '../../../services/layout/browser/layoutService.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IExtensionFeaturesManagementService } from '../../../services/extensionManagement/common/extensionFeatures.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 export declare const NONE_CATEGORY = "none";
 export interface ExtensionsListViewOptions {
     server?: IExtensionManagementServer;
@@ -37,11 +37,11 @@ export interface ExtensionsListViewOptions {
     onDidChangeTitle?: Event<string>;
     hideBadge?: boolean;
 }
-declare enum LocalSortBy {
+declare const enum LocalSortBy {
     UpdateDate = "UpdateDate"
 }
 type SortBy = LocalSortBy | GallerySortBy;
-type IQueryOptions = Omit<IGalleryQueryOptions, "sortBy"> & {
+type IQueryOptions = Omit<IGalleryQueryOptions, 'sortBy'> & {
     sortBy?: SortBy;
 };
 export declare class ExtensionsListView extends ViewPane {

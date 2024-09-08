@@ -1,5 +1,5 @@
-import { type Chord, ResolvedChord, ResolvedKeybinding, type SingleModifierChord } from "../../../base/common/keybindings.js";
-import type { OperatingSystem } from "../../../base/common/platform.js";
+import { Chord, SingleModifierChord, ResolvedKeybinding, ResolvedChord } from '../../../base/common/keybindings.js';
+import { OperatingSystem } from '../../../base/common/platform.js';
 export declare abstract class BaseResolvedKeybinding<T extends Chord> extends ResolvedKeybinding {
     protected readonly _os: OperatingSystem;
     protected readonly _chords: readonly T[];

@@ -1,20 +1,20 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { type LinkedText } from "../../../../base/common/linkedText.js";
-import type { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService, RawContextKey, type ContextKeyExpression } from "../../../../platform/contextkey/common/contextkey.js";
-import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSync.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkbenchAssignmentService } from "../../../services/assignment/common/assignmentService.js";
-import { IHostService } from "../../../services/host/browser/host.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { Event } from '../../../../base/common/event.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { ContextKeyExpression, IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IUserDataSyncEnablementService } from '../../../../platform/userDataSync/common/userDataSync.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IExtensionManagementService } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { IWorkbenchAssignmentService } from '../../../services/assignment/common/assignmentService.js';
+import { IHostService } from '../../../services/host/browser/host.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { LinkedText } from '../../../../base/common/linkedText.js';
+import { IViewsService } from '../../../services/views/common/viewsService.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
 export declare const HasMultipleNewFileEntries: RawContextKey<boolean>;
 export declare const IWalkthroughsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWalkthroughsService>;
 export declare const hiddenEntriesConfigurationKey = "workbench.welcomePage.hiddenCategories";
@@ -35,15 +35,15 @@ export interface IWalkthrough {
     when: ContextKeyExpression;
     steps: IWalkthroughStep[];
     icon: {
-        type: "icon";
+        type: 'icon';
         icon: ThemeIcon;
     } | {
-        type: "image";
+        type: 'image';
         path: string;
     };
 }
-export type IWalkthroughLoose = Omit<IWalkthrough, "steps"> & {
-    steps: (Omit<IWalkthroughStep, "description"> & {
+export type IWalkthroughLoose = Omit<IWalkthrough, 'steps'> & {
+    steps: (Omit<IWalkthroughStep, 'description'> & {
         description: string;
     })[];
 };
@@ -62,7 +62,7 @@ export interface IWalkthroughStep {
     order: number;
     completionEvents: string[];
     media: {
-        type: "image";
+        type: 'image';
         path: {
             hcDark: URI;
             hcLight: URI;
@@ -71,11 +71,11 @@ export interface IWalkthroughStep {
         };
         altText: string;
     } | {
-        type: "svg";
+        type: 'svg';
         path: URI;
         altText: string;
     } | {
-        type: "markdown";
+        type: 'markdown';
         path: URI;
         base: URI;
         root: URI;

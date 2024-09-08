@@ -1,4 +1,4 @@
-import type { IExtensionDescription } from "../../extensions/common/extensions.js";
+import { IExtensionDescription } from '../../extensions/common/extensions.js';
 export declare const IRemoteExtensionsScannerService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IRemoteExtensionsScannerService>;
 export declare const RemoteExtensionsScannerChannelName = "remoteExtensionsScanner";
 export interface IRemoteExtensionsScannerService {

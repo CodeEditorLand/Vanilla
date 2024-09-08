@@ -1,5 +1,5 @@
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
 export interface IResolvableEditorModel extends IDisposable {
     /**
      * Resolves the model.
@@ -249,7 +249,7 @@ export interface ITextEditorSelection {
     readonly endLineNumber?: number;
     readonly endColumn?: number;
 }
-export declare enum TextEditorSelectionRevealType {
+export declare const enum TextEditorSelectionRevealType {
     /**
      * Option to scroll vertically or horizontally as necessary and reveal a range centered vertically.
      */
@@ -268,7 +268,7 @@ export declare enum TextEditorSelectionRevealType {
      */
     NearTopIfOutsideViewport = 3
 }
-export declare enum TextEditorSelectionSource {
+export declare const enum TextEditorSelectionSource {
     /**
      * Programmatic source indicates a selection change that
      * was not triggered by the user via keyboard or mouse

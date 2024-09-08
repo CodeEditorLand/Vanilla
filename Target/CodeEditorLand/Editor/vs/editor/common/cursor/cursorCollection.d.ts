@@ -1,13 +1,13 @@
-import { Position } from "../core/position.js";
-import { type ISelection, Selection } from "../core/selection.js";
-import { CursorState, type PartialCursorState } from "../cursorCommon.js";
-import type { CursorContext } from "./cursorContext.js";
+import { CursorState, PartialCursorState } from '../cursorCommon.js';
+import { CursorContext } from './cursorContext.js';
+import { Position } from '../core/position.js';
+import { ISelection, Selection } from '../core/selection.js';
 export declare class CursorCollection {
     private context;
     /**
      * `cursors[0]` is the primary cursor, thus `cursors.length >= 1` is always true.
      * `cursors.slice(1)` are secondary cursors.
-     */
+    */
     private cursors;
     private lastAddedCursorIndex;
     constructor(context: CursorContext);

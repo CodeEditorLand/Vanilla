@@ -1,8 +1,8 @@
-import { type Event } from "../../../../../base/common/event.js";
-import { type IDisposable } from "../../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../../base/common/uri.js";
-import type { IFormatterChangeEvent, ILabelService, ResourceLabelFormatter, Verbosity } from "../../../../../platform/label/common/label.js";
-import type { IWorkspace, IWorkspaceIdentifier } from "../../../../../platform/workspace/common/workspace.js";
+import { Event } from '../../../../../base/common/event.js';
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { IFormatterChangeEvent, ILabelService, ResourceLabelFormatter, Verbosity } from '../../../../../platform/label/common/label.js';
+import { IWorkspace, IWorkspaceIdentifier } from '../../../../../platform/workspace/common/workspace.js';
 export declare class MockLabelService implements ILabelService {
     _serviceBrand: undefined;
     registerCachedFormatter(formatter: ResourceLabelFormatter): IDisposable;
@@ -16,7 +16,7 @@ export declare class MockLabelService implements ILabelService {
     }): string;
     getHostLabel(scheme: string, authority?: string): string;
     getHostTooltip(): string | undefined;
-    getSeparator(scheme: string, authority?: string): "/" | "\\";
+    getSeparator(scheme: string, authority?: string): '/' | '\\';
     registerFormatter(formatter: ResourceLabelFormatter): IDisposable;
     onDidChangeFormatters: Event<IFormatterChangeEvent>;
 }

@@ -1,11 +1,1 @@
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { IWorkingCopyHistoryService } from "../common/workingCopyHistory.js";
-import { NativeWorkingCopyHistoryService } from "../common/workingCopyHistoryService.js";
-registerSingleton(
-  IWorkingCopyHistoryService,
-  NativeWorkingCopyHistoryService,
-  InstantiationType.Delayed
-);
+import{NativeWorkingCopyHistoryService as i}from"../common/workingCopyHistoryService.js";import{InstantiationType as o,registerSingleton as r}from"../../../../platform/instantiation/common/extensions.js";import{IWorkingCopyHistoryService as e}from"../common/workingCopyHistory.js";r(e,i,o.Delayed);

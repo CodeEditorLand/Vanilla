@@ -1,5 +1,5 @@
-import type { IProcessEnvironment } from "../../../common/platform.js";
-import type { IProductConfiguration } from "../../../common/product.js";
+import { IProcessEnvironment } from '../../../common/platform.js';
+import { IProductConfiguration } from '../../../common/product.js';
 /**
  * The common properties required for any sandboxed
  * renderer to function.

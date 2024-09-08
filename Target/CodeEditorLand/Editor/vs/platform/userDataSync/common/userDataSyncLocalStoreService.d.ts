@@ -1,10 +1,10 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IFileService } from "../../files/common/files.js";
-import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { type IResourceRefHandle, type IUserDataSyncLocalStoreService, IUserDataSyncLogService, type SyncResource } from "./userDataSync.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IFileService } from '../../files/common/files.js';
+import { IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
+import { IResourceRefHandle, IUserDataSyncLocalStoreService, IUserDataSyncLogService, SyncResource } from './userDataSync.js';
 export declare class UserDataSyncLocalStoreService extends Disposable implements IUserDataSyncLocalStoreService {
     private readonly environmentService;
     private readonly fileService;

@@ -1,7 +1,1 @@
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-const IWorkingCopyHistoryService = createDecorator("workingCopyHistoryService");
-const MAX_PARALLEL_HISTORY_IO_OPS = 20;
-export {
-  IWorkingCopyHistoryService,
-  MAX_PARALLEL_HISTORY_IO_OPS
-};
+import"../../../../base/common/event.js";import"../../../../base/common/cancellation.js";import"../../../../base/common/uri.js";import{createDecorator as o}from"../../../../platform/instantiation/common/instantiation.js";import"../../../common/editor.js";const c=o("workingCopyHistoryService"),d=20;export{c as IWorkingCopyHistoryService,d as MAX_PARALLEL_HISTORY_IO_OPS};

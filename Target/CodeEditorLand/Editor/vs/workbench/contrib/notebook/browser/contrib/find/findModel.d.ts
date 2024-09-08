@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { Range } from "../../../../../../editor/common/core/range.js";
-import type { FindMatch } from "../../../../../../editor/common/model.js";
-import { PrefixSumComputer } from "../../../../../../editor/common/model/prefixSumComputer.js";
-import type { FindReplaceState } from "../../../../../../editor/contrib/find/browser/findState.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { type CellFindMatchWithIndex, type CellWebviewFindMatch, type ICellViewModel, type INotebookEditor } from "../../notebookBrowser.js";
-import type { NotebookFindFilters } from "./findFilters.js";
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { Range } from '../../../../../../editor/common/core/range.js';
+import { FindMatch } from '../../../../../../editor/common/model.js';
+import { PrefixSumComputer } from '../../../../../../editor/common/model/prefixSumComputer.js';
+import { FindReplaceState } from '../../../../../../editor/contrib/find/browser/findState.js';
+import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
+import { NotebookFindFilters } from './findFilters.js';
+import { CellFindMatchWithIndex, CellWebviewFindMatch, ICellViewModel, INotebookEditor } from '../../notebookBrowser.js';
 export declare class CellFindMatchModel implements CellFindMatchWithIndex {
     readonly cell: ICellViewModel;
     readonly index: number;

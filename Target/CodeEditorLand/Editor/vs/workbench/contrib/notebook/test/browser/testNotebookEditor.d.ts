@@ -1,21 +1,21 @@
-import { VSBuffer } from "../../../../../base/common/buffer.js";
-import { Emitter, Event } from "../../../../../base/common/event.js";
-import { DisposableStore } from "../../../../../base/common/lifecycle.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { ILanguageService } from "../../../../../editor/common/languages/language.js";
-import { TestInstantiationService } from "../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
-import type { EditorInput } from "../../../../common/editor/editorInput.js";
-import { EditorModel } from "../../../../common/editor/editorModel.js";
-import type { IWorkingCopySaveEvent } from "../../../../services/workingCopy/common/workingCopy.js";
-import { type IActiveNotebookEditorDelegate, type INotebookEditorDelegate } from "../../browser/notebookBrowser.js";
-import { NotebookCellList } from "../../browser/view/notebookCellList.js";
-import { NotebookViewModel } from "../../browser/viewModel/notebookViewModelImpl.js";
-import { ViewContext } from "../../browser/viewModel/viewContext.js";
-import { NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
-import { NotebookTextModel } from "../../common/model/notebookTextModel.js";
-import { type CellKind, type INotebookDiffEditorModel, type INotebookEditorModel, type IOutputDto, type IResolvedNotebookEditorModel, type NotebookCellMetadata } from "../../common/notebookCommon.js";
-import { type ICellExecutionStateChangedEvent, type IExecutionStateChangedEvent, type INotebookCellExecution, type INotebookExecution, INotebookExecutionStateService, type INotebookFailStateChangedEvent } from "../../common/notebookExecutionStateService.js";
-import type { ICellRange } from "../../common/notebookRange.js";
+import { VSBuffer } from '../../../../../base/common/buffer.js';
+import { Emitter, Event } from '../../../../../base/common/event.js';
+import { DisposableStore } from '../../../../../base/common/lifecycle.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { ILanguageService } from '../../../../../editor/common/languages/language.js';
+import { TestInstantiationService } from '../../../../../platform/instantiation/test/common/instantiationServiceMock.js';
+import { EditorInput } from '../../../../common/editor/editorInput.js';
+import { EditorModel } from '../../../../common/editor/editorModel.js';
+import { IActiveNotebookEditorDelegate, INotebookEditorDelegate } from '../../browser/notebookBrowser.js';
+import { NotebookCellList } from '../../browser/view/notebookCellList.js';
+import { NotebookViewModel } from '../../browser/viewModel/notebookViewModelImpl.js';
+import { ViewContext } from '../../browser/viewModel/viewContext.js';
+import { NotebookCellTextModel } from '../../common/model/notebookCellTextModel.js';
+import { NotebookTextModel } from '../../common/model/notebookTextModel.js';
+import { CellKind, INotebookDiffEditorModel, INotebookEditorModel, IOutputDto, IResolvedNotebookEditorModel, NotebookCellMetadata } from '../../common/notebookCommon.js';
+import { ICellExecutionStateChangedEvent, IExecutionStateChangedEvent, INotebookCellExecution, INotebookExecution, INotebookExecutionStateService, INotebookFailStateChangedEvent } from '../../common/notebookExecutionStateService.js';
+import { ICellRange } from '../../common/notebookRange.js';
+import { IWorkingCopySaveEvent } from '../../../../services/workingCopy/common/workingCopy.js';
 export declare class TestCell extends NotebookCellTextModel {
     viewType: string;
     source: string;
@@ -49,30 +49,12 @@ export declare class NotebookEditorTestModel extends EditorModel implements INot
     saveAs(): Promise<EditorInput | undefined>;
     revert(): Promise<void>;
 }
-export declare function setupInstantiationService(disposables: Pick<DisposableStore, "add">): TestInstantiationService;
-export declare function createTestNotebookEditor(instantiationService: TestInstantiationService, disposables: DisposableStore, cells: [
-    source: string,
-    lang: string,
-    kind: CellKind,
-    output?: IOutputDto[],
-    metadata?: NotebookCellMetadata
-][]): {
+export declare function setupInstantiationService(disposables: Pick<DisposableStore, 'add'>): TestInstantiationService;
+export declare function createTestNotebookEditor(instantiationService: TestInstantiationService, disposables: DisposableStore, cells: [source: string, lang: string, kind: CellKind, output?: IOutputDto[], metadata?: NotebookCellMetadata][]): {
     editor: INotebookEditorDelegate;
     viewModel: NotebookViewModel;
 };
-export declare function withTestNotebookDiffModel<R = any>(originalCells: [
-    source: string,
-    lang: string,
-    kind: CellKind,
-    output?: IOutputDto[],
-    metadata?: NotebookCellMetadata
-][], modifiedCells: [
-    source: string,
-    lang: string,
-    kind: CellKind,
-    output?: IOutputDto[],
-    metadata?: NotebookCellMetadata
-][], callback: (diffModel: INotebookDiffEditorModel, disposables: DisposableStore, accessor: TestInstantiationService) => Promise<R> | R): Promise<R>;
+export declare function withTestNotebookDiffModel<R = any>(originalCells: [source: string, lang: string, kind: CellKind, output?: IOutputDto[], metadata?: NotebookCellMetadata][], modifiedCells: [source: string, lang: string, kind: CellKind, output?: IOutputDto[], metadata?: NotebookCellMetadata][], callback: (diffModel: INotebookDiffEditorModel, disposables: DisposableStore, accessor: TestInstantiationService) => Promise<R> | R): Promise<R>;
 interface IActiveTestNotebookEditorDelegate extends IActiveNotebookEditorDelegate {
     visibleRanges: ICellRange[];
 }
@@ -90,7 +72,7 @@ export type MockDocumentSymbol = {
     children?: MockDocumentSymbol[];
 };
 export declare function withTestNotebook<R = any>(cells: MockNotebookCell[], callback: (editor: IActiveTestNotebookEditorDelegate, viewModel: NotebookViewModel, disposables: DisposableStore, accessor: TestInstantiationService) => Promise<R> | R, accessor?: TestInstantiationService): Promise<R>;
-export declare function createNotebookCellList(instantiationService: TestInstantiationService, disposables: Pick<DisposableStore, "add">, viewContext?: ViewContext): NotebookCellList;
+export declare function createNotebookCellList(instantiationService: TestInstantiationService, disposables: Pick<DisposableStore, 'add'>, viewContext?: ViewContext): NotebookCellList;
 export declare function valueBytesFromString(value: string): VSBuffer;
 export declare class TestNotebookExecutionStateService implements INotebookExecutionStateService {
     _serviceBrand: undefined;

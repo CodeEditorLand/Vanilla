@@ -1,7 +1,7 @@
-import { OffsetRange } from "../../../common/core/offsetRange.js";
-import type { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import { type AbstractText, TextEdit } from "../../../common/core/textEdit.js";
+import { OffsetRange } from '../../../common/core/offsetRange.js';
+import { Position } from '../../../common/core/position.js';
+import { Range } from '../../../common/core/range.js';
+import { AbstractText, TextEdit } from '../../../common/core/textEdit.js';
 export declare abstract class Random {
     static basicAlphabet: string;
     static basicAlphabetMultiline: string;

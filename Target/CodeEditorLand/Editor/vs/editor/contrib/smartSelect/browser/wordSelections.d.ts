@@ -1,6 +1,6 @@
-import type { Position } from "../../../common/core/position.js";
-import type { SelectionRange, SelectionRangeProvider } from "../../../common/languages.js";
-import type { ITextModel } from "../../../common/model.js";
+import { Position } from '../../../common/core/position.js';
+import { ITextModel } from '../../../common/model.js';
+import { SelectionRange, SelectionRangeProvider } from '../../../common/languages.js';
 export declare class WordSelectionRangeProvider implements SelectionRangeProvider {
     private readonly selectSubwords;
     constructor(selectSubwords?: boolean);

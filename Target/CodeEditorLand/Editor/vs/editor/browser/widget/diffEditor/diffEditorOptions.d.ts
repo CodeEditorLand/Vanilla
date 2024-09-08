@@ -1,7 +1,7 @@
-import { type IObservable } from "../../../../base/common/observable.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { type IDiffEditorOptions, type IEditorOptions } from "../../../common/config/editorOptions.js";
-import type { DiffEditorViewModel } from "./diffEditorViewModel.js";
+import { IObservable } from '../../../../base/common/observable.js';
+import { DiffEditorViewModel } from './diffEditorViewModel.js';
+import { IDiffEditorOptions, IEditorOptions } from '../../../common/config/editorOptions.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
 export declare class DiffEditorOptions {
     private readonly _accessibilityService;
     private readonly _options;

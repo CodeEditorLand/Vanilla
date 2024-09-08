@@ -1,7 +1,7 @@
-import { type IProcessEnvironment } from "../../../base/common/platform.js";
-import type { IConfigurationService } from "../../configuration/common/configuration.js";
-import type { NativeParsedArgs } from "../../environment/common/argv.js";
-import type { ILogService } from "../../log/common/log.js";
+import { IProcessEnvironment } from '../../../base/common/platform.js';
+import { NativeParsedArgs } from '../../environment/common/argv.js';
+import { ILogService } from '../../log/common/log.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
 /**
  * Resolves the shell environment by spawning a shell. This call will cache
  * the shell spawning so that subsequent invocations use that cached result.

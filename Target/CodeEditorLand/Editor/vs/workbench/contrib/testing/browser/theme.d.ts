@@ -1,4 +1,4 @@
-import { TestResultState } from "../common/testTypes.js";
+import { TestResultState } from '../common/testTypes.js';
 export declare const testingColorIconFailed: string;
 export declare const testingColorIconErrored: string;
 export declare const testingColorIconPassed: string;

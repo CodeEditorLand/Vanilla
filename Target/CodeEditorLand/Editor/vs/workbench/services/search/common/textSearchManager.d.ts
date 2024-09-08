@@ -1,7 +1,7 @@
-import { type CancellationToken } from "../../../../base/common/cancellation.js";
-import { URI } from "../../../../base/common/uri.js";
-import { type IAITextQuery, type IFileMatch, type ISearchCompleteStats, type ITextQuery, type ITextSearchStats } from "./search.js";
-import { type AITextSearchProviderNew, type TextSearchProviderNew, type TextSearchResultNew } from "./searchExtTypes.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IAITextQuery, IFileMatch, ISearchCompleteStats, ITextQuery, ITextSearchStats } from './search.js';
+import { AITextSearchProviderNew, TextSearchProviderNew, TextSearchResultNew } from './searchExtTypes.js';
 export interface IFileUtils {
     readdir: (resource: URI) => Promise<string[]>;
     toCanonicalName: (encoding: string) => string;
@@ -21,7 +21,7 @@ export declare class TextSearchManager {
     private collector;
     private isLimitHit;
     private resultCount;
-    constructor(queryProviderPair: IAITextQueryProviderPair | ITextQueryProviderPair, fileUtils: IFileUtils, processType: ITextSearchStats["type"]);
+    constructor(queryProviderPair: IAITextQueryProviderPair | ITextQueryProviderPair, fileUtils: IFileUtils, processType: ITextSearchStats['type']);
     private get query();
     search(onProgress: (matches: IFileMatch[]) => void, token: CancellationToken): Promise<ISearchCompleteStats>;
     private getMessagesFromResults;

@@ -1,11 +1,11 @@
-import { type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { AccessibilitySupport, IAccessibilityService } from "../../../platform/accessibility/common/accessibility.js";
-import type { MenuId } from "../../../platform/actions/common/actions.js";
-import type { IEditorConfiguration } from "../../common/config/editorConfiguration.js";
-import { ConfigurationChangedEvent, EditorOption, type FindComputedEditorOptionValueById, type IComputedEditorOptions, type IEditorOptions } from "../../common/config/editorOptions.js";
-import { BareFontInfo, type FontInfo } from "../../common/config/fontInfo.js";
-import type { IDimension } from "../../common/core/dimension.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { ConfigurationChangedEvent, EditorOption, FindComputedEditorOptionValueById, IComputedEditorOptions, IEditorOptions } from '../../common/config/editorOptions.js';
+import { BareFontInfo, FontInfo } from '../../common/config/fontInfo.js';
+import { IDimension } from '../../common/core/dimension.js';
+import { IEditorConfiguration } from '../../common/config/editorConfiguration.js';
+import { AccessibilitySupport, IAccessibilityService } from '../../../platform/accessibility/common/accessibility.js';
+import { MenuId } from '../../../platform/actions/common/actions.js';
 export interface IEditorConstructionOptions extends IEditorOptions {
     /**
      * The initial editor dimension (to avoid measuring the container).

@@ -1,10 +1,10 @@
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { type ICodeEditor, type IEditorMouseEvent } from "../../../browser/editorBrowser.js";
-import type { Range } from "../../../common/core/range.js";
-import type { IModelDecoration } from "../../../common/model.js";
-import { type HoverAnchor, type IEditorHoverParticipant, type IEditorHoverRenderContext, type IHoverPart, type IRenderedHoverParts } from "../../hover/browser/hoverTypes.js";
-import { InlineEditController } from "./inlineEditController.js";
+import { ICodeEditor, IEditorMouseEvent } from '../../../browser/editorBrowser.js';
+import { Range } from '../../../common/core/range.js';
+import { IModelDecoration } from '../../../common/model.js';
+import { HoverAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts } from '../../hover/browser/hoverTypes.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { InlineEditController } from './inlineEditController.js';
 export declare class InlineEditHover implements IHoverPart {
     readonly owner: IEditorHoverParticipant<InlineEditHover>;
     readonly range: Range;

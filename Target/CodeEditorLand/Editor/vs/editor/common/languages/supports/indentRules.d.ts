@@ -1,5 +1,5 @@
-import type { IndentationRule } from "../languageConfiguration.js";
-export declare enum IndentConsts {
+import { IndentationRule } from '../languageConfiguration.js';
+export declare const enum IndentConsts {
     INCREASE_MASK = 1,
     DECREASE_MASK = 2,
     INDENT_NEXTLINE_MASK = 4,

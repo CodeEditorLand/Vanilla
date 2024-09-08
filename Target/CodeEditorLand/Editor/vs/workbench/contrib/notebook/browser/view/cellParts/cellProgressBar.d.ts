@@ -1,7 +1,7 @@
-import { INotebookExecutionStateService, type ICellExecutionStateChangedEvent } from "../../../common/notebookExecutionStateService.js";
-import type { ICellViewModel } from "../../notebookBrowser.js";
-import type { CellViewModelStateChangeEvent } from "../../notebookViewEvents.js";
-import { CellContentPart } from "../cellPart.js";
+import { ICellViewModel } from '../../notebookBrowser.js';
+import { CellViewModelStateChangeEvent } from '../../notebookViewEvents.js';
+import { CellContentPart } from '../cellPart.js';
+import { ICellExecutionStateChangedEvent, INotebookExecutionStateService } from '../../../common/notebookExecutionStateService.js';
 export declare class CellProgressBar extends CellContentPart {
     private readonly _notebookExecutionStateService;
     private readonly _progressBar;

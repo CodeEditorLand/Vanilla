@@ -1,5 +1,5 @@
-import type { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import type { IUserActivityService } from "./userActivityService.js";
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IUserActivityService } from './userActivityService.js';
 declare class UserActivityRegistry {
     private todo;
     add: (ctor: {

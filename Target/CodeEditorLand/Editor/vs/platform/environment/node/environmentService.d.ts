@@ -1,7 +1,7 @@
-import type { IProductService } from "../../product/common/productService.js";
-import type { NativeParsedArgs } from "../common/argv.js";
-import type { IDebugParams } from "../common/environment.js";
-import { AbstractNativeEnvironmentService } from "../common/environmentService.js";
+import { NativeParsedArgs } from '../common/argv.js';
+import { IDebugParams } from '../common/environment.js';
+import { AbstractNativeEnvironmentService } from '../common/environmentService.js';
+import { IProductService } from '../../product/common/productService.js';
 export declare class NativeEnvironmentService extends AbstractNativeEnvironmentService {
     constructor(args: NativeParsedArgs, productService: IProductService);
 }

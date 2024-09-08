@@ -1,16 +1,16 @@
-import type * as dom from "../../../../base/browser/dom.js";
-import { type Event } from "../../../../base/common/event.js";
-import { type ICodeEditor, type IEditorMouseEvent } from "../../../../editor/browser/editorBrowser.js";
-import type { IPosition } from "../../../../editor/common/core/position.js";
-import { type IRange } from "../../../../editor/common/core/range.js";
-import * as languages from "../../../../editor/common/languages.js";
-import { ZoneWidget } from "../../../../editor/contrib/zoneWidget/browser/zoneWidget.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import type { ICommentThreadWidget } from "../common/commentThreadWidget.js";
-import { ICommentService } from "./commentService.js";
+import * as dom from '../../../../base/browser/dom.js';
+import { Event } from '../../../../base/common/event.js';
+import { ICodeEditor, IEditorMouseEvent } from '../../../../editor/browser/editorBrowser.js';
+import { IPosition } from '../../../../editor/common/core/position.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import * as languages from '../../../../editor/common/languages.js';
+import { ZoneWidget } from '../../../../editor/contrib/zoneWidget/browser/zoneWidget.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { ICommentService } from './commentService.js';
+import { ICommentThreadWidget } from '../common/commentThreadWidget.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 export declare enum CommentWidgetFocus {
     None = 0,
     Widget = 1,

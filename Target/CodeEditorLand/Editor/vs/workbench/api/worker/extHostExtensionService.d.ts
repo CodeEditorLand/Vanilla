@@ -1,8 +1,8 @@
-import { URI } from "../../../base/common/uri.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import type { ExtensionActivationTimesBuilder } from "../common/extHostExtensionActivator.js";
-import { AbstractExtHostExtensionService } from "../common/extHostExtensionService.js";
-import { ExtensionRuntime } from "../common/extHostTypes.js";
+import { ExtensionActivationTimesBuilder } from '../common/extHostExtensionActivator.js';
+import { AbstractExtHostExtensionService } from '../common/extHostExtensionService.js';
+import { URI } from '../../../base/common/uri.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ExtensionRuntime } from '../common/extHostTypes.js';
 export declare class ExtHostExtensionService extends AbstractExtHostExtensionService {
     readonly extensionRuntime = ExtensionRuntime.Webworker;
     private _fakeModules?;

@@ -1,2 +1,2 @@
-import "../../../../workbench.desktop.main.js";
+import '../../../../workbench.desktop.main.js';
 export declare const experimental: string[];

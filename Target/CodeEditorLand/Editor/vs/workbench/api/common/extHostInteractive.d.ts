@@ -1,9 +1,9 @@
-import { type UriComponents } from "../../../base/common/uri.js";
-import type { ILogService } from "../../../platform/log/common/log.js";
-import type { ExtHostInteractiveShape, IMainContext } from "./extHost.protocol.js";
-import { type ExtHostCommands } from "./extHostCommands.js";
-import type { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
-import type { ExtHostNotebookController } from "./extHostNotebook.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { ExtHostInteractiveShape, IMainContext } from './extHost.protocol.js';
+import { ExtHostCommands } from './extHostCommands.js';
+import { ExtHostDocumentsAndEditors } from './extHostDocumentsAndEditors.js';
+import { ExtHostNotebookController } from './extHostNotebook.js';
 export declare class ExtHostInteractive implements ExtHostInteractiveShape {
     private _extHostNotebooks;
     private _textDocumentsAndEditors;

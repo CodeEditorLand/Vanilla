@@ -1,8 +1,8 @@
-import type { FileSearchProviderFolderOptions, FileSearchProviderOptions, TextSearchProviderFolderOptions, TextSearchProviderOptions } from "./searchExtTypes.js";
+import { FileSearchProviderFolderOptions, FileSearchProviderOptions, TextSearchProviderFolderOptions, TextSearchProviderOptions } from './searchExtTypes.js';
 interface RipgrepSearchOptionsCommon {
     numThreads?: number;
 }
-export type TextSearchProviderOptionsRipgrep = Omit<Partial<TextSearchProviderOptions>, "folderOptions"> & {
+export type TextSearchProviderOptionsRipgrep = Omit<Partial<TextSearchProviderOptions>, 'folderOptions'> & {
     folderOptions: TextSearchProviderFolderOptions;
 };
 export type FileSearchProviderOptionsRipgrep = {

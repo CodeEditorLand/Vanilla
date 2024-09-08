@@ -1,7 +1,7 @@
-import { URI } from "../../../base/common/uri.js";
-import type { IProductService } from "../../product/common/productService.js";
-import type { NativeParsedArgs } from "./argv.js";
-import type { ExtensionKind, IExtensionHostDebugParams, INativeEnvironmentService } from "./environment.js";
+import { URI } from '../../../base/common/uri.js';
+import { NativeParsedArgs } from './argv.js';
+import { ExtensionKind, IExtensionHostDebugParams, INativeEnvironmentService } from './environment.js';
+import { IProductService } from '../../product/common/productService.js';
 export declare const EXTENSION_IDENTIFIER_WITH_LOG_REGEX: RegExp;
 export interface INativeEnvironmentPaths {
     /**
@@ -37,7 +37,7 @@ export declare abstract class AbstractNativeEnvironmentService implements INativ
     get userRoamingDataHome(): URI;
     get userDataSyncHome(): URI;
     get logsHome(): URI;
-    get sync(): "on" | "off" | undefined;
+    get sync(): 'on' | 'off' | undefined;
     get machineSettingsResource(): URI;
     get workspaceStorageHome(): URI;
     get localHistoryHome(): URI;

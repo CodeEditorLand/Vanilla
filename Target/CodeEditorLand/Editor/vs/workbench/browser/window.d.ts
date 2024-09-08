@@ -1,16 +1,16 @@
-import { type CodeWindow } from "../../base/browser/window.js";
-import { Disposable } from "../../base/common/lifecycle.js";
-import { IDialogService } from "../../platform/dialogs/common/dialogs.js";
-import { IInstantiationService, type ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../platform/label/common/label.js";
-import { IOpenerService } from "../../platform/opener/common/opener.js";
-import { IProductService } from "../../platform/product/common/productService.js";
-import { IBrowserWorkbenchEnvironmentService } from "../services/environment/browser/environmentService.js";
-import { IWorkbenchEnvironmentService } from "../services/environment/common/environmentService.js";
-import { IHostService } from "../services/host/browser/host.js";
-import { IWorkbenchLayoutService } from "../services/layout/browser/layoutService.js";
-import type { BrowserLifecycleService } from "../services/lifecycle/browser/lifecycleService.js";
-import { ShutdownReason } from "../services/lifecycle/common/lifecycle.js";
+import { Disposable } from '../../base/common/lifecycle.js';
+import { IDialogService } from '../../platform/dialogs/common/dialogs.js';
+import { IInstantiationService, ServicesAccessor } from '../../platform/instantiation/common/instantiation.js';
+import { ILabelService } from '../../platform/label/common/label.js';
+import { IOpenerService } from '../../platform/opener/common/opener.js';
+import { IProductService } from '../../platform/product/common/productService.js';
+import { IBrowserWorkbenchEnvironmentService } from '../services/environment/browser/environmentService.js';
+import { IWorkbenchLayoutService } from '../services/layout/browser/layoutService.js';
+import { BrowserLifecycleService } from '../services/lifecycle/browser/lifecycleService.js';
+import { ShutdownReason } from '../services/lifecycle/common/lifecycle.js';
+import { IHostService } from '../services/host/browser/host.js';
+import { CodeWindow } from '../../base/browser/window.js';
+import { IWorkbenchEnvironmentService } from '../services/environment/common/environmentService.js';
 export declare abstract class BaseWindow extends Disposable {
     protected readonly hostService: IHostService;
     protected readonly environmentService: IWorkbenchEnvironmentService;
@@ -19,7 +19,7 @@ export declare abstract class BaseWindow extends Disposable {
     constructor(targetWindow: CodeWindow, dom: {
         getWindowsCount: () => number;
         getWindows: () => Iterable<import("../../base/browser/dom.js").IRegisteredCodeWindow>;
-    } | undefined, hostService: IHostService, environmentService: IWorkbenchEnvironmentService);
+    } | undefined, /* for testing */ hostService: IHostService, environmentService: IWorkbenchEnvironmentService);
     protected enableWindowFocusOnElementFocus(targetWindow: CodeWindow): void;
     private onElementFocus;
     protected enableMultiWindowAwareTimeout(targetWindow: Window, dom?: {

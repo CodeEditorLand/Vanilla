@@ -1,4 +1,1 @@
-const MicrotaskDelay = Symbol("MicrotaskDelay");
-export {
-  MicrotaskDelay
-};
+const o=Symbol("MicrotaskDelay");export{o as MicrotaskDelay};

@@ -1,8 +1,8 @@
-import { Action } from "../../base/common/actions.js";
-import { Event } from "../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../base/common/lifecycle.js";
-import { type LinkedText } from "../../base/common/linkedText.js";
-import { NotificationPriority, NotificationsFilter, Severity, type INotification, type INotificationActions, type INotificationHandle, type INotificationProgress, type IPromptChoice, type IStatusMessageOptions, type NotificationMessage } from "../../platform/notification/common/notification.js";
+import { INotification, INotificationHandle, INotificationActions, INotificationProgress, Severity, NotificationMessage, IPromptChoice, IStatusMessageOptions, NotificationsFilter, NotificationPriority } from '../../platform/notification/common/notification.js';
+import { Event } from '../../base/common/event.js';
+import { Disposable, IDisposable } from '../../base/common/lifecycle.js';
+import { Action } from '../../base/common/actions.js';
+import { LinkedText } from '../../base/common/linkedText.js';
 export interface INotificationsModel {
     readonly notifications: INotificationViewItem[];
     readonly onDidChangeNotification: Event<INotificationChangeEvent>;
@@ -13,7 +13,7 @@ export interface INotificationsModel {
     readonly onDidChangeStatusMessage: Event<IStatusMessageChangeEvent>;
     showStatusMessage(message: NotificationMessage, options?: IStatusMessageOptions): IDisposable;
 }
-export declare enum NotificationChangeType {
+export declare const enum NotificationChangeType {
     /**
      * A notification was added.
      */
@@ -51,7 +51,7 @@ export interface INotificationChangeEvent {
      */
     detail?: NotificationViewItemContentChangeKind;
 }
-export declare enum StatusMessageChangeType {
+export declare const enum StatusMessageChangeType {
     ADD = 0,
     REMOVE = 1
 }
@@ -137,7 +137,7 @@ export interface INotificationViewItem {
     equals(item: INotificationViewItem): boolean;
 }
 export declare function isNotificationViewItem(obj: unknown): obj is INotificationViewItem;
-export declare enum NotificationViewItemContentChangeKind {
+export declare const enum NotificationViewItemContentChangeKind {
     SEVERITY = 0,
     MESSAGE = 1,
     ACTIONS = 2,

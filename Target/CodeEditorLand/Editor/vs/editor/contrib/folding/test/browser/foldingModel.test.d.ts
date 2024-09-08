@@ -1,8 +1,8 @@
-import { type IModelDecorationsChangeAccessor, type ITextModel } from "../../../../common/model.js";
-import { ModelDecorationOptions } from "../../../../common/model/textModel.js";
+import { IModelDecorationsChangeAccessor, ITextModel } from '../../../../common/model.js';
+import { ModelDecorationOptions } from '../../../../common/model/textModel.js';
 interface ExpectedDecoration {
     line: number;
-    type: "hidden" | "collapsed" | "expanded";
+    type: 'hidden' | 'collapsed' | 'expanded';
 }
 export declare class TestDecorationProvider {
     private model;
@@ -11,7 +11,7 @@ export declare class TestDecorationProvider {
     private static readonly hiddenDecoration;
     constructor(model: ITextModel);
     getDecorationOption(isCollapsed: boolean, isHidden: boolean): ModelDecorationOptions;
-    changeDecorations<T>(callback: (changeAccessor: IModelDecorationsChangeAccessor) => T): T | null;
+    changeDecorations<T>(callback: (changeAccessor: IModelDecorationsChangeAccessor) => T): (T | null);
     removeDecorations(decorationIds: string[]): void;
     getDecorations(): ExpectedDecoration[];
 }

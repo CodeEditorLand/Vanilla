@@ -1,1 +1,1 @@
-import "../../platform/update/common/update.config.contribution.js";
+import '../../platform/update/common/update.config.contribution.js';

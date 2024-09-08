@@ -1,4 +1,4 @@
-import { Disposable, type IDisposable } from "../../../../../base/common/lifecycle.js";
+import { IDisposable, Disposable } from '../../../../../base/common/lifecycle.js';
 export interface ITypeData {
     text: string;
     replacePrevCharCnt: number;

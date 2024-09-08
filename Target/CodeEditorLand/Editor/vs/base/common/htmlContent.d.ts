@@ -1,4 +1,4 @@
-import { URI, type UriComponents } from "./uri.js";
+import { URI, UriComponents } from './uri.js';
 export interface MarkdownStringTrustedOptions {
     readonly enabledCommands: readonly string[];
 }
@@ -12,7 +12,7 @@ export interface IMarkdownString {
         [href: string]: UriComponents;
     };
 }
-export declare enum MarkdownStringTextNewlineStyle {
+export declare const enum MarkdownStringTextNewlineStyle {
     Paragraph = 0,
     Break = 1
 }

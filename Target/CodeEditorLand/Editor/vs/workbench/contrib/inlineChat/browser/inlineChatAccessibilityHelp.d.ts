@@ -1,6 +1,6 @@
-import type { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
-import { AccessibleViewType } from "../../../../platform/accessibility/browser/accessibleView.js";
-import type { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ServicesAccessor } from '../../../../editor/browser/editorExtensions.js';
+import { AccessibleViewType } from '../../../../platform/accessibility/browser/accessibleView.js';
+import { IAccessibleViewImplentation } from '../../../../platform/accessibility/browser/accessibleViewRegistry.js';
 export declare class InlineChatAccessibilityHelp implements IAccessibleViewImplentation {
     readonly priority = 106;
     readonly name = "inlineChat";

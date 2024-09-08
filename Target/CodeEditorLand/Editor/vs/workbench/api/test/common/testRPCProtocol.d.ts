@@ -1,7 +1,7 @@
-import type { IExtHostContext } from "../../../services/extensions/common/extHostCustomers.js";
-import { ExtensionHostKind } from "../../../services/extensions/common/extensionHostKind.js";
-import { type Proxied, type ProxyIdentifier } from "../../../services/extensions/common/proxyIdentifier.js";
-import type { IExtHostRpcService } from "../../common/extHostRpcService.js";
+import { IExtHostRpcService } from '../../common/extHostRpcService.js';
+import { IExtHostContext } from '../../../services/extensions/common/extHostCustomers.js';
+import { ExtensionHostKind } from '../../../services/extensions/common/extensionHostKind.js';
+import { Proxied, ProxyIdentifier } from '../../../services/extensions/common/proxyIdentifier.js';
 export declare function SingleProxyRPCProtocol(thing: any): IExtHostContext & IExtHostRpcService;
 /** Makes a fake {@link SingleProxyRPCProtocol} on which any method can be called */
 export declare function AnyCallRPCProtocol<T>(useCalls?: {

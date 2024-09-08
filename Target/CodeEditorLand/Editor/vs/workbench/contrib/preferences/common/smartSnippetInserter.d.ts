@@ -1,5 +1,5 @@
-import { Position } from "../../../../editor/common/core/position.js";
-import type { ITextModel } from "../../../../editor/common/model.js";
+import { Position } from '../../../../editor/common/core/position.js';
+import { ITextModel } from '../../../../editor/common/model.js';
 export interface InsertSnippetResult {
     position: Position;
     prepend: string;

@@ -1,7 +1,7 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import { IExtensionGalleryService, type IGalleryExtension } from "../../extensionManagement/common/extensionManagement.js";
-import type { IQuickPickItem } from "../../quickinput/common/quickInput.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IQuickPickItem } from '../../quickinput/common/quickInput.js';
+import { IExtensionGalleryService, IGalleryExtension } from '../../extensionManagement/common/extensionManagement.js';
 export declare function getLocale(extension: IGalleryExtension): string | undefined;
 export declare const ILanguagePackService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILanguagePackService>;
 export interface ILanguagePackItem extends IQuickPickItem {

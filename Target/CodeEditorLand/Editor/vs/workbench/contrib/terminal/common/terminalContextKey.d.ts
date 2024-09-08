@@ -1,5 +1,5 @@
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-export declare enum TerminalContextKeyStrings {
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+export declare const enum TerminalContextKeyStrings {
     IsOpen = "terminalIsOpen",
     Count = "terminalCount",
     GroupCount = "terminalGroupCount",

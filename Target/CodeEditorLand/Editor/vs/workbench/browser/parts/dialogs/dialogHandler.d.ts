@@ -1,10 +1,10 @@
-import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import { AbstractDialogHandler, type IAsyncPromptResult, type IConfirmation, type IConfirmationResult, type IInput, type IInputResult, type IPrompt } from "../../../../platform/dialogs/common/dialogs.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IConfirmation, IConfirmationResult, IInputResult, IInput, AbstractDialogHandler, IPrompt, IAsyncPromptResult } from '../../../../platform/dialogs/common/dialogs.js';
+import { ILayoutService } from '../../../../platform/layout/browser/layoutService.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IClipboardService } from '../../../../platform/clipboard/common/clipboardService.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 export declare class BrowserDialogHandler extends AbstractDialogHandler {
     private readonly logService;
     private readonly layoutService;

@@ -1,13 +1,13 @@
-import { Action } from "../../../../base/common/actions.js";
-import type { ICommandActionTitle } from "../../../../platform/action/common/action.js";
-import { Action2, type IAction2Options } from "../../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import type { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { type IKeybindingRule } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { ItemActivation } from "../../../../platform/quickinput/common/quickInput.js";
-import { type IEditorCommandsContext, type IEditorIdentifier } from "../../../common/editor.js";
-import { GroupDirection, type IEditorGroup, IEditorGroupsService, type IFindGroupScope } from "../../../services/editor/common/editorGroupsService.js";
+import { Action } from '../../../../base/common/actions.js';
+import { IEditorIdentifier, IEditorCommandsContext } from '../../../common/editor.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IEditorGroupsService, IEditorGroup, GroupDirection, IFindGroupScope } from '../../../services/editor/common/editorGroupsService.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ItemActivation } from '../../../../platform/quickinput/common/quickInput.js';
+import { Action2, IAction2Options } from '../../../../platform/actions/common/actions.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingRule } from '../../../../platform/keybinding/common/keybindingsRegistry.js';
+import { ICommandActionTitle } from '../../../../platform/action/common/action.js';
 declare class ExecuteCommandAction extends Action2 {
     private readonly commandId;
     private readonly commandArgs?;
@@ -463,7 +463,7 @@ export declare class ReOpenInTextEditorAction extends Action2 {
 }
 declare abstract class BaseMoveCopyEditorToNewWindowAction extends Action2 {
     private readonly move;
-    constructor(id: string, title: ICommandActionTitle, keybinding: Omit<IKeybindingRule, "id"> | undefined, move: boolean);
+    constructor(id: string, title: ICommandActionTitle, keybinding: Omit<IKeybindingRule, 'id'> | undefined, move: boolean);
     run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void>;
 }
 export declare class MoveEditorToNewWindowAction extends BaseMoveCopyEditorToNewWindowAction {

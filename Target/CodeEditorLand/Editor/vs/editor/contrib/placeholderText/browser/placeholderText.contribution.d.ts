@@ -1,1 +1,1 @@
-import "./placeholderText.css";
+import './placeholderText.css';

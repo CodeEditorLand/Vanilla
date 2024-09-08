@@ -1,7 +1,7 @@
-import type { Position } from "../core/position.js";
-import { Selection } from "../core/selection.js";
-import type { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../editorCommon.js";
-import type { ITextModel } from "../model.js";
+import { Position } from '../core/position.js';
+import { Selection } from '../core/selection.js';
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from '../editorCommon.js';
+import { ITextModel } from '../model.js';
 export declare class SurroundSelectionCommand implements ICommand {
     private readonly _range;
     private readonly _charBeforeSelection;

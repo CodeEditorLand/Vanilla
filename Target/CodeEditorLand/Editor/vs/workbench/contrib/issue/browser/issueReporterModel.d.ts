@@ -1,6 +1,6 @@
-import { type SystemInfo } from "../../../../platform/diagnostics/common/diagnostics.js";
-import type { OldIssueType } from "../../../../platform/issue/common/issue.js";
-import { IssueType, type ISettingSearchResult, type IssueReporterExtensionData } from "../common/issue.js";
+import { SystemInfo } from '../../../../platform/diagnostics/common/diagnostics.js';
+import { OldIssueType } from '../../../../platform/issue/common/issue.js';
+import { ISettingSearchResult, IssueReporterExtensionData, IssueType } from '../common/issue.js';
 export interface IssueReporterData {
     issueType: IssueType | OldIssueType;
     issueDescription?: string;

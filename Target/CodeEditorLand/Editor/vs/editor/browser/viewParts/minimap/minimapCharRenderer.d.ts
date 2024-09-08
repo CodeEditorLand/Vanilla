@@ -1,4 +1,4 @@
-import type { RGBA8 } from "../../../common/core/rgba.js";
+import { RGBA8 } from '../../../common/core/rgba.js';
 export declare class MinimapCharRenderer {
     readonly scale: number;
     _minimapCharRendererBrand: void;

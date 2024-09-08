@@ -1,10 +1,10 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ILogService } from "../../../log/common/log.js";
-import type { ITerminalOutputMatcher } from "../terminal.js";
-import { type ICommandDetectionCapability, type ICommandInvalidationRequest, type IHandleCommandOptions, type ISerializedCommandDetectionCapability, type ITerminalCommand, TerminalCapability } from "./capabilities.js";
-import { type IPromptInputModel } from "./commandDetection/promptInputModel.js";
-import { type ICurrentPartialCommand, TerminalCommand } from "./commandDetection/terminalCommand.js";
-import type { IBuffer, Terminal } from "@xterm/headless";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ILogService } from '../../../log/common/log.js';
+import { ICommandDetectionCapability, ICommandInvalidationRequest, IHandleCommandOptions, ISerializedCommandDetectionCapability, ITerminalCommand, TerminalCapability } from './capabilities.js';
+import { ITerminalOutputMatcher } from '../terminal.js';
+import { ICurrentPartialCommand, TerminalCommand } from './commandDetection/terminalCommand.js';
+import { type IPromptInputModel } from './commandDetection/promptInputModel.js';
+import type { IBuffer, Terminal } from '@xterm/headless';
 export declare class CommandDetectionCapability extends Disposable implements ICommandDetectionCapability {
     private readonly _terminal;
     private readonly _logService;

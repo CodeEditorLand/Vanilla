@@ -1,17 +1,17 @@
-import { Color } from "../../../../base/common/color.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import type { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import type { IActiveCodeEditor, ICodeEditor } from "../../../browser/editorBrowser.js";
-import { Range } from "../../../common/core/range.js";
-import type { DocumentColorProvider, IColorInformation } from "../../../common/languages.js";
-import { type ITextModel } from "../../../common/model.js";
-import type { IEditorHoverRenderContext } from "../../hover/browser/hoverTypes.js";
-import { ColorPickerModel } from "./colorPickerModel.js";
-import { ColorHover, HoverColorPickerParticipant } from "./hoverColorPicker/hoverColorPickerParticipant.js";
-import { ColorPickerWidget } from "./hoverColorPicker/hoverColorPickerWidget.js";
-import { StandaloneColorPickerHover, StandaloneColorPickerParticipant } from "./standaloneColorPicker/standaloneColorPickerParticipant.js";
+import { Color } from '../../../../base/common/color.js';
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
+import { IActiveCodeEditor, ICodeEditor } from '../../../browser/editorBrowser.js';
+import { DocumentColorProvider, IColorInformation } from '../../../common/languages.js';
+import { ITextModel } from '../../../common/model.js';
+import { ColorHover, HoverColorPickerParticipant } from './hoverColorPicker/hoverColorPickerParticipant.js';
+import { ColorPickerModel } from './colorPickerModel.js';
+import { ColorPickerWidget } from './hoverColorPicker/hoverColorPickerWidget.js';
+import { StandaloneColorPickerHover, StandaloneColorPickerParticipant } from './standaloneColorPicker/standaloneColorPickerParticipant.js';
+import { Range } from '../../../common/core/range.js';
+import { IEditorHoverRenderContext } from '../../hover/browser/hoverTypes.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
 export declare function createColorHover<T extends HoverColorPickerParticipant | StandaloneColorPickerParticipant>(participant: T, editorModel: ITextModel, colorInfo: IColorInformation, provider: DocumentColorProvider): Promise<T extends HoverColorPickerParticipant ? ColorHover : StandaloneColorPickerHover>;
-export declare function renderHoverParts<T extends ColorHover | StandaloneColorPickerHover>(participant: HoverColorPickerParticipant | StandaloneColorPickerParticipant, editor: ICodeEditor, themeService: IThemeService, hoverParts: T[], context: IEditorHoverRenderContext): {
+export declare function renderHoverParts<T extends (ColorHover | StandaloneColorPickerHover)>(participant: HoverColorPickerParticipant | StandaloneColorPickerParticipant, editor: ICodeEditor, themeService: IThemeService, hoverParts: T[], context: IEditorHoverRenderContext): {
     hoverPart: T;
     colorPicker: ColorPickerWidget;
     disposables: DisposableStore;

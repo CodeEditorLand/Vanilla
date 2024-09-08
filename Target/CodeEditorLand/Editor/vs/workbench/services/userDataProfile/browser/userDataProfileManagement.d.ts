@@ -1,22 +1,22 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IRequestService } from "../../../../platform/request/common/request.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IUserDataProfilesService, type IUserDataProfile, type IUserDataProfileOptions, type IUserDataProfileUpdateOptions } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { IExtensionService } from "../../extensions/common/extensions.js";
-import { IHostService } from "../../host/browser/host.js";
-import { IUserDataProfileManagementService, IUserDataProfileService, type IProfileTemplateInfo } from "../common/userDataProfile.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IRequestService } from '../../../../platform/request/common/request.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IUserDataProfile, IUserDataProfileOptions, IUserDataProfilesService, IUserDataProfileUpdateOptions } from '../../../../platform/userDataProfile/common/userDataProfile.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IWorkbenchEnvironmentService } from '../../environment/common/environmentService.js';
+import { IExtensionService } from '../../extensions/common/extensions.js';
+import { IHostService } from '../../host/browser/host.js';
+import { IProfileTemplateInfo, IUserDataProfileManagementService, IUserDataProfileService } from '../common/userDataProfile.js';
 export type ProfileManagementActionExecutedClassification = {
-    owner: "sandy081";
-    comment: "Logged when profile management action is excuted";
+    owner: 'sandy081';
+    comment: 'Logged when profile management action is excuted';
     id: {
-        classification: "SystemMetaData";
-        purpose: "FeatureInsight";
-        comment: "The identifier of the action that was run.";
+        classification: 'SystemMetaData';
+        purpose: 'FeatureInsight';
+        comment: 'The identifier of the action that was run.';
     };
 };
 export type ProfileManagementActionExecutedEvent = {

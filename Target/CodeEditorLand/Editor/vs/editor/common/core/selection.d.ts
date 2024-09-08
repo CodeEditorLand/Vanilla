@@ -1,5 +1,5 @@
-import { type IPosition, Position } from "./position.js";
-import { Range } from "./range.js";
+import { IPosition, Position } from './position.js';
+import { Range } from './range.js';
 /**
  * A selection in the editor.
  * The selection is a range that has an orientation.
@@ -25,7 +25,7 @@ export interface ISelection {
 /**
  * The direction of a selection.
  */
-export declare enum SelectionDirection {
+export declare const enum SelectionDirection {
     /**
      * The selection starts above where it ends.
      */
@@ -83,7 +83,7 @@ export declare class Selection extends Range {
     getPosition(): Position;
     /**
      * Get the position at the start of the selection.
-     */
+    */
     getSelectionStart(): Position;
     /**
      * Create a new selection with a different `selectionStartLineNumber` and `selectionStartColumn`.

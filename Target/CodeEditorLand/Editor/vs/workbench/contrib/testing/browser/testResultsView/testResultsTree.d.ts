@@ -1,13 +1,13 @@
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IProgressService } from "../../../../../platform/progress/common/progress.js";
-import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import { ITestCoverageService } from "../../common/testCoverageService.js";
-import { ITestExplorerFilterState } from "../../common/testExplorerFilterState.js";
-import { ITestResultService } from "../../common/testResultService.js";
-import { type InspectSubject } from "./testResultsSubject.js";
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IContextMenuService } from '../../../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IProgressService } from '../../../../../platform/progress/common/progress.js';
+import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
+import { InspectSubject } from './testResultsSubject.js';
+import { ITestCoverageService } from '../../common/testCoverageService.js';
+import { ITestExplorerFilterState } from '../../common/testExplorerFilterState.js';
+import { ITestResultService } from '../../common/testResultService.js';
 export declare class OutputPeekTree extends Disposable {
     private readonly contextMenuService;
     private disposed;

@@ -1,11 +1,11 @@
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { type ReadableStreamEvents } from "../../../base/common/stream.js";
-import type { URI } from "../../../base/common/uri.js";
-import type { ILogService } from "../../log/common/log.js";
-import { AbstractDiskFileSystemProvider, type IDiskFileSystemProviderOptions } from "../common/diskFileSystemProvider.js";
-import { FileSystemProviderCapabilities, FileType, type IFileAtomicReadOptions, type IFileChange, type IFileDeleteOptions, type IFileOpenOptions, type IFileOverwriteOptions, type IFileReadStreamOptions, type IFileSystemProviderWithFileAtomicDeleteCapability, type IFileSystemProviderWithFileAtomicReadCapability, type IFileSystemProviderWithFileAtomicWriteCapability, type IFileSystemProviderWithFileCloneCapability, type IFileSystemProviderWithFileFolderCopyCapability, type IFileSystemProviderWithFileReadStreamCapability, type IFileSystemProviderWithFileReadWriteCapability, type IFileSystemProviderWithOpenReadWriteCloseCapability, type IFileWriteOptions, type IStat } from "../common/files.js";
-import type { AbstractNonRecursiveWatcherClient, AbstractUniversalWatcherClient, ILogMessage } from "../common/watcher.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { ReadableStreamEvents } from '../../../base/common/stream.js';
+import { URI } from '../../../base/common/uri.js';
+import { IFileAtomicReadOptions, IFileDeleteOptions, IFileOpenOptions, IFileOverwriteOptions, IFileReadStreamOptions, FileSystemProviderCapabilities, FileType, IFileWriteOptions, IFileSystemProviderWithFileAtomicReadCapability, IFileSystemProviderWithFileCloneCapability, IFileSystemProviderWithFileFolderCopyCapability, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithOpenReadWriteCloseCapability, IStat, IFileSystemProviderWithFileAtomicWriteCapability, IFileSystemProviderWithFileAtomicDeleteCapability, IFileChange } from '../common/files.js';
+import { AbstractNonRecursiveWatcherClient, AbstractUniversalWatcherClient, ILogMessage } from '../common/watcher.js';
+import { ILogService } from '../../log/common/log.js';
+import { AbstractDiskFileSystemProvider, IDiskFileSystemProviderOptions } from '../common/diskFileSystemProvider.js';
 export declare class DiskFileSystemProvider extends AbstractDiskFileSystemProvider implements IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithOpenReadWriteCloseCapability, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileFolderCopyCapability, IFileSystemProviderWithFileAtomicReadCapability, IFileSystemProviderWithFileAtomicWriteCapability, IFileSystemProviderWithFileAtomicDeleteCapability, IFileSystemProviderWithFileCloneCapability {
     private static TRACE_LOG_RESOURCE_LOCKS;
     constructor(logService: ILogService, options?: IDiskFileSystemProviderOptions);

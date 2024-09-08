@@ -1,9 +1,9 @@
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import type { IPosition } from "../../../common/core/position.js";
-import { type CompletionItemKind } from "../../../common/languages.js";
-import type { ITextModel } from "../../../common/model.js";
-import type { CompletionItem } from "./suggest.js";
+import { IPosition } from '../../../common/core/position.js';
+import { ITextModel } from '../../../common/model.js';
+import { CompletionItemKind } from '../../../common/languages.js';
+import { CompletionItem } from './suggest.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
 export declare abstract class Memory {
     readonly name: MemMode;
     constructor(name: MemMode);
@@ -41,7 +41,7 @@ export declare class PrefixMemory extends Memory {
     toJSON(): object;
     fromJSON(data: [string, MemItem][]): void;
 }
-export type MemMode = "first" | "recentlyUsed" | "recentlyUsedByPrefix";
+export type MemMode = 'first' | 'recentlyUsed' | 'recentlyUsedByPrefix';
 export declare class SuggestMemoryService implements ISuggestMemoryService {
     private readonly _storageService;
     private readonly _configService;

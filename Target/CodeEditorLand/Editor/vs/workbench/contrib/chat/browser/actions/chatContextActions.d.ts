@@ -1,13 +1,13 @@
-import { ThemeIcon } from "../../../../../base/common/themables.js";
-import { URI } from "../../../../../base/common/uri.js";
-import type { Command } from "../../../../../editor/common/languages.js";
-import { type IGotoSymbolQuickPickItem } from "../../../../../editor/contrib/quickAccess/browser/gotoSymbolQuickAccess.js";
-import { type IQuickPickItem } from "../../../../../platform/quickinput/common/quickInput.js";
-import { type ISymbolQuickPickItem } from "../../../search/browser/symbolsQuickAccess.js";
+import { ThemeIcon } from '../../../../../base/common/themables.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { Command } from '../../../../../editor/common/languages.js';
+import { IGotoSymbolQuickPickItem } from '../../../../../editor/contrib/quickAccess/browser/gotoSymbolQuickAccess.js';
+import { IQuickPickItem } from '../../../../../platform/quickinput/common/quickInput.js';
+import { ISymbolQuickPickItem } from '../../../search/browser/symbolsQuickAccess.js';
 export declare function registerChatContextActions(): void;
 export type IChatContextQuickPickItem = IFileQuickPickItem | IDynamicVariableQuickPickItem | IStaticVariableQuickPickItem | IGotoSymbolQuickPickItem | ISymbolQuickPickItem | IQuickAccessQuickPickItem | IToolQuickPickItem;
 export interface IFileQuickPickItem extends IQuickPickItem {
-    kind: "file";
+    kind: 'file';
     id: string;
     name: string;
     value: URI;
@@ -15,7 +15,7 @@ export interface IFileQuickPickItem extends IQuickPickItem {
     resource: URI;
 }
 export interface IDynamicVariableQuickPickItem extends IQuickPickItem {
-    kind: "dynamic";
+    kind: 'dynamic';
     id: string;
     name?: string;
     value: unknown;
@@ -24,13 +24,13 @@ export interface IDynamicVariableQuickPickItem extends IQuickPickItem {
     command?: Command;
 }
 export interface IToolQuickPickItem extends IQuickPickItem {
-    kind: "tool";
+    kind: 'tool';
     id: string;
     name?: string;
     icon?: ThemeIcon;
 }
 export interface IStaticVariableQuickPickItem extends IQuickPickItem {
-    kind: "static";
+    kind: 'static';
     id: string;
     name: string;
     value: unknown;
@@ -38,7 +38,7 @@ export interface IStaticVariableQuickPickItem extends IQuickPickItem {
     icon?: ThemeIcon;
 }
 export interface IQuickAccessQuickPickItem extends IQuickPickItem {
-    kind: "quickaccess";
+    kind: 'quickaccess';
     id: string;
     name: string;
     value: string;

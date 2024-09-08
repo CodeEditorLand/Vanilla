@@ -1,17 +1,1 @@
-const nullScopedAccessibilityProgressSignalFactory = () => ({
-  msLoopTime: -1,
-  msDelayTime: -1,
-  dispose: () => {
-  }
-});
-let progressAccessibilitySignalSchedulerFactory = nullScopedAccessibilityProgressSignalFactory;
-function setProgressAcccessibilitySignalScheduler(progressAccessibilitySignalScheduler) {
-  progressAccessibilitySignalSchedulerFactory = progressAccessibilitySignalScheduler;
-}
-function getProgressAcccessibilitySignalScheduler(msDelayTime, msLoopTime) {
-  return progressAccessibilitySignalSchedulerFactory(msDelayTime, msLoopTime);
-}
-export {
-  getProgressAcccessibilitySignalScheduler,
-  setProgressAcccessibilitySignalScheduler
-};
+import"../../../common/lifecycle.js";const r=()=>({msLoopTime:-1,msDelayTime:-1,dispose:()=>{}});let s=r;function l(e){s=e}function t(e,i){return s(e,i)}export{t as getProgressAcccessibilitySignalScheduler,l as setProgressAcccessibilitySignalScheduler};

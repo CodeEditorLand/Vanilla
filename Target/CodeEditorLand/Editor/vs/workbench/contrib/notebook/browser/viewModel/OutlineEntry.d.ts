@@ -1,8 +1,8 @@
-import { ThemeIcon } from "../../../../../base/common/themables.js";
-import type { IRange } from "../../../../../editor/common/core/range.js";
-import { type SymbolKind } from "../../../../../editor/common/languages.js";
-import { MarkerSeverity, type IMarkerService } from "../../../../../platform/markers/common/markers.js";
-import type { ICellViewModel } from "../notebookBrowser.js";
+import { ThemeIcon } from '../../../../../base/common/themables.js';
+import { IMarkerService, MarkerSeverity } from '../../../../../platform/markers/common/markers.js';
+import { ICellViewModel } from '../notebookBrowser.js';
+import { IRange } from '../../../../../editor/common/core/range.js';
+import { SymbolKind } from '../../../../../editor/common/languages.js';
 export interface IOutlineMarkerInfo {
     readonly count: number;
     readonly topSev: MarkerSeverity;

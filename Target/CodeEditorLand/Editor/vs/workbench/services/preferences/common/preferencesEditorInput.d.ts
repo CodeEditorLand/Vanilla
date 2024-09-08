@@ -1,9 +1,9 @@
-import type { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import type { IUntypedEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IPreferencesService } from "./preferences.js";
-import type { Settings2EditorModel } from "./preferencesModels.js";
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IUntypedEditorInput } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IPreferencesService } from './preferences.js';
+import { Settings2EditorModel } from './preferencesModels.js';
 export declare class SettingsEditor2Input extends EditorInput {
     static readonly ID: string;
     private readonly _settingsModel;

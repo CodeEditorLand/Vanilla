@@ -1,4 +1,4 @@
-export declare enum LinePartMetadata {
+export declare const enum LinePartMetadata {
     IS_WHITESPACE = 1,
     PSEUDO_BEFORE = 2,
     PSEUDO_AFTER = 4,

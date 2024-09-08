@@ -1,7 +1,7 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
-import type { CodeLens, CodeLensList, CodeLensProvider } from "../../../common/languages.js";
-import type { ITextModel } from "../../../common/model.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ITextModel } from '../../../common/model.js';
+import { CodeLens, CodeLensList, CodeLensProvider } from '../../../common/languages.js';
+import { LanguageFeatureRegistry } from '../../../common/languageFeatureRegistry.js';
 export interface CodeLensItem {
     symbol: CodeLens;
     provider: CodeLensProvider;

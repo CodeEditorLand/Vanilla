@@ -1,5 +1,5 @@
-import { type INativeEnvironmentService } from "../common/environment.js";
-import { NativeEnvironmentService } from "../node/environmentService.js";
+import { INativeEnvironmentService } from '../common/environment.js';
+import { NativeEnvironmentService } from '../node/environmentService.js';
 export declare const IEnvironmentMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IEnvironmentMainService>;
 /**
  * A subclass of the `INativeEnvironmentService` to be used only in electron-main

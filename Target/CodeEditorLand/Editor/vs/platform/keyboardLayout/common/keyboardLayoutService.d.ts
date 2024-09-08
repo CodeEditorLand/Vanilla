@@ -1,5 +1,5 @@
-import type { Event } from "../../../base/common/event.js";
-import type { IKeyboardLayoutInfo, IKeyboardMapping } from "./keyboardLayout.js";
+import { Event } from '../../../base/common/event.js';
+import { IKeyboardLayoutInfo, IKeyboardMapping } from './keyboardLayout.js';
 export interface IKeyboardLayoutData {
     keyboardLayoutInfo: IKeyboardLayoutInfo;
     keyboardMapping: IKeyboardMapping;

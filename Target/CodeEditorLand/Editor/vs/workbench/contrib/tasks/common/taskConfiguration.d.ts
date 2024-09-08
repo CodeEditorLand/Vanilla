@@ -1,13 +1,13 @@
-import type { IStringDictionary } from "../../../../base/common/collections.js";
-import type { IProblemReporter as IProblemReporterBase, ValidationStatus } from "../../../../base/common/parsers.js";
-import { Platform } from "../../../../base/common/platform.js";
-import type { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IWorkspace, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import type { ConfiguredInput } from "../../../services/configurationResolver/common/configurationResolver.js";
-import { type INamedProblemMatcher, type ProblemMatcher, type Config as ProblemMatcherConfig } from "./problemMatcher.js";
-import { type ITaskDefinitionRegistry } from "./taskDefinitionRegistry.js";
-import * as Tasks from "./tasks.js";
-export declare enum ShellQuoting {
+import { IStringDictionary } from '../../../../base/common/collections.js';
+import { Platform } from '../../../../base/common/platform.js';
+import { ValidationStatus, IProblemReporter as IProblemReporterBase } from '../../../../base/common/parsers.js';
+import { INamedProblemMatcher, Config as ProblemMatcherConfig, ProblemMatcher } from './problemMatcher.js';
+import { IWorkspaceFolder, IWorkspace } from '../../../../platform/workspace/common/workspace.js';
+import * as Tasks from './tasks.js';
+import { ITaskDefinitionRegistry } from './taskDefinitionRegistry.js';
+import { ConfiguredInput } from '../../../services/configurationResolver/common/configurationResolver.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+export declare const enum ShellQuoting {
     /**
      * Default is character escaping.
      */
@@ -171,7 +171,7 @@ export interface ILegacyCommandProperties {
 }
 export type CommandString = string | string[] | {
     value: string | string[];
-    quoting: "escape" | "strong" | "weak";
+    quoting: 'escape' | 'strong' | 'weak';
 };
 export declare namespace CommandString {
     function value(value: CommandString): string;

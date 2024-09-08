@@ -1,11 +1,11 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IJSONEditingService } from "../../configuration/common/jsonEditing.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { IJSONEditingService } from '../../configuration/common/jsonEditing.js';
 export declare const EXTENSIONS_CONFIG = ".vscode/extensions.json";
 export interface IExtensionsConfigContent {
     recommendations?: string[];

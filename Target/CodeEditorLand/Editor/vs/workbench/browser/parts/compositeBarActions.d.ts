@@ -1,17 +1,17 @@
-import { BaseActionViewItem, type IActionViewItemOptions } from "../../../base/browser/ui/actionbar/actionViewItems.js";
-import type { HoverPosition } from "../../../base/browser/ui/hover/hoverWidget.js";
-import { Action, type IAction } from "../../../base/common/actions.js";
-import type { Color } from "../../../base/common/color.js";
-import { Event } from "../../../base/common/event.js";
-import type { URI } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
-import { type IColorTheme, IThemeService } from "../../../platform/theme/common/themeService.js";
-import { type IActivity, type IBadge } from "../../services/activity/common/activity.js";
-import { type ICompositeDragAndDrop } from "../dnd.js";
+import { Action, IAction } from '../../../base/common/actions.js';
+import { IContextMenuService } from '../../../platform/contextview/browser/contextView.js';
+import { IThemeService, IColorTheme } from '../../../platform/theme/common/themeService.js';
+import { IBadge, IActivity } from '../../services/activity/common/activity.js';
+import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../platform/keybinding/common/keybinding.js';
+import { Event } from '../../../base/common/event.js';
+import { ICompositeDragAndDrop } from '../dnd.js';
+import { Color } from '../../../base/common/color.js';
+import { BaseActionViewItem, IActionViewItemOptions } from '../../../base/browser/ui/actionbar/actionViewItems.js';
+import { IHoverService } from '../../../platform/hover/browser/hover.js';
+import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
+import { HoverPosition } from '../../../base/browser/ui/hover/hoverWidget.js';
+import { URI } from '../../../base/common/uri.js';
 export interface ICompositeBar {
     /**
      * Unpins a composite from the composite bar.

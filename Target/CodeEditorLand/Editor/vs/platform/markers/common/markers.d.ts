@@ -1,6 +1,6 @@
-import type { Event } from "../../../base/common/event.js";
-import Severity from "../../../base/common/severity.js";
-import type { URI } from "../../../base/common/uri.js";
+import { Event } from '../../../base/common/event.js';
+import Severity from '../../../base/common/severity.js';
+import { URI } from '../../../base/common/uri.js';
 export interface IMarkerService {
     readonly _serviceBrand: undefined;
     getStatistics(): MarkerStatistics;
@@ -26,7 +26,7 @@ export interface IRelatedInformation {
     endLineNumber: number;
     endColumn: number;
 }
-export declare enum MarkerTag {
+export declare const enum MarkerTag {
     Unnecessary = 1,
     Deprecated = 2
 }

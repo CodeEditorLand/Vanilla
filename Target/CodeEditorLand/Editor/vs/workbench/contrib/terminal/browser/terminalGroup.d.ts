@@ -1,11 +1,11 @@
-import { Orientation } from "../../../../base/browser/ui/splitview/splitview.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { type IShellLaunchConfig, type ITerminalTabLayoutInfoById } from "../../../../platform/terminal/common/terminal.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import { Direction, ITerminalConfigurationService, ITerminalInstanceService, type ITerminalGroup, type ITerminalInstance } from "./terminal.js";
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable, Disposable } from '../../../../base/common/lifecycle.js';
+import { Orientation } from '../../../../base/browser/ui/splitview/splitview.js';
+import { IWorkbenchLayoutService } from '../../../services/layout/browser/layoutService.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ITerminalInstance, Direction, ITerminalGroup, ITerminalInstanceService, ITerminalConfigurationService } from './terminal.js';
+import { IViewDescriptorService } from '../../../common/views.js';
+import { IShellLaunchConfig, ITerminalTabLayoutInfoById } from '../../../../platform/terminal/common/terminal.js';
 export declare class TerminalGroup extends Disposable implements ITerminalGroup {
     private _container;
     private readonly _terminalConfigurationService;
@@ -46,7 +46,7 @@ export declare class TerminalGroup extends Disposable implements ITerminalGroup 
     private _handleOnDidDisposeInstance;
     removeInstance(instance: ITerminalInstance): void;
     private _removeInstance;
-    moveInstance(instances: ITerminalInstance | ITerminalInstance[], index: number, position: "before" | "after"): void;
+    moveInstance(instances: ITerminalInstance | ITerminalInstance[], index: number, position: 'before' | 'after'): void;
     private _setActiveInstance;
     private _getIndexFromId;
     setActiveInstanceByIndex(index: number, force?: boolean): void;

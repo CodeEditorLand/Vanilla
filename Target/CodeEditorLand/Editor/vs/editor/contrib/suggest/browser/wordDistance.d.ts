@@ -1,7 +1,7 @@
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import type { IPosition } from "../../../common/core/position.js";
-import { type CompletionItem } from "../../../common/languages.js";
-import type { IEditorWorkerService } from "../../../common/services/editorWorker.js";
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IPosition } from '../../../common/core/position.js';
+import { CompletionItem } from '../../../common/languages.js';
+import { IEditorWorkerService } from '../../../common/services/editorWorker.js';
 export declare abstract class WordDistance {
     static readonly None: {
         distance(): number;

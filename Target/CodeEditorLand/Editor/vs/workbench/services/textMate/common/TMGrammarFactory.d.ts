@@ -1,7 +1,7 @@
-import type { IGrammar, IOnigLib, IRawTheme, StateStack } from "vscode-textmate";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { type IValidGrammarDefinition } from "./TMScopeRegistry.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IValidGrammarDefinition } from './TMScopeRegistry.js';
+import type { IGrammar, IOnigLib, IRawTheme, StateStack } from 'vscode-textmate';
 interface ITMGrammarFactoryHost {
     logTrace(msg: string): void;
     logError(msg: string, err: any): void;
@@ -23,7 +23,7 @@ export declare class TMGrammarFactory extends Disposable {
     private readonly _injectedEmbeddedLanguages;
     private readonly _languageToScope;
     private readonly _grammarRegistry;
-    constructor(host: ITMGrammarFactoryHost, grammarDefinitions: IValidGrammarDefinition[], vscodeTextmate: typeof import("vscode-textmate"), onigLib: Promise<IOnigLib>);
+    constructor(host: ITMGrammarFactoryHost, grammarDefinitions: IValidGrammarDefinition[], vscodeTextmate: typeof import('vscode-textmate'), onigLib: Promise<IOnigLib>);
     has(languageId: string): boolean;
     setTheme(theme: IRawTheme, colorMap: string[]): void;
     getColorMap(): string[];

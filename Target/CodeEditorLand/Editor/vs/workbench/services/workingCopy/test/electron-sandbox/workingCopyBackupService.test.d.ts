@@ -1,10 +1,10 @@
-import { type VSBufferReadable, type VSBufferReadableStream } from "../../../../../base/common/buffer.js";
-import { type CancellationToken } from "../../../../../base/common/cancellation.js";
-import { URI } from "../../../../../base/common/uri.js";
-import type { IFileService } from "../../../../../platform/files/common/files.js";
-import { NativeWorkbenchEnvironmentService } from "../../../environment/electron-sandbox/environmentService.js";
-import type { IWorkingCopyIdentifier } from "../../common/workingCopy.js";
-import { NativeWorkingCopyBackupService } from "../../electron-sandbox/workingCopyBackupService.js";
+import { URI } from '../../../../../base/common/uri.js';
+import { NativeWorkbenchEnvironmentService } from '../../../environment/electron-sandbox/environmentService.js';
+import { IFileService } from '../../../../../platform/files/common/files.js';
+import { NativeWorkingCopyBackupService } from '../../electron-sandbox/workingCopyBackupService.js';
+import { VSBufferReadable, VSBufferReadableStream } from '../../../../../base/common/buffer.js';
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { IWorkingCopyIdentifier } from '../../common/workingCopy.js';
 export declare class TestNativeWorkbenchEnvironmentService extends NativeWorkbenchEnvironmentService {
     constructor(testDir: URI, backupPath: URI);
 }

@@ -1,14 +1,14 @@
-import type { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { type EditorLayoutInfo } from "../../../../editor/common/config/editorOptions.js";
-import type { Position } from "../../../../editor/common/core/position.js";
-import type { Range } from "../../../../editor/common/core/range.js";
-import { ZoneWidget } from "../../../../editor/contrib/zoneWidget/browser/zoneWidget.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import type { IChatWidgetLocationOptions } from "../../chat/browser/chatWidget.js";
-import { EditorBasedInlineChatWidget } from "./inlineChatWidget.js";
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { EditorLayoutInfo } from '../../../../editor/common/config/editorOptions.js';
+import { Position } from '../../../../editor/common/core/position.js';
+import { Range } from '../../../../editor/common/core/range.js';
+import { ZoneWidget } from '../../../../editor/contrib/zoneWidget/browser/zoneWidget.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { EditorBasedInlineChatWidget } from './inlineChatWidget.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IChatWidgetLocationOptions } from '../../chat/browser/chatWidget.js';
 export declare class InlineChatZoneWidget extends ZoneWidget {
     private readonly _instaService;
     private _logService;

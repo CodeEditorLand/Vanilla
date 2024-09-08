@@ -1,7 +1,7 @@
-import { type Event } from "../../../base/common/event.js";
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import { type IconContribution } from "../common/iconRegistry.js";
-import type { IProductIconTheme, IThemeService } from "../common/themeService.js";
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { IconContribution } from '../common/iconRegistry.js';
+import { IProductIconTheme, IThemeService } from '../common/themeService.js';
 export interface IIconsStyleSheet extends IDisposable {
     getCSS(): string;
     readonly onDidChange: Event<void>;

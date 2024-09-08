@@ -1,15 +1,15 @@
-import { Event } from "../../../../base/common/event.js";
-import type Severity from "../../../../base/common/severity.js";
-import type { IMessagePassingProtocol } from "../../../../base/parts/ipc/common/ipc.js";
-import { ExtensionIdentifier, type IExtension, type IExtensionContributions, type IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import type { ApiProposalName } from "../../../../platform/extensions/common/extensionsApiProposals.js";
-import type { IV8Profile } from "../../../../platform/profiling/common/profiling.js";
-import type { ExtensionHostKind } from "./extensionHostKind.js";
-import type { IExtensionDescriptionDelta, IExtensionDescriptionSnapshot } from "./extensionHostProtocol.js";
-import type { ExtensionRunningLocation } from "./extensionRunningLocation.js";
-import type { IExtensionPoint } from "./extensionsRegistry.js";
+import { Event } from '../../../../base/common/event.js';
+import Severity from '../../../../base/common/severity.js';
+import { IMessagePassingProtocol } from '../../../../base/parts/ipc/common/ipc.js';
+import { ExtensionIdentifier, IExtension, IExtensionContributions, IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import { ApiProposalName } from '../../../../platform/extensions/common/extensionsApiProposals.js';
+import { IV8Profile } from '../../../../platform/profiling/common/profiling.js';
+import { ExtensionHostKind } from './extensionHostKind.js';
+import { IExtensionDescriptionDelta, IExtensionDescriptionSnapshot } from './extensionHostProtocol.js';
+import { ExtensionRunningLocation } from './extensionRunningLocation.js';
+import { IExtensionPoint } from './extensionsRegistry.js';
 export declare const nullExtensionDescription: Readonly<Readonly<import("../../../../platform/extensions/common/extensions.js").IRelaxedExtensionDescription>>;
-export type WebWorkerExtHostConfigValue = boolean | "auto";
+export type WebWorkerExtHostConfigValue = boolean | 'auto';
 export declare const webWorkerExtHostConfig = "extensions.webWorker";
 export declare const IExtensionService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionService>;
 export interface IMessage {
@@ -67,7 +67,7 @@ export interface IExtensionHostProfile {
      */
     getAggregatedTimes(): Map<ProfileSegmentId, number>;
 }
-export declare enum ExtensionHostStartup {
+export declare const enum ExtensionHostStartup {
     /**
      * The extension host should be launched immediately and doesn't require a `$startExtensionHost` call.
      */
@@ -123,7 +123,7 @@ export declare function checkProposedApiEnabled(extension: IExtensionDescription
 /**
  * Extension id or one of the four known program states.
  */
-export type ProfileSegmentId = string | "idle" | "program" | "gc" | "self";
+export type ProfileSegmentId = string | 'idle' | 'program' | 'gc' | 'self';
 export interface ExtensionActivationReason {
     readonly startup: boolean;
     readonly extensionId: ExtensionIdentifier;
@@ -156,7 +156,7 @@ export interface IResponsiveStateChangeEvent {
         host: string;
     } | undefined>;
 }
-export declare enum ActivationKind {
+export declare const enum ActivationKind {
     Normal = 0,
     Immediate = 1
 }

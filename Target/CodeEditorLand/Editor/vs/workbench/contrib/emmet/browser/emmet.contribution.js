@@ -1,1 +1,1 @@
-import "./actions/expandAbbreviation.js";
+import"./actions/expandAbbreviation.js";

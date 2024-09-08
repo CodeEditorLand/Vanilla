@@ -1,5 +1,5 @@
-import type { URI } from "../../../../../base/common/uri.js";
-import type { IChatWidget, IChatWidgetService } from "../../browser/chat.js";
+import { URI } from '../../../../../base/common/uri.js';
+import { IChatWidget, IChatWidgetService } from '../../browser/chat.js';
 export declare class MockChatWidgetService implements IChatWidgetService {
     readonly _serviceBrand: undefined;
     /**

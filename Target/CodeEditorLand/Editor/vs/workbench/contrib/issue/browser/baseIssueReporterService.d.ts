@@ -1,11 +1,11 @@
-import { Button } from "../../../../base/browser/ui/button/button.js";
-import { Delayer } from "../../../../base/common/async.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { IProductConfiguration } from "../../../../base/common/product.js";
-import type { OldIssueReporterData } from "../../../../platform/issue/common/issue.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IIssueFormService, type IssueReporterData, type IssueReporterExtensionData } from "../common/issue.js";
-import { IssueReporterModel } from "./issueReporterModel.js";
+import { Button } from '../../../../base/browser/ui/button/button.js';
+import { Delayer } from '../../../../base/common/async.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IProductConfiguration } from '../../../../base/common/product.js';
+import { OldIssueReporterData } from '../../../../platform/issue/common/issue.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IssueReporterModel } from './issueReporterModel.js';
+import { IIssueFormService, IssueReporterData, IssueReporterExtensionData } from '../common/issue.js';
 export declare class BaseIssueReporterService extends Disposable {
     disableExtensions: boolean;
     data: IssueReporterData | OldIssueReporterData;

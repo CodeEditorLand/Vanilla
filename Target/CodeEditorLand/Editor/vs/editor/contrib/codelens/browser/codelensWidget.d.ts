@@ -1,8 +1,8 @@
-import "./codelensWidget.css";
-import { type IActiveCodeEditor, type IViewZoneChangeAccessor } from "../../../browser/editorBrowser.js";
-import type { CodeLens, Command } from "../../../common/languages.js";
-import type { IModelDecorationsChangeAccessor, IModelDeltaDecoration, ITextModel } from "../../../common/model.js";
-import type { CodeLensItem } from "./codelens.js";
+import './codelensWidget.css';
+import { IActiveCodeEditor, IViewZoneChangeAccessor } from '../../../browser/editorBrowser.js';
+import { IModelDecorationsChangeAccessor, IModelDeltaDecoration, ITextModel } from '../../../common/model.js';
+import { CodeLens, Command } from '../../../common/languages.js';
+import { CodeLensItem } from './codelens.js';
 export interface IDecorationIdCallback {
     (decorationId: string): void;
 }

@@ -24,7 +24,7 @@ export declare namespace ThemeIcon {
     function isThemeIcon(obj: any): obj is ThemeIcon;
     function fromString(str: string): ThemeIcon | undefined;
     function fromId(id: string): ThemeIcon;
-    function modify(icon: ThemeIcon, modifier: "disabled" | "spin" | undefined): ThemeIcon;
+    function modify(icon: ThemeIcon, modifier: 'disabled' | 'spin' | undefined): ThemeIcon;
     function getModifier(icon: ThemeIcon): string | undefined;
     function isEqual(ti1: ThemeIcon, ti2: ThemeIcon): boolean;
 }

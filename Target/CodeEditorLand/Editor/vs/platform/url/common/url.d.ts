@@ -1,5 +1,5 @@
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import type { URI, UriComponents } from "../../../base/common/uri.js";
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { URI, UriComponents } from '../../../base/common/uri.js';
 export declare const IURLService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IURLService>;
 export interface IOpenURLOptions {
     /**

@@ -1,5 +1,5 @@
-import { type LanguageId, StandardTokenType } from "../../../../common/encodedTokenAttributes.js";
-import { type ITokenizationSupport } from "../../../../common/languages.js";
+import { LanguageId, StandardTokenType } from '../../../../common/encodedTokenAttributes.js';
+import { ITokenizationSupport } from '../../../../common/languages.js';
 export declare class TokenizedDocument {
     private readonly tokensByLine;
     constructor(tokens: TokenInfo[]);

@@ -1,4 +1,4 @@
-import type { URI } from "../../../base/common/uri.js";
+import { URI } from '../../../base/common/uri.js';
 export interface ICommonMenubarService {
     updateMenubar(windowId: number, menuData: IMenubarData): Promise<void>;
 }
@@ -37,7 +37,7 @@ export interface IMenubarMenuItemSubmenu {
     submenu: IMenubarMenu;
 }
 export interface IMenubarMenuItemSeparator {
-    id: "vscode.menubar.separator";
+    id: 'vscode.menubar.separator';
 }
 export type MenubarMenuItem = IMenubarMenuItemAction | IMenubarMenuItemSubmenu | IMenubarMenuItemSeparator | IMenubarMenuRecentItemAction;
 export declare function isMenubarMenuItemSubmenu(menuItem: MenubarMenuItem): menuItem is IMenubarMenuItemSubmenu;

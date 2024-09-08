@@ -1,15 +1,15 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import type { IProgress, IProgressStep } from "../../../../platform/progress/common/progress.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkingCopyFileService, type IStoredFileWorkingCopySaveParticipantContext } from "../../workingCopy/common/workingCopyFileService.js";
-import { TextFileEditorModel } from "./textFileEditorModel.js";
-import type { ITextFileEditorModel, ITextFileEditorModelManager, ITextFileEditorModelResolveOrCreateOptions, ITextFileResolveEvent, ITextFileSaveEvent, ITextFileSaveParticipant } from "./textfiles.js";
+import { Event } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { TextFileEditorModel } from './textFileEditorModel.js';
+import { IDisposable, Disposable } from '../../../../base/common/lifecycle.js';
+import { ITextFileEditorModel, ITextFileEditorModelManager, ITextFileEditorModelResolveOrCreateOptions, ITextFileResolveEvent, ITextFileSaveEvent, ITextFileSaveParticipant } from './textfiles.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IStoredFileWorkingCopySaveParticipantContext, IWorkingCopyFileService } from '../../workingCopy/common/workingCopyFileService.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IProgress, IProgressStep } from '../../../../platform/progress/common/progress.js';
 export declare class TextFileEditorModelManager extends Disposable implements ITextFileEditorModelManager {
     private readonly instantiationService;
     private readonly fileService;

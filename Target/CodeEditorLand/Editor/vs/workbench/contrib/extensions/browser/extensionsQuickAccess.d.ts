@@ -1,11 +1,11 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { IExtensionGalleryService, IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { PickerQuickAccessProvider, type IPickerQuickAccessItem } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
-import type { IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
-import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { IQuickPickSeparator } from '../../../../platform/quickinput/common/quickInput.js';
+import { IPickerQuickAccessItem, PickerQuickAccessProvider } from '../../../../platform/quickinput/browser/pickerQuickAccess.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IExtensionGalleryService, IExtensionManagementService } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
+import { IPaneCompositePartService } from '../../../services/panecomposite/browser/panecomposite.js';
 export declare class InstallExtensionQuickAccessProvider extends PickerQuickAccessProvider<IPickerQuickAccessItem> {
     private readonly paneCompositeService;
     private readonly galleryService;

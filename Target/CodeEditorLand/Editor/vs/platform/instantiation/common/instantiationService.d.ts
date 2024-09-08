@@ -1,8 +1,8 @@
-import { type DisposableStore } from "../../../base/common/lifecycle.js";
-import { type SyncDescriptor0 } from "./descriptors.js";
-import { Graph } from "./graph.js";
-import { type GetLeadingNonServiceArgs, IInstantiationService, type ServiceIdentifier, type ServicesAccessor } from "./instantiation.js";
-import { ServiceCollection } from "./serviceCollection.js";
+import { DisposableStore } from '../../../base/common/lifecycle.js';
+import { SyncDescriptor0 } from './descriptors.js';
+import { Graph } from './graph.js';
+import { GetLeadingNonServiceArgs, IInstantiationService, ServiceIdentifier, ServicesAccessor } from './instantiation.js';
+import { ServiceCollection } from './serviceCollection.js';
 export declare class InstantiationService implements IInstantiationService {
     private readonly _services;
     private readonly _strict;
@@ -32,7 +32,7 @@ export declare class InstantiationService implements IInstantiationService {
     private _createServiceInstance;
     private _throwIfStrict;
 }
-declare enum TraceType {
+declare const enum TraceType {
     None = 0,
     Creation = 1,
     Invocation = 2,

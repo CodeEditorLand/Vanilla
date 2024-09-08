@@ -1,12 +1,12 @@
-import { IFileService } from "../../../../platform/files/common/files.js";
-import type { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IRequestService } from "../../../../platform/request/common/request.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
-import type { IUserDataInitializer } from "../../userData/browser/userDataInit.js";
-import { IUserDataProfileService } from "../common/userDataProfile.js";
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IUserDataInitializer } from '../../userData/browser/userDataInit.js';
+import { IUserDataProfileService } from '../common/userDataProfile.js';
+import { IBrowserWorkbenchEnvironmentService } from '../../environment/browser/environmentService.js';
+import { IRequestService } from '../../../../platform/request/common/request.js';
 export declare class UserDataProfileInitializer implements IUserDataInitializer {
     private readonly environmentService;
     private readonly fileService;

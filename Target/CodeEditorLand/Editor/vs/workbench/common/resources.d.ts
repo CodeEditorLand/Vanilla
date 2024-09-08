@@ -1,8 +1,8 @@
-import { type IExpression } from "../../base/common/glob.js";
-import { Disposable } from "../../base/common/lifecycle.js";
-import { URI } from "../../base/common/uri.js";
-import { IConfigurationService, type IConfigurationChangeEvent } from "../../platform/configuration/common/configuration.js";
-import { IWorkspaceContextService } from "../../platform/workspace/common/workspace.js";
+import { URI } from '../../base/common/uri.js';
+import { Disposable } from '../../base/common/lifecycle.js';
+import { IExpression } from '../../base/common/glob.js';
+import { IWorkspaceContextService } from '../../platform/workspace/common/workspace.js';
+import { IConfigurationService, IConfigurationChangeEvent } from '../../platform/configuration/common/configuration.js';
 export declare class ResourceGlobMatcher extends Disposable {
     private getExpression;
     private shouldUpdate;

@@ -1,9 +1,9 @@
-import type { IAction } from "../../../../base/common/actions.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { Position } from "../../../../editor/common/core/position.js";
-import type { IModelDeltaDecoration } from "../../../../editor/common/model.js";
-import type { ITestMessage } from "./testTypes.js";
+import { IAction } from '../../../../base/common/actions.js';
+import { Event } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { Position } from '../../../../editor/common/core/position.js';
+import { IModelDeltaDecoration } from '../../../../editor/common/model.js';
+import { ITestMessage } from './testTypes.js';
 export interface ITestingDecorationsService {
     _serviceBrand: undefined;
     /**

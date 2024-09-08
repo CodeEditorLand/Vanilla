@@ -1,7 +1,7 @@
-import type { FastDomNode } from "../../../base/browser/fastDomNode.js";
-import { ViewEventHandler } from "../../common/viewEventHandler.js";
-import type { ViewContext } from "../../common/viewModel/viewContext.js";
-import type { RenderingContext, RestrictedRenderingContext } from "./renderingContext.js";
+import { FastDomNode } from '../../../base/browser/fastDomNode.js';
+import { RenderingContext, RestrictedRenderingContext } from './renderingContext.js';
+import { ViewContext } from '../../common/viewModel/viewContext.js';
+import { ViewEventHandler } from '../../common/viewEventHandler.js';
 export declare abstract class ViewPart extends ViewEventHandler {
     _context: ViewContext;
     constructor(context: ViewContext);
@@ -9,7 +9,7 @@ export declare abstract class ViewPart extends ViewEventHandler {
     abstract prepareRender(ctx: RenderingContext): void;
     abstract render(ctx: RestrictedRenderingContext): void;
 }
-export declare enum PartFingerprint {
+export declare const enum PartFingerprint {
     None = 0,
     ContentWidgets = 1,
     OverflowingContentWidgets = 2,

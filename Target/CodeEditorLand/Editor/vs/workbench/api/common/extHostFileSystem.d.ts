@@ -1,11 +1,11 @@
-import type * as vscode from "vscode";
-import { VSBuffer } from "../../../base/common/buffer.js";
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import { type UriComponents } from "../../../base/common/uri.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import * as files from "../../../platform/files/common/files.js";
-import { type ExtHostFileSystemShape, type IMainContext } from "./extHost.protocol.js";
-import type { ExtHostLanguageFeatures } from "./extHostLanguageFeatures.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import { IMainContext, ExtHostFileSystemShape } from './extHost.protocol.js';
+import type * as vscode from 'vscode';
+import * as files from '../../../platform/files/common/files.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ExtHostLanguageFeatures } from './extHostLanguageFeatures.js';
+import { VSBuffer } from '../../../base/common/buffer.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
 export declare class ExtHostFileSystem implements ExtHostFileSystemShape {
     private _extHostLanguageFeatures;
     private readonly _proxy;

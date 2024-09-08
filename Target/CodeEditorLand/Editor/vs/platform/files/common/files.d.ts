@@ -1,11 +1,11 @@
-import type { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../base/common/buffer.js";
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import type { Event } from "../../../base/common/event.js";
-import type { IExpression, IRelativePattern } from "../../../base/common/glob.js";
-import type { IMarkdownString } from "../../../base/common/htmlContent.js";
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import type { ReadableStreamEvents } from "../../../base/common/stream.js";
-import { URI } from "../../../base/common/uri.js";
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from '../../../base/common/buffer.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { IExpression, IRelativePattern } from '../../../base/common/glob.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ReadableStreamEvents } from '../../../base/common/stream.js';
+import { URI } from '../../../base/common/uri.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
 export declare const IFileService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IFileService>;
 export interface IFileService {
     readonly _serviceBrand: undefined;
@@ -207,7 +207,7 @@ export interface IFileService {
      * The watcher runs uncorrelated and thus will report all events from `IFileService.onDidFilesChange`.
      * This means, most listeners in the application will receive your events. It is encouraged to
      * use correlated watchers (via `IWatchOptionsWithCorrelation`) to limit events to your listener.
-     */
+    */
     watch(resource: URI, options?: IWatchOptionsWithoutCorrelation): IDisposable;
     /**
      * Frees up any resources occupied by this service.
@@ -443,7 +443,7 @@ export interface IWatchOptions extends IWatchOptionsWithoutCorrelation {
      */
     readonly correlationId?: number;
 }
-export declare enum FileChangeFilter {
+export declare const enum FileChangeFilter {
     UPDATED = 2,
     ADDED = 4,
     DELETED = 8
@@ -460,7 +460,7 @@ export interface IFileSystemWatcher extends IDisposable {
     readonly onDidChange: Event<FileChangesEvent>;
 }
 export declare function isFileSystemWatcher(thing: unknown): thing is IFileSystemWatcher;
-export declare enum FileSystemProviderCapabilities {
+export declare const enum FileSystemProviderCapabilities {
     /**
      * No capabilities.
      */
@@ -623,7 +623,7 @@ export interface IFileSystemProviderActivationEvent {
     readonly scheme: string;
     join(promise: Promise<void>): void;
 }
-export declare enum FileOperation {
+export declare const enum FileOperation {
     CREATE = 0,
     DELETE = 1,
     MOVE = 2,
@@ -651,7 +651,7 @@ export declare class FileOperationEvent implements IFileOperationEvent {
 /**
  * Possible changes that can occur to a file.
  */
-export declare enum FileChangeType {
+export declare const enum FileChangeType {
     UPDATED = 0,
     ADDED = 1,
     DELETED = 2
@@ -737,18 +737,18 @@ export declare class FileChangesEvent {
      */
     readonly rawAdded: URI[];
     /**
-     * @deprecated use the `contains` or `affects` method to efficiently find
-     * out if the event relates to a given resource. these methods ensure:
-     * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
-     * - correctly handles `FileChangeType.DELETED` events
-     */
+    * @deprecated use the `contains` or `affects` method to efficiently find
+    * out if the event relates to a given resource. these methods ensure:
+    * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
+    * - correctly handles `FileChangeType.DELETED` events
+    */
     readonly rawUpdated: URI[];
     /**
-     * @deprecated use the `contains` or `affects` method to efficiently find
-     * out if the event relates to a given resource. these methods ensure:
-     * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
-     * - correctly handles `FileChangeType.DELETED` events
-     */
+    * @deprecated use the `contains` or `affects` method to efficiently find
+    * out if the event relates to a given resource. these methods ensure:
+    * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
+    * - correctly handles `FileChangeType.DELETED` events
+    */
     readonly rawDeleted: URI[];
 }
 export declare function isParent(path: string, candidate: string, ignoreCase?: boolean): boolean;
@@ -845,7 +845,7 @@ export interface IFileStatResult {
 export interface IFileStatResultWithMetadata extends IFileStatResult {
     readonly stat?: IFileStatWithMetadata;
 }
-export interface IFileStatWithPartialMetadata extends Omit<IFileStatWithMetadata, "children"> {
+export interface IFileStatWithPartialMetadata extends Omit<IFileStatWithMetadata, 'children'> {
 }
 export interface IFileContent extends IBaseFileStatWithMetadata {
     /**
@@ -949,7 +949,7 @@ export declare class NotModifiedSinceFileOperationError extends FileOperationErr
     readonly stat: IFileStatWithMetadata;
     constructor(message: string, stat: IFileStatWithMetadata, options?: IReadFileOptions);
 }
-export declare enum FileOperationResult {
+export declare const enum FileOperationResult {
     FILE_IS_DIRECTORY = 0,
     FILE_NOT_FOUND = 1,
     FILE_NOT_MODIFIED_SINCE = 2,
@@ -1003,7 +1003,7 @@ export interface IFilesConfigurationNode {
     eol: string;
     enableTrash: boolean;
     hotExit: string;
-    saveConflictResolution: "askUser" | "overwriteFileOnDisk";
+    saveConflictResolution: 'askUser' | 'overwriteFileOnDisk';
     readonlyInclude: IGlobPatterns;
     readonlyExclude: IGlobPatterns;
     readonlyFromPermissions: boolean;

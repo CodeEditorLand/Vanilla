@@ -1,12 +1,12 @@
-import { Event } from "../../../../base/common/event.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { ISCMRepositorySortKey, ISCMService, type ISCMMenus, type ISCMRepository, type ISCMViewService, type ISCMViewVisibleRepositoryChangeEvent } from "../common/scm.js";
+import { Event } from '../../../../base/common/event.js';
+import { ISCMViewService, ISCMRepository, ISCMService, ISCMViewVisibleRepositoryChangeEvent, ISCMMenus, ISCMRepositorySortKey } from '../common/scm.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
 export declare const RepositoryContextKeys: {
     RepositorySortKey: RawContextKey<ISCMRepositorySortKey>;
 };

@@ -1,11 +1,11 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
-import { IProductService } from "../../../platform/product/common/productService.js";
-import type { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "../../../platform/telemetry/common/gdprTypings.js";
-import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { type MainThreadTelemetryShape } from "../common/extHost.protocol.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
+import { IEnvironmentService } from '../../../platform/environment/common/environment.js';
+import { IProductService } from '../../../platform/product/common/productService.js';
+import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from '../../../platform/telemetry/common/gdprTypings.js';
+import { ITelemetryService } from '../../../platform/telemetry/common/telemetry.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { MainThreadTelemetryShape } from '../common/extHost.protocol.js';
 export declare class MainThreadTelemetry extends Disposable implements MainThreadTelemetryShape {
     private readonly _telemetryService;
     private readonly _configurationService;

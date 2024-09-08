@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
-import type { IWorkbenchContribution } from "../../../../common/contributions.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { IFilesConfigurationService } from "../../../../services/filesConfiguration/common/filesConfigurationService.js";
-import { IHostService } from "../../../../services/host/browser/host.js";
-import { ILifecycleService } from "../../../../services/lifecycle/common/lifecycle.js";
-import { ITextFileService } from "../../../../services/textfile/common/textfiles.js";
-import { IWorkingCopyEditorService } from "../../../../services/workingCopy/common/workingCopyEditorService.js";
+import { IWorkbenchContribution } from '../../../../common/contributions.js';
+import { ITextFileService } from '../../../../services/textfile/common/textfiles.js';
+import { ILifecycleService } from '../../../../services/lifecycle/common/lifecycle.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IHostService } from '../../../../services/host/browser/host.js';
+import { IEditorService } from '../../../../services/editor/common/editorService.js';
+import { ICodeEditorService } from '../../../../../editor/browser/services/codeEditorService.js';
+import { IFilesConfigurationService } from '../../../../services/filesConfiguration/common/filesConfigurationService.js';
+import { IWorkingCopyEditorService } from '../../../../services/workingCopy/common/workingCopyEditorService.js';
 export declare class TextFileEditorTracker extends Disposable implements IWorkbenchContribution {
     private readonly editorService;
     private readonly textFileService;

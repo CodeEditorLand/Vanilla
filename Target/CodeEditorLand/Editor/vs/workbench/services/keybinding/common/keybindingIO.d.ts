@@ -1,12 +1,12 @@
-import type { Keybinding } from "../../../../base/common/keybindings.js";
-import { type ContextKeyExpression } from "../../../../platform/contextkey/common/contextkey.js";
-import type { ResolvedKeybindingItem } from "../../../../platform/keybinding/common/resolvedKeybindingItem.js";
+import { Keybinding } from '../../../../base/common/keybindings.js';
+import { ContextKeyExpression } from '../../../../platform/contextkey/common/contextkey.js';
+import { ResolvedKeybindingItem } from '../../../../platform/keybinding/common/resolvedKeybindingItem.js';
 export interface IUserKeybindingItem {
     keybinding: Keybinding | null;
     command: string | null;
     commandArgs?: any;
     when: ContextKeyExpression | undefined;
-    _sourceKey: string | undefined /** captures `key` field from `keybindings.json`; `this.keybinding !== null` implies `_sourceKey !== null` */;
+    _sourceKey: string | undefined; /** captures `key` field from `keybindings.json`; `this.keybinding !== null` implies `_sourceKey !== null` */
 }
 export declare class KeybindingIO {
     static writeKeybindingItem(out: OutputBuilder, item: ResolvedKeybindingItem): void;

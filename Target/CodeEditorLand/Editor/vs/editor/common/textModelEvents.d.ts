@@ -1,6 +1,6 @@
-import type { IRange } from "./core/range.js";
-import type { Selection } from "./core/selection.js";
-import type { IModelDecoration, InjectedTextOptions } from "./model.js";
+import { IRange } from './core/range.js';
+import { Selection } from './core/selection.js';
+import { IModelDecoration, InjectedTextOptions } from './model.js';
 /**
  * An event describing that the current language associated with a model has changed.
  */
@@ -21,7 +21,8 @@ export interface IModelLanguageChangedEvent {
 /**
  * An event describing that the language configuration associated with a model has changed.
  */
-export type IModelLanguageConfigurationChangedEvent = {};
+export interface IModelLanguageConfigurationChangedEvent {
+}
 export interface IModelContentChange {
     /**
      * The range that got replaced.
@@ -109,7 +110,7 @@ export interface IModelOptionsChangedEvent {
 /**
  * @internal
  */
-export declare enum RawContentChangedType {
+export declare const enum RawContentChangedType {
     Flush = 1,
     LineChanged = 2,
     LinesDeleted = 3,

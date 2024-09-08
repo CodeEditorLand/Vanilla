@@ -1,16 +1,1 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-class ExtensionRecommendations extends Disposable {
-  _activationPromise = null;
-  get activated() {
-    return this._activationPromise !== null;
-  }
-  activate() {
-    if (!this._activationPromise) {
-      this._activationPromise = this.doActivate();
-    }
-    return this._activationPromise;
-  }
-}
-export {
-  ExtensionRecommendations
-};
+import{Disposable as e}from"../../../../base/common/lifecycle.js";import"../../../../base/common/uri.js";import"../../../services/extensionRecommendations/common/extensionRecommendations.js";class r extends e{_activationPromise=null;get activated(){return this._activationPromise!==null}activate(){return this._activationPromise||(this._activationPromise=this.doActivate()),this._activationPromise}}export{r as ExtensionRecommendations};

@@ -1,6 +1,6 @@
-import { Range } from "../core/range.js";
-import type { Selection } from "../core/selection.js";
-import type { IPartialViewLinesViewportData, IViewModel, IViewWhitespaceViewportData, ViewLineRenderingData, ViewModelDecoration } from "../viewModel.js";
+import { Range } from '../core/range.js';
+import { Selection } from '../core/selection.js';
+import { IPartialViewLinesViewportData, IViewModel, IViewWhitespaceViewportData, ViewLineRenderingData, ViewModelDecoration } from '../viewModel.js';
 /**
  * Contains all data needed to render at a specific viewport.
  */

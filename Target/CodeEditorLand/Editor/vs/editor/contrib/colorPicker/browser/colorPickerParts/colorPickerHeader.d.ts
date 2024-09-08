@@ -1,8 +1,8 @@
-import "../colorPicker.css";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import type { ColorPickerModel } from "../colorPickerModel.js";
-import { CloseButton } from "./colorPickerCloseButton.js";
+import '../colorPicker.css';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ColorPickerModel } from '../colorPickerModel.js';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { CloseButton } from './colorPickerCloseButton.js';
 export declare class ColorPickerHeader extends Disposable {
     private readonly model;
     private showingStandaloneColorPicker;

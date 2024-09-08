@@ -1,10 +1,10 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../base/common/lifecycle.js";
-import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { IWindowsMainService } from "../../windows/electron-main/windows.js";
-import type { IExtensionHostProcessOptions, IExtensionHostStarter } from "../common/extensionHostStarter.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { IExtensionHostProcessOptions, IExtensionHostStarter } from '../common/extensionHostStarter.js';
+import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
+import { ILogService } from '../../log/common/log.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+import { IWindowsMainService } from '../../windows/electron-main/windows.js';
 export declare class ExtensionHostStarter extends Disposable implements IDisposable, IExtensionHostStarter {
     private readonly _logService;
     private readonly _lifecycleMainService;

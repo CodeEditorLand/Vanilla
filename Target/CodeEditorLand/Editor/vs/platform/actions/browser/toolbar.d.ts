@@ -1,13 +1,13 @@
-import { type IToolBarOptions, ToolBar } from "../../../base/browser/ui/toolbar/toolbar.js";
-import { type IAction, type SubmenuAction } from "../../../base/common/actions.js";
-import { type Event } from "../../../base/common/event.js";
-import { ICommandService } from "../../commands/common/commands.js";
-import { IContextKeyService } from "../../contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../contextview/browser/contextView.js";
-import { IKeybindingService } from "../../keybinding/common/keybinding.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { type IMenuActionOptions, IMenuService, type MenuId } from "../common/actions.js";
-export declare enum HiddenItemStrategy {
+import { IToolBarOptions, ToolBar } from '../../../base/browser/ui/toolbar/toolbar.js';
+import { IAction, SubmenuAction } from '../../../base/common/actions.js';
+import { Event } from '../../../base/common/event.js';
+import { IMenuActionOptions, IMenuService, MenuId } from '../common/actions.js';
+import { ICommandService } from '../../commands/common/commands.js';
+import { IContextKeyService } from '../../contextkey/common/contextkey.js';
+import { IContextMenuService } from '../../contextview/browser/contextView.js';
+import { IKeybindingService } from '../../keybinding/common/keybinding.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+export declare const enum HiddenItemStrategy {
     /** This toolbar doesn't support hiding*/
     NoHide = -1,
     /** Hidden items aren't shown anywhere */

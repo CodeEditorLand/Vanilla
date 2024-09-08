@@ -1,13 +1,13 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { OperatingSystem } from "../../../../base/common/platform.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { TerminalCapabilityStore } from "../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";
-import type { IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
-import type { ITerminalBackend } from "../../../../platform/terminal/common/terminal.js";
-import type { IEnvironmentVariableInfo } from "../common/environmentVariable.js";
-import { ProcessState, type ITerminalProcessInfo } from "../common/terminal.js";
-import type { IDetachedTerminalInstance, IDetachedXTermOptions, IDetachedXtermTerminal, ITerminalContribution, IXtermAttachToElementOptions } from "./terminal.js";
-import type { XtermTerminal } from "./xterm/xtermTerminal.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { OperatingSystem } from '../../../../base/common/platform.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { TerminalCapabilityStore } from '../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js';
+import { IMergedEnvironmentVariableCollection } from '../../../../platform/terminal/common/environmentVariable.js';
+import { ITerminalBackend } from '../../../../platform/terminal/common/terminal.js';
+import { IDetachedTerminalInstance, IDetachedXTermOptions, IDetachedXtermTerminal, ITerminalContribution, IXtermAttachToElementOptions } from './terminal.js';
+import { XtermTerminal } from './xterm/xtermTerminal.js';
+import { IEnvironmentVariableInfo } from '../common/environmentVariable.js';
+import { ITerminalProcessInfo, ProcessState } from '../common/terminal.js';
 export declare class DetachedTerminal extends Disposable implements IDetachedTerminalInstance {
     private readonly _xterm;
     private readonly _widgets;

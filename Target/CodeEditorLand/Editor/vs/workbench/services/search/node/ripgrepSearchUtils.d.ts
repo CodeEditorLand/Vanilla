@@ -1,6 +1,6 @@
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { SearchRange } from "../common/search.js";
-import * as searchExtTypes from "../common/searchExtTypes.js";
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { SearchRange } from '../common/search.js';
+import * as searchExtTypes from '../common/searchExtTypes.js';
 export type Maybe<T> = T | null | undefined;
 export declare function anchorGlob(glob: string): string;
 export declare function rangeToSearchRange(range: searchExtTypes.Range): SearchRange;

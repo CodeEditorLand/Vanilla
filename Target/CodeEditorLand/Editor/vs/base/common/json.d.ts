@@ -1,4 +1,4 @@
-export declare enum ScanError {
+export declare const enum ScanError {
     None = 0,
     UnexpectedEndOfComment = 1,
     UnexpectedEndOfString = 2,
@@ -7,7 +7,7 @@ export declare enum ScanError {
     InvalidEscapeCharacter = 5,
     InvalidCharacter = 6
 }
-export declare enum SyntaxKind {
+export declare const enum SyntaxKind {
     OpenBraceToken = 1,
     CloseBraceToken = 2,
     OpenBracketToken = 3,
@@ -68,7 +68,7 @@ export interface ParseError {
     offset: number;
     length: number;
 }
-export declare enum ParseErrorCode {
+export declare const enum ParseErrorCode {
     InvalidSymbol = 1,
     InvalidNumberFormat = 2,
     PropertyNameExpected = 3,
@@ -86,7 +86,7 @@ export declare enum ParseErrorCode {
     InvalidEscapeCharacter = 15,
     InvalidCharacter = 16
 }
-export type NodeType = "object" | "array" | "property" | "string" | "number" | "boolean" | "null";
+export type NodeType = 'object' | 'array' | 'property' | 'string' | 'number' | 'boolean' | 'null';
 export interface Node {
     readonly type: NodeType;
     readonly value?: any;

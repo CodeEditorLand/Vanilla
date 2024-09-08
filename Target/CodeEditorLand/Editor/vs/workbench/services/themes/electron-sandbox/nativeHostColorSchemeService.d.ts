@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
-import { IHostColorSchemeService } from "../common/hostColorSchemeService.js";
+import { INativeHostService } from '../../../../platform/native/common/native.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IHostColorSchemeService } from '../common/hostColorSchemeService.js';
+import { INativeWorkbenchEnvironmentService } from '../../environment/electron-sandbox/environmentService.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
 export declare class NativeHostColorSchemeService extends Disposable implements IHostColorSchemeService {
     private readonly nativeHostService;
     private storageService;

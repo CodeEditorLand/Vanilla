@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { AccessibleViewProviderId, AccessibleViewType, type IAccessibleViewContentProvider, type IAccessibleViewOptions } from "../../../../platform/accessibility/browser/accessibleView.js";
-import type { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
-import { type ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { AccessibilityVerbositySettingId } from '../../accessibility/browser/accessibilityConfiguration.js';
+import { IAccessibleViewContentProvider, AccessibleViewProviderId, IAccessibleViewOptions, AccessibleViewType } from '../../../../platform/accessibility/browser/accessibleView.js';
+import { IAccessibleViewImplentation } from '../../../../platform/accessibility/browser/accessibleViewRegistry.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 export declare namespace CommentAccessibilityHelpNLS {
     const intro: string;
     const tabFocus: string;

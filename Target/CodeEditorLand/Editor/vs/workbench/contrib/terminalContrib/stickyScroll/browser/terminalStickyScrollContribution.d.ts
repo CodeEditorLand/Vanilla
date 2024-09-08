@@ -1,13 +1,13 @@
-import type { Terminal as RawXtermTerminal } from "@xterm/xterm";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import "./media/stickyScroll.css";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import type { ITerminalContribution, ITerminalInstance, IXtermTerminal } from "../../../terminal/browser/terminal.js";
-import type { TerminalWidgetManager } from "../../../terminal/browser/widgets/widgetManager.js";
-import type { ITerminalProcessInfo, ITerminalProcessManager } from "../../../terminal/common/terminal.js";
+import type { Terminal as RawXtermTerminal } from '@xterm/xterm';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import './media/stickyScroll.css';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../../../platform/keybinding/common/keybinding.js';
+import { ITerminalContribution, ITerminalInstance, IXtermTerminal } from '../../../terminal/browser/terminal.js';
+import { TerminalWidgetManager } from '../../../terminal/browser/widgets/widgetManager.js';
+import { ITerminalProcessInfo, ITerminalProcessManager } from '../../../terminal/common/terminal.js';
 export declare class TerminalStickyScrollContribution extends Disposable implements ITerminalContribution {
     private readonly _instance;
     private readonly _configurationService;

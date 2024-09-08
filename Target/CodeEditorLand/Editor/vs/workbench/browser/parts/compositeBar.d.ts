@@ -1,16 +1,16 @@
-import { type Dimension } from "../../../base/browser/dom.js";
-import { type GestureEvent } from "../../../base/browser/touch.js";
-import { ActionsOrientation } from "../../../base/browser/ui/actionbar/actionbar.js";
-import { Widget } from "../../../base/browser/ui/widget.js";
-import { type IAction } from "../../../base/common/actions.js";
-import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import type { IColorTheme } from "../../../platform/theme/common/themeService.js";
-import type { IComposite } from "../../common/composite.js";
-import type { IPaneComposite } from "../../common/panecomposite.js";
-import { IViewDescriptorService, type ViewContainerLocation } from "../../common/views.js";
-import { type Before2D, type CompositeDragAndDropData, type ICompositeDragAndDrop } from "../dnd.js";
-import { type CompositeBarAction, type IActivityHoverOptions, type ICompositeBar, type ICompositeBarColors } from "./compositeBarActions.js";
+import { IAction } from '../../../base/common/actions.js';
+import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
+import { ActionsOrientation } from '../../../base/browser/ui/actionbar/actionbar.js';
+import { CompositeBarAction, ICompositeBar, ICompositeBarColors, IActivityHoverOptions } from './compositeBarActions.js';
+import { Dimension } from '../../../base/browser/dom.js';
+import { IContextMenuService } from '../../../platform/contextview/browser/contextView.js';
+import { Widget } from '../../../base/browser/ui/widget.js';
+import { IColorTheme } from '../../../platform/theme/common/themeService.js';
+import { ViewContainerLocation, IViewDescriptorService } from '../../common/views.js';
+import { IPaneComposite } from '../../common/panecomposite.js';
+import { IComposite } from '../../common/composite.js';
+import { CompositeDragAndDropData, ICompositeDragAndDrop, Before2D } from '../dnd.js';
+import { GestureEvent } from '../../../base/browser/touch.js';
 export interface ICompositeBarItem {
     readonly id: string;
     name?: string;
@@ -74,7 +74,7 @@ export declare class CompositeBar extends Widget implements ICompositeBar {
     focus(index?: number): void;
     recomputeSizes(): void;
     layout(dimension: Dimension): void;
-    addComposite({ id, name, order, requestedIndex, }: {
+    addComposite({ id, name, order, requestedIndex }: {
         id: string;
         name: string;
         order?: number;

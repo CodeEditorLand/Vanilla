@@ -1,29 +1,29 @@
-import type { Event } from "../../../../base/common/event.js";
-import type { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
-import type { DeepPartial } from "../../../../base/common/types.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IDimension } from "../../../../editor/common/core/dimension.js";
-import type { IMenuChangeEvent } from "../../../../platform/actions/common/actions.js";
-import type { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import type { ContextKeyValue, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { type IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import type { IRectangle } from "../../../../platform/window/common/window.js";
-import { type CloseDirection, type EditorInputWithOptions, type EditorsOrder, type GroupIdentifier, type IActiveEditorChangeEvent, type IEditorCloseEvent, type IEditorPane, type IEditorPartOptions, type IEditorPartOptionsChangeEvent, type IEditorWillMoveEvent, type IFindEditorOptions, type IMatchEditorOptions, type IToolbarActions, type IUntypedEditorInput, type IVisibleEditorPane } from "../../../common/editor.js";
-import type { IGroupModelChangeEvent } from "../../../common/editor/editorGroupModel.js";
-import type { EditorInput } from "../../../common/editor/editorInput.js";
+import { Event } from '../../../../base/common/event.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IEditorPane, GroupIdentifier, EditorInputWithOptions, CloseDirection, IEditorPartOptions, IEditorPartOptionsChangeEvent, EditorsOrder, IVisibleEditorPane, IEditorCloseEvent, IUntypedEditorInput, IEditorWillMoveEvent, IMatchEditorOptions, IActiveEditorChangeEvent, IFindEditorOptions, IToolbarActions } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IEditorOptions } from '../../../../platform/editor/common/editor.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IDimension } from '../../../../editor/common/core/dimension.js';
+import { DisposableStore, IDisposable } from '../../../../base/common/lifecycle.js';
+import { ContextKeyValue, IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IGroupModelChangeEvent } from '../../../common/editor/editorGroupModel.js';
+import { IRectangle } from '../../../../platform/window/common/window.js';
+import { IMenuChangeEvent } from '../../../../platform/actions/common/actions.js';
+import { DeepPartial } from '../../../../base/common/types.js';
 export declare const IEditorGroupsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditorGroupsService>;
-export declare enum GroupDirection {
+export declare const enum GroupDirection {
     UP = 0,
     DOWN = 1,
     LEFT = 2,
     RIGHT = 3
 }
-export declare enum GroupOrientation {
+export declare const enum GroupOrientation {
     HORIZONTAL = 0,
     VERTICAL = 1
 }
-export declare enum GroupLocation {
+export declare const enum GroupLocation {
     FIRST = 0,
     LAST = 1,
     NEXT = 2,
@@ -33,7 +33,7 @@ export interface IFindGroupScope {
     readonly direction?: GroupDirection;
     readonly location?: GroupLocation;
 }
-export declare enum GroupsArrangement {
+export declare const enum GroupsArrangement {
     /**
      * Make the current active group consume the entire
      * editor area.
@@ -73,7 +73,7 @@ export interface EditorGroupLayout {
      */
     readonly groups: GroupLayoutArgument[];
 }
-export declare enum MergeGroupMode {
+export declare const enum MergeGroupMode {
     COPY_EDITORS = 0,
     MOVE_EDITORS = 1
 }
@@ -105,7 +105,7 @@ export interface IEditorReplacement {
     readonly forceReplaceDirty?: boolean;
 }
 export declare function isEditorReplacement(replacement: unknown): replacement is IEditorReplacement;
-export declare enum GroupsOrder {
+export declare const enum GroupsOrder {
     /**
      * Groups sorted by creation order (oldest one first)
      */
@@ -484,7 +484,7 @@ export interface IEditorGroupsService extends IEditorGroupsContainer {
      *
      * @returns `true` when the working set as applied.
      */
-    applyWorkingSet(workingSet: IEditorWorkingSet | "empty", options?: IEditorWorkingSetOptions): Promise<boolean>;
+    applyWorkingSet(workingSet: IEditorWorkingSet | 'empty', options?: IEditorWorkingSetOptions): Promise<boolean>;
     /**
      * Deletes a working set.
      */
@@ -497,7 +497,7 @@ export interface IEditorGroupsService extends IEditorGroupsContainer {
      */
     registerContextKeyProvider<T extends ContextKeyValue>(provider: IEditorGroupContextKeyProvider<T>): IDisposable;
 }
-export declare enum OpenEditorContext {
+export declare const enum OpenEditorContext {
     NEW_EDITOR = 1,
     MOVE_EDITOR = 2,
     COPY_EDITOR = 3

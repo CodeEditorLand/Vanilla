@@ -1,20 +1,20 @@
-import { WindowIdleValue } from "../../../../base/browser/dom.js";
-import { Event } from "../../../../base/common/event.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, type ServicesAccessor } from "../../../browser/editorExtensions.js";
-import { type IEditorContribution } from "../../../common/editorCommon.js";
-import { type CompletionItemProvider } from "../../../common/languages.js";
-import { type CompletionItem, type ISuggestItemPreselector } from "./suggest.js";
-import { ISuggestMemoryService } from "./suggestMemory.js";
-import { SuggestModel } from "./suggestModel.js";
-import { type ISelectedSuggestion, SuggestWidget } from "./suggestWidget.js";
-declare enum InsertFlags {
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { EditorAction, ServicesAccessor } from '../../../browser/editorExtensions.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { CompletionItemProvider } from '../../../common/languages.js';
+import { ISuggestMemoryService } from './suggestMemory.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { CompletionItem, ISuggestItemPreselector } from './suggest.js';
+import { SuggestModel } from './suggestModel.js';
+import { ISelectedSuggestion, SuggestWidget } from './suggestWidget.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { WindowIdleValue } from '../../../../base/browser/dom.js';
+declare const enum InsertFlags {
     None = 0,
     NoBeforeUndoStop = 1,
     NoAfterUndoStop = 2,

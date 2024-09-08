@@ -1,7 +1,7 @@
-import type { Event } from "../../../base/common/event.js";
-import { type IRelativePattern, type ParsedPattern } from "../../../base/common/glob.js";
-import { Disposable, DisposableStore, type IDisposable } from "../../../base/common/lifecycle.js";
-import { FileChangeFilter, type IFileChange } from "./files.js";
+import { Event } from '../../../base/common/event.js';
+import { IRelativePattern, ParsedPattern } from '../../../base/common/glob.js';
+import { Disposable, DisposableStore, IDisposable } from '../../../base/common/lifecycle.js';
+import { FileChangeFilter, IFileChange } from './files.js';
 interface IWatchRequest {
     /**
      * The path to watch.
@@ -168,7 +168,7 @@ export declare abstract class AbstractUniversalWatcherClient extends AbstractWat
     protected abstract createWatcher(disposables: DisposableStore): IUniversalWatcher;
 }
 export interface ILogMessage {
-    readonly type: "trace" | "warn" | "error" | "info" | "debug";
+    readonly type: 'trace' | 'warn' | 'error' | 'info' | 'debug';
     readonly message: string;
 }
 export declare function reviveFileChanges(changes: IFileChange[]): IFileChange[];

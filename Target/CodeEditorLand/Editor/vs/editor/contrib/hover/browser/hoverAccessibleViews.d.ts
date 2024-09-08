@@ -1,12 +1,12 @@
-import { type IAction } from "../../../../base/common/actions.js";
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { AccessibleContentProvider, AccessibleViewProviderId, AccessibleViewType, type IAccessibleViewContentProvider, type IAccessibleViewOptions } from "../../../../platform/accessibility/browser/accessibleView.js";
-import type { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
-import { type ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { ContentHoverController } from "./contentHoverController.js";
+import { ContentHoverController } from './contentHoverController.js';
+import { AccessibleViewType, AccessibleViewProviderId, AccessibleContentProvider, IAccessibleViewContentProvider, IAccessibleViewOptions } from '../../../../platform/accessibility/browser/accessibleView.js';
+import { IAccessibleViewImplentation } from '../../../../platform/accessibility/browser/accessibleViewRegistry.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IAction } from '../../../../base/common/actions.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 export declare class HoverAccessibleView implements IAccessibleViewImplentation {
     readonly type = AccessibleViewType.View;
     readonly priority = 95;

@@ -1,20 +1,20 @@
-import type { ITerminalAddon } from "@xterm/headless";
-import type { Terminal } from "@xterm/xterm";
-import type { IAction } from "../../../../../base/common/actions.js";
-import { Emitter, type Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../../base/common/uri.js";
-import { IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
-import { IActionWidgetService } from "../../../../../platform/actionWidget/browser/actionWidget.js";
-import { ICommandService } from "../../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
-import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import { type ITerminalCapabilityStore, type ITerminalCommand } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import type { ITerminalCommandSelector } from "../../../../../platform/terminal/common/terminal.js";
-import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
-import { ITerminalQuickFixService, TerminalQuickFixType, type ITerminalQuickFix, type ITerminalQuickFixOptions, type ITerminalQuickFixResolvedExtensionOptions } from "./quickFix.js";
+import type { ITerminalAddon } from '@xterm/headless';
+import { Emitter, Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ITerminalCapabilityStore, ITerminalCommand } from '../../../../../platform/terminal/common/capabilities/capabilities.js';
+import { IAction } from '../../../../../base/common/actions.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IOpenerService } from '../../../../../platform/opener/common/opener.js';
+import type { Terminal } from '@xterm/xterm';
+import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
+import { IExtensionService } from '../../../../services/extensions/common/extensions.js';
+import { IAccessibilitySignalService } from '../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
+import { IActionWidgetService } from '../../../../../platform/actionWidget/browser/actionWidget.js';
+import { ILabelService } from '../../../../../platform/label/common/label.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { ITerminalQuickFixResolvedExtensionOptions, ITerminalQuickFix, ITerminalQuickFixOptions, ITerminalQuickFixService, TerminalQuickFixType } from './quickFix.js';
+import { ITerminalCommandSelector } from '../../../../../platform/terminal/common/terminal.js';
+import { ICommandService } from '../../../../../platform/commands/common/commands.js';
 export interface ITerminalQuickFixAddon {
     showMenu(): void;
     onDidRequestRerunCommand: Event<{
@@ -70,7 +70,7 @@ export declare class TerminalQuickFixAddon extends Disposable implements ITermin
 }
 export interface ITerminalAction extends IAction {
     type: TerminalQuickFixType;
-    kind?: "fix" | "explain";
+    kind?: 'fix' | 'explain';
     source: string;
     uri?: URI;
     command?: string;

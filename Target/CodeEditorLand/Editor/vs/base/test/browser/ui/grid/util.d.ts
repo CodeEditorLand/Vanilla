@@ -1,6 +1,6 @@
-import type { IView } from "../../../../browser/ui/grid/grid.js";
-import { type GridNode } from "../../../../browser/ui/grid/gridview.js";
-import { type Event } from "../../../../common/event.js";
+import { IView } from '../../../../browser/ui/grid/grid.js';
+import { GridNode } from '../../../../browser/ui/grid/gridview.js';
+import { Event } from '../../../../common/event.js';
 export declare class TestView implements IView {
     private _minimumWidth;
     private _maximumWidth;

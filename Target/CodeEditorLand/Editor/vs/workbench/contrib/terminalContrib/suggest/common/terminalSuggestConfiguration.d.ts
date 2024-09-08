@@ -1,6 +1,6 @@
-import type { IStringDictionary } from "../../../../../base/common/collections.js";
-import type { IConfigurationPropertySchema } from "../../../../../platform/configuration/common/configurationRegistry.js";
-export declare enum TerminalSuggestSettingId {
+import type { IStringDictionary } from '../../../../../base/common/collections.js';
+import type { IConfigurationPropertySchema } from '../../../../../platform/configuration/common/configurationRegistry.js';
+export declare const enum TerminalSuggestSettingId {
     Enabled = "terminal.integrated.suggest.enabled",
     QuickSuggestions = "terminal.integrated.suggest.quickSuggestions",
     SuggestOnTriggerCharacters = "terminal.integrated.suggest.suggestOnTriggerCharacters",
@@ -12,10 +12,10 @@ export interface ITerminalSuggestConfiguration {
     enabled: boolean;
     quickSuggestions: boolean;
     suggestOnTriggerCharacters: boolean;
-    runOnEnter: "never" | "exactMatch" | "exactMatchIgnoreExtension" | "always";
+    runOnEnter: 'never' | 'exactMatch' | 'exactMatchIgnoreExtension' | 'always';
     builtinCompletions: {
-        pwshCode: boolean;
-        pwshGit: boolean;
+        'pwshCode': boolean;
+        'pwshGit': boolean;
     };
 }
 export declare const terminalSuggestConfiguration: IStringDictionary<IConfigurationPropertySchema>;

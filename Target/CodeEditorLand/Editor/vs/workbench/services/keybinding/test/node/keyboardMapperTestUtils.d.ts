@@ -1,6 +1,6 @@
-import type { Keybinding, SingleModifierChord } from "../../../../../base/common/keybindings.js";
-import type { IKeyboardEvent } from "../../../../../platform/keybinding/common/keybinding.js";
-import type { IKeyboardMapper } from "../../../../../platform/keyboardLayout/common/keyboardMapper.js";
+import { SingleModifierChord, Keybinding } from '../../../../../base/common/keybindings.js';
+import { IKeyboardEvent } from '../../../../../platform/keybinding/common/keybinding.js';
+import { IKeyboardMapper } from '../../../../../platform/keyboardLayout/common/keyboardMapper.js';
 export interface IResolvedKeybinding {
     label: string | null;
     ariaLabel: string | null;

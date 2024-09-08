@@ -1,6 +1,6 @@
-import * as childProcess from "child_process";
-import type { URI } from "../../../../base/common/uri.js";
-import { type IFileQuery, type IFolderQuery, type IProgressMessage, type IRawFileMatch, type ISearchEngine, type ISearchEngineStats, type ISearchEngineSuccess } from "../common/search.js";
+import * as childProcess from 'child_process';
+import { URI } from '../../../../base/common/uri.js';
+import { IFileQuery, IFolderQuery, IProgressMessage, ISearchEngineStats, IRawFileMatch, ISearchEngine, ISearchEngineSuccess } from '../common/search.js';
 export declare class FileWalker {
     private config;
     private filePattern;

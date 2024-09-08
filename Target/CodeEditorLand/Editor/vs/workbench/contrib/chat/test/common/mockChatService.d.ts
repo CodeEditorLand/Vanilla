@@ -1,10 +1,10 @@
-import type { CancellationToken } from "../../../../../base/common/cancellation.js";
-import type { Event } from "../../../../../base/common/event.js";
-import type { URI } from "../../../../../base/common/uri.js";
-import type { ChatAgentLocation } from "../../common/chatAgents.js";
-import type { ChatModel, IChatModel, IChatRequestModel, IChatRequestVariableData, ISerializableChatData } from "../../common/chatModel.js";
-import type { IParsedChatRequest } from "../../common/chatParserTypes.js";
-import type { IChatCompleteResponse, IChatDetail, IChatProviderInfo, IChatSendRequestData, IChatSendRequestOptions, IChatService, IChatTransferredSessionData, IChatUserActionEvent } from "../../common/chatService.js";
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { Event } from '../../../../../base/common/event.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { ChatAgentLocation } from '../../common/chatAgents.js';
+import { ChatModel, IChatModel, IChatRequestModel, IChatRequestVariableData, ISerializableChatData } from '../../common/chatModel.js';
+import { IParsedChatRequest } from '../../common/chatParserTypes.js';
+import { IChatCompleteResponse, IChatDetail, IChatProviderInfo, IChatSendRequestData, IChatSendRequestOptions, IChatService, IChatTransferredSessionData, IChatUserActionEvent } from '../../common/chatService.js';
 export declare class MockChatService implements IChatService {
     _serviceBrand: undefined;
     transferredSessionData: IChatTransferredSessionData | undefined;
@@ -32,7 +32,7 @@ export declare class MockChatService implements IChatService {
     notifyUserAction(event: IChatUserActionEvent): void;
     onDidDisposeSession: Event<{
         sessionId: string;
-        reason: "initializationFailed" | "cleared";
+        reason: 'initializationFailed' | 'cleared';
     }>;
     transferChatSession(transferredSessionData: IChatTransferredSessionData, toWorkspace: URI): void;
     setChatSessionTitle(sessionId: string, title: string): void;

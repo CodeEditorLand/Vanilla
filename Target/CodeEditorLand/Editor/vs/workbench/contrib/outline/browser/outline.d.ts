@@ -1,6 +1,6 @@
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IView } from "../../../common/views.js";
-export declare enum OutlineSortOrder {
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import type { IView } from '../../../common/views.js';
+export declare const enum OutlineSortOrder {
     ByPosition = 0,
     ByName = 1,
     ByKind = 2

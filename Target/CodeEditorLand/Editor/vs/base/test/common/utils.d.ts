@@ -1,5 +1,5 @@
-import { DisposableStore } from "../../common/lifecycle.js";
-import { URI } from "../../common/uri.js";
+import { DisposableStore } from '../../common/lifecycle.js';
+import { URI } from '../../common/uri.js';
 export type ValueCallback<T = any> = (value: T | Promise<T>) => void;
 export declare function toResource(this: any, path: string): URI;
 export declare function suiteRepeat(n: number, description: string, callback: (this: any) => void): void;
@@ -13,7 +13,7 @@ export declare function assertThrowsAsync(block: () => any, message?: string | E
  *
  * @returns A {@link DisposableStore} that can optionally be used to track disposables in the test.
  * This will be automatically disposed on test teardown.
- */
-export declare function ensureNoDisposablesAreLeakedInTestSuite(): Pick<DisposableStore, "add">;
+*/
+export declare function ensureNoDisposablesAreLeakedInTestSuite(): Pick<DisposableStore, 'add'>;
 export declare function throwIfDisposablesAreLeaked(body: () => void, logToConsole?: boolean): void;
 export declare function throwIfDisposablesAreLeakedAsync(body: () => Promise<void>): Promise<void>;

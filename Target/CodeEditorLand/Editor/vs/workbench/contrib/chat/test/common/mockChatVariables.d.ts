@@ -1,9 +1,9 @@
-import type { CancellationToken } from "../../../../../base/common/cancellation.js";
-import type { IDisposable } from "../../../../../base/common/lifecycle.js";
-import type { ChatAgentLocation } from "../../common/chatAgents.js";
-import type { IChatModel, IChatRequestVariableData, IChatRequestVariableEntry } from "../../common/chatModel.js";
-import type { IParsedChatRequest } from "../../common/chatParserTypes.js";
-import type { IChatRequestVariableValue, IChatVariableData, IChatVariableResolver, IChatVariableResolverProgress, IChatVariablesService, IDynamicVariable } from "../../common/chatVariables.js";
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { ChatAgentLocation } from '../../common/chatAgents.js';
+import { IChatModel, IChatRequestVariableData, IChatRequestVariableEntry } from '../../common/chatModel.js';
+import { IParsedChatRequest } from '../../common/chatParserTypes.js';
+import { IChatRequestVariableValue, IChatVariableData, IChatVariableResolver, IChatVariableResolverProgress, IChatVariablesService, IDynamicVariable } from '../../common/chatVariables.js';
 export declare class MockChatVariablesService implements IChatVariablesService {
     _serviceBrand: undefined;
     registerVariable(data: IChatVariableData, resolver: IChatVariableResolver): IDisposable;

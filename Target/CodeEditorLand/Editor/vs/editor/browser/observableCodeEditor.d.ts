@@ -1,22 +1,22 @@
-import { Disposable, type IDisposable } from "../../base/common/lifecycle.js";
-import { type IObservable, type ITransaction } from "../../base/common/observable.js";
-import { EditorOption, type FindComputedEditorOptionValueById } from "../common/config/editorOptions.js";
-import { Position } from "../common/core/position.js";
-import { Selection } from "../common/core/selection.js";
-import type { ICursorSelectionChangedEvent } from "../common/cursorEvents.js";
-import type { IModelDeltaDecoration, ITextModel } from "../common/model.js";
-import type { IModelContentChangedEvent } from "../common/textModelEvents.js";
-import type { ICodeEditor, IOverlayWidgetPosition } from "./editorBrowser.js";
+import { Disposable, IDisposable } from '../../base/common/lifecycle.js';
+import { IObservable, ITransaction } from '../../base/common/observable.js';
+import { ICodeEditor, IOverlayWidgetPosition } from './editorBrowser.js';
+import { EditorOption, FindComputedEditorOptionValueById } from '../common/config/editorOptions.js';
+import { Position } from '../common/core/position.js';
+import { Selection } from '../common/core/selection.js';
+import { ICursorSelectionChangedEvent } from '../common/cursorEvents.js';
+import { IModelDeltaDecoration, ITextModel } from '../common/model.js';
+import { IModelContentChangedEvent } from '../common/textModelEvents.js';
 /**
  * Returns a facade for the code editor that provides observables for various states/events.
- */
+*/
 export declare function observableCodeEditor(editor: ICodeEditor): ObservableCodeEditor;
 export declare class ObservableCodeEditor extends Disposable {
     readonly editor: ICodeEditor;
     private static readonly _map;
     /**
      * Make sure that editor is not disposed yet!
-     */
+    */
     static get(editor: ICodeEditor): ObservableCodeEditor;
     private _updateCounter;
     private _currentTransaction;

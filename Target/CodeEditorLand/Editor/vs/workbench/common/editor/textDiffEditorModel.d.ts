@@ -1,7 +1,7 @@
-import type { IMarkdownString } from "../../../base/common/htmlContent.js";
-import type { IDiffEditorModel } from "../../../editor/common/editorCommon.js";
-import { DiffEditorModel } from "./diffEditorModel.js";
-import type { BaseTextEditorModel } from "./textEditorModel.js";
+import { IDiffEditorModel } from '../../../editor/common/editorCommon.js';
+import { BaseTextEditorModel } from './textEditorModel.js';
+import { DiffEditorModel } from './diffEditorModel.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
 /**
  * The base text editor model for the diff editor. It is made up of two text editor models, the original version
  * and the modified version.

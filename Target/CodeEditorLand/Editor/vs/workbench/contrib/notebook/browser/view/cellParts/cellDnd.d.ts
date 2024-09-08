@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { type ICellViewModel, type INotebookEditorDelegate } from "../../notebookBrowser.js";
-import type { CellViewModelStateChangeEvent } from "../../notebookViewEvents.js";
-import { CellContentPart } from "../cellPart.js";
-import type { BaseCellRenderTemplate, INotebookCellList } from "../notebookRenderingCommon.js";
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { ICellViewModel, INotebookEditorDelegate } from '../../notebookBrowser.js';
+import { CellViewModelStateChangeEvent } from '../../notebookViewEvents.js';
+import { CellContentPart } from '../cellPart.js';
+import { BaseCellRenderTemplate, INotebookCellList } from '../notebookRenderingCommon.js';
 type DragImageProvider = () => HTMLElement;
 export declare class CellDragAndDropPart extends CellContentPart {
     private readonly container;
@@ -48,5 +48,5 @@ export declare class CellDragAndDropController extends Disposable {
     private getExplicitDragDropDirection;
     dispose(): void;
 }
-export declare function performCellDropEdits(editor: INotebookEditorDelegate, draggedCell: ICellViewModel, dropDirection: "above" | "below", draggedOverCell: ICellViewModel): void;
+export declare function performCellDropEdits(editor: INotebookEditorDelegate, draggedCell: ICellViewModel, dropDirection: 'above' | 'below', draggedOverCell: ICellViewModel): void;
 export {};

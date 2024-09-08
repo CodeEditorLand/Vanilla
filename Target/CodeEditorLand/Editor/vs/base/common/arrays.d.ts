@@ -1,5 +1,5 @@
-import type { CancellationToken } from "./cancellation.js";
-import type { ISplice } from "./sequence.js";
+import { CancellationToken } from './cancellation.js';
+import { ISplice } from './sequence.js';
 /**
  * Returns the last element of an array.
  * @param array The array.
@@ -181,7 +181,7 @@ export declare function splice<T>(array: T[], start: number, deleteCount: number
  * a negative number indicates that the first value is less than the second,
  * a positive number indicates that the first value is greater than the second,
  * and zero indicates that neither is the case.
- */
+*/
 export type CompareResult = number;
 export declare namespace CompareResult {
     function isLessThan(result: CompareResult): boolean;
@@ -196,13 +196,13 @@ export declare namespace CompareResult {
  * A comparator `c` defines a total order `<=` on `T` as following:
  * `c(a, b) <= 0` iff `a` <= `b`.
  * We also have `c(a, b) == 0` iff `c(b, a) == 0`.
- */
+*/
 export type Comparator<T> = (a: T, b: T) => CompareResult;
 export declare function compareBy<TItem, TCompareBy>(selector: (item: TItem) => TCompareBy, comparator: Comparator<TCompareBy>): Comparator<TItem>;
 export declare function tieBreakComparators<TItem>(...comparators: Comparator<TItem>[]): Comparator<TItem>;
 /**
  * The natural order on numbers.
- */
+*/
 export declare const numberComparator: Comparator<number>;
 export declare const booleanComparator: Comparator<boolean>;
 export declare function reverseOrder<TItem>(comparator: Comparator<TItem>): Comparator<TItem>;
@@ -212,19 +212,19 @@ export declare class ArrayQueue<T> {
     private lastIdx;
     /**
      * Constructs a queue that is backed by the given array. Runtime is O(1).
-     */
+    */
     constructor(items: readonly T[]);
     get length(): number;
     /**
      * Consumes elements from the beginning of the queue as long as the predicate returns true.
      * If no elements were consumed, `null` is returned. Has a runtime of O(result.length).
-     */
+    */
     takeWhile(predicate: (value: T) => boolean): T[] | null;
     /**
      * Consumes elements from the end of the queue as long as the predicate returns true.
      * If no elements were consumed, `null` is returned.
      * The result has the same order as the underlying array!
-     */
+    */
     takeFromEndWhile(predicate: (value: T) => boolean): T[] | null;
     peek(): T | undefined;
     peekLast(): T | undefined;
@@ -234,19 +234,19 @@ export declare class ArrayQueue<T> {
 }
 /**
  * This class is faster than an iterator and array for lazy computed data.
- */
+*/
 export declare class CallbackIterable<T> {
     /**
      * Calls the callback for every item.
      * Stops when the callback returns false.
-     */
+    */
     readonly iterate: (callback: (item: T) => boolean) => void;
     static readonly empty: CallbackIterable<never>;
     constructor(
     /**
      * Calls the callback for every item.
      * Stops when the callback returns false.
-     */
+    */
     iterate: (callback: (item: T) => boolean) => void);
     forEach(handler: (item: T) => void): void;
     toArray(): T[];
@@ -273,7 +273,7 @@ export declare class Permutation {
     apply<T>(arr: readonly T[]): T[];
     /**
      * Returns a new permutation that undoes the re-arrangement of this permutation.
-     */
+    */
     inverse(): Permutation;
 }
 /**

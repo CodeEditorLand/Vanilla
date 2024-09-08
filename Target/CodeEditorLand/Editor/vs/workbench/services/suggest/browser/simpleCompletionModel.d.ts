@@ -1,4 +1,4 @@
-import type { SimpleCompletionItem } from "./simpleCompletionItem.js";
+import { SimpleCompletionItem } from './simpleCompletionItem.js';
 export interface ISimpleCompletionStats {
     pLabelLen: number;
 }

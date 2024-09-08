@@ -1,6 +1,6 @@
-import type * as http from "http";
-import * as net from "net";
-import { type ServerParsedArgs } from "./serverEnvironmentService.js";
+import * as http from 'http';
+import * as net from 'net';
+import { ServerParsedArgs } from './serverEnvironmentService.js';
 export interface IServerAPI {
     /**
      * Do not remove!!. Called from server-main.js

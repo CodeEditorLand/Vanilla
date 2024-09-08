@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import type { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
-import { ITerminalService } from "../browser/terminal.js";
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IRemoteAgentService } from '../../../services/remote/common/remoteAgentService.js';
+import { INativeHostService } from '../../../../platform/native/common/native.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ITerminalService } from '../browser/terminal.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
 export declare class TerminalNativeContribution extends Disposable implements IWorkbenchContribution {
     private readonly _fileService;
     private readonly _terminalService;

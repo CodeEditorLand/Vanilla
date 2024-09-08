@@ -1,12 +1,12 @@
-import type { NotebookDocumentWillSaveEvent } from "vscode";
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { type Event } from "../../../base/common/event.js";
-import { type UriComponents } from "../../../base/common/uri.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import type { ILogService } from "../../../platform/log/common/log.js";
-import type { SaveReason } from "../../common/editor.js";
-import type { ExtHostNotebookDocumentSaveParticipantShape, MainThreadBulkEditsShape } from "./extHost.protocol.js";
-import type { ExtHostNotebookController } from "./extHostNotebook.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { UriComponents } from '../../../base/common/uri.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { ExtHostNotebookDocumentSaveParticipantShape, MainThreadBulkEditsShape } from './extHost.protocol.js';
+import { ExtHostNotebookController } from './extHostNotebook.js';
+import { SaveReason } from '../../common/editor.js';
+import { NotebookDocumentWillSaveEvent } from 'vscode';
 export declare class ExtHostNotebookDocumentSaveParticipant implements ExtHostNotebookDocumentSaveParticipantShape {
     private readonly _logService;
     private readonly _notebooksAndEditors;

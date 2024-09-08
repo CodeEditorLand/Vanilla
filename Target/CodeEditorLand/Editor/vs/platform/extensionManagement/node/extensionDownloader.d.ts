@@ -1,14 +1,14 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { INativeEnvironmentService } from "../../environment/common/environment.js";
-import type { TargetPlatform } from "../../extensions/common/extensions.js";
-import { IFileService } from "../../files/common/files.js";
-import { ILogService } from "../../log/common/log.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { type ExtensionVerificationStatus } from "../common/abstractExtensionManagementService.js";
-import { IExtensionGalleryService, type IGalleryExtension, type InstallOperation } from "../common/extensionManagement.js";
-import { IExtensionSignatureVerificationService } from "./extensionSignatureVerificationService.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { INativeEnvironmentService } from '../../environment/common/environment.js';
+import { ExtensionVerificationStatus } from '../common/abstractExtensionManagementService.js';
+import { IExtensionGalleryService, IGalleryExtension, InstallOperation } from '../common/extensionManagement.js';
+import { IExtensionSignatureVerificationService } from './extensionSignatureVerificationService.js';
+import { TargetPlatform } from '../../extensions/common/extensions.js';
+import { IFileService } from '../../files/common/files.js';
+import { ILogService } from '../../log/common/log.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 export declare class ExtensionsDownloader extends Disposable {
     private readonly fileService;
     private readonly extensionGalleryService;

@@ -1,11 +1,11 @@
-import { type Event } from "../../../../base/common/event.js";
-import type { IJSONSchema } from "../../../../base/common/jsonSchema.js";
-import { Parser, ValidationStatus, type IProblemReporter } from "../../../../base/common/parsers.js";
-import Severity from "../../../../base/common/severity.js";
-import { URI } from "../../../../base/common/uri.js";
-import { type IFileService } from "../../../../platform/files/common/files.js";
-import { type IMarkerData } from "../../../../platform/markers/common/markers.js";
-import { type ExtensionMessageCollector } from "../../../services/extensions/common/extensionsRegistry.js";
+import Severity from '../../../../base/common/severity.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IJSONSchema } from '../../../../base/common/jsonSchema.js';
+import { ValidationStatus, IProblemReporter, Parser } from '../../../../base/common/parsers.js';
+import { IMarkerData } from '../../../../platform/markers/common/markers.js';
+import { ExtensionMessageCollector } from '../../../services/extensions/common/extensionsRegistry.js';
+import { Event } from '../../../../base/common/event.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
 export declare enum FileLocationKind {
     Default = 0,
     Relative = 1,
@@ -99,82 +99,82 @@ export declare function createLineMatcher(matcher: ProblemMatcher, fileService?:
 export declare namespace Config {
     interface IProblemPattern {
         /**
-         * The regular expression to find a problem in the console output of an
-         * executed task.
-         */
+        * The regular expression to find a problem in the console output of an
+        * executed task.
+        */
         regexp?: string;
         /**
-         * Whether the pattern matches a whole file, or a location (file/line)
-         *
-         * The default is to match for a location. Only valid on the
-         * first problem pattern in a multi line problem matcher.
-         */
+        * Whether the pattern matches a whole file, or a location (file/line)
+        *
+        * The default is to match for a location. Only valid on the
+        * first problem pattern in a multi line problem matcher.
+        */
         kind?: string;
         /**
-         * The match group index of the filename.
-         * If omitted 1 is used.
-         */
+        * The match group index of the filename.
+        * If omitted 1 is used.
+        */
         file?: number;
         /**
-         * The match group index of the problem's location. Valid location
-         * patterns are: (line), (line,column) and (startLine,startColumn,endLine,endColumn).
-         * If omitted the line and column properties are used.
-         */
+        * The match group index of the problem's location. Valid location
+        * patterns are: (line), (line,column) and (startLine,startColumn,endLine,endColumn).
+        * If omitted the line and column properties are used.
+        */
         location?: number;
         /**
-         * The match group index of the problem's line in the source file.
-         *
-         * Defaults to 2.
-         */
+        * The match group index of the problem's line in the source file.
+        *
+        * Defaults to 2.
+        */
         line?: number;
         /**
-         * The match group index of the problem's column in the source file.
-         *
-         * Defaults to 3.
-         */
+        * The match group index of the problem's column in the source file.
+        *
+        * Defaults to 3.
+        */
         column?: number;
         /**
-         * The match group index of the problem's end line in the source file.
-         *
-         * Defaults to undefined. No end line is captured.
-         */
+        * The match group index of the problem's end line in the source file.
+        *
+        * Defaults to undefined. No end line is captured.
+        */
         endLine?: number;
         /**
-         * The match group index of the problem's end column in the source file.
-         *
-         * Defaults to undefined. No end column is captured.
-         */
+        * The match group index of the problem's end column in the source file.
+        *
+        * Defaults to undefined. No end column is captured.
+        */
         endColumn?: number;
         /**
-         * The match group index of the problem's severity.
-         *
-         * Defaults to undefined. In this case the problem matcher's severity
-         * is used.
-         */
+        * The match group index of the problem's severity.
+        *
+        * Defaults to undefined. In this case the problem matcher's severity
+        * is used.
+        */
         severity?: number;
         /**
-         * The match group index of the problem's code.
-         *
-         * Defaults to undefined. No code is captured.
-         */
+        * The match group index of the problem's code.
+        *
+        * Defaults to undefined. No code is captured.
+        */
         code?: number;
         /**
-         * The match group index of the message. If omitted it defaults
-         * to 4 if location is specified. Otherwise it defaults to 5.
-         */
+        * The match group index of the message. If omitted it defaults
+        * to 4 if location is specified. Otherwise it defaults to 5.
+        */
         message?: number;
         /**
-         * Specifies if the last pattern in a multi line problem matcher should
-         * loop as long as it does match a line consequently. Only valid on the
-         * last problem pattern in a multi line problem matcher.
-         */
+        * Specifies if the last pattern in a multi line problem matcher should
+        * loop as long as it does match a line consequently. Only valid on the
+        * last problem pattern in a multi line problem matcher.
+        */
         loop?: boolean;
     }
     interface ICheckedProblemPattern extends IProblemPattern {
         /**
-         * The regular expression to find a problem in the console output of an
-         * executed task.
-         */
+        * The regular expression to find a problem in the console output of an
+        * executed task.
+        */
         regexp: string;
     }
     namespace CheckedProblemPattern {
@@ -195,9 +195,9 @@ export declare namespace Config {
     }
     interface INamedCheckedProblemPattern extends INamedProblemPattern {
         /**
-         * The regular expression to find a problem in the console output of an
-         * executed task.
-         */
+        * The regular expression to find a problem in the console output of an
+        * executed task.
+        */
         regexp: string;
     }
     namespace NamedCheckedProblemPattern {
@@ -230,42 +230,42 @@ export declare namespace Config {
     }
     type NamedProblemPatterns = (Config.INamedProblemPattern | Config.INamedMultiLineCheckedProblemPattern)[];
     /**
-     * A watching pattern
-     */
+    * A watching pattern
+    */
     interface IWatchingPattern {
         /**
-         * The actual regular expression
-         */
+        * The actual regular expression
+        */
         regexp?: string;
         /**
-         * The match group index of the filename. If provided the expression
-         * is matched for that file only.
-         */
+        * The match group index of the filename. If provided the expression
+        * is matched for that file only.
+        */
         file?: number;
     }
     /**
-     * A description to track the start and end of a watching task.
-     */
+    * A description to track the start and end of a watching task.
+    */
     interface IBackgroundMonitor {
         /**
-         * If set to true the watcher is in active mode when the task
-         * starts. This is equals of issuing a line that matches the
-         * beginsPattern.
-         */
+        * If set to true the watcher is in active mode when the task
+        * starts. This is equals of issuing a line that matches the
+        * beginsPattern.
+        */
         activeOnStart?: boolean;
         /**
-         * If matched in the output the start of a watching task is signaled.
-         */
+        * If matched in the output the start of a watching task is signaled.
+        */
         beginsPattern?: string | IWatchingPattern;
         /**
-         * If matched in the output the end of a watching task is signaled.
-         */
+        * If matched in the output the end of a watching task is signaled.
+        */
         endsPattern?: string | IWatchingPattern;
     }
     /**
-     * A description of a problem matcher that detects problems
-     * in build output.
-     */
+    * A description of a problem matcher that detects problems
+    * in build output.
+    */
     interface ProblemMatcher {
         /**
          * The name of a base problem matcher to use. If specified the
@@ -287,64 +287,64 @@ export declare namespace Config {
          */
         source?: string;
         /**
-         * Specifies to which kind of documents the problems found by this
-         * matcher are applied. Valid values are:
-         *
-         *   "allDocuments": problems found in all documents are applied.
-         *   "openDocuments": problems found in documents that are open
-         *   are applied.
-         *   "closedDocuments": problems found in closed documents are
-         *   applied.
-         */
+        * Specifies to which kind of documents the problems found by this
+        * matcher are applied. Valid values are:
+        *
+        *   "allDocuments": problems found in all documents are applied.
+        *   "openDocuments": problems found in documents that are open
+        *   are applied.
+        *   "closedDocuments": problems found in closed documents are
+        *   applied.
+        */
         applyTo?: string;
         /**
-         * The severity of the VSCode problem produced by this problem matcher.
-         *
-         * Valid values are:
-         *   "error": to produce errors.
-         *   "warning": to produce warnings.
-         *   "info": to produce infos.
-         *
-         * The value is used if a pattern doesn't specify a severity match group.
-         * Defaults to "error" if omitted.
-         */
+        * The severity of the VSCode problem produced by this problem matcher.
+        *
+        * Valid values are:
+        *   "error": to produce errors.
+        *   "warning": to produce warnings.
+        *   "info": to produce infos.
+        *
+        * The value is used if a pattern doesn't specify a severity match group.
+        * Defaults to "error" if omitted.
+        */
         severity?: string;
         /**
-         * Defines how filename reported in a problem pattern
-         * should be read. Valid values are:
-         *  - "absolute": the filename is always treated absolute.
-         *  - "relative": the filename is always treated relative to
-         *    the current working directory. This is the default.
-         *  - ["relative", "path value"]: the filename is always
-         *    treated relative to the given path value.
-         *  - "autodetect": the filename is treated relative to
-         *    the current workspace directory, and if the file
-         *    does not exist, it is treated as absolute.
-         *  - ["autodetect", "path value"]: the filename is treated
-         *    relative to the given path value, and if it does not
-         *    exist, it is treated as absolute.
-         *  - ["search", { include?: "" | []; exclude?: "" | [] }]: The filename
-         *    needs to be searched under the directories named by the "include"
-         *    property and their nested subdirectories. With "exclude" property
-         *    present, the directories should be removed from the search. When
-         *    `include` is not unprovided, the current workspace directory should
-         *    be used as the default.
-         */
-        fileLocation?: string | string[] | ["search", SearchFileLocationArgs];
+        * Defines how filename reported in a problem pattern
+        * should be read. Valid values are:
+        *  - "absolute": the filename is always treated absolute.
+        *  - "relative": the filename is always treated relative to
+        *    the current working directory. This is the default.
+        *  - ["relative", "path value"]: the filename is always
+        *    treated relative to the given path value.
+        *  - "autodetect": the filename is treated relative to
+        *    the current workspace directory, and if the file
+        *    does not exist, it is treated as absolute.
+        *  - ["autodetect", "path value"]: the filename is treated
+        *    relative to the given path value, and if it does not
+        *    exist, it is treated as absolute.
+        *  - ["search", { include?: "" | []; exclude?: "" | [] }]: The filename
+        *    needs to be searched under the directories named by the "include"
+        *    property and their nested subdirectories. With "exclude" property
+        *    present, the directories should be removed from the search. When
+        *    `include` is not unprovided, the current workspace directory should
+        *    be used as the default.
+        */
+        fileLocation?: string | string[] | ['search', SearchFileLocationArgs];
         /**
-         * The name of a predefined problem pattern, the inline definition
-         * of a problem pattern or an array of problem patterns to match
-         * problems spread over multiple lines.
-         */
+        * The name of a predefined problem pattern, the inline definition
+        * of a problem pattern or an array of problem patterns to match
+        * problems spread over multiple lines.
+        */
         pattern?: string | IProblemPattern | IProblemPattern[];
         /**
-         * A regular expression signaling that a watched tasks begins executing
-         * triggered through file watching.
-         */
+        * A regular expression signaling that a watched tasks begins executing
+        * triggered through file watching.
+        */
         watchedTaskBeginsRegExp?: string;
         /**
-         * A regular expression signaling that a watched tasks ends executing.
-         */
+        * A regular expression signaling that a watched tasks ends executing.
+        */
         watchedTaskEndsRegExp?: string;
         /**
          * @deprecated Use background instead.
@@ -359,9 +359,9 @@ export declare namespace Config {
     type ProblemMatcherType = string | ProblemMatcher | Array<string | ProblemMatcher>;
     interface INamedProblemMatcher extends ProblemMatcher {
         /**
-         * This name can be used to refer to the
-         * problem matcher from within a task.
-         */
+        * This name can be used to refer to the
+        * problem matcher from within a task.
+        */
         name: string;
         /**
          * A human readable label.

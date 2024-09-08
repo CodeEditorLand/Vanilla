@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
-import type { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IAccessibilitySignalService } from '../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { IWorkingCopyService } from '../../../services/workingCopy/common/workingCopyService.js';
 export declare class SaveAccessibilitySignalContribution extends Disposable implements IWorkbenchContribution {
     private readonly _accessibilitySignalService;
     private readonly _workingCopyService;

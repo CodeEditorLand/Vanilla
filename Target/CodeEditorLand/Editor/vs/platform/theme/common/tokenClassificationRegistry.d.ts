@@ -1,7 +1,7 @@
-import { Color } from "../../../base/common/color.js";
-import { type Event } from "../../../base/common/event.js";
-import type { IJSONSchema } from "../../../base/common/jsonSchema.js";
-import type { IColorTheme } from "./themeService.js";
+import { Color } from '../../../base/common/color.js';
+import { Event } from '../../../base/common/event.js';
+import { IJSONSchema } from '../../../base/common/jsonSchema.js';
+import { IColorTheme } from './themeService.js';
 type TokenClassificationString = string;
 export declare const typeAndModifierIdPattern = "^\\w+[-_\\w+]*$";
 export interface TokenSelector {

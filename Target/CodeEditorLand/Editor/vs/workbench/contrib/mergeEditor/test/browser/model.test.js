@@ -1,229 +1,72 @@
-import assert from "assert";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../../base/common/lifecycle.js";
-import {
-  transaction
-} from "../../../../../base/common/observable.js";
-import { isDefined } from "../../../../../base/common/types.js";
-import { linesDiffComputers } from "../../../../../editor/common/diff/linesDiffComputers.js";
-import {
-  EndOfLinePreference
-} from "../../../../../editor/common/model.js";
-import {
-  createModelServices,
-  createTextModel
-} from "../../../../../editor/test/common/testTextModel.js";
-import { NullTelemetryService } from "../../../../../platform/telemetry/common/telemetryUtils.js";
-import {
-  toLineRange,
-  toRangeMapping
-} from "../../browser/model/diffComputer.js";
-import { DetailedLineRangeMapping } from "../../browser/model/mapping.js";
-import { MergeEditorModel } from "../../browser/model/mergeEditorModel.js";
-import { MergeEditorTelemetry } from "../../browser/telemetry.js";
-suite("merge editor model", () => {
-  test("prepend line", async () => {
-    await testMergeModel(
-      {
-        languageId: "plaintext",
-        base: "line1\nline2",
-        input1: "0\nline1\nline2",
-        input2: "0\nline1\nline2",
-        result: ""
-      },
-      (model) => {
-        assert.deepStrictEqual(model.getProjections(), {
-          base: ["\u27E6\u27E7\u2080line1", "line2"],
-          input1: ["\u27E60", "\u27E7\u2080line1", "line2"],
-          input2: ["\u27E60", "\u27E7\u2080line1", "line2"],
-          result: ["\u27E6\u27E7{unrecognized}\u2080"]
-        });
-        model.toggleConflict(0, 1);
-        assert.deepStrictEqual(
-          { result: model.getResult() },
-          { result: "0\nline1\nline2" }
-        );
-        model.toggleConflict(0, 2);
-        assert.deepStrictEqual(
-          { result: model.getResult() },
-          { result: "0\n0\nline1\nline2" }
-        );
-      }
-    );
-  });
-  test("empty base", async () => {
-    await testMergeModel(
-      {
-        languageId: "plaintext",
-        base: "",
-        input1: "input1",
-        input2: "input2",
-        result: ""
-      },
-      (model) => {
-        assert.deepStrictEqual(model.getProjections(), {
-          base: ["\u27E6\u27E7\u2080"],
-          input1: ["\u27E6input1\u27E7\u2080"],
-          input2: ["\u27E6input2\u27E7\u2080"],
-          result: ["\u27E6\u27E7{base}\u2080"]
-        });
-        model.toggleConflict(0, 1);
-        assert.deepStrictEqual(
-          { result: model.getResult() },
-          { result: "input1" }
-        );
-        model.toggleConflict(0, 2);
-        assert.deepStrictEqual(
-          { result: model.getResult() },
-          { result: "input2" }
-        );
-      }
-    );
-  });
-  test("can merge word changes", async () => {
-    await testMergeModel(
-      {
-        languageId: "plaintext",
-        base: "hello",
-        input1: "hallo",
-        input2: "helloworld",
-        result: ""
-      },
-      (model) => {
-        assert.deepStrictEqual(model.getProjections(), {
-          base: ["\u27E6hello\u27E7\u2080"],
-          input1: ["\u27E6hallo\u27E7\u2080"],
-          input2: ["\u27E6helloworld\u27E7\u2080"],
-          result: ["\u27E6\u27E7{unrecognized}\u2080"]
-        });
-        model.toggleConflict(0, 1);
-        model.toggleConflict(0, 2);
-        assert.deepStrictEqual(
-          { result: model.getResult() },
-          { result: "halloworld" }
-        );
-      }
-    );
-  });
-  test("can combine insertions at end of document", async () => {
-    await testMergeModel(
-      {
-        languageId: "plaintext",
-        base: "Z\xFCrich\nBern\nBasel\nChur\nGenf\nThun",
-        input1: "Z\xFCrich\nBern\nChur\nDavos\nGenf\nThun\nfunction f(b:boolean) {}",
-        input2: "Z\xFCrich\nBern\nBasel (FCB)\nChur\nGenf\nThun\nfunction f(a:number) {}",
-        result: "Z\xFCrich\nBern\nBasel\nChur\nDavos\nGenf\nThun"
-      },
-      (model) => {
-        assert.deepStrictEqual(model.getProjections(), {
-          base: [
-            "Z\xFCrich",
-            "Bern",
-            "\u27E6Basel",
-            "\u27E7\u2080Chur",
-            "\u27E6\u27E7\u2081Genf",
-            "Thun\u27E6\u27E7\u2082"
-          ],
-          input1: [
-            "Z\xFCrich",
-            "Bern",
-            "\u27E6\u27E7\u2080Chur",
-            "\u27E6Davos",
-            "\u27E7\u2081Genf",
-            "Thun",
-            "\u27E6function f(b:boolean) {}\u27E7\u2082"
-          ],
-          input2: [
-            "Z\xFCrich",
-            "Bern",
-            "\u27E6Basel (FCB)",
-            "\u27E7\u2080Chur",
-            "\u27E6\u27E7\u2081Genf",
-            "Thun",
-            "\u27E6function f(a:number) {}\u27E7\u2082"
-          ],
-          result: [
-            "Z\xFCrich",
-            "Bern",
-            "\u27E6Basel",
-            "\u27E7{base}\u2080Chur",
-            "\u27E6Davos",
-            "\u27E7{1\u2713}\u2081Genf",
-            "Thun\u27E6\u27E7{base}\u2082"
-          ]
-        });
-        model.toggleConflict(2, 1);
-        model.toggleConflict(2, 2);
-        assert.deepStrictEqual(
-          { result: model.getResult() },
-          {
-            result: "Z\xFCrich\nBern\nBasel\nChur\nDavos\nGenf\nThun\nfunction f(b:boolean) {}\nfunction f(a:number) {}"
-          }
-        );
-      }
-    );
-  });
-  test("conflicts are reset", async () => {
-    await testMergeModel(
-      {
-        languageId: "typescript",
-        base: "import { h } from '../../../../../../vs/base/browser/dom.js';\nimport { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';\nimport { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';\nimport { EditorOption } from '../../../../../../vs/editor/common/config/editorOptions.js';\nimport { autorun, IReader, observableFromEvent, ObservableValue } from 'vs/workbench/contrib/audioCues/browser/observable';\nimport { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';\n",
-        input1: "import { h } from '../../../../../../vs/base/browser/dom.js';\nimport { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';\nimport { observableSignalFromEvent } from '../../../../../../vs/base/common/observable.js';\nimport { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';\nimport { autorun, IReader, observableFromEvent } from 'vs/workbench/contrib/audioCues/browser/observable';\nimport { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';\n",
-        input2: "import { h } from '../../../../../../vs/base/browser/dom.js';\nimport { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';\nimport { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';\nimport { autorun, IReader, observableFromEvent, ObservableValue } from 'vs/workbench/contrib/audioCues/browser/observable';\nimport { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';\n",
-        result: "import { h } from '../../../../../../vs/base/browser/dom.js';\r\nimport { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';\r\nimport { observableSignalFromEvent } from '../../../../../../vs/base/common/observable.js';\r\nimport { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';\r\n<<<<<<< Updated upstream\r\nimport { autorun, IReader, observableFromEvent, ObservableValue } from 'vs/workbench/contrib/audioCues/browser/observable';\r\n=======\r\nimport { autorun, IReader, observableFromEvent } from 'vs/workbench/contrib/audioCues/browser/observable';\r\n>>>>>>> Stashed changes\r\nimport { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';\r\n"
-      },
-      (model) => {
-        assert.deepStrictEqual(model.getProjections(), {
-          base: [
-            "import { h } from '../../../../../../vs/base/browser/dom.js';",
-            "import { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';",
-            "\u27E6\u27E7\u2080import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';",
-            "\u27E6import { EditorOption } from '../../../../../../vs/editor/common/config/editorOptions.js';",
-            "import { autorun, IReader, observableFromEvent, ObservableValue } from 'vs/workbench/contrib/audioCues/browser/observable';",
-            "\u27E7\u2081import { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';",
-            ""
-          ],
-          input1: [
-            "import { h } from '../../../../../../vs/base/browser/dom.js';",
-            "import { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';",
-            "\u27E6import { observableSignalFromEvent } from '../../../../../../vs/base/common/observable.js';",
-            "\u27E7\u2080import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';",
-            "\u27E6import { autorun, IReader, observableFromEvent } from 'vs/workbench/contrib/audioCues/browser/observable';",
-            "\u27E7\u2081import { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';",
-            ""
-          ],
-          input2: [
-            "import { h } from '../../../../../../vs/base/browser/dom.js';",
-            "import { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';",
-            "\u27E6\u27E7\u2080import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';",
-            "\u27E6import { autorun, IReader, observableFromEvent, ObservableValue } from 'vs/workbench/contrib/audioCues/browser/observable';",
-            "\u27E7\u2081import { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';",
-            ""
-          ],
-          result: [
-            "import { h } from '../../../../../../vs/base/browser/dom.js';",
-            "import { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';",
-            "\u27E6import { observableSignalFromEvent } from '../../../../../../vs/base/common/observable.js';",
-            "\u27E7{1\u2713}\u2080import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';",
-            "\u27E6<<<<<<< Updated upstream",
-            "import { autorun, IReader, observableFromEvent, ObservableValue } from 'vs/workbench/contrib/audioCues/browser/observable';",
-            "=======",
-            "import { autorun, IReader, observableFromEvent } from 'vs/workbench/contrib/audioCues/browser/observable';",
-            ">>>>>>> Stashed changes",
-            "\u27E7{unrecognized}\u2081import { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';",
-            ""
-          ]
-        });
-      }
-    );
-  });
-  test("auto-solve equal edits", async () => {
-    await testMergeModel(
-      {
-        languageId: "javascript",
-        base: `const { readFileSync } = require('fs');
+import i from"assert";import{Disposable as C,DisposableStore as R}from"../../../../../base/common/lifecycle.js";import{transaction as L}from"../../../../../base/common/observable.js";import{isDefined as M}from"../../../../../base/common/types.js";import"../../../../../editor/common/core/range.js";import{linesDiffComputers as I}from"../../../../../editor/common/diff/linesDiffComputers.js";import{EndOfLinePreference as m}from"../../../../../editor/common/model.js";import{createModelServices as E,createTextModel as a}from"../../../../../editor/test/common/testTextModel.js";import"../../../../../platform/instantiation/common/instantiation.js";import{NullTelemetryService as S}from"../../../../../platform/telemetry/common/telemetryUtils.js";import{toLineRange as v,toRangeMapping as y}from"../../browser/model/diffComputer.js";import{DetailedLineRangeMapping as D}from"../../browser/model/mapping.js";import{MergeEditorModel as T}from"../../browser/model/mergeEditorModel.js";import{MergeEditorTelemetry as F}from"../../browser/telemetry.js";suite("merge editor model",()=>{test("prepend line",async()=>{await g({languageId:"plaintext",base:`line1
+line2`,input1:`0
+line1
+line2`,input2:`0
+line1
+line2`,result:""},e=>{i.deepStrictEqual(e.getProjections(),{base:["\u27E6\u27E7\u2080line1","line2"],input1:["\u27E60","\u27E7\u2080line1","line2"],input2:["\u27E60","\u27E7\u2080line1","line2"],result:["\u27E6\u27E7{unrecognized}\u2080"]}),e.toggleConflict(0,1),i.deepStrictEqual({result:e.getResult()},{result:`0
+line1
+line2`}),e.toggleConflict(0,2),i.deepStrictEqual({result:e.getResult()},{result:`0
+0
+line1
+line2`})})}),test("empty base",async()=>{await g({languageId:"plaintext",base:"",input1:"input1",input2:"input2",result:""},e=>{i.deepStrictEqual(e.getProjections(),{base:["\u27E6\u27E7\u2080"],input1:["\u27E6input1\u27E7\u2080"],input2:["\u27E6input2\u27E7\u2080"],result:["\u27E6\u27E7{base}\u2080"]}),e.toggleConflict(0,1),i.deepStrictEqual({result:e.getResult()},{result:"input1"}),e.toggleConflict(0,2),i.deepStrictEqual({result:e.getResult()},{result:"input2"})})}),test("can merge word changes",async()=>{await g({languageId:"plaintext",base:"hello",input1:"hallo",input2:"helloworld",result:""},e=>{i.deepStrictEqual(e.getProjections(),{base:["\u27E6hello\u27E7\u2080"],input1:["\u27E6hallo\u27E7\u2080"],input2:["\u27E6helloworld\u27E7\u2080"],result:["\u27E6\u27E7{unrecognized}\u2080"]}),e.toggleConflict(0,1),e.toggleConflict(0,2),i.deepStrictEqual({result:e.getResult()},{result:"halloworld"})})}),test("can combine insertions at end of document",async()=>{await g({languageId:"plaintext",base:`Z\xFCrich
+Bern
+Basel
+Chur
+Genf
+Thun`,input1:`Z\xFCrich
+Bern
+Chur
+Davos
+Genf
+Thun
+function f(b:boolean) {}`,input2:`Z\xFCrich
+Bern
+Basel (FCB)
+Chur
+Genf
+Thun
+function f(a:number) {}`,result:`Z\xFCrich
+Bern
+Basel
+Chur
+Davos
+Genf
+Thun`},e=>{i.deepStrictEqual(e.getProjections(),{base:["Z\xFCrich","Bern","\u27E6Basel","\u27E7\u2080Chur","\u27E6\u27E7\u2081Genf","Thun\u27E6\u27E7\u2082"],input1:["Z\xFCrich","Bern","\u27E6\u27E7\u2080Chur","\u27E6Davos","\u27E7\u2081Genf","Thun","\u27E6function f(b:boolean) {}\u27E7\u2082"],input2:["Z\xFCrich","Bern","\u27E6Basel (FCB)","\u27E7\u2080Chur","\u27E6\u27E7\u2081Genf","Thun","\u27E6function f(a:number) {}\u27E7\u2082"],result:["Z\xFCrich","Bern","\u27E6Basel","\u27E7{base}\u2080Chur","\u27E6Davos","\u27E7{1\u2713}\u2081Genf","Thun\u27E6\u27E7{base}\u2082"]}),e.toggleConflict(2,1),e.toggleConflict(2,2),i.deepStrictEqual({result:e.getResult()},{result:`Z\xFCrich
+Bern
+Basel
+Chur
+Davos
+Genf
+Thun
+function f(b:boolean) {}
+function f(a:number) {}`})})}),test("conflicts are reset",async()=>{await g({languageId:"typescript",base:`import { h } from '../../../../../../vs/base/browser/dom.js';
+import { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';
+import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';
+import { EditorOption } from '../../../../../../vs/editor/common/config/editorOptions.js';
+import { autorun, IReader, observableFromEvent, ObservableValue } from 'vs/workbench/contrib/audioCues/browser/observable';
+import { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';
+`,input1:`import { h } from '../../../../../../vs/base/browser/dom.js';
+import { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';
+import { observableSignalFromEvent } from '../../../../../../vs/base/common/observable.js';
+import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';
+import { autorun, IReader, observableFromEvent } from 'vs/workbench/contrib/audioCues/browser/observable';
+import { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';
+`,input2:`import { h } from '../../../../../../vs/base/browser/dom.js';
+import { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';
+import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';
+import { autorun, IReader, observableFromEvent, ObservableValue } from 'vs/workbench/contrib/audioCues/browser/observable';
+import { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';
+`,result:`import { h } from '../../../../../../vs/base/browser/dom.js';\r
+import { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';\r
+import { observableSignalFromEvent } from '../../../../../../vs/base/common/observable.js';\r
+import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';\r
+<<<<<<< Updated upstream\r
+import { autorun, IReader, observableFromEvent, ObservableValue } from 'vs/workbench/contrib/audioCues/browser/observable';\r
+=======\r
+import { autorun, IReader, observableFromEvent } from 'vs/workbench/contrib/audioCues/browser/observable';\r
+>>>>>>> Stashed changes\r
+import { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';\r
+`},e=>{i.deepStrictEqual(e.getProjections(),{base:["import { h } from '../../../../../../vs/base/browser/dom.js';","import { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';","\u27E6\u27E7\u2080import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';","\u27E6import { EditorOption } from '../../../../../../vs/editor/common/config/editorOptions.js';","import { autorun, IReader, observableFromEvent, ObservableValue } from 'vs/workbench/contrib/audioCues/browser/observable';","\u27E7\u2081import { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';",""],input1:["import { h } from '../../../../../../vs/base/browser/dom.js';","import { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';","\u27E6import { observableSignalFromEvent } from '../../../../../../vs/base/common/observable.js';","\u27E7\u2080import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';","\u27E6import { autorun, IReader, observableFromEvent } from 'vs/workbench/contrib/audioCues/browser/observable';","\u27E7\u2081import { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';",""],input2:["import { h } from '../../../../../../vs/base/browser/dom.js';","import { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';","\u27E6\u27E7\u2080import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';","\u27E6import { autorun, IReader, observableFromEvent, ObservableValue } from 'vs/workbench/contrib/audioCues/browser/observable';","\u27E7\u2081import { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';",""],result:["import { h } from '../../../../../../vs/base/browser/dom.js';","import { Disposable, IDisposable } from '../../../../../../vs/base/common/lifecycle.js';","\u27E6import { observableSignalFromEvent } from '../../../../../../vs/base/common/observable.js';","\u27E7{1\u2713}\u2080import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';","\u27E6<<<<<<< Updated upstream","import { autorun, IReader, observableFromEvent, ObservableValue } from 'vs/workbench/contrib/audioCues/browser/observable';","=======","import { autorun, IReader, observableFromEvent } from 'vs/workbench/contrib/audioCues/browser/observable';",">>>>>>> Stashed changes","\u27E7{unrecognized}\u2081import { LineRange } from '../../../../../../vs/workbench/contrib/mergeEditor/browser/model/lineRange.js';",""]})})}),test("auto-solve equal edits",async()=>{await g({languageId:"javascript",base:`const { readFileSync } = require('fs');
 
 let paths = process.argv.slice(2);
 main(paths);
@@ -260,8 +103,7 @@ function getLineCountInfo(paths) {
 function getLinesLength(str) {
     return str.split('\\n').length;
 }
-`,
-        input1: `const { readFileSync } = require('fs');
+`,input1:`const { readFileSync } = require('fs');
 
 let paths = process.argv.slice(2);
 main(paths);
@@ -295,8 +137,7 @@ function getLineCountInfo(paths) {
 function getLinesLength(str) {
     return str.split('\\n').length;
 }
-`,
-        input2: `const { readFileSync } = require('fs');
+`,input2:`const { readFileSync } = require('fs');
 
 let paths = process.argv.slice(2);
 run(paths);
@@ -330,15 +171,8 @@ function getLineCountInfo(paths) {
 function getLinesLength(str) {
     return str.split('\\n').length;
 }
-`,
-        result: "<<<<<<< uiae\n>>>>>>> Stashed changes",
-        resetResult: true
-      },
-      async (model) => {
-        await model.mergeModel.reset();
-        assert.deepStrictEqual(
-          model.getResult(),
-          `const { readFileSync } = require('fs');
+`,result:`<<<<<<< uiae
+>>>>>>> Stashed changes`,resetResult:!0},async e=>{await e.mergeModel.reset(),i.deepStrictEqual(e.getResult(),`const { readFileSync } = require('fs');
 
 let paths = process.argv.slice(2);
 run(paths);
@@ -372,167 +206,8 @@ function getLineCountInfo(paths) {
 function getLinesLength(str) {
     return str.split('\\n').length;
 }
-`
-        );
-      }
-    );
-  });
-});
-async function testMergeModel(options, fn) {
-  const disposables = new DisposableStore();
-  const modelInterface = disposables.add(
-    new MergeModelInterface(options, createModelServices(disposables))
-  );
-  await modelInterface.mergeModel.onInitialized;
-  await fn(modelInterface);
-  disposables.dispose();
-}
-function toSmallNumbersDec(value) {
-  const smallNumbers = ["\u2080", "\u2081", "\u2082", "\u2083", "\u2084", "\u2085", "\u2086", "\u2087", "\u2088", "\u2089"];
-  return value.toString().split("").map((c) => smallNumbers[Number.parseInt(c)]).join("");
-}
-class MergeModelInterface extends Disposable {
-  mergeModel;
-  constructor(options, instantiationService) {
-    super();
-    const input1TextModel = this._register(
-      createTextModel(options.input1, options.languageId)
-    );
-    const input2TextModel = this._register(
-      createTextModel(options.input2, options.languageId)
-    );
-    const baseTextModel = this._register(
-      createTextModel(options.base, options.languageId)
-    );
-    const resultTextModel = this._register(
-      createTextModel(options.result, options.languageId)
-    );
-    const diffComputer = {
-      async computeDiff(textModel1, textModel2, reader) {
-        const result = await linesDiffComputers.getLegacy().computeDiff(
-          textModel1.getLinesContent(),
-          textModel2.getLinesContent(),
-          {
-            ignoreTrimWhitespace: false,
-            maxComputationTimeMs: 1e4,
-            computeMoves: false
-          }
-        );
-        const changes = result.changes.map(
-          (c) => new DetailedLineRangeMapping(
-            toLineRange(c.original),
-            textModel1,
-            toLineRange(c.modified),
-            textModel2,
-            c.innerChanges?.map((ic) => toRangeMapping(ic)).filter(isDefined)
-          )
-        );
-        return {
-          diffs: changes
-        };
-      }
-    };
-    this.mergeModel = this._register(
-      instantiationService.createInstance(
-        MergeEditorModel,
-        baseTextModel,
-        {
-          textModel: input1TextModel,
-          description: "",
-          detail: "",
-          title: ""
-        },
-        {
-          textModel: input2TextModel,
-          description: "",
-          detail: "",
-          title: ""
-        },
-        resultTextModel,
-        diffComputer,
-        {
-          resetResult: options.resetResult || false
-        },
-        new MergeEditorTelemetry(NullTelemetryService)
-      )
-    );
-  }
-  getProjections() {
-    function applyRanges(textModel, ranges) {
-      textModel.applyEdits(
-        ranges.map(({ range, label }) => ({
-          range,
-          text: `\u27E6${textModel.getValueInRange(range)}\u27E7${label}`
-        }))
-      );
-    }
-    const baseRanges = this.mergeModel.modifiedBaseRanges.get();
-    const baseTextModel = createTextModel(this.mergeModel.base.getValue());
-    applyRanges(
-      baseTextModel,
-      baseRanges.map((r, idx) => ({
-        range: r.baseRange.toRange(),
-        label: toSmallNumbersDec(idx)
-      }))
-    );
-    const input1TextModel = createTextModel(
-      this.mergeModel.input1.textModel.getValue()
-    );
-    applyRanges(
-      input1TextModel,
-      baseRanges.map((r, idx) => ({
-        range: r.input1Range.toRange(),
-        label: toSmallNumbersDec(idx)
-      }))
-    );
-    const input2TextModel = createTextModel(
-      this.mergeModel.input2.textModel.getValue()
-    );
-    applyRanges(
-      input2TextModel,
-      baseRanges.map((r, idx) => ({
-        range: r.input2Range.toRange(),
-        label: toSmallNumbersDec(idx)
-      }))
-    );
-    const resultTextModel = createTextModel(
-      this.mergeModel.resultTextModel.getValue()
-    );
-    applyRanges(
-      resultTextModel,
-      baseRanges.map((r, idx) => ({
-        range: this.mergeModel.getLineRangeInResult(r.baseRange).toRange(),
-        label: `{${this.mergeModel.getState(r).get()}}${toSmallNumbersDec(idx)}`
-      }))
-    );
-    const result = {
-      base: baseTextModel.getValue(EndOfLinePreference.LF).split("\n"),
-      input1: input1TextModel.getValue(EndOfLinePreference.LF).split("\n"),
-      input2: input2TextModel.getValue(EndOfLinePreference.LF).split("\n"),
-      result: resultTextModel.getValue(EndOfLinePreference.LF).split("\n")
-    };
-    baseTextModel.dispose();
-    input1TextModel.dispose();
-    input2TextModel.dispose();
-    resultTextModel.dispose();
-    return result;
-  }
-  toggleConflict(conflictIdx, inputNumber) {
-    const baseRange = this.mergeModel.modifiedBaseRanges.get()[conflictIdx];
-    if (!baseRange) {
-      throw new Error();
-    }
-    const state = this.mergeModel.getState(baseRange).get();
-    transaction((tx) => {
-      this.mergeModel.setState(
-        baseRange,
-        state.toggle(inputNumber),
-        true,
-        tx
-      );
-    });
-  }
-  getResult() {
-    return this.mergeModel.resultTextModel.getValue();
-  }
-}
+`)})})});async function g(e,n){const t=new R,r=t.add(new x(e,E(t)));await r.mergeModel.onInitialized,await n(r),t.dispose()}function p(e){const n=["\u2080","\u2081","\u2082","\u2083","\u2084","\u2085","\u2086","\u2087","\u2088","\u2089"];return e.toString().split("").map(t=>n[parseInt(t)]).join("")}class x extends C{mergeModel;constructor(n,t){super();const r=this._register(a(n.input1,n.languageId)),l=this._register(a(n.input2,n.languageId)),u=this._register(a(n.base,n.languageId)),c=this._register(a(n.result,n.languageId)),d={async computeDiff(o,s,b){return{diffs:(await I.getLegacy().computeDiff(o.getLinesContent(),s.getLinesContent(),{ignoreTrimWhitespace:!1,maxComputationTimeMs:1e4,computeMoves:!1})).changes.map(f=>new D(v(f.original),o,v(f.modified),s,f.innerChanges?.map(w=>y(w)).filter(M)))}}};this.mergeModel=this._register(t.createInstance(T,u,{textModel:r,description:"",detail:"",title:""},{textModel:l,description:"",detail:"",title:""},c,d,{resetResult:n.resetResult||!1},new F(S)))}getProjections(){function n(o,s){o.applyEdits(s.map(({range:b,label:h})=>({range:b,text:`\u27E6${o.getValueInRange(b)}\u27E7${h}`})))}const t=this.mergeModel.modifiedBaseRanges.get(),r=a(this.mergeModel.base.getValue());n(r,t.map((o,s)=>({range:o.baseRange.toRange(),label:p(s)})));const l=a(this.mergeModel.input1.textModel.getValue());n(l,t.map((o,s)=>({range:o.input1Range.toRange(),label:p(s)})));const u=a(this.mergeModel.input2.textModel.getValue());n(u,t.map((o,s)=>({range:o.input2Range.toRange(),label:p(s)})));const c=a(this.mergeModel.resultTextModel.getValue());n(c,t.map((o,s)=>({range:this.mergeModel.getLineRangeInResult(o.baseRange).toRange(),label:`{${this.mergeModel.getState(o).get()}}${p(s)}`})));const d={base:r.getValue(m.LF).split(`
+`),input1:l.getValue(m.LF).split(`
+`),input2:u.getValue(m.LF).split(`
+`),result:c.getValue(m.LF).split(`
+`)};return r.dispose(),l.dispose(),u.dispose(),c.dispose(),d}toggleConflict(n,t){const r=this.mergeModel.modifiedBaseRanges.get()[n];if(!r)throw new Error;const l=this.mergeModel.getState(r).get();L(u=>{this.mergeModel.setState(r,l.toggle(t),!0,u)})}getResult(){return this.mergeModel.resultTextModel.getValue()}}

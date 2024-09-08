@@ -1,4 +1,4 @@
-import type { IDisposable } from "./lifecycle.js";
+import { IDisposable } from './lifecycle.js';
 export declare function isHotReloadEnabled(): boolean;
 export declare function registerHotReloadHandler(handler: HotReloadHandler): IDisposable;
 /**
@@ -15,6 +15,6 @@ export type HotReloadHandler = (args: {
 export type AcceptNewExportsHandler = (newExports: Record<string, unknown>) => boolean;
 export type IHotReloadConfig = HotReloadConfig;
 interface HotReloadConfig {
-    mode?: "patch-prototype" | undefined;
+    mode?: 'patch-prototype' | undefined;
 }
 export {};

@@ -1,12 +1,1 @@
-import assert from "assert";
-import { KeyCode, ScanCode } from "../../common/keyCodes.js";
-import { KeyCodeChord, ScanCodeChord } from "../../common/keybindings.js";
-import { ensureNoDisposablesAreLeakedInTestSuite } from "./utils.js";
-suite("keyCodes", () => {
-  ensureNoDisposablesAreLeakedInTestSuite();
-  test("issue #173325: wrong interpretations of special keys (e.g. [Equal] is mistaken for V)", () => {
-    const a = new KeyCodeChord(true, false, false, false, KeyCode.KeyV);
-    const b = new ScanCodeChord(true, false, false, false, ScanCode.Equal);
-    assert.strictEqual(a.getHashCode() === b.getHashCode(), false);
-  });
-});
+import o from"assert";import{KeyCode as t,ScanCode as a}from"../../common/keyCodes.js";import{KeyCodeChord as r,ScanCodeChord as i}from"../../common/keybindings.js";import{ensureNoDisposablesAreLeakedInTestSuite as f}from"./utils.js";suite("keyCodes",()=>{f(),test("issue #173325: wrong interpretations of special keys (e.g. [Equal] is mistaken for V)",()=>{const e=new r(!0,!1,!1,!1,t.KeyV),s=new i(!0,!1,!1,!1,a.Equal);o.strictEqual(e.getHashCode()===s.getHashCode(),!1)})});

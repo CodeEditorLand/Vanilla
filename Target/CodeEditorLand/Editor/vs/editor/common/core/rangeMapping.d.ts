@@ -1,5 +1,5 @@
-import type { Position } from "./position.js";
-import { Range } from "./range.js";
+import { Position } from './position.js';
+import { Range } from './range.js';
 /**
  * Represents a list of mappings of ranges from one document to another.
  */

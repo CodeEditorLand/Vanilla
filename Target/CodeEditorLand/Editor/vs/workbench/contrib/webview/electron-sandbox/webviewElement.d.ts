@@ -1,20 +1,20 @@
-import type { VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { ITunnelService } from "../../../../platform/tunnel/common/tunnel.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import type { WebviewThemeDataProvider } from "../browser/themeing.js";
-import type { WebviewInitInfo } from "../browser/webview.js";
-import { WebviewElement } from "../browser/webviewElement.js";
+import { VSBufferReadableStream } from '../../../../base/common/buffer.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IMainProcessService } from '../../../../platform/ipc/common/mainProcessService.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { INativeHostService } from '../../../../platform/native/common/native.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IRemoteAuthorityResolverService } from '../../../../platform/remote/common/remoteAuthorityResolver.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { ITunnelService } from '../../../../platform/tunnel/common/tunnel.js';
+import { WebviewThemeDataProvider } from '../browser/themeing.js';
+import { WebviewInitInfo } from '../browser/webview.js';
+import { WebviewElement } from '../browser/webviewElement.js';
+import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
 /**
  * Webview backed by an iframe but that uses Electron APIs to power the webview.
  */

@@ -1,9 +1,9 @@
-import { Emitter } from "../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import { type ILogService } from "../../log/common/log.js";
-import type { IFileChange, IFileSystemProvider, IWatchOptions } from "./files.js";
-import { type AbstractNonRecursiveWatcherClient, type AbstractUniversalWatcherClient, type ILogMessage, type IRecursiveWatcherOptions } from "./watcher.js";
+import { Emitter } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IFileChange, IFileSystemProvider, IWatchOptions } from './files.js';
+import { AbstractNonRecursiveWatcherClient, AbstractUniversalWatcherClient, ILogMessage, IRecursiveWatcherOptions } from './watcher.js';
+import { ILogService } from '../../log/common/log.js';
 export interface IDiskFileSystemProviderOptions {
     watcher?: {
         /**
@@ -23,7 +23,7 @@ export interface IDiskFileSystemProviderOptions {
         forceUniversal?: boolean;
     };
 }
-export declare abstract class AbstractDiskFileSystemProvider extends Disposable implements Pick<IFileSystemProvider, "watch">, Pick<IFileSystemProvider, "onDidChangeFile">, Pick<IFileSystemProvider, "onDidWatchError"> {
+export declare abstract class AbstractDiskFileSystemProvider extends Disposable implements Pick<IFileSystemProvider, 'watch'>, Pick<IFileSystemProvider, 'onDidChangeFile'>, Pick<IFileSystemProvider, 'onDidWatchError'> {
     protected readonly logService: ILogService;
     private readonly options?;
     constructor(logService: ILogService, options?: IDiskFileSystemProviderOptions | undefined);

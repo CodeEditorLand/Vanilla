@@ -1,6 +1,6 @@
-import { URI } from "../../../../base/common/uri.js";
-import { FileSystemProviderCapabilities, type IFileAtomicReadOptions, type IStat } from "../../common/files.js";
-import { DiskFileSystemProvider } from "../../node/diskFileSystemProvider.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IFileAtomicReadOptions, FileSystemProviderCapabilities, IStat } from '../../common/files.js';
+import { DiskFileSystemProvider } from '../../node/diskFileSystemProvider.js';
 export declare class TestDiskFileSystemProvider extends DiskFileSystemProvider {
     totalBytesRead: number;
     private invalidStatSize;

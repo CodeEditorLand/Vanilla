@@ -1,4 +1,4 @@
-import type { ThemeIcon } from "./themables.js";
+import { ThemeIcon } from './themables.js';
 /**
  * Only to be used by the iconRegistry.
  */

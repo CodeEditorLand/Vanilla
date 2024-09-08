@@ -1,4 +1,4 @@
-export type PerfName = "startTime" | "extensionActivated" | "inputLoaded" | "webviewCommLoaded" | "customMarkdownLoaded" | "editorLoaded";
+export type PerfName = 'startTime' | 'extensionActivated' | 'inputLoaded' | 'webviewCommLoaded' | 'customMarkdownLoaded' | 'editorLoaded';
 type PerformanceMark = {
     [key in PerfName]?: number;
 };

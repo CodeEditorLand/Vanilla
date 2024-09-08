@@ -1,6 +1,6 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { ILogMessage, IUniversalWatchRequest, IUniversalWatcher } from "../../common/watcher.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ILogMessage, IUniversalWatcher, IUniversalWatchRequest } from '../../common/watcher.js';
+import { Event } from '../../../../base/common/event.js';
 export declare class UniversalWatcher extends Disposable implements IUniversalWatcher {
     private readonly recursiveWatcher;
     private readonly nonRecursiveWatcher;

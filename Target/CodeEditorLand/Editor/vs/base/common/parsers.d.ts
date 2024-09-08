@@ -1,4 +1,4 @@
-export declare enum ValidationState {
+export declare const enum ValidationState {
     OK = 0,
     Info = 1,
     Warning = 2,

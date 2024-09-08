@@ -1,5 +1,5 @@
-import { IUserDataSyncEnablementService, SyncResource } from "../../../../platform/userDataSync/common/userDataSync.js";
-import { UserDataSyncEnablementService } from "./userDataSyncEnablementService.js";
+import { IUserDataSyncEnablementService, SyncResource } from '../../../../platform/userDataSync/common/userDataSync.js';
+import { UserDataSyncEnablementService } from './userDataSyncEnablementService.js';
 export declare class WebUserDataSyncEnablementService extends UserDataSyncEnablementService implements IUserDataSyncEnablementService {
     private enabled;
     canToggleEnablement(): boolean;

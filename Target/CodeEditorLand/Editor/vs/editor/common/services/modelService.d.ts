@@ -1,14 +1,14 @@
-import { type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import { IUndoRedoService } from "../../../platform/undoRedo/common/undoRedo.js";
-import { type ISingleEditOperation } from "../core/editOperation.js";
-import type { ILanguageSelection } from "../languages/language.js";
-import { type ITextBuffer, type ITextBufferFactory, type ITextModel, type ITextModelCreationOptions } from "../model.js";
-import type { IModelService } from "./model.js";
-import { ITextResourcePropertiesService } from "./textResourceConfiguration.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { ISingleEditOperation } from '../core/editOperation.js';
+import { ITextBuffer, ITextBufferFactory, ITextModel, ITextModelCreationOptions } from '../model.js';
+import { ILanguageSelection } from '../languages/language.js';
+import { IModelService } from './model.js';
+import { ITextResourcePropertiesService } from './textResourceConfiguration.js';
+import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
+import { IUndoRedoService } from '../../../platform/undoRedo/common/undoRedo.js';
+import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
 export declare class ModelService extends Disposable implements IModelService {
     private readonly _configurationService;
     private readonly _resourcePropertiesService;

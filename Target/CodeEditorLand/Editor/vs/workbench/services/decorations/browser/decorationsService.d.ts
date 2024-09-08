@@ -1,9 +1,9 @@
-import { type Event } from "../../../../base/common/event.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IDecorationsService, type IDecoration, type IDecorationsProvider, type IResourceDecorationChangeEvent } from "../common/decorations.js";
+import { URI } from '../../../../base/common/uri.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDecorationsService, IDecoration, IResourceDecorationChangeEvent, IDecorationsProvider } from '../common/decorations.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
 export declare class DecorationsService implements IDecorationsService {
     _serviceBrand: undefined;
     private readonly _store;

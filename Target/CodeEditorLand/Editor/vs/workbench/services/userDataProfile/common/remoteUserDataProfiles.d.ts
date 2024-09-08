@@ -1,4 +1,4 @@
-import { type IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IUserDataProfile } from '../../../../platform/userDataProfile/common/userDataProfile.js';
 export declare const IRemoteUserDataProfilesService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IRemoteUserDataProfilesService>;
 export interface IRemoteUserDataProfilesService {
     readonly _serviceBrand: undefined;

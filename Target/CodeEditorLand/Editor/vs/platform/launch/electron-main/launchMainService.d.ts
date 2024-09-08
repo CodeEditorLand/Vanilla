@@ -1,9 +1,9 @@
-import { type IProcessEnvironment } from "../../../base/common/platform.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import type { NativeParsedArgs } from "../../environment/common/argv.js";
-import { ILogService } from "../../log/common/log.js";
-import { IURLService } from "../../url/common/url.js";
-import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { IProcessEnvironment } from '../../../base/common/platform.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { NativeParsedArgs } from '../../environment/common/argv.js';
+import { ILogService } from '../../log/common/log.js';
+import { IURLService } from '../../url/common/url.js';
+import { IWindowsMainService } from '../../windows/electron-main/windows.js';
 export declare const ID = "launchMainService";
 export declare const ILaunchMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ILaunchMainService>;
 export interface IStartArguments {

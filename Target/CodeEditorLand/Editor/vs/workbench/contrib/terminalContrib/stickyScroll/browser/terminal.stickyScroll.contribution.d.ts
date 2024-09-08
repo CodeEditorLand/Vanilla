@@ -1,2 +1,2 @@
-import "./media/stickyScroll.css";
-import "./terminalStickyScrollColorRegistry.js";
+import './media/stickyScroll.css';
+import './terminalStickyScrollColorRegistry.js';

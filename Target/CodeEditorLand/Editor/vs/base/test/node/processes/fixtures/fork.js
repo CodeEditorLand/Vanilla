@@ -1,6 +1,1 @@
-import * as processes from "../../../../node/processes.js";
-const sender = processes.createQueuedSender(process);
-process.on("message", (msg) => {
-  sender.send(msg);
-});
-sender.send("ready");
+import*as r from"../../../../node/processes.js";const e=r.createQueuedSender(process);process.on("message",s=>{e.send(s)}),e.send("ready");

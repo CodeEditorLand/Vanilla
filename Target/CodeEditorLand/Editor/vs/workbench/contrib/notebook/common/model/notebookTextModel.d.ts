@@ -1,14 +1,14 @@
-import { type Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../../base/common/uri.js";
-import type { IPosition } from "../../../../../editor/common/core/position.js";
-import { ILanguageService } from "../../../../../editor/common/languages/language.js";
-import type { FindMatch } from "../../../../../editor/common/model.js";
-import { IModelService } from "../../../../../editor/common/services/model.js";
-import { IUndoRedoService, type UndoRedoGroup } from "../../../../../platform/undoRedo/common/undoRedo.js";
-import { ILanguageDetectionService } from "../../../../services/languageDetection/common/languageDetectionWorkerService.js";
-import { type ICellDto2, type ICellEditOperation, type INotebookTextModel, type ISelectionState, type NotebookCellDefaultCollapseConfig, type NotebookDocumentMetadata, type NotebookTextModelChangedEvent, type NotebookTextModelWillAddRemoveEvent, type TransientOptions } from "../notebookCommon.js";
-import { NotebookCellTextModel } from "./notebookCellTextModel.js";
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { NotebookCellTextModel } from './notebookCellTextModel.js';
+import { INotebookTextModel, NotebookDocumentMetadata, ICellEditOperation, ICellDto2, TransientOptions, NotebookTextModelChangedEvent, ISelectionState, NotebookTextModelWillAddRemoveEvent, NotebookCellDefaultCollapseConfig } from '../notebookCommon.js';
+import { IUndoRedoService, UndoRedoGroup } from '../../../../../platform/undoRedo/common/undoRedo.js';
+import { IModelService } from '../../../../../editor/common/services/model.js';
+import { ILanguageService } from '../../../../../editor/common/languages/language.js';
+import { FindMatch } from '../../../../../editor/common/model.js';
+import { ILanguageDetectionService } from '../../../../services/languageDetection/common/languageDetectionWorkerService.js';
+import { IPosition } from '../../../../../editor/common/core/position.js';
 export declare class NotebookTextModel extends Disposable implements INotebookTextModel {
     readonly viewType: string;
     readonly uri: URI;

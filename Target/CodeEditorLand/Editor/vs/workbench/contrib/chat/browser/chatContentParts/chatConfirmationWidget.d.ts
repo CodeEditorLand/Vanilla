@@ -1,7 +1,7 @@
-import "./media/chatConfirmationWidget.css";
-import { type Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import './media/chatConfirmationWidget.css';
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
 export interface IChatConfirmationButton {
     label: string;
     isSecondary?: boolean;

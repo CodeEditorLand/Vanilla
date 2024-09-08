@@ -1,16 +1,16 @@
-import type * as http from "http";
-import * as url from "url";
-import { ICSSDevelopmentService } from "../../platform/cssDev/node/cssDevService.js";
-import { ILogService } from "../../platform/log/common/log.js";
-import { IProductService } from "../../platform/product/common/productService.js";
-import { IRequestService } from "../../platform/request/common/request.js";
-import { type ServerConnectionToken } from "./serverConnectionToken.js";
-import { IServerEnvironmentService } from "./serverEnvironmentService.js";
+import * as http from 'http';
+import * as url from 'url';
+import { ILogService } from '../../platform/log/common/log.js';
+import { IServerEnvironmentService } from './serverEnvironmentService.js';
+import { IProductService } from '../../platform/product/common/productService.js';
+import { ServerConnectionToken } from './serverConnectionToken.js';
+import { IRequestService } from '../../platform/request/common/request.js';
+import { ICSSDevelopmentService } from '../../platform/cssDev/node/cssDevService.js';
 /**
  * Return an error to the client.
  */
 export declare function serveError(req: http.IncomingMessage, res: http.ServerResponse, errorCode: number, errorMessage: string): Promise<void>;
-export declare enum CacheControl {
+export declare const enum CacheControl {
     NO_CACHING = 0,
     ETAG = 1,
     NO_EXPIRY = 2

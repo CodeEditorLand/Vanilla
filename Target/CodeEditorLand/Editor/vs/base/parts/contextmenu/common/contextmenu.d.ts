@@ -1,6 +1,6 @@
 export interface ICommonContextMenuItem {
     label?: string;
-    type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
+    type?: 'normal' | 'separator' | 'submenu' | 'checkbox' | 'radio';
     accelerator?: string;
     enabled?: boolean;
     visible?: boolean;

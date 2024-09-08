@@ -1,5 +1,1 @@
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-const IShareService = createDecorator("shareService");
-export {
-  IShareService
-};
+import"../../../../base/common/cancellation.js";import"../../../../base/common/lifecycle.js";import"../../../../base/common/uri.js";import"../../../../editor/common/core/selection.js";import"../../../../editor/common/languageSelector.js";import"../../../../platform/actions/common/actions.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const h=e("shareService");export{h as IShareService};

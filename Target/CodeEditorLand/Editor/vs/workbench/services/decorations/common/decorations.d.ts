@@ -1,9 +1,9 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { ThemeIcon } from "../../../../base/common/themables.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { ColorIdentifier } from "../../../../platform/theme/common/colorRegistry.js";
+import { URI } from '../../../../base/common/uri.js';
+import { Event } from '../../../../base/common/event.js';
+import { ColorIdentifier } from '../../../../platform/theme/common/colorRegistry.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
 export declare const IDecorationsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IDecorationsService>;
 export interface IDecorationData {
     readonly weight?: number;

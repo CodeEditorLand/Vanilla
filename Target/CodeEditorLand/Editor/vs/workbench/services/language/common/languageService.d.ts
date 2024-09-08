@@ -1,9 +1,9 @@
-import { LanguageService } from "../../../../editor/common/services/languageService.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IExtensionService } from "../../extensions/common/extensions.js";
-import { type IExtensionPoint } from "../../extensions/common/extensionsRegistry.js";
+import { LanguageService } from '../../../../editor/common/services/languageService.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IEnvironmentService } from '../../../../platform/environment/common/environment.js';
+import { IExtensionService } from '../../extensions/common/extensions.js';
+import { IExtensionPoint } from '../../extensions/common/extensionsRegistry.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export interface IRawLanguageExtensionPoint {
     id: string;
     extensions: string[];

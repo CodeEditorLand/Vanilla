@@ -1,8 +1,8 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
-import type { ActionSet } from "../../../../platform/actionWidget/common/actionWidget.js";
-import type { Position } from "../../../common/core/position.js";
-import type * as languages from "../../../common/languages.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { HierarchicalKind } from '../../../../base/common/hierarchicalKind.js';
+import { Position } from '../../../common/core/position.js';
+import * as languages from '../../../common/languages.js';
+import { ActionSet } from '../../../../platform/actionWidget/common/actionWidget.js';
 export declare const CodeActionKind: {
     readonly QuickFix: HierarchicalKind;
     readonly Refactor: HierarchicalKind;
@@ -16,7 +16,7 @@ export declare const CodeActionKind: {
     readonly SourceFixAll: HierarchicalKind;
     readonly SurroundWith: HierarchicalKind;
 };
-export declare enum CodeActionAutoApply {
+export declare const enum CodeActionAutoApply {
     IfSingle = "ifSingle",
     First = "first",
     Never = "never"

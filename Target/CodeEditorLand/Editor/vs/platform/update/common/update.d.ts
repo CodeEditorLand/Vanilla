@@ -1,4 +1,4 @@
-import type { Event } from "../../../base/common/event.js";
+import { Event } from '../../../base/common/event.js';
 export interface IUpdate {
     version: string;
     productVersion?: string;
@@ -23,7 +23,7 @@ export interface IUpdate {
  * Ready: Code will be updated as soon as it restarts (win32, darwin).
  * Downloaded: There is an update ready to be installed in the background (win32).
  */
-export declare enum StateType {
+export declare const enum StateType {
     Uninitialized = "uninitialized",
     Idle = "idle",
     Disabled = "disabled",
@@ -34,12 +34,12 @@ export declare enum StateType {
     Updating = "updating",
     Ready = "ready"
 }
-export declare enum UpdateType {
+export declare const enum UpdateType {
     Setup = 0,
     Archive = 1,
     Snap = 2
 }
-export declare enum DisablementReason {
+export declare const enum DisablementReason {
     NotBuilt = 0,
     DisabledByEnvironment = 1,
     ManuallyDisabled = 2,

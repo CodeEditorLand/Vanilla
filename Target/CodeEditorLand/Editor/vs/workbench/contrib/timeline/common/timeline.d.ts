@@ -1,12 +1,12 @@
-import type { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { ThemeIcon } from "../../../../base/common/themables.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { Command } from "../../../../editor/common/languages.js";
-import type { IAccessibilityInformation } from "../../../../platform/accessibility/common/accessibility.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { CancellationToken, CancellationTokenSource } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { Command } from '../../../../editor/common/languages.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { IAccessibilityInformation } from '../../../../platform/accessibility/common/accessibility.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
 export declare function toKey(extension: ExtensionIdentifier | string, source: string): string;
 export declare const TimelinePaneId = "timeline";
 export interface TimelineItem {

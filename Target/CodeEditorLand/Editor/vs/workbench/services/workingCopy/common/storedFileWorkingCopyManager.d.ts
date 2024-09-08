@@ -1,21 +1,21 @@
-import { Event } from "../../../../base/common/event.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IProgressService } from "../../../../platform/progress/common/progress.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IEditorService } from "../../editor/common/editorService.js";
-import { IElevatedFileService } from "../../files/common/elevatedFileService.js";
-import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
-import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
-import { BaseFileWorkingCopyManager, type IBaseFileWorkingCopyManager } from "./abstractFileWorkingCopyManager.js";
-import { type IStoredFileWorkingCopySaveEvent as IBaseStoredFileWorkingCopySaveEvent, type IStoredFileWorkingCopy, type IStoredFileWorkingCopyModel, type IStoredFileWorkingCopyModelFactory, type IStoredFileWorkingCopyResolveOptions } from "./storedFileWorkingCopy.js";
-import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
-import { IWorkingCopyEditorService } from "./workingCopyEditorService.js";
-import { IWorkingCopyFileService } from "./workingCopyFileService.js";
-import { IWorkingCopyService } from "./workingCopyService.js";
+import { Event } from '../../../../base/common/event.js';
+import { IStoredFileWorkingCopy, IStoredFileWorkingCopyModel, IStoredFileWorkingCopyModelFactory, IStoredFileWorkingCopyResolveOptions, IStoredFileWorkingCopySaveEvent as IBaseStoredFileWorkingCopySaveEvent } from './storedFileWorkingCopy.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { ILifecycleService } from '../../lifecycle/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IWorkingCopyFileService } from './workingCopyFileService.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { IWorkingCopyBackupService } from './workingCopyBackup.js';
+import { BaseFileWorkingCopyManager, IBaseFileWorkingCopyManager } from './abstractFileWorkingCopyManager.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IEditorService } from '../../editor/common/editorService.js';
+import { IElevatedFileService } from '../../files/common/elevatedFileService.js';
+import { IFilesConfigurationService } from '../../filesConfiguration/common/filesConfigurationService.js';
+import { IWorkingCopyEditorService } from './workingCopyEditorService.js';
+import { IWorkingCopyService } from './workingCopyService.js';
+import { IProgressService } from '../../../../platform/progress/common/progress.js';
 /**
  * The only one that should be dealing with `IStoredFileWorkingCopy` and handle all
  * operations that are working copy related, such as save/revert, backup

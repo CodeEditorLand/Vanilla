@@ -1,24 +1,24 @@
-import "./media/compositepart.css";
-import type { IBaseActionViewItemOptions } from "../../../base/browser/ui/actionbar/actionViewItems.js";
-import { type IActionViewItem } from "../../../base/browser/ui/actionbar/actionbar.js";
-import { AnchorAlignment } from "../../../base/browser/ui/contextview/contextview.js";
-import type { IHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegate.js";
-import type { IBoundarySashes } from "../../../base/browser/ui/sash/sash.js";
-import type { IAction } from "../../../base/common/actions.js";
-import { Emitter } from "../../../base/common/event.js";
-import { WorkbenchToolBar } from "../../../platform/actions/browser/toolbar.js";
-import type { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
-import type { IHoverService } from "../../../platform/hover/browser/hover.js";
-import type { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import type { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
-import type { INotificationService } from "../../../platform/notification/common/notification.js";
-import { type IProgressIndicator } from "../../../platform/progress/common/progress.js";
-import { type IStorageService } from "../../../platform/storage/common/storage.js";
-import type { IThemeService } from "../../../platform/theme/common/themeService.js";
-import type { IComposite } from "../../common/composite.js";
-import type { IWorkbenchLayoutService } from "../../services/layout/browser/layoutService.js";
-import type { Composite, CompositeRegistry } from "../composite.js";
-import { type IPartOptions, Part } from "../part.js";
+import './media/compositepart.css';
+import { Emitter } from '../../../base/common/event.js';
+import { IActionViewItem } from '../../../base/browser/ui/actionbar/actionbar.js';
+import { IAction } from '../../../base/common/actions.js';
+import { Part, IPartOptions } from '../part.js';
+import { Composite, CompositeRegistry } from '../composite.js';
+import { IComposite } from '../../common/composite.js';
+import { IWorkbenchLayoutService } from '../../services/layout/browser/layoutService.js';
+import { IStorageService } from '../../../platform/storage/common/storage.js';
+import { IContextMenuService } from '../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
+import { IProgressIndicator } from '../../../platform/progress/common/progress.js';
+import { IKeybindingService } from '../../../platform/keybinding/common/keybinding.js';
+import { IThemeService } from '../../../platform/theme/common/themeService.js';
+import { INotificationService } from '../../../platform/notification/common/notification.js';
+import { AnchorAlignment } from '../../../base/browser/ui/contextview/contextview.js';
+import { WorkbenchToolBar } from '../../../platform/actions/browser/toolbar.js';
+import { IBoundarySashes } from '../../../base/browser/ui/sash/sash.js';
+import { IBaseActionViewItemOptions } from '../../../base/browser/ui/actionbar/actionViewItems.js';
+import { IHoverDelegate } from '../../../base/browser/ui/hover/hoverDelegate.js';
+import type { IHoverService } from '../../../platform/hover/browser/hover.js';
 export interface ICompositeTitleLabel {
     /**
      * Asks to update the title for the composite with the given ID.

@@ -1,11 +1,11 @@
-import type { IContextMenuDelegate } from "../../../base/browser/contextmenu.js";
-import type { StandardMouseEvent } from "../../../base/browser/mouseEvent.js";
-import type { AnchorAlignment, AnchorAxisAlignment, IAnchor, IContextViewProvider } from "../../../base/browser/ui/contextview/contextview.js";
-import type { IAction } from "../../../base/common/actions.js";
-import type { Event } from "../../../base/common/event.js";
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import type { IMenuActionOptions, MenuId } from "../../actions/common/actions.js";
-import type { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IContextMenuDelegate } from '../../../base/browser/contextmenu.js';
+import { StandardMouseEvent } from '../../../base/browser/mouseEvent.js';
+import { AnchorAlignment, AnchorAxisAlignment, IAnchor, IContextViewProvider } from '../../../base/browser/ui/contextview/contextview.js';
+import { IAction } from '../../../base/common/actions.js';
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { IMenuActionOptions, MenuId } from '../../actions/common/actions.js';
+import { IContextKeyService } from '../../contextkey/common/contextkey.js';
 export declare const IContextViewService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IContextViewService>;
 export interface IContextViewService extends IContextViewProvider {
     readonly _serviceBrand: undefined;
@@ -59,4 +59,4 @@ export type IContextMenuMenuDelegate = {
      * Optional getter for extra actions. They will be prepended to the menu actions.
      */
     getActions?(): IAction[];
-} & Omit<IContextMenuDelegate, "getActions">;
+} & Omit<IContextMenuDelegate, 'getActions'>;

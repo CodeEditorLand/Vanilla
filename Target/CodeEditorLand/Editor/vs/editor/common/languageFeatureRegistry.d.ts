@@ -1,7 +1,7 @@
-import { type IDisposable } from "../../base/common/lifecycle.js";
-import type { URI } from "../../base/common/uri.js";
-import { type LanguageSelector } from "./languageSelector.js";
-import { type ITextModel } from "./model.js";
+import { IDisposable } from '../../base/common/lifecycle.js';
+import { ITextModel } from './model.js';
+import { LanguageSelector } from './languageSelector.js';
+import { URI } from '../../base/common/uri.js';
 export interface NotebookInfo {
     readonly uri: URI;
     readonly type: string;

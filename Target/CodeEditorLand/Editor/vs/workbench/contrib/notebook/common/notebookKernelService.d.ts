@@ -1,12 +1,12 @@
-import type { IAction } from "../../../../base/common/actions.js";
-import type { AsyncIterableObject } from "../../../../base/common/async.js";
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import type { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import type { INotebookKernelSourceAction } from "./notebookCommon.js";
+import { IAction } from '../../../../base/common/actions.js';
+import { AsyncIterableObject } from '../../../../base/common/async.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { INotebookKernelSourceAction } from './notebookCommon.js';
 export interface ISelectedNotebooksChangeEvent {
     notebook: URI;
     oldKernel: string | undefined;
@@ -53,9 +53,9 @@ export interface INotebookKernel {
     hasVariableProvider?: boolean;
     executeNotebookCellsRequest(uri: URI, cellHandles: number[]): Promise<void>;
     cancelNotebookCellExecution(uri: URI, cellHandles: number[]): Promise<void>;
-    provideVariables(notebookUri: URI, parentId: number | undefined, kind: "named" | "indexed", start: number, token: CancellationToken): AsyncIterableObject<VariablesResult>;
+    provideVariables(notebookUri: URI, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): AsyncIterableObject<VariablesResult>;
 }
-export declare enum ProxyKernelState {
+export declare const enum ProxyKernelState {
     Disconnected = 1,
     Connected = 2,
     Initializing = 3

@@ -1,5 +1,5 @@
-import type { Range } from "../../../common/core/range.js";
-import type { IViewModel } from "../../../common/viewModel.js";
+import { IViewModel } from '../../../common/viewModel.js';
+import { Range } from '../../../common/core/range.js';
 export declare function getDataToCopy(viewModel: IViewModel, modelSelections: Range[], emptySelectionClipboard: boolean, copyWithSyntaxHighlighting: boolean): ClipboardDataToCopy;
 /**
  * Every time we write to the clipboard, we record a bit of extra metadata here.

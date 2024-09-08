@@ -1,11 +1,11 @@
-import { type IMarker } from "../../../../platform/markers/common/markers.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { Range } from "../../../common/core/range.js";
-import type { IModelDecoration } from "../../../common/model.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { IMarkerDecorationsService } from "../../../common/services/markerDecorations.js";
-import { type HoverAnchor, type IEditorHoverParticipant, type IEditorHoverRenderContext, type IHoverPart, type IRenderedHoverParts } from "./hoverTypes.js";
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { Range } from '../../../common/core/range.js';
+import { IModelDecoration } from '../../../common/model.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { IMarkerDecorationsService } from '../../../common/services/markerDecorations.js';
+import { HoverAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts } from './hoverTypes.js';
+import { IMarker } from '../../../../platform/markers/common/markers.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
 export declare class MarkerHover implements IHoverPart {
     readonly owner: IEditorHoverParticipant<MarkerHover>;
     readonly range: Range;

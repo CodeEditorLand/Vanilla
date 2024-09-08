@@ -1,9 +1,9 @@
-import { type IPath } from "../../../../base/common/path.js";
-import { OperatingSystem } from "../../../../base/common/platform.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IPath } from '../../../../base/common/path.js';
+import { OperatingSystem } from '../../../../base/common/platform.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IWorkbenchEnvironmentService } from '../../environment/common/environmentService.js';
+import { IRemoteAgentService } from '../../remote/common/remoteAgentService.js';
 export declare const IPathService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IPathService>;
 /**
  * Provides access to path related properties that will match the

@@ -1,11 +1,1 @@
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { IEnvironmentVariableService } from "./environmentVariable.js";
-import { EnvironmentVariableService } from "./environmentVariableService.js";
-registerSingleton(
-  IEnvironmentVariableService,
-  EnvironmentVariableService,
-  InstantiationType.Delayed
-);
+import{EnvironmentVariableService as e}from"./environmentVariableService.js";import{InstantiationType as r,registerSingleton as i}from"../../../../platform/instantiation/common/extensions.js";import{IEnvironmentVariableService as n}from"./environmentVariable.js";i(n,e,r.Delayed);

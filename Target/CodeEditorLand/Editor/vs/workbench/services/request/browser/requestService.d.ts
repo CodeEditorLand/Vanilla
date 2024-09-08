@@ -1,9 +1,9 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { IRequestContext, IRequestOptions } from "../../../../base/parts/request/common/request.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILoggerService } from "../../../../platform/log/common/log.js";
-import { AbstractRequestService, type AuthInfo, type Credentials, type IRequestService } from "../../../../platform/request/common/request.js";
-import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IRequestOptions, IRequestContext } from '../../../../base/parts/request/common/request.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IRemoteAgentService } from '../../remote/common/remoteAgentService.js';
+import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from '../../../../platform/request/common/request.js';
+import { ILoggerService } from '../../../../platform/log/common/log.js';
 export declare class BrowserRequestService extends AbstractRequestService implements IRequestService {
     private readonly remoteAgentService;
     private readonly configurationService;

@@ -59,7 +59,7 @@ export declare class FastDomNode<T extends HTMLElement> {
     setBackgroundColor(backgroundColor: string): void;
     setLayerHinting(layerHint: boolean): void;
     setBoxShadow(boxShadow: string): void;
-    setContain(contain: "none" | "strict" | "content" | "size" | "layout" | "style" | "paint"): void;
+    setContain(contain: 'none' | 'strict' | 'content' | 'size' | 'layout' | 'style' | 'paint'): void;
     setAttribute(name: string, value: string): void;
     removeAttribute(name: string): void;
     appendChild(child: FastDomNode<T>): void;

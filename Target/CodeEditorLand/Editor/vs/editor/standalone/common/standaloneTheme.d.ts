@@ -1,8 +1,8 @@
-import type { Color } from "../../../base/common/color.js";
-import type { IColorTheme, IThemeService } from "../../../platform/theme/common/themeService.js";
-import type { ITokenThemeRule, TokenTheme } from "../../common/languages/supports/tokenization.js";
+import { Color } from '../../../base/common/color.js';
+import { ITokenThemeRule, TokenTheme } from '../../common/languages/supports/tokenization.js';
+import { IColorTheme, IThemeService } from '../../../platform/theme/common/themeService.js';
 export declare const IStandaloneThemeService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IStandaloneThemeService>;
-export type BuiltinTheme = "vs" | "vs-dark" | "hc-black" | "hc-light";
+export type BuiltinTheme = 'vs' | 'vs-dark' | 'hc-black' | 'hc-light';
 export type IColors = {
     [colorId: string]: string;
 };

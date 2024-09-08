@@ -1,11 +1,11 @@
-import * as dom from "../../../../base/browser/dom.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { type ICodeEditor, type IContentWidgetPosition } from "../../../browser/editorBrowser.js";
-import type { RenderedContentHover } from "./contentHoverRendered.js";
-import { ResizableContentWidget } from "./resizableContentWidget.js";
+import * as dom from '../../../../base/browser/dom.js';
+import { ICodeEditor, IContentWidgetPosition } from '../../../browser/editorBrowser.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { ResizableContentWidget } from './resizableContentWidget.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
+import { RenderedContentHover } from './contentHoverRendered.js';
 export declare class ContentHoverWidget extends ResizableContentWidget {
     private readonly _configurationService;
     private readonly _accessibilityService;

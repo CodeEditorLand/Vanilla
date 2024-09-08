@@ -1,4 +1,4 @@
-export declare enum CommentCommandId {
+export declare const enum CommentCommandId {
     Add = "workbench.action.addComment",
     NextThread = "editor.action.nextCommentThreadAction",
     PreviousThread = "editor.action.previousCommentThreadAction",

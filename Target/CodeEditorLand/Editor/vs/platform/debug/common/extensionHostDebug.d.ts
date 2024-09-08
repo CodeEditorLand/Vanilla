@@ -1,4 +1,4 @@
-import type { Event } from "../../../base/common/event.js";
+import { Event } from '../../../base/common/event.js';
 export declare const IExtensionHostDebugService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionHostDebugService>;
 export interface IAttachSessionEvent {
     sessionId: string;

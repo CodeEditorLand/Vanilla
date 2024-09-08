@@ -1,18 +1,1 @@
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
-import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-import { BaseLocalizationWorkbenchContribution } from "../common/localization.contribution.js";
-class WebLocalizationWorkbenchContribution extends BaseLocalizationWorkbenchContribution {
-}
-const workbenchRegistry = Registry.as(
-  WorkbenchExtensions.Workbench
-);
-workbenchRegistry.registerWorkbenchContribution(
-  WebLocalizationWorkbenchContribution,
-  LifecyclePhase.Eventually
-);
-export {
-  WebLocalizationWorkbenchContribution
-};
+import{BaseLocalizationWorkbenchContribution as o}from"../common/localization.contribution.js";import{Registry as r}from"../../../../platform/registry/common/platform.js";import{Extensions as n}from"../../../common/contributions.js";import{LifecyclePhase as t}from"../../../services/lifecycle/common/lifecycle.js";class i extends o{}const e=r.as(n.Workbench);e.registerWorkbenchContribution(i,t.Eventually);export{i as WebLocalizationWorkbenchContribution};

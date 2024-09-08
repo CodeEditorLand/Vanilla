@@ -1,7 +1,7 @@
-import { type Event } from "../../../base/common/event.js";
-import type { IJSONSchema } from "../../../base/common/jsonSchema.js";
-import { type IconIdentifier, ThemeIcon } from "../../../base/common/themables.js";
-import { URI } from "../../../base/common/uri.js";
+import { ThemeIcon, IconIdentifier } from '../../../base/common/themables.js';
+import { Event } from '../../../base/common/event.js';
+import { IJSONSchema } from '../../../base/common/jsonSchema.js';
+import { URI } from '../../../base/common/uri.js';
 export declare const Extensions: {
     IconContribution: string;
 };

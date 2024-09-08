@@ -1,6 +1,6 @@
-import type { URI } from "../../../../base/common/uri.js";
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import type { IPath } from "../../../../platform/window/common/window.js";
+import { IPath } from '../../../../platform/window/common/window.js';
+import { IEnvironmentService } from '../../../../platform/environment/common/environment.js';
+import { URI } from '../../../../base/common/uri.js';
 export declare const IWorkbenchEnvironmentService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkbenchEnvironmentService>;
 /**
  * A workbench specific environment service that is only present in workbench

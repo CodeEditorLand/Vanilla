@@ -1,9 +1,9 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { type UriComponents } from "../../../base/common/uri.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { IOutputService, OutputChannelUpdateMode } from "../../services/output/common/output.js";
-import { IViewsService } from "../../services/views/common/viewsService.js";
-import { type MainThreadOutputServiceShape } from "../common/extHost.protocol.js";
+import { IOutputService, OutputChannelUpdateMode } from '../../services/output/common/output.js';
+import { MainThreadOutputServiceShape } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { UriComponents } from '../../../base/common/uri.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IViewsService } from '../../services/views/common/viewsService.js';
 export declare class MainThreadOutputService extends Disposable implements MainThreadOutputServiceShape {
     private static _extensionIdPool;
     private readonly _proxy;

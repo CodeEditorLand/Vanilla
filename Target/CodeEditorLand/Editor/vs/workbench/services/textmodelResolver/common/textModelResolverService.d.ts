@@ -1,11 +1,11 @@
-import { Disposable, type IDisposable, type IReference } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { ITextModelService, type IResolvedTextEditorModel, type ITextModelContentProvider } from "../../../../editor/common/services/resolverService.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IUndoRedoService } from "../../../../platform/undoRedo/common/undoRedo.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IDisposable, IReference, Disposable } from '../../../../base/common/lifecycle.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ITextModelService, ITextModelContentProvider, IResolvedTextEditorModel } from '../../../../editor/common/services/resolverService.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { IUndoRedoService } from '../../../../platform/undoRedo/common/undoRedo.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
 export declare class TextModelResolverService extends Disposable implements ITextModelService {
     private readonly instantiationService;
     private readonly fileService;

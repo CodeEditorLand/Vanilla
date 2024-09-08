@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { MarkdownRenderer } from "../../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
-import type { IChatProgressMessage, IChatTask } from "../../common/chatService.js";
-import { type IChatRendererContent } from "../../common/chatViewModel.js";
-import type { ChatTreeItem } from "../chat.js";
-import type { IChatContentPart, IChatContentPartRenderContext } from "./chatContentParts.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { MarkdownRenderer } from '../../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js';
+import { ChatTreeItem } from '../chat.js';
+import { IChatContentPart, IChatContentPartRenderContext } from './chatContentParts.js';
+import { IChatProgressMessage, IChatTask } from '../../common/chatService.js';
+import { IChatRendererContent } from '../../common/chatViewModel.js';
 export declare class ChatProgressContentPart extends Disposable implements IChatContentPart {
     readonly domNode: HTMLElement;
     private readonly showSpinner;

@@ -1,12 +1,12 @@
-import { AsyncIterableObject } from "../../../../../base/common/async.js";
-import type { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import type { ICodeEditor } from "../../../../browser/editorBrowser.js";
-import type { Range } from "../../../../common/core/range.js";
-import type { DocumentColorProvider } from "../../../../common/languages.js";
-import type { IModelDecoration } from "../../../../common/model.js";
-import { type HoverAnchor, type IEditorHoverParticipant, type IEditorHoverRenderContext, type IHoverPart, type IRenderedHoverParts } from "../../../hover/browser/hoverTypes.js";
-import type { ColorPickerModel } from "../colorPickerModel.js";
+import { AsyncIterableObject } from '../../../../../base/common/async.js';
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { ICodeEditor } from '../../../../browser/editorBrowser.js';
+import { Range } from '../../../../common/core/range.js';
+import { IModelDecoration } from '../../../../common/model.js';
+import { DocumentColorProvider } from '../../../../common/languages.js';
+import { ColorPickerModel } from '../colorPickerModel.js';
+import { HoverAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts } from '../../../hover/browser/hoverTypes.js';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
 export declare class ColorHover implements IHoverPart {
     readonly owner: IEditorHoverParticipant<ColorHover>;
     readonly range: Range;

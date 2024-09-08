@@ -1,18 +1,18 @@
-import type { CancellationToken } from "../../../../../base/common/cancellation.js";
-import type { IDiffResult } from "../../../../../base/common/diff/diff.js";
-import { type IValueWithChangeEvent } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../../base/common/uri.js";
-import type { FontInfo } from "../../../../../editor/common/config/fontInfo.js";
-import type { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import type { ContextKeyValue } from "../../../../../platform/contextkey/common/contextkey.js";
-import { MultiDiffEditorItem } from "../../../multiDiffEditor/browser/multiDiffSourceResolverService.js";
-import { type INotebookDiffEditorModel } from "../../common/notebookCommon.js";
-import type { INotebookService } from "../../common/notebookService.js";
-import type { INotebookEditorWorkerService } from "../../common/services/notebookWorkerService.js";
-import { type IDiffElementViewModelBase } from "./diffElementViewModel.js";
-import type { NotebookDiffEditorEventDispatcher } from "./eventDispatcher.js";
-import { type INotebookDiffViewModel, type INotebookDiffViewModelUpdateEvent } from "./notebookDiffEditorBrowser.js";
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { IDiffResult } from '../../../../../base/common/diff/diff.js';
+import { type IValueWithChangeEvent } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import type { URI } from '../../../../../base/common/uri.js';
+import { FontInfo } from '../../../../../editor/common/config/fontInfo.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import type { ContextKeyValue } from '../../../../../platform/contextkey/common/contextkey.js';
+import { MultiDiffEditorItem } from '../../../multiDiffEditor/browser/multiDiffSourceResolverService.js';
+import { IDiffElementViewModelBase } from './diffElementViewModel.js';
+import { NotebookDiffEditorEventDispatcher } from './eventDispatcher.js';
+import { INotebookDiffViewModel, INotebookDiffViewModelUpdateEvent } from './notebookDiffEditorBrowser.js';
+import { INotebookDiffEditorModel } from '../../common/notebookCommon.js';
+import { INotebookService } from '../../common/notebookService.js';
+import { INotebookEditorWorkerService } from '../../common/services/notebookWorkerService.js';
 export declare class NotebookDiffViewModel extends Disposable implements INotebookDiffViewModel, IValueWithChangeEvent<readonly MultiDiffEditorItem[]> {
     private readonly model;
     private readonly notebookEditorWorkerService;
@@ -53,8 +53,8 @@ export declare class NotebookDiffViewModel extends Disposable implements INotebo
  */
 export declare function prettyChanges(model: INotebookDiffEditorModel, diffResult: IDiffResult): void;
 export declare abstract class NotebookMultiDiffEditorItem extends MultiDiffEditorItem {
-    readonly type: IDiffElementViewModelBase["type"];
-    readonly containerType: IDiffElementViewModelBase["type"];
-    kind: "Cell" | "Metadata" | "Output";
-    constructor(originalUri: URI | undefined, modifiedUri: URI | undefined, goToFileUri: URI | undefined, type: IDiffElementViewModelBase["type"], containerType: IDiffElementViewModelBase["type"], kind: "Cell" | "Metadata" | "Output", contextKeys?: Record<string, ContextKeyValue>);
+    readonly type: IDiffElementViewModelBase['type'];
+    readonly containerType: IDiffElementViewModelBase['type'];
+    kind: 'Cell' | 'Metadata' | 'Output';
+    constructor(originalUri: URI | undefined, modifiedUri: URI | undefined, goToFileUri: URI | undefined, type: IDiffElementViewModelBase['type'], containerType: IDiffElementViewModelBase['type'], kind: 'Cell' | 'Metadata' | 'Output', contextKeys?: Record<string, ContextKeyValue>);
 }

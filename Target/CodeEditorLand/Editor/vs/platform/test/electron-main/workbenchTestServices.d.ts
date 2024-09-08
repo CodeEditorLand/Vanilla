@@ -1,9 +1,9 @@
-import { Event } from "../../../base/common/event.js";
-import type { IAuxiliaryWindow } from "../../auxiliaryWindow/electron-main/auxiliaryWindow.js";
-import type { NativeParsedArgs } from "../../environment/common/argv.js";
-import { type ILifecycleMainService, type IRelaunchHandler, LifecycleMainPhase, type ShutdownEvent } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import type { IStateService } from "../../state/node/state.js";
-import type { ICodeWindow, UnloadReason } from "../../window/electron-main/window.js";
+import { Event } from '../../../base/common/event.js';
+import { IAuxiliaryWindow } from '../../auxiliaryWindow/electron-main/auxiliaryWindow.js';
+import { NativeParsedArgs } from '../../environment/common/argv.js';
+import { ILifecycleMainService, IRelaunchHandler, LifecycleMainPhase, ShutdownEvent } from '../../lifecycle/electron-main/lifecycleMainService.js';
+import { IStateService } from '../../state/node/state.js';
+import { ICodeWindow, UnloadReason } from '../../window/electron-main/window.js';
 export declare class TestLifecycleMainService implements ILifecycleMainService {
     _serviceBrand: undefined;
     onBeforeShutdown: Event<any>;

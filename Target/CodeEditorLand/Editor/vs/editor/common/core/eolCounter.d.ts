@@ -1,4 +1,4 @@
-export declare enum StringEOL {
+export declare const enum StringEOL {
     Unknown = 0,
     Invalid = 3,
     LF = 1,

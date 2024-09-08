@@ -1,14 +1,1 @@
-import { Event } from "../../../base/common/event.js";
-class StandaloneTreeSitterParserService {
-  _serviceBrand;
-  onDidAddLanguage = Event.None;
-  getOrInitLanguage(_languageId) {
-    return void 0;
-  }
-  getParseResult(textModel) {
-    return void 0;
-  }
-}
-export {
-  StandaloneTreeSitterParserService
-};
+import{Event as r}from"../../../base/common/event.js";import"../../common/model.js";import"../../common/services/treeSitterParserService.js";class g{_serviceBrand;onDidAddLanguage=r.None;getOrInitLanguage(e){}getParseResult(e){}}export{g as StandaloneTreeSitterParserService};

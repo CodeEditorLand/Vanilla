@@ -1,4 +1,4 @@
-import { type IConfigurationNode } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IConfigurationNode } from '../../../../platform/configuration/common/configurationRegistry.js';
 export declare const defaultExternalUriOpenerId = "default";
 export declare const externalUriOpenersSettingId = "workbench.externalUriOpeners";
 export interface ExternalUriOpenersConfiguration {

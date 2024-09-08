@@ -1,161 +1,25 @@
-import assert from "assert";
-import { MarkdownString } from "../../common/htmlContent.js";
-import { ensureNoDisposablesAreLeakedInTestSuite } from "./utils.js";
-suite("MarkdownString", () => {
-  ensureNoDisposablesAreLeakedInTestSuite();
-  test("Escape leading whitespace", () => {
-    const mds = new MarkdownString();
-    mds.appendText("Hello\n    Not a code block");
-    assert.strictEqual(
-      mds.value,
-      "Hello\n\n&nbsp;&nbsp;&nbsp;&nbsp;Not&nbsp;a&nbsp;code&nbsp;block"
-    );
-  });
-  test("MarkdownString.appendText doesn't escape quote #109040", () => {
-    const mds = new MarkdownString();
-    mds.appendText("> Text\n>More");
-    assert.strictEqual(mds.value, "\\>&nbsp;Text\n\n\\>More");
-  });
-  test("appendText", () => {
-    const mds = new MarkdownString();
-    mds.appendText("# foo\n*bar*");
-    assert.strictEqual(mds.value, "\\#&nbsp;foo\n\n\\*bar\\*");
-  });
-  test("appendLink", () => {
-    function assertLink(target, label, title, expected) {
-      const mds = new MarkdownString();
-      mds.appendLink(target, label, title);
-      assert.strictEqual(mds.value, expected);
-    }
-    assertLink(
-      "https://example.com\\()![](file:///Users/jrieken/Code/_samples/devfest/foo/img.png)",
-      "hello",
-      void 0,
-      "[hello](https://example.com\\(\\)![](file:///Users/jrieken/Code/_samples/devfest/foo/img.png\\))"
-    );
-    assertLink(
-      "https://example.com",
-      "hello",
-      "title",
-      '[hello](https://example.com "title")'
-    );
-    assertLink("foo)", "hello]", void 0, "[hello\\]](foo\\))");
-    assertLink("foo\\)", "hello]", void 0, "[hello\\]](foo\\))");
-    assertLink("fo)o", "hell]o", void 0, "[hell\\]o](fo\\)o)");
-    assertLink("foo)", "hello]", 'title"', '[hello\\]](foo\\) "title\\"")');
-  });
-  suite("appendCodeBlock", () => {
-    function assertCodeBlock(lang, code, result) {
-      const mds = new MarkdownString();
-      mds.appendCodeblock(lang, code);
-      assert.strictEqual(mds.value, result);
-    }
-    test("common cases", () => {
-      assertCodeBlock(
-        "ts",
-        "const a = 1;",
-        `
-${["```ts", "const a = 1;", "```"].join("\n")}
-`
-      );
-      assertCodeBlock(
-        "ts",
-        "const a = `1`;",
-        `
-${["```ts", "const a = `1`;", "```"].join("\n")}
-`
-      );
-    });
-    test("escape fence", () => {
-      assertCodeBlock(
-        "md",
-        "```\n```",
-        `
-${["````md", "```\n```", "````"].join("\n")}
-`
-      );
-      assertCodeBlock(
-        "md",
-        "\n\n```\n```",
-        `
-${["````md", "\n\n```\n```", "````"].join("\n")}
-`
-      );
-      assertCodeBlock(
-        "md",
-        "```\n```\n````\n````",
-        `
-${["`````md", "```\n```\n````\n````", "`````"].join(
-          "\n"
-        )}
-`
-      );
-    });
-  });
-  suite("ThemeIcons", () => {
-    suite("Support On", () => {
-      test("appendText", () => {
-        const mds = new MarkdownString(void 0, {
-          supportThemeIcons: true
-        });
-        mds.appendText("$(zap) $(not a theme icon) $(add)");
-        assert.strictEqual(
-          mds.value,
-          "\\\\$\\(zap\\)&nbsp;$\\(not&nbsp;a&nbsp;theme&nbsp;icon\\)&nbsp;\\\\$\\(add\\)"
-        );
-      });
-      test("appendMarkdown", () => {
-        const mds = new MarkdownString(void 0, {
-          supportThemeIcons: true
-        });
-        mds.appendMarkdown("$(zap) $(not a theme icon) $(add)");
-        assert.strictEqual(
-          mds.value,
-          "$(zap) $(not a theme icon) $(add)"
-        );
-      });
-      test("appendMarkdown with escaped icon", () => {
-        const mds = new MarkdownString(void 0, {
-          supportThemeIcons: true
-        });
-        mds.appendMarkdown("\\$(zap) $(not a theme icon) $(add)");
-        assert.strictEqual(
-          mds.value,
-          "\\$(zap) $(not a theme icon) $(add)"
-        );
-      });
-    });
-    suite("Support Off", () => {
-      test("appendText", () => {
-        const mds = new MarkdownString(void 0, {
-          supportThemeIcons: false
-        });
-        mds.appendText("$(zap) $(not a theme icon) $(add)");
-        assert.strictEqual(
-          mds.value,
-          "$\\(zap\\)&nbsp;$\\(not&nbsp;a&nbsp;theme&nbsp;icon\\)&nbsp;$\\(add\\)"
-        );
-      });
-      test("appendMarkdown", () => {
-        const mds = new MarkdownString(void 0, {
-          supportThemeIcons: false
-        });
-        mds.appendMarkdown("$(zap) $(not a theme icon) $(add)");
-        assert.strictEqual(
-          mds.value,
-          "$(zap) $(not a theme icon) $(add)"
-        );
-      });
-      test("appendMarkdown with escaped icon", () => {
-        const mds = new MarkdownString(void 0, {
-          supportThemeIcons: true
-        });
-        mds.appendMarkdown("\\$(zap) $(not a theme icon) $(add)");
-        assert.strictEqual(
-          mds.value,
-          "\\$(zap) $(not a theme icon) $(add)"
-        );
-      });
-    });
-  });
-});
+import n from"assert";import{MarkdownString as t}from"../../common/htmlContent.js";import{ensureNoDisposablesAreLeakedInTestSuite as i}from"./utils.js";suite("MarkdownString",()=>{i(),test("Escape leading whitespace",function(){const e=new t;e.appendText(`Hello
+    Not a code block`),n.strictEqual(e.value,`Hello
+
+&nbsp;&nbsp;&nbsp;&nbsp;Not&nbsp;a&nbsp;code&nbsp;block`)}),test("MarkdownString.appendText doesn't escape quote #109040",function(){const e=new t;e.appendText(`> Text
+>More`),n.strictEqual(e.value,`\\>&nbsp;Text
+
+\\>More`)}),test("appendText",()=>{const e=new t;e.appendText(`# foo
+*bar*`),n.strictEqual(e.value,`\\#&nbsp;foo
+
+\\*bar\\*`)}),test("appendLink",function(){function e(s,a,p,o){const d=new t;d.appendLink(s,a,p),n.strictEqual(d.value,o)}e("https://example.com\\()![](file:///Users/jrieken/Code/_samples/devfest/foo/img.png)","hello",void 0,"[hello](https://example.com\\(\\)![](file:///Users/jrieken/Code/_samples/devfest/foo/img.png\\))"),e("https://example.com","hello","title",'[hello](https://example.com "title")'),e("foo)","hello]",void 0,"[hello\\]](foo\\))"),e("foo\\)","hello]",void 0,"[hello\\]](foo\\))"),e("fo)o","hell]o",void 0,"[hell\\]o](fo\\)o)"),e("foo)","hello]",'title"','[hello\\]](foo\\) "title\\"")')}),suite("appendCodeBlock",()=>{function e(s,a,p){const o=new t;o.appendCodeblock(s,a),n.strictEqual(o.value,p)}test("common cases",()=>{e("ts","const a = 1;",`
+${["```ts","const a = 1;","```"].join(`
+`)}
+`),e("ts","const a = `1`;",`
+${["```ts","const a = `1`;","```"].join(`
+`)}
+`)}),test("escape fence",()=>{e("md","```\n```",`
+${["````md","```\n```","````"].join(`
+`)}
+`),e("md","\n\n```\n```",`
+${["````md","\n\n```\n```","````"].join(`
+`)}
+`),e("md","```\n```\n````\n````",`
+${["`````md","```\n```\n````\n````","`````"].join(`
+`)}
+`)})}),suite("ThemeIcons",()=>{suite("Support On",()=>{test("appendText",()=>{const e=new t(void 0,{supportThemeIcons:!0});e.appendText("$(zap) $(not a theme icon) $(add)"),n.strictEqual(e.value,"\\\\$\\(zap\\)&nbsp;$\\(not&nbsp;a&nbsp;theme&nbsp;icon\\)&nbsp;\\\\$\\(add\\)")}),test("appendMarkdown",()=>{const e=new t(void 0,{supportThemeIcons:!0});e.appendMarkdown("$(zap) $(not a theme icon) $(add)"),n.strictEqual(e.value,"$(zap) $(not a theme icon) $(add)")}),test("appendMarkdown with escaped icon",()=>{const e=new t(void 0,{supportThemeIcons:!0});e.appendMarkdown("\\$(zap) $(not a theme icon) $(add)"),n.strictEqual(e.value,"\\$(zap) $(not a theme icon) $(add)")})}),suite("Support Off",()=>{test("appendText",()=>{const e=new t(void 0,{supportThemeIcons:!1});e.appendText("$(zap) $(not a theme icon) $(add)"),n.strictEqual(e.value,"$\\(zap\\)&nbsp;$\\(not&nbsp;a&nbsp;theme&nbsp;icon\\)&nbsp;$\\(add\\)")}),test("appendMarkdown",()=>{const e=new t(void 0,{supportThemeIcons:!1});e.appendMarkdown("$(zap) $(not a theme icon) $(add)"),n.strictEqual(e.value,"$(zap) $(not a theme icon) $(add)")}),test("appendMarkdown with escaped icon",()=>{const e=new t(void 0,{supportThemeIcons:!0});e.appendMarkdown("\\$(zap) $(not a theme icon) $(add)"),n.strictEqual(e.value,"\\$(zap) $(not a theme icon) $(add)")})})})});

@@ -1,5 +1,5 @@
-import { type ColorIdentifier } from "../../../../platform/theme/common/colorUtils.js";
-import type { ISCMHistoryItem, ISCMHistoryItemGraphNode, ISCMHistoryItemViewModel } from "../common/history.js";
+import { ColorIdentifier } from '../../../../platform/theme/common/colorUtils.js';
+import { ISCMHistoryItem, ISCMHistoryItemGraphNode, ISCMHistoryItemViewModel } from '../common/history.js';
 export declare const SWIMLANE_HEIGHT = 22;
 export declare const SWIMLANE_WIDTH = 11;
 /**

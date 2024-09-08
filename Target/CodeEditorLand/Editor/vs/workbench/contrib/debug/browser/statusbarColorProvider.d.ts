@@ -1,9 +1,9 @@
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import type { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
-import { IDebugService, type IDebugSession, State } from "../common/debug.js";
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { IDebugService, State, IDebugSession } from '../common/debug.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IStatusbarService } from '../../../services/statusbar/browser/statusbar.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ILayoutService } from '../../../../platform/layout/browser/layoutService.js';
 export declare const STATUS_BAR_DEBUGGING_BACKGROUND: string;
 export declare const STATUS_BAR_DEBUGGING_FOREGROUND: string;
 export declare const STATUS_BAR_DEBUGGING_BORDER: string;

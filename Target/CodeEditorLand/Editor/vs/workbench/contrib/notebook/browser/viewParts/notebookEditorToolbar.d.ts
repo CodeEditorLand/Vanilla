@@ -1,17 +1,17 @@
-import * as DOM from "../../../../../base/browser/dom.js";
-import { type IAction } from "../../../../../base/common/actions.js";
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IMenuService } from "../../../../../platform/actions/common/actions.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import type { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import { IWorkbenchAssignmentService } from "../../../../services/assignment/common/assignmentService.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import type { INotebookEditorDelegate } from "../notebookBrowser.js";
-import type { NotebookOptions } from "../notebookOptions.js";
+import * as DOM from '../../../../../base/browser/dom.js';
+import { IAction } from '../../../../../base/common/actions.js';
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IMenuService } from '../../../../../platform/actions/common/actions.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IContextMenuService } from '../../../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../../../platform/keybinding/common/keybinding.js';
+import { INotebookEditorDelegate } from '../notebookBrowser.js';
+import { IEditorService } from '../../../../services/editor/common/editorService.js';
+import { IWorkbenchAssignmentService } from '../../../../services/assignment/common/assignmentService.js';
+import { NotebookOptions } from '../notebookOptions.js';
 interface IActionModel {
     action: IAction;
     size: number;
@@ -23,7 +23,7 @@ export declare enum RenderLabel {
     Never = 1,
     Dynamic = 2
 }
-export type RenderLabelWithFallback = true | false | "always" | "never" | "dynamic";
+export type RenderLabelWithFallback = true | false | 'always' | 'never' | 'dynamic';
 export declare function convertConfiguration(value: RenderLabelWithFallback): RenderLabel;
 export declare class NotebookEditorWorkbenchToolbar extends Disposable {
     readonly notebookEditor: INotebookEditorDelegate;

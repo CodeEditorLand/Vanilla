@@ -1,11 +1,11 @@
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { UndoRedoElementType, type IResourceUndoRedoElement, type IUndoRedoService, type IWorkspaceUndoRedoElement, type UndoRedoGroup } from "../../../platform/undoRedo/common/undoRedo.js";
-import type { ISingleEditOperation } from "../core/editOperation.js";
-import { Selection } from "../core/selection.js";
-import { TextChange } from "../core/textChange.js";
-import { EndOfLineSequence, type ICursorStateComputer, type ITextModel } from "../model.js";
-import type { TextModel } from "./textModel.js";
+import { Selection } from '../core/selection.js';
+import { EndOfLineSequence, ICursorStateComputer, ITextModel } from '../model.js';
+import { TextModel } from './textModel.js';
+import { IUndoRedoService, IResourceUndoRedoElement, UndoRedoElementType, IWorkspaceUndoRedoElement, UndoRedoGroup } from '../../../platform/undoRedo/common/undoRedo.js';
+import { URI } from '../../../base/common/uri.js';
+import { TextChange } from '../core/textChange.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ISingleEditOperation } from '../core/editOperation.js';
 export declare class SingleModelEditStackData {
     readonly beforeVersionId: number;
     afterVersionId: number;

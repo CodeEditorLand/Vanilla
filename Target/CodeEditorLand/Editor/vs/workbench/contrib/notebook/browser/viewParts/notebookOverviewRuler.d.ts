@@ -1,5 +1,5 @@
-import { IThemeService, Themable } from "../../../../../platform/theme/common/themeService.js";
-import { type INotebookEditorDelegate } from "../notebookBrowser.js";
+import { IThemeService, Themable } from '../../../../../platform/theme/common/themeService.js';
+import { INotebookEditorDelegate } from '../notebookBrowser.js';
 export declare class NotebookOverviewRuler extends Themable {
     readonly notebookEditor: INotebookEditorDelegate;
     private readonly _domNode;

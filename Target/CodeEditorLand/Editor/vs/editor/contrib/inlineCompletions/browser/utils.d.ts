@@ -1,9 +1,9 @@
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import { type IObservable } from "../../../../base/common/observable.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import type { IModelDeltaDecoration } from "../../../common/model.js";
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../base/common/observable.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { Position } from '../../../common/core/position.js';
+import { Range } from '../../../common/core/range.js';
+import { IModelDeltaDecoration } from '../../../common/model.js';
 export declare function getReadonlyEmptyArray<T>(): readonly T[];
 export declare class ColumnRange {
     readonly startColumn: number;
@@ -15,7 +15,7 @@ export declare class ColumnRange {
 /**
  * Use observableCodeEditor(editor).applyDecorations(decorations) instead.
  * @deprecated
- */
+*/
 export declare function applyObservableDecorations(editor: ICodeEditor, decorations: IObservable<IModelDeltaDecoration[]>): IDisposable;
 export declare function addPositions(pos1: Position, pos2: Position): Position;
 export declare function subtractPositions(pos1: Position, pos2: Position): Position;

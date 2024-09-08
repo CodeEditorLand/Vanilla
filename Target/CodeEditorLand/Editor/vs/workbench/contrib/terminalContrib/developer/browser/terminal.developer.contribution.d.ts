@@ -1,1 +1,1 @@
-import "./media/developer.css";
+import './media/developer.css';

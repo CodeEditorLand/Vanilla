@@ -1,14 +1,14 @@
 /**
  * Open ended enum at runtime
  */
-export declare enum LanguageId {
+export declare const enum LanguageId {
     Null = 0,
     PlainText = 1
 }
 /**
  * A font style. Values are 2^x such that a bit mask can be used.
  */
-export declare enum FontStyle {
+export declare const enum FontStyle {
     NotSet = -1,
     None = 0,
     Italic = 1,
@@ -19,7 +19,7 @@ export declare enum FontStyle {
 /**
  * Open ended enum at runtime
  */
-export declare enum ColorId {
+export declare const enum ColorId {
     None = 0,
     DefaultForeground = 1,
     DefaultBackground = 2
@@ -27,7 +27,7 @@ export declare enum ColorId {
 /**
  * A standard token type.
  */
-export declare enum StandardTokenType {
+export declare const enum StandardTokenType {
     Other = 0,
     Comment = 1,
     String = 2,
@@ -55,7 +55,7 @@ export declare enum StandardTokenType {
  *  - b = background color (9 bits)
  *
  */
-export declare enum MetadataConsts {
+export declare const enum MetadataConsts {
     LANGUAGEID_MASK = 255,
     TOKEN_TYPE_MASK = 768,
     BALANCED_BRACKETS_MASK = 1024,

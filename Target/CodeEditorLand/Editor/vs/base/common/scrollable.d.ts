@@ -1,6 +1,6 @@
-import { type Event } from "./event.js";
-import { Disposable, type IDisposable } from "./lifecycle.js";
-export declare enum ScrollbarVisibility {
+import { Event } from './event.js';
+import { Disposable, IDisposable } from './lifecycle.js';
+export declare const enum ScrollbarVisibility {
     Auto = 1,
     Hidden = 2,
     Visible = 3

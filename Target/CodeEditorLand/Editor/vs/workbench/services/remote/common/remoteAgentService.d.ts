@@ -1,9 +1,9 @@
-import type { Event } from "../../../../base/common/event.js";
-import type { IChannel, IServerChannel } from "../../../../base/parts/ipc/common/ipc.js";
-import type { IDiagnosticInfo, IDiagnosticInfoOptions } from "../../../../platform/diagnostics/common/diagnostics.js";
-import type { PersistentConnectionEvent } from "../../../../platform/remote/common/remoteAgentConnection.js";
-import type { IRemoteAgentEnvironment, RemoteAgentConnectionContext } from "../../../../platform/remote/common/remoteAgentEnvironment.js";
-import type { ITelemetryData, TelemetryLevel } from "../../../../platform/telemetry/common/telemetry.js";
+import { RemoteAgentConnectionContext, IRemoteAgentEnvironment } from '../../../../platform/remote/common/remoteAgentEnvironment.js';
+import { IChannel, IServerChannel } from '../../../../base/parts/ipc/common/ipc.js';
+import { IDiagnosticInfoOptions, IDiagnosticInfo } from '../../../../platform/diagnostics/common/diagnostics.js';
+import { Event } from '../../../../base/common/event.js';
+import { PersistentConnectionEvent } from '../../../../platform/remote/common/remoteAgentConnection.js';
+import { ITelemetryData, TelemetryLevel } from '../../../../platform/telemetry/common/telemetry.js';
 export declare const IRemoteAgentService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IRemoteAgentService>;
 export interface IRemoteAgentService {
     readonly _serviceBrand: undefined;

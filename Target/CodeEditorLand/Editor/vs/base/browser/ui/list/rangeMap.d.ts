@@ -1,4 +1,4 @@
-import { type IRange } from "../../../common/range.js";
+import { IRange } from '../../../common/range.js';
 export interface IItem {
     size: number;
 }

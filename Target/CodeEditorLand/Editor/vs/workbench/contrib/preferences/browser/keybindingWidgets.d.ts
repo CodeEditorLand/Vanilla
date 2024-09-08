@@ -1,15 +1,15 @@
-import "./media/keybindings.css";
-import * as dom from "../../../../base/browser/dom.js";
-import { Widget } from "../../../../base/browser/ui/widget.js";
-import { type Event } from "../../../../base/common/event.js";
-import type { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from "../../../../editor/browser/editorBrowser.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { SearchWidget, type SearchOptions } from "./preferencesWidgets.js";
+import './media/keybindings.css';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Event } from '../../../../base/common/event.js';
+import { Widget } from '../../../../base/browser/ui/widget.js';
+import { ResolvedKeybinding } from '../../../../base/common/keybindings.js';
+import * as dom from '../../../../base/browser/dom.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IContextViewService } from '../../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from '../../../../editor/browser/editorBrowser.js';
+import { SearchWidget, SearchOptions } from './preferencesWidgets.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 export interface KeybindingsSearchOptions extends SearchOptions {
     recordEnter?: boolean;
     quoteRecordedKeys?: boolean;

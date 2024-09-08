@@ -1,9 +1,9 @@
-import { type Event } from "../../../base/common/event.js";
-import type { IMarkdownString } from "../../../base/common/htmlContent.js";
-import type { ThemeColor } from "../../../base/common/themables.js";
-import type { Command } from "../../../editor/common/languages.js";
-import { type IAccessibilityInformation } from "../../../platform/accessibility/common/accessibility.js";
-import { type IStatusbarEntry, type StatusbarAlignment as MainThreadStatusBarAlignment } from "../../services/statusbar/browser/statusbar.js";
+import { StatusbarAlignment as MainThreadStatusBarAlignment, IStatusbarEntry } from '../../services/statusbar/browser/statusbar.js';
+import { ThemeColor } from '../../../base/common/themables.js';
+import { Command } from '../../../editor/common/languages.js';
+import { IAccessibilityInformation } from '../../../platform/accessibility/common/accessibility.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { Event } from '../../../base/common/event.js';
 export declare const IExtensionStatusBarItemService: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionStatusBarItemService>;
 export interface IExtensionStatusBarItemChangeEvent {
     readonly added?: ExtensionStatusBarEntry;
@@ -17,7 +17,7 @@ export type ExtensionStatusBarEntry = [
         priority: number;
     }
 ];
-export declare enum StatusBarUpdateKind {
+export declare const enum StatusBarUpdateKind {
     DidDefine = 0,
     DidUpdate = 1
 }

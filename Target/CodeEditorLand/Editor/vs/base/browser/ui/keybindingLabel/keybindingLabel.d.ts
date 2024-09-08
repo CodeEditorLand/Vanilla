@@ -1,7 +1,7 @@
-import type { ResolvedKeybinding } from "../../../common/keybindings.js";
-import { Disposable } from "../../../common/lifecycle.js";
-import type { OperatingSystem } from "../../../common/platform.js";
-import "./keybindingLabel.css";
+import { ResolvedKeybinding } from '../../../common/keybindings.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import { OperatingSystem } from '../../../common/platform.js';
+import './keybindingLabel.css';
 export interface ChordMatches {
     ctrlKey?: boolean;
     shiftKey?: boolean;

@@ -1,14 +1,14 @@
-import { Event } from "../../../../../base/common/event.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { type ResourceEdit, ResourceFileEdit, ResourceTextEdit } from "../../../../../editor/browser/services/bulkEditService.js";
-import { type ISingleEditOperation } from "../../../../../editor/common/core/editOperation.js";
-import type { WorkspaceEditMetadata } from "../../../../../editor/common/languages.js";
-import { ILanguageService } from "../../../../../editor/common/languages/language.js";
-import { IModelService } from "../../../../../editor/common/services/model.js";
-import { type ITextModelContentProvider, ITextModelService } from "../../../../../editor/common/services/resolverService.js";
-import { IFileService } from "../../../../../platform/files/common/files.js";
-import { IInstantiationService, type ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ConflictDetector } from "../conflicts.js";
+import { ITextModelContentProvider, ITextModelService } from '../../../../../editor/common/services/resolverService.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { ILanguageService } from '../../../../../editor/common/languages/language.js';
+import { IModelService } from '../../../../../editor/common/services/model.js';
+import { WorkspaceEditMetadata } from '../../../../../editor/common/languages.js';
+import { ISingleEditOperation } from '../../../../../editor/common/core/editOperation.js';
+import { ServicesAccessor, IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IFileService } from '../../../../../platform/files/common/files.js';
+import { Event } from '../../../../../base/common/event.js';
+import { ConflictDetector } from '../conflicts.js';
+import { ResourceEdit, ResourceFileEdit, ResourceTextEdit } from '../../../../../editor/browser/services/bulkEditService.js';
 export declare class CheckedStates<T extends object> {
     private readonly _states;
     private _checkedCount;
@@ -24,7 +24,7 @@ export declare class BulkTextEdit {
     readonly textEdit: ResourceTextEdit;
     constructor(parent: BulkFileOperation, textEdit: ResourceTextEdit);
 }
-export declare enum BulkFileOperationType {
+export declare const enum BulkFileOperationType {
     TextEdit = 1,
     Create = 2,
     Delete = 4,

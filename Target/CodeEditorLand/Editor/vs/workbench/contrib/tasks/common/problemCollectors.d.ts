@@ -1,11 +1,11 @@
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { Disposable, DisposableStore, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import type { IModelService } from "../../../../editor/common/services/model.js";
-import type { IFileService } from "../../../../platform/files/common/files.js";
-import { IMarkerData, type IMarkerService, type MarkerSeverity } from "../../../../platform/markers/common/markers.js";
-import { ApplyToKind, type IProblemMatch, type ProblemMatcher } from "./problemMatcher.js";
-export declare enum ProblemCollectorEventKind {
+import { URI } from '../../../../base/common/uri.js';
+import { Event, Emitter } from '../../../../base/common/event.js';
+import { IDisposable, DisposableStore, Disposable } from '../../../../base/common/lifecycle.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ProblemMatcher, IProblemMatch, ApplyToKind } from './problemMatcher.js';
+import { IMarkerService, IMarkerData, MarkerSeverity } from '../../../../platform/markers/common/markers.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+export declare const enum ProblemCollectorEventKind {
     BackgroundProcessingBegins = "backgroundProcessingBegins",
     BackgroundProcessingEnds = "backgroundProcessingEnds"
 }
@@ -67,7 +67,7 @@ export declare abstract class AbstractProblemCollector extends Disposable implem
     protected cleanMarkerCaches(): void;
     done(): void;
 }
-export declare enum ProblemHandlingStrategy {
+export declare const enum ProblemHandlingStrategy {
     Clean = 0
 }
 export declare class StartStopProblemCollector extends AbstractProblemCollector implements IProblemMatcher {

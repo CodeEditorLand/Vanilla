@@ -1,9 +1,9 @@
-import { type CancellationToken, CancellationTokenSource } from "./cancellation.js";
-import { Event } from "./event.js";
-import { Disposable, type DisposableStore, type IDisposable } from "./lifecycle.js";
-import { type IExtUri } from "./resources.js";
-import { MicrotaskDelay } from "./symbols.js";
-import type { URI } from "./uri.js";
+import { CancellationToken, CancellationTokenSource } from './cancellation.js';
+import { Event } from './event.js';
+import { Disposable, DisposableStore, IDisposable } from './lifecycle.js';
+import { IExtUri } from './resources.js';
+import { URI } from './uri.js';
+import { MicrotaskDelay } from './symbols.js';
 export declare function isThenable<T>(obj: unknown): obj is Promise<T>;
 export interface CancelablePromise<T> extends Promise<T> {
     cancel(): void;
@@ -390,7 +390,7 @@ export interface IdleDeadline {
     readonly didTimeout: boolean;
     timeRemaining(): number;
 }
-type IdleApi = Pick<typeof globalThis, "requestIdleCallback" | "cancelIdleCallback">;
+type IdleApi = Pick<typeof globalThis, 'requestIdleCallback' | 'cancelIdleCallback'>;
 /**
  * Execute the callback the next time the browser is idle, returning an
  * {@link IDisposable} that will cancel the callback when disposed. This wraps

@@ -1,6 +1,6 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import type { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import type { IHoverService } from '../../../../platform/hover/browser/hover.js';
 export declare class TimestampWidget extends Disposable {
     private configurationService;
     private _date;

@@ -1,13 +1,13 @@
-import { type Event } from "../../../../../../base/common/event.js";
-import type { URI } from "../../../../../../base/common/uri.js";
-import type { IEditorOptions } from "../../../../../../editor/common/config/editorOptions.js";
-import type { ITextModelUpdateOptions } from "../../../../../../editor/common/model.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { type NotebookCellInternalMetadata } from "../../../common/notebookCommon.js";
-import type { IBaseCellEditorOptions, ICellViewModel } from "../../notebookBrowser.js";
-import type { NotebookOptions } from "../../notebookOptions.js";
-import type { CellViewModelStateChangeEvent } from "../../notebookViewEvents.js";
-import { CellContentPart } from "../cellPart.js";
+import { Event } from '../../../../../../base/common/event.js';
+import { URI } from '../../../../../../base/common/uri.js';
+import { IEditorOptions } from '../../../../../../editor/common/config/editorOptions.js';
+import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
+import { IBaseCellEditorOptions, ICellViewModel } from '../../notebookBrowser.js';
+import { CellContentPart } from '../cellPart.js';
+import { NotebookCellInternalMetadata } from '../../../common/notebookCommon.js';
+import { NotebookOptions } from '../../notebookOptions.js';
+import { CellViewModelStateChangeEvent } from '../../notebookViewEvents.js';
+import { ITextModelUpdateOptions } from '../../../../../../editor/common/model.js';
 export declare class CellEditorOptions extends CellContentPart implements ITextModelUpdateOptions {
     private readonly base;
     readonly notebookOptions: NotebookOptions;
@@ -18,8 +18,8 @@ export declare class CellEditorOptions extends CellContentPart implements ITextM
     private _insertSpaces?;
     set tabSize(value: number | undefined);
     get tabSize(): number | undefined;
-    set indentSize(value: number | "tabSize" | undefined);
-    get indentSize(): number | "tabSize" | undefined;
+    set indentSize(value: number | 'tabSize' | undefined);
+    get indentSize(): number | 'tabSize' | undefined;
     set insertSpaces(value: boolean | undefined);
     get insertSpaces(): boolean | undefined;
     private readonly _onDidChange;
@@ -32,5 +32,5 @@ export declare class CellEditorOptions extends CellContentPart implements ITextM
     getUpdatedValue(internalMetadata: NotebookCellInternalMetadata, cellUri: URI): IEditorOptions;
     getValue(internalMetadata: NotebookCellInternalMetadata, cellUri: URI): IEditorOptions;
     getDefaultValue(): IEditorOptions;
-    setLineNumbers(lineNumbers: "on" | "off" | "inherit"): void;
+    setLineNumbers(lineNumbers: 'on' | 'off' | 'inherit'): void;
 }

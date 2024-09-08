@@ -1,6 +1,6 @@
-import type { IStringDictionary } from "../../../base/common/collections.js";
-import { ILogService } from "../../log/common/log.js";
-import { AbstractPolicyService, type IPolicyService, type PolicyDefinition } from "../common/policy.js";
+import { AbstractPolicyService, IPolicyService, PolicyDefinition } from '../common/policy.js';
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { ILogService } from '../../log/common/log.js';
 export declare class NativePolicyService extends AbstractPolicyService implements IPolicyService {
     private readonly logService;
     private readonly productName;

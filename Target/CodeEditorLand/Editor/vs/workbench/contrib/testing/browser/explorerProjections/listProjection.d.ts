@@ -1,10 +1,10 @@
-import type { ObjectTree } from "../../../../../base/browser/ui/tree/objectTree.js";
-import type { FuzzyScore } from "../../../../../base/common/filters.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ITestResultService } from "../../common/testResultService.js";
-import { ITestService } from "../../common/testService.js";
-import { TestItemTreeElement, type ITestTreeProjection, type TestExplorerTreeElement } from "./index.js";
-import { type ISerializedTestTreeCollapseState } from "./testingViewState.js";
+import { ObjectTree } from '../../../../../base/browser/ui/tree/objectTree.js';
+import { FuzzyScore } from '../../../../../base/common/filters.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ITestTreeProjection, TestExplorerTreeElement, TestItemTreeElement } from './index.js';
+import { ISerializedTestTreeCollapseState } from './testingViewState.js';
+import { ITestResultService } from '../../common/testResultService.js';
+import { ITestService } from '../../common/testService.js';
 /**
  * Projection that lists tests in their traditional tree view.
  */

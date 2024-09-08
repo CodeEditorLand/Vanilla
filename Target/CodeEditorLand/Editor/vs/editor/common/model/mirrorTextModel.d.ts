@@ -1,6 +1,6 @@
-import type { URI } from "../../../base/common/uri.js";
-import type { IModelContentChange } from "../textModelEvents.js";
-import { PrefixSumComputer } from "./prefixSumComputer.js";
+import { URI } from '../../../base/common/uri.js';
+import { IModelContentChange } from '../textModelEvents.js';
+import { PrefixSumComputer } from './prefixSumComputer.js';
 export interface IModelChangedEvent {
     /**
      * The actual changes.

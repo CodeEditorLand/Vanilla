@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { type IObservable, type ISettableObservable } from "../../../../base/common/observable.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import type { TestCoverage } from "./testCoverage.js";
-import type { TestId } from "./testId.js";
-import type { ITestRunTaskResults } from "./testResult.js";
-import { ITestResultService } from "./testResultService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IObservable, ISettableObservable } from '../../../../base/common/observable.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { TestCoverage } from './testCoverage.js';
+import { TestId } from './testId.js';
+import { ITestRunTaskResults } from './testResult.js';
+import { ITestResultService } from './testResultService.js';
+import { IViewsService } from '../../../services/views/common/viewsService.js';
 export declare const ITestCoverageService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITestCoverageService>;
 export interface ITestCoverageService {
     readonly _serviceBrand: undefined;

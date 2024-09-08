@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IKeyboardLayoutService } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
-import { type IWorkbenchContribution } from "../../../common/contributions.js";
-import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { IStatusbarService } from '../../../services/statusbar/browser/statusbar.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IKeyboardLayoutService } from '../../../../platform/keyboardLayout/common/keyboardLayout.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
 export declare class KeyboardLayoutPickerContribution extends Disposable implements IWorkbenchContribution {
     private readonly keyboardLayoutService;
     private readonly statusbarService;

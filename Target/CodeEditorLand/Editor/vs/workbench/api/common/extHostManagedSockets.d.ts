@@ -1,7 +1,7 @@
-import type * as vscode from "vscode";
-import { VSBuffer } from "../../../base/common/buffer.js";
-import { type ExtHostManagedSocketsShape } from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import { ExtHostManagedSocketsShape } from './extHost.protocol.js';
+import * as vscode from 'vscode';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { VSBuffer } from '../../../base/common/buffer.js';
 export interface IExtHostManagedSockets extends ExtHostManagedSocketsShape {
     setFactory(socketFactoryId: number, makeConnection: () => Thenable<vscode.ManagedMessagePassing>): void;
     readonly _serviceBrand: undefined;

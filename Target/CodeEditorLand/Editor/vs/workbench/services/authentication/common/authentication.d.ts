@@ -1,4 +1,4 @@
-import type { Event } from "../../../../base/common/event.js";
+import { Event } from '../../../../base/common/event.js';
 /**
  * Use this if you don't want the onDidChangeSessions event to fire in the extension host
  */

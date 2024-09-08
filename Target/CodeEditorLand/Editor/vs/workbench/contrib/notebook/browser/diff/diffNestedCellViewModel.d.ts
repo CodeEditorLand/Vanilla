@@ -1,11 +1,11 @@
-import { Emitter } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { PrefixSumComputer } from "../../../../../editor/common/model/prefixSumComputer.js";
-import type { NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
-import { INotebookService } from "../../common/notebookService.js";
-import type { ICellOutputViewModel, IGenericCellViewModel } from "../notebookBrowser.js";
-import type { CellViewModelStateChangeEvent } from "../notebookViewEvents.js";
-import type { IDiffNestedCellViewModel } from "./notebookDiffEditorBrowser.js";
+import { Emitter } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { PrefixSumComputer } from '../../../../../editor/common/model/prefixSumComputer.js';
+import { IDiffNestedCellViewModel } from './notebookDiffEditorBrowser.js';
+import { ICellOutputViewModel, IGenericCellViewModel } from '../notebookBrowser.js';
+import { CellViewModelStateChangeEvent } from '../notebookViewEvents.js';
+import { NotebookCellTextModel } from '../../common/model/notebookCellTextModel.js';
+import { INotebookService } from '../../common/notebookService.js';
 export declare class DiffNestedCellViewModel extends Disposable implements IDiffNestedCellViewModel, IGenericCellViewModel {
     readonly textModel: NotebookCellTextModel;
     private _notebookService;

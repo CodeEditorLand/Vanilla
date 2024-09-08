@@ -1,7 +1,7 @@
-import * as nls from "../../../../nls.js";
-import type { ILocalizedString } from "../../../../platform/action/common/action.js";
-import { type IRelatedInformation } from "../../../../platform/markers/common/markers.js";
-import type { Marker } from "./markersModel.js";
+import * as nls from '../../../../nls.js';
+import { IRelatedInformation } from '../../../../platform/markers/common/markers.js';
+import { ILocalizedString } from '../../../../platform/action/common/action.js';
+import { Marker } from './markersModel.js';
 export default class Messages {
     static MARKERS_PANEL_TOGGLE_LABEL: string;
     static MARKERS_PANEL_SHOW_LABEL: nls.ILocalizedString;

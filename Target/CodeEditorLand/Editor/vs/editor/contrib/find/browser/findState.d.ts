@@ -1,6 +1,6 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { Range } from "../../../common/core/range.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Range } from '../../../common/core/range.js';
 export interface FindReplaceStateChangedEvent {
     moveCursor: boolean;
     updateHistory: boolean;
@@ -20,7 +20,7 @@ export interface FindReplaceStateChangedEvent {
     isSearching: boolean;
     filters: boolean;
 }
-export declare enum FindOptionOverride {
+export declare const enum FindOptionOverride {
     NotSet = 0,
     True = 1,
     False = 2

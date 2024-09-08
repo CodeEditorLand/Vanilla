@@ -1,11 +1,11 @@
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { type ICodeEditor } from "../../../browser/editorBrowser.js";
-import type { IEditorContribution } from "../../../common/editorCommon.js";
-import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { ICodeLensCache } from "./codeLensCache.js";
-import { type CodeLensModel } from "./codelens.js";
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { CodeLensModel } from './codelens.js';
+import { ICodeLensCache } from './codeLensCache.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { ILanguageFeatureDebounceService } from '../../../common/services/languageFeatureDebounce.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
 export declare class CodeLensContribution implements IEditorContribution {
     private readonly _editor;
     private readonly _languageFeaturesService;

@@ -1,6 +1,6 @@
-import { type ISequence, SequenceDiff } from "./algorithms/diffAlgorithm.js";
-import type { LineSequence } from "./lineSequence.js";
-import type { LinesSliceCharSequence } from "./linesSliceCharSequence.js";
+import { ISequence, SequenceDiff } from './algorithms/diffAlgorithm.js';
+import { LineSequence } from './lineSequence.js';
+import { LinesSliceCharSequence } from './linesSliceCharSequence.js';
 export declare function optimizeSequenceDiffs(sequence1: ISequence, sequence2: ISequence, sequenceDiffs: SequenceDiff[]): SequenceDiff[];
 export declare function removeShortMatches(sequence1: ISequence, sequence2: ISequence, sequenceDiffs: SequenceDiff[]): SequenceDiff[];
 export declare function extendDiffsToEntireWordIfAppropriate(sequence1: LinesSliceCharSequence, sequence2: LinesSliceCharSequence, sequenceDiffs: SequenceDiff[]): SequenceDiff[];

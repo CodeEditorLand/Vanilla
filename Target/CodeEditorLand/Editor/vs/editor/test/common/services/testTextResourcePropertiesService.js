@@ -1,34 +1,3 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
-};
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as platform from "../../../../base/common/platform.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-let TestTextResourcePropertiesService = class {
-  constructor(configurationService) {
-    this.configurationService = configurationService;
-  }
-  getEOL(resource, language) {
-    const eol = this.configurationService.getValue("files.eol", {
-      overrideIdentifier: language,
-      resource
-    });
-    if (eol && typeof eol === "string" && eol !== "auto") {
-      return eol;
-    }
-    return platform.isLinux || platform.isMacintosh ? "\n" : "\r\n";
-  }
-};
-TestTextResourcePropertiesService = __decorateClass([
-  __decorateParam(0, IConfigurationService)
-], TestTextResourcePropertiesService);
-export {
-  TestTextResourcePropertiesService
-};
+var s=Object.defineProperty;var u=Object.getOwnPropertyDescriptor;var c=(e,i,o,r)=>{for(var n=r>1?void 0:r?u(i,o):i,a=e.length-1,f;a>=0;a--)(f=e[a])&&(n=(r?f(i,o,n):f(n))||n);return r&&n&&s(i,o,n),n},m=(e,i)=>(o,r)=>i(o,r,e);import*as l from"../../../../base/common/platform.js";import"../../../../base/common/uri.js";import"../../../common/services/textResourceConfiguration.js";import{IConfigurationService as g}from"../../../../platform/configuration/common/configuration.js";let t=class{constructor(i){this.configurationService=i}getEOL(i,o){const r=this.configurationService.getValue("files.eol",{overrideIdentifier:o,resource:i});return r&&typeof r=="string"&&r!=="auto"?r:l.isLinux||l.isMacintosh?`
+`:`\r
+`}};t=c([m(0,g)],t);export{t as TestTextResourcePropertiesService};

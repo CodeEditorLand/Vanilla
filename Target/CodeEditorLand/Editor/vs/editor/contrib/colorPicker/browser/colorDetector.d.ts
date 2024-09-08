@@ -1,13 +1,13 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import type { Position } from "../../../common/core/position.js";
-import type { IEditorContribution } from "../../../common/editorCommon.js";
-import type { IModelDecoration } from "../../../common/model.js";
-import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { type IColorData } from "./color.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { Position } from '../../../common/core/position.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { IModelDecoration } from '../../../common/model.js';
+import { ILanguageFeatureDebounceService } from '../../../common/services/languageFeatureDebounce.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { IColorData } from './color.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 export declare const ColorDecorationInjectedTextMarker: any;
 export declare class ColorDetector extends Disposable implements IEditorContribution {
     private readonly _editor;

@@ -1,10 +1,10 @@
-import type { IStringDictionary } from "../../../base/common/collections.js";
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { Emitter, Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
 export type PolicyName = string;
 export type PolicyValue = string | number;
 export type PolicyDefinition = {
-    type: "string" | "number";
+    type: 'string' | 'number';
 };
 export declare const IPolicyService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IPolicyService>;
 export interface IPolicyService {

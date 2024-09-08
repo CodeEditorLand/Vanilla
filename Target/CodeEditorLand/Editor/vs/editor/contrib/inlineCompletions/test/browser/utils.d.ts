@@ -1,10 +1,10 @@
-import type { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { Position } from "../../../../common/core/position.js";
-import type { InlineCompletion, InlineCompletionContext, InlineCompletionsProvider } from "../../../../common/languages.js";
-import type { ITextModel } from "../../../../common/model.js";
-import type { ITestCodeEditor } from "../../../../test/browser/testCodeEditor.js";
-import type { InlineCompletionsModel } from "../../browser/model/inlineCompletionsModel.js";
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { Position } from '../../../../common/core/position.js';
+import { ITextModel } from '../../../../common/model.js';
+import { InlineCompletion, InlineCompletionContext, InlineCompletionsProvider } from '../../../../common/languages.js';
+import { ITestCodeEditor } from '../../../../test/browser/testCodeEditor.js';
+import { InlineCompletionsModel } from '../../browser/model/inlineCompletionsModel.js';
 export declare class MockInlineCompletionsProvider implements InlineCompletionsProvider {
     private returnValue;
     private delayMs;

@@ -1,10 +1,10 @@
-import { Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { URI, UriDto } from "../../../base/common/uri.js";
-import { type IURITransformer } from "../../../base/common/uriIpc.js";
-import type { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import type { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
-import { type DidChangeProfilesEvent, type IUserDataProfile, type IUserDataProfileOptions, type IUserDataProfileUpdateOptions, type IUserDataProfilesService } from "./userDataProfile.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IChannel, IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { URI, UriDto } from '../../../base/common/uri.js';
+import { DidChangeProfilesEvent, IUserDataProfile, IUserDataProfileOptions, IUserDataProfilesService, IUserDataProfileUpdateOptions } from './userDataProfile.js';
+import { IAnyWorkspaceIdentifier } from '../../workspace/common/workspace.js';
+import { IURITransformer } from '../../../base/common/uriIpc.js';
 export declare class RemoteUserDataProfilesServiceChannel implements IServerChannel {
     private readonly service;
     private readonly getUriTransformer;

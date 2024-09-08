@@ -1,5 +1,5 @@
-import { CharacterClassifier } from "./characterClassifier.js";
-export declare enum WordCharacterClass {
+import { CharacterClassifier } from './characterClassifier.js';
+export declare const enum WordCharacterClass {
     Regular = 0,
     Whitespace = 1,
     WordSeparator = 2

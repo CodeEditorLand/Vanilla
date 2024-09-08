@@ -1,9 +1,9 @@
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import { type ILanguageIdCodec } from "../languages.js";
-import type { ILanguageExtensionPoint, ILanguageIcon, ILanguageNameIdPair, ILanguageSelection, ILanguageService } from "../languages/language.js";
-import { LanguagesRegistry } from "./languagesRegistry.js";
+import { Emitter, Event } from '../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { LanguagesRegistry } from './languagesRegistry.js';
+import { ILanguageNameIdPair, ILanguageSelection, ILanguageService, ILanguageIcon, ILanguageExtensionPoint } from '../languages/language.js';
+import { ILanguageIdCodec } from '../languages.js';
 export declare class LanguageService extends Disposable implements ILanguageService {
     _serviceBrand: undefined;
     static instanceCount: number;

@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { type IWorkbenchContribution } from "../../../common/contributions.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { IHostService } from "../../../services/host/browser/host.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { IHostService } from '../../../services/host/browser/host.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
 export declare class SettingsChangeRelauncher extends Disposable implements IWorkbenchContribution {
     private readonly hostService;
     private readonly configurationService;

@@ -1,4 +1,4 @@
-import type { ScrollbarVisibility } from "../../../common/scrollable.js";
+import { ScrollbarVisibility } from '../../../common/scrollable.js';
 export interface ScrollableElementCreationOptions {
     /**
      * The scrollable element should not do any DOM mutations until renderNow() is called.

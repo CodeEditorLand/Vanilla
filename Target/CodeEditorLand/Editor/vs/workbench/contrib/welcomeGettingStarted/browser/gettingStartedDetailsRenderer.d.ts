@@ -1,8 +1,8 @@
-import type { URI } from "../../../../base/common/uri.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
 export declare class GettingStartedDetailsRenderer {
     private readonly fileService;
     private readonly notificationService;

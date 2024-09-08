@@ -1,5 +1,5 @@
-import type { URI } from "../../../base/common/uri.js";
-import type { IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { URI } from '../../../base/common/uri.js';
+import { IWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 export interface IBaseBackupInfo {
     remoteAuthority?: string;
 }

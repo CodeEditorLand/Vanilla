@@ -1,9 +1,9 @@
-import type { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import type { MarshalledId } from "../../../../base/common/marshallingIds.js";
-import { URI, type UriComponents } from "../../../../base/common/uri.js";
-import { Position, type IPosition } from "../../../../editor/common/core/position.js";
-import { Range, type IRange } from "../../../../editor/common/core/range.js";
-export declare enum TestResultState {
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { MarshalledId } from '../../../../base/common/marshallingIds.js';
+import { URI, UriComponents } from '../../../../base/common/uri.js';
+import { IPosition, Position } from '../../../../editor/common/core/position.js';
+import { IRange, Range } from '../../../../editor/common/core/range.js';
+export declare const enum TestResultState {
     Unset = 0,
     Queued = 1,
     Running = 2,
@@ -16,17 +16,17 @@ export declare const testResultStateToContextValues: {
     [K in TestResultState]: string;
 };
 /** note: keep in sync with TestRunProfileKind in vscode.d.ts */
-export declare enum ExtTestRunProfileKind {
+export declare const enum ExtTestRunProfileKind {
     Run = 1,
     Debug = 2,
     Coverage = 3
 }
-export declare enum TestControllerCapability {
+export declare const enum TestControllerCapability {
     Refresh = 2,
     CodeRelatedToTest = 4,
     TestRelatedToCode = 8
 }
-export declare enum TestRunProfileBitset {
+export declare const enum TestRunProfileBitset {
     Run = 2,
     Debug = 4,
     Coverage = 8,
@@ -128,7 +128,7 @@ export declare namespace IRichLocation {
     const serialize: (location: Readonly<IRichLocation>) => Serialize;
     const deserialize: (uriIdentity: ITestUriCanonicalizer, location: Serialize) => IRichLocation;
 }
-export declare enum TestMessageType {
+export declare const enum TestMessageType {
     Error = 0,
     Output = 1
 }
@@ -266,7 +266,7 @@ export declare namespace ITestItem {
     const serialize: (item: Readonly<ITestItem>) => Serialized;
     const deserialize: (uriIdentity: ITestUriCanonicalizer, serialized: Serialized) => ITestItem;
 }
-export declare enum TestItemExpandState {
+export declare const enum TestItemExpandState {
     NotExpandable = 0,
     Expandable = 1,
     BusyExpanding = 2,
@@ -403,7 +403,7 @@ export declare namespace IFileCoverage {
 }
 /** Number of recent runs in which coverage reports should be retained. */
 export declare const KEEP_N_LAST_COVERAGE_REPORTS = 3;
-export declare enum DetailType {
+export declare const enum DetailType {
     Declaration = 0,
     Statement = 1,
     Branch = 2
@@ -460,7 +460,7 @@ export declare namespace IStatementCoverage {
     const serialize: (original: Readonly<IStatementCoverage>) => Serialized;
     const deserialize: (serialized: Serialized) => IStatementCoverage;
 }
-export declare enum TestDiffOpType {
+export declare const enum TestDiffOpType {
     /** Adds a new test (with children) */
     Add = 0,
     /** Shallow-updates an existing test */

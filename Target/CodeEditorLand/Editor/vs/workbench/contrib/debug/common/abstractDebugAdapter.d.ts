@@ -1,5 +1,5 @@
-import { Emitter, type Event } from "../../../../base/common/event.js";
-import type { IDebugAdapter } from "./debug.js";
+import { Emitter, Event } from '../../../../base/common/event.js';
+import { IDebugAdapter } from './debug.js';
 /**
  * Abstract implementation of the low level API for a debug adapter.
  * Missing is how this API communicates with the debug adapter.

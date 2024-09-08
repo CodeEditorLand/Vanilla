@@ -1,12 +1,12 @@
-import { Action, type IAction, type IActionRunner } from "../../../common/actions.js";
-import type { ResolvedKeybinding } from "../../../common/keybindings.js";
-import { Disposable } from "../../../common/lifecycle.js";
-import { ThemeIcon } from "../../../common/themables.js";
-import type { IContextMenuProvider } from "../../contextmenu.js";
-import { ActionBar, ActionsOrientation, type IActionViewItemProvider } from "../actionbar/actionbar.js";
-import type { AnchorAlignment } from "../contextview/contextview.js";
-import "./toolbar.css";
-import type { IHoverDelegate } from "../hover/hoverDelegate.js";
+import { IContextMenuProvider } from '../../contextmenu.js';
+import { ActionBar, ActionsOrientation, IActionViewItemProvider } from '../actionbar/actionbar.js';
+import { AnchorAlignment } from '../contextview/contextview.js';
+import { Action, IAction, IActionRunner } from '../../../common/actions.js';
+import { ThemeIcon } from '../../../common/themables.js';
+import { ResolvedKeybinding } from '../../../common/keybindings.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import './toolbar.css';
+import { IHoverDelegate } from '../hover/hoverDelegate.js';
 export interface IToolBarOptions {
     orientation?: ActionsOrientation;
     actionViewItemProvider?: IActionViewItemProvider;

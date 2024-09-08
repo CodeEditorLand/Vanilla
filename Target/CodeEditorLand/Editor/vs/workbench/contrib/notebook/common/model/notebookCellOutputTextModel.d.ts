@@ -1,6 +1,6 @@
-import type { VSBuffer } from "../../../../../base/common/buffer.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { type ICellOutput, type IOutputDto, type IOutputItemDto } from "../notebookCommon.js";
+import { VSBuffer } from '../../../../../base/common/buffer.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ICellOutput, IOutputDto, IOutputItemDto } from '../notebookCommon.js';
 export declare class NotebookCellOutputTextModel extends Disposable implements ICellOutput {
     private _rawOutput;
     private _onDidChangeData;

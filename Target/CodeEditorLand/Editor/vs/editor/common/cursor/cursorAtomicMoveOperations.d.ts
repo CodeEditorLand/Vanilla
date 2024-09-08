@@ -1,4 +1,4 @@
-export declare enum Direction {
+export declare const enum Direction {
     Left = 0,
     Right = 1,
     Nearest = 2

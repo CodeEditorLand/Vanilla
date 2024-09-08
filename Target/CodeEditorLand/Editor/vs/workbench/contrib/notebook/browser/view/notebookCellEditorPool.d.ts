@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { type IScopedContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { type ICellViewModel, type INotebookEditorDelegate } from "../notebookBrowser.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ITextModelService } from '../../../../../editor/common/services/resolverService.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IScopedContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { ICellViewModel, INotebookEditorDelegate } from '../notebookBrowser.js';
 export declare class NotebookCellEditorPool extends Disposable {
     readonly notebookEditor: INotebookEditorDelegate;
     private readonly contextKeyServiceProvider;

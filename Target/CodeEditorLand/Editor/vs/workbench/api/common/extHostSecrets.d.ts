@@ -1,8 +1,8 @@
-import type * as vscode from "vscode";
-import { Event } from "../../../base/common/event.js";
-import { DisposableStore } from "../../../base/common/lifecycle.js";
-import { type IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import type { ExtHostSecretState } from "./extHostSecretState.js";
+import type * as vscode from 'vscode';
+import { ExtHostSecretState } from './extHostSecretState.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { Event } from '../../../base/common/event.js';
+import { DisposableStore } from '../../../base/common/lifecycle.js';
 export declare class ExtensionSecrets implements vscode.SecretStorage {
     #private;
     protected readonly _id: string;

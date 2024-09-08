@@ -1,5 +1,5 @@
-import { OperatingSystem } from "./platform.js";
-import type { URI } from "./uri.js";
+import { OperatingSystem } from './platform.js';
+import { URI } from './uri.js';
 export interface IPathLabelFormatting {
     /**
      * The OS the path label is from to produce a label

@@ -1,14 +1,14 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import type { Location } from "../../../../editor/common/languages.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { ChatAgentLocation } from "../common/chatAgents.js";
-import type { IChatModel, IChatRequestVariableData, IChatRequestVariableEntry } from "../common/chatModel.js";
-import { type IParsedChatRequest } from "../common/chatParserTypes.js";
-import type { IChatRequestVariableValue, IChatVariableData, IChatVariableResolver, IChatVariableResolverProgress, IChatVariablesService, IDynamicVariable } from "../common/chatVariables.js";
-import { ILanguageModelToolsService } from "../common/languageModelToolsService.js";
-import { IChatWidgetService } from "./chat.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { Location } from '../../../../editor/common/languages.js';
+import { IChatWidgetService } from './chat.js';
+import { ChatAgentLocation } from '../common/chatAgents.js';
+import { IChatModel, IChatRequestVariableData, IChatRequestVariableEntry } from '../common/chatModel.js';
+import { IParsedChatRequest } from '../common/chatParserTypes.js';
+import { IChatRequestVariableValue, IChatVariableData, IChatVariableResolver, IChatVariableResolverProgress, IChatVariablesService, IDynamicVariable } from '../common/chatVariables.js';
+import { IViewsService } from '../../../services/views/common/viewsService.js';
+import { ILanguageModelToolsService } from '../common/languageModelToolsService.js';
 export declare class ChatVariablesService implements IChatVariablesService {
     private readonly chatWidgetService;
     private readonly viewsService;

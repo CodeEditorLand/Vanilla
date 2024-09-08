@@ -1,11 +1,11 @@
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { Disposable, type IDisposable } from "../../../base/common/lifecycle.js";
-import type { ReadableStreamEvents } from "../../../base/common/stream.js";
-import type { URI } from "../../../base/common/uri.js";
-import { FileSystemProviderCapabilities, type FileType, type IFileAtomicOptions, type IFileAtomicReadOptions, type IFileChange, type IFileDeleteOptions, type IFileOpenOptions, type IFileOverwriteOptions, type IFileReadStreamOptions, type IFileSystemProviderWithFileAtomicDeleteCapability, type IFileSystemProviderWithFileAtomicReadCapability, type IFileSystemProviderWithFileAtomicWriteCapability, type IFileSystemProviderWithFileCloneCapability, type IFileSystemProviderWithFileFolderCopyCapability, type IFileSystemProviderWithFileReadStreamCapability, type IFileSystemProviderWithFileReadWriteCapability, type IFileSystemProviderWithOpenReadWriteCloseCapability, type IFileWriteOptions, type IStat, type IWatchOptions } from "../../files/common/files.js";
-import type { ILogService } from "../../log/common/log.js";
-import type { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import type { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { IFileSystemProviderWithFileReadWriteCapability, IFileChange, IWatchOptions, IStat, IFileOverwriteOptions, FileType, IFileWriteOptions, IFileDeleteOptions, FileSystemProviderCapabilities, IFileSystemProviderWithFileReadStreamCapability, IFileReadStreamOptions, IFileSystemProviderWithFileAtomicReadCapability, IFileSystemProviderWithOpenReadWriteCloseCapability, IFileOpenOptions, IFileSystemProviderWithFileAtomicWriteCapability, IFileSystemProviderWithFileAtomicDeleteCapability, IFileSystemProviderWithFileFolderCopyCapability, IFileSystemProviderWithFileCloneCapability, IFileAtomicReadOptions, IFileAtomicOptions } from '../../files/common/files.js';
+import { URI } from '../../../base/common/uri.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { ReadableStreamEvents } from '../../../base/common/stream.js';
+import { ILogService } from '../../log/common/log.js';
+import { IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
+import { IUriIdentityService } from '../../uriIdentity/common/uriIdentity.js';
 /**
  * This is a wrapper on top of the local filesystem provider which will
  * 	- Convert the user data resources to file system scheme and vice-versa

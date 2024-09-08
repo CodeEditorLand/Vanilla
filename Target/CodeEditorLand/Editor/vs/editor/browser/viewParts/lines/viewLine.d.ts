@@ -1,14 +1,14 @@
-import { type ColorScheme } from "../../../../platform/theme/common/theme.js";
-import type { IEditorConfiguration } from "../../../common/config/editorConfiguration.js";
-import type { StringBuilder } from "../../../common/core/stringBuilder.js";
-import { type CharacterMapping } from "../../../common/viewLayout/viewLineRenderer.js";
-import type { ViewportData } from "../../../common/viewLayout/viewLinesViewportData.js";
-import { VisibleRanges } from "../../view/renderingContext.js";
-import type { IVisibleLine } from "../../view/viewLayer.js";
-import type { DomReadingContext } from "./domReadingContext.js";
+import { IVisibleLine } from '../../view/viewLayer.js';
+import { StringBuilder } from '../../../common/core/stringBuilder.js';
+import { IEditorConfiguration } from '../../../common/config/editorConfiguration.js';
+import { VisibleRanges } from '../../view/renderingContext.js';
+import { CharacterMapping } from '../../../common/viewLayout/viewLineRenderer.js';
+import { ViewportData } from '../../../common/viewLayout/viewLinesViewportData.js';
+import { ColorScheme } from '../../../../platform/theme/common/theme.js';
+import { DomReadingContext } from './domReadingContext.js';
 export declare class ViewLineOptions {
     readonly themeType: ColorScheme;
-    readonly renderWhitespace: "none" | "boundary" | "selection" | "trailing" | "all";
+    readonly renderWhitespace: 'none' | 'boundary' | 'selection' | 'trailing' | 'all';
     readonly renderControlCharacters: boolean;
     readonly spaceWidth: number;
     readonly middotWidth: number;

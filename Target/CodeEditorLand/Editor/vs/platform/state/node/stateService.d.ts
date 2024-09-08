@@ -1,10 +1,10 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { URI } from "../../../base/common/uri.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IFileService } from "../../files/common/files.js";
-import { ILogService } from "../../log/common/log.js";
-import type { IStateReadService, IStateService } from "./state.js";
-export declare enum SaveStrategy {
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IFileService } from '../../files/common/files.js';
+import { ILogService } from '../../log/common/log.js';
+import { IStateReadService, IStateService } from './state.js';
+export declare const enum SaveStrategy {
     IMMEDIATE = 0,
     DELAYED = 1
 }

@@ -1,8 +1,8 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
 export declare class CustomEditorLabelService extends Disposable implements ICustomEditorLabelService {
     private readonly configurationService;
     private readonly workspaceContextService;

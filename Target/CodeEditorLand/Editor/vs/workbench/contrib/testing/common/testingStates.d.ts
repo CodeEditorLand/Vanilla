@@ -1,4 +1,4 @@
-import { TestResultState } from "./testTypes.js";
+import { TestResultState } from './testTypes.js';
 export type TreeStateNode = {
     statusNode: true;
     state: TestResultState;

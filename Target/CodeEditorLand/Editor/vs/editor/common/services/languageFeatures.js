@@ -1,5 +1,1 @@
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-const ILanguageFeaturesService = createDecorator("ILanguageFeaturesService");
-export {
-  ILanguageFeaturesService
-};
+import"../languageFeatureRegistry.js";import"../languages.js";import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";const B=e("ILanguageFeaturesService");export{B as ILanguageFeaturesService};

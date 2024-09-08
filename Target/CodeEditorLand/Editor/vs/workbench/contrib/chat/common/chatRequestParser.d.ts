@@ -1,8 +1,8 @@
-import { ChatAgentLocation, type IChatAgentData, IChatAgentService } from "./chatAgents.js";
-import { type IParsedChatRequest } from "./chatParserTypes.js";
-import { IChatSlashCommandService } from "./chatSlashCommands.js";
-import { IChatVariablesService } from "./chatVariables.js";
-import { ILanguageModelToolsService } from "./languageModelToolsService.js";
+import { ChatAgentLocation, IChatAgentData, IChatAgentService } from './chatAgents.js';
+import { IParsedChatRequest } from './chatParserTypes.js';
+import { IChatSlashCommandService } from './chatSlashCommands.js';
+import { IChatVariablesService } from './chatVariables.js';
+import { ILanguageModelToolsService } from './languageModelToolsService.js';
 export interface IChatParserContext {
     /** Used only as a disambiguator, when the query references an agent that has a duplicate with the same name. */
     selectedAgent?: IChatAgentData;

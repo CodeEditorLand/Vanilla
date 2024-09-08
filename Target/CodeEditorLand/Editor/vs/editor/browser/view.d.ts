@@ -1,15 +1,15 @@
-import { type FastDomNode } from "../../base/browser/fastDomNode.js";
-import type { IMouseWheelEvent } from "../../base/browser/mouseEvent.js";
-import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
-import { type IColorTheme } from "../../platform/theme/common/themeService.js";
-import type { IEditorConfiguration } from "../common/config/editorConfiguration.js";
-import { ViewEventHandler } from "../common/viewEventHandler.js";
-import type * as viewEvents from "../common/viewEvents.js";
-import type { IViewModel } from "../common/viewModel.js";
-import type { IContentWidget, IContentWidgetPosition, IEditorAriaOptions, IGlyphMarginWidget, IGlyphMarginWidgetPosition, IMouseTarget, IOverlayWidget, IOverlayWidgetPosition, IViewZoneChangeAccessor } from "./editorBrowser.js";
-import { type ICommandDelegate } from "./view/viewController.js";
-import { ViewUserInputEvents } from "./view/viewUserInputEvents.js";
-import { OverviewRuler } from "./viewParts/overviewRuler/overviewRuler.js";
+import { FastDomNode } from '../../base/browser/fastDomNode.js';
+import { IMouseWheelEvent } from '../../base/browser/mouseEvent.js';
+import { IContentWidget, IContentWidgetPosition, IEditorAriaOptions, IGlyphMarginWidget, IGlyphMarginWidgetPosition, IMouseTarget, IOverlayWidget, IOverlayWidgetPosition, IViewZoneChangeAccessor } from './editorBrowser.js';
+import { ICommandDelegate } from './view/viewController.js';
+import { ViewUserInputEvents } from './view/viewUserInputEvents.js';
+import { OverviewRuler } from './viewParts/overviewRuler/overviewRuler.js';
+import { IEditorConfiguration } from '../common/config/editorConfiguration.js';
+import { ViewEventHandler } from '../common/viewEventHandler.js';
+import * as viewEvents from '../common/viewEvents.js';
+import { IViewModel } from '../common/viewModel.js';
+import { IInstantiationService } from '../../platform/instantiation/common/instantiation.js';
+import { IColorTheme } from '../../platform/theme/common/themeService.js';
 export interface IContentWidgetData {
     widget: IContentWidget;
     position: IContentWidgetPosition | null;

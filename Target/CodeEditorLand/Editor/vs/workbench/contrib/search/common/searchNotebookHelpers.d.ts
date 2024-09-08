@@ -1,6 +1,6 @@
-import type { URI, UriComponents } from "../../../../base/common/uri.js";
-import type { FindMatch, IReadonlyTextBuffer } from "../../../../editor/common/model.js";
-import { TextSearchMatch, type IFileMatch, type ITextSearchMatch } from "../../../services/search/common/search.js";
+import { FindMatch, IReadonlyTextBuffer } from '../../../../editor/common/model.js';
+import { TextSearchMatch, IFileMatch, ITextSearchMatch } from '../../../services/search/common/search.js';
+import { URI, UriComponents } from '../../../../base/common/uri.js';
 export type IRawClosedNotebookFileMatch = INotebookFileMatchNoModel<UriComponents>;
 export interface INotebookFileMatchNoModel<U extends UriComponents = URI> extends IFileMatch<U> {
     cellResults: INotebookCellMatchNoModel<U>[];

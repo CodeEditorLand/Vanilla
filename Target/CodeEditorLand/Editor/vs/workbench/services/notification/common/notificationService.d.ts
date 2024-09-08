@@ -1,8 +1,8 @@
-import { Event } from "../../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { INotificationService, NotificationsFilter, Severity, type INotification, type INotificationHandle, type INotificationSource, type INotificationSourceFilter, type IPromptChoice, type IPromptOptions, type IStatusMessageOptions, type NotificationMessage } from "../../../../platform/notification/common/notification.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { NotificationsModel } from "../../../common/notifications.js";
+import { INotificationService, INotification, INotificationHandle, Severity, NotificationMessage, IPromptChoice, IPromptOptions, IStatusMessageOptions, NotificationsFilter, INotificationSource, INotificationSourceFilter } from '../../../../platform/notification/common/notification.js';
+import { NotificationsModel } from '../../../common/notifications.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { Event } from '../../../../base/common/event.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
 export declare class NotificationService extends Disposable implements INotificationService {
     private readonly storageService;
     readonly _serviceBrand: undefined;

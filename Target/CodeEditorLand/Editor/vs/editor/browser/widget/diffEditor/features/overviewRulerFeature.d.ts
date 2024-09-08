@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { type IObservable } from "../../../../../base/common/observable.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { type EditorLayoutInfo } from "../../../../common/config/editorOptions.js";
-import type { DiffEditorEditors } from "../components/diffEditorEditors.js";
-import type { DiffEditorViewModel } from "../diffEditorViewModel.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../../base/common/observable.js';
+import { DiffEditorEditors } from '../components/diffEditorEditors.js';
+import { DiffEditorViewModel } from '../diffEditorViewModel.js';
+import { EditorLayoutInfo } from '../../../../common/config/editorOptions.js';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
 export declare class OverviewRulerFeature extends Disposable {
     private readonly _editors;
     private readonly _rootElement;

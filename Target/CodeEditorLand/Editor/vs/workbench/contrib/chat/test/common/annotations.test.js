@@ -1,80 +1,11 @@
-import { MarkdownString } from "../../../../../base/common/htmlContent.js";
-import { assertSnapshot } from "../../../../../base/test/common/snapshot.js";
-import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../base/test/common/utils.js";
-import {
-  annotateSpecialMarkdownContent,
-  extractVulnerabilitiesFromText
-} from "../../common/annotations.js";
-function content(str) {
-  return { kind: "markdownContent", content: new MarkdownString(str) };
-}
-suite("Annotations", () => {
-  ensureNoDisposablesAreLeakedInTestSuite();
-  suite("extractVulnerabilitiesFromText", () => {
-    test("single line", async () => {
-      const before = "some code ";
-      const vulnContent = "content with vuln";
-      const after = " after";
-      const annotatedResult = annotateSpecialMarkdownContent([
-        content(before),
-        {
-          kind: "markdownVuln",
-          content: new MarkdownString(vulnContent),
-          vulnerabilities: [{ title: "title", description: "vuln" }]
-        },
-        content(after)
-      ]);
-      await assertSnapshot(annotatedResult);
-      const markdown = annotatedResult[0];
-      const result = extractVulnerabilitiesFromText(
-        markdown.content.value
-      );
-      await assertSnapshot(result);
-    });
-    test("multiline", async () => {
-      const before = "some code\nover\nmultiple lines ";
-      const vulnContent = "content with vuln\nand\nnewlines";
-      const after = "more code\nwith newline";
-      const annotatedResult = annotateSpecialMarkdownContent([
-        content(before),
-        {
-          kind: "markdownVuln",
-          content: new MarkdownString(vulnContent),
-          vulnerabilities: [{ title: "title", description: "vuln" }]
-        },
-        content(after)
-      ]);
-      await assertSnapshot(annotatedResult);
-      const markdown = annotatedResult[0];
-      const result = extractVulnerabilitiesFromText(
-        markdown.content.value
-      );
-      await assertSnapshot(result);
-    });
-    test("multiple vulns", async () => {
-      const before = "some code\nover\nmultiple lines ";
-      const vulnContent = "content with vuln\nand\nnewlines";
-      const after = "more code\nwith newline";
-      const annotatedResult = annotateSpecialMarkdownContent([
-        content(before),
-        {
-          kind: "markdownVuln",
-          content: new MarkdownString(vulnContent),
-          vulnerabilities: [{ title: "title", description: "vuln" }]
-        },
-        content(after),
-        {
-          kind: "markdownVuln",
-          content: new MarkdownString(vulnContent),
-          vulnerabilities: [{ title: "title", description: "vuln" }]
-        }
-      ]);
-      await assertSnapshot(annotatedResult);
-      const markdown = annotatedResult[0];
-      const result = extractVulnerabilitiesFromText(
-        markdown.content.value
-      );
-      await assertSnapshot(result);
-    });
-  });
-});
+import{MarkdownString as r}from"../../../../../base/common/htmlContent.js";import{assertSnapshot as o}from"../../../../../base/test/common/snapshot.js";import{ensureNoDisposablesAreLeakedInTestSuite as d}from"../../../../../base/test/common/utils.js";import"../../common/chatService.js";import{annotateSpecialMarkdownContent as l,extractVulnerabilitiesFromText as c}from"../../common/annotations.js";function i(t){return{kind:"markdownContent",content:new r(t)}}suite("Annotations",function(){d(),suite("extractVulnerabilitiesFromText",()=>{test("single line",async()=>{const t="some code ",e="content with vuln",n=l([i(t),{kind:"markdownVuln",content:new r(e),vulnerabilities:[{title:"title",description:"vuln"}]},i(" after")]);await o(n);const a=n[0],s=c(a.content.value);await o(s)}),test("multiline",async()=>{const t=`some code
+over
+multiple lines `,e=`content with vuln
+and
+newlines`,n=l([i(t),{kind:"markdownVuln",content:new r(e),vulnerabilities:[{title:"title",description:"vuln"}]},i(`more code
+with newline`)]);await o(n);const a=n[0],s=c(a.content.value);await o(s)}),test("multiple vulns",async()=>{const t=`some code
+over
+multiple lines `,e=`content with vuln
+and
+newlines`,n=l([i(t),{kind:"markdownVuln",content:new r(e),vulnerabilities:[{title:"title",description:"vuln"}]},i(`more code
+with newline`),{kind:"markdownVuln",content:new r(e),vulnerabilities:[{title:"title",description:"vuln"}]}]);await o(n);const a=n[0],s=c(a.content.value);await o(s)})})});

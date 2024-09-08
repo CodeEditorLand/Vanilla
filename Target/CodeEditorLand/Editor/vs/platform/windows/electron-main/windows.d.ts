@@ -1,13 +1,13 @@
-import electron from "electron";
-import type { Event } from "../../../base/common/event.js";
-import { type IProcessEnvironment } from "../../../base/common/platform.js";
-import type { URI } from "../../../base/common/uri.js";
-import type { IAuxiliaryWindow } from "../../auxiliaryWindow/electron-main/auxiliaryWindow.js";
-import type { NativeParsedArgs } from "../../environment/common/argv.js";
-import { type ServicesAccessor } from "../../instantiation/common/instantiation.js";
-import type { ILogService } from "../../log/common/log.js";
-import { type IOpenEmptyWindowOptions, type IWindowOpenable } from "../../window/common/window.js";
-import { type ICodeWindow, type IWindowState } from "../../window/electron-main/window.js";
+import electron from 'electron';
+import { Event } from '../../../base/common/event.js';
+import { IProcessEnvironment } from '../../../base/common/platform.js';
+import { URI } from '../../../base/common/uri.js';
+import { IAuxiliaryWindow } from '../../auxiliaryWindow/electron-main/auxiliaryWindow.js';
+import { NativeParsedArgs } from '../../environment/common/argv.js';
+import { ServicesAccessor } from '../../instantiation/common/instantiation.js';
+import { ILogService } from '../../log/common/log.js';
+import { IOpenEmptyWindowOptions, IWindowOpenable } from '../../window/common/window.js';
+import { ICodeWindow, IWindowState } from '../../window/electron-main/window.js';
 export declare const IWindowsMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWindowsMainService>;
 export interface IWindowsMainService {
     readonly _serviceBrand: undefined;
@@ -44,7 +44,7 @@ export interface IWindowsCountChangedEvent {
     readonly oldCount: number;
     readonly newCount: number;
 }
-export declare enum OpenContext {
+export declare const enum OpenContext {
     CLI = 0,
     DOCK = 1,
     MENU = 2,

@@ -1,10 +1,10 @@
-import { URI } from "../../../base/common/uri.js";
-import type { IConfigurationService } from "../../configuration/common/configuration.js";
-import type { IEnvironmentService } from "../../environment/common/environment.js";
-import { TargetPlatform } from "../../extensions/common/extensions.js";
-import type { IFileService } from "../../files/common/files.js";
-import type { IProductService } from "../../product/common/productService.js";
-import type { IStorageService } from "../../storage/common/storage.js";
+import { URI } from '../../../base/common/uri.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IFileService } from '../../files/common/files.js';
+import { IProductService } from '../../product/common/productService.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { TargetPlatform } from '../../extensions/common/extensions.js';
 export declare const IExtensionResourceLoaderService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionResourceLoaderService>;
 /**
  * A service useful for reading resources from within extensions.
@@ -45,7 +45,7 @@ export declare abstract class AbstractExtensionResourceLoaderService implements 
     private readonly _extensionGalleryAuthority;
     constructor(_fileService: IFileService, _storageService: IStorageService, _productService: IProductService, _environmentService: IEnvironmentService, _configurationService: IConfigurationService);
     get supportsExtensionGalleryResources(): boolean;
-    getExtensionGalleryResourceURL({ publisher, name, version, targetPlatform, }: {
+    getExtensionGalleryResourceURL({ publisher, name, version, targetPlatform }: {
         publisher: string;
         name: string;
         version: string;

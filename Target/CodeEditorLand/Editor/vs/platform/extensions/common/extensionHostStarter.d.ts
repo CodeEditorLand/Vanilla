@@ -1,4 +1,4 @@
-import type { Event } from "../../../base/common/event.js";
+import { Event } from '../../../base/common/event.js';
 export declare const IExtensionHostStarter: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IExtensionHostStarter>;
 export declare const ipcExtensionHostStarterChannelName = "extensionHostStarter";
 export interface IExtensionHostProcessOptions {

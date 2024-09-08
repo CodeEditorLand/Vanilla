@@ -1,11 +1,11 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { type Event } from "../../../../base/common/event.js";
-import type { IJSONSchema } from "../../../../base/common/jsonSchema.js";
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { ThemeIcon } from "../../../../base/common/themables.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { type ContextKeyExpression, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { IJSONSchema } from '../../../../base/common/jsonSchema.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ContextKeyExpression, IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
 export interface IToolData {
     id: string;
     name?: string;

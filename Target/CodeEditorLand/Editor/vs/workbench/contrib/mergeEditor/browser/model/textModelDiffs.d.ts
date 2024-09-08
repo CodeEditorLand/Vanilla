@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { type IObservable, type IReader, type ITransaction } from "../../../../../base/common/observable.js";
-import type { ITextModel } from "../../../../../editor/common/model.js";
-import type { UndoRedoGroup } from "../../../../../platform/undoRedo/common/undoRedo.js";
-import type { IMergeDiffComputer } from "./diffComputer.js";
-import { LineRangeEdit } from "./editing.js";
-import { LineRange } from "./lineRange.js";
-import { DetailedLineRangeMapping } from "./mapping.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ITextModel } from '../../../../../editor/common/model.js';
+import { DetailedLineRangeMapping } from './mapping.js';
+import { LineRangeEdit } from './editing.js';
+import { LineRange } from './lineRange.js';
+import { IMergeDiffComputer } from './diffComputer.js';
+import { IObservable, IReader, ITransaction } from '../../../../../base/common/observable.js';
+import { UndoRedoGroup } from '../../../../../platform/undoRedo/common/undoRedo.js';
 export declare class TextModelDiffs extends Disposable {
     private readonly baseTextModel;
     private readonly textModel;
@@ -20,7 +20,7 @@ export declare class TextModelDiffs extends Disposable {
     get state(): IObservable<TextModelDiffState, TextModelDiffChangeReason>;
     /**
      * Diffs from base to input.
-     */
+    */
     get diffs(): IObservable<DetailedLineRangeMapping[], TextModelDiffChangeReason>;
     private _isInitializing;
     private _recompute;
@@ -34,11 +34,11 @@ export declare class TextModelDiffs extends Disposable {
     private getResultLine;
     getResultLineRange(baseRange: LineRange, reader?: IReader): LineRange;
 }
-export declare enum TextModelDiffChangeReason {
+export declare const enum TextModelDiffChangeReason {
     other = 0,
     textChange = 1
 }
-export declare enum TextModelDiffState {
+export declare const enum TextModelDiffState {
     initializing = 1,
     upToDate = 2,
     updating = 3,

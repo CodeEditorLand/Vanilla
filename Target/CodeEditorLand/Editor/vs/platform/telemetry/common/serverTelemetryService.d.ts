@@ -1,8 +1,8 @@
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IProductService } from "../../product/common/productService.js";
-import type { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "./gdprTypings.js";
-import { type ITelemetryData, ITelemetryService, TelemetryLevel } from "./telemetry.js";
-import { type ITelemetryServiceConfig, TelemetryService } from "./telemetryService.js";
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IProductService } from '../../product/common/productService.js';
+import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from './gdprTypings.js';
+import { ITelemetryData, ITelemetryService, TelemetryLevel } from './telemetry.js';
+import { ITelemetryServiceConfig, TelemetryService } from './telemetryService.js';
 export interface IServerTelemetryService extends ITelemetryService {
     updateInjectedTelemetryLevel(telemetryLevel: TelemetryLevel): Promise<void>;
 }

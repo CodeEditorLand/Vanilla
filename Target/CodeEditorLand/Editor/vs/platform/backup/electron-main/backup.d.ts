@@ -1,5 +1,5 @@
-import type { IFolderBackupInfo, IWorkspaceBackupInfo } from "../common/backup.js";
-import type { IEmptyWindowBackupInfo } from "../node/backup.js";
+import { IEmptyWindowBackupInfo } from '../node/backup.js';
+import { IFolderBackupInfo, IWorkspaceBackupInfo } from '../common/backup.js';
 export declare const IBackupMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IBackupMainService>;
 export interface IBackupMainService {
     readonly _serviceBrand: undefined;

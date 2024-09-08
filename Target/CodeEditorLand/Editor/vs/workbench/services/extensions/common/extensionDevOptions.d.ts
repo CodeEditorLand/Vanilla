@@ -1,4 +1,4 @@
-import type { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IEnvironmentService } from '../../../../platform/environment/common/environment.js';
 export interface IExtensionDevOptions {
     readonly isExtensionDevHost: boolean;
     readonly isExtensionDevDebug: boolean;

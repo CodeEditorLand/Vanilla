@@ -1,6 +1,6 @@
-import * as notebookCommon from "../../contrib/notebook/common/notebookCommon.js";
-import type { ICellExecuteUpdate, ICellExecutionComplete } from "../../contrib/notebook/common/notebookExecutionStateService.js";
-import type * as extHostProtocol from "../common/extHost.protocol.js";
+import * as extHostProtocol from '../common/extHost.protocol.js';
+import * as notebookCommon from '../../contrib/notebook/common/notebookCommon.js';
+import { ICellExecuteUpdate, ICellExecutionComplete } from '../../contrib/notebook/common/notebookExecutionStateService.js';
 export declare namespace NotebookDto {
     function toNotebookOutputItemDto(item: notebookCommon.IOutputItemDto): extHostProtocol.NotebookOutputItemDto;
     function toNotebookOutputDto(output: notebookCommon.IOutputDto): extHostProtocol.NotebookOutputDto;

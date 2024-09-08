@@ -1,4 +1,4 @@
-export declare enum TokenType {
+export declare const enum TokenType {
     LParen = 0,
     RParen = 1,
     Neg = 2,
@@ -97,7 +97,7 @@ export type Token = {
  * so it's reported as unexpected
  */
 export type LexingError = {
-    offset: number /** note that this doesn't take into account escape characters from the original encoding of the string, e.g., within an extension manifest file's JSON encoding  */;
+    offset: number; /** note that this doesn't take into account escape characters from the original encoding of the string, e.g., within an extension manifest file's JSON encoding  */
     lexeme: string;
     additionalInfo?: string;
 };

@@ -1,9 +1,9 @@
-import { Event } from "../../../common/event.js";
-import { Disposable } from "../../../common/lifecycle.js";
-import { type IContextViewProvider } from "../contextview/contextview.js";
-import type { IListVirtualDelegate } from "../list/list.js";
-import type { ISelectBoxDelegate, ISelectBoxOptions, ISelectBoxStyles, ISelectData, ISelectOptionItem } from "./selectBox.js";
-import "./selectBoxCustom.css";
+import { IContextViewProvider } from '../contextview/contextview.js';
+import { IListVirtualDelegate } from '../list/list.js';
+import { ISelectBoxDelegate, ISelectBoxOptions, ISelectBoxStyles, ISelectData, ISelectOptionItem } from './selectBox.js';
+import { Event } from '../../../common/event.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import './selectBoxCustom.css';
 export declare class SelectBoxList extends Disposable implements ISelectBoxDelegate, IListVirtualDelegate<ISelectOptionItem> {
     private static readonly DEFAULT_DROPDOWN_MINIMUM_BOTTOM_MARGIN;
     private static readonly DEFAULT_DROPDOWN_MINIMUM_TOP_MARGIN;

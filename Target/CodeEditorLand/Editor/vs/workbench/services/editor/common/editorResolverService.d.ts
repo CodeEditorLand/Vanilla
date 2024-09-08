@@ -1,12 +1,12 @@
-import type { Event } from "../../../../base/common/event.js";
-import * as glob from "../../../../base/common/glob.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { AtLeastOne } from "../../../../base/common/types.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IResourceEditorInput, ITextResourceEditorInput } from "../../../../platform/editor/common/editor.js";
-import type { EditorInputWithOptions, EditorInputWithOptionsAndGroup, IResourceDiffEditorInput, IResourceMergeEditorInput, IResourceMultiDiffEditorInput, IUntitledTextResourceEditorInput, IUntypedEditorInput } from "../../../common/editor.js";
-import type { IEditorGroup } from "./editorGroupsService.js";
-import type { PreferredGroup } from "./editorService.js";
+import * as glob from '../../../../base/common/glob.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IResourceEditorInput, ITextResourceEditorInput } from '../../../../platform/editor/common/editor.js';
+import { EditorInputWithOptions, EditorInputWithOptionsAndGroup, IResourceDiffEditorInput, IResourceMultiDiffEditorInput, IResourceMergeEditorInput, IUntitledTextResourceEditorInput, IUntypedEditorInput } from '../../../common/editor.js';
+import { IEditorGroup } from './editorGroupsService.js';
+import { PreferredGroup } from './editorService.js';
+import { AtLeastOne } from '../../../../base/common/types.js';
 export declare const IEditorResolverService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEditorResolverService>;
 export type EditorAssociation = {
     readonly viewType: string;
@@ -30,7 +30,7 @@ export declare enum RegisteredEditorPriority {
  * ABORT = Do not continue with opening the editor
  * NONE = Continue as if the resolution has been disabled as the service could not resolve one
  */
-export declare enum ResolvedStatus {
+export declare const enum ResolvedStatus {
     ABORT = 1,
     NONE = 2
 }

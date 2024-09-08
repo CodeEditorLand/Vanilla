@@ -1,12 +1,12 @@
-import { Emitter, Event } from "../../../common/event.js";
-import { DisposableStore, type IDisposable } from "../../../common/lifecycle.js";
-import type { ScrollEvent } from "../../../common/scrollable.js";
-import type { IIdentityProvider, IListVirtualDelegate } from "../list/list.js";
-import type { IListStyles } from "../list/listWidget.js";
-import { type AbstractTreePart, type IAbstractTreeOptions, type IAbstractTreeOptionsUpdate, type TreeFindMatchType, type TreeFindMode } from "./abstractTree.js";
-import type { ICompressedTreeElement, ICompressedTreeNode } from "./compressedObjectTreeModel.js";
-import { CompressibleObjectTree, type ICompressibleKeyboardNavigationLabelProvider, type ICompressibleTreeRenderer, type IObjectTreeSetChildrenOptions, ObjectTree } from "./objectTree.js";
-import { type IAsyncDataSource, type ICollapseStateChangeEvent, type IObjectTreeElement, type ITreeContextMenuEvent, type ITreeEvent, type ITreeMouseEvent, type ITreeNode, type ITreeRenderer, type ITreeSorter, ObjectTreeElementCollapseState, WeakMapper } from "./tree.js";
+import { IIdentityProvider, IListVirtualDelegate } from '../list/list.js';
+import { IListStyles } from '../list/listWidget.js';
+import { TreeFindMode as TreeFindMode, IAbstractTreeOptions, IAbstractTreeOptionsUpdate, TreeFindMatchType, AbstractTreePart } from './abstractTree.js';
+import { ICompressedTreeElement, ICompressedTreeNode } from './compressedObjectTreeModel.js';
+import { CompressibleObjectTree, ICompressibleKeyboardNavigationLabelProvider, ICompressibleTreeRenderer, IObjectTreeSetChildrenOptions, ObjectTree } from './objectTree.js';
+import { IAsyncDataSource, ICollapseStateChangeEvent, IObjectTreeElement, ITreeContextMenuEvent, ITreeEvent, ITreeMouseEvent, ITreeNode, ITreeRenderer, ITreeSorter, ObjectTreeElementCollapseState, WeakMapper } from './tree.js';
+import { Emitter, Event } from '../../../common/event.js';
+import { DisposableStore, IDisposable } from '../../../common/lifecycle.js';
+import { ScrollEvent } from '../../../common/scrollable.js';
 interface IAsyncDataTreeNode<TInput, T> {
     element: TInput | T;
     readonly parent: IAsyncDataTreeNode<TInput, T> | null;
@@ -24,7 +24,7 @@ export interface IAsyncDataTreeOptionsUpdate extends IAbstractTreeOptionsUpdate 
 }
 export interface IAsyncDataTreeUpdateChildrenOptions<T> extends IObjectTreeSetChildrenOptions<T> {
 }
-export interface IAsyncDataTreeOptions<T, TFilterData = void> extends IAsyncDataTreeOptionsUpdate, Pick<IAbstractTreeOptions<T, TFilterData>, Exclude<keyof IAbstractTreeOptions<T, TFilterData>, "collapseByDefault">> {
+export interface IAsyncDataTreeOptions<T, TFilterData = void> extends IAsyncDataTreeOptionsUpdate, Pick<IAbstractTreeOptions<T, TFilterData>, Exclude<keyof IAbstractTreeOptions<T, TFilterData>, 'collapseByDefault'>> {
     readonly collapseByDefault?: {
         (e: T): boolean;
     };

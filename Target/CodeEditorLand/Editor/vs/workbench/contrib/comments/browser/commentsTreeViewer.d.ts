@@ -1,27 +1,27 @@
-import { ActionBar, type IActionViewItemProvider } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import type { IListRenderer } from "../../../../base/browser/ui/list/list.js";
-import type { IListStyles } from "../../../../base/browser/ui/list/listWidget.js";
-import { TreeVisibility, type ITreeFilter, type ITreeNode, type TreeFilterResult } from "../../../../base/browser/ui/tree/tree.js";
-import type { IAction } from "../../../../base/common/actions.js";
-import type { IMatch } from "../../../../base/common/filters.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { ILocalizedString } from "../../../../platform/action/common/action.js";
-import { IMenuService } from "../../../../platform/actions/common/actions.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { IListService, WorkbenchObjectTree, type IWorkbenchAsyncDataTreeOptions } from "../../../../platform/list/browser/listService.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import type { IStyleOverride } from "../../../../platform/theme/browser/defaultStyles.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import type { IResourceLabel, ResourceLabels } from "../../../browser/labels.js";
-import { CommentNode, ResourceWithCommentThreads } from "../common/commentModel.js";
-import { FilterOptions } from "./commentsFilterOptions.js";
-import { CommentsModel } from "./commentsModel.js";
-import { TimestampWidget } from "./timestamp.js";
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IResourceLabel, ResourceLabels } from '../../../browser/labels.js';
+import { CommentNode, ResourceWithCommentThreads } from '../common/commentModel.js';
+import { ITreeFilter, ITreeNode, TreeFilterResult, TreeVisibility } from '../../../../base/browser/ui/tree/tree.js';
+import { IListRenderer } from '../../../../base/browser/ui/list/list.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IListService, IWorkbenchAsyncDataTreeOptions, WorkbenchObjectTree } from '../../../../platform/list/browser/listService.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { TimestampWidget } from './timestamp.js';
+import { IMatch } from '../../../../base/common/filters.js';
+import { FilterOptions } from './commentsFilterOptions.js';
+import { IStyleOverride } from '../../../../platform/theme/browser/defaultStyles.js';
+import { IListStyles } from '../../../../base/browser/ui/list/listWidget.js';
+import { ILocalizedString } from '../../../../platform/action/common/action.js';
+import { CommentsModel } from './commentsModel.js';
+import { ActionBar, IActionViewItemProvider } from '../../../../base/browser/ui/actionbar/actionbar.js';
+import { IMenuService } from '../../../../platform/actions/common/actions.js';
+import { IAction } from '../../../../base/common/actions.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 export declare const COMMENTS_VIEW_ID = "workbench.panel.comments";
 export declare const COMMENTS_VIEW_STORAGE_ID = "Comments";
 export declare const COMMENTS_VIEW_TITLE: ILocalizedString;
@@ -115,7 +115,7 @@ export declare class CommentNodeRenderer implements IListRenderer<ITreeNode<Comm
 export interface ICommentsListOptions extends IWorkbenchAsyncDataTreeOptions<any, any> {
     overrideStyles?: IStyleOverride<IListStyles>;
 }
-declare enum FilterDataType {
+declare const enum FilterDataType {
     Resource = 0,
     Comment = 1
 }

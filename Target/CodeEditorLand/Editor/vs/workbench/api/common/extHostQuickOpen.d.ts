@@ -1,9 +1,9 @@
-import type { InputBox, InputBoxOptions, QuickPick, QuickPickItem, QuickPickOptions, WorkspaceFolder, WorkspaceFolderPickOptions } from "vscode";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { type ExtHostQuickOpenShape, type IMainContext } from "./extHost.protocol.js";
-import type { ExtHostCommands } from "./extHostCommands.js";
-import type { IExtHostWorkspaceProvider } from "./extHostWorkspace.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { ExtHostCommands } from './extHostCommands.js';
+import { IExtHostWorkspaceProvider } from './extHostWorkspace.js';
+import { InputBox, InputBoxOptions, QuickPick, QuickPickItem, QuickPickOptions, WorkspaceFolder, WorkspaceFolderPickOptions } from 'vscode';
+import { ExtHostQuickOpenShape, IMainContext } from './extHost.protocol.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
 export type Item = string | QuickPickItem;
 export interface ExtHostQuickOpen {
     showQuickPick(extension: IExtensionDescription, itemsOrItemsPromise: QuickPickItem[] | Promise<QuickPickItem[]>, options: QuickPickOptions & {

@@ -1,7 +1,7 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IAiEmbeddingVectorService } from "../../services/aiEmbeddingVector/common/aiEmbeddingVectorService.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { type MainThreadAiEmbeddingVectorShape } from "../common/extHost.protocol.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { MainThreadAiEmbeddingVectorShape } from '../common/extHost.protocol.js';
+import { IAiEmbeddingVectorService } from '../../services/aiEmbeddingVector/common/aiEmbeddingVectorService.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
 export declare class MainThreadAiEmbeddingVector extends Disposable implements MainThreadAiEmbeddingVectorShape {
     private readonly _AiEmbeddingVectorService;
     private readonly _proxy;

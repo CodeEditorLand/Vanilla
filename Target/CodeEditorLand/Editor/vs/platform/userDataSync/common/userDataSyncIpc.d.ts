@@ -1,12 +1,12 @@
-import { type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IProductService } from "../../product/common/productService.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import type { IUserDataSyncStore, IUserDataSyncStoreManagementService, UserDataSyncStoreType } from "./userDataSync.js";
-import type { IUserDataSyncAccount, IUserDataSyncAccountService } from "./userDataSyncAccount.js";
-import { AbstractUserDataSyncStoreManagementService } from "./userDataSyncStoreService.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IChannel, IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IProductService } from '../../product/common/productService.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { IUserDataSyncStore, IUserDataSyncStoreManagementService, UserDataSyncStoreType } from './userDataSync.js';
+import { IUserDataSyncAccount, IUserDataSyncAccountService } from './userDataSyncAccount.js';
+import { AbstractUserDataSyncStoreManagementService } from './userDataSyncStoreService.js';
 export declare class UserDataSyncAccountServiceChannel implements IServerChannel {
     private readonly service;
     constructor(service: IUserDataSyncAccountService);

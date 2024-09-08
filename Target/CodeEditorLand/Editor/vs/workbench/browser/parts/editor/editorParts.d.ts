@@ -1,15 +1,15 @@
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import { type ContextKeyValue, type IContextKey, IContextKeyService, type RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import type { GroupIdentifier } from "../../../common/editor.js";
-import { IAuxiliaryWindowService } from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
-import { type EditorGroupLayout, type GroupDirection, type GroupOrientation, type GroupsArrangement, GroupsOrder, type IAuxiliaryEditorPart, type IEditorDropTargetDelegate, type IEditorGroupContextKeyProvider, IEditorGroupsService, type IEditorPart, type IEditorSideGroup, type IEditorWorkingSet, type IEditorWorkingSetOptions, type IFindGroupScope, type IMergeGroupOptions } from "../../../services/editor/common/editorGroupsService.js";
-import { MultiWindowParts } from "../../part.js";
-import { type IAuxiliaryEditorPartOpenOptions } from "./auxiliaryEditorPart.js";
-import type { IEditorGroupView, IEditorPartsView } from "./editor.js";
-import { type EditorPart, MainEditorPart } from "./editorPart.js";
+import { EditorGroupLayout, GroupDirection, GroupOrientation, GroupsArrangement, GroupsOrder, IAuxiliaryEditorPart, IEditorGroupContextKeyProvider, IEditorDropTargetDelegate, IEditorGroupsService, IEditorSideGroup, IEditorWorkingSet, IFindGroupScope, IMergeGroupOptions, IEditorWorkingSetOptions, IEditorPart } from '../../../services/editor/common/editorGroupsService.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { GroupIdentifier } from '../../../common/editor.js';
+import { EditorPart, MainEditorPart } from './editorPart.js';
+import { IEditorGroupView, IEditorPartsView } from './editor.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IAuxiliaryEditorPartOpenOptions } from './auxiliaryEditorPart.js';
+import { MultiWindowParts } from '../../part.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IAuxiliaryWindowService } from '../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js';
+import { ContextKeyValue, IContextKey, IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 export declare class EditorParts extends MultiWindowParts<EditorPart> implements IEditorGroupsService, IEditorPartsView {
     protected readonly instantiationService: IInstantiationService;
     private readonly storageService;
@@ -54,7 +54,7 @@ export declare class EditorParts extends MultiWindowParts<EditorPart> implements
     saveWorkingSet(name: string): IEditorWorkingSet;
     getWorkingSets(): IEditorWorkingSet[];
     deleteWorkingSet(workingSet: IEditorWorkingSet): void;
-    applyWorkingSet(workingSet: IEditorWorkingSet | "empty", options?: IEditorWorkingSetOptions): Promise<boolean>;
+    applyWorkingSet(workingSet: IEditorWorkingSet | 'empty', options?: IEditorWorkingSetOptions): Promise<boolean>;
     private indexOfWorkingSet;
     private saveWorkingSets;
     private readonly _onDidActiveGroupChange;

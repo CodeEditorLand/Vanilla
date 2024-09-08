@@ -1,12 +1,12 @@
-import type * as vscode from "vscode";
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { type Event } from "../../../base/common/event.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { FileOperation } from "../../../platform/files/common/files.js";
-import type { ILogService } from "../../../platform/log/common/log.js";
-import { type ExtHostFileSystemEventServiceShape, type FileSystemEvents, type IMainContext, type IWillRunFileOperationParticipation, type SourceTargetPair } from "./extHost.protocol.js";
-import type { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
-import type { IExtHostWorkspace } from "./extHostWorkspace.js";
+import { Event } from '../../../base/common/event.js';
+import { ExtHostDocumentsAndEditors } from './extHostDocumentsAndEditors.js';
+import type * as vscode from 'vscode';
+import { ExtHostFileSystemEventServiceShape, FileSystemEvents, IMainContext, SourceTargetPair, IWillRunFileOperationParticipation } from './extHost.protocol.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { FileOperation } from '../../../platform/files/common/files.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { IExtHostWorkspace } from './extHostWorkspace.js';
 export interface FileSystemWatcherCreateOptions {
     readonly correlate: boolean;
     readonly ignoreCreateEvents?: boolean;

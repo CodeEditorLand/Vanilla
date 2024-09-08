@@ -1,6 +1,6 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
 export declare const IInteractiveDocumentService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IInteractiveDocumentService>;
 export interface IInteractiveDocumentService {
     readonly _serviceBrand: undefined;

@@ -1,41 +1,41 @@
-import { type CancelablePromise } from "../../../base/common/async.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import type { IIPCLogger } from "../../../base/parts/ipc/common/ipc.js";
-import { Client, PersistentProtocol } from "../../../base/parts/ipc/common/ipc.net.js";
-import type { ILogService } from "../../log/common/log.js";
-import type { ISignService } from "../../sign/common/sign.js";
-import type { RemoteAgentConnectionContext } from "./remoteAgentEnvironment.js";
-import { type RemoteConnection } from "./remoteAuthorityResolver.js";
-import type { IRemoteSocketFactoryService } from "./remoteSocketFactoryService.js";
-export declare enum ConnectionType {
+import { CancelablePromise } from '../../../base/common/async.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IIPCLogger } from '../../../base/parts/ipc/common/ipc.js';
+import { Client, PersistentProtocol } from '../../../base/parts/ipc/common/ipc.net.js';
+import { ILogService } from '../../log/common/log.js';
+import { RemoteAgentConnectionContext } from './remoteAgentEnvironment.js';
+import { RemoteConnection } from './remoteAuthorityResolver.js';
+import { IRemoteSocketFactoryService } from './remoteSocketFactoryService.js';
+import { ISignService } from '../../sign/common/sign.js';
+export declare const enum ConnectionType {
     Management = 1,
     ExtensionHost = 2,
     Tunnel = 3
 }
 export interface AuthRequest {
-    type: "auth";
+    type: 'auth';
     auth: string;
     data: string;
 }
 export interface SignRequest {
-    type: "sign";
+    type: 'sign';
     data: string;
     signedData: string;
 }
 export interface ConnectionTypeRequest {
-    type: "connectionType";
+    type: 'connectionType';
     commit?: string;
     signedData: string;
     desiredConnectionType?: ConnectionType;
     args?: any;
 }
 export interface ErrorMessage {
-    type: "error";
+    type: 'error';
     reason: string;
 }
 export interface OKMessage {
-    type: "ok";
+    type: 'ok';
 }
 export type HandshakeMessage = AuthRequest | SignRequest | ConnectionTypeRequest | ErrorMessage | OKMessage;
 interface ISimpleConnectionOptions<T extends RemoteConnection = RemoteConnection> {
@@ -81,7 +81,7 @@ export interface IAddressProvider<T extends RemoteConnection = RemoteConnection>
 export declare function connectRemoteAgentManagement(options: IConnectionOptions, remoteAuthority: string, clientId: string): Promise<ManagementPersistentConnection>;
 export declare function connectRemoteAgentExtensionHost(options: IConnectionOptions, startArguments: IRemoteExtensionHostStartParams): Promise<ExtensionHostPersistentConnection>;
 export declare function connectRemoteAgentTunnel(options: IConnectionOptions, tunnelRemoteHost: string, tunnelRemotePort: number): Promise<PersistentProtocol>;
-export declare enum PersistentConnectionEventType {
+export declare const enum PersistentConnectionEventType {
     ConnectionLost = 0,
     ReconnectionWait = 1,
     ReconnectionRunning = 2,

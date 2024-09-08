@@ -1,6 +1,6 @@
-import type { IJSONSchema } from "../../../base/common/jsonSchema.js";
-import { OperatingSystem } from "../../../base/common/platform.js";
-import { type IExtensionTerminalProfile, type ITerminalProfile } from "./terminal.js";
+import { IJSONSchema } from '../../../base/common/jsonSchema.js';
+import { OperatingSystem } from '../../../base/common/platform.js';
+import { IExtensionTerminalProfile, ITerminalProfile } from './terminal.js';
 export declare const terminalColorSchema: IJSONSchema;
 export declare const terminalIconSchema: IJSONSchema;
 /**

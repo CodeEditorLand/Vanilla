@@ -1,16 +1,16 @@
-import "./media/statusbarpart.css";
-import type { IView } from "../../../../base/browser/ui/grid/grid.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable, DisposableStore, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import { type IStatusbarEntry, type IStatusbarEntryAccessor, type IStatusbarEntryLocation, type IStatusbarEntryPriority, IStatusbarService, type IStatusbarStyleOverride, StatusbarAlignment } from "../../../services/statusbar/browser/statusbar.js";
-import { MultiWindowParts, Part } from "../../part.js";
+import './media/statusbarpart.css';
+import { Disposable, DisposableStore, IDisposable } from '../../../../base/common/lifecycle.js';
+import { MultiWindowParts, Part } from '../../part.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { StatusbarAlignment, IStatusbarService, IStatusbarEntry, IStatusbarEntryAccessor, IStatusbarStyleOverride, IStatusbarEntryLocation, IStatusbarEntryPriority } from '../../../services/statusbar/browser/statusbar.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IWorkbenchLayoutService } from '../../../services/layout/browser/layoutService.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { Event } from '../../../../base/common/event.js';
+import { IView } from '../../../../base/browser/ui/grid/grid.js';
 export interface IStatusbarEntryContainer extends IDisposable {
     /**
      * An event that is triggered when an entry's visibility is changed.

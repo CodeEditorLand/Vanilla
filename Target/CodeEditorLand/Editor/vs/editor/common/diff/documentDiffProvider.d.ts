@@ -1,8 +1,8 @@
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import type { Event } from "../../../base/common/event.js";
-import type { ITextModel } from "../model.js";
-import type { MovedText } from "./linesDiffComputer.js";
-import type { DetailedLineRangeMapping } from "./rangeMapping.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { MovedText } from './linesDiffComputer.js';
+import { DetailedLineRangeMapping } from './rangeMapping.js';
+import { ITextModel } from '../model.js';
 /**
  * A document diff provider computes the diff between two text models.
  * @internal

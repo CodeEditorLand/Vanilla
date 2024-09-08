@@ -1,4 +1,4 @@
-import type { IProductConfiguration } from "../../../base/common/product.js";
+import { IProductConfiguration } from '../../../base/common/product.js';
 /**
  * @deprecated You MUST use `IProductService` if possible.
  */

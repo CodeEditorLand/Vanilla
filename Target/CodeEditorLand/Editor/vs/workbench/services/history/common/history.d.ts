@@ -1,12 +1,12 @@
-import type { URI } from "../../../../base/common/uri.js";
-import type { IResourceEditorInput } from "../../../../platform/editor/common/editor.js";
-import type { GroupIdentifier } from "../../../common/editor.js";
-import type { EditorInput } from "../../../common/editor/editorInput.js";
+import { IResourceEditorInput } from '../../../../platform/editor/common/editor.js';
+import { GroupIdentifier } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { URI } from '../../../../base/common/uri.js';
 export declare const IHistoryService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IHistoryService>;
 /**
  * Limit editor navigation to certain kinds.
  */
-export declare enum GoFilter {
+export declare const enum GoFilter {
     /**
      * Navigate between editor navigation history
      * entries from any kind of navigation source.
@@ -27,7 +27,7 @@ export declare enum GoFilter {
 /**
  * Limit editor navigation to certain scopes.
  */
-export declare enum GoScope {
+export declare const enum GoScope {
     /**
      * Navigate across all editors and editor groups.
      */

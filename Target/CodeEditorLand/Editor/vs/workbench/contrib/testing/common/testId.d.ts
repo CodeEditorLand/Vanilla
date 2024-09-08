@@ -1,4 +1,4 @@
-export declare enum TestIdPathParts {
+export declare const enum TestIdPathParts {
     /** Delimiter for path parts in test IDs */
     Delimiter = "\0"
 }
@@ -6,7 +6,7 @@ export declare enum TestIdPathParts {
  * Enum for describing relative positions of tests. Similar to
  * `node.compareDocumentPosition` in the DOM.
  */
-export declare enum TestPosition {
+export declare const enum TestPosition {
     /** a === b */
     IsSame = 0,
     /** Neither a nor b are a child of one another. They may share a common parent, though. */

@@ -1,13 +1,13 @@
-import { type Event } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import * as performance from "../../../base/common/performance.js";
-import { type IProcessEnvironment, type OperatingSystem } from "../../../base/common/platform.js";
-import type { URI } from "../../../base/common/uri.js";
-import { type ILogService } from "../../log/common/log.js";
-import type { IProductService } from "../../product/common/productService.js";
-import type { IPtyHostProcessReplayEvent } from "../common/capabilities/capabilities.js";
-import { type IProcessDataEvent, type IProcessProperty, type IProcessPropertyMap, type IProcessReadyEvent, type IPtyHostLatencyMeasurement, type IPtyService, type IReconnectConstants, type ISerializedTerminalState, type IShellLaunchConfig, type ITerminalLaunchError, type ITerminalProcessOptions, type ITerminalsLayoutInfo, ProcessPropertyType, TitleEventSource } from "../common/terminal.js";
-import type { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from "../common/terminalProcess.js";
+import { Event } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IProcessEnvironment, OperatingSystem } from '../../../base/common/platform.js';
+import { URI } from '../../../base/common/uri.js';
+import { ILogService } from '../../log/common/log.js';
+import { IProcessDataEvent, IProcessReadyEvent, IPtyService, IReconnectConstants, IShellLaunchConfig, ITerminalLaunchError, ITerminalsLayoutInfo, IProcessProperty, TitleEventSource, ProcessPropertyType, IProcessPropertyMap, ISerializedTerminalState, ITerminalProcessOptions, IPtyHostLatencyMeasurement } from '../common/terminal.js';
+import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from '../common/terminalProcess.js';
+import { IPtyHostProcessReplayEvent } from '../common/capabilities/capabilities.js';
+import { IProductService } from '../../product/common/productService.js';
+import * as performance from '../../../base/common/performance.js';
 export declare function traceRpc(_target: any, key: string, descriptor: any): void;
 export declare class PtyService extends Disposable implements IPtyService {
     private readonly _logService;
@@ -75,7 +75,7 @@ export declare class PtyService extends Disposable implements IPtyService {
     reviveTerminalProcesses(workspaceId: string, state: ISerializedTerminalState[], dateTimeFormatLocale: string): Promise<void>;
     private _reviveTerminalProcess;
     shutdownAll(): Promise<void>;
-    createProcess(shellLaunchConfig: IShellLaunchConfig, cwd: string, cols: number, rows: number, unicodeVersion: "6" | "11", env: IProcessEnvironment, executableEnv: IProcessEnvironment, options: ITerminalProcessOptions, shouldPersist: boolean, workspaceId: string, workspaceName: string, isReviving?: boolean, rawReviveBuffer?: string): Promise<number>;
+    createProcess(shellLaunchConfig: IShellLaunchConfig, cwd: string, cols: number, rows: number, unicodeVersion: '6' | '11', env: IProcessEnvironment, executableEnv: IProcessEnvironment, options: ITerminalProcessOptions, shouldPersist: boolean, workspaceId: string, workspaceName: string, isReviving?: boolean, rawReviveBuffer?: string): Promise<number>;
     attachToProcess(id: number): Promise<void>;
     updateTitle(id: number, title: string, titleSource: TitleEventSource): Promise<void>;
     updateIcon(id: number, userInitiated: boolean, icon: URI | {
@@ -104,7 +104,7 @@ export declare class PtyService extends Disposable implements IPtyService {
     getInitialCwd(id: number): Promise<string>;
     getCwd(id: number): Promise<string>;
     acknowledgeDataEvent(id: number, charCount: number): Promise<void>;
-    setUnicodeVersion(id: number, version: "6" | "11"): Promise<void>;
+    setUnicodeVersion(id: number, version: '6' | '11'): Promise<void>;
     getLatency(): Promise<IPtyHostLatencyMeasurement[]>;
     orphanQuestionReply(id: number): Promise<void>;
     installAutoReply(match: string, reply: string): Promise<void>;
@@ -112,7 +112,7 @@ export declare class PtyService extends Disposable implements IPtyService {
     uninstallAutoReply(match: string): Promise<void>;
     getDefaultSystemShell(osOverride?: OperatingSystem): Promise<string>;
     getEnvironment(): Promise<IProcessEnvironment>;
-    getWslPath(original: string, direction: "unix-to-win" | "win-to-unix" | unknown): Promise<string>;
+    getWslPath(original: string, direction: 'unix-to-win' | 'win-to-unix' | unknown): Promise<string>;
     private _getWSLExecutablePath;
     getRevivedPtyNewId(workspaceId: string, id: number): Promise<number | undefined>;
     setTerminalLayoutInfo(args: ISetTerminalLayoutInfoArgs): Promise<void>;

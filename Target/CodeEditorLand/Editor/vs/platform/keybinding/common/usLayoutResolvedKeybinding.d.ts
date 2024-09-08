@@ -1,6 +1,6 @@
-import { KeyCodeChord, type Keybinding, type SingleModifierChord } from "../../../base/common/keybindings.js";
-import { OperatingSystem } from "../../../base/common/platform.js";
-import { BaseResolvedKeybinding } from "./baseResolvedKeybinding.js";
+import { SingleModifierChord, KeyCodeChord, Keybinding } from '../../../base/common/keybindings.js';
+import { OperatingSystem } from '../../../base/common/platform.js';
+import { BaseResolvedKeybinding } from './baseResolvedKeybinding.js';
 /**
  * Do not instantiate. Use KeybindingService to get a ResolvedKeybinding seeded with information about the current kb layout.
  */

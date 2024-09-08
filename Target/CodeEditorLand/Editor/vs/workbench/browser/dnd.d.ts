@@ -1,22 +1,22 @@
-import { type IDragAndDropData } from "../../base/browser/dnd.js";
-import type { DragMouseEvent } from "../../base/browser/mouseEvent.js";
-import type { IListDragAndDrop } from "../../base/browser/ui/list/list.js";
-import type { ListViewTargetSector } from "../../base/browser/ui/list/listView.js";
-import type { ITreeDragOverReaction } from "../../base/browser/ui/tree/tree.js";
-import { type VSDataTransfer } from "../../base/common/dataTransfer.js";
-import { Disposable, type IDisposable } from "../../base/common/lifecycle.js";
-import { URI } from "../../base/common/uri.js";
-import { type IDraggedResourceEditorInput, type IResourceStat } from "../../platform/dnd/browser/dnd.js";
-import type { IEditorOptions } from "../../platform/editor/common/editor.js";
-import { IFileService } from "../../platform/files/common/files.js";
-import { IInstantiationService, type ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
-import { IWorkspaceContextService } from "../../platform/workspace/common/workspace.js";
-import { IWorkspacesService } from "../../platform/workspaces/common/workspaces.js";
-import { type GroupIdentifier, type IEditorIdentifier } from "../common/editor.js";
-import type { IEditorGroup } from "../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../services/editor/common/editorService.js";
-import { IHostService } from "../services/host/browser/host.js";
-import { IWorkspaceEditingService } from "../services/workspaces/common/workspaceEditing.js";
+import { IDragAndDropData } from '../../base/browser/dnd.js';
+import { DragMouseEvent } from '../../base/browser/mouseEvent.js';
+import { IListDragAndDrop } from '../../base/browser/ui/list/list.js';
+import { ListViewTargetSector } from '../../base/browser/ui/list/listView.js';
+import { ITreeDragOverReaction } from '../../base/browser/ui/tree/tree.js';
+import { VSDataTransfer } from '../../base/common/dataTransfer.js';
+import { Disposable, IDisposable } from '../../base/common/lifecycle.js';
+import { URI } from '../../base/common/uri.js';
+import { IDraggedResourceEditorInput, IResourceStat } from '../../platform/dnd/browser/dnd.js';
+import { IFileService } from '../../platform/files/common/files.js';
+import { IInstantiationService, ServicesAccessor } from '../../platform/instantiation/common/instantiation.js';
+import { IWorkspaceContextService } from '../../platform/workspace/common/workspace.js';
+import { IWorkspacesService } from '../../platform/workspaces/common/workspaces.js';
+import { GroupIdentifier, IEditorIdentifier } from '../common/editor.js';
+import { IEditorGroup } from '../services/editor/common/editorGroupsService.js';
+import { IEditorService } from '../services/editor/common/editorService.js';
+import { IHostService } from '../services/host/browser/host.js';
+import { IWorkspaceEditingService } from '../services/workspaces/common/workspaceEditing.js';
+import { IEditorOptions } from '../../platform/editor/common/editor.js';
 export declare class DraggedEditorIdentifier {
     readonly identifier: IEditorIdentifier;
     constructor(identifier: IEditorIdentifier);
@@ -81,10 +81,10 @@ export interface ICompositeDragAndDropObserverCallbacks {
 export declare class CompositeDragAndDropData implements IDragAndDropData {
     private type;
     private id;
-    constructor(type: "view" | "composite", id: string);
+    constructor(type: 'view' | 'composite', id: string);
     update(dataTransfer: DataTransfer): void;
     getData(): {
-        type: "view" | "composite";
+        type: 'view' | 'composite';
         id: string;
     };
 }
@@ -102,7 +102,7 @@ export declare class DraggedViewIdentifier {
     constructor(viewId: string);
     get id(): string;
 }
-export type ViewType = "composite" | "view";
+export type ViewType = 'composite' | 'view';
 export declare class CompositeDragAndDropObserver extends Disposable {
     private static instance;
     static get INSTANCE(): CompositeDragAndDropObserver;
@@ -118,7 +118,7 @@ export declare class CompositeDragAndDropObserver extends Disposable {
         id: string;
     }, callbacks: ICompositeDragAndDropObserverCallbacks): IDisposable;
 }
-export declare function toggleDropEffect(dataTransfer: DataTransfer | null, dropEffect: "none" | "copy" | "link" | "move", shouldHaveIt: boolean): void;
+export declare function toggleDropEffect(dataTransfer: DataTransfer | null, dropEffect: 'none' | 'copy' | 'link' | 'move', shouldHaveIt: boolean): void;
 export declare class ResourceListDnDHandler<T> implements IListDragAndDrop<T> {
     private readonly toResource;
     private readonly instantiationService;

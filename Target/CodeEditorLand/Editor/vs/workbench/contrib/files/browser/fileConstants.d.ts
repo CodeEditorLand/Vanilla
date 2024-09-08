@@ -1,5 +1,5 @@
-import * as nls from "../../../../nls.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import * as nls from '../../../../nls.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 export declare const REVEAL_IN_EXPLORER_COMMAND_ID = "revealInExplorer";
 export declare const REVERT_FILE_COMMAND_ID = "workbench.action.files.revert";
 export declare const OPEN_TO_SIDE_COMMAND_ID = "explorer.openToSide";

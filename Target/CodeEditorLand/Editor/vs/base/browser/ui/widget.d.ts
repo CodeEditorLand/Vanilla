@@ -1,6 +1,6 @@
-import { Disposable, type IDisposable } from "../../common/lifecycle.js";
-import { type IKeyboardEvent } from "../keyboardEvent.js";
-import { type IMouseEvent } from "../mouseEvent.js";
+import { IKeyboardEvent } from '../keyboardEvent.js';
+import { IMouseEvent } from '../mouseEvent.js';
+import { Disposable, IDisposable } from '../../common/lifecycle.js';
 export declare abstract class Widget extends Disposable {
     protected onclick(domNode: HTMLElement, listener: (e: IMouseEvent) => void): void;
     protected onmousedown(domNode: HTMLElement, listener: (e: IMouseEvent) => void): void;

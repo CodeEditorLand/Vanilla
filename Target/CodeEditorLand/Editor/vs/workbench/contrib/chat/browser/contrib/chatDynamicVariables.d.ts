@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { type IRange } from "../../../../../editor/common/core/range.js";
-import type { Command } from "../../../../../editor/common/languages.js";
-import { Action2 } from "../../../../../platform/actions/common/actions.js";
-import type { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { type IChatRequestVariableValue, type IDynamicVariable } from "../../common/chatVariables.js";
-import type { IChatWidget } from "../chat.js";
-import { type IChatWidgetContrib } from "../chatWidget.js";
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IRange } from '../../../../../editor/common/core/range.js';
+import { Command } from '../../../../../editor/common/languages.js';
+import { Action2 } from '../../../../../platform/actions/common/actions.js';
+import { ServicesAccessor } from '../../../../../platform/instantiation/common/instantiation.js';
+import { ILabelService } from '../../../../../platform/label/common/label.js';
+import { IChatWidget } from '../chat.js';
+import { IChatWidgetContrib } from '../chatWidget.js';
+import { IChatRequestVariableValue, IDynamicVariable } from '../../common/chatVariables.js';
 export declare const dynamicVariableDecorationType = "chat-dynamic-variable";
 export declare class ChatDynamicVariableModel extends Disposable implements IChatWidgetContrib {
     private readonly widget;

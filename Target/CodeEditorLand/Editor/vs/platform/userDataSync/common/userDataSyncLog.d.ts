@@ -1,6 +1,6 @@
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { AbstractLogger, ILoggerService } from "../../log/common/log.js";
-import { type IUserDataSyncLogService } from "./userDataSync.js";
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { AbstractLogger, ILoggerService } from '../../log/common/log.js';
+import { IUserDataSyncLogService } from './userDataSync.js';
 export declare class UserDataSyncLogService extends AbstractLogger implements IUserDataSyncLogService {
     readonly _serviceBrand: undefined;
     private readonly logger;

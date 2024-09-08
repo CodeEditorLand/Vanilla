@@ -1,6 +1,6 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { IDebugService } from "../../debug/common/debug.js";
-import type { ITerminalService } from "../../terminal/browser/terminal.js";
+import { ITerminalService } from '../../terminal/browser/terminal.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IDebugService } from '../../debug/common/debug.js';
 export declare class UrlFinder extends Disposable {
     /**
      * Local server url pattern matching following urls:

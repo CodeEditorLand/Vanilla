@@ -1,6 +1,6 @@
-import { Event } from "../../../common/event.js";
-import { type IObjectTreeModel, type IObjectTreeModelOptions, type IObjectTreeModelSetChildrenOptions } from "./objectTreeModel.js";
-import { type ICollapseStateChangeEvent, type IObjectTreeElement, type ITreeListSpliceData, type ITreeModel, type ITreeModelSpliceEvent, type ITreeNode } from "./tree.js";
+import { IObjectTreeModel, IObjectTreeModelOptions, IObjectTreeModelSetChildrenOptions } from './objectTreeModel.js';
+import { ICollapseStateChangeEvent, IObjectTreeElement, ITreeListSpliceData, ITreeModel, ITreeModelSpliceEvent, ITreeNode } from './tree.js';
+import { Event } from '../../../common/event.js';
 export interface ICompressedTreeElement<T> extends IObjectTreeElement<T> {
     readonly children?: Iterable<ICompressedTreeElement<T>>;
     readonly incompressible?: boolean;

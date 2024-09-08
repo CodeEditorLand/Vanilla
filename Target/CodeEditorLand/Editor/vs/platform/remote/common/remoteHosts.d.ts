@@ -1,4 +1,4 @@
-import type { URI } from "../../../base/common/uri.js";
+import { URI } from '../../../base/common/uri.js';
 export declare function getRemoteAuthority(uri: URI): string | undefined;
 export declare function getRemoteName(authority: string): string;
 export declare function getRemoteName(authority: undefined): undefined;

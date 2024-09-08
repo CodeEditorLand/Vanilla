@@ -1,6 +1,6 @@
-import { Emitter } from "../../../../base/common/event.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { type IConfigurationChangeEvent, type IConfigurationOverrides, type IConfigurationService, type IConfigurationValue } from "../../common/configuration.js";
+import { Emitter } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IConfigurationChangeEvent, IConfigurationOverrides, IConfigurationService, IConfigurationValue } from '../../common/configuration.js';
 export declare class TestConfigurationService implements IConfigurationService {
     _serviceBrand: undefined;
     private configuration;

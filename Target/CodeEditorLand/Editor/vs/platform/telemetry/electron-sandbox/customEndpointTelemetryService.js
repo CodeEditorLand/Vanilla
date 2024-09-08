@@ -1,6 +1,1 @@
-import { registerSharedProcessRemoteService } from "../../ipc/electron-sandbox/services.js";
-import { ICustomEndpointTelemetryService } from "../common/telemetry.js";
-registerSharedProcessRemoteService(
-  ICustomEndpointTelemetryService,
-  "customEndpointTelemetry"
-);
+import{registerSharedProcessRemoteService as e}from"../../ipc/electron-sandbox/services.js";import{ICustomEndpointTelemetryService as r}from"../common/telemetry.js";e(r,"customEndpointTelemetry");

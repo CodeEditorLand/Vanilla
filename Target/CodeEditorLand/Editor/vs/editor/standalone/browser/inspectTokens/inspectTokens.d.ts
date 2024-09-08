@@ -1,1 +1,1 @@
-import "./inspectTokens.css";
+import './inspectTokens.css';

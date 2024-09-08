@@ -1,10 +1,10 @@
-import type { Event } from "../../../../base/common/event.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { ILocalizedString } from "../../../../platform/action/common/action.js";
-import type { IAction2Options } from "../../../../platform/actions/common/actions.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { SyncResource, type IAuthenticationProvider, type IResourcePreview, type IUserDataSyncResource } from "../../../../platform/userDataSync/common/userDataSync.js";
-import type { IView } from "../../../common/views.js";
+import { IAuthenticationProvider, SyncResource, IUserDataSyncResource, IResourcePreview } from '../../../../platform/userDataSync/common/userDataSync.js';
+import { Event } from '../../../../base/common/event.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IView } from '../../../common/views.js';
+import { IAction2Options } from '../../../../platform/actions/common/actions.js';
+import { ILocalizedString } from '../../../../platform/action/common/action.js';
 export interface IUserDataSyncAccount {
     readonly authenticationProviderId: string;
     readonly accountName: string;
@@ -31,7 +31,7 @@ export interface IUserDataSyncWorkbenchService {
     downloadSyncActivity(): Promise<URI | undefined>;
 }
 export declare function getSyncAreaLabel(source: SyncResource): string;
-export declare enum AccountStatus {
+export declare const enum AccountStatus {
     Unavailable = "unavailable",
     Available = "available"
 }

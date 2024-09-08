@@ -1,8 +1,8 @@
-import { ICommandService } from "../../../platform/commands/common/commands.js";
-import { IExtensionService } from "../../services/extensions/common/extensions.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
-import { type MainThreadCommandsShape } from "../common/extHost.protocol.js";
+import { ICommandService } from '../../../platform/commands/common/commands.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IExtensionService } from '../../services/extensions/common/extensions.js';
+import { SerializableObjectWithBuffers } from '../../services/extensions/common/proxyIdentifier.js';
+import { MainThreadCommandsShape } from '../common/extHost.protocol.js';
 export declare class MainThreadCommands implements MainThreadCommandsShape {
     private readonly _commandService;
     private readonly _extensionService;

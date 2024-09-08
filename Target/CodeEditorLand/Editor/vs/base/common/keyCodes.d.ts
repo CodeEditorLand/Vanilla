@@ -3,7 +3,7 @@
  * Inspired somewhat from https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
  * But these are "more general", as they should work across browsers & OS`s.
  */
-export declare enum KeyCode {
+export declare const enum KeyCode {
     DependsOnKbLayout = -1,
     /**
      * Placed first to cover the 0 value of the enum.
@@ -205,7 +205,7 @@ export declare enum KeyCode {
 /**
  * keyboardEvent.code
  */
-export declare enum ScanCode {
+export declare const enum ScanCode {
     DependsOnKbLayout = -1,
     None = 0,
     Hyper = 1,
@@ -429,7 +429,7 @@ export declare namespace KeyCodeUtils {
     function fromUserSettings(key: string): KeyCode;
     function toElectronAccelerator(keyCode: KeyCode): string | null;
 }
-export declare enum KeyMod {
+export declare const enum KeyMod {
     CtrlCmd = 2048,
     Shift = 1024,
     Alt = 512,

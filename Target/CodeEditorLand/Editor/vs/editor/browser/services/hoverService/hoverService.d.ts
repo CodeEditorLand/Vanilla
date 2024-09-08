@@ -1,12 +1,12 @@
-import type { IHoverOptions, IHoverWidget, IManagedHover, IManagedHoverContentOrFactory, IManagedHoverOptions } from "../../../../base/browser/ui/hover/hover.js";
-import type { IHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegate.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
+import { ILayoutService } from '../../../../platform/layout/browser/layoutService.js';
+import type { IHoverOptions, IHoverWidget, IManagedHover, IManagedHoverContentOrFactory, IManagedHoverOptions } from '../../../../base/browser/ui/hover/hover.js';
+import type { IHoverDelegate } from '../../../../base/browser/ui/hover/hoverDelegate.js';
 export declare class HoverService extends Disposable implements IHoverService {
     private readonly _instantiationService;
     private readonly _keybindingService;

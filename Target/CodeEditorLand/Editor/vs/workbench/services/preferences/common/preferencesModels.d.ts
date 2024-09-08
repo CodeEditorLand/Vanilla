@@ -1,14 +1,14 @@
-import type { IStringDictionary } from "../../../../base/common/collections.js";
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable, type IReference } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { type IRange } from "../../../../editor/common/core/range.js";
-import type { ITextModel } from "../../../../editor/common/model.js";
-import type { ITextEditorModel } from "../../../../editor/common/services/resolverService.js";
-import { ConfigurationTarget, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { EditorModel } from "../../../common/editor/editorModel.js";
-import { type IFilterMetadata, type IFilterResult, type IGroupFilter, type IKeybindingsEditorModel, type ISearchResultGroup, type ISetting, type ISettingMatch, type ISettingMatcher, type ISettingsEditorModel, type ISettingsGroup } from "./preferences.js";
+import { IStringDictionary } from '../../../../base/common/collections.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable, IReference } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { ITextModel } from '../../../../editor/common/model.js';
+import { ITextEditorModel } from '../../../../editor/common/services/resolverService.js';
+import { ConfigurationTarget, IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { EditorModel } from '../../../common/editor/editorModel.js';
+import { IFilterMetadata, IFilterResult, IGroupFilter, IKeybindingsEditorModel, ISearchResultGroup, ISetting, ISettingMatch, ISettingMatcher, ISettingsEditorModel, ISettingsGroup } from './preferences.js';
 export declare const nullRange: IRange;
 declare abstract class AbstractSettingsModel extends EditorModel {
     protected _currentResultGroups: Map<string, ISearchResultGroup>;

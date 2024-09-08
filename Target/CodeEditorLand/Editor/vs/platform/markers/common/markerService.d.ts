@@ -1,5 +1,5 @@
-import { URI } from "../../../base/common/uri.js";
-import { type IMarker, type IMarkerData, type IMarkerService, type IResourceMarker, type MarkerStatistics } from "./markers.js";
+import { URI } from '../../../base/common/uri.js';
+import { IMarker, IMarkerData, IMarkerService, IResourceMarker, MarkerStatistics } from './markers.js';
 export declare const unsupportedSchemas: Set<string>;
 export declare class MarkerService implements IMarkerService {
     readonly _serviceBrand: undefined;

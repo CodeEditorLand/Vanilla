@@ -1,5 +1,5 @@
-import type { IExtensionManifest } from "../../extensions/common/extensions.js";
-import type { ILogger } from "../../log/common/log.js";
+import { IExtensionManifest } from '../../extensions/common/extensions.js';
+import { ILogger } from '../../log/common/log.js';
 export interface ITranslations {
     [key: string]: string | {
         message: string;

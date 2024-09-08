@@ -1,7 +1,7 @@
-import * as dom from "../../../base/browser/dom.js";
-import { Event } from "../../../base/common/event.js";
-import { type ILayoutOffsetInfo, ILayoutService } from "../../../platform/layout/browser/layoutService.js";
-import { ICodeEditorService } from "../../browser/services/codeEditorService.js";
+import * as dom from '../../../base/browser/dom.js';
+import { Event } from '../../../base/common/event.js';
+import { ICodeEditorService } from '../../browser/services/codeEditorService.js';
+import { ILayoutOffsetInfo, ILayoutService } from '../../../platform/layout/browser/layoutService.js';
 declare class StandaloneLayoutService implements ILayoutService {
     private _codeEditorService;
     readonly _serviceBrand: undefined;

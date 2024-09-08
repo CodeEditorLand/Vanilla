@@ -1,5 +1,5 @@
-import type { URI } from "../common/uri.js";
-import { type IWorkerClient, type IWorkerDescriptor } from "../common/worker/simpleWorker.js";
+import { URI } from '../common/uri.js';
+import { IWorkerClient, IWorkerDescriptor } from '../common/worker/simpleWorker.js';
 export declare function createBlobWorker(blobUrl: string, options?: WorkerOptions): Worker;
 export declare class WorkerDescriptor implements IWorkerDescriptor {
     readonly amdModuleId: string;

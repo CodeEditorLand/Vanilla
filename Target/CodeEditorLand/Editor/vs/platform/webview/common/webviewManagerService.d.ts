@@ -1,4 +1,4 @@
-import type { Event } from "../../../base/common/event.js";
+import { Event } from '../../../base/common/event.js';
 export declare const IWebviewManagerService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IWebviewManagerService>;
 export interface WebviewWebContentsId {
     readonly webContentsId: number;

@@ -1,4 +1,4 @@
-import { TestId } from "../../common/testId.js";
+import { TestId } from '../../common/testId.js';
 export interface ISerializedTestTreeCollapseState {
     collapsed?: boolean;
     children?: {

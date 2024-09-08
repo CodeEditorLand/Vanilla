@@ -1,13 +1,13 @@
-import type * as vscode from "vscode";
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import type { IAITextQuery, IFileQuery, IRawAITextQuery, IRawFileQuery, IRawQuery, IRawTextQuery, ISearchCompleteStats, ITextQuery } from "../../services/search/common/search.js";
-import { TextSearchManager } from "../../services/search/common/textSearchManager.js";
-import { type ExtHostSearchShape, type MainThreadSearchShape } from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
-import { IURITransformerService } from "./extHostUriTransformerService.js";
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import type * as vscode from 'vscode';
+import { ExtHostSearchShape, MainThreadSearchShape } from './extHost.protocol.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import { IURITransformerService } from './extHostUriTransformerService.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { IRawFileQuery, ISearchCompleteStats, IFileQuery, IRawTextQuery, IRawQuery, ITextQuery, IRawAITextQuery, IAITextQuery } from '../../services/search/common/search.js';
+import { URI } from '../../../base/common/uri.js';
+import { TextSearchManager } from '../../services/search/common/textSearchManager.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
 export interface IExtHostSearch extends ExtHostSearchShape {
     registerTextSearchProviderOld(scheme: string, provider: vscode.TextSearchProvider): IDisposable;
     registerAITextSearchProviderOld(scheme: string, provider: vscode.AITextSearchProvider): IDisposable;

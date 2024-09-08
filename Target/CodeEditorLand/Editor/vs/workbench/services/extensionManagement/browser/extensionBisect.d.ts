@@ -1,5 +1,5 @@
-import { type ILocalExtension } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { type IExtension } from "../../../../platform/extensions/common/extensions.js";
+import { ILocalExtension } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { IExtension } from '../../../../platform/extensions/common/extensions.js';
 export declare const IExtensionBisectService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionBisectService>;
 export interface IExtensionBisectService {
     readonly _serviceBrand: undefined;

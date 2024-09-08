@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { Action2 } from "../../../../platform/actions/common/actions.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import type { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
-import type { IWorkbenchContribution } from "../../../common/contributions.js";
-import { ITaskService } from "../common/taskService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { ITaskService } from '../common/taskService.js';
+import { Action2 } from '../../../../platform/actions/common/actions.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { IWorkspaceTrustManagementService } from '../../../../platform/workspace/common/workspaceTrust.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare class RunAutomaticTasks extends Disposable implements IWorkbenchContribution {
     private readonly _taskService;
     private readonly _configurationService;

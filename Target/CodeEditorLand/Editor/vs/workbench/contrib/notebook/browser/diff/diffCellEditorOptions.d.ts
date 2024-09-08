@@ -1,5 +1,5 @@
-import type { IDiffEditorConstructionOptions } from "../../../../../editor/browser/editorBrowser.js";
-import type { IEditorOptions } from "../../../../../editor/common/config/editorOptions.js";
+import { IDiffEditorConstructionOptions } from '../../../../../editor/browser/editorBrowser.js';
+import { IEditorOptions } from '../../../../../editor/common/config/editorOptions.js';
 /**
  * Do not leave at 12, when at 12 and we have whitespace and only one line,
  * then there's not enough space for the button `Show Whitespace Differences`

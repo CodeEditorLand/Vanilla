@@ -1,15 +1,15 @@
-import type * as vscode from "vscode";
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import type { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { type IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import type { ILogService } from "../../../platform/log/common/log.js";
-import { ChatAgentLocation, type IChatAgentRequest, type IChatAgentResult } from "../../contrib/chat/common/chatAgents.js";
-import { type IChatFollowup, type IChatUserActionEvent, type IChatVoteAction } from "../../contrib/chat/common/chatService.js";
-import type { Dto } from "../../services/extensions/common/proxyIdentifier.js";
-import { type ExtHostChatAgentsShape2, type IChatAgentCompletionItem, type IChatAgentHistoryEntryDto, type IMainContext } from "./extHost.protocol.js";
-import type { ExtHostCommands } from "./extHostCommands.js";
-import type { ExtHostDocuments } from "./extHostDocuments.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { ExtHostChatAgentsShape2, IChatAgentCompletionItem, IChatAgentHistoryEntryDto, IMainContext } from './extHost.protocol.js';
+import { ExtHostCommands } from './extHostCommands.js';
+import { ExtHostDocuments } from './extHostDocuments.js';
+import { ChatAgentLocation, IChatAgentRequest, IChatAgentResult } from '../../contrib/chat/common/chatAgents.js';
+import { IChatFollowup, IChatUserActionEvent, IChatVoteAction } from '../../contrib/chat/common/chatService.js';
+import { Dto } from '../../services/extensions/common/proxyIdentifier.js';
+import type * as vscode from 'vscode';
 export declare class ExtHostChatAgents2 extends Disposable implements ExtHostChatAgentsShape2 {
     private readonly _logService;
     private readonly _commands;

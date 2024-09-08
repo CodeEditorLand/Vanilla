@@ -1,14 +1,14 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { PickerQuickAccessProvider, type IPickerQuickAccessItem } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
-import { IQuickInputService, type IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { ITaskService } from "../common/taskService.js";
+import { IQuickPickSeparator, IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
+import { IPickerQuickAccessItem, PickerQuickAccessProvider } from '../../../../platform/quickinput/browser/pickerQuickAccess.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
+import { ITaskService } from '../common/taskService.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
 export declare class TasksQuickAccessProvider extends PickerQuickAccessProvider<IPickerQuickAccessItem> {
     private _taskService;
     private _configurationService;

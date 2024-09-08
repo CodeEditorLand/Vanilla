@@ -1,7 +1,7 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import type { IWorkingCopySaveEvent as IBaseWorkingCopySaveEvent, IWorkingCopy, IWorkingCopyIdentifier } from "./workingCopy.js";
+import { Event } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IWorkingCopy, IWorkingCopyIdentifier, IWorkingCopySaveEvent as IBaseWorkingCopySaveEvent } from './workingCopy.js';
 export declare const IWorkingCopyService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkingCopyService>;
 export interface IWorkingCopySaveEvent extends IBaseWorkingCopySaveEvent {
     /**

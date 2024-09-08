@@ -1,12 +1,12 @@
-import type { Action } from "../../../../base/common/actions.js";
-import type { IStringDictionary } from "../../../../base/common/collections.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IWorkspace, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import type { ConfiguringTask, ContributedTask, CustomTask, ITaskEvent, ITaskIdentifier, ITaskSet, Task, TaskRunSource, TaskSorter } from "./tasks.js";
-import type { ITaskSummary, ITaskSystemInfo, ITaskTerminateResponse } from "./taskSystem.js";
-export type { ITaskSummary, Task, ITaskTerminateResponse as TaskTerminateResponse, };
+import { Action } from '../../../../base/common/actions.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IWorkspaceFolder, IWorkspace } from '../../../../platform/workspace/common/workspace.js';
+import { Task, ContributedTask, CustomTask, ITaskSet, TaskSorter, ITaskEvent, ITaskIdentifier, ConfiguringTask, TaskRunSource } from './tasks.js';
+import { ITaskSummary, ITaskTerminateResponse, ITaskSystemInfo } from './taskSystem.js';
+import { IStringDictionary } from '../../../../base/common/collections.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+export type { ITaskSummary, Task, ITaskTerminateResponse as TaskTerminateResponse };
 export declare const CustomExecutionSupportedContext: RawContextKey<boolean>;
 export declare const ShellExecutionSupportedContext: RawContextKey<boolean>;
 export declare const TaskCommandsRegistered: RawContextKey<boolean>;
@@ -68,7 +68,7 @@ export interface ITaskService {
     getKnownTasks(filter?: ITaskFilter): Promise<Task[]>;
     taskTypes(): string[];
     getWorkspaceTasks(runSource?: TaskRunSource): Promise<Map<string, IWorkspaceFolderTaskResult>>;
-    getSavedTasks(type: "persistent" | "historical"): Promise<(Task | ConfiguringTask)[]>;
+    getSavedTasks(type: 'persistent' | 'historical'): Promise<(Task | ConfiguringTask)[]>;
     removeRecentlyUsedTask(taskRecentlyUsedKey: string): void;
     /**
      * @param alias The task's name, label or defined identifier.

@@ -1,6 +1,6 @@
-import type { Event } from "../../../base/common/event.js";
-import { URI, type UriComponents } from "../../../base/common/uri.js";
-import type { IWorkspaceFolder } from "../../workspace/common/workspace.js";
+import { Event } from '../../../base/common/event.js';
+import { URI, UriComponents } from '../../../base/common/uri.js';
+import { IWorkspaceFolder } from '../../workspace/common/workspace.js';
 export declare const IConfigurationService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IConfigurationService>;
 export declare function isConfigurationOverrides(thing: any): thing is IConfigurationOverrides;
 export interface IConfigurationOverrides {
@@ -8,10 +8,10 @@ export interface IConfigurationOverrides {
     resource?: URI | null;
 }
 export declare function isConfigurationUpdateOverrides(thing: any): thing is IConfigurationUpdateOverrides;
-export type IConfigurationUpdateOverrides = Omit<IConfigurationOverrides, "overrideIdentifier"> & {
+export type IConfigurationUpdateOverrides = Omit<IConfigurationOverrides, 'overrideIdentifier'> & {
     overrideIdentifiers?: string[] | null;
 };
-export declare enum ConfigurationTarget {
+export declare const enum ConfigurationTarget {
     APPLICATION = 1,
     USER = 2,
     USER_LOCAL = 3,
@@ -75,7 +75,7 @@ export interface IConfigurationUpdateOptions {
     /**
      * How to handle dirty file when updating the configuration.
      */
-    handleDirtyFile?: "save" | "revert";
+    handleDirtyFile?: 'save' | 'revert';
 }
 export interface IConfigurationService {
     readonly _serviceBrand: undefined;

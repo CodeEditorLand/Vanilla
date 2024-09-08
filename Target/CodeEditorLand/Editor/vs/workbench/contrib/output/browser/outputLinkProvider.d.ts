@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ILanguageFeaturesService } from '../../../../editor/common/services/languageFeatures.js';
 export declare class OutputLinkProvider extends Disposable {
     private readonly contextService;
     private readonly modelService;

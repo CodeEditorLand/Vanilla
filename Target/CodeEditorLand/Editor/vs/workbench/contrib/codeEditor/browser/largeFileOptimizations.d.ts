@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import type { IEditorContribution } from "../../../../editor/common/editorCommon.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { IEditorContribution } from '../../../../editor/common/editorCommon.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
 /**
  * Shows a message when opening a large file which has been memory optimized (and features disabled).
  */

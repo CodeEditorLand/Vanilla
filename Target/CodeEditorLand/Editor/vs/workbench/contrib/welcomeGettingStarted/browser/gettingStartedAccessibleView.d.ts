@@ -1,7 +1,7 @@
-import { AccessibleViewType, type AccessibleContentProvider, type ExtensionContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
-import type { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
-import type { ContextKeyExpression } from "../../../../platform/contextkey/common/contextkey.js";
-import type { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { AccessibleViewType, AccessibleContentProvider, ExtensionContentProvider } from '../../../../platform/accessibility/browser/accessibleView.js';
+import { IAccessibleViewImplentation } from '../../../../platform/accessibility/browser/accessibleViewRegistry.js';
+import { ContextKeyExpression } from '../../../../platform/contextkey/common/contextkey.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 export declare class GettingStartedAccessibleView implements IAccessibleViewImplentation {
     readonly type = AccessibleViewType.View;
     readonly priority = 110;

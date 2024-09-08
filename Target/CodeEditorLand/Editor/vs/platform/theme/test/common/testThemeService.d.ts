@@ -1,8 +1,8 @@
-import { Color } from "../../../../base/common/color.js";
-import { Emitter, type Event } from "../../../../base/common/event.js";
-import type { IconContribution } from "../../common/iconRegistry.js";
-import { ColorScheme } from "../../common/theme.js";
-import type { IColorTheme, IFileIconTheme, IProductIconTheme, IThemeService, ITokenStyle } from "../../common/themeService.js";
+import { Color } from '../../../../base/common/color.js';
+import { Emitter, Event } from '../../../../base/common/event.js';
+import { IconContribution } from '../../common/iconRegistry.js';
+import { ColorScheme } from '../../common/theme.js';
+import { IColorTheme, IFileIconTheme, IProductIconTheme, IThemeService, ITokenStyle } from '../../common/themeService.js';
 export declare class TestColorTheme implements IColorTheme {
     private colors;
     type: ColorScheme;

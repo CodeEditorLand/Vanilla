@@ -1,14 +1,14 @@
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IUpdateService } from "../../../../platform/update/common/update.js";
-import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
-import type { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
-import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
-import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
-import { ITimerService } from "../../../services/timer/browser/timerService.js";
+import { ILifecycleService } from '../../../services/lifecycle/common/lifecycle.js';
+import { IUpdateService } from '../../../../platform/update/common/update.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IWorkspaceTrustManagementService } from '../../../../platform/workspace/common/workspaceTrust.js';
+import { IPaneCompositePartService } from '../../../services/panecomposite/browser/panecomposite.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IBrowserWorkbenchEnvironmentService } from '../../../services/environment/browser/environmentService.js';
+import { ITimerService } from '../../../services/timer/browser/timerService.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
 export declare abstract class StartupTimings {
     private readonly _editorService;
     private readonly _paneCompositeService;

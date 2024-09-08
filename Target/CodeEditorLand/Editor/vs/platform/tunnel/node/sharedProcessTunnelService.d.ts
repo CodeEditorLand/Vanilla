@@ -1,8 +1,8 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { ILogService } from "../../log/common/log.js";
-import type { IAddress } from "../../remote/common/remoteAgentConnection.js";
-import type { ISharedProcessTunnel, ISharedProcessTunnelService } from "../../remote/common/sharedProcessTunnelService.js";
-import { ISharedTunnelsService } from "../common/tunnel.js";
+import { ILogService } from '../../log/common/log.js';
+import { ISharedProcessTunnel, ISharedProcessTunnelService } from '../../remote/common/sharedProcessTunnelService.js';
+import { ISharedTunnelsService } from '../common/tunnel.js';
+import { IAddress } from '../../remote/common/remoteAgentConnection.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
 export declare class SharedProcessTunnelService extends Disposable implements ISharedProcessTunnelService {
     private readonly _tunnelService;
     private readonly _logService;

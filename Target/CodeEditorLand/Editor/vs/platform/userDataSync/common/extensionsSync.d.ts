@@ -1,22 +1,22 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import type { URI } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IExtensionGalleryService, IExtensionManagementService, type ILocalExtension } from "../../extensionManagement/common/extensionManagement.js";
-import { IExtensionStorageService } from "../../extensionManagement/common/extensionStorage.js";
-import { type IExtensionIdentifier } from "../../extensions/common/extensions.js";
-import { IFileService } from "../../files/common/files.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { ILogService } from "../../log/common/log.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import { type IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { IUserDataProfileStorageService } from "../../userDataProfile/common/userDataProfileStorageService.js";
-import { AbstractInitializer, AbstractSynchroniser, type IAcceptResult, type IMergeResult, type IResourcePreview } from "./abstractSynchronizer.js";
-import { type IMergeResult as IExtensionMergeResult } from "./extensionsMerge.js";
-import { IIgnoredExtensionsManagementService } from "./ignoredExtensions.js";
-import { type ILocalSyncExtension, type IRemoteUserData, type ISyncData, type ISyncExtension, IUserDataSyncEnablementService, IUserDataSyncLocalStoreService, IUserDataSyncLogService, IUserDataSyncStoreService, type IUserDataSynchroniser } from "./userDataSync.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { URI } from '../../../base/common/uri.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IExtensionGalleryService, IExtensionManagementService, ILocalExtension } from '../../extensionManagement/common/extensionManagement.js';
+import { IExtensionStorageService } from '../../extensionManagement/common/extensionStorage.js';
+import { IExtensionIdentifier } from '../../extensions/common/extensions.js';
+import { IFileService } from '../../files/common/files.js';
+import { IInstantiationService } from '../../instantiation/common/instantiation.js';
+import { ILogService } from '../../log/common/log.js';
+import { IStorageService } from '../../storage/common/storage.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+import { IUriIdentityService } from '../../uriIdentity/common/uriIdentity.js';
+import { IUserDataProfile, IUserDataProfilesService } from '../../userDataProfile/common/userDataProfile.js';
+import { AbstractInitializer, AbstractSynchroniser, IAcceptResult, IMergeResult, IResourcePreview } from './abstractSynchronizer.js';
+import { IMergeResult as IExtensionMergeResult } from './extensionsMerge.js';
+import { IIgnoredExtensionsManagementService } from './ignoredExtensions.js';
+import { IRemoteUserData, ISyncData, ISyncExtension, IUserDataSyncLocalStoreService, IUserDataSynchroniser, IUserDataSyncLogService, IUserDataSyncEnablementService, IUserDataSyncStoreService, ILocalSyncExtension } from './userDataSync.js';
+import { IUserDataProfileStorageService } from '../../userDataProfile/common/userDataProfileStorageService.js';
 type IExtensionResourceMergeResult = IAcceptResult & IExtensionMergeResult;
 interface IExtensionResourcePreview extends IResourcePreview {
     readonly localExtensions: ILocalSyncExtension[];
@@ -50,10 +50,7 @@ export declare class ExtensionsSynchroniser extends AbstractSynchroniser impleme
     protected getAcceptResult(resourcePreview: IExtensionResourcePreview, resource: URI, content: string | null | undefined, token: CancellationToken): Promise<IExtensionResourceMergeResult>;
     private acceptLocal;
     private acceptRemote;
-    protected applyResult(remoteUserData: IRemoteUserData, lastSyncUserData: IRemoteUserData | null, resourcePreviews: [
-        IExtensionResourcePreview,
-        IExtensionResourceMergeResult
-    ][], force: boolean): Promise<void>;
+    protected applyResult(remoteUserData: IRemoteUserData, lastSyncUserData: IRemoteUserData | null, resourcePreviews: [IExtensionResourcePreview, IExtensionResourceMergeResult][], force: boolean): Promise<void>;
     private computeBuiltinExtensions;
     resolveContent(uri: URI): Promise<string | null>;
     private stringify;

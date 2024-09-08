@@ -1,6 +1,6 @@
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import type { IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, ItemActivation, QuickPickItem } from "./quickInput.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ItemActivation, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, QuickPickItem } from './quickInput.js';
 /**
  * Provider specific options for this particular showing of the
  * quick access.
@@ -54,7 +54,7 @@ export interface IQuickAccessOptions {
     readonly enabledProviderPrefixes?: string[];
     /**
      * A placeholder to use for this particular showing of the quick access.
-     */
+    */
     readonly placeholder?: string;
 }
 export interface IQuickAccessController {

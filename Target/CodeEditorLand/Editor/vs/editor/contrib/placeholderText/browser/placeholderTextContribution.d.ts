@@ -1,9 +1,9 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import type { IEditorContribution } from "../../../common/editorCommon.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
 /**
  * Use the editor option to set the placeholder text.
- */
+*/
 export declare class PlaceholderTextContribution extends Disposable implements IEditorContribution {
     private readonly _editor;
     static get(editor: ICodeEditor): PlaceholderTextContribution;

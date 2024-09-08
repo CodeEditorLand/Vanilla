@@ -1,9 +1,9 @@
-import type { SelectedLines } from "./folding.js";
+import { SelectedLines } from './folding.js';
 export interface ILineRange {
     startLineNumber: number;
     endLineNumber: number;
 }
-export declare enum FoldSource {
+export declare const enum FoldSource {
     provider = 0,
     userDefined = 1,
     recovered = 2

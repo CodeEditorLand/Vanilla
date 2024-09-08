@@ -1,9 +1,9 @@
-import { type ILocalizedString } from "../../../nls.js";
-import type { ICommandActionTitle } from "../../../platform/action/common/action.js";
-import { Action2 } from "../../../platform/actions/common/actions.js";
-import { type ContextKeyExpression } from "../../../platform/contextkey/common/contextkey.js";
-import { type ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
-import { IWorkbenchLayoutService } from "../../services/layout/browser/layoutService.js";
+import { ILocalizedString } from '../../../nls.js';
+import { Action2 } from '../../../platform/actions/common/actions.js';
+import { IWorkbenchLayoutService } from '../../services/layout/browser/layoutService.js';
+import { ServicesAccessor } from '../../../platform/instantiation/common/instantiation.js';
+import { ContextKeyExpression } from '../../../platform/contextkey/common/contextkey.js';
+import { ICommandActionTitle } from '../../../platform/action/common/action.js';
 export declare const ToggleActivityBarVisibilityActionId = "workbench.action.toggleActivityBarVisibility";
 export declare class ToggleSidebarPositionAction extends Action2 {
     static readonly ID = "workbench.action.toggleSidebarPosition";

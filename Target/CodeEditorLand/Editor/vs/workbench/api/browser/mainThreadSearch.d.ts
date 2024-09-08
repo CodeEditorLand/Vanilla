@@ -1,10 +1,10 @@
-import { type UriComponents } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
-import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { ISearchService, type IRawFileMatch2 } from "../../services/search/common/search.js";
-import { type MainThreadSearchShape } from "../common/extHost.protocol.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
+import { ITelemetryService } from '../../../platform/telemetry/common/telemetry.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IRawFileMatch2, ISearchService } from '../../services/search/common/search.js';
+import { MainThreadSearchShape } from '../common/extHost.protocol.js';
+import { IContextKeyService } from '../../../platform/contextkey/common/contextkey.js';
 export declare class MainThreadSearch implements MainThreadSearchShape {
     private readonly _searchService;
     private readonly _telemetryService;

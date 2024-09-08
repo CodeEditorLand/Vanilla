@@ -1,15 +1,15 @@
-import type { Dimension } from "../../../../../base/browser/dom.js";
-import type { CodeWindow } from "../../../../../base/browser/window.js";
-import type { URI } from "../../../../../base/common/uri.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService, type ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IEditorProgressService } from "../../../../../platform/progress/common/progress.js";
-import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { NotebookEditorInput } from "../../common/notebookEditorInput.js";
-import type { INotebookEditor, INotebookEditorCreationOptions } from "../notebookBrowser.js";
-import { NotebookEditorWidget } from "../notebookEditorWidget.js";
-import type { IBorrowValue, INotebookEditorService } from "./notebookEditorService.js";
+import { CodeWindow } from '../../../../../base/browser/window.js';
+import { NotebookEditorWidget } from '../notebookEditorWidget.js';
+import { IEditorGroupsService } from '../../../../services/editor/common/editorGroupsService.js';
+import { IInstantiationService, ServicesAccessor } from '../../../../../platform/instantiation/common/instantiation.js';
+import { NotebookEditorInput } from '../../common/notebookEditorInput.js';
+import { IBorrowValue, INotebookEditorService } from './notebookEditorService.js';
+import { INotebookEditor, INotebookEditorCreationOptions } from '../notebookBrowser.js';
+import { Dimension } from '../../../../../base/browser/dom.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { IEditorService } from '../../../../services/editor/common/editorService.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IEditorProgressService } from '../../../../../platform/progress/common/progress.js';
 export declare class NotebookEditorWidgetService implements INotebookEditorService {
     private readonly editorGroupService;
     private readonly instantiationService;

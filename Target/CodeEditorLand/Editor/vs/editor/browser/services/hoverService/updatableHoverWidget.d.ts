@@ -1,6 +1,6 @@
-import type { IManagedHoverContent, IManagedHoverOptions } from "../../../../base/browser/ui/hover/hover.js";
-import type { IHoverDelegate, IHoverDelegateTarget } from "../../../../base/browser/ui/hover/hoverDelegate.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
+import type { IManagedHoverContent, IManagedHoverOptions } from '../../../../base/browser/ui/hover/hover.js';
+import type { IHoverDelegate, IHoverDelegateTarget } from '../../../../base/browser/ui/hover/hoverDelegate.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
 export declare class ManagedHoverWidget implements IDisposable {
     private hoverDelegate;
     private target;

@@ -1,5 +1,5 @@
-import type { IComposite } from "./composite.js";
-import type { IView, IViewPaneContainer } from "./views.js";
+import { IView, IViewPaneContainer } from './views.js';
+import { IComposite } from './composite.js';
 export interface IPaneComposite extends IComposite {
     /**
      * Returns the minimal width needed to avoid any content horizontal truncation

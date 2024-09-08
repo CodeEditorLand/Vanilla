@@ -1,4 +1,4 @@
-import type { ColumnRange } from "../utils.js";
+import { ColumnRange } from '../utils.js';
 export declare class GhostText {
     readonly lineNumber: number;
     readonly parts: GhostTextPart[];
@@ -6,7 +6,7 @@ export declare class GhostText {
     equals(other: GhostText): boolean;
     /**
      * Only used for testing/debugging.
-     */
+    */
     render(documentText: string, debug?: boolean): string;
     renderForScreenReader(lineText: string): string;
     isEmpty(): boolean;
@@ -17,12 +17,12 @@ export declare class GhostTextPart {
     readonly text: string;
     /**
      * Indicates if this part is a preview of an inline suggestion when a suggestion is previewed.
-     */
+    */
     readonly preview: boolean;
     constructor(column: number, text: string, 
     /**
      * Indicates if this part is a preview of an inline suggestion when a suggestion is previewed.
-     */
+    */
     preview: boolean);
     readonly lines: string[];
     equals(other: GhostTextPart): boolean;

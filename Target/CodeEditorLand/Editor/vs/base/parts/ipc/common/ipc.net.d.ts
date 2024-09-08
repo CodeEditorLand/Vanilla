@@ -1,8 +1,8 @@
-import { VSBuffer } from "../../../common/buffer.js";
-import { type Event } from "../../../common/event.js";
-import { Disposable, type IDisposable } from "../../../common/lifecycle.js";
-import { type IIPCLogger, type IMessagePassingProtocol, IPCClient } from "./ipc.js";
-export declare enum SocketDiagnosticsEventType {
+import { VSBuffer } from '../../../common/buffer.js';
+import { Event } from '../../../common/event.js';
+import { Disposable, IDisposable } from '../../../common/lifecycle.js';
+import { IIPCLogger, IMessagePassingProtocol, IPCClient } from './ipc.js';
+export declare const enum SocketDiagnosticsEventType {
     Created = "created",
     Read = "read",
     Write = "write",
@@ -50,7 +50,7 @@ export declare namespace SocketDiagnostics {
     const records: IRecord[];
     function traceSocketEvent(nativeObject: any, socketDebugLabel: string, type: SocketDiagnosticsEventType, data?: VSBuffer | Uint8Array | ArrayBuffer | ArrayBufferView | any): void;
 }
-export declare enum SocketCloseEventType {
+export declare const enum SocketCloseEventType {
     NodeSocketCloseEvent = 0,
     WebSocketCloseEvent = 1
 }
@@ -115,7 +115,7 @@ export declare class ChunkStream {
     peek(byteCount: number): VSBuffer;
     private _read;
 }
-export declare enum ProtocolConstants {
+export declare const enum ProtocolConstants {
     HeaderLength = 13,
     /**
      * Send an Acknowledge message at most 2 seconds later...

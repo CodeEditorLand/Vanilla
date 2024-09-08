@@ -1,5 +1,5 @@
-import { DisposableStore } from "../../../base/common/lifecycle.js";
-import type { ITelemetryService } from "./telemetry.js";
+import { DisposableStore } from '../../../base/common/lifecycle.js';
+import { ITelemetryService } from './telemetry.js';
 export interface ErrorEvent {
     callstack: string;
     msg?: string;

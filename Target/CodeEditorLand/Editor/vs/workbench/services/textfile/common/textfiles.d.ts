@@ -1,17 +1,17 @@
-import { VSBuffer, type VSBufferReadable, type VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { ReadableStream } from "../../../../base/common/stream.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { ITextBufferFactory, ITextModel, ITextSnapshot } from "../../../../editor/common/model.js";
-import type { ITextEditorModel } from "../../../../editor/common/services/resolverService.js";
-import { FileOperationError, type IBaseFileStatWithMetadata, type IFileReadLimits, type IFileStatWithMetadata, type IReadFileStreamOptions, type IWriteFileOptions } from "../../../../platform/files/common/files.js";
-import type { IProgress, IProgressStep } from "../../../../platform/progress/common/progress.js";
-import type { IRevertOptions, ISaveOptions, SaveReason } from "../../../common/editor.js";
-import type { IUntitledTextEditorModelManager } from "../../untitled/common/untitledTextEditorService.js";
-import type { IWorkingCopy, IWorkingCopySaveEvent } from "../../workingCopy/common/workingCopy.js";
-import type { IFileOperationUndoRedoInfo } from "../../workingCopy/common/workingCopyFileService.js";
+import { URI } from '../../../../base/common/uri.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ISaveOptions, IRevertOptions, SaveReason } from '../../../common/editor.js';
+import { ReadableStream } from '../../../../base/common/stream.js';
+import { IBaseFileStatWithMetadata, IFileStatWithMetadata, IWriteFileOptions, FileOperationError, IReadFileStreamOptions, IFileReadLimits } from '../../../../platform/files/common/files.js';
+import { ITextEditorModel } from '../../../../editor/common/services/resolverService.js';
+import { ITextBufferFactory, ITextModel, ITextSnapshot } from '../../../../editor/common/model.js';
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from '../../../../base/common/buffer.js';
+import { IWorkingCopy, IWorkingCopySaveEvent } from '../../workingCopy/common/workingCopy.js';
+import { IUntitledTextEditorModelManager } from '../../untitled/common/untitledTextEditorService.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IProgress, IProgressStep } from '../../../../platform/progress/common/progress.js';
+import { IFileOperationUndoRedoInfo } from '../../workingCopy/common/workingCopyFileService.js';
 export declare const ITextFileService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITextFileService>;
 export interface ITextFileService extends IDisposable {
     readonly _serviceBrand: undefined;
@@ -133,7 +133,7 @@ export interface IWriteTextFileOptions extends IWriteFileOptions {
      */
     readonly writeElevated?: boolean;
 }
-export declare enum TextFileOperationResult {
+export declare const enum TextFileOperationResult {
     FILE_IS_BINARY = 0
 }
 export declare class TextFileOperationError extends FileOperationError {
@@ -162,7 +162,7 @@ export interface ISaveErrorHandler {
 /**
  * States the text file editor model can be in.
  */
-export declare enum TextFileEditorModelState {
+export declare const enum TextFileEditorModelState {
     /**
      * A model is saved.
      */
@@ -190,7 +190,7 @@ export declare enum TextFileEditorModelState {
      */
     ERROR = 5
 }
-export declare enum TextFileResolveReason {
+export declare const enum TextFileResolveReason {
     EDITOR = 1,
     REFERENCE = 2,
     OTHER = 3
@@ -368,7 +368,7 @@ export interface ITextFileResolveOptions {
      */
     readonly limits?: IFileReadLimits;
 }
-export declare enum EncodingMode {
+export declare const enum EncodingMode {
     /**
      * Instructs the encoding support to encode the object with the provided encoding
      */

@@ -1,8 +1,8 @@
-import type { CancellationToken } from "../../../common/cancellation.js";
-import type { IMarkdownString } from "../../../common/htmlContent.js";
-import type { IDisposable } from "../../../common/lifecycle.js";
-import type { IHoverDelegate } from "./hoverDelegate.js";
-import type { HoverPosition } from "./hoverWidget.js";
+import type { IHoverDelegate } from './hoverDelegate.js';
+import type { HoverPosition } from './hoverWidget.js';
+import type { CancellationToken } from '../../../common/cancellation.js';
+import type { IMarkdownString } from '../../../common/htmlContent.js';
+import type { IDisposable } from '../../../common/lifecycle.js';
 /**
  * Enables the convenient display of rich markdown-based hovers in the workbench.
  */
@@ -217,8 +217,8 @@ export interface IManagedHoverTooltipMarkdownString {
 }
 export type IManagedHoverContent = string | IManagedHoverTooltipMarkdownString | HTMLElement | undefined;
 export type IManagedHoverContentOrFactory = IManagedHoverContent | (() => IManagedHoverContent);
-export interface IManagedHoverOptions extends Pick<IHoverOptions, "actions" | "linkHandler" | "trapFocus"> {
-    appearance?: Pick<IHoverAppearanceOptions, "showHoverHint">;
+export interface IManagedHoverOptions extends Pick<IHoverOptions, 'actions' | 'linkHandler' | 'trapFocus'> {
+    appearance?: Pick<IHoverAppearanceOptions, 'showHoverHint'>;
 }
 export interface IManagedHover extends IDisposable {
     /**

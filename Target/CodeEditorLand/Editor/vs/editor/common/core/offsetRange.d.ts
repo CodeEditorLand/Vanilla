@@ -4,7 +4,7 @@ export interface IOffsetRange {
 }
 /**
  * A range of offsets (0-based).
- */
+*/
 export declare class OffsetRange implements IOffsetRange {
     readonly start: number;
     readonly endExclusive: number;

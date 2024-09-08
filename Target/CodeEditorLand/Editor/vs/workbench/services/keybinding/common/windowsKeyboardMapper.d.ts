@@ -1,9 +1,9 @@
-import { KeyCodeChord, ScanCodeChord, type Keybinding, type ResolvedKeybinding, type SingleModifierChord } from "../../../../base/common/keybindings.js";
-import { KeyCode, ScanCode } from "../../../../base/common/keyCodes.js";
-import { BaseResolvedKeybinding } from "../../../../platform/keybinding/common/baseResolvedKeybinding.js";
-import type { IKeyboardEvent } from "../../../../platform/keybinding/common/keybinding.js";
-import type { IWindowsKeyboardMapping } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
-import type { IKeyboardMapper } from "../../../../platform/keyboardLayout/common/keyboardMapper.js";
+import { KeyCode, ScanCode } from '../../../../base/common/keyCodes.js';
+import { ResolvedKeybinding, KeyCodeChord, SingleModifierChord, ScanCodeChord, Keybinding } from '../../../../base/common/keybindings.js';
+import { IKeyboardEvent } from '../../../../platform/keybinding/common/keybinding.js';
+import { IKeyboardMapper } from '../../../../platform/keyboardLayout/common/keyboardMapper.js';
+import { BaseResolvedKeybinding } from '../../../../platform/keybinding/common/baseResolvedKeybinding.js';
+import { IWindowsKeyboardMapping } from '../../../../platform/keyboardLayout/common/keyboardLayout.js';
 export interface IScanCodeMapping {
     scanCode: ScanCode;
     keyCode: KeyCode;

@@ -1,13 +1,13 @@
-import type { IBufferLine, IBufferRange, Terminal } from "@xterm/xterm";
-import type { IHoverAction } from "../../../../../base/browser/ui/hover/hover.js";
-import type { Event } from "../../../../../base/common/event.js";
-import type { IDisposable } from "../../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../../base/common/uri.js";
-import type { ITextEditorSelection } from "../../../../../platform/editor/common/editor.js";
-import type { ITerminalBackend } from "../../../../../platform/terminal/common/terminal.js";
-import type { ITerminalExternalLinkProvider } from "../../../terminal/browser/terminal.js";
-import type { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
-import type { IParsedLink } from "./terminalLinkParsing.js";
+import type { IBufferLine, IBufferRange, Terminal } from '@xterm/xterm';
+import { URI } from '../../../../../base/common/uri.js';
+import { ITerminalProcessManager } from '../../../terminal/common/terminal.js';
+import { IParsedLink } from './terminalLinkParsing.js';
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { ITerminalExternalLinkProvider } from '../../../terminal/browser/terminal.js';
+import { Event } from '../../../../../base/common/event.js';
+import { ITerminalBackend } from '../../../../../platform/terminal/common/terminal.js';
+import { ITextEditorSelection } from '../../../../../platform/editor/common/editor.js';
+import type { IHoverAction } from '../../../../../base/browser/ui/hover/hover.js';
 export declare const ITerminalLinkProviderService: import("../../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITerminalLinkProviderService>;
 export interface ITerminalLinkProviderService {
     readonly _serviceBrand: undefined;
@@ -17,8 +17,8 @@ export interface ITerminalLinkProviderService {
     registerLinkProvider(provider: ITerminalExternalLinkProvider): IDisposable;
 }
 export interface ITerminalLinkResolver {
-    resolveLink(processManager: Pick<ITerminalProcessManager, "initialCwd" | "os" | "remoteAuthority" | "userHome"> & {
-        backend?: Pick<ITerminalBackend, "getWslPath">;
+    resolveLink(processManager: Pick<ITerminalProcessManager, 'initialCwd' | 'os' | 'remoteAuthority' | 'userHome'> & {
+        backend?: Pick<ITerminalBackend, 'getWslPath'>;
     }, link: string, uri?: URI): Promise<ResolvedLink>;
 }
 /**
@@ -91,7 +91,7 @@ export interface ITerminalSimpleLink {
     activate?(text: string): void;
 }
 export type TerminalLinkType = TerminalBuiltinLinkType | ITerminalExternalLinkType;
-export declare enum TerminalBuiltinLinkType {
+export declare const enum TerminalBuiltinLinkType {
     /**
      * The link is validated to be a file on the file system and will open an editor.
      */

@@ -1,6 +1,6 @@
-import { URI } from "../../../../base/common/uri.js";
+import { URI } from '../../../../base/common/uri.js';
 export declare const TEST_DATA_SCHEME = "vscode-test-data";
-export declare enum TestUriType {
+export declare const enum TestUriType {
     /** All console output for a task */
     TaskOutput = 0,
     /** All console output for a test in a task */

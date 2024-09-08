@@ -1,11 +1,11 @@
-import "./media/bannerpart.css";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { type IBannerItem, IBannerService } from "../../../services/banner/browser/bannerService.js";
-import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import { Part } from "../../part.js";
+import './media/bannerpart.css';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { Part } from '../../part.js';
+import { IWorkbenchLayoutService } from '../../../services/layout/browser/layoutService.js';
+import { IBannerItem, IBannerService } from '../../../services/banner/browser/bannerService.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 export declare class BannerPart extends Part implements IBannerService {
     private readonly contextKeyService;
     private readonly instantiationService;

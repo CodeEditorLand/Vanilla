@@ -1,5 +1,5 @@
-import { Event } from "../../../common/event.js";
-import { Dimension } from "../../dom.js";
+import { Dimension } from '../../dom.js';
+import { Event } from '../../../common/event.js';
 export interface IResizeEvent {
     dimension: Dimension;
     done: boolean;

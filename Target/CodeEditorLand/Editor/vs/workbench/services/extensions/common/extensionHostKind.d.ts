@@ -1,12 +1,12 @@
-import type { ExtensionKind } from "../../../../platform/environment/common/environment.js";
-import { ExtensionIdentifier, type IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-export declare enum ExtensionHostKind {
+import { ExtensionKind } from '../../../../platform/environment/common/environment.js';
+import { ExtensionIdentifier, IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+export declare const enum ExtensionHostKind {
     LocalProcess = 1,
     LocalWebWorker = 2,
     Remote = 3
 }
 export declare function extensionHostKindToString(kind: ExtensionHostKind | null): string;
-export declare enum ExtensionRunningPreference {
+export declare const enum ExtensionRunningPreference {
     None = 0,
     Local = 1,
     Remote = 2

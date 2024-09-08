@@ -1,8 +1,8 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
 export declare const ISpeechService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISpeechService>;
 export declare const HasSpeechProvider: RawContextKey<boolean>;
 export declare const SpeechToTextInProgress: RawContextKey<boolean>;
@@ -94,7 +94,7 @@ export interface ISpeechService {
      */
     recognizeKeyword(token: CancellationToken): Promise<KeywordRecognitionStatus>;
 }
-export declare enum AccessibilityVoiceSettingId {
+export declare const enum AccessibilityVoiceSettingId {
     SpeechTimeout = "accessibility.voice.speechTimeout",
     AutoSynthesize = "accessibility.voice.autoSynthesize",
     SpeechLanguage = "accessibility.voice.speechLanguage"

@@ -1,9 +1,9 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import type { StickyElement, StickyRange } from "./stickyScrollElement.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { Event } from '../../../../base/common/event.js';
+import { ILanguageConfigurationService } from '../../../common/languages/languageConfigurationRegistry.js';
+import { StickyElement, StickyRange } from './stickyScrollElement.js';
 export declare class StickyLineCandidate {
     readonly startLineNumber: number;
     readonly endLineNumber: number;

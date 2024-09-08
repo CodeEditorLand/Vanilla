@@ -1,8 +1,8 @@
-import type { URI } from "../../../../../../base/common/uri.js";
-import type { LanguageId } from "../../../../../../editor/common/encodedTokenAttributes.js";
-import { MirrorTextModel, type IModelChangedEvent } from "../../../../../../editor/common/model/mirrorTextModel.js";
-import type { ICreateGrammarResult } from "../../../common/TMGrammarFactory.js";
-import type { StateDeltas } from "./textMateTokenizationWorker.worker.js";
+import { URI } from '../../../../../../base/common/uri.js';
+import { LanguageId } from '../../../../../../editor/common/encodedTokenAttributes.js';
+import { IModelChangedEvent, MirrorTextModel } from '../../../../../../editor/common/model/mirrorTextModel.js';
+import { ICreateGrammarResult } from '../../../common/TMGrammarFactory.js';
+import { StateDeltas } from './textMateTokenizationWorker.worker.js';
 export interface TextMateModelTokenizerHost {
     getOrCreateGrammar(languageId: string, encodedLanguageId: LanguageId): Promise<ICreateGrammarResult | null>;
     setTokensAndStates(versionId: number, tokens: Uint8Array, stateDeltas: StateDeltas[]): void;

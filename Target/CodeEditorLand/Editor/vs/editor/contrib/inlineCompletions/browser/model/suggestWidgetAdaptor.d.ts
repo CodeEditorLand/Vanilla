@@ -1,13 +1,13 @@
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import type { ICodeEditor } from "../../../../browser/editorBrowser.js";
-import { Position } from "../../../../common/core/position.js";
-import { Range } from "../../../../common/core/range.js";
-import { SingleTextEdit } from "../../../../common/core/textEdit.js";
-import { type CompletionItemKind, SelectedSuggestionInfo } from "../../../../common/languages.js";
-import type { ITextModel } from "../../../../common/model.js";
-import type { CompletionItem } from "../../../suggest/browser/suggest.js";
-import { SuggestController } from "../../../suggest/browser/suggestController.js";
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../../browser/editorBrowser.js';
+import { Position } from '../../../../common/core/position.js';
+import { Range } from '../../../../common/core/range.js';
+import { SingleTextEdit } from '../../../../common/core/textEdit.js';
+import { CompletionItemKind, SelectedSuggestionInfo } from '../../../../common/languages.js';
+import { ITextModel } from '../../../../common/model.js';
+import { CompletionItem } from '../../../suggest/browser/suggest.js';
+import { SuggestController } from '../../../suggest/browser/suggestController.js';
 export declare class SuggestWidgetAdaptor extends Disposable {
     private readonly editor;
     private readonly suggestControllerPreselector;

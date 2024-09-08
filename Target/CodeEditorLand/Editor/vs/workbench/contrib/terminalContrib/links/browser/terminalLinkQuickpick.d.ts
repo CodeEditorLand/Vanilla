@@ -1,13 +1,13 @@
-import type { ILink } from "@xterm/xterm";
-import { Event } from "../../../../../base/common/event.js";
-import { DisposableStore } from "../../../../../base/common/lifecycle.js";
-import { IAccessibleViewService } from "../../../../../platform/accessibility/browser/accessibleView.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { IQuickInputService, type IQuickPickItem } from "../../../../../platform/quickinput/common/quickInput.js";
-import { type IDetachedTerminalInstance, type ITerminalInstance } from "../../../terminal/browser/terminal.js";
-import type { TerminalLink } from "./terminalLink.js";
-import type { IDetectedLinks } from "./terminalLinkManager.js";
+import { Event } from '../../../../../base/common/event.js';
+import { IQuickInputService, IQuickPickItem } from '../../../../../platform/quickinput/common/quickInput.js';
+import { IDetectedLinks } from './terminalLinkManager.js';
+import { type IDetachedTerminalInstance, type ITerminalInstance } from '../../../terminal/browser/terminal.js';
+import type { ILink } from '@xterm/xterm';
+import { DisposableStore } from '../../../../../base/common/lifecycle.js';
+import type { TerminalLink } from './terminalLink.js';
+import { ILabelService } from '../../../../../platform/label/common/label.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IAccessibleViewService } from '../../../../../platform/accessibility/browser/accessibleView.js';
 export declare class TerminalLinkQuickpick extends DisposableStore {
     private readonly _labelService;
     private readonly _quickInputService;

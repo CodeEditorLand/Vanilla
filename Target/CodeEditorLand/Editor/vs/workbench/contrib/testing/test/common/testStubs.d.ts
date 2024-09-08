@@ -1,8 +1,8 @@
-import { URI } from "../../../../../base/common/uri.js";
-import { MainThreadTestCollection } from "../../common/mainThreadTestCollection.js";
-import { TestId } from "../../common/testId.js";
-import { type ITestItemApi, type ITestItemLike, TestItemCollection } from "../../common/testItemCollection.js";
-import type { ITestItem, TestsDiff } from "../../common/testTypes.js";
+import { URI } from '../../../../../base/common/uri.js';
+import { MainThreadTestCollection } from '../../common/mainThreadTestCollection.js';
+import { ITestItem, TestsDiff } from '../../common/testTypes.js';
+import { TestId } from '../../common/testId.js';
+import { ITestItemApi, ITestItemLike, TestItemCollection } from '../../common/testItemCollection.js';
 export declare class TestTestItem implements ITestItemLike {
     private readonly _extId;
     private readonly props;

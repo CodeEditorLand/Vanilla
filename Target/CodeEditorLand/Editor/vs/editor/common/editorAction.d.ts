@@ -1,6 +1,6 @@
-import type { ICommandMetadata } from "../../platform/commands/common/commands.js";
-import type { ContextKeyExpression, IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
-import type { IEditorAction } from "./editorCommon.js";
+import { IEditorAction } from './editorCommon.js';
+import { ICommandMetadata } from '../../platform/commands/common/commands.js';
+import { ContextKeyExpression, IContextKeyService } from '../../platform/contextkey/common/contextkey.js';
 export declare class InternalEditorAction implements IEditorAction {
     readonly id: string;
     readonly label: string;

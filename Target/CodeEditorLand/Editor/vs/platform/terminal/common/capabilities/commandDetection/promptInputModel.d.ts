@@ -1,8 +1,8 @@
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ILogService } from "../../../../log/common/log.js";
-import type { ITerminalCommand } from "../capabilities.js";
-import type { Terminal } from "@xterm/headless";
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { ILogService } from '../../../../log/common/log.js';
+import type { ITerminalCommand } from '../capabilities.js';
+import type { Terminal } from '@xterm/headless';
 /**
  * A model of the prompt input state using shell integration and analyzing the terminal buffer. This
  * may not be 100% accurate but provides a best guess.

@@ -1,8 +1,8 @@
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import { type IPCClient } from "../../../../base/parts/ipc/common/ipc.js";
-import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { type IOnDidTerminateUtilityrocessWorkerProcess, type IUtilityProcessWorkerProcess } from "../../../../platform/utilityProcess/common/utilityProcessWorkerService.js";
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IMainProcessService } from '../../../../platform/ipc/common/mainProcessService.js';
+import { IPCClient } from '../../../../base/parts/ipc/common/ipc.js';
+import { IOnDidTerminateUtilityrocessWorkerProcess, IUtilityProcessWorkerProcess } from '../../../../platform/utilityProcess/common/utilityProcessWorkerService.js';
 export declare const IUtilityProcessWorkerWorkbenchService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IUtilityProcessWorkerWorkbenchService>;
 export interface IUtilityProcessWorker extends IDisposable {
     /**

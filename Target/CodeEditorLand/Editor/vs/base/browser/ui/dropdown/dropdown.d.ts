@@ -1,8 +1,8 @@
-import { ActionRunner, type IAction } from "../../../common/actions.js";
-import type { IDisposable } from "../../../common/lifecycle.js";
-import type { IContextMenuProvider } from "../../contextmenu.js";
-import type { IMenuOptions } from "../menu/menu.js";
-import "./dropdown.css";
+import { IContextMenuProvider } from '../../contextmenu.js';
+import { IMenuOptions } from '../menu/menu.js';
+import { ActionRunner, IAction } from '../../../common/actions.js';
+import { IDisposable } from '../../../common/lifecycle.js';
+import './dropdown.css';
 export interface ILabelRenderer {
     (container: HTMLElement): IDisposable | null;
 }

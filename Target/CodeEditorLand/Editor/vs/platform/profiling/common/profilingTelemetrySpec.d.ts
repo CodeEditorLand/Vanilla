@@ -1,6 +1,6 @@
-import type { ILogService } from "../../log/common/log.js";
-import type { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import type { BottomUpSample } from "./profilingModel.js";
+import { ILogService } from '../../log/common/log.js';
+import { BottomUpSample } from './profilingModel.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 export interface SampleData {
     perfBaseline: number;
     sample: BottomUpSample;

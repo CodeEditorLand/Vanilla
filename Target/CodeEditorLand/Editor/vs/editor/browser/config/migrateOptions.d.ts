@@ -1,4 +1,4 @@
-import type { IEditorOptions } from "../../common/config/editorOptions.js";
+import { IEditorOptions } from '../../common/config/editorOptions.js';
 export interface ISettingsReader {
     (key: string): any;
 }

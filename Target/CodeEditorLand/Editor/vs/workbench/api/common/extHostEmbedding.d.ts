@@ -1,9 +1,9 @@
-import type * as vscode from "vscode";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { type Event } from "../../../base/common/event.js";
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { type ExtHostEmbeddingsShape, type IMainContext } from "./extHost.protocol.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { Event } from '../../../base/common/event.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ExtHostEmbeddingsShape, IMainContext } from './extHost.protocol.js';
+import type * as vscode from 'vscode';
 export declare class ExtHostEmbeddings implements ExtHostEmbeddingsShape {
     private readonly _proxy;
     private readonly _provider;

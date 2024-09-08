@@ -5,7 +5,7 @@
 export default {
     color: true,
     format: "esm",
-    logLevel: "debug",
+    logLevel: "silent",
     metafile: true,
     minify: true,
     outdir: "Target",

@@ -1,7 +1,7 @@
-import { ExtensionIdentifier, type IExtension, TargetPlatform } from "../../extensions/common/extensions.js";
-import type { IFileService } from "../../files/common/files.js";
-import type { ILogService } from "../../log/common/log.js";
-import { type IExtensionIdentifier, type IGalleryExtension, type ILocalExtension } from "./extensionManagement.js";
+import { IExtensionIdentifier, IGalleryExtension, ILocalExtension } from './extensionManagement.js';
+import { ExtensionIdentifier, IExtension, TargetPlatform } from '../../extensions/common/extensions.js';
+import { IFileService } from '../../files/common/files.js';
+import { ILogService } from '../../log/common/log.js';
 export declare function areSameExtensions(a: IExtensionIdentifier, b: IExtensionIdentifier): boolean;
 export declare class ExtensionKey {
     readonly identifier: IExtensionIdentifier;

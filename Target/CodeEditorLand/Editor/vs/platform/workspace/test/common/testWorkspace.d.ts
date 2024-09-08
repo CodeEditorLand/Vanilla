@@ -1,5 +1,5 @@
-import { URI } from "../../../../base/common/uri.js";
-import { Workspace as BaseWorkspace, type WorkspaceFolder } from "../../common/workspace.js";
+import { URI } from '../../../../base/common/uri.js';
+import { Workspace as BaseWorkspace, WorkspaceFolder } from '../../common/workspace.js';
 export declare class Workspace extends BaseWorkspace {
     constructor(id: string, folders?: WorkspaceFolder[], configuration?: URI | null, ignorePathCasing?: (key: URI) => boolean);
 }

@@ -1,26 +1,26 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import type { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import type { ISingleEditOperation } from "../../../../editor/common/core/editOperation.js";
-import type { Position } from "../../../../editor/common/core/position.js";
-import { type IModelDeltaDecoration, type IValidEditOperation } from "../../../../editor/common/model.js";
-import { ModelDecorationOptions } from "../../../../editor/common/model/textModel.js";
-import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { IMenuService } from "../../../../platform/actions/common/actions.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import { type HunkInformation, type Session } from "./inlineChatSession.js";
-import type { InlineChatZoneWidget } from "./inlineChatZoneWidget.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Emitter, Event } from '../../../../base/common/event.js';
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { ISingleEditOperation } from '../../../../editor/common/core/editOperation.js';
+import { Position } from '../../../../editor/common/core/position.js';
+import { IModelDeltaDecoration, IValidEditOperation } from '../../../../editor/common/model.js';
+import { ModelDecorationOptions } from '../../../../editor/common/model/textModel.js';
+import { IEditorWorkerService } from '../../../../editor/common/services/editorWorker.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { HunkInformation, Session } from './inlineChatSession.js';
+import { InlineChatZoneWidget } from './inlineChatZoneWidget.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ITextFileService } from '../../../services/textfile/common/textfiles.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IMenuService } from '../../../../platform/actions/common/actions.js';
 export interface IEditObserver {
     start(): void;
     stop(): void;
 }
-export declare enum HunkAction {
+export declare const enum HunkAction {
     Accept = 0,
     Discard = 1,
     MoveNext = 2,

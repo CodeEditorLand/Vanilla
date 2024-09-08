@@ -1,9 +1,9 @@
-import type * as vscode from "vscode";
-import { type UriComponents } from "../../../base/common/uri.js";
-import type { NotebookDocumentMetadata } from "../../contrib/notebook/common/notebookCommon.js";
-import type { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
-import type * as extHostProtocol from "./extHost.protocol.js";
-import type { ExtHostNotebookController } from "./extHostNotebook.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import * as extHostProtocol from './extHost.protocol.js';
+import { ExtHostNotebookController } from './extHostNotebook.js';
+import { NotebookDocumentMetadata } from '../../contrib/notebook/common/notebookCommon.js';
+import { SerializableObjectWithBuffers } from '../../services/extensions/common/proxyIdentifier.js';
+import type * as vscode from 'vscode';
 export declare class ExtHostNotebookDocuments implements extHostProtocol.ExtHostNotebookDocumentsShape {
     private readonly _notebooksAndEditors;
     private readonly _onDidSaveNotebookDocument;

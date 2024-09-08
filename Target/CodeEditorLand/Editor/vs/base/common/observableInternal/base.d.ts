@@ -1,8 +1,8 @@
-import { type EqualityComparer } from "../equals.js";
-import type { DisposableStore, IDisposable } from "../lifecycle.js";
-import type { keepObserved, recomputeInitiallyAndOnChange } from "../observable.js";
-import { DebugNameData, type DebugOwner } from "./debugName.js";
-import type { derivedOpts } from "./derived.js";
+import { EqualityComparer } from '../equals.js';
+import { DisposableStore, IDisposable } from '../lifecycle.js';
+import { keepObserved, recomputeInitiallyAndOnChange } from '../observable.js';
+import { DebugNameData, DebugOwner } from './debugName.js';
+import type { derivedOpts } from './derived.js';
 /**
  * Represents an observable value.
  *
@@ -143,7 +143,7 @@ declare let _derived: typeof derivedOpts;
 /**
  * @internal
  * This is to allow splitting files.
- */
+*/
 export declare function _setDerivedOpts(derived: typeof _derived): void;
 export declare abstract class ConvenientObservable<T, TChange> implements IObservable<T, TChange> {
     get TChange(): TChange;
@@ -159,7 +159,7 @@ export declare abstract class ConvenientObservable<T, TChange> implements IObser
     /**
      * @sealed
      * Converts an observable of an observable value into a direct observable of the value.
-     */
+    */
     flatten<TNew>(this: IObservable<IObservable<TNew, any>>): IObservable<TNew, unknown>;
     recomputeInitiallyAndOnChange(store: DisposableStore, handleValue?: (value: T) => void): IObservable<T>;
     /**
@@ -236,7 +236,7 @@ export interface IChangeTracker {
     /**
      * Returns if this change should cause an invalidation.
      * Implementations can record changes.
-     */
+    */
     handleChange(context: IChangeContext): boolean;
 }
 export interface IChangeContext {

@@ -1,7 +1,7 @@
-import { type Event } from "../../../../base/common/event.js";
-import type { IModelDecorationOptions, IModelDecorationsChangeAccessor, ITextModel } from "../../../common/model.js";
-import type { SelectedLines } from "./folding.js";
-import { FoldSource, type FoldingRegion, FoldingRegions, type ILineRange } from "./foldingRanges.js";
+import { Event } from '../../../../base/common/event.js';
+import { IModelDecorationOptions, IModelDecorationsChangeAccessor, ITextModel } from '../../../common/model.js';
+import { FoldingRegion, FoldingRegions, ILineRange, FoldSource } from './foldingRanges.js';
+import { SelectedLines } from './folding.js';
 export interface IDecorationProvider {
     getDecorationOption(isCollapsed: boolean, isHidden: boolean, isManual: boolean): IModelDecorationOptions;
     changeDecorations<T>(callback: (changeAccessor: IModelDecorationsChangeAccessor) => T): T | null;
@@ -79,7 +79,7 @@ export declare function setCollapseStateUp(foldingModel: FoldingModel, doCollaps
  * Folds or unfolds all regions that have a given level, except if they contain one of the blocked lines.
  * @param foldLevel level. Level == 1 is the top level
  * @param doCollapse Whether to collapse or expand
- */
+*/
 export declare function setCollapseStateAtLevel(foldingModel: FoldingModel, foldLevel: number, doCollapse: boolean, blockedLineNumbers: number[]): void;
 /**
  * Folds or unfolds all regions, except if they contain or are contained by a region of one of the blocked lines.

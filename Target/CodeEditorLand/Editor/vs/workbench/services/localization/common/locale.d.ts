@@ -1,4 +1,4 @@
-import type { ILanguagePackItem } from "../../../../platform/languagePacks/common/languagePacks.js";
+import { ILanguagePackItem } from '../../../../platform/languagePacks/common/languagePacks.js';
 export declare const ILocaleService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ILocaleService>;
 export interface ILocaleService {
     readonly _serviceBrand: undefined;

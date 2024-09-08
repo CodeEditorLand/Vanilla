@@ -1,12 +1,12 @@
-import { type UriComponents } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { type INotebookEditor } from "../../contrib/notebook/browser/notebookBrowser.js";
-import { INotebookEditorService } from "../../contrib/notebook/browser/services/notebookEditorService.js";
-import type { ICellRange } from "../../contrib/notebook/common/notebookRange.js";
-import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../services/editor/common/editorService.js";
-import type { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { NotebookEditorRevealType, type INotebookDocumentShowOptions, type MainThreadNotebookEditorsShape } from "../common/extHost.protocol.js";
+import { UriComponents } from '../../../base/common/uri.js';
+import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
+import { INotebookEditor } from '../../contrib/notebook/browser/notebookBrowser.js';
+import { INotebookEditorService } from '../../contrib/notebook/browser/services/notebookEditorService.js';
+import { ICellRange } from '../../contrib/notebook/common/notebookRange.js';
+import { IEditorGroupsService } from '../../services/editor/common/editorGroupsService.js';
+import { IEditorService } from '../../services/editor/common/editorService.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { INotebookDocumentShowOptions, MainThreadNotebookEditorsShape, NotebookEditorRevealType } from '../common/extHost.protocol.js';
 export declare class MainThreadNotebookEditors implements MainThreadNotebookEditorsShape {
     private readonly _editorService;
     private readonly _notebookEditorService;

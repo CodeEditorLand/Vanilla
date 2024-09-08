@@ -1,23 +1,23 @@
-import type { VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import type { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { IFileService, type IFileReadLimits, type IFileStatWithMetadata, type IWriteFileOptions } from "../../../../platform/files/common/files.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IProgressService } from "../../../../platform/progress/common/progress.js";
-import { type IRevertOptions, type ISaveOptions } from "../../../common/editor.js";
-import { IEditorService } from "../../editor/common/editorService.js";
-import { IElevatedFileService } from "../../files/common/elevatedFileService.js";
-import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
-import { type IFileWorkingCopy, type IFileWorkingCopyModel, type IFileWorkingCopyModelFactory } from "./fileWorkingCopy.js";
-import { ResourceWorkingCopy, type IResourceWorkingCopy } from "./resourceWorkingCopy.js";
-import { WorkingCopyCapabilities, type IWorkingCopyBackup, type IWorkingCopySaveEvent } from "./workingCopy.js";
-import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
-import { IWorkingCopyEditorService } from "./workingCopyEditorService.js";
-import { IWorkingCopyFileService } from "./workingCopyFileService.js";
-import { IWorkingCopyService } from "./workingCopyService.js";
+import { URI } from '../../../../base/common/uri.js';
+import { Event } from '../../../../base/common/event.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IFileReadLimits, IFileService, IFileStatWithMetadata, IWriteFileOptions } from '../../../../platform/files/common/files.js';
+import { ISaveOptions, IRevertOptions } from '../../../common/editor.js';
+import { IWorkingCopyService } from './workingCopyService.js';
+import { IWorkingCopyBackup, IWorkingCopySaveEvent, WorkingCopyCapabilities } from './workingCopy.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IWorkingCopyFileService } from './workingCopyFileService.js';
+import { VSBufferReadableStream } from '../../../../base/common/buffer.js';
+import { IFilesConfigurationService } from '../../filesConfiguration/common/filesConfigurationService.js';
+import { IWorkingCopyBackupService } from './workingCopyBackup.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IWorkingCopyEditorService } from './workingCopyEditorService.js';
+import { IEditorService } from '../../editor/common/editorService.js';
+import { IElevatedFileService } from '../../files/common/elevatedFileService.js';
+import { IResourceWorkingCopy, ResourceWorkingCopy } from './resourceWorkingCopy.js';
+import { IFileWorkingCopy, IFileWorkingCopyModel, IFileWorkingCopyModelFactory } from './fileWorkingCopy.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { IProgressService } from '../../../../platform/progress/common/progress.js';
 /**
  * Stored file specific working copy model factory.
  */
@@ -144,7 +144,7 @@ export interface IResolvedStoredFileWorkingCopy<M extends IStoredFileWorkingCopy
 /**
  * States the stored file working copy can be in.
  */
-export declare enum StoredFileWorkingCopyState {
+export declare const enum StoredFileWorkingCopyState {
     /**
      * A stored file working copy is saved.
      */

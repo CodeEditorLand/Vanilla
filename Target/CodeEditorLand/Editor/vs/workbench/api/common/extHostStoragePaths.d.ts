@@ -1,9 +1,9 @@
-import { URI } from "../../../base/common/uri.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import type { IEnvironment } from "../../services/extensions/common/extensionHostProtocol.js";
-import { IExtHostConsumerFileSystem } from "./extHostFileSystemConsumer.js";
-import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { IExtHostInitDataService } from './extHostInitDataService.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { IEnvironment } from '../../services/extensions/common/extensionHostProtocol.js';
+import { IExtHostConsumerFileSystem } from './extHostFileSystemConsumer.js';
+import { URI } from '../../../base/common/uri.js';
 export declare const IExtensionStoragePaths: import("../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IExtensionStoragePaths>;
 export interface IExtensionStoragePaths {
     readonly _serviceBrand: undefined;

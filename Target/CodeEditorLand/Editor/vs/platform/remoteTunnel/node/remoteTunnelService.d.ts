@@ -1,12 +1,12 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { INativeEnvironmentService } from "../../environment/common/environment.js";
-import { ISharedProcessLifecycleService } from "../../lifecycle/node/sharedProcessLifecycleService.js";
-import { ILoggerService } from "../../log/common/log.js";
-import { IProductService } from "../../product/common/productService.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { type ActiveTunnelMode, type IRemoteTunnelService, type IRemoteTunnelSession, type TunnelMode, type TunnelStatus } from "../common/remoteTunnel.js";
+import { IRemoteTunnelSession, IRemoteTunnelService, TunnelStatus, TunnelMode, ActiveTunnelMode } from '../common/remoteTunnel.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
+import { INativeEnvironmentService } from '../../environment/common/environment.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { ILoggerService } from '../../log/common/log.js';
+import { IProductService } from '../../product/common/productService.js';
+import { ISharedProcessLifecycleService } from '../../lifecycle/node/sharedProcessLifecycleService.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IStorageService } from '../../storage/common/storage.js';
 /**
  * This service runs on the shared service. It is running the `code-tunnel` command
  * to make the current machine available for remote access.

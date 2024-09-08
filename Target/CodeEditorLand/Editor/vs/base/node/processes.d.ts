@@ -1,7 +1,7 @@
-import type * as cp from "child_process";
-import * as Platform from "../common/platform.js";
-import { type CommandOptions, type ForkOptions, Source, type SuccessData, type TerminateResponse, TerminateResponseCode } from "../common/processes.js";
-export { type CommandOptions, type ForkOptions, type SuccessData, Source, type TerminateResponse, TerminateResponseCode, };
+import * as cp from 'child_process';
+import * as Platform from '../common/platform.js';
+import { CommandOptions, ForkOptions, Source, SuccessData, TerminateResponse, TerminateResponseCode } from '../common/processes.js';
+export { type CommandOptions, type ForkOptions, type SuccessData, Source, type TerminateResponse, TerminateResponseCode };
 export type ValueCallback<T> = (value: T | Promise<T>) => void;
 export type ErrorCallback = (error?: any) => void;
 export type ProgressCallback<T> = (progress: T) => void;

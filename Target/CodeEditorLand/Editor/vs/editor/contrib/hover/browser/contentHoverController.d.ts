@@ -1,12 +1,12 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import type { Range } from "../../../common/core/range.js";
-import type { IEditorContribution } from "../../../common/editorCommon.js";
-import type { HoverVerbosityAction } from "../../../common/languages.js";
-import type { HoverStartMode, HoverStartSource } from "./hoverOperation.js";
-import "./hover.css";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { Range } from '../../../common/core/range.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { HoverStartMode, HoverStartSource } from './hoverOperation.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { HoverVerbosityAction } from '../../../common/languages.js';
+import './hover.css';
 export declare class ContentHoverController extends Disposable implements IEditorContribution {
     private readonly _editor;
     private readonly _instantiationService;

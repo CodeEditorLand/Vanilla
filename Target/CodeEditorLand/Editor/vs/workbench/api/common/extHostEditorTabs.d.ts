@@ -1,6 +1,6 @@
-import type * as vscode from "vscode";
-import { type IEditorTabGroupDto, type IExtHostEditorTabsShape, type TabOperation } from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import { IEditorTabGroupDto, IExtHostEditorTabsShape, TabOperation } from './extHost.protocol.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
+import type * as vscode from 'vscode';
 export interface IExtHostEditorTabs extends IExtHostEditorTabsShape {
     readonly _serviceBrand: undefined;
     tabGroups: vscode.TabGroups;

@@ -31,7 +31,7 @@ export interface Edit {
 }
 /**
  * A text range in the document
- */
+*/
 export interface Range {
     /**
      * The start offset of the range.

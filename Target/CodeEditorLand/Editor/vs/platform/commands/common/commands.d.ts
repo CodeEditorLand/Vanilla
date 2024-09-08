@@ -1,9 +1,9 @@
-import { type Event } from "../../../base/common/event.js";
-import type { IJSONSchema } from "../../../base/common/jsonSchema.js";
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import { type TypeConstraint } from "../../../base/common/types.js";
-import type { ILocalizedString } from "../../action/common/action.js";
-import { type ServicesAccessor } from "../../instantiation/common/instantiation.js";
+import { Event } from '../../../base/common/event.js';
+import { IJSONSchema } from '../../../base/common/jsonSchema.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { TypeConstraint } from '../../../base/common/types.js';
+import { ILocalizedString } from '../../action/common/action.js';
+import { ServicesAccessor } from '../../instantiation/common/instantiation.js';
 export declare const ICommandService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<ICommandService>;
 export interface ICommandEvent {
     commandId: string;

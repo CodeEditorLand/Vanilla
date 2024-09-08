@@ -1,17 +1,17 @@
-import type { IMouseWheelEvent } from "../../../../../base/browser/mouseEvent.js";
-import type { CancellationToken } from "../../../../../base/common/cancellation.js";
-import type { Event } from "../../../../../base/common/event.js";
-import type { DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
-import type { CodeEditorWidget } from "../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
-import type { DiffEditorWidget } from "../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js";
-import type { BareFontInfo } from "../../../../../editor/common/config/fontInfo.js";
-import type { WorkbenchToolBar } from "../../../../../platform/actions/browser/toolbar.js";
-import { RawContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
-import type { NotebookTextModel } from "../../common/model/notebookTextModel.js";
-import type { CellLayoutState, ICellOutputViewModel, ICommonCellInfo, IGenericCellViewModel, IInsetRenderOutput } from "../notebookBrowser.js";
-import type { NotebookOptions } from "../notebookOptions.js";
-import type { NotebookLayoutInfo } from "../notebookViewEvents.js";
-import type { DiffElementCellViewModelBase, IDiffElementViewModelBase } from "./diffElementViewModel.js";
+import { CellLayoutState, ICellOutputViewModel, ICommonCellInfo, IGenericCellViewModel, IInsetRenderOutput } from '../notebookBrowser.js';
+import { DiffElementCellViewModelBase, IDiffElementViewModelBase } from './diffElementViewModel.js';
+import { Event } from '../../../../../base/common/event.js';
+import { BareFontInfo } from '../../../../../editor/common/config/fontInfo.js';
+import { DisposableStore, IDisposable } from '../../../../../base/common/lifecycle.js';
+import { NotebookTextModel } from '../../common/model/notebookTextModel.js';
+import { CodeEditorWidget } from '../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js';
+import { IMouseWheelEvent } from '../../../../../base/browser/mouseEvent.js';
+import { RawContextKey } from '../../../../../platform/contextkey/common/contextkey.js';
+import { NotebookOptions } from '../notebookOptions.js';
+import { NotebookLayoutInfo } from '../notebookViewEvents.js';
+import { WorkbenchToolBar } from '../../../../../platform/actions/browser/toolbar.js';
+import { DiffEditorWidget } from '../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js';
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
 export declare enum DiffSide {
     Original = 0,
     Modified = 1
@@ -46,14 +46,15 @@ export interface INotebookTextDiffEditor {
     triggerScroll(event: IMouseWheelEvent): void;
     delegateVerticalScrollbarPointerDown(browserEvent: PointerEvent): void;
     getCellByInfo(cellInfo: ICommonCellInfo): IGenericCellViewModel;
-    focusNotebookCell(cell: IGenericCellViewModel, focus: "editor" | "container" | "output"): Promise<void>;
-    focusNextNotebookCell(cell: IGenericCellViewModel, focus: "editor" | "container" | "output"): Promise<void>;
+    focusNotebookCell(cell: IGenericCellViewModel, focus: 'editor' | 'container' | 'output'): Promise<void>;
+    focusNextNotebookCell(cell: IGenericCellViewModel, focus: 'editor' | 'container' | 'output'): Promise<void>;
     updateOutputHeight(cellInfo: ICommonCellInfo, output: ICellOutputViewModel, height: number, isInit: boolean): void;
     deltaCellOutputContainerClassNames(diffSide: DiffSide, cellId: string, added: string[], removed: string[]): void;
     previousChange(): void;
     nextChange(): void;
 }
-export type IDiffNestedCellViewModel = {};
+export interface IDiffNestedCellViewModel {
+}
 export interface CellDiffCommonRenderTemplate {
     readonly leftBorder: HTMLElement;
     readonly rightBorder: HTMLElement;

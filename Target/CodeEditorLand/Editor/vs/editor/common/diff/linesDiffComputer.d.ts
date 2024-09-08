@@ -1,4 +1,4 @@
-import type { DetailedLineRangeMapping, LineRangeMapping } from "./rangeMapping.js";
+import { DetailedLineRangeMapping, LineRangeMapping } from './rangeMapping.js';
 export interface ILinesDiffComputer {
     computeDiff(originalLines: string[], modifiedLines: string[], options: ILinesDiffComputerOptions): LinesDiff;
 }

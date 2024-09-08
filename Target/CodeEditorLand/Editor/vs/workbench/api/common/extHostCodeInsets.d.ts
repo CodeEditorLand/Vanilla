@@ -1,8 +1,8 @@
-import type * as vscode from "vscode";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { type WebviewRemoteInfo } from "../../contrib/webview/common/webview.js";
-import type { ExtHostEditorInsetsShape, MainThreadEditorInsetsShape } from "./extHost.protocol.js";
-import type { ExtHostEditors } from "./extHostTextEditors.js";
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ExtHostEditors } from './extHostTextEditors.js';
+import { WebviewRemoteInfo } from '../../contrib/webview/common/webview.js';
+import type * as vscode from 'vscode';
+import { ExtHostEditorInsetsShape, MainThreadEditorInsetsShape } from './extHost.protocol.js';
 export declare class ExtHostEditorInsets implements ExtHostEditorInsetsShape {
     private readonly _proxy;
     private readonly _editors;

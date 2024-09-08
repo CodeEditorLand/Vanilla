@@ -1,10 +1,10 @@
-import type { URI } from "../../../../base/common/uri.js";
-import type { IRange } from "../../../common/core/range.js";
-import type { IDocumentDiff, IDocumentDiffProviderOptions } from "../../../common/diff/documentDiffProvider.js";
-import type { IChange } from "../../../common/diff/legacyLinesDiffComputer.js";
-import type { IColorInformation, IInplaceReplaceSupportResult, TextEdit } from "../../../common/languages.js";
-import type { DiffAlgorithmName, IEditorWorkerService, IUnicodeHighlightsResult } from "../../../common/services/editorWorker.js";
-import type { SectionHeader } from "../../../common/services/findSectionHeaders.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IRange } from '../../../common/core/range.js';
+import { DiffAlgorithmName, IEditorWorkerService, IUnicodeHighlightsResult } from '../../../common/services/editorWorker.js';
+import { TextEdit, IInplaceReplaceSupportResult, IColorInformation } from '../../../common/languages.js';
+import { IDocumentDiff, IDocumentDiffProviderOptions } from '../../../common/diff/documentDiffProvider.js';
+import { IChange } from '../../../common/diff/legacyLinesDiffComputer.js';
+import { SectionHeader } from '../../../common/services/findSectionHeaders.js';
 export declare class TestEditorWorkerService implements IEditorWorkerService {
     readonly _serviceBrand: undefined;
     canComputeUnicodeHighlights(uri: URI): boolean;

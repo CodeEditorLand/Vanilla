@@ -1,15 +1,15 @@
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import type { ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from "../../../platform/terminal/common/environmentVariable.js";
-import { type IProcessProperty, type IProcessReadyWindowsPty, type ITerminalOutputMatch, type ITerminalOutputMatcher } from "../../../platform/terminal/common/terminal.js";
-import { ITerminalEditorService, ITerminalGroupService, ITerminalService } from "../../contrib/terminal/browser/terminal.js";
-import { IEnvironmentVariableService } from "../../contrib/terminal/common/environmentVariable.js";
-import { ITerminalProfileResolverService, ITerminalProfileService } from "../../contrib/terminal/common/terminal.js";
-import { ITerminalLinkProviderService } from "../../contrib/terminalContrib/links/browser/links.js";
-import { ITerminalQuickFixService } from "../../contrib/terminalContrib/quickFix/browser/quickFix.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { IRemoteAgentService } from "../../services/remote/common/remoteAgentService.js";
-import { type ExtHostTerminalIdentifier, type MainThreadTerminalServiceShape, type TerminalLaunchConfig } from "../common/extHost.protocol.js";
+import { MainThreadTerminalServiceShape, TerminalLaunchConfig, ExtHostTerminalIdentifier } from '../common/extHost.protocol.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
+import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { IProcessProperty, IProcessReadyWindowsPty, ITerminalOutputMatch, ITerminalOutputMatcher } from '../../../platform/terminal/common/terminal.js';
+import { ITerminalEditorService, ITerminalGroupService, ITerminalService } from '../../contrib/terminal/browser/terminal.js';
+import { IEnvironmentVariableService } from '../../contrib/terminal/common/environmentVariable.js';
+import { ITerminalProfileResolverService, ITerminalProfileService } from '../../contrib/terminal/common/terminal.js';
+import { IRemoteAgentService } from '../../services/remote/common/remoteAgentService.js';
+import { ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from '../../../platform/terminal/common/environmentVariable.js';
+import { ITerminalLinkProviderService } from '../../contrib/terminalContrib/links/browser/links.js';
+import { ITerminalQuickFixService } from '../../contrib/terminalContrib/quickFix/browser/quickFix.js';
 export declare class MainThreadTerminalService implements MainThreadTerminalServiceShape {
     private readonly _extHostContext;
     private readonly _terminalService;

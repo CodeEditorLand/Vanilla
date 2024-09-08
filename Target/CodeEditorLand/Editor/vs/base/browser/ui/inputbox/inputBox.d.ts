@@ -1,9 +1,9 @@
-import type { IAction } from "../../../common/actions.js";
-import { Event } from "../../../common/event.js";
-import type { IHistoryNavigationWidget } from "../../history.js";
-import { type IContextViewProvider } from "../contextview/contextview.js";
-import { Widget } from "../widget.js";
-import "./inputBox.css";
+import { IHistoryNavigationWidget } from '../../history.js';
+import { IContextViewProvider } from '../contextview/contextview.js';
+import { Widget } from '../widget.js';
+import { IAction } from '../../../common/actions.js';
+import { Event } from '../../../common/event.js';
+import './inputBox.css';
 export interface IInputOptions {
     readonly placeholder?: string;
     readonly showPlaceholderOnFocus?: boolean;
@@ -42,7 +42,7 @@ export interface IMessage {
 export interface IInputValidationOptions {
     validation?: IInputValidator;
 }
-export declare enum MessageType {
+export declare const enum MessageType {
     INFO = 1,
     WARNING = 2,
     ERROR = 3

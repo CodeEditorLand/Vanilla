@@ -1,16 +1,16 @@
-import type { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { type Event, type IWaitUntil } from "../../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { FileOperation, IFileService, type IFileStatWithMetadata } from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import type { IProgress, IProgressStep } from "../../../../platform/progress/common/progress.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import type { SaveReason } from "../../../common/editor.js";
-import type { IStoredFileWorkingCopy, IStoredFileWorkingCopyModel } from "./storedFileWorkingCopy.js";
-import type { IWorkingCopy } from "./workingCopy.js";
-import { IWorkingCopyService } from "./workingCopyService.js";
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { Event, IWaitUntil } from '../../../../base/common/event.js';
+import { URI } from '../../../../base/common/uri.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { IFileService, FileOperation, IFileStatWithMetadata } from '../../../../platform/files/common/files.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IWorkingCopyService } from './workingCopyService.js';
+import { IWorkingCopy } from './workingCopy.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from '../../../../base/common/buffer.js';
+import { SaveReason } from '../../../common/editor.js';
+import { IProgress, IProgressStep } from '../../../../platform/progress/common/progress.js';
+import { IStoredFileWorkingCopy, IStoredFileWorkingCopyModel } from './storedFileWorkingCopy.js';
 export declare const IWorkingCopyFileService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkingCopyFileService>;
 export interface SourceTargetPair {
     /**

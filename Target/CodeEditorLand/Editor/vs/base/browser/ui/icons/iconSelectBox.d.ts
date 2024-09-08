@@ -1,8 +1,8 @@
-import "./iconSelectBox.css";
-import { Disposable } from "../../../common/lifecycle.js";
-import { ThemeIcon } from "../../../common/themables.js";
-import * as dom from "../../dom.js";
-import { type IInputBoxStyles, InputBox } from "../inputbox/inputBox.js";
+import './iconSelectBox.css';
+import * as dom from '../../dom.js';
+import { IInputBoxStyles, InputBox } from '../inputbox/inputBox.js';
+import { Disposable } from '../../../common/lifecycle.js';
+import { ThemeIcon } from '../../../common/themables.js';
 export interface IIconSelectBoxOptions {
     readonly icons: ThemeIcon[];
     readonly inputBoxStyles: IInputBoxStyles;

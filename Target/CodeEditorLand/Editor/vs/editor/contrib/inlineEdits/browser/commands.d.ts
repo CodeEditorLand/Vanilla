@@ -1,5 +1,5 @@
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, type ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { EditorAction, ServicesAccessor } from '../../../browser/editorExtensions.js';
 export declare class ShowNextInlineEditAction extends EditorAction {
     static ID: string;
     constructor();

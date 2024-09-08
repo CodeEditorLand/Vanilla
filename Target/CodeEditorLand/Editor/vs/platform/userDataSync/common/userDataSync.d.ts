@@ -1,17 +1,17 @@
-import type { VSBufferReadableStream } from "../../../base/common/buffer.js";
-import type { IStringDictionary } from "../../../base/common/collections.js";
-import type { Event } from "../../../base/common/event.js";
-import type { FormattingOptions } from "../../../base/common/jsonFormatter.js";
-import type { IDisposable } from "../../../base/common/lifecycle.js";
-import type { IExtUri } from "../../../base/common/resources.js";
-import type { URI } from "../../../base/common/uri.js";
-import type { IHeaders } from "../../../base/parts/request/common/request.js";
-import type { IEnvironmentService } from "../../environment/common/environment.js";
-import { type IExtensionIdentifier } from "../../extensionManagement/common/extensionManagement.js";
-import type { IExtensionManifest } from "../../extensions/common/extensions.js";
-import type { ILogService } from "../../log/common/log.js";
-import type { IUserDataProfile, UseDefaultProfileFlags } from "../../userDataProfile/common/userDataProfile.js";
-import type { IUserDataSyncMachine } from "./userDataSyncMachines.js";
+import { VSBufferReadableStream } from '../../../base/common/buffer.js';
+import { IStringDictionary } from '../../../base/common/collections.js';
+import { Event } from '../../../base/common/event.js';
+import { FormattingOptions } from '../../../base/common/jsonFormatter.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { IExtUri } from '../../../base/common/resources.js';
+import { URI } from '../../../base/common/uri.js';
+import { IHeaders } from '../../../base/parts/request/common/request.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IExtensionIdentifier } from '../../extensionManagement/common/extensionManagement.js';
+import { IExtensionManifest } from '../../extensions/common/extensions.js';
+import { ILogService } from '../../log/common/log.js';
+import { IUserDataProfile, UseDefaultProfileFlags } from '../../userDataProfile/common/userDataProfile.js';
+import { IUserDataSyncMachine } from './userDataSyncMachines.js';
 export declare function getDisallowedIgnoredSettings(): string[];
 export declare function getDefaultIgnoredSettings(excludeExtensions?: boolean): string[];
 export declare function getIgnoredSettingsForExtension(manifest: IExtensionManifest): string[];
@@ -41,7 +41,7 @@ export interface IUserDataSyncStore {
     readonly authenticationProviders: IAuthenticationProvider[];
 }
 export declare function isAuthenticationProvider(thing: any): thing is IAuthenticationProvider;
-export declare enum SyncResource {
+export declare const enum SyncResource {
     Settings = "settings",
     Keybindings = "keybindings",
     Snippets = "snippets",
@@ -88,8 +88,8 @@ export interface IResourceRefHandle {
     ref: string;
     created: number;
 }
-export type ServerResource = SyncResource | "machines" | "editSessions" | "workspaceState";
-export type UserDataSyncStoreType = "insiders" | "stable";
+export type ServerResource = SyncResource | 'machines' | 'editSessions' | 'workspaceState';
+export type UserDataSyncStoreType = 'insiders' | 'stable';
 export declare const IUserDataSyncStoreManagementService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IUserDataSyncStoreManagementService>;
 export interface IUserDataSyncStoreManagementService {
     readonly _serviceBrand: undefined;
@@ -128,19 +128,19 @@ export interface IUserDataSyncLocalStoreService {
 export declare const HEADER_OPERATION_ID = "x-operation-id";
 export declare const HEADER_EXECUTION_ID = "X-Execution-Id";
 export declare function createSyncHeaders(executionId: string): IHeaders;
-export declare enum UserDataSyncErrorCode {
-    Unauthorized = "Unauthorized",
-    Forbidden = "Forbidden",
-    NotFound = "NotFound",
-    MethodNotFound = "MethodNotFound",
-    Conflict = "Conflict",
-    Gone = "Gone",
-    PreconditionFailed = "PreconditionFailed",
-    TooLarge = "TooLarge",
-    UpgradeRequired = "UpgradeRequired",
-    PreconditionRequired = "PreconditionRequired",
-    TooManyRequests = "RemoteTooManyRequests",
-    TooManyRequestsAndRetryAfter = "TooManyRequestsAndRetryAfter",
+export declare const enum UserDataSyncErrorCode {
+    Unauthorized = "Unauthorized",/* 401 */
+    Forbidden = "Forbidden",/* 403 */
+    NotFound = "NotFound",/* 404 */
+    MethodNotFound = "MethodNotFound",/* 405 */
+    Conflict = "Conflict",/* 409 */
+    Gone = "Gone",/* 410 */
+    PreconditionFailed = "PreconditionFailed",/* 412 */
+    TooLarge = "TooLarge",/* 413 */
+    UpgradeRequired = "UpgradeRequired",/* 426 */
+    PreconditionRequired = "PreconditionRequired",/* 428 */
+    TooManyRequests = "RemoteTooManyRequests",/* 429 */
+    TooManyRequestsAndRetryAfter = "TooManyRequestsAndRetryAfter",/* 429 + Retry-After */
     RequestFailed = "RequestFailed",
     RequestCanceled = "RequestCanceled",
     RequestTimeout = "RequestTimeout",
@@ -225,7 +225,7 @@ export interface IWorkspaceStateFolder {
     resourceUri: string;
     workspaceFolderIdentity: string;
 }
-export declare enum SyncStatus {
+export declare const enum SyncStatus {
     Uninitialized = "uninitialized",
     Idle = "idle",
     Syncing = "syncing",
@@ -244,13 +244,13 @@ export interface ISyncData {
     machineId?: string;
     content: string;
 }
-export declare enum Change {
+export declare const enum Change {
     None = 0,
     Added = 1,
     Modified = 2,
     Deleted = 3
 }
-export declare enum MergeState {
+export declare const enum MergeState {
     Preview = "preview",
     Conflict = "conflict",
     Accepted = "accepted"

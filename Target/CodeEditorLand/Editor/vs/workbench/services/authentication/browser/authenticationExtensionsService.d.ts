@@ -1,11 +1,11 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IActivityService } from "../../activity/common/activity.js";
-import { IAuthenticationExtensionsService, IAuthenticationService, type AuthenticationSession } from "../common/authentication.js";
-import { IAuthenticationAccessService } from "./authenticationAccessService.js";
-import { IAuthenticationUsageService } from "./authenticationUsageService.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IActivityService } from '../../activity/common/activity.js';
+import { IAuthenticationAccessService } from './authenticationAccessService.js';
+import { IAuthenticationUsageService } from './authenticationUsageService.js';
+import { AuthenticationSession, IAuthenticationService, IAuthenticationExtensionsService } from '../common/authentication.js';
 export declare class AuthenticationExtensionsService extends Disposable implements IAuthenticationExtensionsService {
     private readonly activityService;
     private readonly storageService;

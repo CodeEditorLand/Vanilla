@@ -1,14 +1,14 @@
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
-import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
-import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
-import { type IActiveNotebookEditorDelegate } from "../../notebookBrowser.js";
-import { type CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
-import type { NotebookCellEditorPool } from "../notebookCellEditorPool.js";
-import type { CodeCellRenderTemplate } from "../notebookRenderingCommon.js";
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { ILanguageService } from '../../../../../../editor/common/languages/language.js';
+import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
+import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
+import { IKeybindingService } from '../../../../../../platform/keybinding/common/keybinding.js';
+import { IOpenerService } from '../../../../../../platform/opener/common/opener.js';
+import { IActiveNotebookEditorDelegate } from '../../notebookBrowser.js';
+import { CodeCellRenderTemplate } from '../notebookRenderingCommon.js';
+import { CodeCellViewModel } from '../../viewModel/codeCellViewModel.js';
+import { INotebookExecutionStateService } from '../../../common/notebookExecutionStateService.js';
+import { NotebookCellEditorPool } from '../notebookCellEditorPool.js';
 export declare class CodeCell extends Disposable {
     private readonly notebookEditor;
     private readonly viewCell;

@@ -1,7 +1,7 @@
-import type { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import { EditorInputCapabilities, type IUntypedEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
+import { URI } from '../../../../base/common/uri.js';
+import { EditorInputCapabilities, IUntypedEditorInput } from '../../../common/editor.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
 export declare class RuntimeExtensionsInput extends EditorInput {
     static readonly ID = "workbench.runtimeExtensions.input";
     get typeId(): string;

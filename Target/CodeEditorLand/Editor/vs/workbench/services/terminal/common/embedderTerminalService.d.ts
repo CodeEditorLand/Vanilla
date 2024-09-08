@@ -1,5 +1,5 @@
-import { Event } from "../../../../base/common/event.js";
-import { type IShellLaunchConfig } from "../../../../platform/terminal/common/terminal.js";
+import { Event } from '../../../../base/common/event.js';
+import { IShellLaunchConfig } from '../../../../platform/terminal/common/terminal.js';
 export declare const IEmbedderTerminalService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IEmbedderTerminalService>;
 /**
  * Manages terminals that the embedder can create before the terminal contrib is available.
@@ -9,7 +9,7 @@ export interface IEmbedderTerminalService {
     readonly onDidCreateTerminal: Event<IShellLaunchConfig>;
     createTerminal(options: IEmbedderTerminalOptions): void;
 }
-export type EmbedderTerminal = IShellLaunchConfig & Required<Pick<IShellLaunchConfig, "customPtyImplementation">>;
+export type EmbedderTerminal = IShellLaunchConfig & Required<Pick<IShellLaunchConfig, 'customPtyImplementation'>>;
 export interface IEmbedderTerminalOptions {
     name: string;
     pty: IEmbedderTerminalPty;

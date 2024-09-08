@@ -1,4 +1,4 @@
-import { type SinonStub } from "sinon";
+import { SinonStub } from 'sinon';
 export interface Ctor<T> {
     new (): T;
 }

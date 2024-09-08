@@ -1,14 +1,14 @@
-import type { ITerminalAddon, Terminal } from "@xterm/xterm";
-import { Event } from "../../../../../base/common/event.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import type { IContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { type ITerminalCapabilityStore } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { SimpleCompletionItem } from "../../../../services/suggest/browser/simpleCompletionItem.js";
-import { type ISimpleSelectedSuggestion } from "../../../../services/suggest/browser/simpleSuggestWidget.js";
-import { ITerminalConfigurationService } from "../../../terminal/browser/terminal.js";
-export declare enum VSCodeSuggestOscPt {
+import type { ITerminalAddon, Terminal } from '@xterm/xterm';
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IContextKey } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { type ITerminalCapabilityStore } from '../../../../../platform/terminal/common/capabilities/capabilities.js';
+import { ITerminalConfigurationService } from '../../../terminal/browser/terminal.js';
+import { SimpleCompletionItem } from '../../../../services/suggest/browser/simpleCompletionItem.js';
+import { ISimpleSelectedSuggestion } from '../../../../services/suggest/browser/simpleSuggestWidget.js';
+export declare const enum VSCodeSuggestOscPt {
     Completions = "Completions",
     CompletionsPwshCommands = "CompletionsPwshCommands",
     CompletionsBash = "CompletionsBash",
@@ -32,7 +32,7 @@ export interface ISuggestController {
     selectPreviousPageSuggestion(): void;
     selectNextSuggestion(): void;
     selectNextPageSuggestion(): void;
-    acceptSelectedSuggestion(suggestion?: Pick<ISimpleSelectedSuggestion, "item" | "model">): void;
+    acceptSelectedSuggestion(suggestion?: Pick<ISimpleSelectedSuggestion, 'item' | 'model'>): void;
     hideSuggestWidget(): void;
 }
 export declare class SuggestAddon extends Disposable implements ITerminalAddon, ISuggestController {
@@ -100,7 +100,7 @@ export declare class SuggestAddon extends Disposable implements ITerminalAddon, 
     selectPreviousPageSuggestion(): void;
     selectNextSuggestion(): void;
     selectNextPageSuggestion(): void;
-    acceptSelectedSuggestion(suggestion?: Pick<ISimpleSelectedSuggestion, "item" | "model">, respectRunOnEnter?: boolean): void;
+    acceptSelectedSuggestion(suggestion?: Pick<ISimpleSelectedSuggestion, 'item' | 'model'>, respectRunOnEnter?: boolean): void;
     hideSuggestWidget(): void;
 }
 export declare function parseCompletionsFromShell(rawCompletions: PwshCompletion | PwshCompletion[] | CompressedPwshCompletion[] | CompressedPwshCompletion): SimpleCompletionItem[];

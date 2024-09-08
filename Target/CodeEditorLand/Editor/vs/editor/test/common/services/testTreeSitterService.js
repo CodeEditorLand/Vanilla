@@ -1,17 +1,1 @@
-import { Event } from "../../../../base/common/event.js";
-class TestTreeSitterParserService {
-  onDidAddLanguage = Event.None;
-  _serviceBrand;
-  getOrInitLanguage(languageId) {
-    throw new Error("Method not implemented.");
-  }
-  waitForLanguage(languageId) {
-    throw new Error("Method not implemented.");
-  }
-  getParseResult(textModel) {
-    throw new Error("Method not implemented.");
-  }
-}
-export {
-  TestTreeSitterParserService
-};
+import{Event as r}from"../../../../base/common/event.js";import"../../../common/model.js";import"../../../common/services/treeSitterParserService.js";class g{onDidAddLanguage=r.None;_serviceBrand;getOrInitLanguage(e){throw new Error("Method not implemented.")}waitForLanguage(e){throw new Error("Method not implemented.")}getParseResult(e){throw new Error("Method not implemented.")}}export{g as TestTreeSitterParserService};

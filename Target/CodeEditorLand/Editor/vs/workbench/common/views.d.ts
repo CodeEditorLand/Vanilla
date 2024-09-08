@@ -1,19 +1,19 @@
-import type { CancellationToken } from "../../base/common/cancellation.js";
-import type { VSDataTransfer } from "../../base/common/dataTransfer.js";
-import { type Event } from "../../base/common/event.js";
-import type { IMarkdownString, MarkdownString } from "../../base/common/htmlContent.js";
-import { type IDisposable } from "../../base/common/lifecycle.js";
-import type Severity from "../../base/common/severity.js";
-import type { ThemeIcon } from "../../base/common/themables.js";
-import type { URI, UriComponents } from "../../base/common/uri.js";
-import type { Command } from "../../editor/common/languages.js";
-import type { IAccessibilityInformation } from "../../platform/accessibility/common/accessibility.js";
-import type { ILocalizedString } from "../../platform/action/common/action.js";
-import type { ContextKeyExpression } from "../../platform/contextkey/common/contextkey.js";
-import type { ExtensionIdentifier } from "../../platform/extensions/common/extensions.js";
-import type { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
-import type { IKeybindings } from "../../platform/keybinding/common/keybindingsRegistry.js";
-import type { IProgressIndicator } from "../../platform/progress/common/progress.js";
+import { Command } from '../../editor/common/languages.js';
+import { UriComponents, URI } from '../../base/common/uri.js';
+import { Event } from '../../base/common/event.js';
+import { ContextKeyExpression } from '../../platform/contextkey/common/contextkey.js';
+import { IDisposable } from '../../base/common/lifecycle.js';
+import { ThemeIcon } from '../../base/common/themables.js';
+import { IKeybindings } from '../../platform/keybinding/common/keybindingsRegistry.js';
+import { ExtensionIdentifier } from '../../platform/extensions/common/extensions.js';
+import { SyncDescriptor } from '../../platform/instantiation/common/descriptors.js';
+import { IProgressIndicator } from '../../platform/progress/common/progress.js';
+import Severity from '../../base/common/severity.js';
+import { IAccessibilityInformation } from '../../platform/accessibility/common/accessibility.js';
+import { IMarkdownString, MarkdownString } from '../../base/common/htmlContent.js';
+import { CancellationToken } from '../../base/common/cancellation.js';
+import { VSDataTransfer } from '../../base/common/dataTransfer.js';
+import { ILocalizedString } from '../../platform/action/common/action.js';
 export declare const VIEWS_LOG_ID = "views";
 export declare const VIEWS_LOG_NAME: string;
 export declare const defaultViewIcon: ThemeIcon;
@@ -21,13 +21,13 @@ export declare namespace Extensions {
     const ViewContainersRegistry = "workbench.registry.view.containers";
     const ViewsRegistry = "workbench.registry.view";
 }
-export declare enum ViewContainerLocation {
+export declare const enum ViewContainerLocation {
     Sidebar = 0,
     Panel = 1,
     AuxiliaryBar = 2
 }
 export declare const ViewContainerLocations: ViewContainerLocation[];
-export declare function ViewContainerLocationToString(viewContainerLocation: ViewContainerLocation): "panel" | "sidebar" | "auxiliarybar";
+export declare function ViewContainerLocationToString(viewContainerLocation: ViewContainerLocation): "sidebar" | "panel" | "auxiliarybar";
 type OpenCommandActionDescriptor = {
     readonly id: string;
     readonly title?: ILocalizedString | string;
@@ -238,7 +238,7 @@ export declare enum ViewContentGroups {
 }
 export interface IViewContentDescriptor {
     readonly content: string;
-    readonly when?: ContextKeyExpression | "default";
+    readonly when?: ContextKeyExpression | 'default';
     readonly group?: string;
     readonly order?: number;
     readonly precondition?: ContextKeyExpression | undefined;
@@ -441,7 +441,7 @@ export declare class ResolvableTreeItem implements ITreeItem {
     resolve: (token: CancellationToken) => Promise<void>;
     private resolved;
     private _hasResolve;
-    constructor(treeItem: ITreeItem, resolve?: (token: CancellationToken) => Promise<ITreeItem | undefined>);
+    constructor(treeItem: ITreeItem, resolve?: ((token: CancellationToken) => Promise<ITreeItem | undefined>));
     get hasResolve(): boolean;
     resetResolve(): void;
     asTreeItem(): ITreeItem;

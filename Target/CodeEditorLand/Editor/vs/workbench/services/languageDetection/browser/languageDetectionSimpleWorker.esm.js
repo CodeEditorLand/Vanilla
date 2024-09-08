@@ -1,3 +1,1 @@
-import { bootstrapSimpleWorker } from "../../../../base/common/worker/simpleWorkerBootstrap.js";
-import { create } from "./languageDetectionSimpleWorker.js";
-bootstrapSimpleWorker(create);
+import{create as r}from"./languageDetectionSimpleWorker.js";import{bootstrapSimpleWorker as o}from"../../../../base/common/worker/simpleWorkerBootstrap.js";o(r);

@@ -1,7 +1,7 @@
-import { type Keybinding } from "../../../base/common/keybindings.js";
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import { type ICommandHandler, type ICommandMetadata } from "../../commands/common/commands.js";
-import type { ContextKeyExpression } from "../../contextkey/common/contextkey.js";
+import { Keybinding } from '../../../base/common/keybindings.js';
+import { ICommandHandler, ICommandMetadata } from '../../commands/common/commands.js';
+import { ContextKeyExpression } from '../../contextkey/common/contextkey.js';
+import { IDisposable } from '../../../base/common/lifecycle.js';
 export interface IKeybindingItem {
     keybinding: Keybinding | null;
     command: string | null;
@@ -46,7 +46,7 @@ export interface IExtensionKeybindingRule {
     extensionId?: string;
     isBuiltinExtension?: boolean;
 }
-export declare enum KeybindingWeight {
+export declare const enum KeybindingWeight {
     EditorCore = 0,
     EditorContrib = 100,
     WorkbenchContrib = 200,

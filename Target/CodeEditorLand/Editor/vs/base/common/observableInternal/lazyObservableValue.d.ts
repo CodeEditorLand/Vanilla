@@ -1,10 +1,10 @@
-import type { EqualityComparer } from "../equals.js";
-import type { ISettableObservable, ITransaction } from "../observable.js";
-import { BaseObservable, type IObserver } from "./base.js";
-import type { DebugNameData } from "./debugName.js";
+import { EqualityComparer } from '../equals.js';
+import { ISettableObservable, ITransaction } from '../observable.js';
+import { BaseObservable, IObserver } from './base.js';
+import { DebugNameData } from './debugName.js';
 /**
  * Holds off updating observers until the value is actually read.
- */
+*/
 export declare class LazyObservableValue<T, TChange = void> extends BaseObservable<T, TChange> implements ISettableObservable<T, TChange> {
     private readonly _debugNameData;
     private readonly _equalityComparator;

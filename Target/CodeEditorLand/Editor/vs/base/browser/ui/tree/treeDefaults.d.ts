@@ -1,5 +1,5 @@
-import { Action } from "../../../common/actions.js";
-import type { AsyncDataTree } from "./asyncDataTree.js";
+import { AsyncDataTree } from './asyncDataTree.js';
+import { Action } from '../../../common/actions.js';
 export declare class CollapseAllAction<TInput, T, TFilterData = void> extends Action {
     private viewer;
     constructor(viewer: AsyncDataTree<TInput, T, TFilterData>, enabled: boolean);

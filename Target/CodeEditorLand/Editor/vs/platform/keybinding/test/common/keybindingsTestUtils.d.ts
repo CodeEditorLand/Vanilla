@@ -1,3 +1,3 @@
-import { type ResolvedKeybinding } from "../../../../base/common/keybindings.js";
-import type { OperatingSystem } from "../../../../base/common/platform.js";
+import { ResolvedKeybinding } from '../../../../base/common/keybindings.js';
+import { OperatingSystem } from '../../../../base/common/platform.js';
 export declare function createUSLayoutResolvedKeybinding(encodedKeybinding: number | number[], OS: OperatingSystem): ResolvedKeybinding | undefined;

@@ -1,7 +1,7 @@
-import type { IHoverDelegate2, IHoverOptions, IHoverWidget } from "../../../base/browser/ui/hover/hover.js";
-import type { IHoverDelegate, IHoverDelegateOptions } from "../../../base/browser/ui/hover/hoverDelegate.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IHoverDelegate, IHoverDelegateOptions } from '../../../base/browser/ui/hover/hoverDelegate.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import type { IHoverDelegate2, IHoverOptions, IHoverWidget } from '../../../base/browser/ui/hover/hover.js';
 export declare const IHoverService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IHoverService>;
 export interface IHoverService extends IHoverDelegate2 {
     readonly _serviceBrand: undefined;

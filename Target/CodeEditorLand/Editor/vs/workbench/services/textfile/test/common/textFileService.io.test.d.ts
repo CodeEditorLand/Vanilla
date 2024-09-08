@@ -1,6 +1,6 @@
-import { VSBuffer } from "../../../../../base/common/buffer.js";
-import { UTF8_with_bom, UTF16be, UTF16le } from "../../common/encoding.js";
-import { type ITextFileService } from "../../common/textfiles.js";
+import { ITextFileService } from '../../common/textfiles.js';
+import { UTF16le, UTF8_with_bom, UTF16be } from '../../common/encoding.js';
+import { VSBuffer } from '../../../../../base/common/buffer.js';
 export interface Params {
     setup(): Promise<{
         service: ITextFileService;

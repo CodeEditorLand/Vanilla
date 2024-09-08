@@ -1,15 +1,15 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { OperatingSystem, type IProcessEnvironment } from "../../../../base/common/platform.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ITerminalLogService, type IShellLaunchConfig, type ITerminalProfile, type TerminalIcon } from "../../../../platform/terminal/common/terminal.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
-import { IHistoryService } from "../../../services/history/common/history.js";
-import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
-import { ITerminalProfileService, type IShellLaunchConfigResolveOptions, type ITerminalProfileResolverService } from "../common/terminal.js";
-import { ITerminalInstanceService } from "./terminal.js";
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IConfigurationResolverService } from '../../../services/configurationResolver/common/configurationResolver.js';
+import { IHistoryService } from '../../../services/history/common/history.js';
+import { IProcessEnvironment, OperatingSystem } from '../../../../base/common/platform.js';
+import { IShellLaunchConfig, ITerminalLogService, ITerminalProfile, TerminalIcon } from '../../../../platform/terminal/common/terminal.js';
+import { IShellLaunchConfigResolveOptions, ITerminalProfileResolverService, ITerminalProfileService } from '../common/terminal.js';
+import { IRemoteAgentService } from '../../../services/remote/common/remoteAgentService.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ITerminalInstanceService } from './terminal.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 export interface IProfileContextProvider {
     getDefaultSystemShell(remoteAuthority: string | undefined, os: OperatingSystem): Promise<string>;
     getEnvironment(remoteAuthority: string | undefined): Promise<IProcessEnvironment>;

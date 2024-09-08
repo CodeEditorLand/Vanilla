@@ -1,6 +1,6 @@
-import type { VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { IWorkingCopyBackupMeta, IWorkingCopyIdentifier } from "./workingCopy.js";
+import { VSBufferReadable, VSBufferReadableStream } from '../../../../base/common/buffer.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IWorkingCopyBackupMeta, IWorkingCopyIdentifier } from './workingCopy.js';
 export declare const IWorkingCopyBackupService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IWorkingCopyBackupService>;
 /**
  * A resolved working copy backup carries the backup value

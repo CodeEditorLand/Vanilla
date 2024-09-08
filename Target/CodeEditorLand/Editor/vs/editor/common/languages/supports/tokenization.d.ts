@@ -1,5 +1,5 @@
-import { Color } from "../../../../base/common/color.js";
-import { ColorId, FontStyle, type LanguageId, StandardTokenType } from "../../encodedTokenAttributes.js";
+import { Color } from '../../../../base/common/color.js';
+import { LanguageId, FontStyle, ColorId, StandardTokenType } from '../../encodedTokenAttributes.js';
 export interface ITokenThemeRule {
     token: string;
     foreground?: string;

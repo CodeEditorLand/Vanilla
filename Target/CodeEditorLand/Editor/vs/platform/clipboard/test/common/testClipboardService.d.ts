@@ -1,5 +1,5 @@
-import type { URI } from "../../../../base/common/uri.js";
-import type { IClipboardService } from "../../common/clipboardService.js";
+import { URI } from '../../../../base/common/uri.js';
+import { IClipboardService } from '../../common/clipboardService.js';
 export declare class TestClipboardService implements IClipboardService {
     _serviceBrand: undefined;
     private text;

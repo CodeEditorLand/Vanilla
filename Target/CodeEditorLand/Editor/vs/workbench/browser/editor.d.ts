@@ -1,11 +1,11 @@
-import { type IDisposable } from "../../base/common/lifecycle.js";
-import type { URI } from "../../base/common/uri.js";
-import type { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
-import type { BrandedService, IInstantiationService, ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
-import { type IEditorDescriptor as ICommonEditorDescriptor, type IWillInstantiateEditorPaneEvent } from "../common/editor.js";
-import type { EditorInput } from "../common/editor/editorInput.js";
-import type { IEditorGroup } from "../services/editor/common/editorGroupsService.js";
-import type { EditorPane } from "./parts/editor/editorPane.js";
+import { IEditorDescriptor as ICommonEditorDescriptor, IWillInstantiateEditorPaneEvent } from '../common/editor.js';
+import { EditorInput } from '../common/editor/editorInput.js';
+import { SyncDescriptor } from '../../platform/instantiation/common/descriptors.js';
+import { EditorPane } from './parts/editor/editorPane.js';
+import { IInstantiationService, BrandedService, ServicesAccessor } from '../../platform/instantiation/common/instantiation.js';
+import { IDisposable } from '../../base/common/lifecycle.js';
+import { URI } from '../../base/common/uri.js';
+import { IEditorGroup } from '../services/editor/common/editorGroupsService.js';
 export interface IEditorPaneDescriptor extends ICommonEditorDescriptor<EditorPane> {
 }
 export interface IEditorPaneRegistry {

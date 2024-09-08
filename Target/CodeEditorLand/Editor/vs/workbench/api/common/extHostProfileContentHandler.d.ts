@@ -1,9 +1,9 @@
-import type * as vscode from "vscode";
-import type { CancellationToken } from "../../../base/common/cancellation.js";
-import { type UriComponents } from "../../../base/common/uri.js";
-import type { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import type { ISaveProfileResult } from "../../services/userDataProfile/common/userDataProfile.js";
-import { type ExtHostProfileContentHandlersShape, type IMainContext } from "./extHost.protocol.js";
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { UriComponents } from '../../../base/common/uri.js';
+import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
+import { ISaveProfileResult } from '../../services/userDataProfile/common/userDataProfile.js';
+import type * as vscode from 'vscode';
+import { ExtHostProfileContentHandlersShape, IMainContext } from './extHost.protocol.js';
 export declare class ExtHostProfileContentHandlers implements ExtHostProfileContentHandlersShape {
     private readonly proxy;
     private readonly handlers;

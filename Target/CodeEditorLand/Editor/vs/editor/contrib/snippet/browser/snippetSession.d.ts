@@ -1,13 +1,13 @@
-import "./snippetSession.css";
-import type { IActiveCodeEditor } from "../../../browser/editorBrowser.js";
-import type { IPosition } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import { Selection } from "../../../common/core/selection.js";
-import type { TextChange } from "../../../common/core/textChange.js";
-import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import { type IIdentifiedSingleEditOperation, type ITextModel } from "../../../common/model.js";
-import type { OvertypingCapturer } from "../../suggest/browser/suggestOvertypingCapturer.js";
-import { Choice, type Marker, TextmateSnippet } from "./snippetParser.js";
+import './snippetSession.css';
+import { IActiveCodeEditor } from '../../../browser/editorBrowser.js';
+import { IPosition } from '../../../common/core/position.js';
+import { Range } from '../../../common/core/range.js';
+import { Selection } from '../../../common/core/selection.js';
+import { TextChange } from '../../../common/core/textChange.js';
+import { ILanguageConfigurationService } from '../../../common/languages/languageConfigurationRegistry.js';
+import { IIdentifiedSingleEditOperation, ITextModel } from '../../../common/model.js';
+import { OvertypingCapturer } from '../../suggest/browser/suggestOvertypingCapturer.js';
+import { Choice, Marker, TextmateSnippet } from './snippetParser.js';
 export declare class OneSnippet {
     private readonly _editor;
     private readonly _snippet;

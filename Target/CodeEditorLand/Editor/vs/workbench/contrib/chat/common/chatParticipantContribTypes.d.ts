@@ -12,7 +12,7 @@ export interface IRawChatCommandContribution {
         examples: string[];
     }[];
 }
-export type RawChatParticipantLocation = "panel" | "terminal" | "notebook";
+export type RawChatParticipantLocation = 'panel' | 'terminal' | 'notebook';
 export interface IRawChatParticipantContribution {
     id: string;
     name: string;

@@ -1,7 +1,7 @@
-import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
-import type { ICellExecutionStateChangedEvent } from "../../common/notebookExecutionStateService.js";
-import type { ICellViewModel } from "../notebookBrowser.js";
-import type { CellViewModelStateChangeEvent } from "../notebookViewEvents.js";
+import { Disposable, DisposableStore } from '../../../../../base/common/lifecycle.js';
+import { ICellViewModel } from '../notebookBrowser.js';
+import { CellViewModelStateChangeEvent } from '../notebookViewEvents.js';
+import { ICellExecutionStateChangedEvent } from '../../common/notebookExecutionStateService.js';
 /**
  * A content part is a non-floating element that is rendered inside a cell.
  * The rendering of the content part is synchronous to avoid flickering.

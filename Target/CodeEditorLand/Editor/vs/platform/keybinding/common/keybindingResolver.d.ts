@@ -1,6 +1,6 @@
-import { type ContextKeyExpression, type IContext, type IContextKeyService } from "../../contextkey/common/contextkey.js";
-import type { ResolvedKeybindingItem } from "./resolvedKeybindingItem.js";
-export declare enum ResultKind {
+import { ContextKeyExpression, IContext, IContextKeyService } from '../../contextkey/common/contextkey.js';
+import { ResolvedKeybindingItem } from './resolvedKeybindingItem.js';
+export declare const enum ResultKind {
     /** No keybinding found this sequence of chords */
     NoMatchingKb = 0,
     /** There're several keybindings that have the given sequence of chords as a prefix */

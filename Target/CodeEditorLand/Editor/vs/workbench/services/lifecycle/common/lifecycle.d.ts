@@ -1,5 +1,5 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { Event } from "../../../../base/common/event.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
 export declare const ILifecycleService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ILifecycleService>;
 /**
  * An event that is send out when the window is about to close. Clients have a chance to veto
@@ -108,7 +108,7 @@ export interface WillShutdownEvent {
      * @param joiner to identify the join operation in case it takes very long or never
      * completes.
      */
-    join(promiseFn: () => Promise<void>, joiner: IWillShutdownEventLastJoiner): void;
+    join(promiseFn: (() => Promise<void>), joiner: IWillShutdownEventLastJoiner): void;
     /**
      * Allows to access the joiners that have not finished joining this event.
      */
@@ -119,7 +119,7 @@ export interface WillShutdownEvent {
      */
     force(): void;
 }
-export declare enum ShutdownReason {
+export declare const enum ShutdownReason {
     /**
      * The window is closed.
      */
@@ -137,13 +137,13 @@ export declare enum ShutdownReason {
      */
     LOAD = 4
 }
-export declare enum StartupKind {
+export declare const enum StartupKind {
     NewWindow = 1,
     ReloadedWindow = 3,
     ReopenedWindow = 4
 }
 export declare function StartupKindToString(startupKind: StartupKind): string;
-export declare enum LifecyclePhase {
+export declare const enum LifecyclePhase {
     /**
      * The first phase signals that we are about to startup getting ready.
      *

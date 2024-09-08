@@ -1,11 +1,11 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { Event } from "../../../../base/common/event.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { IQuickAccessProvider, IQuickAccessProviderRunOptions } from "../../../../platform/quickinput/common/quickAccess.js";
-import type { IKeyMods, IQuickPick, IQuickPickItem } from "../../../../platform/quickinput/common/quickInput.js";
-import type { IRange } from "../../../common/core/range.js";
-import { type IDiffEditor, type IEditor } from "../../../common/editorCommon.js";
-import { type ITextModel } from "../../../common/model.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IRange } from '../../../common/core/range.js';
+import { IDiffEditor, IEditor } from '../../../common/editorCommon.js';
+import { ITextModel } from '../../../common/model.js';
+import { IQuickAccessProvider, IQuickAccessProviderRunOptions } from '../../../../platform/quickinput/common/quickAccess.js';
+import { IKeyMods, IQuickPick, IQuickPickItem } from '../../../../platform/quickinput/common/quickInput.js';
 export interface IEditorNavigationQuickAccessOptions {
     canAcceptInBackground?: boolean;
 }

@@ -1,13 +1,13 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { IStateService } from "../../state/node/state.js";
-import type { INativeWindowConfiguration } from "../../window/common/window.js";
-import { type IWindowState as IWindowUIState } from "../../window/electron-main/window.js";
-import { type IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
-import { IWindowsMainService } from "./windows.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
+import { ILogService } from '../../log/common/log.js';
+import { IStateService } from '../../state/node/state.js';
+import { INativeWindowConfiguration } from '../../window/common/window.js';
+import { IWindowsMainService } from './windows.js';
+import { IWindowState as IWindowUIState } from '../../window/electron-main/window.js';
+import { IWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 export interface IWindowState {
     readonly windowId?: number;
     workspace?: IWorkspaceIdentifier;

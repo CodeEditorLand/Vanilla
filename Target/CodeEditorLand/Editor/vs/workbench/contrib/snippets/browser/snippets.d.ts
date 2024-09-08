@@ -1,4 +1,4 @@
-import type { Snippet, SnippetFile } from "./snippetsFile.js";
+import { SnippetFile, Snippet } from './snippetsFile.js';
 export declare const ISnippetsService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ISnippetsService>;
 export interface ISnippetGetOptions {
     includeDisabledSnippets?: boolean;

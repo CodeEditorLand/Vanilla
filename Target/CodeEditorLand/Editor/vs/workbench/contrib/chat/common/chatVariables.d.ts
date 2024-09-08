@@ -1,13 +1,13 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { ThemeIcon } from "../../../../base/common/themables.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IRange } from "../../../../editor/common/core/range.js";
-import type { Location } from "../../../../editor/common/languages.js";
-import type { ChatAgentLocation } from "./chatAgents.js";
-import type { IChatModel, IChatRequestVariableData, IChatRequestVariableEntry } from "./chatModel.js";
-import type { IParsedChatRequest } from "./chatParserTypes.js";
-import type { IChatContentReference, IChatProgressMessage } from "./chatService.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IRange } from '../../../../editor/common/core/range.js';
+import { Location } from '../../../../editor/common/languages.js';
+import { ChatAgentLocation } from './chatAgents.js';
+import { IChatModel, IChatRequestVariableData, IChatRequestVariableEntry } from './chatModel.js';
+import { IParsedChatRequest } from './chatParserTypes.js';
+import { IChatContentReference, IChatProgressMessage } from './chatService.js';
 export interface IChatVariableData {
     id: string;
     name: string;

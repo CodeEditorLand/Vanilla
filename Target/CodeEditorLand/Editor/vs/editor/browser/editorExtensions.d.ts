@@ -1,22 +1,18 @@
-import type { IDisposable } from "../../base/common/lifecycle.js";
-import type { ThemeIcon } from "../../base/common/themables.js";
-import { Action2, MenuId } from "../../platform/actions/common/actions.js";
-import { type ICommandMetadata } from "../../platform/commands/common/commands.js";
-import { type ContextKeyExpression } from "../../platform/contextkey/common/contextkey.js";
-import { type BrandedService, type IConstructorSignature, type ServicesAccessor as InstantiationServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
-import { type IKeybindings } from "../../platform/keybinding/common/keybindingsRegistry.js";
-import { Position } from "../common/core/position.js";
-import type { IDiffEditorContribution, IEditorContribution } from "../common/editorCommon.js";
-import type { ITextModel } from "../common/model.js";
-import type { ICodeEditor, IDiffEditor } from "./editorBrowser.js";
+import { ICodeEditor, IDiffEditor } from './editorBrowser.js';
+import { Position } from '../common/core/position.js';
+import { IEditorContribution, IDiffEditorContribution } from '../common/editorCommon.js';
+import { ITextModel } from '../common/model.js';
+import { MenuId, Action2 } from '../../platform/actions/common/actions.js';
+import { ICommandMetadata } from '../../platform/commands/common/commands.js';
+import { ContextKeyExpression } from '../../platform/contextkey/common/contextkey.js';
+import { ServicesAccessor as InstantiationServicesAccessor, BrandedService, IConstructorSignature } from '../../platform/instantiation/common/instantiation.js';
+import { IKeybindings } from '../../platform/keybinding/common/keybindingsRegistry.js';
+import { ThemeIcon } from '../../base/common/themables.js';
+import { IDisposable } from '../../base/common/lifecycle.js';
 export type ServicesAccessor = InstantiationServicesAccessor;
-export type EditorContributionCtor = IConstructorSignature<IEditorContribution, [
-    ICodeEditor
-]>;
-export type DiffEditorContributionCtor = IConstructorSignature<IDiffEditorContribution, [
-    IDiffEditor
-]>;
-export declare enum EditorContributionInstantiation {
+export type EditorContributionCtor = IConstructorSignature<IEditorContribution, [ICodeEditor]>;
+export type DiffEditorContributionCtor = IConstructorSignature<IDiffEditorContribution, [IDiffEditor]>;
+export declare const enum EditorContributionInstantiation {
     /**
      * The contribution is created eagerly when the {@linkcode ICodeEditor} is instantiated.
      * Only Eager contributions can participate in saving or restoring of view state.

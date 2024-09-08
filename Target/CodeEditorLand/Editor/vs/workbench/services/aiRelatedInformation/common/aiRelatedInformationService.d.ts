@@ -1,7 +1,7 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IAiRelatedInformationService, type IAiRelatedInformationProvider, type RelatedInformationResult, type RelatedInformationType } from "./aiRelatedInformation.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IAiRelatedInformationService, IAiRelatedInformationProvider, RelatedInformationType, RelatedInformationResult } from './aiRelatedInformation.js';
 export declare class AiRelatedInformationService implements IAiRelatedInformationService {
     private readonly logService;
     readonly _serviceBrand: undefined;

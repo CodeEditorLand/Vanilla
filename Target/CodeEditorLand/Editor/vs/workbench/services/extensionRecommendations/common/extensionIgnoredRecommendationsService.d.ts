@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IExtensionIgnoredRecommendationsService, type IgnoredRecommendationChangeNotification } from "./extensionRecommendations.js";
-import { IWorkspaceExtensionsConfigService } from "./workspaceExtensionsConfig.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IExtensionIgnoredRecommendationsService, IgnoredRecommendationChangeNotification } from './extensionRecommendations.js';
+import { IWorkspaceExtensionsConfigService } from './workspaceExtensionsConfig.js';
 export declare class ExtensionIgnoredRecommendationsService extends Disposable implements IExtensionIgnoredRecommendationsService {
     private readonly workspaceExtensionsConfigService;
     private readonly storageService;

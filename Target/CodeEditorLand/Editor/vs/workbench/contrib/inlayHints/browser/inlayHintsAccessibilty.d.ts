@@ -1,8 +1,8 @@
-import type { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import type { IEditorContribution } from "../../../../editor/common/editorCommon.js";
-import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { IEditorContribution } from '../../../../editor/common/editorCommon.js';
+import { IAccessibilitySignalService } from '../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 export declare class InlayHintsAccessibility implements IEditorContribution {
     private readonly _editor;
     private readonly _accessibilitySignalService;

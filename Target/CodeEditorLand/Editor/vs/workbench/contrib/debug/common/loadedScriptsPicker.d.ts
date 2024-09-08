@@ -1,5 +1,5 @@
-import type { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { type IQuickPickItem } from "../../../../platform/quickinput/common/quickInput.js";
+import { IQuickPickItem } from '../../../../platform/quickinput/common/quickInput.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 export interface IPickerDebugItem extends IQuickPickItem {
     accept(): void;
 }

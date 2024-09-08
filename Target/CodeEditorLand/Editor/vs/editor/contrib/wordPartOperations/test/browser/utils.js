@@ -1,17 +1,1 @@
-class StaticServiceAccessor {
-  services = /* @__PURE__ */ new Map();
-  withService(id, service) {
-    this.services.set(id, service);
-    return this;
-  }
-  get(id) {
-    const value = this.services.get(id);
-    if (!value) {
-      throw new Error("Service does not exist");
-    }
-    return value;
-  }
-}
-export {
-  StaticServiceAccessor
-};
+import"../../../../../platform/instantiation/common/instantiation.js";class v{services=new Map;withService(i,e){return this.services.set(i,e),this}get(i){const e=this.services.get(i);if(!e)throw new Error("Service does not exist");return e}}export{v as StaticServiceAccessor};

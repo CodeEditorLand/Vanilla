@@ -1,8 +1,8 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { type ICodeEditor, type IEditorMouseEvent, type IOverlayWidget, type IOverlayWidgetPosition } from "../../../browser/editorBrowser.js";
-import { ILanguageService } from "../../../common/languages/language.js";
-import type { IHoverWidget } from "./hoverTypes.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor, IEditorMouseEvent, IOverlayWidget, IOverlayWidgetPosition } from '../../../browser/editorBrowser.js';
+import { ILanguageService } from '../../../common/languages/language.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { IHoverWidget } from './hoverTypes.js';
 export declare class GlyphHoverWidget extends Disposable implements IOverlayWidget, IHoverWidget {
     static readonly ID = "editor.contrib.modesGlyphHoverWidget";
     private readonly _editor;

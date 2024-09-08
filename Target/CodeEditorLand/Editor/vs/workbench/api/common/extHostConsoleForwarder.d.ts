@@ -1,5 +1,5 @@
-import { IExtHostInitDataService } from "./extHostInitDataService.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import { IExtHostInitDataService } from './extHostInitDataService.js';
+import { IExtHostRpcService } from './extHostRpcService.js';
 export declare abstract class AbstractExtHostConsoleForwarder {
     private readonly _mainThreadConsole;
     private readonly _includeStack;
@@ -16,5 +16,5 @@ export declare abstract class AbstractExtHostConsoleForwarder {
      */
     private _wrapConsoleMethod;
     private _handleConsoleCall;
-    protected abstract _nativeConsoleLogMessage(method: "log" | "info" | "warn" | "error" | "debug", original: (...args: any[]) => void, args: IArguments): void;
+    protected abstract _nativeConsoleLogMessage(method: 'log' | 'info' | 'warn' | 'error' | 'debug', original: (...args: any[]) => void, args: IArguments): void;
 }

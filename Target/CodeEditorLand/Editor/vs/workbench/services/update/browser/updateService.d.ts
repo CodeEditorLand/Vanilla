@@ -1,8 +1,8 @@
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IUpdateService, State } from "../../../../platform/update/common/update.js";
-import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
-import { IHostService } from "../../host/browser/host.js";
+import { Event } from '../../../../base/common/event.js';
+import { IUpdateService, State } from '../../../../platform/update/common/update.js';
+import { IBrowserWorkbenchEnvironmentService } from '../../environment/browser/environmentService.js';
+import { IHostService } from '../../host/browser/host.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 export interface IUpdate {
     version: string;
 }

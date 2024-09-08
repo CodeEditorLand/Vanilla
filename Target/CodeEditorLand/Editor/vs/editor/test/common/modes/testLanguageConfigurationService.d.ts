@@ -1,6 +1,6 @@
-import { Disposable, type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { LanguageConfiguration } from "../../../common/languages/languageConfiguration.js";
-import { type ILanguageConfigurationService, LanguageConfigurationServiceChangeEvent, ResolvedLanguageConfiguration } from "../../../common/languages/languageConfigurationRegistry.js";
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
+import { LanguageConfiguration } from '../../../common/languages/languageConfiguration.js';
+import { ILanguageConfigurationService, LanguageConfigurationServiceChangeEvent, ResolvedLanguageConfiguration } from '../../../common/languages/languageConfigurationRegistry.js';
 export declare class TestLanguageConfigurationService extends Disposable implements ILanguageConfigurationService {
     _serviceBrand: undefined;
     private readonly _registry;

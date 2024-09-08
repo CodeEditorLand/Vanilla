@@ -1,12 +1,12 @@
-import { type Event } from "../../../common/event.js";
-import type { IKeyboardEvent } from "../../keyboardEvent.js";
-import type { IMouseEvent } from "../../mouseEvent.js";
-import type { IContextViewProvider } from "../contextview/contextview.js";
-import { HistoryInputBox, type IInputBoxStyles, type IInputValidator, type IMessage as InputBoxMessage } from "../inputbox/inputBox.js";
-import type { IToggleStyles, Toggle } from "../toggle/toggle.js";
-import { Widget } from "../widget.js";
-import { CaseSensitiveToggle, RegexToggle, WholeWordsToggle } from "./findInputToggles.js";
-import "./findInput.css";
+import { IKeyboardEvent } from '../../keyboardEvent.js';
+import { IMouseEvent } from '../../mouseEvent.js';
+import { IToggleStyles, Toggle } from '../toggle/toggle.js';
+import { IContextViewProvider } from '../contextview/contextview.js';
+import { CaseSensitiveToggle, RegexToggle, WholeWordsToggle } from './findInputToggles.js';
+import { HistoryInputBox, IInputBoxStyles, IInputValidator, IMessage as InputBoxMessage } from '../inputbox/inputBox.js';
+import { Widget } from '../widget.js';
+import { Event } from '../../../common/event.js';
+import './findInput.css';
 export interface IFindInputOptions {
     readonly placeholder?: string;
     readonly width?: number;

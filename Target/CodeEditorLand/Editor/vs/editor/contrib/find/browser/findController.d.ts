@@ -1,27 +1,27 @@
-import { Delayer } from "../../../../base/common/async.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import type { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, MultiEditorAction, type ServicesAccessor } from "../../../browser/editorExtensions.js";
-import type { IEditorContribution } from "../../../common/editorCommon.js";
-import { FindReplaceState, type INewFindReplaceState } from "./findState.js";
-import { type IFindController } from "./findWidget.js";
-export declare function getSelectionSearchString(editor: ICodeEditor, seedSearchStringFromSelection?: "single" | "multiple", seedSearchStringFromNonEmptySelection?: boolean): string | null;
-export declare enum FindStartFocusAction {
+import { Delayer } from '../../../../base/common/async.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { EditorAction, MultiEditorAction, ServicesAccessor } from '../../../browser/editorExtensions.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { FindReplaceState, INewFindReplaceState } from './findState.js';
+import { IFindController } from './findWidget.js';
+import { IClipboardService } from '../../../../platform/clipboard/common/clipboardService.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IContextViewService } from '../../../../platform/contextview/browser/contextView.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+export declare function getSelectionSearchString(editor: ICodeEditor, seedSearchStringFromSelection?: 'single' | 'multiple', seedSearchStringFromNonEmptySelection?: boolean): string | null;
+export declare const enum FindStartFocusAction {
     NoFocusChange = 0,
     FocusFindInput = 1,
     FocusReplaceInput = 2
 }
 export interface IFindStartOptions {
     forceRevealReplace: boolean;
-    seedSearchStringFromSelection: "none" | "single" | "multiple";
+    seedSearchStringFromSelection: 'none' | 'single' | 'multiple';
     seedSearchStringFromNonEmptySelection: boolean;
     seedSearchStringFromGlobalClipboard: boolean;
     shouldFocus: FindStartFocusAction;

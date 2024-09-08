@@ -1,14 +1,14 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { type IShellLaunchConfig } from "../../../../platform/terminal/common/terminal.js";
-import type { EditorInput } from "../../../common/editor/editorInput.js";
-import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
-import { ITerminalInstanceService, type IDeserializedTerminalEditorInput, type ITerminalEditorService, type ITerminalInstance, type TerminalEditorLocation } from "./terminal.js";
-import { TerminalEditorInput } from "./terminalEditorInput.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IShellLaunchConfig } from '../../../../platform/terminal/common/terminal.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IDeserializedTerminalEditorInput, ITerminalEditorService, ITerminalInstance, ITerminalInstanceService, TerminalEditorLocation } from './terminal.js';
+import { TerminalEditorInput } from './terminalEditorInput.js';
+import { IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { ILifecycleService } from '../../../services/lifecycle/common/lifecycle.js';
 export declare class TerminalEditorService extends Disposable implements ITerminalEditorService {
     private readonly _editorService;
     private readonly _editorGroupsService;

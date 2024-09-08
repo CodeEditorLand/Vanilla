@@ -1,11 +1,11 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { Event } from "../../../../base/common/event.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IProductService } from "../../../../platform/product/common/productService.js";
-import type { IUserDataProfile, IUserDataProfileOptions, IUserDataProfileUpdateOptions, ProfileResourceType, ProfileResourceTypeFlags } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import type { ITreeItem, ITreeItemLabel } from "../../../common/views.js";
+import { Event } from '../../../../base/common/event.js';
+import { IUserDataProfile, IUserDataProfileOptions, IUserDataProfileUpdateOptions, ProfileResourceType, ProfileResourceTypeFlags } from '../../../../platform/userDataProfile/common/userDataProfile.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ITreeItem, ITreeItemLabel } from '../../../common/views.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
 export interface DidChangeUserDataProfileEvent {
     readonly previous: IUserDataProfile;
     readonly profile: IUserDataProfile;
@@ -56,7 +56,7 @@ export interface IUserDataProfileCreateOptions extends IUserDataProfileOptions {
 export interface IProfileImportOptions extends IUserDataProfileCreateOptions {
     readonly name?: string;
     readonly icon?: string;
-    readonly mode?: "apply";
+    readonly mode?: 'apply';
 }
 export declare const IUserDataProfileImportExportService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IUserDataProfileImportExportService>;
 export interface IUserDataProfileImportExportService {

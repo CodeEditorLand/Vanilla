@@ -1,7 +1,7 @@
-import type { ILanguageService } from "../../common/languages/language.js";
-import type { ITextModel } from "../../common/model.js";
-import { type IViewLineTokens } from "../../common/tokens/lineTokens.js";
-import type { IStandaloneThemeService } from "../common/standaloneTheme.js";
+import { ILanguageService } from '../../common/languages/language.js';
+import { ITextModel } from '../../common/model.js';
+import { IViewLineTokens } from '../../common/tokens/lineTokens.js';
+import { IStandaloneThemeService } from '../common/standaloneTheme.js';
 export interface IColorizerOptions {
     tabSize?: number;
 }

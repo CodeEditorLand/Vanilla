@@ -1,15 +1,1 @@
-class KeyboardLayoutContribution {
-  static INSTANCE = new KeyboardLayoutContribution();
-  _layoutInfos = [];
-  get layoutInfos() {
-    return this._layoutInfos;
-  }
-  constructor() {
-  }
-  registerKeyboardLayout(layout) {
-    this._layoutInfos.push(layout);
-  }
-}
-export {
-  KeyboardLayoutContribution
-};
+import"../../common/keymapInfo.js";class o{static INSTANCE=new o;_layoutInfos=[];get layoutInfos(){return this._layoutInfos}constructor(){}registerKeyboardLayout(t){this._layoutInfos.push(t)}}export{o as KeyboardLayoutContribution};

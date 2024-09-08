@@ -1,8 +1,8 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IAiRelatedInformationService, type RelatedInformationResult } from "../../services/aiRelatedInformation/common/aiRelatedInformation.js";
-import { type IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { type MainThreadAiRelatedInformationShape } from "../common/extHost.protocol.js";
-import type { RelatedInformationType } from "../common/extHostTypes.js";
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { MainThreadAiRelatedInformationShape } from '../common/extHost.protocol.js';
+import { RelatedInformationType } from '../common/extHostTypes.js';
+import { IAiRelatedInformationService, RelatedInformationResult } from '../../services/aiRelatedInformation/common/aiRelatedInformation.js';
+import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
 export declare class MainThreadAiRelatedInformation extends Disposable implements MainThreadAiRelatedInformationShape {
     private readonly _aiRelatedInformationService;
     private readonly _proxy;

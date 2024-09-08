@@ -1,20 +1,2 @@
-import { Color } from "../../../../../base/common/color.js";
-import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../base/test/common/utils.js";
-import { Registry } from "../../../../../platform/registry/common/platform.js";
-import {
-  Extensions
-} from "../../../../../platform/theme/common/colorRegistry.js";
-suite("ColorRegistry", () => {
-  if (process.env.VSCODE_COLOR_REGISTRY_EXPORT) {
-    test("exports", () => {
-      const themingRegistry = Registry.as(
-        Extensions.ColorContribution
-      );
-      const colors = themingRegistry.getColors();
-      const replacer = (_key, value) => value instanceof Color ? Color.Format.CSS.formatHexA(value) : value;
-      console.log(`#colors:${JSON.stringify(colors, replacer)}
-`);
-    });
-  }
-  ensureNoDisposablesAreLeakedInTestSuite();
-});
+import{Color as r}from"../../../../../base/common/color.js";import{ensureNoDisposablesAreLeakedInTestSuite as e}from"../../../../../base/test/common/utils.js";import{Registry as s}from"../../../../../platform/registry/common/platform.js";import{Extensions as i}from"../../../../../platform/theme/common/colorRegistry.js";suite("ColorRegistry",()=>{process.env.VSCODE_COLOR_REGISTRY_EXPORT&&test("exports",()=>{const t=s.as(i.ColorContribution).getColors();console.log(`#colors:${JSON.stringify(t,(m,o)=>o instanceof r?r.Format.CSS.formatHexA(o):o)}
+`)}),e()});

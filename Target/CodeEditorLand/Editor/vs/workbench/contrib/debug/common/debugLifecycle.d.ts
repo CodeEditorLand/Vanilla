@@ -1,8 +1,8 @@
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import type { IWorkbenchContribution } from "../../../common/contributions.js";
-import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
-import { IDebugService } from "./debug.js";
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IWorkbenchContribution } from '../../../common/contributions.js';
+import { IDebugService } from './debug.js';
+import { ILifecycleService } from '../../../services/lifecycle/common/lifecycle.js';
 export declare class DebugLifecycle implements IWorkbenchContribution {
     private readonly debugService;
     private readonly configurationService;

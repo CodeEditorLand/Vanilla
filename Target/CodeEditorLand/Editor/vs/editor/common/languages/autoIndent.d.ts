@@ -1,10 +1,10 @@
-import { EditorAutoIndentStrategy } from "../config/editorOptions.js";
-import type { Range } from "../core/range.js";
-import type { CursorConfiguration } from "../cursorCommon.js";
-import type { ITextModel } from "../model.js";
-import type { IViewLineTokens } from "../tokens/lineTokens.js";
-import { IndentAction } from "./languageConfiguration.js";
-import type { ILanguageConfigurationService } from "./languageConfigurationRegistry.js";
+import { Range } from '../core/range.js';
+import { ITextModel } from '../model.js';
+import { IndentAction } from './languageConfiguration.js';
+import { EditorAutoIndentStrategy } from '../config/editorOptions.js';
+import { ILanguageConfigurationService } from './languageConfigurationRegistry.js';
+import { IViewLineTokens } from '../tokens/lineTokens.js';
+import { CursorConfiguration } from '../cursorCommon.js';
 export interface IVirtualModel {
     tokenization: {
         getLineTokens(lineNumber: number): IViewLineTokens;

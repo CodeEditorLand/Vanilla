@@ -1,5 +1,5 @@
-import type { URI } from "../../../../../../base/common/uri.js";
-import type { ITerminalLinkDetector, TerminalLinkType } from "../../browser/links.js";
+import { ITerminalLinkDetector, TerminalLinkType } from '../../browser/links.js';
+import { URI } from '../../../../../../base/common/uri.js';
 export declare function assertLinkHelper(text: string, expected: ({
     uri: URI;
     range: [number, number][];

@@ -1,9 +1,9 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { FoldingMarkers } from "../../../common/languages/languageConfiguration.js";
-import type { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import type { ITextModel } from "../../../common/model.js";
-import type { FoldingLimitReporter, RangeProvider } from "./folding.js";
-import { FoldingRegions } from "./foldingRanges.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { ITextModel } from '../../../common/model.js';
+import { FoldingMarkers } from '../../../common/languages/languageConfiguration.js';
+import { ILanguageConfigurationService } from '../../../common/languages/languageConfigurationRegistry.js';
+import { FoldingRegions } from './foldingRanges.js';
+import { FoldingLimitReporter, RangeProvider } from './folding.js';
 export declare class IndentRangeProvider implements RangeProvider {
     private readonly editorModel;
     private readonly languageConfigurationService;

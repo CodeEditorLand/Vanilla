@@ -1,17 +1,17 @@
-import { type Event } from "../../../../../base/common/event.js";
-import { Disposable, type IDisposable } from "../../../../../base/common/lifecycle.js";
-import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
-import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { WorkbenchList } from "../../../../../platform/list/browser/listService.js";
-import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { type IChatContentReference, type IChatWarningMessage } from "../../common/chatService.js";
-import type { IChatRendererContent, IChatResponseViewModel } from "../../common/chatViewModel.js";
-import type { ChatTreeItem } from "../chat.js";
-import { type IDisposableReference } from "./chatCollections.js";
-import type { IChatContentPart } from "./chatContentParts.js";
+import { Event } from '../../../../../base/common/event.js';
+import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js';
+import { IClipboardService } from '../../../../../platform/clipboard/common/clipboardService.js';
+import { IContextMenuService } from '../../../../../platform/contextview/browser/contextView.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { ILabelService } from '../../../../../platform/label/common/label.js';
+import { WorkbenchList } from '../../../../../platform/list/browser/listService.js';
+import { IOpenerService } from '../../../../../platform/opener/common/opener.js';
+import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { IChatContentReference, IChatWarningMessage } from '../../common/chatService.js';
+import { IChatRendererContent, IChatResponseViewModel } from '../../common/chatViewModel.js';
+import { ChatTreeItem } from '../chat.js';
+import { IDisposableReference } from './chatCollections.js';
+import { IChatContentPart } from './chatContentParts.js';
 export interface IChatReferenceListItem extends IChatContentReference {
     title?: string;
 }

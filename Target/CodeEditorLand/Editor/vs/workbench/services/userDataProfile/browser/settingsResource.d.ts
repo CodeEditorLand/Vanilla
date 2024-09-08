@@ -1,11 +1,11 @@
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { ProfileResourceType, type IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import { IUserDataSyncUtilService } from "../../../../platform/userDataSync/common/userDataSync.js";
-import { TreeItemCollapsibleState, type ITreeItemCheckboxState } from "../../../common/views.js";
-import { IUserDataProfileService, type IProfileResource, type IProfileResourceChildTreeItem, type IProfileResourceInitializer, type IProfileResourceTreeItem } from "../common/userDataProfile.js";
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem, IUserDataProfileService } from '../common/userDataProfile.js';
+import { IUserDataSyncUtilService } from '../../../../platform/userDataSync/common/userDataSync.js';
+import { ITreeItemCheckboxState, TreeItemCollapsibleState } from '../../../common/views.js';
+import { IUserDataProfile, ProfileResourceType } from '../../../../platform/userDataProfile/common/userDataProfile.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
 interface ISettingsContent {
     settings: string | null;
 }

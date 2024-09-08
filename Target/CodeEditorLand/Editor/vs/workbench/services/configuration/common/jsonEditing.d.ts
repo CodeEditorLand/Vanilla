@@ -1,7 +1,7 @@
-import type { JSONPath } from "../../../../base/common/json.js";
-import type { URI } from "../../../../base/common/uri.js";
+import { URI } from '../../../../base/common/uri.js';
+import { JSONPath } from '../../../../base/common/json.js';
 export declare const IJSONEditingService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IJSONEditingService>;
-export declare enum JSONEditingErrorCode {
+export declare const enum JSONEditingErrorCode {
     /**
      * Error when trying to write to a file that contains JSON errors.
      */

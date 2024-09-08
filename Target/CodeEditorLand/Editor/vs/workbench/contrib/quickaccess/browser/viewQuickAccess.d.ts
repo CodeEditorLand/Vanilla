@@ -1,14 +1,14 @@
-import { Action2 } from "../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import type { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { PickerQuickAccessProvider, type IPickerQuickAccessItem } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
-import { type IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { IOutputService } from "../../../services/output/common/output.js";
-import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { IDebugService } from "../../debug/common/debug.js";
-import { ITerminalGroupService, ITerminalService } from "../../terminal/browser/terminal.js";
+import { IQuickPickSeparator } from '../../../../platform/quickinput/common/quickInput.js';
+import { IPickerQuickAccessItem, PickerQuickAccessProvider } from '../../../../platform/quickinput/browser/pickerQuickAccess.js';
+import { IViewDescriptorService } from '../../../common/views.js';
+import { IViewsService } from '../../../services/views/common/viewsService.js';
+import { IOutputService } from '../../../services/output/common/output.js';
+import { ITerminalGroupService, ITerminalService } from '../../terminal/browser/terminal.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { Action2 } from '../../../../platform/actions/common/actions.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { IPaneCompositePartService } from '../../../services/panecomposite/browser/panecomposite.js';
+import { IDebugService } from '../../debug/common/debug.js';
 interface IViewQuickPickItem extends IPickerQuickAccessItem {
     containerLabel: string;
 }

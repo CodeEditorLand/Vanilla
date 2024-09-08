@@ -1,12 +1,12 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { IStringDictionary } from "../../../../base/common/collections.js";
-import type { FormattingOptions } from "../../../../base/common/jsonFormatter.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import type { IHeaders, IRequestContext, IRequestOptions } from "../../../../base/parts/request/common/request.js";
-import { TestInstantiationService } from "../../../instantiation/test/common/instantiationServiceMock.js";
-import { type AuthInfo, type Credentials, IRequestService } from "../../../request/common/request.js";
-import { type IUserData, type IUserDataResourceManifest, IUserDataSyncUtilService, type IUserDataSynchroniser, type SyncResource } from "../../common/userDataSync.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IStringDictionary } from '../../../../base/common/collections.js';
+import { FormattingOptions } from '../../../../base/common/jsonFormatter.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IHeaders, IRequestContext, IRequestOptions } from '../../../../base/parts/request/common/request.js';
+import { TestInstantiationService } from '../../../instantiation/test/common/instantiationServiceMock.js';
+import { AuthInfo, Credentials, IRequestService } from '../../../request/common/request.js';
+import { IUserData, IUserDataSyncUtilService, SyncResource, IUserDataSynchroniser, IUserDataResourceManifest } from '../../common/userDataSync.js';
 export declare class UserDataSyncClient extends Disposable {
     readonly testServer: UserDataSyncTestServer;
     readonly instantiationService: TestInstantiationService;

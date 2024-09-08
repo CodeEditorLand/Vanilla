@@ -1,5 +1,5 @@
-import type { URI } from "../../../base/common/uri.js";
-export declare enum RecommendationSource {
+import { URI } from '../../../base/common/uri.js';
+export declare const enum RecommendationSource {
     FILE = 1,
     WORKSPACE = 2,
     EXE = 3
@@ -11,7 +11,7 @@ export interface IExtensionRecommendations {
     searchValue?: string;
 }
 export declare function RecommendationSourceToString(source: RecommendationSource): "workspace" | "file" | "exe";
-export declare enum RecommendationsNotificationResult {
+export declare const enum RecommendationsNotificationResult {
     Ignored = "ignored",
     Cancelled = "cancelled",
     TooMany = "toomany",

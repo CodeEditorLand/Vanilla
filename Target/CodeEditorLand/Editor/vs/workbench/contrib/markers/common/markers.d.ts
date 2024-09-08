@@ -1,5 +1,5 @@
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-export declare enum MarkersViewMode {
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+export declare const enum MarkersViewMode {
     Table = "table",
     Tree = "tree"
 }

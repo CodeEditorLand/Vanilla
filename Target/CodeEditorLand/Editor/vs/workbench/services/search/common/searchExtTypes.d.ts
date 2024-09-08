@@ -1,6 +1,6 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { IProgress } from "../../../../platform/progress/common/progress.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IProgress } from '../../../../platform/progress/common/progress.js';
 export declare class Position {
     readonly line: number;
     readonly character: number;

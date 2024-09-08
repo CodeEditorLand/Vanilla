@@ -1,11 +1,11 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { type IDisposable, type IReference } from "../../../../base/common/lifecycle.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { type IDebugVisualization, type IDebugVisualizationContext, type IDebugVisualizationTreeItem, type IExpression, type MainThreadDebugVisualization } from "./debug.js";
-import { VisualizedExpression } from "./debugModel.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IDisposable, IReference } from '../../../../base/common/lifecycle.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { MainThreadDebugVisualization, IDebugVisualization, IDebugVisualizationContext, IExpression, IDebugVisualizationTreeItem } from './debug.js';
+import { VisualizedExpression } from './debugModel.js';
+import { IExtensionService } from '../../../services/extensions/common/extensions.js';
 export declare const IDebugVisualizerService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IDebugVisualizerService>;
 interface VisualizerHandle {
     id: string;

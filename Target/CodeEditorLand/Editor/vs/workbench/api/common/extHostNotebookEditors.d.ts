@@ -1,7 +1,7 @@
-import type * as vscode from "vscode";
-import { ILogService } from "../../../platform/log/common/log.js";
-import type { ExtHostNotebookEditorsShape, INotebookEditorPropertiesChangeData, INotebookEditorViewColumnInfo } from "./extHost.protocol.js";
-import type { ExtHostNotebookController } from "./extHostNotebook.js";
+import { ILogService } from '../../../platform/log/common/log.js';
+import { ExtHostNotebookEditorsShape, INotebookEditorPropertiesChangeData, INotebookEditorViewColumnInfo } from './extHost.protocol.js';
+import { ExtHostNotebookController } from './extHostNotebook.js';
+import type * as vscode from 'vscode';
 export declare class ExtHostNotebookEditors implements ExtHostNotebookEditorsShape {
     private readonly _logService;
     private readonly _notebooksAndEditors;

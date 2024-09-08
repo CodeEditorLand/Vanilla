@@ -1,30 +1,30 @@
-import { VSBuffer } from "../../../../base/common/buffer.js";
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { IDiffResult } from "../../../../base/common/diff/diff.js";
-import type { Event } from "../../../../base/common/event.js";
-import * as glob from "../../../../base/common/glob.js";
-import type { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import type { ISplice } from "../../../../base/common/sequence.js";
-import type { ThemeColor } from "../../../../base/common/themables.js";
-import type { URI, UriComponents } from "../../../../base/common/uri.js";
-import type { Range } from "../../../../editor/common/core/range.js";
-import type { ILineChange } from "../../../../editor/common/diff/legacyLinesDiffComputer.js";
-import type * as editorCommon from "../../../../editor/common/editorCommon.js";
-import type { Command, WorkspaceEditMetadata } from "../../../../editor/common/languages.js";
-import type { IReadonlyTextBuffer } from "../../../../editor/common/model.js";
-import type { IAccessibilityInformation } from "../../../../platform/accessibility/common/accessibility.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import type { IFileReadLimits } from "../../../../platform/files/common/files.js";
-import type { UndoRedoGroup } from "../../../../platform/undoRedo/common/undoRedo.js";
-import type { IRevertOptions, ISaveOptions, IUntypedEditorInput } from "../../../common/editor.js";
-import type { RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
-import type { IWorkingCopyBackupMeta, IWorkingCopySaveEvent } from "../../../services/workingCopy/common/workingCopy.js";
-import type { NotebookTextModel } from "./model/notebookTextModel.js";
-import type { ICellExecutionError } from "./notebookExecutionStateService.js";
-import type { INotebookTextModelLike } from "./notebookKernelService.js";
-import type { ICellRange } from "./notebookRange.js";
+import { VSBuffer } from '../../../../base/common/buffer.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IDiffResult } from '../../../../base/common/diff/diff.js';
+import { Event } from '../../../../base/common/event.js';
+import * as glob from '../../../../base/common/glob.js';
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ISplice } from '../../../../base/common/sequence.js';
+import { ThemeColor } from '../../../../base/common/themables.js';
+import { URI, UriComponents } from '../../../../base/common/uri.js';
+import { Range } from '../../../../editor/common/core/range.js';
+import { ILineChange } from '../../../../editor/common/diff/legacyLinesDiffComputer.js';
+import * as editorCommon from '../../../../editor/common/editorCommon.js';
+import { Command, WorkspaceEditMetadata } from '../../../../editor/common/languages.js';
+import { IReadonlyTextBuffer } from '../../../../editor/common/model.js';
+import { IAccessibilityInformation } from '../../../../platform/accessibility/common/accessibility.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
+import { IFileReadLimits } from '../../../../platform/files/common/files.js';
+import { UndoRedoGroup } from '../../../../platform/undoRedo/common/undoRedo.js';
+import { IRevertOptions, ISaveOptions, IUntypedEditorInput } from '../../../common/editor.js';
+import { NotebookTextModel } from './model/notebookTextModel.js';
+import { ICellExecutionError } from './notebookExecutionStateService.js';
+import { INotebookTextModelLike } from './notebookKernelService.js';
+import { ICellRange } from './notebookRange.js';
+import { RegisteredEditorPriority } from '../../../services/editor/common/editorResolverService.js';
+import { IWorkingCopyBackupMeta, IWorkingCopySaveEvent } from '../../../services/workingCopy/common/workingCopy.js';
 export declare const NOTEBOOK_EDITOR_ID = "workbench.editor.notebook";
 export declare const NOTEBOOK_DIFF_EDITOR_ID = "workbench.editor.notebookTextDiffEditor";
 export declare const NOTEBOOK_MULTI_DIFF_EDITOR_ID = "workbench.editor.notebookMultiTextDiffEditor";
@@ -95,7 +95,7 @@ export interface NotebookCellDefaultCollapseConfig {
     codeCell?: NotebookCellCollapseState;
     markupCell?: NotebookCellCollapseState;
 }
-export type InteractiveWindowCollapseCodeCells = "always" | "never" | "fromEditor";
+export type InteractiveWindowCollapseCodeCells = 'always' | 'never' | 'fromEditor';
 export type TransientCellMetadata = {
     readonly [K in keyof NotebookCellMetadata]?: boolean;
 };
@@ -112,7 +112,7 @@ export interface TransientOptions {
     readonly cellContentMetadata: CellContentMetadata;
 }
 /** Note: enum values are used for sorting */
-export declare enum NotebookRendererMatch {
+export declare const enum NotebookRendererMatch {
     /** Renderer has a hard dependency on an available kernel */
     WithHardKernelDependency = 0,
     /** Renderer works better with an available kernel */
@@ -128,7 +128,7 @@ export declare enum NotebookRendererMatch {
  * activation" of extensions is a very tricky problem, which could allow
  * solving this. But for now, optional is mostly only honored for aznb.
  */
-export declare enum RendererMessagingSpec {
+export declare const enum RendererMessagingSpec {
     Always = "always",
     Never = "never",
     Optional = "optional"
@@ -346,7 +346,7 @@ export type NotebookTextModelChangedEvent = {
 export type NotebookTextModelWillAddRemoveEvent = {
     readonly rawEvent: NotebookCellsModelChangedEvent<ICell>;
 };
-export declare enum CellEditType {
+export declare const enum CellEditType {
     Replace = 1,
     Output = 2,
     Metadata = 3,
@@ -625,7 +625,7 @@ export interface INotebookCellStatusBarItemList {
     items: INotebookCellStatusBarItem[];
     dispose?(): void;
 }
-export type ShowCellStatusBarType = "hidden" | "visible" | "visibleAfterExecute";
+export type ShowCellStatusBarType = 'hidden' | 'visible' | 'visibleAfterExecute';
 export declare const NotebookSetting: {
     readonly displayOrder: "notebook.displayOrder";
     readonly cellToolbarLocation: "notebook.cellToolbarLocation";
@@ -685,7 +685,7 @@ export declare const NotebookSetting: {
     readonly cellFailureDiagnostics: "notebook.cellFailureDiagnostics";
     readonly outputBackupSizeLimit: "notebook.backup.sizeLimit";
 };
-export declare enum CellStatusbarAlignment {
+export declare const enum CellStatusbarAlignment {
     Left = 1,
     Right = 2
 }

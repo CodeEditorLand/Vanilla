@@ -1,6 +1,6 @@
-import type { UriComponents } from "../../../../base/common/uri.js";
-import type { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import type { Dto } from "../../../services/extensions/common/proxyIdentifier.js";
+import { UriComponents } from '../../../../base/common/uri.js';
+import { IExtensionDescription } from '../../../../platform/extensions/common/extensions.js';
+import type { Dto } from '../../../services/extensions/common/proxyIdentifier.js';
 export interface ITaskDefinitionDTO {
     type: string;
     [name: string]: any;
@@ -55,7 +55,7 @@ export interface IShellExecutionDTO {
     options?: IShellExecutionOptionsDTO;
 }
 export interface ICustomExecutionDTO {
-    customExecution: "customExecution";
+    customExecution: 'customExecution';
 }
 export interface ITaskSourceDTO {
     label: string;

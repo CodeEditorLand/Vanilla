@@ -1,232 +1,51 @@
-import assert from "assert";
-import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../base/test/common/utils.js";
-import { Parser } from "../../common/contextkey.js";
-function parseToStr(input) {
-  const parser = new Parser();
-  const prints = [];
-  const print = (...ss) => {
-    ss.forEach((s) => prints.push(s));
-  };
-  const expr = parser.parse(input);
-  if (expr === void 0) {
-    if (parser.lexingErrors.length > 0) {
-      print("Lexing errors:", "\n\n");
-      parser.lexingErrors.forEach(
-        (lexingError) => print(
-          `Unexpected token '${lexingError.lexeme}' at offset ${lexingError.offset}. ${lexingError.additionalInfo}`,
-          "\n"
-        )
-      );
-    }
-    if (parser.parsingErrors.length > 0) {
-      if (parser.lexingErrors.length > 0) {
-        print("\n --- \n");
-      }
-      print("Parsing errors:", "\n\n");
-      parser.parsingErrors.forEach(
-        (parsingError) => print(
-          `Unexpected '${parsingError.lexeme}' at offset ${parsingError.offset}.`,
-          "\n"
-        )
-      );
-    }
-  } else {
-    print(expr.serialize());
-  }
-  return prints.join("");
-}
-suite("Context Key Parser", () => {
-  ensureNoDisposablesAreLeakedInTestSuite();
-  test(" foo", () => {
-    const input = " foo";
-    assert.deepStrictEqual(parseToStr(input), "foo");
-  });
-  test("!foo", () => {
-    const input = "!foo";
-    assert.deepStrictEqual(parseToStr(input), "!foo");
-  });
-  test("foo =~ /bar/", () => {
-    const input = "foo =~ /bar/";
-    assert.deepStrictEqual(parseToStr(input), "foo =~ /bar/");
-  });
-  test(`foo || (foo =~ /bar/ && baz)`, () => {
-    const input = `foo || (foo =~ /bar/ && baz)`;
-    assert.deepStrictEqual(parseToStr(input), "foo || baz && foo =~ /bar/");
-  });
-  test("foo || (foo =~ /bar/ || baz)", () => {
-    const input = "foo || (foo =~ /bar/ || baz)";
-    assert.deepStrictEqual(parseToStr(input), "baz || foo || foo =~ /bar/");
-  });
-  test(`(foo || bar) && (jee || jar)`, () => {
-    const input = `(foo || bar) && (jee || jar)`;
-    assert.deepStrictEqual(
-      parseToStr(input),
-      "bar && jar || bar && jee || foo && jar || foo && jee"
-    );
-  });
-  test("foo && foo =~ /zee/i", () => {
-    const input = "foo && foo =~ /zee/i";
-    assert.deepStrictEqual(parseToStr(input), "foo && foo =~ /zee/i");
-  });
-  test("foo.bar==enabled", () => {
-    const input = "foo.bar==enabled";
-    assert.deepStrictEqual(parseToStr(input), "foo.bar == 'enabled'");
-  });
-  test(`foo.bar == 'enabled'`, () => {
-    const input = `foo.bar == 'enabled'`;
-    assert.deepStrictEqual(parseToStr(input), `foo.bar == 'enabled'`);
-  });
-  test("foo.bar:zed==completed - equality with no space", () => {
-    const input = "foo.bar:zed==completed";
-    assert.deepStrictEqual(parseToStr(input), "foo.bar:zed == 'completed'");
-  });
-  test("a && b || c", () => {
-    const input = "a && b || c";
-    assert.deepStrictEqual(parseToStr(input), "c || a && b");
-  });
-  test("fooBar && baz.jar && fee.bee<K-loo+1>", () => {
-    const input = "fooBar && baz.jar && fee.bee<K-loo+1>";
-    assert.deepStrictEqual(
-      parseToStr(input),
-      "baz.jar && fee.bee<K-loo+1> && fooBar"
-    );
-  });
-  test("foo.barBaz<C-r> < 2", () => {
-    const input = "foo.barBaz<C-r> < 2";
-    assert.deepStrictEqual(parseToStr(input), `foo.barBaz<C-r> < 2`);
-  });
-  test("foo.bar >= -1", () => {
-    const input = "foo.bar >= -1";
-    assert.deepStrictEqual(parseToStr(input), "foo.bar >= -1");
-  });
-  test(`key contains &nbsp: view == vsc-packages-activitybar-folders\xA0&& vsc-packages-folders-loaded`, () => {
-    const input = `view == vsc-packages-activitybar-folders\xA0&& vsc-packages-folders-loaded`;
-    assert.deepStrictEqual(
-      parseToStr(input),
-      "vsc-packages-folders-loaded && view == 'vsc-packages-activitybar-folders'"
-    );
-  });
-  test("foo.bar <= -1", () => {
-    const input = "foo.bar <= -1";
-    assert.deepStrictEqual(parseToStr(input), `foo.bar <= -1`);
-  });
-  test("!cmake:hideBuildCommand && cmake:enableFullFeatureSet", () => {
-    const input = "!cmake:hideBuildCommand && cmake:enableFullFeatureSet";
-    assert.deepStrictEqual(
-      parseToStr(input),
-      "cmake:enableFullFeatureSet && !cmake:hideBuildCommand"
-    );
-  });
-  test("!(foo && bar)", () => {
-    const input = "!(foo && bar)";
-    assert.deepStrictEqual(parseToStr(input), "!bar || !foo");
-  });
-  test("!(foo && bar || boar) || deer", () => {
-    const input = "!(foo && bar || boar) || deer";
-    assert.deepStrictEqual(
-      parseToStr(input),
-      "deer || !bar && !boar || !boar && !foo"
-    );
-  });
-  test(`!(!foo)`, () => {
-    const input = `!(!foo)`;
-    assert.deepStrictEqual(parseToStr(input), "foo");
-  });
-  suite("controversial", () => {
-    test(`debugState == "stopped"`, () => {
-      const input = `debugState == "stopped"`;
-      assert.deepStrictEqual(
-        parseToStr(input),
-        `debugState == '"stopped"'`
-      );
-    });
-    test(` viewItem == VSCode WorkSpace`, () => {
-      const input = ` viewItem == VSCode WorkSpace`;
-      assert.deepStrictEqual(
-        parseToStr(input),
-        "Parsing errors:\n\nUnexpected 'WorkSpace' at offset 20.\n"
-      );
-    });
-  });
-  suite("regex", () => {
-    test(`resource =~ //foo/(barr|door/(Foo-Bar%20Templates|Soo%20Looo)|Web%20Site%Jjj%20Llll)(/.*)*$/`, () => {
-      const input = `resource =~ //foo/(barr|door/(Foo-Bar%20Templates|Soo%20Looo)|Web%20Site%Jjj%20Llll)(/.*)*$/`;
-      assert.deepStrictEqual(
-        parseToStr(input),
-        "resource =~ /\\/foo\\/(barr|door\\/(Foo-Bar%20Templates|Soo%20Looo)|Web%20Site%Jjj%20Llll)(\\/.*)*$/"
-      );
-    });
-    test(`resource =~ /((/scratch/(?!update)(.*)/)|((/src/).*/)).*$/`, () => {
-      const input = `resource =~ /((/scratch/(?!update)(.*)/)|((/src/).*/)).*$/`;
-      assert.deepStrictEqual(
-        parseToStr(input),
-        "resource =~ /((\\/scratch\\/(?!update)(.*)\\/)|((\\/src\\/).*\\/)).*$/"
-      );
-    });
-    test(`resourcePath =~ /.md(.yml|.txt)*$/giym`, () => {
-      const input = `resourcePath =~ /.md(.yml|.txt)*$/giym`;
-      assert.deepStrictEqual(
-        parseToStr(input),
-        "resourcePath =~ /.md(.yml|.txt)*$/im"
-      );
-    });
-  });
-  suite("error handling", () => {
-    test(`/foo`, () => {
-      const input = `/foo`;
-      assert.deepStrictEqual(
-        parseToStr(input),
-        "Lexing errors:\n\nUnexpected token '/foo' at offset 0. Did you forget to escape the '/' (slash) character? Put two backslashes before it to escape, e.g., '\\\\/'.\n\n --- \nParsing errors:\n\nUnexpected '/foo' at offset 0.\n"
-      );
-    });
-    test(`!b == 'true'`, () => {
-      const input = `!b == 'true'`;
-      assert.deepStrictEqual(
-        parseToStr(input),
-        "Parsing errors:\n\nUnexpected '==' at offset 3.\n"
-      );
-    });
-    test("!foo &&  in bar", () => {
-      const input = "!foo &&  in bar";
-      assert.deepStrictEqual(
-        parseToStr(input),
-        "Parsing errors:\n\nUnexpected 'in' at offset 9.\n"
-      );
-    });
-    test("vim<c-r> == 1 && vim<2<=3", () => {
-      const input = "vim<c-r> == 1 && vim<2<=3";
-      assert.deepStrictEqual(
-        parseToStr(input),
-        "Lexing errors:\n\nUnexpected token '=' at offset 23. Did you mean == or =~?\n\n --- \nParsing errors:\n\nUnexpected '=' at offset 23.\n"
-      );
-    });
-    test(`foo && 'bar`, () => {
-      const input = `foo && 'bar`;
-      assert.deepStrictEqual(
-        parseToStr(input),
-        "Lexing errors:\n\nUnexpected token ''bar' at offset 7. Did you forget to open or close the quote?\n\n --- \nParsing errors:\n\nUnexpected ''bar' at offset 7.\n"
-      );
-    });
-    test(`config.foo &&  &&bar =~ /^foo$|^bar-foo$|^joo$|^jar$/ && !foo`, () => {
-      const input = `config.foo &&  &&bar =~ /^foo$|^bar-foo$|^joo$|^jar$/ && !foo`;
-      assert.deepStrictEqual(
-        parseToStr(input),
-        "Parsing errors:\n\nUnexpected '&&' at offset 15.\n"
-      );
-    });
-    test(`!foo == 'test'`, () => {
-      const input = `!foo == 'test'`;
-      assert.deepStrictEqual(
-        parseToStr(input),
-        "Parsing errors:\n\nUnexpected '==' at offset 5.\n"
-      );
-    });
-    test(`!!foo`, () => {
-      const input = `!!foo`;
-      assert.deepStrictEqual(
-        parseToStr(input),
-        "Parsing errors:\n\nUnexpected '!' at offset 1.\n"
-      );
-    });
-  });
-});
+import t from"assert";import{ensureNoDisposablesAreLeakedInTestSuite as c}from"../../../../base/test/common/utils.js";import{Parser as u}from"../../common/contextkey.js";function o(e){const n=new u,s=[],a=(...r)=>{r.forEach(p=>s.push(p))},i=n.parse(e);return i===void 0?(n.lexingErrors.length>0&&(a("Lexing errors:",`
+
+`),n.lexingErrors.forEach(r=>a(`Unexpected token '${r.lexeme}' at offset ${r.offset}. ${r.additionalInfo}`,`
+`))),n.parsingErrors.length>0&&(n.lexingErrors.length>0&&a(`
+ --- 
+`),a("Parsing errors:",`
+
+`),n.parsingErrors.forEach(r=>a(`Unexpected '${r.lexeme}' at offset ${r.offset}.`,`
+`)))):a(i.serialize()),s.join("")}suite("Context Key Parser",()=>{c(),test(" foo",()=>{t.deepStrictEqual(o(" foo"),"foo")}),test("!foo",()=>{t.deepStrictEqual(o("!foo"),"!foo")}),test("foo =~ /bar/",()=>{t.deepStrictEqual(o("foo =~ /bar/"),"foo =~ /bar/")}),test("foo || (foo =~ /bar/ && baz)",()=>{t.deepStrictEqual(o("foo || (foo =~ /bar/ && baz)"),"foo || baz && foo =~ /bar/")}),test("foo || (foo =~ /bar/ || baz)",()=>{t.deepStrictEqual(o("foo || (foo =~ /bar/ || baz)"),"baz || foo || foo =~ /bar/")}),test("(foo || bar) && (jee || jar)",()=>{t.deepStrictEqual(o("(foo || bar) && (jee || jar)"),"bar && jar || bar && jee || foo && jar || foo && jee")}),test("foo && foo =~ /zee/i",()=>{t.deepStrictEqual(o("foo && foo =~ /zee/i"),"foo && foo =~ /zee/i")}),test("foo.bar==enabled",()=>{t.deepStrictEqual(o("foo.bar==enabled"),"foo.bar == 'enabled'")}),test("foo.bar == 'enabled'",()=>{t.deepStrictEqual(o("foo.bar == 'enabled'"),"foo.bar == 'enabled'")}),test("foo.bar:zed==completed - equality with no space",()=>{t.deepStrictEqual(o("foo.bar:zed==completed"),"foo.bar:zed == 'completed'")}),test("a && b || c",()=>{t.deepStrictEqual(o("a && b || c"),"c || a && b")}),test("fooBar && baz.jar && fee.bee<K-loo+1>",()=>{t.deepStrictEqual(o("fooBar && baz.jar && fee.bee<K-loo+1>"),"baz.jar && fee.bee<K-loo+1> && fooBar")}),test("foo.barBaz<C-r> < 2",()=>{t.deepStrictEqual(o("foo.barBaz<C-r> < 2"),"foo.barBaz<C-r> < 2")}),test("foo.bar >= -1",()=>{t.deepStrictEqual(o("foo.bar >= -1"),"foo.bar >= -1")}),test("key contains &nbsp: view == vsc-packages-activitybar-folders\xA0&& vsc-packages-folders-loaded",()=>{t.deepStrictEqual(o("view == vsc-packages-activitybar-folders\xA0&& vsc-packages-folders-loaded"),"vsc-packages-folders-loaded && view == 'vsc-packages-activitybar-folders'")}),test("foo.bar <= -1",()=>{t.deepStrictEqual(o("foo.bar <= -1"),"foo.bar <= -1")}),test("!cmake:hideBuildCommand && cmake:enableFullFeatureSet",()=>{t.deepStrictEqual(o("!cmake:hideBuildCommand && cmake:enableFullFeatureSet"),"cmake:enableFullFeatureSet && !cmake:hideBuildCommand")}),test("!(foo && bar)",()=>{t.deepStrictEqual(o("!(foo && bar)"),"!bar || !foo")}),test("!(foo && bar || boar) || deer",()=>{t.deepStrictEqual(o("!(foo && bar || boar) || deer"),"deer || !bar && !boar || !boar && !foo")}),test("!(!foo)",()=>{t.deepStrictEqual(o("!(!foo)"),"foo")}),suite("controversial",()=>{test('debugState == "stopped"',()=>{t.deepStrictEqual(o('debugState == "stopped"'),`debugState == '"stopped"'`)}),test(" viewItem == VSCode WorkSpace",()=>{t.deepStrictEqual(o(" viewItem == VSCode WorkSpace"),`Parsing errors:
+
+Unexpected 'WorkSpace' at offset 20.
+`)})}),suite("regex",()=>{test("resource =~ //foo/(barr|door/(Foo-Bar%20Templates|Soo%20Looo)|Web%20Site%Jjj%20Llll)(/.*)*$/",()=>{t.deepStrictEqual(o("resource =~ //foo/(barr|door/(Foo-Bar%20Templates|Soo%20Looo)|Web%20Site%Jjj%20Llll)(/.*)*$/"),"resource =~ /\\/foo\\/(barr|door\\/(Foo-Bar%20Templates|Soo%20Looo)|Web%20Site%Jjj%20Llll)(\\/.*)*$/")}),test("resource =~ /((/scratch/(?!update)(.*)/)|((/src/).*/)).*$/",()=>{t.deepStrictEqual(o("resource =~ /((/scratch/(?!update)(.*)/)|((/src/).*/)).*$/"),"resource =~ /((\\/scratch\\/(?!update)(.*)\\/)|((\\/src\\/).*\\/)).*$/")}),test("resourcePath =~ /.md(.yml|.txt)*$/giym",()=>{t.deepStrictEqual(o("resourcePath =~ /.md(.yml|.txt)*$/giym"),"resourcePath =~ /.md(.yml|.txt)*$/im")})}),suite("error handling",()=>{test("/foo",()=>{t.deepStrictEqual(o("/foo"),`Lexing errors:
+
+Unexpected token '/foo' at offset 0. Did you forget to escape the '/' (slash) character? Put two backslashes before it to escape, e.g., '\\\\/'.
+
+ --- 
+Parsing errors:
+
+Unexpected '/foo' at offset 0.
+`)}),test("!b == 'true'",()=>{t.deepStrictEqual(o("!b == 'true'"),`Parsing errors:
+
+Unexpected '==' at offset 3.
+`)}),test("!foo &&  in bar",()=>{t.deepStrictEqual(o("!foo &&  in bar"),`Parsing errors:
+
+Unexpected 'in' at offset 9.
+`)}),test("vim<c-r> == 1 && vim<2<=3",()=>{t.deepStrictEqual(o("vim<c-r> == 1 && vim<2<=3"),`Lexing errors:
+
+Unexpected token '=' at offset 23. Did you mean == or =~?
+
+ --- 
+Parsing errors:
+
+Unexpected '=' at offset 23.
+`)}),test("foo && 'bar",()=>{t.deepStrictEqual(o("foo && 'bar"),`Lexing errors:
+
+Unexpected token ''bar' at offset 7. Did you forget to open or close the quote?
+
+ --- 
+Parsing errors:
+
+Unexpected ''bar' at offset 7.
+`)}),test("config.foo &&  &&bar =~ /^foo$|^bar-foo$|^joo$|^jar$/ && !foo",()=>{t.deepStrictEqual(o("config.foo &&  &&bar =~ /^foo$|^bar-foo$|^joo$|^jar$/ && !foo"),`Parsing errors:
+
+Unexpected '&&' at offset 15.
+`)}),test("!foo == 'test'",()=>{t.deepStrictEqual(o("!foo == 'test'"),`Parsing errors:
+
+Unexpected '==' at offset 5.
+`)}),test("!!foo",function(){t.deepStrictEqual(o("!!foo"),`Parsing errors:
+
+Unexpected '!' at offset 1.
+`)})})});

@@ -1,4 +1,4 @@
-import { Keybinding } from "./keybindings.js";
+import { Keybinding } from './keybindings.js';
 export declare class KeybindingParser {
     private static _readModifiers;
     private static parseChord;

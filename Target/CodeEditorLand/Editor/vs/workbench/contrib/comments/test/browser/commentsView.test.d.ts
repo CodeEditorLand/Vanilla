@@ -1,5 +1,5 @@
-import { type Event } from "../../../../../base/common/event.js";
-import { type IViewContainerModel, type IViewDescriptor, IViewDescriptorService, type ViewContainer, ViewContainerLocation } from "../../../../common/views.js";
+import { Event } from '../../../../../base/common/event.js';
+import { IViewContainerModel, IViewDescriptor, IViewDescriptorService, ViewContainer, ViewContainerLocation } from '../../../../common/views.js';
 export declare class TestViewDescriptorService implements Partial<IViewDescriptorService> {
     getViewLocationById(id: string): ViewContainerLocation | null;
     readonly onDidChangeLocation: Event<{

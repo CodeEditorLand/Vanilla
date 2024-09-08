@@ -1,4 +1,4 @@
-import { URI } from "./uri.js";
+import { URI } from './uri.js';
 export declare namespace Schemas {
     /**
      * A schema that is used for models that exist in memory
@@ -102,7 +102,7 @@ declare class RemoteAuthoritiesImpl {
     private _preferredWebSchema;
     private _delegate;
     private _serverRootPath;
-    setPreferredWebSchema(schema: "http" | "https"): void;
+    setPreferredWebSchema(schema: 'http' | 'https'): void;
     setDelegate(delegate: (uri: URI) => URI): void;
     setServerRootPath(product: {
         quality?: string;
@@ -112,7 +112,7 @@ declare class RemoteAuthoritiesImpl {
     private get _remoteResourcesPath();
     set(authority: string, host: string, port: number): void;
     setConnectionToken(authority: string, connectionToken: string): void;
-    getPreferredWebSchema(): "http" | "https";
+    getPreferredWebSchema(): 'http' | 'https';
     rewrite(uri: URI): URI;
 }
 export declare const RemoteAuthorities: RemoteAuthoritiesImpl;
@@ -123,7 +123,7 @@ export declare function getServerRootPath(product: {
 /**
  * A string pointing to a path inside the app. It should not begin with ./ or ../
  */
-export type AppResourcePath = `a${string}` | `b${string}` | `c${string}` | `d${string}` | `e${string}` | `f${string}` | `g${string}` | `h${string}` | `i${string}` | `j${string}` | `k${string}` | `l${string}` | `m${string}` | `n${string}` | `o${string}` | `p${string}` | `q${string}` | `r${string}` | `s${string}` | `t${string}` | `u${string}` | `v${string}` | `w${string}` | `x${string}` | `y${string}` | `z${string}`;
+export type AppResourcePath = (`a${string}` | `b${string}` | `c${string}` | `d${string}` | `e${string}` | `f${string}` | `g${string}` | `h${string}` | `i${string}` | `j${string}` | `k${string}` | `l${string}` | `m${string}` | `n${string}` | `o${string}` | `p${string}` | `q${string}` | `r${string}` | `s${string}` | `t${string}` | `u${string}` | `v${string}` | `w${string}` | `x${string}` | `y${string}` | `z${string}`);
 export declare const builtinExtensionsPath: AppResourcePath;
 export declare const nodeModulesPath: AppResourcePath;
 export declare const nodeModulesAsarPath: AppResourcePath;
@@ -137,7 +137,7 @@ declare class FileAccessImpl {
      *
      * **Note:** use `dom.ts#asCSSUrl` whenever the URL is to be used in CSS context.
      */
-    asBrowserUri(resourcePath: AppResourcePath | ""): URI;
+    asBrowserUri(resourcePath: AppResourcePath | ''): URI;
     /**
      * Returns a URI to use in contexts where the browser is responsible
      * for loading (e.g. fetch()) or when used within the DOM.
@@ -149,7 +149,7 @@ declare class FileAccessImpl {
      * Returns the `file` URI to use in contexts where node.js
      * is responsible for loading.
      */
-    asFileUri(resourcePath: AppResourcePath | ""): URI;
+    asFileUri(resourcePath: AppResourcePath | ''): URI;
     /**
      * Returns the `file` URI to use in contexts where node.js
      * is responsible for loading.

@@ -1,10 +1,10 @@
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import type { IStringDictionary } from "../../../../base/common/collections.js";
-import type { IExtensionRecommendations } from "../../../../base/common/product.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import type { IExtensionGalleryService, IGalleryExtension } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import type { IProductService } from "../../../../platform/product/common/productService.js";
-import type { ISearchResult, ISettingsEditorModel } from "../../../services/preferences/common/preferences.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { IStringDictionary } from '../../../../base/common/collections.js';
+import { IExtensionRecommendations } from '../../../../base/common/product.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IExtensionGalleryService, IGalleryExtension } from '../../../../platform/extensionManagement/common/extensionManagement.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { ISearchResult, ISettingsEditorModel } from '../../../services/preferences/common/preferences.js';
 export interface IWorkbenchSettingsConfiguration {
     workbench: {
         settings: {

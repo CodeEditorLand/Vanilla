@@ -1,4 +1,4 @@
-import type { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 export interface IFindInFilesArgs {
     query?: string;
     replace?: string;

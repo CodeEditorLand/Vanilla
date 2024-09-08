@@ -1,9 +1,9 @@
-import { Disposable, type IDisposable } from "../../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
-import type { ITerminalCommand } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-export declare enum DecorationSelector {
+import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IContextMenuService } from '../../../../../platform/contextview/browser/contextView.js';
+import { ITerminalCommand } from '../../../../../platform/terminal/common/capabilities/capabilities.js';
+import { IHoverService } from '../../../../../platform/hover/browser/hover.js';
+export declare const enum DecorationSelector {
     CommandDecoration = "terminal-command-decoration",
     Hide = "hide",
     ErrorColor = "error",

@@ -1,8 +1,8 @@
-import "./linesDecorations.css";
-import type * as viewEvents from "../../../common/viewEvents.js";
-import type { ViewContext } from "../../../common/viewModel/viewContext.js";
-import type { RenderingContext } from "../../view/renderingContext.js";
-import { DecorationToRender, DedupOverlay } from "../glyphMargin/glyphMargin.js";
+import './linesDecorations.css';
+import { DecorationToRender, DedupOverlay } from '../glyphMargin/glyphMargin.js';
+import { RenderingContext } from '../../view/renderingContext.js';
+import { ViewContext } from '../../../common/viewModel/viewContext.js';
+import * as viewEvents from '../../../common/viewEvents.js';
 export declare class LinesDecorationsOverlay extends DedupOverlay {
     private readonly _context;
     private _decorationsLeft;

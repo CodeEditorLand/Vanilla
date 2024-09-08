@@ -1,8 +1,8 @@
-import type { IExtension } from "../../../../platform/extensions/common/extensions.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
-import { ExtensionInstallLocation, IExtensionManagementServerService, type IExtensionManagementServer } from "./extensionManagement.js";
+import { ExtensionInstallLocation, IExtensionManagementServer, IExtensionManagementServerService } from './extensionManagement.js';
+import { IRemoteAgentService } from '../../remote/common/remoteAgentService.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IExtension } from '../../../../platform/extensions/common/extensions.js';
 export declare class ExtensionManagementServerService implements IExtensionManagementServerService {
     readonly _serviceBrand: undefined;
     readonly localExtensionManagementServer: IExtensionManagementServer | null;

@@ -1,12 +1,12 @@
-import type { IAsyncDataSource } from "../../../../../../base/browser/ui/tree/tree.js";
-import type { NotebookTextModel } from "../../../common/model/notebookTextModel.js";
-import { type INotebookKernelService } from "../../../common/notebookKernelService.js";
+import { IAsyncDataSource } from '../../../../../../base/browser/ui/tree/tree.js';
+import { NotebookTextModel } from '../../../common/model/notebookTextModel.js';
+import { INotebookKernelService } from '../../../common/notebookKernelService.js';
 export interface INotebookScope {
-    kind: "root";
+    kind: 'root';
     readonly notebook: NotebookTextModel;
 }
 export interface INotebookVariableElement {
-    kind: "variable";
+    kind: 'variable';
     readonly id: string;
     readonly extHostId: number;
     readonly name: string;

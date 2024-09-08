@@ -1,11 +1,11 @@
-import { StandardTokenType } from "../encodedTokenAttributes.js";
-import { type ILanguageIdCodec } from "../languages.js";
-import type { ITreeSitterParserService } from "../services/treeSitterParserService.js";
-import type { IModelContentChangedEvent } from "../textModelEvents.js";
-import type { ITokenizeLineWithEditResult, LineEditWithAdditionalLines } from "../tokenizationTextModelPart.js";
-import { LineTokens } from "../tokens/lineTokens.js";
-import type { TextModel } from "./textModel.js";
-import { AbstractTokens } from "./tokens.js";
+import { ILanguageIdCodec } from '../languages.js';
+import { LineTokens } from '../tokens/lineTokens.js';
+import { StandardTokenType } from '../encodedTokenAttributes.js';
+import { TextModel } from './textModel.js';
+import { ITreeSitterParserService } from '../services/treeSitterParserService.js';
+import { IModelContentChangedEvent } from '../textModelEvents.js';
+import { AbstractTokens } from './tokens.js';
+import { ITokenizeLineWithEditResult, LineEditWithAdditionalLines } from '../tokenizationTextModelPart.js';
 export declare class TreeSitterTokens extends AbstractTokens {
     private readonly _treeSitterService;
     private _tokenizationSupport;

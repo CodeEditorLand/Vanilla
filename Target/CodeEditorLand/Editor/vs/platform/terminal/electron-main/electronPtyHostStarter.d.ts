@@ -1,10 +1,10 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { type IReconnectConstants } from "../common/terminal.js";
-import type { IPtyHostConnection, IPtyHostStarter } from "../node/ptyHost.js";
+import { IEnvironmentMainService } from '../../environment/electron-main/environmentMainService.js';
+import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
+import { ILogService } from '../../log/common/log.js';
+import { IReconnectConstants } from '../common/terminal.js';
+import { IPtyHostConnection, IPtyHostStarter } from '../node/ptyHost.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../configuration/common/configuration.js';
 export declare class ElectronPtyHostStarter extends Disposable implements IPtyHostStarter {
     private readonly _reconnectConstants;
     private readonly _configurationService;

@@ -1,9 +1,9 @@
-import type { ILink } from "../languages.js";
+import { ILink } from '../languages.js';
 export interface ILinkComputerTarget {
     getLineCount(): number;
     getLineContent(lineNumber: number): string;
 }
-export declare enum State {
+export declare const enum State {
     Invalid = 0,
     Start = 1,
     H = 2,

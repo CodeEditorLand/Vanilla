@@ -1,5 +1,5 @@
-import type * as net from "net";
-import { type IServerAPI } from "./remoteExtensionHostAgentServer.js";
+import * as net from 'net';
+import { IServerAPI } from './remoteExtensionHostAgentServer.js';
 /**
  * invoked by server-main.js
  */

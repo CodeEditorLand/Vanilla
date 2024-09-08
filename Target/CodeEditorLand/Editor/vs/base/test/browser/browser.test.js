@@ -1,9 +1,1 @@
-import assert from "assert";
-import { isMacintosh, isWindows } from "../../common/platform.js";
-import { ensureNoDisposablesAreLeakedInTestSuite } from "../common/utils.js";
-suite("Browsers", () => {
-  ensureNoDisposablesAreLeakedInTestSuite();
-  test("all", () => {
-    assert(!(isWindows && isMacintosh));
-  });
-});
+import s from"assert";import{isMacintosh as e,isWindows as o}from"../../common/platform.js";import{ensureNoDisposablesAreLeakedInTestSuite as r}from"../common/utils.js";suite("Browsers",()=>{r(),test("all",()=>{s(!(o&&e))})});

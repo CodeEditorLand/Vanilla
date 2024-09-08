@@ -1,9 +1,9 @@
-import { VSBuffer } from "../../../../base/common/buffer.js";
-import { type Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { type IURITransformer } from "../../../../base/common/uriIpc.js";
-import type { IMessagePassingProtocol } from "../../../../base/parts/ipc/common/ipc.js";
-import { ProxyIdentifier, type IRPCProtocol, type Proxied } from "./proxyIdentifier.js";
+import { VSBuffer } from '../../../../base/common/buffer.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IURITransformer } from '../../../../base/common/uriIpc.js';
+import { IMessagePassingProtocol } from '../../../../base/parts/ipc/common/ipc.js';
+import { IRPCProtocol, Proxied, ProxyIdentifier } from './proxyIdentifier.js';
 export interface JSONStringifyReplacer {
     (key: string, value: any): any;
 }
@@ -14,11 +14,11 @@ declare class StringifiedJsonWithBufferRefs {
 }
 export declare function stringifyJsonWithBufferRefs<T>(obj: T, replacer?: JSONStringifyReplacer | null, useSafeStringify?: boolean): StringifiedJsonWithBufferRefs;
 export declare function parseJsonAndRestoreBufferRefs(jsonString: string, buffers: readonly VSBuffer[], uriTransformer: IURITransformer | null): any;
-export declare enum RequestInitiator {
+export declare const enum RequestInitiator {
     LocalSide = 0,
     OtherSide = 1
 }
-export declare enum ResponsiveState {
+export declare const enum ResponsiveState {
     Responsive = 0,
     Unresponsive = 1
 }

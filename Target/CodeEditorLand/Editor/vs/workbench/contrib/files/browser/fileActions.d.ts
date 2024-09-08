@@ -1,19 +1,19 @@
-import { Action } from "../../../../base/common/actions.js";
-import { type OperatingSystem } from "../../../../base/common/platform.js";
-import { URI } from "../../../../base/common/uri.js";
-import * as nls from "../../../../nls.js";
-import type { ILocalizedString } from "../../../../platform/action/common/action.js";
-import { Action2 } from "../../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { type ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
-import { IPathService } from "../../../services/path/common/pathService.js";
-import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
-import { type ExplorerItem } from "../common/explorerModel.js";
-import { IExplorerService } from "./files.js";
+import * as nls from '../../../../nls.js';
+import { OperatingSystem } from '../../../../base/common/platform.js';
+import { URI } from '../../../../base/common/uri.js';
+import { Action } from '../../../../base/common/actions.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { INotificationService, Severity } from '../../../../platform/notification/common/notification.js';
+import { ExplorerItem } from '../common/explorerModel.js';
+import { IWorkingCopyService } from '../../../services/workingCopy/common/workingCopyService.js';
+import { IExplorerService } from './files.js';
+import { IPathService } from '../../../services/path/common/pathService.js';
+import { Action2 } from '../../../../platform/actions/common/actions.js';
+import { ILocalizedString } from '../../../../platform/action/common/action.js';
 export declare const NEW_FILE_COMMAND_ID = "explorer.newFile";
 export declare const NEW_FILE_LABEL: nls.ILocalizedString;
 export declare const NEW_FOLDER_COMMAND_ID = "explorer.newFolder";
@@ -31,8 +31,8 @@ export declare function findValidPasteFileTarget(explorerService: IExplorerServi
     resource: URI | string;
     isDirectory?: boolean;
     allowOverwrite: boolean;
-}, incrementalNaming: "simple" | "smart" | "disabled"): Promise<URI | undefined>;
-export declare function incrementFileName(name: string, isFolder: boolean, incrementalNaming: "simple" | "smart"): string;
+}, incrementalNaming: 'simple' | 'smart' | 'disabled'): Promise<URI | undefined>;
+export declare function incrementFileName(name: string, isFolder: boolean, incrementalNaming: 'simple' | 'smart'): string;
 export declare class GlobalCompareResourcesAction extends Action2 {
     static readonly ID = "workbench.files.action.compareFileWith";
     static readonly LABEL: nls.ILocalizedString;
@@ -114,7 +114,7 @@ export declare const pasteFileHandler: (accessor: ServicesAccessor, fileList?: F
 export declare const openFilePreserveFocusHandler: (accessor: ServicesAccessor) => Promise<void>;
 declare class BaseSetActiveEditorReadonlyInSession extends Action2 {
     private readonly newReadonlyState;
-    constructor(id: string, title: ILocalizedString, newReadonlyState: true | false | "toggle" | "reset");
+    constructor(id: string, title: ILocalizedString, newReadonlyState: true | false | 'toggle' | 'reset');
     run(accessor: ServicesAccessor): Promise<void>;
 }
 export declare class SetActiveEditorReadonlyInSession extends BaseSetActiveEditorReadonlyInSession {

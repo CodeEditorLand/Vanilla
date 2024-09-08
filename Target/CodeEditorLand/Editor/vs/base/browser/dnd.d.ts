@@ -1,4 +1,4 @@
-import { Disposable } from "../common/lifecycle.js";
+import { Disposable } from '../common/lifecycle.js';
 /**
  * A helper that will execute a provided function when the provided HTMLElement receives
  *  dragover event for 800ms. If the drag is aborted before, the callback will not be triggered.

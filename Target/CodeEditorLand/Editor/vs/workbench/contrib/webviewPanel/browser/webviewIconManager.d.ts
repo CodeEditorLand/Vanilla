@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ILifecycleService } from '../../../services/lifecycle/common/lifecycle.js';
 export interface WebviewIcons {
     readonly light: URI;
     readonly dark: URI;

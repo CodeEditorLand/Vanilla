@@ -1,7 +1,7 @@
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { EditorsOrder, type GroupIdentifier, type IMatchEditorOptions, type IUntypedEditorInput } from "../editor.js";
-import type { IGroupModelChangeEvent, IReadonlyEditorGroupModel } from "./editorGroupModel.js";
-import type { EditorInput } from "./editorInput.js";
+import { IUntypedEditorInput, IMatchEditorOptions, EditorsOrder, GroupIdentifier } from '../editor.js';
+import { EditorInput } from './editorInput.js';
+import { IGroupModelChangeEvent, IReadonlyEditorGroupModel } from './editorGroupModel.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
 declare abstract class FilteredEditorGroupModel extends Disposable implements IReadonlyEditorGroupModel {
     protected readonly model: IReadonlyEditorGroupModel;
     private readonly _onDidModelChange;

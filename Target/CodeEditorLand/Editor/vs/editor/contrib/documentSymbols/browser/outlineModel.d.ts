@@ -1,13 +1,13 @@
-import { type CancellationToken } from "../../../../base/common/cancellation.js";
-import type { URI } from "../../../../base/common/uri.js";
-import type { MarkerSeverity } from "../../../../platform/markers/common/markers.js";
-import { type IPosition } from "../../../common/core/position.js";
-import type { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
-import type { DocumentSymbol, DocumentSymbolProvider } from "../../../common/languages.js";
-import type { ITextModel } from "../../../common/model.js";
-import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { IModelService } from "../../../common/services/model.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IPosition } from '../../../common/core/position.js';
+import { ITextModel } from '../../../common/model.js';
+import { DocumentSymbol, DocumentSymbolProvider } from '../../../common/languages.js';
+import { MarkerSeverity } from '../../../../platform/markers/common/markers.js';
+import { ILanguageFeatureDebounceService } from '../../../common/services/languageFeatureDebounce.js';
+import { IModelService } from '../../../common/services/model.js';
+import { LanguageFeatureRegistry } from '../../../common/languageFeatureRegistry.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
 export declare abstract class TreeElement {
     abstract id: string;
     abstract children: Map<string, TreeElement>;

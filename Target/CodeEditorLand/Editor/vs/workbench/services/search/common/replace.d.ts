@@ -1,4 +1,4 @@
-import type { IPatternInfo } from "./search.js";
+import { IPatternInfo } from './search.js';
 export declare class ReplacePattern {
     private _replacePattern;
     private _hasParameters;
@@ -10,9 +10,9 @@ export declare class ReplacePattern {
     get pattern(): string;
     get regExp(): RegExp;
     /**
-     * Returns the replace string for the first match in the given text.
-     * If text has no matches then returns null.
-     */
+    * Returns the replace string for the first match in the given text.
+    * If text has no matches then returns null.
+    */
     getReplaceString(text: string, preserveCase?: boolean): string | null;
     /**
      * replaceWithCaseOperations applies case operations to relevant replacement strings and applies

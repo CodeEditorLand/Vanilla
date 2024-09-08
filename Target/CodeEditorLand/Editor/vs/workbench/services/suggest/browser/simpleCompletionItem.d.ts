@@ -1,5 +1,5 @@
-import { FuzzyScore } from "../../../../base/common/filters.js";
-import type { ThemeIcon } from "../../../../base/common/themables.js";
+import { FuzzyScore } from '../../../../base/common/filters.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
 export interface ISimpleCompletion {
     /**
      * The completion's label which appears on the left beside the icon.

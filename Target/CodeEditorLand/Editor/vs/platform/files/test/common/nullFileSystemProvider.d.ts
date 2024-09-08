@@ -1,9 +1,9 @@
-import type { CancellationToken } from "../../../../base/common/cancellation.js";
-import { type Event } from "../../../../base/common/event.js";
-import { type IDisposable } from "../../../../base/common/lifecycle.js";
-import type { ReadableStreamEvents } from "../../../../base/common/stream.js";
-import type { URI } from "../../../../base/common/uri.js";
-import { FileSystemProviderCapabilities, type FileType, type IFileChange, type IFileDeleteOptions, type IFileOpenOptions, type IFileOverwriteOptions, type IFileReadStreamOptions, type IFileSystemProvider, type IFileWriteOptions, type IStat, type IWatchOptions } from "../../common/files.js";
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { ReadableStreamEvents } from '../../../../base/common/stream.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IFileDeleteOptions, IFileOpenOptions, IFileOverwriteOptions, FileSystemProviderCapabilities, FileType, IFileWriteOptions, IFileChange, IFileSystemProvider, IStat, IWatchOptions, IFileReadStreamOptions } from '../../common/files.js';
 export declare class NullFileSystemProvider implements IFileSystemProvider {
     private disposableFactory;
     capabilities: FileSystemProviderCapabilities;

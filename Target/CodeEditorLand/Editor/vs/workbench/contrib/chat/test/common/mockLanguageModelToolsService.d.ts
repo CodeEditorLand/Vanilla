@@ -1,7 +1,7 @@
-import type { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { Event } from "../../../../../base/common/event.js";
-import { type IDisposable } from "../../../../../base/common/lifecycle.js";
-import type { CountTokensCallback, ILanguageModelToolsService, IToolData, IToolImpl, IToolInvocation, IToolResult } from "../../common/languageModelToolsService.js";
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { Event } from '../../../../../base/common/event.js';
+import { IDisposable } from '../../../../../base/common/lifecycle.js';
+import { CountTokensCallback, ILanguageModelToolsService, IToolData, IToolImpl, IToolInvocation, IToolResult } from '../../common/languageModelToolsService.js';
 export declare class MockLanguageModelToolsService implements ILanguageModelToolsService {
     _serviceBrand: undefined;
     constructor();

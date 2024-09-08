@@ -1,15 +1,15 @@
-import { Action } from "../../../../base/common/actions.js";
-import type { IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { type IAction2Options } from "../../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import type { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { Severity } from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { type ITerminalProfile } from "../../../../platform/terminal/common/terminal.js";
-import { type IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import { ITerminalProfileResolverService, ITerminalProfileService } from "../common/terminal.js";
-import { ITerminalConfigurationService, ITerminalEditorService, ITerminalGroupService, ITerminalInstanceService, ITerminalService, type IDetachedTerminalInstance, type ITerminalInstance, type IXtermTerminal } from "./terminal.js";
+import { Action } from '../../../../base/common/actions.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IAction2Options } from '../../../../platform/actions/common/actions.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { Severity } from '../../../../platform/notification/common/notification.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { ITerminalProfile } from '../../../../platform/terminal/common/terminal.js';
+import { IWorkspaceFolder } from '../../../../platform/workspace/common/workspace.js';
+import { IDetachedTerminalInstance, ITerminalConfigurationService, ITerminalEditorService, ITerminalGroupService, ITerminalInstance, ITerminalInstanceService, ITerminalService, IXtermTerminal } from './terminal.js';
+import { ITerminalProfileResolverService, ITerminalProfileService } from '../common/terminal.js';
 export declare const switchTerminalActionViewItemSeparator = "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500";
 export declare const switchTerminalShowTabsTitle: string;
 export interface WorkspaceFolderCwdPair {
@@ -46,7 +46,7 @@ export declare function registerContextualInstanceAction(options: IAction2Option
      * When specified, only this type of active instance will be used when there are no
      * contextual instances.
      */
-    activeInstanceType?: "view" | "editor";
+    activeInstanceType?: 'view' | 'editor';
     run: (instance: ITerminalInstance, c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknown) => void | Promise<unknown>;
     /**
      * A callback to run after the the `run` callbacks have completed.

@@ -1,10 +1,10 @@
-import { type IMarkdownString } from "../../../../base/common/htmlContent.js";
-import "./messageController.css";
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { type ICodeEditor } from "../../../browser/editorBrowser.js";
-import type { IPosition } from "../../../common/core/position.js";
-import { type IEditorContribution } from "../../../common/editorCommon.js";
+import { IMarkdownString } from '../../../../base/common/htmlContent.js';
+import './messageController.css';
+import { ICodeEditor } from '../../../browser/editorBrowser.js';
+import { IPosition } from '../../../common/core/position.js';
+import { IEditorContribution } from '../../../common/editorCommon.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
 export declare class MessageController implements IEditorContribution {
     private readonly _openerService;
     static readonly ID = "editor.contrib.messageController";

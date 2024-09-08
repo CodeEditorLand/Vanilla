@@ -1,16 +1,16 @@
-import type { CancellationToken } from "../../../../../base/common/cancellation.js";
-import type { Event } from "../../../../../base/common/event.js";
-import type { URI as uri } from "../../../../../base/common/uri.js";
-import type { IPosition, Position } from "../../../../../editor/common/core/position.js";
-import type { ITextModel } from "../../../../../editor/common/model.js";
-import type { IStorageService } from "../../../../../platform/storage/common/storage.js";
-import type { IWorkspaceFolder } from "../../../../../platform/workspace/common/workspace.js";
-import { AbstractDebugAdapter } from "../../common/abstractDebugAdapter.js";
-import { type AdapterEndEvent, type IAdapterManager, type IBreakpoint, type IBreakpointData, type IBreakpointUpdateData, type IConfig, type IConfigurationManager, type IDataBreakpoint, type IDataBreakpointInfoResponse, type IDebugLocationReferenced, type IDebugModel, type IDebugService, type IDebugSession, type IDebugSessionOptions, type IDebugger, type IExceptionBreakpoint, type IExceptionInfo, type IFunctionBreakpoint, type IInstructionBreakpoint, type ILaunch, type IMemoryRegion, type INewReplElementData, type IRawModelUpdate, type IRawStoppedDetails, type IReplElement, type IStackFrame, type IThread, type IViewModel, type LoadedSourceEvent, State } from "../../common/debug.js";
-import type { DebugCompoundRoot } from "../../common/debugCompoundRoot.js";
-import type { IInstructionBreakpointOptions } from "../../common/debugModel.js";
-import type { Source } from "../../common/debugSource.js";
-import { DebugStorage } from "../../common/debugStorage.js";
+import { CancellationToken } from '../../../../../base/common/cancellation.js';
+import { Event } from '../../../../../base/common/event.js';
+import { URI as uri } from '../../../../../base/common/uri.js';
+import { IPosition, Position } from '../../../../../editor/common/core/position.js';
+import { ITextModel } from '../../../../../editor/common/model.js';
+import { IStorageService } from '../../../../../platform/storage/common/storage.js';
+import { IWorkspaceFolder } from '../../../../../platform/workspace/common/workspace.js';
+import { AbstractDebugAdapter } from '../../common/abstractDebugAdapter.js';
+import { AdapterEndEvent, IAdapterManager, IBreakpoint, IBreakpointData, IBreakpointUpdateData, IConfig, IConfigurationManager, IDataBreakpoint, IDataBreakpointInfoResponse, IDebugLocationReferenced, IDebugModel, IDebugService, IDebugSession, IDebugSessionOptions, IDebugger, IExceptionBreakpoint, IExceptionInfo, IFunctionBreakpoint, IInstructionBreakpoint, ILaunch, IMemoryRegion, INewReplElementData, IRawModelUpdate, IRawStoppedDetails, IReplElement, IStackFrame, IThread, IViewModel, LoadedSourceEvent, State } from '../../common/debug.js';
+import { DebugCompoundRoot } from '../../common/debugCompoundRoot.js';
+import { IInstructionBreakpointOptions } from '../../common/debugModel.js';
+import { Source } from '../../common/debugSource.js';
+import { DebugStorage } from '../../common/debugStorage.js';
 export declare class MockDebugService implements IDebugService {
     _serviceBrand: undefined;
     get state(): State;
@@ -142,7 +142,7 @@ export declare class MockSession implements IDebugSession {
     stackTrace(threadId: number, startFrame: number, levels: number, token: CancellationToken): Promise<DebugProtocol.StackTraceResponse>;
     exceptionInfo(threadId: number): Promise<IExceptionInfo>;
     scopes(frameId: number): Promise<DebugProtocol.ScopesResponse>;
-    variables(variablesReference: number, threadId: number | undefined, filter: "indexed" | "named", start: number, count: number): Promise<DebugProtocol.VariablesResponse>;
+    variables(variablesReference: number, threadId: number | undefined, filter: 'indexed' | 'named', start: number, count: number): Promise<DebugProtocol.VariablesResponse>;
     evaluate(expression: string, frameId: number, context?: string): Promise<DebugProtocol.EvaluateResponse>;
     restartFrame(frameId: number, threadId: number): Promise<void>;
     next(threadId: number, granularity?: DebugProtocol.SteppingGranularity): Promise<void>;

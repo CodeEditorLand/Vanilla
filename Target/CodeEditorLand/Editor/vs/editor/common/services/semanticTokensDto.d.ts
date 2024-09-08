@@ -1,12 +1,12 @@
-import { VSBuffer } from "../../../base/common/buffer.js";
+import { VSBuffer } from '../../../base/common/buffer.js';
 export interface IFullSemanticTokensDto {
     id: number;
-    type: "full";
+    type: 'full';
     data: Uint32Array;
 }
 export interface IDeltaSemanticTokensDto {
     id: number;
-    type: "delta";
+    type: 'delta';
     deltas: {
         start: number;
         deleteCount: number;

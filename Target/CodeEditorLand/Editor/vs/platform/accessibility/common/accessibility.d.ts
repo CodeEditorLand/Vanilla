@@ -1,5 +1,5 @@
-import type { Event } from "../../../base/common/event.js";
-import { RawContextKey } from "../../contextkey/common/contextkey.js";
+import { Event } from '../../../base/common/event.js';
+import { RawContextKey } from '../../contextkey/common/contextkey.js';
 export declare const IAccessibilityService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IAccessibilityService>;
 export interface IAccessibilityService {
     readonly _serviceBrand: undefined;
@@ -13,7 +13,7 @@ export interface IAccessibilityService {
     alert(message: string): void;
     status(message: string): void;
 }
-export declare enum AccessibilitySupport {
+export declare const enum AccessibilitySupport {
     /**
      * This should be the browser case where it is not known if a screen reader is attached or no.
      */

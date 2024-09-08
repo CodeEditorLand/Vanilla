@@ -1,9 +1,9 @@
-import type * as vscode from "vscode";
-import { type IDisposable } from "../../../base/common/lifecycle.js";
-import { type ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { ExtensionDescriptionRegistry } from "../../services/extensions/common/extensionDescriptionRegistry.js";
-import { MissingExtensionDependency, type ExtensionActivationReason } from "../../services/extensions/common/extensions.js";
+import type * as vscode from 'vscode';
+import { IDisposable } from '../../../base/common/lifecycle.js';
+import { ExtensionDescriptionRegistry } from '../../services/extensions/common/extensionDescriptionRegistry.js';
+import { ExtensionIdentifier } from '../../../platform/extensions/common/extensions.js';
+import { ExtensionActivationReason, MissingExtensionDependency } from '../../services/extensions/common/extensions.js';
+import { ILogService } from '../../../platform/log/common/log.js';
 /**
  * Represents the source code (module) of an extension.
  */
@@ -14,27 +14,28 @@ export interface IExtensionModule {
 /**
  * Represents the API of an extension (return value of `activate`).
  */
-export type IExtensionAPI = {};
+export interface IExtensionAPI {
+}
 export type ExtensionActivationTimesFragment = {
     startup?: {
-        classification: "SystemMetaData";
-        purpose: "PerformanceAndHealth";
-        comment: "Activation occurred during startup";
+        classification: 'SystemMetaData';
+        purpose: 'PerformanceAndHealth';
+        comment: 'Activation occurred during startup';
     };
     codeLoadingTime?: {
-        classification: "SystemMetaData";
-        purpose: "PerformanceAndHealth";
-        comment: "Time it took to load the extension's code";
+        classification: 'SystemMetaData';
+        purpose: 'PerformanceAndHealth';
+        comment: 'Time it took to load the extension\'s code';
     };
     activateCallTime?: {
-        classification: "SystemMetaData";
-        purpose: "PerformanceAndHealth";
-        comment: "Time it took to call activate";
+        classification: 'SystemMetaData';
+        purpose: 'PerformanceAndHealth';
+        comment: 'Time it took to call activate';
     };
     activateResolvedTime?: {
-        classification: "SystemMetaData";
-        purpose: "PerformanceAndHealth";
-        comment: "Time it took for async-activation to finish";
+        classification: 'SystemMetaData';
+        purpose: 'PerformanceAndHealth';
+        comment: 'Time it took for async-activation to finish';
     };
 };
 export declare class ExtensionActivationTimes {

@@ -1,6 +1,6 @@
-import type { IMarker, Terminal } from "@xterm/headless";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { type IPartialCommandDetectionCapability, TerminalCapability } from "./capabilities.js";
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
+import { IPartialCommandDetectionCapability, TerminalCapability } from './capabilities.js';
+import type { IMarker, Terminal } from '@xterm/headless';
 /**
  * This capability guesses where commands are based on where the cursor was when enter was pressed.
  * It's very hit or miss but it's often correct and better than nothing.

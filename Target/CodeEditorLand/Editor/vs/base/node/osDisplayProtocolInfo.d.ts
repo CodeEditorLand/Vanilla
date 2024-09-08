@@ -1,4 +1,4 @@
-declare enum DisplayProtocolType {
+declare const enum DisplayProtocolType {
     Wayland = "wayland",
     XWayland = "xwayland",
     X11 = "x11",

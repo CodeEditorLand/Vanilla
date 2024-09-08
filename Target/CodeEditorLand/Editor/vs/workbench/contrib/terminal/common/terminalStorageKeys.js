@@ -1,15 +1,1 @@
-var TerminalStorageKeys = /* @__PURE__ */ ((TerminalStorageKeys2) => {
-  TerminalStorageKeys2["SuggestedRendererType"] = "terminal.integrated.suggestedRendererType";
-  TerminalStorageKeys2["TabsListWidthHorizontal"] = "tabs-list-width-horizontal";
-  TerminalStorageKeys2["TabsListWidthVertical"] = "tabs-list-width-vertical";
-  TerminalStorageKeys2["DeprecatedEnvironmentVariableCollections"] = "terminal.integrated.environmentVariableCollections";
-  TerminalStorageKeys2["EnvironmentVariableCollections"] = "terminal.integrated.environmentVariableCollectionsV2";
-  TerminalStorageKeys2["TerminalBufferState"] = "terminal.integrated.bufferState";
-  TerminalStorageKeys2["TerminalLayoutInfo"] = "terminal.integrated.layoutInfo";
-  TerminalStorageKeys2["PinnedRecentCommandsPrefix"] = "terminal.pinnedRecentCommands";
-  TerminalStorageKeys2["TerminalSuggestSize"] = "terminal.integrated.suggestSize";
-  return TerminalStorageKeys2;
-})(TerminalStorageKeys || {});
-export {
-  TerminalStorageKeys
-};
+var e=(t=>(t.SuggestedRendererType="terminal.integrated.suggestedRendererType",t.TabsListWidthHorizontal="tabs-list-width-horizontal",t.TabsListWidthVertical="tabs-list-width-vertical",t.DeprecatedEnvironmentVariableCollections="terminal.integrated.environmentVariableCollections",t.EnvironmentVariableCollections="terminal.integrated.environmentVariableCollectionsV2",t.TerminalBufferState="terminal.integrated.bufferState",t.TerminalLayoutInfo="terminal.integrated.layoutInfo",t.PinnedRecentCommandsPrefix="terminal.pinnedRecentCommands",t.TerminalSuggestSize="terminal.integrated.suggestSize",t))(e||{});export{e as TerminalStorageKeys};

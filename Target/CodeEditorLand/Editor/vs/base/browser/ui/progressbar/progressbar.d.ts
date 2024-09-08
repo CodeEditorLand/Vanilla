@@ -1,5 +1,5 @@
-import { Disposable } from "../../../common/lifecycle.js";
-import "./progressbar.css";
+import { Disposable } from '../../../common/lifecycle.js';
+import './progressbar.css';
 export interface IProgressBarOptions extends IProgressBarStyles {
 }
 export interface IProgressBarStyles {

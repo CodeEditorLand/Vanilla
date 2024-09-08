@@ -1,7 +1,7 @@
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { type ICodeEditor, type IContentWidget, type IContentWidgetPosition } from "../../../../editor/browser/editorBrowser.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ICodeEditor, IContentWidget, IContentWidgetPosition } from '../../../../editor/browser/editorBrowser.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 export declare class ReplInputHintContentWidget extends Disposable implements IContentWidget {
     private readonly editor;
     private readonly configurationService;
