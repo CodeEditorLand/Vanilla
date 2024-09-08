@@ -2,23 +2,12 @@
 	"compilerOptions": {
 		"baseUrl": "../../../../",
 		"outDir": "../../../../Target/CodeEditorLand/Editor",
-		"rootDir": "../../../../CodeEditorLand/Editor/Source",
+		"rootDir": "../../../../CodeEditorLand/Editor/src",
 
 		"experimentalDecorators": true
-
-		/**
-		 * Useful if you don't want to emit any types:
-		 */
-		// "noEmit": true,
-		// "skipLibCheck": true,
-		// "noImplicitAny": false,
-		// "strict": false,
-		// "allowJs": true,
-		// "checkJs": false,
-		// "noEmitOnError": false,
 	},
 	"extends": "@playform/build/tsconfig",
-	"include": ["../../../../CodeEditorLand/Editor/Source"],
+	"include": ["../../../../CodeEditorLand/Editor/src"],
 
 	"exclude": ["Target", "node_modules"]
 }

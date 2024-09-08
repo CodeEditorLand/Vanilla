@@ -1,0 +1,31 @@
+{
+	"compilerOptions": {
+		"baseUrl": "../../../../",
+		"outDir": "../../../../Target/CodeEditorLand/Editor",
+		"rootDir": "../../../../CodeEditorLand/Editor/src",
+
+		"allowJs": true,
+		"checkJs": false,
+		"emitBOM": false,
+		"emitDeclarationOnly": false,
+		"emitDecoratorMetadata": false,
+		"listEmittedFiles": true,
+		"noCheck": true,
+		"noEmit": true,
+		"noEmitHelpers": true,
+		"noEmitOnError": false,
+		"noErrorTruncation": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitAny": false,
+		"noImplicitOverride": true,
+		"noLib": true,
+		"noResolve": true,
+		"skipDefaultLibCheck": true,
+		"skipLibCheck": true,
+		"strict": false
+	},
+	"extends": "./tsconfig.json",
+	"include": ["../../../../CodeEditorLand/Editor/src"],
+
+	"exclude": ["Target", "node_modules"]
+}

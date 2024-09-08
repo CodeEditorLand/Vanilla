@@ -39,22 +39,20 @@ export default {
 			name: "Exclude",
 			setup({ onLoad }) {
 				// biome-ignore lint/nursery/useTopLevelRegex:
-				onLoad({ filter: /.*/ }, async ({ path }) => {
+				onLoad({ filter: /.*/ }, ({ path }) => {
 					if (
 						[
-							"Source/vs/base/test/common/filters.perf.data.d.ts",
+							"src/vs/base/test/common/filters.perf.data.d.ts",
 
-							"Source/tsconfig.vscode-dts.json",
-							"Source/tsconfig.vscode-proposed-dts.json",
-							"Source/vs/platform/files/test/node/fixtures/resolver/examples",
-							"Source/vs/platform/files/test/node/fixtures/resolver/other/deep",
-							"Source/vs/platform/files/test/node/fixtures/resolver/other/deep/employee",
-							"Source/vs/platform/files/test/node/fixtures/service",
-							"Source/vs/platform/files/test/node/fixtures/service/deep",
-							"Source/vs/workbench/contrib/codeEditor/test/node",
-							"Source/vs/workbench/services/search/test/node/fixtures",
-							"Source/vs/workbench/services/search/test/node/fixtures/examples",
-							"Source/vs/workbench/services/textfile/test/node/encoding/fixtures",
+							"src/vs/platform/files/test/node/fixtures/resolver/examples",
+							"src/vs/platform/files/test/node/fixtures/resolver/other/deep",
+							"src/vs/platform/files/test/node/fixtures/resolver/other/deep/employee",
+							"src/vs/platform/files/test/node/fixtures/service",
+							"src/vs/platform/files/test/node/fixtures/service/deep",
+							"src/vs/workbench/contrib/codeEditor/test/node",
+							"src/vs/workbench/services/search/test/node/fixtures",
+							"src/vs/workbench/services/search/test/node/fixtures/examples",
+							"src/vs/workbench/services/textfile/test/node/encoding/fixtures",
 
 							".d.ts",
 						].some((Search) =>
@@ -75,11 +73,11 @@ export default {
 			resolveFrom: "out",
 			assets: [
 				{
-					from: ["./CodeEditorLand/Editor/Source/**/*.js"],
+					from: ["./CodeEditorLand/Editor/src/**/*.js"],
 					to: ["./CodeEditorLand/Editor/"],
 				},
 				{
-					from: ["./CodeEditorLand/Editor/Source/**/*.css"],
+					from: ["./CodeEditorLand/Editor/src/**/*.css"],
 					to: ["./CodeEditorLand/Editor/"],
 				},
 			],
@@ -88,4 +86,3 @@ export default {
 } satisfies BuildOptions as BuildOptions;
 
 export const { sep, posix } = await import("path");
-export const { readFile } = await import("node:fs/promises");
