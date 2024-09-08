@@ -15,7 +15,7 @@ const module = { exports: {} };
 	// ESM-uncomment-end
 
 	/**
-	 * @import { NativeParsedArgs } from '../../environment/common/argv'
+	 * @import { NativeParsedArgs } from '../../environment/common/argv.js'
 	 */
 
 	/**
@@ -127,7 +127,7 @@ const module = { exports: {} };
 		define(["path", "os", "vs/base/common/process"], (
 			/** @type {typeof import('path')} */ path,
 			/** @type {typeof import('os')} */ os,
-			/** @type {typeof import("../../../base/common/process")} */ process,
+			/** @type {typeof import("../../../base/common/process.js")} */ process,
 		) => {
 			return factory(path, os, process.cwd()); // amd
 		});

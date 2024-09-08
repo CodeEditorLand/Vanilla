@@ -6,10 +6,10 @@
 // @ts-check
 (() => {
 	/**
-	 * @import { ISandboxConfiguration }  from '../common/sandboxTypes'
-	 * @import { IpcRenderer }  from './electronTypes'
+	 * @import { ISandboxConfiguration }  from '../common/sandboxTypes.js'
+	 * @import { IpcRenderer }  from './electronTypes.js'
 	 * @import { IpcRendererEvent }  from 'electron'
-	 * @import { ISandboxNodeProcess }  from './globals'
+	 * @import { ISandboxNodeProcess }  from './globals.js'
 	 */
 
 	const {
@@ -125,7 +125,7 @@
 	// #######################################################################
 
 	/**
-	 * @type {import('./globals')}
+	 * @type {import('./globals.js')}
 	 */
 	const globals = {
 		/**
@@ -198,7 +198,7 @@
 		},
 
 		/**
-		 * @type {import('./globals').IpcMessagePort}
+		 * @type {import('./globals.js').IpcMessagePort}
 		 */
 		ipcMessagePort: {
 			/**
@@ -230,7 +230,7 @@
 		/**
 		 * Support for subset of methods of Electron's `webFrame` type.
 		 *
-		 * @type {import('./electronTypes').WebFrame}
+		 * @type {import('./electronTypes.js').WebFrame}
 		 */
 		webFrame: {
 			/**
@@ -326,7 +326,7 @@
 		/**
 		 * Some information about the context we are running in.
 		 *
-		 * @type {import('./globals').ISandboxContext}
+		 * @type {import('./globals.js').ISandboxContext}
 		 */
 		context: {
 			/**

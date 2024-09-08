@@ -1,0 +1,97 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  Disposable
+} from "../../../../base/common/lifecycle.js";
+import { isEqualOrParent } from "../../../../base/common/resources.js";
+import { score } from "../../../../editor/common/languageSelector.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+function createProviderComparer(uri) {
+  return (a, b) => {
+    if (a.rootUri && !b.rootUri) {
+      return -1;
+    } else if (!a.rootUri && b.rootUri) {
+      return 1;
+    } else if (!a.rootUri && !b.rootUri) {
+      return 0;
+    }
+    const aIsParent = isEqualOrParent(uri, a.rootUri);
+    const bIsParent = isEqualOrParent(uri, b.rootUri);
+    if (aIsParent && bIsParent) {
+      return a.rootUri.fsPath.length - b.rootUri.fsPath.length;
+    } else if (aIsParent) {
+      return -1;
+    } else if (bIsParent) {
+      return 1;
+    } else {
+      return 0;
+    }
+  };
+}
+let QuickDiffService = class extends Disposable {
+  constructor(uriIdentityService) {
+    super();
+    this.uriIdentityService = uriIdentityService;
+  }
+  quickDiffProviders = /* @__PURE__ */ new Set();
+  _onDidChangeQuickDiffProviders = this._register(
+    new Emitter()
+  );
+  onDidChangeQuickDiffProviders = this._onDidChangeQuickDiffProviders.event;
+  addQuickDiffProvider(quickDiff) {
+    this.quickDiffProviders.add(quickDiff);
+    this._onDidChangeQuickDiffProviders.fire();
+    return {
+      dispose: () => {
+        this.quickDiffProviders.delete(quickDiff);
+        this._onDidChangeQuickDiffProviders.fire();
+      }
+    };
+  }
+  isQuickDiff(diff) {
+    return !!diff.originalResource && typeof diff.label === "string" && typeof diff.isSCM === "boolean";
+  }
+  async getQuickDiffs(uri, language = "", isSynchronized = false) {
+    const providers = Array.from(this.quickDiffProviders).filter(
+      (provider) => !provider.rootUri || this.uriIdentityService.extUri.isEqualOrParent(
+        uri,
+        provider.rootUri
+      )
+    ).sort(createProviderComparer(uri));
+    const diffs = await Promise.all(
+      providers.map(async (provider) => {
+        const scoreValue = provider.selector ? score(
+          provider.selector,
+          uri,
+          language,
+          isSynchronized,
+          void 0,
+          void 0
+        ) : 10;
+        const diff = {
+          originalResource: scoreValue > 0 ? await provider.getOriginalResource(uri) ?? void 0 : void 0,
+          label: provider.label,
+          isSCM: provider.isSCM
+        };
+        return diff;
+      })
+    );
+    return diffs.filter(this.isQuickDiff);
+  }
+};
+QuickDiffService = __decorateClass([
+  __decorateParam(0, IUriIdentityService)
+], QuickDiffService);
+export {
+  QuickDiffService
+};

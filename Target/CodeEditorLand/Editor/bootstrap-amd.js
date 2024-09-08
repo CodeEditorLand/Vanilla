@@ -1,6 +1,6 @@
 /**
- * @import { INLSConfiguration } from './vs/nls'
- * @import { IProductConfiguration } from './vs/base/common/product'
+ * @import { INLSConfiguration } from './vs/nls.js'
+ * @import { IProductConfiguration } from './vs/base/common/product.js'
  */
 
 import * as fs from "fs";
@@ -47,7 +47,7 @@ if (process.env["ELECTRON_RUN_AS_NODE"] || process.versions["electron"]) {
 // VSCODE_GLOBALS: package/product.json
 /** @type Partial<IProductConfiguration> */
 // ESM-comment-begin
-// globalThis._VSCODE_PRODUCT_JSON = require('./bootstrap-meta').product;
+// globalThis._VSCODE_PRODUCT_JSON = require('./bootstrap-meta.js').product;
 // ESM-comment-end
 // ESM-uncomment-begin
 globalThis._VSCODE_PRODUCT_JSON = { ...product };
@@ -66,7 +66,7 @@ if (process.env["VSCODE_DEV"]) {
 	}
 }
 // ESM-comment-begin
-// globalThis._VSCODE_PACKAGE_JSON = require('./bootstrap-meta').pkg;
+// globalThis._VSCODE_PACKAGE_JSON = require('./bootstrap-meta.js').pkg;
 // ESM-comment-end
 // ESM-uncomment-begin
 globalThis._VSCODE_PACKAGE_JSON = { ...pkg };
@@ -76,7 +76,7 @@ globalThis._VSCODE_PACKAGE_JSON = { ...pkg };
 globalThis._VSCODE_FILE_ROOT = __dirname;
 
 // ESM-comment-begin
-// const bootstrapNode = require('./bootstrap-node');
+// const bootstrapNode = require('./bootstrap-node.js');
 // const performance = require(`./vs/base/common/performance`);
 // const fs = require('fs');
 // ESM-comment-end
@@ -215,7 +215,7 @@ module.exports.load = (entrypoint, onLoad, onError) => {
 
 // ESM-comment-begin
 // // @ts-ignore
-// const loader = require('./vs/loader');
+// const loader = require('./vs/loader.js');
 //
 // loader.config({
 // baseUrl: bootstrapNode.fileUriFromPath(__dirname, { isWindows: process.platform === 'win32' }),

@@ -1,6 +1,6 @@
 /**
- * @import { INLSConfiguration } from './vs/nls'
- * @import { IServerAPI } from './vs/server/node/remoteExtensionHostAgentServer'
+ * @import { INLSConfiguration } from './vs/nls.js'
+ * @import { IServerAPI } from './vs/server/node/remoteExtensionHostAgentServer.js'
  */
 
 // ESM-comment-begin
@@ -12,10 +12,10 @@
 // const os = require('os');
 // const readline = require('readline');
 // const performance = require('perf_hooks').performance;
-// const bootstrapNode = require('./bootstrap-node');
-// const bootstrapAmd = require('./bootstrap-amd');
-// const { resolveNLSConfiguration } = require('./vs/base/node/nls');
-// const product = require('./bootstrap-meta').product;
+// const bootstrapNode = require('./bootstrap-node.js');
+// const bootstrapAmd = require('./bootstrap-amd.js');
+// const { resolveNLSConfiguration } = require('./vs/base/node/nls.js');
+// const product = require('./bootstrap-meta.js').product;
 // const perf = require(`./vs/base/common/performance`);
 // const minimist = require('minimist');
 // ESM-comment-end
@@ -338,7 +338,7 @@ async function findFreePort(host, start, end) {
 
 /**
  * @param {INLSConfiguration} nlsConfiguration
- * @returns { Promise<typeof import('./vs/server/node/server.main')> }
+ * @returns { Promise<typeof import('./vs/server/node/server.main.js')> }
  */
 function loadCode(nlsConfiguration) {
 	return new Promise((resolve, reject) => {

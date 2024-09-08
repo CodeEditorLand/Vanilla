@@ -1,5 +1,5 @@
 /**
- * @import { ISandboxConfiguration } from './vs/base/parts/sandbox/common/sandboxTypes'
+ * @import { ISandboxConfiguration } from './vs/base/parts/sandbox/common/sandboxTypes.js'
  * @typedef {any} LoaderConfig
  */
 
@@ -357,7 +357,7 @@
 	}
 
 	/**
-	 * @return {typeof import('./vs/base/parts/sandbox/electron-sandbox/globals')}
+	 * @return {typeof import('./vs/base/parts/sandbox/electron-sandbox/globals.js')}
 	 */
 	function sandboxGlobals() {
 		// @ts-ignore (defined in globals.js)

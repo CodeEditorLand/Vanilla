@@ -1,8 +1,8 @@
 (() => {
 	/**
-	 * @import {INativeWindowConfiguration} from '../../../platform/window/common/window'
-	 * @import {NativeParsedArgs} from '../../../platform/environment/common/argv'
-	 * @import {ISandboxConfiguration} from '../../../base/parts/sandbox/common/sandboxTypes'
+	 * @import {INativeWindowConfiguration} from '../../../platform/window/common/window.js'
+	 * @import {NativeParsedArgs} from '../../../platform/environment/common/argv.js'
+	 * @import {ISandboxConfiguration} from '../../../base/parts/sandbox/common/sandboxTypes.js'
 	 */
 
 	const bootstrapWindow = bootstrapWindowLib();

@@ -1,6 +1,6 @@
 /**
- * @import { INLSConfiguration, ILanguagePacks } from '../../nls'
- * @import { IResolveNLSConfigurationContext } from './nls'
+ * @import { INLSConfiguration, ILanguagePacks } from '../../nls.js'
+ * @import { IResolveNLSConfigurationContext } from './nls.js'
  */
 
 import * as fs from "fs";
@@ -23,7 +23,7 @@ const module = { exports: {} };
 	/**
 	 * @param {typeof import('path')} path
 	 * @param {typeof import('fs')} fs
-	 * @param {typeof import('../common/performance')} perf
+	 * @param {typeof import('../common/performance.js')} perf
 	 */
 	function factory(path, fs, perf) {
 		//#region fs helpers
@@ -344,7 +344,7 @@ const module = { exports: {} };
 		define(["path", "fs", "vs/base/common/performance"], (
 			/** @type {typeof import('path')} */ path,
 			/** @type {typeof import('fs')} */ fs,
-			/** @type {typeof import('../common/performance')} */ perf,
+			/** @type {typeof import('../common/performance.js')} */ perf,
 		) => factory(path, fs, perf));
 	} else if (
 		typeof module === "object" &&
@@ -354,7 +354,7 @@ const module = { exports: {} };
 		// ESM-comment-begin
 		// const path = require('path');
 		// const fs = require('fs');
-		// const perf = require('../common/performance');
+		// const perf = require('../common/performance.js');
 		// ESM-comment-end
 		module.exports = factory(path, fs, perf);
 	} else {

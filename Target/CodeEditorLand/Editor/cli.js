@@ -5,10 +5,10 @@
 // // somehow escaping to the parent shell
 // // (https://github.com/microsoft/vscode/issues/126399)
 // delete process.env['VSCODE_CWD'];
-// const bootstrapNode = require('./bootstrap-node');
-// const bootstrapAmd = require('./bootstrap-amd');
-// const { resolveNLSConfiguration } = require('./vs/base/node/nls');
-// const product = require('./bootstrap-meta').product;
+// const bootstrapNode = require('./bootstrap-node.js');
+// const bootstrapAmd = require('./bootstrap-amd.js');
+// const { resolveNLSConfiguration } = require('./vs/base/node/nls.js');
+// const product = require('./bootstrap-meta.js').product;
 // ESM-comment-end
 // ESM-uncomment-begin
 import "./bootstrap-cli.js"; // this MUST come before other imports as it changes global state

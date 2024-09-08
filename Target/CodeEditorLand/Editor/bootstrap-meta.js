@@ -1,5 +1,5 @@
 /**
- * @import { IProductConfiguration } from './vs/base/common/product'
+ * @import { IProductConfiguration } from './vs/base/common/product.js'
  */
 
 // ESM-uncomment-begin

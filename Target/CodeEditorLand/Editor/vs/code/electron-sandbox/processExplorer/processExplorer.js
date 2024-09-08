@@ -1,6 +1,6 @@
 (() => {
 	/**
-	 * @import { ISandboxConfiguration } from '../../../base/parts/sandbox/common/sandboxTypes'
+	 * @import { ISandboxConfiguration } from '../../../base/parts/sandbox/common/sandboxTypes.js'
 	 */
 
 	const bootstrapWindow = bootstrapWindowLib();

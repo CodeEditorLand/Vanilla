@@ -1,6 +1,6 @@
 /**
- * @import { INLSConfiguration } from './vs/nls'
- * @import { NativeParsedArgs } from './vs/platform/environment/common/argv'
+ * @import { INLSConfiguration } from './vs/nls.js'
+ * @import { NativeParsedArgs } from './vs/platform/environment/common/argv.js'
  */
 
 import * as fs from "original-fs";
@@ -9,14 +9,14 @@ import * as os from "os";
 // const path = require('path');
 // const fs = require('original-fs');
 // const os = require('os');
-// const bootstrapNode = require('./bootstrap-node');
-// const bootstrapAmd = require('./bootstrap-amd');
+// const bootstrapNode = require('./bootstrap-node.js');
+// const bootstrapAmd = require('./bootstrap-amd.js');
 // const { getUserDataPath } = require(`./vs/platform/environment/node/userDataPath`);
-// const { parse } = require('./vs/base/common/jsonc');
-// const perf = require('./vs/base/common/performance');
-// const { resolveNLSConfiguration } = require('./vs/base/node/nls');
-// const { getUNCHost, addUNCHostToAllowlist } = require('./vs/base/node/unc');
-// const product = require('./bootstrap-meta').product;
+// const { parse } = require('./vs/base/common/jsonc.js');
+// const perf = require('./vs/base/common/performance.js');
+// const { resolveNLSConfiguration } = require('./vs/base/node/nls.js');
+// const { getUNCHost, addUNCHostToAllowlist } = require('./vs/base/node/unc.js');
+// const product = require('./bootstrap-meta.js').product;
 // const { app, protocol, crashReporter, Menu, contentTracing } = require('electron');
 // ESM-comment-end
 // ESM-uncomment-begin

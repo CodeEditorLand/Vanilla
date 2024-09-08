@@ -2,10 +2,10 @@
 // // Keep bootstrap-amd.js from redefining 'fs'.
 // delete process.env['ELECTRON_RUN_AS_NODE'];
 // const path = require('path');
-// const bootstrapNode = require('./bootstrap-node');
-// const bootstrapAmd = require('./bootstrap-amd');
-// const { resolveNLSConfiguration } = require('./vs/base/node/nls');
-// const product = require('./bootstrap-meta').product;
+// const bootstrapNode = require('./bootstrap-node.js');
+// const bootstrapAmd = require('./bootstrap-amd.js');
+// const { resolveNLSConfiguration } = require('./vs/base/node/nls.js');
+// const product = require('./bootstrap-meta.js').product;
 // ESM-comment-end
 // ESM-uncomment-begin
 import "./bootstrap-server.js"; // this MUST come before other imports as it changes global state

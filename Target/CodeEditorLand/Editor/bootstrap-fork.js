@@ -1,9 +1,9 @@
 import * as bootstrapAmd from "./bootstrap-amd.js";
 import * as bootstrapNode from "./bootstrap-node.js";
 // ESM-comment-begin
-// const performance = require('./vs/base/common/performance');
-// const bootstrapNode = require('./bootstrap-node');
-// const bootstrapAmd = require('./bootstrap-amd');
+// const performance = require('./vs/base/common/performance.js');
+// const bootstrapNode = require('./bootstrap-node.js');
+// const bootstrapAmd = require('./bootstrap-amd.js');
 // ESM-comment-end
 // ESM-uncomment-begin
 import * as performance from "./vs/base/common/performance.js";
