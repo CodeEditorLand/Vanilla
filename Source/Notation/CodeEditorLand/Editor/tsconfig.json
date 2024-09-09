@@ -8,9 +8,5 @@
 	},
 	"extends": "@playform/build/tsconfig",
 	"include": ["../../../../CodeEditorLand/Editor/src"],
-
-	"exclude": [
-		"Target",
-		"node_modules"
-	]
+	"exclude": ["Target", "node_modules"]
 }

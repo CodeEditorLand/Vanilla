@@ -26,10 +26,10 @@
 	},
 	"type": "module",
 	"scripts": {
-		"prepublishOnly": "sh ./Scripts/prepublishOnly.sh"
+		"prepublishOnly": "Build 'Source/CodeEditorLand/Editor/src/**/*.ts' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.no-types.json"
 	},
 	"devDependencies": {
-		"@playform/build": "0.1.4",
+		"@playform/build": "0.1.6",
 		"deepmerge-ts": "7.1.0",
 		"esbuild-plugin-copy": "2.1.1"
 	},

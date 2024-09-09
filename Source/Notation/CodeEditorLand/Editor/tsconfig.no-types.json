@@ -26,6 +26,5 @@
 	},
 	"extends": "./tsconfig.json",
 	"include": ["../../../../CodeEditorLand/Editor/src"],
-
 	"exclude": ["Target", "node_modules"]
 }
