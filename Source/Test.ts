@@ -70,19 +70,19 @@ export default {
 				});
 			},
 		},
-		// (await import("esbuild-plugin-copy")).copy({
-		// 	resolveFrom: "out",
-		// 	assets: [
-		// 		{
-		// 			from: ["./CodeEditorLand/Editor/src/**/*.js"],
-		// 			to: ["./CodeEditorLand/Editor/"],
-		// 		},
-		// 		{
-		// 			from: ["./CodeEditorLand/Editor/src/**/*.css"],
-		// 			to: ["./CodeEditorLand/Editor/"],
-		// 		},
-		// 	],
-		// }),
+		(await import("esbuild-plugin-copy")).copy({
+			resolveFrom: "out",
+			assets: [
+				{
+					from: ["./CodeEditorLand/Editor/src/**/*.js"],
+					to: ["./CodeEditorLand/Editor/"],
+				},
+				{
+					from: ["./CodeEditorLand/Editor/src/**/*.css"],
+					to: ["./CodeEditorLand/Editor/"],
+				},
+			],
+		}),
 	],
 } satisfies BuildOptions as BuildOptions;
 

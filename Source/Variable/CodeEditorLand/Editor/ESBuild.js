@@ -11,7 +11,7 @@ export default {
     outdir: "Target",
     platform: "node",
     target: "esnext",
-    tsconfig: "Source/Notation/CodeEditorLand/Editor/tsconfig.no-types.json",
+    tsconfig: "Source/Notation/CodeEditorLand/Editor/tsconfig.json",
     write: true,
     legalComments: "none",
     plugins: [
@@ -60,19 +60,19 @@ export default {
                 });
             },
         },
-        (await import("esbuild-plugin-copy")).copy({
-            resolveFrom: "out",
-            assets: [
-                {
-                    from: ["./CodeEditorLand/Editor/src/**/*.js"],
-                    to: ["./CodeEditorLand/Editor/"],
-                },
-                {
-                    from: ["./CodeEditorLand/Editor/src/**/*.css"],
-                    to: ["./CodeEditorLand/Editor/"],
-                },
-            ],
-        }),
+        // (await import("esbuild-plugin-copy")).copy({
+        // 	resolveFrom: "out",
+        // 	assets: [
+        // 		{
+        // 			from: ["./CodeEditorLand/Editor/src/**/*.js"],
+        // 			to: ["./CodeEditorLand/Editor/"],
+        // 		},
+        // 		{
+        // 			from: ["./CodeEditorLand/Editor/src/**/*.css"],
+        // 			to: ["./CodeEditorLand/Editor/"],
+        // 		},
+        // 	],
+        // }),
     ],
 };
 export const { sep, posix } = await import("path");
