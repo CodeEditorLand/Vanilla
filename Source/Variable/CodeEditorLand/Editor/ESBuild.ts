@@ -56,6 +56,7 @@ export default {
 							"src/vs/platform/files/test/node/fixtures/resolver/examples",
 
 							".d.ts",
+							".d.js",
 						].some((Search) =>
 							path.split(sep).join(posix.sep).includes(Search),
 						)
@@ -70,19 +71,19 @@ export default {
 				});
 			},
 		},
-		// (await import("esbuild-plugin-copy")).copy({
-		// 	resolveFrom: "out",
-		// 	assets: [
-		// 		{
-		// 			from: ["./CodeEditorLand/Editor/src/**/*.js"],
-		// 			to: ["./CodeEditorLand/Editor/"],
-		// 		},
-		// 		{
-		// 			from: ["./CodeEditorLand/Editor/src/**/*.css"],
-		// 			to: ["./CodeEditorLand/Editor/"],
-		// 		},
-		// 	],
-		// }),
+		(await import("esbuild-plugin-copy")).copy({
+			resolveFrom: "out",
+			assets: [
+				{
+					from: ["./CodeEditorLand/Editor/src/**/*.js"],
+					to: ["./CodeEditorLand/Editor/"],
+				},
+				{
+					from: ["./CodeEditorLand/Editor/src/**/*.css"],
+					to: ["./CodeEditorLand/Editor/"],
+				},
+			],
+		}),
 	],
 } satisfies BuildOptions as BuildOptions;
 

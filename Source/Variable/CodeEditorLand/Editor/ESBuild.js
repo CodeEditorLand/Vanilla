@@ -50,6 +50,7 @@ export default {
                         "src/vs/workbench/services/textfile/test/node/encoding/fixtures",
                         "src/vs/platform/files/test/node/fixtures/resolver/examples",
                         ".d.ts",
+                        ".d.js",
                     ].some((Search) => path.split(sep).join(posix.sep).includes(Search))) {
                         return {
                             contents: "",
@@ -60,19 +61,19 @@ export default {
                 });
             },
         },
-        // (await import("esbuild-plugin-copy")).copy({
-        // 	resolveFrom: "out",
-        // 	assets: [
-        // 		{
-        // 			from: ["./CodeEditorLand/Editor/src/**/*.js"],
-        // 			to: ["./CodeEditorLand/Editor/"],
-        // 		},
-        // 		{
-        // 			from: ["./CodeEditorLand/Editor/src/**/*.css"],
-        // 			to: ["./CodeEditorLand/Editor/"],
-        // 		},
-        // 	],
-        // }),
+        (await import("esbuild-plugin-copy")).copy({
+            resolveFrom: "out",
+            assets: [
+                {
+                    from: ["./CodeEditorLand/Editor/src/**/*.js"],
+                    to: ["./CodeEditorLand/Editor/"],
+                },
+                {
+                    from: ["./CodeEditorLand/Editor/src/**/*.css"],
+                    to: ["./CodeEditorLand/Editor/"],
+                },
+            ],
+        }),
     ],
 };
 export const { sep, posix } = await import("path");

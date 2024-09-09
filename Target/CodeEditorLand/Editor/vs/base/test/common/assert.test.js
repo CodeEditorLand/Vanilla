@@ -1,0 +1,1 @@
+import r from"assert";import{ok as o}from"../../common/assert.js";import{ensureNoDisposablesAreLeakedInTestSuite as e}from"./utils.js";suite("Assert",()=>{test("ok",()=>{r.throws(function(){o(!1)}),r.throws(function(){o(null)}),r.throws(function(){o()}),r.throws(function(){o(null,"Foo Bar")},function(t){return t.message.indexOf("Foo Bar")>=0}),o(!0),o("foo"),o({}),o(5)}),e()});
