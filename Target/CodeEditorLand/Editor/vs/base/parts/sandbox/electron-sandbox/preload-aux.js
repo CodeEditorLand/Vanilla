@@ -27,7 +27,7 @@
 		 * A minimal set of methods exposed from Electron's `ipcRenderer`
 		 * to support communication to main process.
 		 *
-		 * @typedef {Pick<import('./electronTypes.js').IpcRenderer, 'send' | 'invoke'>} IpcRenderer
+		 * @typedef {Pick<import('./electronTypes').IpcRenderer, 'send' | 'invoke'>} IpcRenderer
 		 *
 		 * @type {IpcRenderer}
 		 */
@@ -58,7 +58,7 @@
 		/**
 		 * Support for subset of methods of Electron's `webFrame` type.
 		 *
-		 * @type {import('./electronTypes.js').WebFrame}
+		 * @type {import('./electronTypes').WebFrame}
 		 */
 		webFrame: {
 

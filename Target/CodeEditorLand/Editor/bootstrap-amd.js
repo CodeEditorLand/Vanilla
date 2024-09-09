@@ -7,8 +7,8 @@
 'use strict';
 
 /**
- * @import { INLSConfiguration } from './vs/nls.js'
- * @import { IProductConfiguration } from './vs/base/common/product.js'
+ * @import { INLSConfiguration } from './vs/nls'
+ * @import { IProductConfiguration } from './vs/base/common/product'
  */
 
 // ESM-uncomment-begin

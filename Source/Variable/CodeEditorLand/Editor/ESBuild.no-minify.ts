@@ -6,6 +6,6 @@ import type { BuildOptions } from "esbuild";
  */
 export default (await import("deepmerge-ts")).deepmergeCustom({
 	mergeArrays: false,
-})((await import("./ESBuild.js")).default, {
+})((await import("./ESBuild.default.js")).default, {
 	minify: false,
 }) satisfies BuildOptions as BuildOptions;

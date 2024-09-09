@@ -9,7 +9,7 @@
 'use strict';
 
 /**
- * @import { INLSConfiguration, ILanguagePacks } from '../../nls.js'
+ * @import { INLSConfiguration, ILanguagePacks } from '../../nls'
  * @import { IResolveNLSConfigurationContext } from './nls.js'
  */
 

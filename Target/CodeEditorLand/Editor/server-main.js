@@ -7,8 +7,8 @@
 'use strict';
 
 /**
- * @import { INLSConfiguration } from './vs/nls.js'
- * @import { IServerAPI } from './vs/server/node/remoteExtensionHostAgentServer.js'
+ * @import { INLSConfiguration } from './vs/nls'
+ * @import { IServerAPI } from './vs/server/node/remoteExtensionHostAgentServer'
  */
 
 // ESM-comment-begin
@@ -279,7 +279,7 @@ async function findFreePort(host, start, end) {
 
 /**
  * @param {INLSConfiguration} nlsConfiguration
- * @returns { Promise<typeof import('./vs/server/node/server.main.js')> }
+ * @returns { Promise<typeof import('./vs/server/node/server.main')> }
  */
 function loadCode(nlsConfiguration) {
 	return new Promise((resolve, reject) => {

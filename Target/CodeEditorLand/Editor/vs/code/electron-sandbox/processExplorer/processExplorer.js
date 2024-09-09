@@ -9,7 +9,7 @@
 (function () {
 
 	/**
-	 * @import { ISandboxConfiguration } from '../../../base/parts/sandbox/common/sandboxTypes.js'
+	 * @import { ISandboxConfiguration } from '../../../base/parts/sandbox/common/sandboxTypes'
 	 */
 
 	const bootstrapWindow = bootstrapWindowLib();

@@ -9,7 +9,7 @@
 'use strict';
 
 /**
- * @import { ISandboxConfiguration } from './vs/base/parts/sandbox/common/sandboxTypes.js'
+ * @import { ISandboxConfiguration } from './vs/base/parts/sandbox/common/sandboxTypes'
  * @typedef {any} LoaderConfig
  */
 
@@ -332,7 +332,7 @@
 	}
 
 	/**
-	 * @return {typeof import('./vs/base/parts/sandbox/electron-sandbox/globals.js')}
+	 * @return {typeof import('./vs/base/parts/sandbox/electron-sandbox/globals')}
 	 */
 	function sandboxGlobals() {
 		// @ts-ignore (defined in globals.js)

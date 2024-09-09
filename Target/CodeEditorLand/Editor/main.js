@@ -7,8 +7,8 @@
 'use strict';
 
 /**
- * @import { INLSConfiguration } from './vs/nls.js'
- * @import { NativeParsedArgs } from './vs/platform/environment/common/argv.js'
+ * @import { INLSConfiguration } from './vs/nls'
+ * @import { NativeParsedArgs } from './vs/platform/environment/common/argv'
  */
 
 // ESM-comment-begin

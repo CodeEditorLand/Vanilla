@@ -7,7 +7,7 @@
 'use strict';
 
 /**
- * @import { IProductConfiguration } from './vs/base/common/product.js'
+ * @import { IProductConfiguration } from './vs/base/common/product'
  */
 
 // ESM-uncomment-begin

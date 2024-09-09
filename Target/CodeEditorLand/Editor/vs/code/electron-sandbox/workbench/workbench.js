@@ -9,9 +9,9 @@
 (function () {
 
 	/**
-	 * @import {INativeWindowConfiguration} from '../../../platform/window/common/window.js'
-	 * @import {NativeParsedArgs} from '../../../platform/environment/common/argv.js'
-	 * @import {ISandboxConfiguration} from '../../../base/parts/sandbox/common/sandboxTypes.js'
+	 * @import {INativeWindowConfiguration} from '../../../platform/window/common/window'
+	 * @import {NativeParsedArgs} from '../../../platform/environment/common/argv'
+	 * @import {ISandboxConfiguration} from '../../../base/parts/sandbox/common/sandboxTypes'
 	 */
 
 	const bootstrapWindow = bootstrapWindowLib();

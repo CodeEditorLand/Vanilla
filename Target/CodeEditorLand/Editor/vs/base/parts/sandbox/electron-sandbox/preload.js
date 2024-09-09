@@ -8,10 +8,10 @@
 	'use strict';
 
 	/**
-	 * @import { ISandboxConfiguration }  from '../common/sandboxTypes.js'
-	 * @import { IpcRenderer }  from './electronTypes.js'
+	 * @import { ISandboxConfiguration }  from '../common/sandboxTypes'
+	 * @import { IpcRenderer }  from './electronTypes'
 	 * @import { IpcRendererEvent }  from 'electron'
-	 * @import { ISandboxNodeProcess }  from './globals.js'
+	 * @import { ISandboxNodeProcess }  from './globals'
 	 */
 
 	const { ipcRenderer, webFrame, contextBridge, webUtils } = require('electron');
@@ -118,7 +118,7 @@
 	// #######################################################################
 
 	/**
-	 * @type {import('./globals.js')}
+	 * @type {import('./globals')}
 	 */
 	const globals = {
 
@@ -193,7 +193,7 @@
 		},
 
 		/**
-		 * @type {import('./globals.js').IpcMessagePort}
+		 * @type {import('./globals').IpcMessagePort}
 		 */
 		ipcMessagePort: {
 
@@ -223,7 +223,7 @@
 		/**
 		 * Support for subset of methods of Electron's `webFrame` type.
 		 *
-		 * @type {import('./electronTypes.js').WebFrame}
+		 * @type {import('./electronTypes').WebFrame}
 		 */
 		webFrame: {
 
@@ -301,7 +301,7 @@
 		/**
 		 * Some information about the context we are running in.
 		 *
-		 * @type {import('./globals.js').ISandboxContext}
+		 * @type {import('./globals').ISandboxContext}
 		 */
 		context: {
 
