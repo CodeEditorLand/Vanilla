@@ -53,6 +53,7 @@ export default {
 							"src/vs/workbench/services/search/test/node/fixtures",
 							"src/vs/workbench/services/search/test/node/fixtures/examples",
 							"src/vs/workbench/services/textfile/test/node/encoding/fixtures",
+							"src/vs/platform/files/test/node/fixtures/resolver/examples",
 
 							".d.ts",
 						].some((Search) =>
