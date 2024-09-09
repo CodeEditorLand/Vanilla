@@ -15,6 +15,7 @@ export default {
     write: true,
     legalComments: "none",
     bundle: false,
+    outbase: "",
     plugins: [
         {
             name: "Target",
@@ -65,11 +66,11 @@ export default {
         // 	resolveFrom: "out",
         // 	assets: [
         // 		{
-        // 			from: ["./CodeEditorLand/Editor/src/**/*.js"],
+        // 			from: ["./Source/CodeEditorLand/Editor/src/**/*.js"],
         // 			to: ["./CodeEditorLand/Editor/"],
         // 		},
         // 		{
-        // 			from: ["./CodeEditorLand/Editor/src/**/*.css"],
+        // 			from: ["./Source/CodeEditorLand/Editor/src/**/*.css"],
         // 			to: ["./CodeEditorLand/Editor/"],
         // 		},
         // 	],

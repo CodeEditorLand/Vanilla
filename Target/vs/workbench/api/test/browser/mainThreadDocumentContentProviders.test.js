@@ -1,6 +1,0 @@
-import s from"assert";import{URI as a}from"../../../../base/common/uri.js";import{MainThreadDocumentContentProviders as c}from"../../browser/mainThreadDocumentContentProviders.js";import{createTextModel as l}from"../../../../editor/test/common/testTextModel.js";import{mock as m}from"../../../../base/test/common/mock.js";import"../../../../editor/common/services/model.js";import"../../../../editor/common/services/editorWorker.js";import{TestRPCProtocol as p}from"../common/testRPCProtocol.js";import"../../../../editor/common/languages.js";import{ensureNoDisposablesAreLeakedInTestSuite as f}from"../../../../base/test/common/utils.js";suite("MainThreadDocumentContentProviders",function(){const o=f();test("events are processed properly",function(){const r=a.parse("test:uri"),e=l("1",void 0,void 0,r),n=new c(new p,null,null,new class extends m(){getModel(t){return s.strictEqual(r.toString(),t.toString()),e}},new class extends m(){computeMoreMinimalEdits(t,i){return s.strictEqual(e.getValue(),"1"),Promise.resolve(i)}});return o.add(e),o.add(n),new Promise((t,i)=>{let d=1;o.add(e.onDidChangeContent(v=>{d-=1;try{s.ok(d>=0)}catch(u){i(u)}e.getValue()===`1
-2
-3`&&(e.dispose(),t())})),n.$onVirtualDocumentChange(r,`1
-2`),n.$onVirtualDocumentChange(r,`1
-2
-3`)})})});
