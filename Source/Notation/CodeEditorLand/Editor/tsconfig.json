@@ -2,11 +2,11 @@
 	"compilerOptions": {
 		"baseUrl": "../../../../",
 		"outDir": "../../../../Target/CodeEditorLand/Editor",
-		"rootDir": "../../../../CodeEditorLand/Editor/src",
+		"rootDir": "../../../../Dependency/CodeEditorLand/Editor/src",
 
 		"experimentalDecorators": true
 	},
 	"extends": "@playform/build/tsconfig",
-	"include": ["../../../../CodeEditorLand/Editor/src"],
+	"include": ["../../../../Dependency/CodeEditorLand/Editor/src"],
 	"exclude": ["Target", "node_modules"]
 }

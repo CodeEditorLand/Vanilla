@@ -1,0 +1,2 @@
+import{Color as r}from"../../../../../base/common/color.js";import{ensureNoDisposablesAreLeakedInTestSuite as e}from"../../../../../base/test/common/utils.js";import{Registry as s}from"../../../../../platform/registry/common/platform.js";import{Extensions as i}from"../../../../../platform/theme/common/colorRegistry.js";suite("ColorRegistry",()=>{process.env.VSCODE_COLOR_REGISTRY_EXPORT&&test("exports",()=>{const t=s.as(i.ColorContribution).getColors();console.log(`#colors:${JSON.stringify(t,(m,o)=>o instanceof r?r.Format.CSS.formatHexA(o):o)}
+`)}),e()});
