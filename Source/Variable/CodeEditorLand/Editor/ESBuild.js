@@ -17,7 +17,7 @@ export default {
     bundle: false,
     // bundle: true,
     // splitting: true,
-    // chunkNames: "chunks/[name]=[hash]",
+    // chunkNames: "chunks/[name]-[hash]",
     // external: [
     // 	// TODO: LOG WHERE THEY'RE USED
     // 	// Local project files related to terminal functionality and webview messaging

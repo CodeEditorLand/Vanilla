@@ -26,7 +26,7 @@
 	},
 	"type": "module",
 	"scripts": {
-		"prepublishOnly": "node --max-old-space-size=16384 ../node_modules/@playform/build/Target/Class/Build.js 'Dependency/CodeEditorLand/Editor/Source/**/*.{ts,tsx,js,jsx}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.no-types.json"
+		"prepublishOnly": "node --max-old-space-size=16384 ../node_modules/@playform/build/Target/Class/Build.js 'Dependency/CodeEditorLand/Editor/Source/**/*.{ts,tsx,js,jsx,css}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.no-types.json"
 	},
 	"devDependencies": {
 		"@playform/build": "0.1.6",

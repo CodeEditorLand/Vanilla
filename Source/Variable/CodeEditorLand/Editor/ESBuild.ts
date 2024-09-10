@@ -21,7 +21,7 @@ export default {
 
 	// bundle: true,
 	// splitting: true,
-	// chunkNames: "chunks/[name]=[hash]",
+	// chunkNames: "chunks/[name]-[hash]",
 	// external: [
 	// 	// TODO: LOG WHERE THEY'RE USED
 
