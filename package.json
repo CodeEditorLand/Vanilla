@@ -28,7 +28,7 @@
 	"scripts": {
 		"Run:RSPack": "cross-env NODE_ENV=development rspack serve",
 		"prepublishOnly": "node --max-old-space-size=16384 ../node_modules/@playform/build/Target/Class/Build.js 'Dependency/CodeEditorLand/Editor/Source/**/*.{ts,tsx,js,jsx}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.no-types.json",
-		"prepublishOnly:RSPack": "cross-env NODE_ENV=production rspack build"
+		"prepublishOnly:RSPack": "cross-env NODE_ENV=production node --max-old-space-size=16384 ../node_modules/@rspack/cli/bin/rspack build"
 	},
 	"devDependencies": {
 		"@playform/build": "0.1.6",
