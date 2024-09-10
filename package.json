@@ -26,7 +26,7 @@
 	},
 	"type": "module",
 	"scripts": {
-		"prepublishOnly": "Build 'Dependency/CodeEditorLand/Editor/Source/**/*.ts' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.no-types.json"
+		"prepublishOnly": "Build 'Dependency/CodeEditorLand/Editor/Source/**/*.{ts,tsx,js,jsx,css}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.no-types.json"
 	},
 	"devDependencies": {
 		"@playform/build": "0.1.6",
