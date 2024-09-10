@@ -10,14 +10,13 @@ export default {
 	logLevel: "silent",
 	metafile: true,
 	minify: true,
-	outdir: "Target",
+	outdir: "Target/CodeEditorLand/Editor",
 	platform: "node",
 	target: "esnext",
 	tsconfig: "Source/Notation/CodeEditorLand/Editor/tsconfig.json",
 	write: true,
 	legalComments: "none",
 	bundle: false,
-	// outbase: "Dependency",
 	plugins: [
 		{
 			name: "Target",
