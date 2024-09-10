@@ -17,7 +17,7 @@ export default {
 	write: true,
 	legalComments: "none",
 
-	bundle: false,
+	// bundle: false,
 
 	// bundle: true,
 	// splitting: true,
