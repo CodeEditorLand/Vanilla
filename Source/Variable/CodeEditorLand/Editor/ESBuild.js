@@ -8,14 +8,14 @@ export default {
     logLevel: "silent",
     metafile: true,
     minify: true,
-    outdir: "Target",
+    outdir: "Target/CodeEditorLand/Editor",
     platform: "node",
     target: "esnext",
     tsconfig: "Source/Notation/CodeEditorLand/Editor/tsconfig.json",
     write: true,
     legalComments: "none",
     bundle: false,
-    outbase: "Dependency",
+    outbase: "Dependency/CodeEditorLand/Editor/Source",
     plugins: [
         {
             name: "Target",
@@ -40,17 +40,17 @@ export default {
                 // biome-ignore lint/nursery/useTopLevelRegex:
                 onLoad({ filter: /.*/ }, ({ path }) => {
                     if ([
-                        "src/vs/base/test/common/filters.perf.data.d.ts",
-                        "src/vs/platform/files/test/node/fixtures/resolver/examples",
-                        "src/vs/platform/files/test/node/fixtures/resolver/other/deep",
-                        "src/vs/platform/files/test/node/fixtures/resolver/other/deep/employee",
-                        "src/vs/platform/files/test/node/fixtures/service",
-                        "src/vs/platform/files/test/node/fixtures/service/deep",
-                        "src/vs/workbench/contrib/codeEditor/test/node",
-                        "src/vs/workbench/services/search/test/node/fixtures",
-                        "src/vs/workbench/services/search/test/node/fixtures/examples",
-                        "src/vs/workbench/services/textfile/test/node/encoding/fixtures",
-                        "src/vs/platform/files/test/node/fixtures/resolver/examples",
+                        "Source/vs/base/test/common/filters.perf.data.d.ts",
+                        "Source/vs/platform/files/test/node/fixtures/resolver/examples",
+                        "Source/vs/platform/files/test/node/fixtures/resolver/other/deep",
+                        "Source/vs/platform/files/test/node/fixtures/resolver/other/deep/employee",
+                        "Source/vs/platform/files/test/node/fixtures/service",
+                        "Source/vs/platform/files/test/node/fixtures/service/deep",
+                        "Source/vs/workbench/contrib/codeEditor/test/node",
+                        "Source/vs/workbench/services/search/test/node/fixtures",
+                        "Source/vs/workbench/services/search/test/node/fixtures/examples",
+                        "Source/vs/workbench/services/textfile/test/node/encoding/fixtures",
+                        "Source/vs/platform/files/test/node/fixtures/resolver/examples",
                         ".d.ts",
                     ].some((Search) => path.split(sep).join(posix.sep).includes(Search))) {
                         return {
@@ -66,11 +66,11 @@ export default {
         // 	resolveFrom: "out",
         // 	assets: [
         // 		{
-        // 			from: ["./Source/CodeEditorLand/Editor/src/**/*.js"],
+        // 			from: ["./Source/CodeEditorLand/Editor/Source/**/*.js"],
         // 			to: ["./CodeEditorLand/Editor/"],
         // 		},
         // 		{
-        // 			from: ["./Source/CodeEditorLand/Editor/src/**/*.css"],
+        // 			from: ["./Source/CodeEditorLand/Editor/Source/**/*.css"],
         // 			to: ["./CodeEditorLand/Editor/"],
         // 		},
         // 	],

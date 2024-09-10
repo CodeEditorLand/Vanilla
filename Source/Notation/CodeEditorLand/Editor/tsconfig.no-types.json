@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"baseUrl": "../../../../",
 		"outDir": "../../../../Target/CodeEditorLand/Editor",
-		"rootDir": "../../../../CodeEditorLand/Editor/src",
+		"rootDir": "../../../../Dependency/CodeEditorLand/Editor/Source",
 
 		"allowJs": true,
 		"checkJs": false,
@@ -25,6 +25,6 @@
 		"strict": false
 	},
 	"extends": "./tsconfig.json",
-	"include": ["../../../../CodeEditorLand/Editor/src"],
+	"include": ["../../../../Dependency/CodeEditorLand/Editor/Source"],
 	"exclude": ["Target", "node_modules"]
 }
