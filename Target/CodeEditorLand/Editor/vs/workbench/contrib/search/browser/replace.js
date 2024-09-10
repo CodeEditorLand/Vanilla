@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const s=e("replaceService");export{s as IReplaceService};
+import"./searchModel.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/progress/common/progress.js";const s=e("replaceService");export{s as IReplaceService};
