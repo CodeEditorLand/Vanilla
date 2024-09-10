@@ -74,6 +74,11 @@ export default {
 			},
 		},
 	],
+	loader: {
+		".ttf": "file",
+		".png": "file",
+		".svg": "file",
+	},
 } satisfies BuildOptions as BuildOptions;
 
 export const { sep, posix } = await import("path");

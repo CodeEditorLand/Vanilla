@@ -63,5 +63,10 @@ export default {
             },
         },
     ],
+    loader: {
+        ".ttf": "file",
+        ".png": "file",
+        ".svg": "file",
+    },
 };
 export const { sep, posix } = await import("path");

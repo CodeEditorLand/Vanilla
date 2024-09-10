@@ -66,12 +66,6 @@ export default (await import("deepmerge-ts")(
 			"yauzl",
 			"yazl",
 		],
-
-		loader: {
-			".ttf": "file",
-			".png": "file",
-			".svg": "file",
-		},
 	},
 )) satisfies BuildOptions as BuildOptions;
 
