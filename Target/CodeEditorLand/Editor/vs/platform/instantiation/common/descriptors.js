@@ -1,1 +1,1 @@
-var t=class{ctor;staticArguments;supportsDelayedInstantiation;constructor(a,n=[],e=!1){this.ctor=a,this.staticArguments=n,this.supportsDelayedInstantiation=e}};export{t as SyncDescriptor};
+class o{ctor;staticArguments;supportsDelayedInstantiation;constructor(t,n=[],a=!1){this.ctor=t,this.staticArguments=n,this.supportsDelayedInstantiation=a}}export{o as SyncDescriptor};

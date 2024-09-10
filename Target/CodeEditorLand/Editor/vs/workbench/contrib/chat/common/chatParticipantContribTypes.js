@@ -1,1 +1,1 @@
-var t="copilot";export{t as CHAT_PROVIDER_ID};
+const t="copilot";export{t as CHAT_PROVIDER_ID};

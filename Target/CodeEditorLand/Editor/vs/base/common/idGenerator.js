@@ -1,1 +1,1 @@
-var t=class{_prefix;_lastId;constructor(r){this._prefix=r,this._lastId=0}nextId(){return this._prefix+ ++this._lastId}},s=new t("id#");export{t as IdGenerator,s as defaultGenerator};
+class r{_prefix;_lastId;constructor(t){this._prefix=t,this._lastId=0}nextId(){return this._prefix+ ++this._lastId}}const i=new r("id#");export{r as IdGenerator,i as defaultGenerator};

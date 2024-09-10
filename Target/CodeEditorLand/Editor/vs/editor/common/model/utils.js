@@ -1,1 +1,1 @@
-function g(n,E){let _=0,i=0,U=n.length;for(;i<U;){let x=n.charCodeAt(i);if(x===32)_++;else if(x===9)_=_-_%E+E;else break;i++}return i===U?-1:_}export{g as computeIndentLevel};
+import{CharCode as i}from"../../../base/common/charCode.js";function u(t,r){let e=0,n=0;const o=t.length;for(;n<o;){const c=t.charCodeAt(n);if(c===i.Space)e++;else if(c===i.Tab)e=e-e%r+r;else break;n++}return n===o?-1:e}export{u as computeIndentLevel};

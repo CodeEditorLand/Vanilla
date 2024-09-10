@@ -1,1 +1,1 @@
-var t=" \u203A ";export{t as flatTestItemDelimiter};
+const t=" \u203A ";export{t as flatTestItemDelimiter};
