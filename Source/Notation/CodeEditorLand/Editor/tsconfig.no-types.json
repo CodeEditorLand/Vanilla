@@ -18,7 +18,7 @@
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitAny": false,
 		"noImplicitOverride": true,
-		"noLib": true,
+		"noLib": false,
 		"noResolve": true,
 		"skipDefaultLibCheck": true,
 		"skipLibCheck": true,
