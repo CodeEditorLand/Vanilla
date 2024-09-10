@@ -15,7 +15,6 @@ export default {
     write: true,
     legalComments: "none",
     bundle: false,
-    // outbase: "Dependency",
     plugins: [
         {
             name: "Target",
