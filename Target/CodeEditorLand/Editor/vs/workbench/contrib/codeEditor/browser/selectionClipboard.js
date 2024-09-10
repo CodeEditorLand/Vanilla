@@ -1,1 +1,1 @@
-const o="editor.contrib.selectionClipboard";export{o as SelectionClipboardContributionID};
+var o="editor.contrib.selectionClipboard";export{o as SelectionClipboardContributionID};

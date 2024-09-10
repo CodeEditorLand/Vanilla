@@ -1,1 +1,1 @@
-import"./core/position.js";import"./core/selection.js";var e=(o=>(o[o.NotSet=0]="NotSet",o[o.ContentFlush=1]="ContentFlush",o[o.RecoverFromMarkers=2]="RecoverFromMarkers",o[o.Explicit=3]="Explicit",o[o.Paste=4]="Paste",o[o.Undo=5]="Undo",o[o.Redo=6]="Redo",o))(e||{});export{e as CursorChangeReason};
+var t=(e=>(e[e.NotSet=0]="NotSet",e[e.ContentFlush=1]="ContentFlush",e[e.RecoverFromMarkers=2]="RecoverFromMarkers",e[e.Explicit=3]="Explicit",e[e.Paste=4]="Paste",e[e.Undo=5]="Undo",e[e.Redo=6]="Redo",e))(t||{});export{t as CursorChangeReason};

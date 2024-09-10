@@ -1,1 +1,1 @@
-const o=Symbol("MicrotaskDelay");export{o as MicrotaskDelay};
+var o=Symbol("MicrotaskDelay");export{o as MicrotaskDelay};

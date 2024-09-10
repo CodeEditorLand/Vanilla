@@ -1,1 +1,1 @@
-const r="utilityProcessWorker";export{r as ipcUtilityProcessWorkerChannelName};
+var r="utilityProcessWorker";export{r as ipcUtilityProcessWorkerChannelName};

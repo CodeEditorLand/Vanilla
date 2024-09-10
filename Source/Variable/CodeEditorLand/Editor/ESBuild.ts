@@ -17,11 +17,9 @@ export default {
 	write: true,
 	legalComments: "none",
 
-	// bundle: false,
+	bundle: false,
 
 	// bundle: true,
-	// splitting: true,
-	// chunkNames: "chunks/[name]-[hash]",
 	// external: [
 	// 	// TODO: LOG WHERE THEY'RE USED
 
@@ -79,12 +77,12 @@ export default {
 	// 	"yauzl",
 	// 	"yazl",
 	// ],
+	// loader: {
+	// 	".ttf": "file",
+	// 	".png": "file",
+	// 	".svg": "file",
+	// },
 
-	loader: {
-		".ttf": "file",
-		".png": "file",
-		".svg": "file",
-	},
 	plugins: [
 		{
 			name: "Target",
