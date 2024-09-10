@@ -7,7 +7,7 @@ import type { BuildOptions } from "esbuild";
 export default {
 	color: true,
 	format: "esm",
-	logLevel: "silent",
+	logLevel: "error",
 	metafile: true,
 	minify: true,
 	outdir: "Target/CodeEditorLand/Editor",
@@ -16,7 +16,48 @@ export default {
 	tsconfig: "Source/Notation/CodeEditorLand/Editor/tsconfig.json",
 	write: true,
 	legalComments: "none",
-	bundle: false,
+	bundle: true,
+	external: [
+		"../../../terminal/browser/xterm-private.js",
+		"../xterm-private.js",
+		"./webviewMessages.js",
+
+		"@microsoft/1ds-core-js",
+		"@microsoft/1ds-post-js",
+
+		"@parcel/watcher",
+
+		"@vscode/iconv-lite-umd",
+		"@vscode/policy-watcher",
+		"@vscode/proxy-agent",
+		"@vscode/ripgrep",
+		"@vscode/sudo-prompt",
+		"@vscode/windows-mutex",
+		"@vscode/windows-process-tree",
+		"@vscode/windows-registry",
+
+		"@xterm/addon-serialize",
+		"@xterm/addon-unicode11",
+		"@xterm/headless",
+
+		"electron",
+		"native-is-elevated",
+		"native-keymap",
+		"native-watchdog",
+		"node-pty",
+		"original-fs",
+		"v8-inspect-profiler",
+		
+		"vscode",
+		"vscode-regexpp",
+		"yauzl",
+		"yazl",
+	],
+	loader: {
+		".ttf": "file",
+		".png": "file",
+		".svg": "file",
+	},
 	plugins: [
 		{
 			name: "Target",
