@@ -8,6 +8,7 @@ export default (await import("deepmerge-ts")(
 	(await import("./ESBuild.js")).default,
 	{
 		bundle: true,
+
 		external: [
 			// TODO: LOG WHERE THEY'RE USED
 
@@ -65,7 +66,7 @@ export default (await import("deepmerge-ts")(
 			"yauzl",
 			"yazl",
 		],
-		
+
 		loader: {
 			".ttf": "file",
 			".png": "file",
