@@ -1,1 +1,1 @@
-var i="../../../../../../commandPalette-VBK3SWGI.svg";export{i as default};
+var i="../../../../../../Asset/commandPalette-VBK3SWGI.svg";export{i as default};

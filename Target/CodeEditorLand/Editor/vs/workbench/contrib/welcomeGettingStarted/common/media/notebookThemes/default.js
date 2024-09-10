@@ -1,1 +1,1 @@
-var B="../../../../../../../default-BCUTDPIU.png";export{B as default};
+var B="../../../../../../../Asset/default-BCUTDPIU.png";export{B as default};

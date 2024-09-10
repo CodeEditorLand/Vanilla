@@ -1,1 +1,1 @@
-var W="../../../../../../stop-tb-ODJJUCHY.png";export{W as default};
+var W="../../../../../../Asset/stop-tb-ODJJUCHY.png";export{W as default};

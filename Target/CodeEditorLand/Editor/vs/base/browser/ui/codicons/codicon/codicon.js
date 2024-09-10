@@ -1,1 +1,1 @@
-var l="../../../../../../codicon-37A3DWZT.ttf";export{l as default};
+var l="../../../../../../Asset/codicon-37A3DWZT.ttf";export{l as default};

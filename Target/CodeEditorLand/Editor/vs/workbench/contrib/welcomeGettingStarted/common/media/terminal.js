@@ -1,1 +1,1 @@
-var H="../../../../../../terminal-2SFDVVDH.svg";export{H as default};
+var H="../../../../../../Asset/terminal-2SFDVVDH.svg";export{H as default};

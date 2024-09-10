@@ -1,1 +1,1 @@
-var r="../../../../../../shortcuts-CWD5G2HS.svg";export{r as default};
+var r="../../../../../../Asset/shortcuts-CWD5G2HS.svg";export{r as default};

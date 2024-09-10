@@ -1,1 +1,1 @@
-var Z="../../../../../../language-icon-QFRYZ3DZ.svg";export{Z as default};
+var Z="../../../../../../Asset/language-icon-QFRYZ3DZ.svg";export{Z as default};

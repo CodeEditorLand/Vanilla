@@ -1,1 +1,1 @@
-var e="../../../../../../menuBar-VWJHYVJ6.svg";export{e as default};
+var e="../../../../../../Asset/menuBar-VWJHYVJ6.svg";export{e as default};

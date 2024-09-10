@@ -1,1 +1,1 @@
-var R="../../../../../../stepover-tb-SRSECQTH.png";export{R as default};
+var R="../../../../../../Asset/stepover-tb-SRSECQTH.png";export{R as default};

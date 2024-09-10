@@ -1,1 +1,1 @@
-var l="../../../../../../loading-hc-JQIVEQS5.svg";export{l as default};
+var l="../../../../../../Asset/loading-hc-JQIVEQS5.svg";export{l as default};

@@ -1,6 +1,7 @@
 import type { BuildOptions } from "esbuild";
 
-const Development = process.env.NODE_ENV === "development";
+const Development = process.env["NODE_ENV"] === "development";
+const Dependency = "CodeEditorLand/Editor";
 
 /**
  * @module ESBuild
@@ -12,13 +13,14 @@ export default {
 	logLevel: "error",
 	metafile: true,
 	minify: !Development,
-	outdir: "Target/CodeEditorLand/Editor",
+	outdir: `Target/${Dependency}`,
 	platform: "node",
 	target: "esnext",
-	tsconfig: `Source/Notation/CodeEditorLand/Editor/tsconfig${Development ? "" : ".no-types"}.json`,
+	tsconfig: `Source/Notation/${Dependency}/tsconfig${Development ? "" : ".no-types"}.json`,
 	write: true,
 	legalComments: Development ? "inline" : "none",
 	bundle: false,
+	assetNames: "Asset/[name]-[hash]",
 	plugins: [
 		{
 			name: "Target",
@@ -75,9 +77,22 @@ export default {
 		},
 	],
 	loader: {
-		".ttf": "file",
+		".css,": "file",
+		".fish": "file",
+		".html": "copy",
+		".json": "file",
+		".md": "file",
+		".mp3": "file",
 		".png": "file",
+		".ps1": "file",
+		".psm1": "file",
+		".scm": "file",
+		".scpt": "file",
+		".sh": "copy",
 		".svg": "file",
+		".ttf": "file",
+		".txt": "file",
+		".zsh": "file",
 	},
 } satisfies BuildOptions as BuildOptions;
 
