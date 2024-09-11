@@ -1,1 +1,168 @@
-var S=Object.defineProperty;var u=Object.getOwnPropertyDescriptor;var v=(a,e,r,i)=>{for(var t=i>1?void 0:i?u(e,r):e,s=a.length-1,o;s>=0;s--)(o=a[s])&&(t=(i?o(e,r,t):o(t))||t);return i&&t&&S(e,r,t),t},h=(a,e)=>(r,i)=>e(r,i,a);import{CancellationToken as n}from"../../../base/common/cancellation.js";import{DisposableStore as I,dispose as y}from"../../../base/common/lifecycle.js";import{URI as _}from"../../../base/common/uri.js";import{IConfigurationService as x}from"../../../platform/configuration/common/configuration.js";import{ITelemetryService as P}from"../../../platform/telemetry/common/telemetry.js";import{extHostNamedCustomer as g}from"../../services/extensions/common/extHostCustomers.js";import{ISearchService as f,QueryType as m,SearchProviderType as d}from"../../services/search/common/search.js";import{ExtHostContext as C,MainContext as w}from"../common/extHost.protocol.js";import{revive as M}from"../../../base/common/marshalling.js";import*as T from"../../contrib/search/common/constants.js";import{IContextKeyService as b}from"../../../platform/contextkey/common/contextkey.js";let c=class{constructor(e,r,i,t,s){this._searchService=r;this._telemetryService=i;this.contextKeyService=s;this._proxy=e.getProxy(C.ExtHostSearch),this._proxy.$enableExtensionHostSearch()}_proxy;_searchProvider=new Map;dispose(){this._searchProvider.forEach(e=>e.dispose()),this._searchProvider.clear()}$registerTextSearchProvider(e,r){this._searchProvider.set(e,new l(this._searchService,d.text,r,e,this._proxy))}$registerAITextSearchProvider(e,r){T.SearchContext.hasAIResultProvider.bindTo(this.contextKeyService).set(!0),this._searchProvider.set(e,new l(this._searchService,d.aiText,r,e,this._proxy))}$registerFileSearchProvider(e,r){this._searchProvider.set(e,new l(this._searchService,d.file,r,e,this._proxy))}$unregisterProvider(e){y(this._searchProvider.get(e)),this._searchProvider.delete(e)}$handleFileMatch(e,r,i){const t=this._searchProvider.get(e);if(!t)throw new Error("Got result for unknown provider");t.handleFindMatch(r,i)}$handleTextMatch(e,r,i){const t=this._searchProvider.get(e);if(!t)throw new Error("Got result for unknown provider");t.handleFindMatch(r,i)}$handleTelemetry(e,r){this._telemetryService.publicLog(e,r)}};c=v([g(w.MainThreadSearch),h(1,f),h(2,P),h(3,x),h(4,b)],c);class p{constructor(e,r=++p._idPool,i=new Map){this.progress=e;this.id=r;this.matches=i}static _idPool=0;addMatch(e){const r=this.matches.get(e.resource.toString());r?r.results&&e.results&&r.results.push(...e.results):this.matches.set(e.resource.toString(),e),this.progress?.(e)}}class l{constructor(e,r,i,t,s){this._scheme=i;this._handle=t;this._proxy=s;this._registrations.add(e.registerSearchResultProvider(this._scheme,r,this))}_registrations=new I;_searches=new Map;dispose(){this._registrations.dispose()}fileSearch(e,r=n.None){return this.doSearch(e,void 0,r)}textSearch(e,r,i=n.None){return this.doSearch(e,r,i)}doSearch(e,r,i=n.None){if(!e.folderQueries.length)throw new Error("Empty folderQueries");const t=new p(r);this._searches.set(t.id,t);const s=this._provideSearchResults(e,t.id,i);return Promise.resolve(s).then(o=>(this._searches.delete(t.id),{results:Array.from(t.matches.values()),stats:o.stats,limitHit:o.limitHit,messages:o.messages}),o=>(this._searches.delete(t.id),Promise.reject(o)))}clearCache(e){return Promise.resolve(this._proxy.$clearCache(e))}handleFindMatch(e,r){const i=this._searches.get(e);i&&r.forEach(t=>{t.results?i.addMatch(M(t)):i.addMatch({resource:_.revive(t)})})}_provideSearchResults(e,r,i){switch(e.type){case m.File:return this._proxy.$provideFileSearchResults(this._handle,r,e,i);case m.Text:return this._proxy.$provideTextSearchResults(this._handle,r,e,i);default:return this._proxy.$provideAITextSearchResults(this._handle,r,e,i)}}}export{c as MainThreadSearch};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { DisposableStore, dispose, IDisposable } from "../../../base/common/lifecycle.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IFileMatch, IFileQuery, IRawFileMatch2, ISearchComplete, ISearchCompleteStats, ISearchProgressItem, ISearchQuery, ISearchResultProvider, ISearchService, ITextQuery, QueryType, SearchProviderType } from "../../services/search/common/search.js";
+import { ExtHostContext, ExtHostSearchShape, MainContext, MainThreadSearchShape } from "../common/extHost.protocol.js";
+import { revive } from "../../../base/common/marshalling.js";
+import * as Constants from "../../contrib/search/common/constants.js";
+import { IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
+let MainThreadSearch = class {
+  constructor(extHostContext, _searchService, _telemetryService, _configurationService, contextKeyService) {
+    this._searchService = _searchService;
+    this._telemetryService = _telemetryService;
+    this.contextKeyService = contextKeyService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostSearch);
+    this._proxy.$enableExtensionHostSearch();
+  }
+  _proxy;
+  _searchProvider = /* @__PURE__ */ new Map();
+  dispose() {
+    this._searchProvider.forEach((value) => value.dispose());
+    this._searchProvider.clear();
+  }
+  $registerTextSearchProvider(handle, scheme) {
+    this._searchProvider.set(handle, new RemoteSearchProvider(this._searchService, SearchProviderType.text, scheme, handle, this._proxy));
+  }
+  $registerAITextSearchProvider(handle, scheme) {
+    Constants.SearchContext.hasAIResultProvider.bindTo(this.contextKeyService).set(true);
+    this._searchProvider.set(handle, new RemoteSearchProvider(this._searchService, SearchProviderType.aiText, scheme, handle, this._proxy));
+  }
+  $registerFileSearchProvider(handle, scheme) {
+    this._searchProvider.set(handle, new RemoteSearchProvider(this._searchService, SearchProviderType.file, scheme, handle, this._proxy));
+  }
+  $unregisterProvider(handle) {
+    dispose(this._searchProvider.get(handle));
+    this._searchProvider.delete(handle);
+  }
+  $handleFileMatch(handle, session, data) {
+    const provider = this._searchProvider.get(handle);
+    if (!provider) {
+      throw new Error("Got result for unknown provider");
+    }
+    provider.handleFindMatch(session, data);
+  }
+  $handleTextMatch(handle, session, data) {
+    const provider = this._searchProvider.get(handle);
+    if (!provider) {
+      throw new Error("Got result for unknown provider");
+    }
+    provider.handleFindMatch(session, data);
+  }
+  $handleTelemetry(eventName, data) {
+    this._telemetryService.publicLog(eventName, data);
+  }
+};
+__name(MainThreadSearch, "MainThreadSearch");
+MainThreadSearch = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadSearch),
+  __decorateParam(1, ISearchService),
+  __decorateParam(2, ITelemetryService),
+  __decorateParam(3, IConfigurationService),
+  __decorateParam(4, IContextKeyService)
+], MainThreadSearch);
+class SearchOperation {
+  constructor(progress, id = ++SearchOperation._idPool, matches = /* @__PURE__ */ new Map()) {
+    this.progress = progress;
+    this.id = id;
+    this.matches = matches;
+  }
+  static {
+    __name(this, "SearchOperation");
+  }
+  static _idPool = 0;
+  addMatch(match) {
+    const existingMatch = this.matches.get(match.resource.toString());
+    if (existingMatch) {
+      if (existingMatch.results && match.results) {
+        existingMatch.results.push(...match.results);
+      }
+    } else {
+      this.matches.set(match.resource.toString(), match);
+    }
+    this.progress?.(match);
+  }
+}
+class RemoteSearchProvider {
+  constructor(searchService, type, _scheme, _handle, _proxy) {
+    this._scheme = _scheme;
+    this._handle = _handle;
+    this._proxy = _proxy;
+    this._registrations.add(searchService.registerSearchResultProvider(this._scheme, type, this));
+  }
+  static {
+    __name(this, "RemoteSearchProvider");
+  }
+  _registrations = new DisposableStore();
+  _searches = /* @__PURE__ */ new Map();
+  dispose() {
+    this._registrations.dispose();
+  }
+  fileSearch(query, token = CancellationToken.None) {
+    return this.doSearch(query, void 0, token);
+  }
+  textSearch(query, onProgress, token = CancellationToken.None) {
+    return this.doSearch(query, onProgress, token);
+  }
+  doSearch(query, onProgress, token = CancellationToken.None) {
+    if (!query.folderQueries.length) {
+      throw new Error("Empty folderQueries");
+    }
+    const search = new SearchOperation(onProgress);
+    this._searches.set(search.id, search);
+    const searchP = this._provideSearchResults(query, search.id, token);
+    return Promise.resolve(searchP).then((result) => {
+      this._searches.delete(search.id);
+      return { results: Array.from(search.matches.values()), stats: result.stats, limitHit: result.limitHit, messages: result.messages };
+    }, (err) => {
+      this._searches.delete(search.id);
+      return Promise.reject(err);
+    });
+  }
+  clearCache(cacheKey) {
+    return Promise.resolve(this._proxy.$clearCache(cacheKey));
+  }
+  handleFindMatch(session, dataOrUri) {
+    const searchOp = this._searches.get(session);
+    if (!searchOp) {
+      return;
+    }
+    dataOrUri.forEach((result) => {
+      if (result.results) {
+        searchOp.addMatch(revive(result));
+      } else {
+        searchOp.addMatch({
+          resource: URI.revive(result)
+        });
+      }
+    });
+  }
+  _provideSearchResults(query, session, token) {
+    switch (query.type) {
+      case QueryType.File:
+        return this._proxy.$provideFileSearchResults(this._handle, session, query, token);
+      case QueryType.Text:
+        return this._proxy.$provideTextSearchResults(this._handle, session, query, token);
+      default:
+        return this._proxy.$provideAITextSearchResults(this._handle, session, query, token);
+    }
+  }
+}
+export {
+  MainThreadSearch
+};
+//# sourceMappingURL=mainThreadSearch.js.map

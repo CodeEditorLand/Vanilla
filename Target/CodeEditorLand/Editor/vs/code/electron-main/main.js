@@ -1,6 +1,405 @@
-import"../../platform/update/common/update.config.contribution.js";import{app as b,dialog as A}from"electron";import{unlinkSync as U,promises as E}from"fs";import{URI as R}from"../../base/common/uri.js";import{coalesce as D,distinct as x}from"../../base/common/arrays.js";import{Promises as H}from"../../base/common/async.js";import{toErrorMessage as W}from"../../base/common/errorMessage.js";import{ExpectedError as w,setUnexpectedErrorHandler as T}from"../../base/common/errors.js";import{isValidBasename as _,parseLineAndColumnAware as O,sanitizeFilePath as V}from"../../base/common/extpath.js";import{Event as y}from"../../base/common/event.js";import{getPathLabel as B}from"../../base/common/labels.js";import{Schemas as u}from"../../base/common/network.js";import{basename as j,resolve as q}from"../../base/common/path.js";import{mark as C}from"../../base/common/performance.js";import{isMacintosh as z,isWindows as S,OS as $}from"../../base/common/platform.js";import{cwd as G}from"../../base/common/process.js";import{rtrim as M,trim as L}from"../../base/common/strings.js";import{Promises as J}from"../../base/node/pfs.js";import{ProxyChannel as N}from"../../base/parts/ipc/common/ipc.js";import"../../base/parts/ipc/common/ipc.net.js";import{connect as K,serve as X,XDG_RUNTIME_DIR as Y}from"../../base/parts/ipc/node/ipc.net.js";import{CodeApplication as Q}from"./app.js";import{localize as p}from"../../nls.js";import{IConfigurationService as Z}from"../../platform/configuration/common/configuration.js";import{ConfigurationService as ee}from"../../platform/configuration/common/configurationService.js";import"../../platform/diagnostics/electron-main/diagnosticsMainService.js";import{DiagnosticsService as re}from"../../platform/diagnostics/node/diagnosticsService.js";import"../../platform/environment/common/argv.js";import{EnvironmentMainService as te,IEnvironmentMainService as ie}from"../../platform/environment/electron-main/environmentMainService.js";import{addArg as oe,parseMainProcessArgv as ne}from"../../platform/environment/node/argvHelper.js";import{createWaitMarkerFileSync as se}from"../../platform/environment/node/wait.js";import{IFileService as k}from"../../platform/files/common/files.js";import{FileService as ae}from"../../platform/files/common/fileService.js";import{DiskFileSystemProvider as ce}from"../../platform/files/node/diskFileSystemProvider.js";import{SyncDescriptor as h}from"../../platform/instantiation/common/descriptors.js";import"../../platform/instantiation/common/instantiation.js";import{InstantiationService as me}from"../../platform/instantiation/common/instantiationService.js";import{ServiceCollection as le}from"../../platform/instantiation/common/serviceCollection.js";import"../../platform/launch/electron-main/launchMainService.js";import{ILifecycleMainService as P,LifecycleMainService as de}from"../../platform/lifecycle/electron-main/lifecycleMainService.js";import{BufferLogger as fe}from"../../platform/log/common/bufferLog.js";import{ConsoleMainLogger as ge,getLogLevel as pe,ILoggerService as ve,ILogService as I}from"../../platform/log/common/log.js";import ue from"../../platform/product/common/product.js";import{IProductService as Se}from"../../platform/product/common/productService.js";import{IProtocolMainService as he}from"../../platform/protocol/electron-main/protocol.js";import{ProtocolMainService as we}from"../../platform/protocol/electron-main/protocolMainService.js";import{ITunnelService as Pe}from"../../platform/tunnel/common/tunnel.js";import{TunnelService as Ie}from"../../platform/tunnel/node/tunnelService.js";import{IRequestService as Ee}from"../../platform/request/common/request.js";import{RequestService as De}from"../../platform/request/electron-utility/requestService.js";import{ISignService as ye}from"../../platform/sign/common/sign.js";import{SignService as Ce}from"../../platform/sign/node/signService.js";import{IStateReadService as Me,IStateService as Le}from"../../platform/state/node/state.js";import{NullTelemetryService as Ne}from"../../platform/telemetry/common/telemetryUtils.js";import{IThemeMainService as ke,ThemeMainService as Fe}from"../../platform/theme/electron-main/themeMainService.js";import{IUserDataProfilesMainService as be,UserDataProfilesMainService as Ae}from"../../platform/userDataProfile/electron-main/userDataProfile.js";import{IPolicyService as Ue,NullPolicyService as Re}from"../../platform/policy/common/policy.js";import{NativePolicyService as xe}from"../../platform/policy/node/nativePolicyService.js";import{FilePolicyService as He}from"../../platform/policy/common/filePolicyService.js";import{DisposableStore as We}from"../../base/common/lifecycle.js";import{IUriIdentityService as Te}from"../../platform/uriIdentity/common/uriIdentity.js";import{UriIdentityService as _e}from"../../platform/uriIdentity/common/uriIdentityService.js";import{ILoggerMainService as Oe,LoggerMainService as Ve}from"../../platform/log/electron-main/loggerService.js";import{LogService as Be}from"../../platform/log/common/logService.js";import{massageMessageBoxOptions as je}from"../../platform/dialogs/common/dialogs.js";import{SaveStrategy as qe,StateService as ze}from"../../platform/state/node/stateService.js";import{FileUserDataProvider as $e}from"../../platform/userData/common/fileUserDataProvider.js";import{addUNCHostToAllowlist as Ge,getUNCHost as Je}from"../../base/node/unc.js";class Ke{main(){try{this.startup()}catch(e){console.error(e.message),b.exit(1)}}async startup(){T(i=>console.error(i));const[e,r,t,o,s,l,a,n]=this.createServices();try{try{await this.initServices(t,n,o,s,a)}catch(i){throw this.handleStartupDataDirError(t,a,i),i}await e.invokeFunction(async i=>{const m=i.get(I),d=i.get(P),f=i.get(k),c=i.get(ve),g=await this.claimInstance(m,t,d,e,a,!0);return J.writeFile(t.mainLockfile,String(process.pid)).catch(v=>{m.warn(`app#startup(): Error writing main lockfile: ${v.stack}`)}),l.logger=c.createLogger("main",{name:p("mainLog","Main")}),y.once(d.onWillShutdown)(v=>{f.dispose(),o.dispose(),v.join("instanceLockfile",E.unlink(t.mainLockfile).catch(()=>{}))}),e.createInstance(Q,g,r).startup()})}catch(i){e.invokeFunction(this.quit,i)}}createServices(){const e=new le,r=new We;process.once("exit",()=>r.dispose());const t={_serviceBrand:void 0,...ue};e.set(Se,t);const o=new te(this.resolveArgs(),t),s=this.patchEnvironment(o);e.set(ie,o);const l=new Ve(pe(o),o.logsHome);e.set(Oe,l);const a=new fe(l.getLogLevel()),n=r.add(new Be(a,[new ge(l.getLogLevel())]));e.set(I,n);const i=new ae(n);e.set(k,i);const m=new ce(n);i.registerProvider(u.file,m);const d=new _e(i);e.set(Te,d);const f=new ze(qe.DELAYED,o,n,i);e.set(Me,f),e.set(Le,f);const c=new Ae(f,d,o,i,n);e.set(be,c),i.registerProvider(u.vscodeUserData,new $e(u.file,m,u.vscodeUserData,c,d,n));const g=S&&t.win32RegValueName?r.add(new xe(n,t.win32RegValueName)):o.policyFile?r.add(new He(o.policyFile,i,n)):new Re;e.set(Ue,g);const v=new ee(c.defaultProfile.settingsResource,i,g,n);return e.set(Z,v),e.set(P,new h(de,void 0,!1)),e.set(Ee,new h(De,void 0,!0)),e.set(ke,new h(Fe)),e.set(ye,new h(Ce,void 0,!1)),e.set(Pe,new h(Ie)),e.set(he,new we(o,c,n)),[new me(e,!0),s,o,v,f,a,t,c]}patchEnvironment(e){const r={VSCODE_IPC_HOOK:e.mainIPCHandle};return["VSCODE_NLS_CONFIG","VSCODE_PORTABLE"].forEach(t=>{const o=process.env[t];typeof o=="string"&&(r[t]=o)}),Object.assign(process.env,r),r}async initServices(e,r,t,o,s){await H.settled([Promise.all([this.allowWindowsUNCPath(e.extensionsPath),e.codeCachePath,e.logsHome.with({scheme:u.file}).fsPath,r.defaultProfile.globalStorageHome.with({scheme:u.file}).fsPath,e.workspaceStorageHome.with({scheme:u.file}).fsPath,e.localHistoryHome.with({scheme:u.file}).fsPath,e.backupHome].map(l=>l?E.mkdir(l,{recursive:!0}):void 0)),o.init(),t.initialize()]),r.init()}allowWindowsUNCPath(e){if(S){const r=Je(e);r&&Ge(r)}return e}async claimInstance(e,r,t,o,s,l){let a;try{C("code/willStartMainServer"),a=await X(r.mainIPCHandle),C("code/didStartMainServer"),y.once(t.onWillShutdown)(()=>a.dispose())}catch(n){if(n.code!=="EADDRINUSE")throw this.handleStartupDataDirError(r,s,n),n;let i;try{i=await K(r.mainIPCHandle,"main")}catch(c){if(!l||S||c.code!=="ECONNREFUSED")throw c.code==="EPERM"&&this.showStartupWarningDialog(p("secondInstanceAdmin","Another instance of {0} is already running as administrator.",s.nameShort),p("secondInstanceAdminDetail","Please close the other instance and try again."),s),c;try{U(r.mainIPCHandle)}catch(g){throw e.warn("Could not delete obsolete instance handle",g),g}return this.claimInstance(e,r,t,o,s,!1)}if(r.extensionTestsLocationURI&&!r.debugExtensionHost.break){const c=`Running extension tests from the command line is currently only supported if no other instance of ${s.nameShort} is running.`;throw e.error(c),i.dispose(),new Error(c)}let m;!r.args.wait&&!r.args.status&&(m=setTimeout(()=>{this.showStartupWarningDialog(p("secondInstanceNoResponse","Another instance of {0} is running but not responding",s.nameShort),p("secondInstanceNoResponseDetail","Please close all other instances and try again."),s)},1e4));const d=N.toService(i.getChannel("launch"),{disableMarshalling:!0}),f=N.toService(i.getChannel("diagnostics"),{disableMarshalling:!0});if(r.args.status)return o.invokeFunction(async()=>{const c=new re(Ne,s),g=await f.getMainDiagnostics(),v=await f.getRemoteDiagnostics({includeProcesses:!0,includeWorkspaceMetadata:!0}),F=await c.getDiagnostics(g,v);throw console.log(F),new w});throw S&&await this.windowsAllowSetForegroundWindow(d,e),e.trace("Sending env to running instance..."),await d.start(r.args,process.env),i.dispose(),m&&clearTimeout(m),new w("Sent env to running instance. Terminating...")}if(r.args.status)throw console.log(p("statusWarning","Warning: The --status argument can only be used if {0} is already running. Please run it again after {0} has started.",s.nameShort)),new w("Terminating...");return process.env.VSCODE_PID=String(process.pid),a}handleStartupDataDirError(e,r,t){if(t.code==="EACCES"||t.code==="EPERM"){const o=D([e.userDataPath,e.extensionsPath,Y]).map(s=>B(R.file(s),{os:$,tildify:e}));this.showStartupWarningDialog(p("startupDataDirError","Unable to write program user data."),p("startupUserDataAndExtensionsDirErrorDetail",`{0}
-
-Please make sure the following directories are writeable:
-
-{1}`,W(t),o.join(`
-`)),r)}}showStartupWarningDialog(e,r,t){A.showMessageBoxSync(je({type:"warning",buttons:[p({key:"close",comment:["&& denotes a mnemonic"]},"&&Close")],message:e,detail:r},t).options)}async windowsAllowSetForegroundWindow(e,r){if(S){const t=await e.getMainProcessId();r.trace("Sending some foreground love to the running instance:",t);try{(await import("windows-foreground-love")).allowSetForegroundWindow(t)}catch(o){r.error(o)}}}quit(e,r){const t=e.get(I),o=e.get(P);let s=0;r&&(r.isExpected?r.message&&t.trace(r.message):(s=1,r.stack?t.error(r.stack):t.error(`Startup error: ${r.toString()}`))),o.kill(s)}resolveArgs(){const e=this.validatePaths(ne(process.argv));if(e.wait&&!e.waitMarkerFilePath){const r=se(e.verbose);r&&(oe(process.argv,"--waitMarkerFilePath",r),e.waitMarkerFilePath=r)}return e}validatePaths(e){if(e["open-url"]&&(e._urls=e._,e._=[]),!e.remote){const r=this.doValidatePaths(e._,e.goto);e._=r}return e}doValidatePaths(e,r){const t=G(),o=e.map(a=>{let n=String(a),i;r&&(i=O(n),n=i.path),n&&(n=this.preparePath(t,n));const m=V(n,t),d=j(m);return d&&!_(d)?null:r&&i?(i.path=m,this.toPath(i)):m}),s=S||z,l=x(o,a=>a&&s?a.toLowerCase():a||"");return D(l)}preparePath(e,r){return S&&(r=M(r,'"')),r=L(L(r," "),"	"),S&&(r=q(e,r),r=M(r,".")),r}toPath(e){const r=[e.path];return typeof e.line=="number"&&r.push(String(e.line)),typeof e.column=="number"&&r.push(String(e.column)),r.join(":")}}const Xe=new Ke;Xe.main();
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "../../platform/update/common/update.config.contribution.js";
+import { app, dialog } from "electron";
+import { unlinkSync, promises } from "fs";
+import { URI } from "../../base/common/uri.js";
+import { coalesce, distinct } from "../../base/common/arrays.js";
+import { Promises } from "../../base/common/async.js";
+import { toErrorMessage } from "../../base/common/errorMessage.js";
+import { ExpectedError, setUnexpectedErrorHandler } from "../../base/common/errors.js";
+import { IPathWithLineAndColumn, isValidBasename, parseLineAndColumnAware, sanitizeFilePath } from "../../base/common/extpath.js";
+import { Event } from "../../base/common/event.js";
+import { getPathLabel } from "../../base/common/labels.js";
+import { Schemas } from "../../base/common/network.js";
+import { basename, resolve } from "../../base/common/path.js";
+import { mark } from "../../base/common/performance.js";
+import { IProcessEnvironment, isMacintosh, isWindows, OS } from "../../base/common/platform.js";
+import { cwd } from "../../base/common/process.js";
+import { rtrim, trim } from "../../base/common/strings.js";
+import { Promises as FSPromises } from "../../base/node/pfs.js";
+import { ProxyChannel } from "../../base/parts/ipc/common/ipc.js";
+import { Client as NodeIPCClient } from "../../base/parts/ipc/common/ipc.net.js";
+import { connect as nodeIPCConnect, serve as nodeIPCServe, Server as NodeIPCServer, XDG_RUNTIME_DIR } from "../../base/parts/ipc/node/ipc.net.js";
+import { CodeApplication } from "./app.js";
+import { localize } from "../../nls.js";
+import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
+import { ConfigurationService } from "../../platform/configuration/common/configurationService.js";
+import { IDiagnosticsMainService } from "../../platform/diagnostics/electron-main/diagnosticsMainService.js";
+import { DiagnosticsService } from "../../platform/diagnostics/node/diagnosticsService.js";
+import { NativeParsedArgs } from "../../platform/environment/common/argv.js";
+import { EnvironmentMainService, IEnvironmentMainService } from "../../platform/environment/electron-main/environmentMainService.js";
+import { addArg, parseMainProcessArgv } from "../../platform/environment/node/argvHelper.js";
+import { createWaitMarkerFileSync } from "../../platform/environment/node/wait.js";
+import { IFileService } from "../../platform/files/common/files.js";
+import { FileService } from "../../platform/files/common/fileService.js";
+import { DiskFileSystemProvider } from "../../platform/files/node/diskFileSystemProvider.js";
+import { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
+import { IInstantiationService, ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
+import { InstantiationService } from "../../platform/instantiation/common/instantiationService.js";
+import { ServiceCollection } from "../../platform/instantiation/common/serviceCollection.js";
+import { ILaunchMainService } from "../../platform/launch/electron-main/launchMainService.js";
+import { ILifecycleMainService, LifecycleMainService } from "../../platform/lifecycle/electron-main/lifecycleMainService.js";
+import { BufferLogger } from "../../platform/log/common/bufferLog.js";
+import { ConsoleMainLogger, getLogLevel, ILoggerService, ILogService } from "../../platform/log/common/log.js";
+import product from "../../platform/product/common/product.js";
+import { IProductService } from "../../platform/product/common/productService.js";
+import { IProtocolMainService } from "../../platform/protocol/electron-main/protocol.js";
+import { ProtocolMainService } from "../../platform/protocol/electron-main/protocolMainService.js";
+import { ITunnelService } from "../../platform/tunnel/common/tunnel.js";
+import { TunnelService } from "../../platform/tunnel/node/tunnelService.js";
+import { IRequestService } from "../../platform/request/common/request.js";
+import { RequestService } from "../../platform/request/electron-utility/requestService.js";
+import { ISignService } from "../../platform/sign/common/sign.js";
+import { SignService } from "../../platform/sign/node/signService.js";
+import { IStateReadService, IStateService } from "../../platform/state/node/state.js";
+import { NullTelemetryService } from "../../platform/telemetry/common/telemetryUtils.js";
+import { IThemeMainService, ThemeMainService } from "../../platform/theme/electron-main/themeMainService.js";
+import { IUserDataProfilesMainService, UserDataProfilesMainService } from "../../platform/userDataProfile/electron-main/userDataProfile.js";
+import { IPolicyService, NullPolicyService } from "../../platform/policy/common/policy.js";
+import { NativePolicyService } from "../../platform/policy/node/nativePolicyService.js";
+import { FilePolicyService } from "../../platform/policy/common/filePolicyService.js";
+import { DisposableStore } from "../../base/common/lifecycle.js";
+import { IUriIdentityService } from "../../platform/uriIdentity/common/uriIdentity.js";
+import { UriIdentityService } from "../../platform/uriIdentity/common/uriIdentityService.js";
+import { ILoggerMainService, LoggerMainService } from "../../platform/log/electron-main/loggerService.js";
+import { LogService } from "../../platform/log/common/logService.js";
+import { massageMessageBoxOptions } from "../../platform/dialogs/common/dialogs.js";
+import { SaveStrategy, StateService } from "../../platform/state/node/stateService.js";
+import { FileUserDataProvider } from "../../platform/userData/common/fileUserDataProvider.js";
+import { addUNCHostToAllowlist, getUNCHost } from "../../base/node/unc.js";
+class CodeMain {
+  static {
+    __name(this, "CodeMain");
+  }
+  main() {
+    try {
+      this.startup();
+    } catch (error) {
+      console.error(error.message);
+      app.exit(1);
+    }
+  }
+  async startup() {
+    setUnexpectedErrorHandler((err) => console.error(err));
+    const [instantiationService, instanceEnvironment, environmentMainService, configurationService, stateMainService, bufferLogService, productService, userDataProfilesMainService] = this.createServices();
+    try {
+      try {
+        await this.initServices(environmentMainService, userDataProfilesMainService, configurationService, stateMainService, productService);
+      } catch (error) {
+        this.handleStartupDataDirError(environmentMainService, productService, error);
+        throw error;
+      }
+      await instantiationService.invokeFunction(async (accessor) => {
+        const logService = accessor.get(ILogService);
+        const lifecycleMainService = accessor.get(ILifecycleMainService);
+        const fileService = accessor.get(IFileService);
+        const loggerService = accessor.get(ILoggerService);
+        const mainProcessNodeIpcServer = await this.claimInstance(logService, environmentMainService, lifecycleMainService, instantiationService, productService, true);
+        FSPromises.writeFile(environmentMainService.mainLockfile, String(process.pid)).catch((err) => {
+          logService.warn(`app#startup(): Error writing main lockfile: ${err.stack}`);
+        });
+        bufferLogService.logger = loggerService.createLogger("main", { name: localize("mainLog", "Main") });
+        Event.once(lifecycleMainService.onWillShutdown)((evt) => {
+          fileService.dispose();
+          configurationService.dispose();
+          evt.join("instanceLockfile", promises.unlink(environmentMainService.mainLockfile).catch(() => {
+          }));
+        });
+        return instantiationService.createInstance(CodeApplication, mainProcessNodeIpcServer, instanceEnvironment).startup();
+      });
+    } catch (error) {
+      instantiationService.invokeFunction(this.quit, error);
+    }
+  }
+  createServices() {
+    const services = new ServiceCollection();
+    const disposables = new DisposableStore();
+    process.once("exit", () => disposables.dispose());
+    const productService = { _serviceBrand: void 0, ...product };
+    services.set(IProductService, productService);
+    const environmentMainService = new EnvironmentMainService(this.resolveArgs(), productService);
+    const instanceEnvironment = this.patchEnvironment(environmentMainService);
+    services.set(IEnvironmentMainService, environmentMainService);
+    const loggerService = new LoggerMainService(getLogLevel(environmentMainService), environmentMainService.logsHome);
+    services.set(ILoggerMainService, loggerService);
+    const bufferLogger = new BufferLogger(loggerService.getLogLevel());
+    const logService = disposables.add(new LogService(bufferLogger, [new ConsoleMainLogger(loggerService.getLogLevel())]));
+    services.set(ILogService, logService);
+    const fileService = new FileService(logService);
+    services.set(IFileService, fileService);
+    const diskFileSystemProvider = new DiskFileSystemProvider(logService);
+    fileService.registerProvider(Schemas.file, diskFileSystemProvider);
+    const uriIdentityService = new UriIdentityService(fileService);
+    services.set(IUriIdentityService, uriIdentityService);
+    const stateService = new StateService(SaveStrategy.DELAYED, environmentMainService, logService, fileService);
+    services.set(IStateReadService, stateService);
+    services.set(IStateService, stateService);
+    const userDataProfilesMainService = new UserDataProfilesMainService(stateService, uriIdentityService, environmentMainService, fileService, logService);
+    services.set(IUserDataProfilesMainService, userDataProfilesMainService);
+    fileService.registerProvider(Schemas.vscodeUserData, new FileUserDataProvider(Schemas.file, diskFileSystemProvider, Schemas.vscodeUserData, userDataProfilesMainService, uriIdentityService, logService));
+    const policyService = isWindows && productService.win32RegValueName ? disposables.add(new NativePolicyService(logService, productService.win32RegValueName)) : environmentMainService.policyFile ? disposables.add(new FilePolicyService(environmentMainService.policyFile, fileService, logService)) : new NullPolicyService();
+    services.set(IPolicyService, policyService);
+    const configurationService = new ConfigurationService(userDataProfilesMainService.defaultProfile.settingsResource, fileService, policyService, logService);
+    services.set(IConfigurationService, configurationService);
+    services.set(ILifecycleMainService, new SyncDescriptor(LifecycleMainService, void 0, false));
+    services.set(IRequestService, new SyncDescriptor(RequestService, void 0, true));
+    services.set(IThemeMainService, new SyncDescriptor(ThemeMainService));
+    services.set(ISignService, new SyncDescriptor(
+      SignService,
+      void 0,
+      false
+      /* proxied to other processes */
+    ));
+    services.set(ITunnelService, new SyncDescriptor(TunnelService));
+    services.set(IProtocolMainService, new ProtocolMainService(environmentMainService, userDataProfilesMainService, logService));
+    return [new InstantiationService(services, true), instanceEnvironment, environmentMainService, configurationService, stateService, bufferLogger, productService, userDataProfilesMainService];
+  }
+  patchEnvironment(environmentMainService) {
+    const instanceEnvironment = {
+      VSCODE_IPC_HOOK: environmentMainService.mainIPCHandle
+    };
+    ["VSCODE_NLS_CONFIG", "VSCODE_PORTABLE"].forEach((key) => {
+      const value = process.env[key];
+      if (typeof value === "string") {
+        instanceEnvironment[key] = value;
+      }
+    });
+    Object.assign(process.env, instanceEnvironment);
+    return instanceEnvironment;
+  }
+  async initServices(environmentMainService, userDataProfilesMainService, configurationService, stateService, productService) {
+    await Promises.settled([
+      // Environment service (paths)
+      Promise.all([
+        this.allowWindowsUNCPath(environmentMainService.extensionsPath),
+        // enable extension paths on UNC drives...
+        environmentMainService.codeCachePath,
+        // ...other user-data-derived paths should already be enlisted from `main.js`
+        environmentMainService.logsHome.with({ scheme: Schemas.file }).fsPath,
+        userDataProfilesMainService.defaultProfile.globalStorageHome.with({ scheme: Schemas.file }).fsPath,
+        environmentMainService.workspaceStorageHome.with({ scheme: Schemas.file }).fsPath,
+        environmentMainService.localHistoryHome.with({ scheme: Schemas.file }).fsPath,
+        environmentMainService.backupHome
+      ].map((path) => path ? promises.mkdir(path, { recursive: true }) : void 0)),
+      // State service
+      stateService.init(),
+      // Configuration service
+      configurationService.initialize()
+    ]);
+    userDataProfilesMainService.init();
+  }
+  allowWindowsUNCPath(path) {
+    if (isWindows) {
+      const host = getUNCHost(path);
+      if (host) {
+        addUNCHostToAllowlist(host);
+      }
+    }
+    return path;
+  }
+  async claimInstance(logService, environmentMainService, lifecycleMainService, instantiationService, productService, retry) {
+    let mainProcessNodeIpcServer;
+    try {
+      mark("code/willStartMainServer");
+      mainProcessNodeIpcServer = await nodeIPCServe(environmentMainService.mainIPCHandle);
+      mark("code/didStartMainServer");
+      Event.once(lifecycleMainService.onWillShutdown)(() => mainProcessNodeIpcServer.dispose());
+    } catch (error) {
+      if (error.code !== "EADDRINUSE") {
+        this.handleStartupDataDirError(environmentMainService, productService, error);
+        throw error;
+      }
+      let client;
+      try {
+        client = await nodeIPCConnect(environmentMainService.mainIPCHandle, "main");
+      } catch (error2) {
+        if (!retry || isWindows || error2.code !== "ECONNREFUSED") {
+          if (error2.code === "EPERM") {
+            this.showStartupWarningDialog(
+              localize("secondInstanceAdmin", "Another instance of {0} is already running as administrator.", productService.nameShort),
+              localize("secondInstanceAdminDetail", "Please close the other instance and try again."),
+              productService
+            );
+          }
+          throw error2;
+        }
+        try {
+          unlinkSync(environmentMainService.mainIPCHandle);
+        } catch (error3) {
+          logService.warn("Could not delete obsolete instance handle", error3);
+          throw error3;
+        }
+        return this.claimInstance(logService, environmentMainService, lifecycleMainService, instantiationService, productService, false);
+      }
+      if (environmentMainService.extensionTestsLocationURI && !environmentMainService.debugExtensionHost.break) {
+        const msg = `Running extension tests from the command line is currently only supported if no other instance of ${productService.nameShort} is running.`;
+        logService.error(msg);
+        client.dispose();
+        throw new Error(msg);
+      }
+      let startupWarningDialogHandle = void 0;
+      if (!environmentMainService.args.wait && !environmentMainService.args.status) {
+        startupWarningDialogHandle = setTimeout(() => {
+          this.showStartupWarningDialog(
+            localize("secondInstanceNoResponse", "Another instance of {0} is running but not responding", productService.nameShort),
+            localize("secondInstanceNoResponseDetail", "Please close all other instances and try again."),
+            productService
+          );
+        }, 1e4);
+      }
+      const otherInstanceLaunchMainService = ProxyChannel.toService(client.getChannel("launch"), { disableMarshalling: true });
+      const otherInstanceDiagnosticsMainService = ProxyChannel.toService(client.getChannel("diagnostics"), { disableMarshalling: true });
+      if (environmentMainService.args.status) {
+        return instantiationService.invokeFunction(async () => {
+          const diagnosticsService = new DiagnosticsService(NullTelemetryService, productService);
+          const mainDiagnostics = await otherInstanceDiagnosticsMainService.getMainDiagnostics();
+          const remoteDiagnostics = await otherInstanceDiagnosticsMainService.getRemoteDiagnostics({ includeProcesses: true, includeWorkspaceMetadata: true });
+          const diagnostics = await diagnosticsService.getDiagnostics(mainDiagnostics, remoteDiagnostics);
+          console.log(diagnostics);
+          throw new ExpectedError();
+        });
+      }
+      if (isWindows) {
+        await this.windowsAllowSetForegroundWindow(otherInstanceLaunchMainService, logService);
+      }
+      logService.trace("Sending env to running instance...");
+      await otherInstanceLaunchMainService.start(environmentMainService.args, process.env);
+      client.dispose();
+      if (startupWarningDialogHandle) {
+        clearTimeout(startupWarningDialogHandle);
+      }
+      throw new ExpectedError("Sent env to running instance. Terminating...");
+    }
+    if (environmentMainService.args.status) {
+      console.log(localize("statusWarning", "Warning: The --status argument can only be used if {0} is already running. Please run it again after {0} has started.", productService.nameShort));
+      throw new ExpectedError("Terminating...");
+    }
+    process.env["VSCODE_PID"] = String(process.pid);
+    return mainProcessNodeIpcServer;
+  }
+  handleStartupDataDirError(environmentMainService, productService, error) {
+    if (error.code === "EACCES" || error.code === "EPERM") {
+      const directories = coalesce([environmentMainService.userDataPath, environmentMainService.extensionsPath, XDG_RUNTIME_DIR]).map((folder) => getPathLabel(URI.file(folder), { os: OS, tildify: environmentMainService }));
+      this.showStartupWarningDialog(
+        localize("startupDataDirError", "Unable to write program user data."),
+        localize("startupUserDataAndExtensionsDirErrorDetail", "{0}\n\nPlease make sure the following directories are writeable:\n\n{1}", toErrorMessage(error), directories.join("\n")),
+        productService
+      );
+    }
+  }
+  showStartupWarningDialog(message, detail, productService) {
+    dialog.showMessageBoxSync(massageMessageBoxOptions({
+      type: "warning",
+      buttons: [localize({ key: "close", comment: ["&& denotes a mnemonic"] }, "&&Close")],
+      message,
+      detail
+    }, productService).options);
+  }
+  async windowsAllowSetForegroundWindow(launchMainService, logService) {
+    if (isWindows) {
+      const processId = await launchMainService.getMainProcessId();
+      logService.trace("Sending some foreground love to the running instance:", processId);
+      try {
+        (await import("windows-foreground-love")).allowSetForegroundWindow(processId);
+      } catch (error) {
+        logService.error(error);
+      }
+    }
+  }
+  quit(accessor, reason) {
+    const logService = accessor.get(ILogService);
+    const lifecycleMainService = accessor.get(ILifecycleMainService);
+    let exitCode = 0;
+    if (reason) {
+      if (reason.isExpected) {
+        if (reason.message) {
+          logService.trace(reason.message);
+        }
+      } else {
+        exitCode = 1;
+        if (reason.stack) {
+          logService.error(reason.stack);
+        } else {
+          logService.error(`Startup error: ${reason.toString()}`);
+        }
+      }
+    }
+    lifecycleMainService.kill(exitCode);
+  }
+  //#region Command line arguments utilities
+  resolveArgs() {
+    const args = this.validatePaths(parseMainProcessArgv(process.argv));
+    if (args.wait && !args.waitMarkerFilePath) {
+      const waitMarkerFilePath = createWaitMarkerFileSync(args.verbose);
+      if (waitMarkerFilePath) {
+        addArg(process.argv, "--waitMarkerFilePath", waitMarkerFilePath);
+        args.waitMarkerFilePath = waitMarkerFilePath;
+      }
+    }
+    return args;
+  }
+  validatePaths(args) {
+    if (args["open-url"]) {
+      args._urls = args._;
+      args._ = [];
+    }
+    if (!args["remote"]) {
+      const paths = this.doValidatePaths(args._, args.goto);
+      args._ = paths;
+    }
+    return args;
+  }
+  doValidatePaths(args, gotoLineMode) {
+    const currentWorkingDir = cwd();
+    const result = args.map((arg) => {
+      let pathCandidate = String(arg);
+      let parsedPath = void 0;
+      if (gotoLineMode) {
+        parsedPath = parseLineAndColumnAware(pathCandidate);
+        pathCandidate = parsedPath.path;
+      }
+      if (pathCandidate) {
+        pathCandidate = this.preparePath(currentWorkingDir, pathCandidate);
+      }
+      const sanitizedFilePath = sanitizeFilePath(pathCandidate, currentWorkingDir);
+      const filePathBasename = basename(sanitizedFilePath);
+      if (filePathBasename && !isValidBasename(filePathBasename)) {
+        return null;
+      }
+      if (gotoLineMode && parsedPath) {
+        parsedPath.path = sanitizedFilePath;
+        return this.toPath(parsedPath);
+      }
+      return sanitizedFilePath;
+    });
+    const caseInsensitive = isWindows || isMacintosh;
+    const distinctPaths = distinct(result, (path) => path && caseInsensitive ? path.toLowerCase() : path || "");
+    return coalesce(distinctPaths);
+  }
+  preparePath(cwd2, path) {
+    if (isWindows) {
+      path = rtrim(path, '"');
+    }
+    path = trim(trim(path, " "), "	");
+    if (isWindows) {
+      path = resolve(cwd2, path);
+      path = rtrim(path, ".");
+    }
+    return path;
+  }
+  toPath(pathWithLineAndCol) {
+    const segments = [pathWithLineAndCol.path];
+    if (typeof pathWithLineAndCol.line === "number") {
+      segments.push(String(pathWithLineAndCol.line));
+    }
+    if (typeof pathWithLineAndCol.column === "number") {
+      segments.push(String(pathWithLineAndCol.column));
+    }
+    return segments.join(":");
+  }
+  //#endregion
+}
+const code = new CodeMain();
+code.main();
+//# sourceMappingURL=main.js.map

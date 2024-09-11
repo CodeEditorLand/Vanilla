@@ -1,1 +1,191 @@
-import{parse as x}from"../../../base/common/glob.js";import{Mimes as g}from"../../../base/common/mime.js";import{Schemas as l}from"../../../base/common/network.js";import{basename as w,posix as h}from"../../../base/common/path.js";import{DataUri as c}from"../../../base/common/resources.js";import{startsWithUTF8BOM as y}from"../../../base/common/strings.js";import"../../../base/common/uri.js";import{PLAINTEXT_LANGUAGE_ID as m}from"../languages/modesRegistry.js";let s=[],u=[],d=[];function _(e,i=!1){p(e,!1,i)}function B(e){p(e,!0,!1)}function p(e,i,t){const n=C(e,i);s.push(n),n.userConfigured?d.push(n):u.push(n),t&&!n.userConfigured&&s.forEach(o=>{o.mime===n.mime||o.userConfigured||(n.extension&&o.extension===n.extension&&console.warn(`Overwriting extension <<${n.extension}>> to now point to mime <<${n.mime}>>`),n.filename&&o.filename===n.filename&&console.warn(`Overwriting filename <<${n.filename}>> to now point to mime <<${n.mime}>>`),n.filepattern&&o.filepattern===n.filepattern&&console.warn(`Overwriting filepattern <<${n.filepattern}>> to now point to mime <<${n.mime}>>`),n.firstline&&o.firstline===n.firstline&&console.warn(`Overwriting firstline <<${n.firstline}>> to now point to mime <<${n.mime}>>`))})}function C(e,i){return{id:e.id,mime:e.mime,filename:e.filename,extension:e.extension,filepattern:e.filepattern,firstline:e.firstline,userConfigured:i,filenameLowercase:e.filename?e.filename.toLowerCase():void 0,extensionLowercase:e.extension?e.extension.toLowerCase():void 0,filepatternLowercase:e.filepattern?x(e.filepattern.toLowerCase()):void 0,filepatternOnPath:e.filepattern?e.filepattern.indexOf(h.sep)>=0:!1}}function D(){s=s.filter(e=>e.userConfigured),u=[]}function N(){s=s.filter(e=>!e.userConfigured),d=[]}function F(e,i){return I(e,i).map(t=>t.mime)}function G(e,i){return I(e,i).map(t=>t.id)}function I(e,i){let t;if(e)switch(e.scheme){case l.file:t=e.fsPath;break;case l.data:{t=c.parseMetaData(e).get(c.META_DATA_LABEL);break}case l.vscodeNotebookCell:t=void 0;break;default:t=e.path}if(!t)return[{id:"unknown",mime:g.unknown}];t=t.toLowerCase();const n=w(t),o=L(t,n,d);if(o)return[o,{id:m,mime:g.text}];const a=L(t,n,u);if(a)return[a,{id:m,mime:g.text}];if(i){const f=b(i);if(f)return[f,{id:m,mime:g.text}]}return[{id:"unknown",mime:g.unknown}]}function L(e,i,t){let n,o,a;for(let f=t.length-1;f>=0;f--){const r=t[f];if(i===r.filenameLowercase){n=r;break}if(r.filepattern&&(!o||r.filepattern.length>o.filepattern.length)){const A=r.filepatternOnPath?e:i;r.filepatternLowercase?.(A)&&(o=r)}r.extension&&(!a||r.extension.length>a.extension.length)&&i.endsWith(r.extensionLowercase)&&(a=r)}if(n)return n;if(o)return o;if(a)return a}function b(e){if(y(e)&&(e=e.substr(1)),e.length>0)for(let i=s.length-1;i>=0;i--){const t=s[i];if(!t.firstline)continue;const n=e.match(t.firstline);if(n&&n.length>0)return t}}export{N as clearConfiguredLanguageAssociations,D as clearPlatformLanguageAssociations,G as getLanguageIds,F as getMimeTypes,B as registerConfiguredLanguageAssociation,_ as registerPlatformLanguageAssociation};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ParsedPattern, parse } from "../../../base/common/glob.js";
+import { Mimes } from "../../../base/common/mime.js";
+import { Schemas } from "../../../base/common/network.js";
+import { basename, posix } from "../../../base/common/path.js";
+import { DataUri } from "../../../base/common/resources.js";
+import { startsWithUTF8BOM } from "../../../base/common/strings.js";
+import { URI } from "../../../base/common/uri.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../languages/modesRegistry.js";
+let registeredAssociations = [];
+let nonUserRegisteredAssociations = [];
+let userRegisteredAssociations = [];
+function registerPlatformLanguageAssociation(association, warnOnOverwrite = false) {
+  _registerLanguageAssociation(association, false, warnOnOverwrite);
+}
+__name(registerPlatformLanguageAssociation, "registerPlatformLanguageAssociation");
+function registerConfiguredLanguageAssociation(association) {
+  _registerLanguageAssociation(association, true, false);
+}
+__name(registerConfiguredLanguageAssociation, "registerConfiguredLanguageAssociation");
+function _registerLanguageAssociation(association, userConfigured, warnOnOverwrite) {
+  const associationItem = toLanguageAssociationItem(association, userConfigured);
+  registeredAssociations.push(associationItem);
+  if (!associationItem.userConfigured) {
+    nonUserRegisteredAssociations.push(associationItem);
+  } else {
+    userRegisteredAssociations.push(associationItem);
+  }
+  if (warnOnOverwrite && !associationItem.userConfigured) {
+    registeredAssociations.forEach((a) => {
+      if (a.mime === associationItem.mime || a.userConfigured) {
+        return;
+      }
+      if (associationItem.extension && a.extension === associationItem.extension) {
+        console.warn(`Overwriting extension <<${associationItem.extension}>> to now point to mime <<${associationItem.mime}>>`);
+      }
+      if (associationItem.filename && a.filename === associationItem.filename) {
+        console.warn(`Overwriting filename <<${associationItem.filename}>> to now point to mime <<${associationItem.mime}>>`);
+      }
+      if (associationItem.filepattern && a.filepattern === associationItem.filepattern) {
+        console.warn(`Overwriting filepattern <<${associationItem.filepattern}>> to now point to mime <<${associationItem.mime}>>`);
+      }
+      if (associationItem.firstline && a.firstline === associationItem.firstline) {
+        console.warn(`Overwriting firstline <<${associationItem.firstline}>> to now point to mime <<${associationItem.mime}>>`);
+      }
+    });
+  }
+}
+__name(_registerLanguageAssociation, "_registerLanguageAssociation");
+function toLanguageAssociationItem(association, userConfigured) {
+  return {
+    id: association.id,
+    mime: association.mime,
+    filename: association.filename,
+    extension: association.extension,
+    filepattern: association.filepattern,
+    firstline: association.firstline,
+    userConfigured,
+    filenameLowercase: association.filename ? association.filename.toLowerCase() : void 0,
+    extensionLowercase: association.extension ? association.extension.toLowerCase() : void 0,
+    filepatternLowercase: association.filepattern ? parse(association.filepattern.toLowerCase()) : void 0,
+    filepatternOnPath: association.filepattern ? association.filepattern.indexOf(posix.sep) >= 0 : false
+  };
+}
+__name(toLanguageAssociationItem, "toLanguageAssociationItem");
+function clearPlatformLanguageAssociations() {
+  registeredAssociations = registeredAssociations.filter((a) => a.userConfigured);
+  nonUserRegisteredAssociations = [];
+}
+__name(clearPlatformLanguageAssociations, "clearPlatformLanguageAssociations");
+function clearConfiguredLanguageAssociations() {
+  registeredAssociations = registeredAssociations.filter((a) => !a.userConfigured);
+  userRegisteredAssociations = [];
+}
+__name(clearConfiguredLanguageAssociations, "clearConfiguredLanguageAssociations");
+function getMimeTypes(resource, firstLine) {
+  return getAssociations(resource, firstLine).map((item) => item.mime);
+}
+__name(getMimeTypes, "getMimeTypes");
+function getLanguageIds(resource, firstLine) {
+  return getAssociations(resource, firstLine).map((item) => item.id);
+}
+__name(getLanguageIds, "getLanguageIds");
+function getAssociations(resource, firstLine) {
+  let path;
+  if (resource) {
+    switch (resource.scheme) {
+      case Schemas.file:
+        path = resource.fsPath;
+        break;
+      case Schemas.data: {
+        const metadata = DataUri.parseMetaData(resource);
+        path = metadata.get(DataUri.META_DATA_LABEL);
+        break;
+      }
+      case Schemas.vscodeNotebookCell:
+        path = void 0;
+        break;
+      default:
+        path = resource.path;
+    }
+  }
+  if (!path) {
+    return [{ id: "unknown", mime: Mimes.unknown }];
+  }
+  path = path.toLowerCase();
+  const filename = basename(path);
+  const configuredLanguage = getAssociationByPath(path, filename, userRegisteredAssociations);
+  if (configuredLanguage) {
+    return [configuredLanguage, { id: PLAINTEXT_LANGUAGE_ID, mime: Mimes.text }];
+  }
+  const registeredLanguage = getAssociationByPath(path, filename, nonUserRegisteredAssociations);
+  if (registeredLanguage) {
+    return [registeredLanguage, { id: PLAINTEXT_LANGUAGE_ID, mime: Mimes.text }];
+  }
+  if (firstLine) {
+    const firstlineLanguage = getAssociationByFirstline(firstLine);
+    if (firstlineLanguage) {
+      return [firstlineLanguage, { id: PLAINTEXT_LANGUAGE_ID, mime: Mimes.text }];
+    }
+  }
+  return [{ id: "unknown", mime: Mimes.unknown }];
+}
+__name(getAssociations, "getAssociations");
+function getAssociationByPath(path, filename, associations) {
+  let filenameMatch = void 0;
+  let patternMatch = void 0;
+  let extensionMatch = void 0;
+  for (let i = associations.length - 1; i >= 0; i--) {
+    const association = associations[i];
+    if (filename === association.filenameLowercase) {
+      filenameMatch = association;
+      break;
+    }
+    if (association.filepattern) {
+      if (!patternMatch || association.filepattern.length > patternMatch.filepattern.length) {
+        const target = association.filepatternOnPath ? path : filename;
+        if (association.filepatternLowercase?.(target)) {
+          patternMatch = association;
+        }
+      }
+    }
+    if (association.extension) {
+      if (!extensionMatch || association.extension.length > extensionMatch.extension.length) {
+        if (filename.endsWith(association.extensionLowercase)) {
+          extensionMatch = association;
+        }
+      }
+    }
+  }
+  if (filenameMatch) {
+    return filenameMatch;
+  }
+  if (patternMatch) {
+    return patternMatch;
+  }
+  if (extensionMatch) {
+    return extensionMatch;
+  }
+  return void 0;
+}
+__name(getAssociationByPath, "getAssociationByPath");
+function getAssociationByFirstline(firstLine) {
+  if (startsWithUTF8BOM(firstLine)) {
+    firstLine = firstLine.substr(1);
+  }
+  if (firstLine.length > 0) {
+    for (let i = registeredAssociations.length - 1; i >= 0; i--) {
+      const association = registeredAssociations[i];
+      if (!association.firstline) {
+        continue;
+      }
+      const matches = firstLine.match(association.firstline);
+      if (matches && matches.length > 0) {
+        return association;
+      }
+    }
+  }
+  return void 0;
+}
+__name(getAssociationByFirstline, "getAssociationByFirstline");
+export {
+  clearConfiguredLanguageAssociations,
+  clearPlatformLanguageAssociations,
+  getLanguageIds,
+  getMimeTypes,
+  registerConfiguredLanguageAssociation,
+  registerPlatformLanguageAssociation
+};
+//# sourceMappingURL=languagesAssociations.js.map

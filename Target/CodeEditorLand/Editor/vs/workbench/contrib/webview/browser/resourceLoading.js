@@ -1,1 +1,112 @@
-import"../../../../base/common/buffer.js";import"../../../../base/common/cancellation.js";import{isUNC as u}from"../../../../base/common/extpath.js";import{Schemas as m}from"../../../../base/common/network.js";import{normalize as f,sep as p}from"../../../../base/common/path.js";import{URI as R}from"../../../../base/common/uri.js";import{FileOperationError as y,FileOperationResult as h}from"../../../../platform/files/common/files.js";import"../../../../platform/log/common/log.js";import{getWebviewContentMimeType as I}from"../../../../platform/webview/common/mimeTypes.js";var s;(a=>{let e;(r=>(r[r.Success=0]="Success",r[r.Failed=1]="Failed",r[r.AccessDenied=2]="AccessDenied",r[r.NotModified=3]="NotModified"))(e=a.Type||={});class t{constructor(o,l,b,r){this.stream=o;this.etag=l;this.mtime=b;this.mimeType=r}type=0}a.StreamSuccess=t,a.Failed={type:1},a.AccessDenied={type:2};class d{constructor(o,l){this.mimeType=o;this.mtime=l}type=3}a.NotModified=d})(s||={});async function $(e,t,i,n,d){n.debug(`loadLocalResource - begin. requestUri=${e}`);const a=S(e,t.roots);if(n.debug(`loadLocalResource - found resource to load. requestUri=${e}, resourceToLoad=${a}`),!a)return s.AccessDenied;const c=I(e);try{const o=await i.readFileStream(a,{etag:t.ifNoneMatch},d);return new s.StreamSuccess(o.value,o.etag,o.mtime,c)}catch(o){return o instanceof y&&o.fileOperationResult===h.FILE_NOT_MODIFIED_SINCE?new s.NotModified(c,o.options?.mtime):(n.debug(`loadLocalResource - Error using fileReader. requestUri=${e}`),console.log(o),s.Failed)}}function S(e,t){for(const i of t)if(g(i,e))return F(e)}function g(e,t){if(e.scheme!==t.scheme)return!1;let i=f(t.fsPath),n=f(e.fsPath+(e.fsPath.endsWith(p)?"":p));return u(e.fsPath)&&u(t.fsPath)&&(n=n.toLowerCase(),i=i.toLowerCase()),i.startsWith(n)}function F(e){return e.scheme===m.vscodeRemote?R.from({scheme:m.vscodeRemote,authority:e.authority,path:"/vscode-resource",query:JSON.stringify({requestResourcePath:e.path})}):e}export{s as WebviewResourceResponse,$ as loadLocalResource};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { isUNC } from "../../../../base/common/extpath.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { normalize, sep } from "../../../../base/common/path.js";
+import { URI } from "../../../../base/common/uri.js";
+import { FileOperationError, FileOperationResult, IFileService, IWriteFileOptions } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { getWebviewContentMimeType } from "../../../../platform/webview/common/mimeTypes.js";
+var WebviewResourceResponse;
+((WebviewResourceResponse2) => {
+  let Type;
+  ((Type2) => {
+    Type2[Type2["Success"] = 0] = "Success";
+    Type2[Type2["Failed"] = 1] = "Failed";
+    Type2[Type2["AccessDenied"] = 2] = "AccessDenied";
+    Type2[Type2["NotModified"] = 3] = "NotModified";
+  })(Type = WebviewResourceResponse2.Type || (WebviewResourceResponse2.Type = {}));
+  class StreamSuccess {
+    constructor(stream, etag, mtime, mimeType) {
+      this.stream = stream;
+      this.etag = etag;
+      this.mtime = mtime;
+      this.mimeType = mimeType;
+    }
+    static {
+      __name(this, "StreamSuccess");
+    }
+    type = 0 /* Success */;
+  }
+  WebviewResourceResponse2.StreamSuccess = StreamSuccess;
+  WebviewResourceResponse2.Failed = { type: 1 /* Failed */ };
+  WebviewResourceResponse2.AccessDenied = { type: 2 /* AccessDenied */ };
+  class NotModified {
+    constructor(mimeType, mtime) {
+      this.mimeType = mimeType;
+      this.mtime = mtime;
+    }
+    static {
+      __name(this, "NotModified");
+    }
+    type = 3 /* NotModified */;
+  }
+  WebviewResourceResponse2.NotModified = NotModified;
+})(WebviewResourceResponse || (WebviewResourceResponse = {}));
+async function loadLocalResource(requestUri, options, fileService, logService, token) {
+  logService.debug(`loadLocalResource - begin. requestUri=${requestUri}`);
+  const resourceToLoad = getResourceToLoad(requestUri, options.roots);
+  logService.debug(`loadLocalResource - found resource to load. requestUri=${requestUri}, resourceToLoad=${resourceToLoad}`);
+  if (!resourceToLoad) {
+    return WebviewResourceResponse.AccessDenied;
+  }
+  const mime = getWebviewContentMimeType(requestUri);
+  try {
+    const result = await fileService.readFileStream(resourceToLoad, { etag: options.ifNoneMatch }, token);
+    return new WebviewResourceResponse.StreamSuccess(result.value, result.etag, result.mtime, mime);
+  } catch (err) {
+    if (err instanceof FileOperationError) {
+      const result = err.fileOperationResult;
+      if (result === FileOperationResult.FILE_NOT_MODIFIED_SINCE) {
+        return new WebviewResourceResponse.NotModified(mime, err.options?.mtime);
+      }
+    }
+    logService.debug(`loadLocalResource - Error using fileReader. requestUri=${requestUri}`);
+    console.log(err);
+    return WebviewResourceResponse.Failed;
+  }
+}
+__name(loadLocalResource, "loadLocalResource");
+function getResourceToLoad(requestUri, roots) {
+  for (const root of roots) {
+    if (containsResource(root, requestUri)) {
+      return normalizeResourcePath(requestUri);
+    }
+  }
+  return void 0;
+}
+__name(getResourceToLoad, "getResourceToLoad");
+function containsResource(root, resource) {
+  if (root.scheme !== resource.scheme) {
+    return false;
+  }
+  let resourceFsPath = normalize(resource.fsPath);
+  let rootPath = normalize(root.fsPath + (root.fsPath.endsWith(sep) ? "" : sep));
+  if (isUNC(root.fsPath) && isUNC(resource.fsPath)) {
+    rootPath = rootPath.toLowerCase();
+    resourceFsPath = resourceFsPath.toLowerCase();
+  }
+  return resourceFsPath.startsWith(rootPath);
+}
+__name(containsResource, "containsResource");
+function normalizeResourcePath(resource) {
+  if (resource.scheme === Schemas.vscodeRemote) {
+    return URI.from({
+      scheme: Schemas.vscodeRemote,
+      authority: resource.authority,
+      path: "/vscode-resource",
+      query: JSON.stringify({
+        requestResourcePath: resource.path
+      })
+    });
+  }
+  return resource;
+}
+__name(normalizeResourcePath, "normalizeResourcePath");
+export {
+  WebviewResourceResponse,
+  loadLocalResource
+};
+//# sourceMappingURL=resourceLoading.js.map

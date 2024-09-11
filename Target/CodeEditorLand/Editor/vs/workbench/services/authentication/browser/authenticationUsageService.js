@@ -1,1 +1,69 @@
-var v=Object.defineProperty;var A=Object.getOwnPropertyDescriptor;var d=(i,e,r,t)=>{for(var s=t>1?void 0:t?A(e,r):e,o=i.length-1,n;o>=0;o--)(n=i[o])&&(s=(t?n(e,r,s):n(s))||s);return t&&s&&v(e,r,s),s},u=(i,e)=>(r,t)=>e(r,t,i);import{InstantiationType as U,registerSingleton as p}from"../../../../platform/instantiation/common/extensions.js";import{createDecorator as S}from"../../../../platform/instantiation/common/instantiation.js";import{IStorageService as m,StorageScope as c,StorageTarget as l}from"../../../../platform/storage/common/storage.js";const f=S("IAuthenticationUsageService");let a=class{constructor(e){this._storageService=e}_serviceBrand;readAccountUsages(e,r){const t=`${e}-${r}-usages`,s=this._storageService.get(t,c.APPLICATION);let o=[];if(s)try{o=JSON.parse(s)}catch{}return o}removeAccountUsage(e,r){const t=`${e}-${r}-usages`;this._storageService.remove(t,c.APPLICATION)}addAccountUsage(e,r,t,s){const o=`${e}-${r}-usages`,n=this.readAccountUsages(e,r),g=n.findIndex(I=>I.extensionId===t);g>-1?n.splice(g,1,{extensionId:t,extensionName:s,lastUsed:Date.now()}):n.push({extensionId:t,extensionName:s,lastUsed:Date.now()}),this._storageService.store(o,JSON.stringify(n),c.APPLICATION,l.MACHINE)}};a=d([u(0,m)],a),p(f,a,U.Delayed);export{a as AuthenticationUsageService,f as IAuthenticationUsageService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+const IAuthenticationUsageService = createDecorator("IAuthenticationUsageService");
+let AuthenticationUsageService = class {
+  constructor(_storageService) {
+    this._storageService = _storageService;
+  }
+  static {
+    __name(this, "AuthenticationUsageService");
+  }
+  _serviceBrand;
+  readAccountUsages(providerId, accountName) {
+    const accountKey = `${providerId}-${accountName}-usages`;
+    const storedUsages = this._storageService.get(accountKey, StorageScope.APPLICATION);
+    let usages = [];
+    if (storedUsages) {
+      try {
+        usages = JSON.parse(storedUsages);
+      } catch (e) {
+      }
+    }
+    return usages;
+  }
+  removeAccountUsage(providerId, accountName) {
+    const accountKey = `${providerId}-${accountName}-usages`;
+    this._storageService.remove(accountKey, StorageScope.APPLICATION);
+  }
+  addAccountUsage(providerId, accountName, extensionId, extensionName) {
+    const accountKey = `${providerId}-${accountName}-usages`;
+    const usages = this.readAccountUsages(providerId, accountName);
+    const existingUsageIndex = usages.findIndex((usage) => usage.extensionId === extensionId);
+    if (existingUsageIndex > -1) {
+      usages.splice(existingUsageIndex, 1, {
+        extensionId,
+        extensionName,
+        lastUsed: Date.now()
+      });
+    } else {
+      usages.push({
+        extensionId,
+        extensionName,
+        lastUsed: Date.now()
+      });
+    }
+    this._storageService.store(accountKey, JSON.stringify(usages), StorageScope.APPLICATION, StorageTarget.MACHINE);
+  }
+};
+AuthenticationUsageService = __decorateClass([
+  __decorateParam(0, IStorageService)
+], AuthenticationUsageService);
+registerSingleton(IAuthenticationUsageService, AuthenticationUsageService, InstantiationType.Delayed);
+export {
+  AuthenticationUsageService,
+  IAuthenticationUsageService
+};
+//# sourceMappingURL=authenticationUsageService.js.map

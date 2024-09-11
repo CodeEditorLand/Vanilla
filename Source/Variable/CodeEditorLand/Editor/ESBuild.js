@@ -1,4 +1,6 @@
-const Development = process.env["NODE_ENV"] === "development";
+export const Development = process.env["NODE_ENV"] === "development" ||
+    // @ts-expect-error
+    process.env["TAURI_ENV_DEBUG"] === true;
 const Dependency = "CodeEditorLand/Editor";
 /**
  * @module ESBuild
@@ -18,6 +20,10 @@ export default {
     legalComments: Development ? "inline" : "none",
     bundle: false,
     assetNames: "Asset/[name]-[hash]",
+    sourcemap: Development,
+    drop: Development ? [] : ["console", "debugger"],
+    ignoreAnnotations: !Development,
+    keepNames: Development,
     plugins: [
         {
             name: "Target",

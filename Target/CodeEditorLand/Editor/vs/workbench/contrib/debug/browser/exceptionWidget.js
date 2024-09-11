@@ -1,1 +1,123 @@
-var I=Object.defineProperty;var C=Object.getOwnPropertyDescriptor;var f=(a,r,e,o)=>{for(var t=o>1?void 0:o?C(r,e):r,i=a.length-1,n;i>=0;i--)(n=a[i])&&(t=(o?n(r,e,t):n(t))||t);return o&&t&&I(r,e,t),t},u=(a,r)=>(e,o)=>r(e,o,a);import"./media/exceptionWidget.css";import*as l from"../../../../nls.js";import*as s from"../../../../base/browser/dom.js";import{ZoneWidget as x}from"../../../../editor/contrib/zoneWidget/browser/zoneWidget.js";import"../../../../editor/browser/editorBrowser.js";import{EDITOR_CONTRIBUTION_ID as k}from"../common/debug.js";import{RunOnceScheduler as v}from"../../../../base/common/async.js";import{IThemeService as y}from"../../../../platform/theme/common/themeService.js";import{ThemeIcon as T}from"../../../../base/common/themables.js";import"../../../../base/common/color.js";import{registerColor as g}from"../../../../platform/theme/common/colorRegistry.js";import{IInstantiationService as E}from"../../../../platform/instantiation/common/instantiation.js";import{DebugLinkHoverBehavior as S,LinkDetector as w}from"./linkDetector.js";import{EditorOption as m}from"../../../../editor/common/config/editorOptions.js";import{ActionBar as D}from"../../../../base/browser/ui/actionbar/actionbar.js";import{Action as _}from"../../../../base/common/actions.js";import{widgetClose as L}from"../../../../platform/theme/common/iconRegistry.js";const p=s.$,B=g("debugExceptionWidget.border","#a31515",l.localize("debugExceptionWidgetBorder","Exception widget border color.")),H=g("debugExceptionWidget.background",{dark:"#420b0d",light:"#f1dfde",hcDark:"#420b0d",hcLight:"#f1dfde"},l.localize("debugExceptionWidgetBackground","Exception widget background color."));let h=class extends x{constructor(e,o,t,i,n){super(e,{showFrame:!0,showArrow:!0,isAccessible:!0,frameWidth:1,className:"exception-widget-container"});this.exceptionInfo=o;this.debugSession=t;this.instantiationService=n;this.applyTheme(i.getColorTheme()),this._disposables.add(i.onDidColorThemeChange(this.applyTheme.bind(this))),this.create();const c=new v(()=>this._doLayout(void 0,void 0),50);this._disposables.add(this.editor.onDidLayoutChange(()=>c.schedule())),this._disposables.add(c)}backgroundColor;applyTheme(e){this.backgroundColor=e.getColor(H);const o=e.getColor(B);this.style({arrowColor:o,frameColor:o})}_applyStyles(){this.container&&(this.container.style.backgroundColor=this.backgroundColor?this.backgroundColor.toString():""),super._applyStyles()}_fillContainer(e){this.setCssClass("exception-widget");const o=this.editor.getOption(m.fontInfo);e.style.fontSize=`${o.fontSize}px`,e.style.lineHeight=`${o.lineHeight}px`,e.tabIndex=0;const t=p(".title"),i=p(".label");s.append(t,i);const n=p(".actions");s.append(t,n),i.textContent=this.exceptionInfo.id?l.localize("exceptionThrownWithId","Exception has occurred: {0}",this.exceptionInfo.id):l.localize("exceptionThrown","Exception has occurred.");let c=i.textContent;if(new D(n).push(new _("editor.closeExceptionWidget",l.localize("close","Close"),T.asClassName(L),!0,async()=>{this.editor.getContribution(k)?.closeExceptionWidget()}),{label:!1,icon:!0}),s.append(e,t),this.exceptionInfo.description){const d=p(".description");d.textContent=this.exceptionInfo.description,c+=", "+this.exceptionInfo.description,s.append(e,d)}if(this.exceptionInfo.details&&this.exceptionInfo.details.stackTrace){const d=p(".stack-trace"),b=this.instantiationService.createInstance(w).linkify(this.exceptionInfo.details.stackTrace,!0,this.debugSession?this.debugSession.root:void 0,void 0,{type:S.Rich,store:this._disposables});d.appendChild(b),s.append(e,d),c+=", "+this.exceptionInfo.details.stackTrace}e.setAttribute("aria-label",c)}_doLayout(e,o){this.container.style.height="initial";const t=this.editor.getOption(m.lineHeight),i=Math.round(t/3),n=Math.ceil((this.container.offsetHeight+i)/t);this._relayout(n)}focus(){this.container?.focus()}hasFocus(){return this.container?s.isAncestorOfActiveElement(this.container):!1}};h=f([u(3,y),u(4,E)],h);export{h as ExceptionWidget};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import "./media/exceptionWidget.css";
+import * as nls from "../../../../nls.js";
+import * as dom from "../../../../base/browser/dom.js";
+import { ZoneWidget } from "../../../../editor/contrib/zoneWidget/browser/zoneWidget.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IExceptionInfo, IDebugSession, IDebugEditorContribution, EDITOR_CONTRIBUTION_ID } from "../common/debug.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { IThemeService, IColorTheme } from "../../../../platform/theme/common/themeService.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Color } from "../../../../base/common/color.js";
+import { registerColor } from "../../../../platform/theme/common/colorRegistry.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { DebugLinkHoverBehavior, LinkDetector } from "./linkDetector.js";
+import { EditorOption } from "../../../../editor/common/config/editorOptions.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { Action } from "../../../../base/common/actions.js";
+import { widgetClose } from "../../../../platform/theme/common/iconRegistry.js";
+const $ = dom.$;
+const debugExceptionWidgetBorder = registerColor("debugExceptionWidget.border", "#a31515", nls.localize("debugExceptionWidgetBorder", "Exception widget border color."));
+const debugExceptionWidgetBackground = registerColor("debugExceptionWidget.background", { dark: "#420b0d", light: "#f1dfde", hcDark: "#420b0d", hcLight: "#f1dfde" }, nls.localize("debugExceptionWidgetBackground", "Exception widget background color."));
+let ExceptionWidget = class extends ZoneWidget {
+  constructor(editor, exceptionInfo, debugSession, themeService, instantiationService) {
+    super(editor, { showFrame: true, showArrow: true, isAccessible: true, frameWidth: 1, className: "exception-widget-container" });
+    this.exceptionInfo = exceptionInfo;
+    this.debugSession = debugSession;
+    this.instantiationService = instantiationService;
+    this.applyTheme(themeService.getColorTheme());
+    this._disposables.add(themeService.onDidColorThemeChange(this.applyTheme.bind(this)));
+    this.create();
+    const onDidLayoutChangeScheduler = new RunOnceScheduler(() => this._doLayout(void 0, void 0), 50);
+    this._disposables.add(this.editor.onDidLayoutChange(() => onDidLayoutChangeScheduler.schedule()));
+    this._disposables.add(onDidLayoutChangeScheduler);
+  }
+  static {
+    __name(this, "ExceptionWidget");
+  }
+  backgroundColor;
+  applyTheme(theme) {
+    this.backgroundColor = theme.getColor(debugExceptionWidgetBackground);
+    const frameColor = theme.getColor(debugExceptionWidgetBorder);
+    this.style({
+      arrowColor: frameColor,
+      frameColor
+    });
+  }
+  _applyStyles() {
+    if (this.container) {
+      this.container.style.backgroundColor = this.backgroundColor ? this.backgroundColor.toString() : "";
+    }
+    super._applyStyles();
+  }
+  _fillContainer(container) {
+    this.setCssClass("exception-widget");
+    const fontInfo = this.editor.getOption(EditorOption.fontInfo);
+    container.style.fontSize = `${fontInfo.fontSize}px`;
+    container.style.lineHeight = `${fontInfo.lineHeight}px`;
+    container.tabIndex = 0;
+    const title = $(".title");
+    const label = $(".label");
+    dom.append(title, label);
+    const actions = $(".actions");
+    dom.append(title, actions);
+    label.textContent = this.exceptionInfo.id ? nls.localize("exceptionThrownWithId", "Exception has occurred: {0}", this.exceptionInfo.id) : nls.localize("exceptionThrown", "Exception has occurred.");
+    let ariaLabel = label.textContent;
+    const actionBar = new ActionBar(actions);
+    actionBar.push(new Action("editor.closeExceptionWidget", nls.localize("close", "Close"), ThemeIcon.asClassName(widgetClose), true, async () => {
+      const contribution = this.editor.getContribution(EDITOR_CONTRIBUTION_ID);
+      contribution?.closeExceptionWidget();
+    }), { label: false, icon: true });
+    dom.append(container, title);
+    if (this.exceptionInfo.description) {
+      const description = $(".description");
+      description.textContent = this.exceptionInfo.description;
+      ariaLabel += ", " + this.exceptionInfo.description;
+      dom.append(container, description);
+    }
+    if (this.exceptionInfo.details && this.exceptionInfo.details.stackTrace) {
+      const stackTrace = $(".stack-trace");
+      const linkDetector = this.instantiationService.createInstance(LinkDetector);
+      const linkedStackTrace = linkDetector.linkify(this.exceptionInfo.details.stackTrace, true, this.debugSession ? this.debugSession.root : void 0, void 0, { type: DebugLinkHoverBehavior.Rich, store: this._disposables });
+      stackTrace.appendChild(linkedStackTrace);
+      dom.append(container, stackTrace);
+      ariaLabel += ", " + this.exceptionInfo.details.stackTrace;
+    }
+    container.setAttribute("aria-label", ariaLabel);
+  }
+  _doLayout(_heightInPixel, _widthInPixel) {
+    this.container.style.height = "initial";
+    const lineHeight = this.editor.getOption(EditorOption.lineHeight);
+    const arrowHeight = Math.round(lineHeight / 3);
+    const computedLinesNumber = Math.ceil((this.container.offsetHeight + arrowHeight) / lineHeight);
+    this._relayout(computedLinesNumber);
+  }
+  focus() {
+    this.container?.focus();
+  }
+  hasFocus() {
+    if (!this.container) {
+      return false;
+    }
+    return dom.isAncestorOfActiveElement(this.container);
+  }
+};
+ExceptionWidget = __decorateClass([
+  __decorateParam(3, IThemeService),
+  __decorateParam(4, IInstantiationService)
+], ExceptionWidget);
+export {
+  ExceptionWidget
+};
+//# sourceMappingURL=exceptionWidget.js.map

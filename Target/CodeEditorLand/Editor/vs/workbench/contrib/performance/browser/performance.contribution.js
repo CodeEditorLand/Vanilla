@@ -1,1 +1,122 @@
-import{localize2 as o}from"../../../../nls.js";import{registerAction2 as n,Action2 as s}from"../../../../platform/actions/common/actions.js";import{IInstantiationService as m}from"../../../../platform/instantiation/common/instantiation.js";import{LifecyclePhase as v}from"../../../services/lifecycle/common/lifecycle.js";import{Registry as a}from"../../../../platform/registry/common/platform.js";import{Categories as c}from"../../../../platform/action/common/actionCommonCategories.js";import{Extensions as g,registerWorkbenchContribution2 as d}from"../../../common/contributions.js";import{EditorExtensions as y}from"../../../common/editor.js";import{PerfviewContrib as l,PerfviewInput as f}from"./perfviewEditor.js";import{IEditorService as S}from"../../../services/editor/common/editorService.js";import{InstantiationService as E,Trace as p}from"../../../../platform/instantiation/common/instantiationService.js";import{EventProfiling as u}from"../../../../base/common/event.js";import{InputLatencyContrib as I}from"./inputLatencyContrib.js";d(l.ID,l,{lazy:!0}),a.as(y.EditorFactory).registerEditorSerializer(f.Id,class{canSerialize(){return!0}serialize(){return""}deserialize(r){return r.createInstance(f)}}),n(class extends s{constructor(){super({id:"perfview.show",title:o("show.label","Startup Performance"),category:c.Developer,f1:!0})}run(r){const e=r.get(S),t=l.get();return e.openEditor(t.getEditorInput(),{pinned:!0})}}),n(class extends s{constructor(){super({id:"perf.insta.printAsyncCycles",title:o("cycles","Print Service Cycles"),category:c.Developer,f1:!0})}run(e){const t=e.get(m);if(t instanceof E){const i=t._globalGraph?.findCycleSlow();i?console.warn("CYCLE",i):console.warn("YEAH, no more cycles")}}}),n(class extends s{constructor(){super({id:"perf.insta.printTraces",title:o("insta.trace","Print Service Traces"),category:c.Developer,f1:!0})}run(){if(p.all.size===0){console.log("Enable via `instantiationService.ts#_enableAllTracing`");return}for(const e of p.all)console.log(e)}}),n(class extends s{constructor(){super({id:"perf.event.profiling",title:o("emitter","Print Emitter Profiles"),category:c.Developer,f1:!0})}run(){if(u.all.size===0){console.log("USE `EmitterOptions._profName` to enable profiling");return}for(const e of u.all)console.log(`${e.name}: ${e.invocationCount} invocations COST ${e.elapsedOverall}ms, ${e.listenerCount} listeners, avg cost is ${e.durations.reduce((t,i)=>t+i,0)/e.durations.length}ms`)}}),a.as(g.Workbench).registerWorkbenchContribution(I,v.Eventually);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize2 } from "../../../../nls.js";
+import { registerAction2, Action2 } from "../../../../platform/actions/common/actions.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Extensions, IWorkbenchContributionsRegistry, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions, IEditorSerializer, IEditorFactoryRegistry } from "../../../common/editor.js";
+import { PerfviewContrib, PerfviewInput } from "./perfviewEditor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { InstantiationService, Trace } from "../../../../platform/instantiation/common/instantiationService.js";
+import { EventProfiling } from "../../../../base/common/event.js";
+import { InputLatencyContrib } from "./inputLatencyContrib.js";
+registerWorkbenchContribution2(
+  PerfviewContrib.ID,
+  PerfviewContrib,
+  { lazy: true }
+);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(
+  PerfviewInput.Id,
+  class {
+    canSerialize() {
+      return true;
+    }
+    serialize() {
+      return "";
+    }
+    deserialize(instantiationService) {
+      return instantiationService.createInstance(PerfviewInput);
+    }
+  }
+);
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "perfview.show",
+      title: localize2("show.label", "Startup Performance"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const contrib = PerfviewContrib.get();
+    return editorService.openEditor(contrib.getEditorInput(), { pinned: true });
+  }
+});
+registerAction2(class PrintServiceCycles extends Action2 {
+  static {
+    __name(this, "PrintServiceCycles");
+  }
+  constructor() {
+    super({
+      id: "perf.insta.printAsyncCycles",
+      title: localize2("cycles", "Print Service Cycles"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  run(accessor) {
+    const instaService = accessor.get(IInstantiationService);
+    if (instaService instanceof InstantiationService) {
+      const cycle = instaService._globalGraph?.findCycleSlow();
+      if (cycle) {
+        console.warn(`CYCLE`, cycle);
+      } else {
+        console.warn(`YEAH, no more cycles`);
+      }
+    }
+  }
+});
+registerAction2(class PrintServiceTraces extends Action2 {
+  static {
+    __name(this, "PrintServiceTraces");
+  }
+  constructor() {
+    super({
+      id: "perf.insta.printTraces",
+      title: localize2("insta.trace", "Print Service Traces"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  run() {
+    if (Trace.all.size === 0) {
+      console.log("Enable via `instantiationService.ts#_enableAllTracing`");
+      return;
+    }
+    for (const item of Trace.all) {
+      console.log(item);
+    }
+  }
+});
+registerAction2(class PrintEventProfiling extends Action2 {
+  static {
+    __name(this, "PrintEventProfiling");
+  }
+  constructor() {
+    super({
+      id: "perf.event.profiling",
+      title: localize2("emitter", "Print Emitter Profiles"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  run() {
+    if (EventProfiling.all.size === 0) {
+      console.log("USE `EmitterOptions._profName` to enable profiling");
+      return;
+    }
+    for (const item of EventProfiling.all) {
+      console.log(`${item.name}: ${item.invocationCount} invocations COST ${item.elapsedOverall}ms, ${item.listenerCount} listeners, avg cost is ${item.durations.reduce((a, b) => a + b, 0) / item.durations.length}ms`);
+    }
+  }
+});
+Registry.as(Extensions.Workbench).registerWorkbenchContribution(
+  InputLatencyContrib,
+  LifecyclePhase.Eventually
+);
+//# sourceMappingURL=performance.contribution.js.map

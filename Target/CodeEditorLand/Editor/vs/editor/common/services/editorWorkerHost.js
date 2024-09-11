@@ -1,1 +1,19 @@
-import"../../../base/common/worker/simpleWorker.js";class t{static CHANNEL_NAME="editorWorkerHost";static getChannel(r){return r.getChannel(t.CHANNEL_NAME)}static setChannel(r,e){r.setChannel(t.CHANNEL_NAME,e)}}export{t as EditorWorkerHost};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IWorkerServer, IWorkerClient } from "../../../base/common/worker/simpleWorker.js";
+class EditorWorkerHost {
+  static {
+    __name(this, "EditorWorkerHost");
+  }
+  static CHANNEL_NAME = "editorWorkerHost";
+  static getChannel(workerServer) {
+    return workerServer.getChannel(EditorWorkerHost.CHANNEL_NAME);
+  }
+  static setChannel(workerClient, obj) {
+    workerClient.setChannel(EditorWorkerHost.CHANNEL_NAME, obj);
+  }
+}
+export {
+  EditorWorkerHost
+};
+//# sourceMappingURL=editorWorkerHost.js.map

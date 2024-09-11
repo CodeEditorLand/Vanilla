@@ -1,1 +1,60 @@
-import{coalesce as s}from"../../../base/common/arrays.js";import"../../../base/common/cancellation.js";import{toDisposable as o}from"../../../base/common/lifecycle.js";import"./quickInput.js";import{Registry as c}from"../../registry/common/platform.js";var t=(i=>(i[i.PRESERVE=0]="PRESERVE",i[i.LAST=1]="LAST",i))(t||{});const n={Quickaccess:"workbench.contributions.quickaccess"};class d{providers=[];defaultProvider=void 0;registerQuickAccessProvider(e){return e.prefix.length===0?this.defaultProvider=e:this.providers.push(e),this.providers.sort((i,r)=>r.prefix.length-i.prefix.length),o(()=>{this.providers.splice(this.providers.indexOf(e),1),this.defaultProvider===e&&(this.defaultProvider=void 0)})}getQuickAccessProviders(){return s([this.defaultProvider,...this.providers])}getQuickAccessProvider(e){return e&&this.providers.find(r=>e.startsWith(r.prefix))||void 0||this.defaultProvider}clear(){const e=[...this.providers],i=this.defaultProvider;return this.providers=[],this.defaultProvider=void 0,()=>{this.providers=e,this.defaultProvider=i}}}c.add(n.Quickaccess,new d);export{t as DefaultQuickAccessFilterValue,n as Extensions,d as QuickAccessRegistry};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { coalesce } from "../../../base/common/arrays.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { ItemActivation, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, QuickPickItem } from "./quickInput.js";
+import { Registry } from "../../registry/common/platform.js";
+var DefaultQuickAccessFilterValue = /* @__PURE__ */ ((DefaultQuickAccessFilterValue2) => {
+  DefaultQuickAccessFilterValue2[DefaultQuickAccessFilterValue2["PRESERVE"] = 0] = "PRESERVE";
+  DefaultQuickAccessFilterValue2[DefaultQuickAccessFilterValue2["LAST"] = 1] = "LAST";
+  return DefaultQuickAccessFilterValue2;
+})(DefaultQuickAccessFilterValue || {});
+const Extensions = {
+  Quickaccess: "workbench.contributions.quickaccess"
+};
+class QuickAccessRegistry {
+  static {
+    __name(this, "QuickAccessRegistry");
+  }
+  providers = [];
+  defaultProvider = void 0;
+  registerQuickAccessProvider(provider) {
+    if (provider.prefix.length === 0) {
+      this.defaultProvider = provider;
+    } else {
+      this.providers.push(provider);
+    }
+    this.providers.sort((providerA, providerB) => providerB.prefix.length - providerA.prefix.length);
+    return toDisposable(() => {
+      this.providers.splice(this.providers.indexOf(provider), 1);
+      if (this.defaultProvider === provider) {
+        this.defaultProvider = void 0;
+      }
+    });
+  }
+  getQuickAccessProviders() {
+    return coalesce([this.defaultProvider, ...this.providers]);
+  }
+  getQuickAccessProvider(prefix) {
+    const result = prefix ? this.providers.find((provider) => prefix.startsWith(provider.prefix)) || void 0 : void 0;
+    return result || this.defaultProvider;
+  }
+  clear() {
+    const providers = [...this.providers];
+    const defaultProvider = this.defaultProvider;
+    this.providers = [];
+    this.defaultProvider = void 0;
+    return () => {
+      this.providers = providers;
+      this.defaultProvider = defaultProvider;
+    };
+  }
+}
+Registry.add(Extensions.Quickaccess, new QuickAccessRegistry());
+export {
+  DefaultQuickAccessFilterValue,
+  Extensions,
+  QuickAccessRegistry
+};
+//# sourceMappingURL=quickAccess.js.map

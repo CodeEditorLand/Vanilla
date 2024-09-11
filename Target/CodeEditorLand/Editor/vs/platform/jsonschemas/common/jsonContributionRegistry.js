@@ -1,1 +1,51 @@
-import{Emitter as i}from"../../../base/common/event.js";import{getCompressedContent as r}from"../../../base/common/jsonSchema.js";import*as s from"../../registry/common/platform.js";const o={JSONContribution:"base.contributions.json"};function a(n){return n.length>0&&n.charAt(n.length-1)==="#"?n.substring(0,n.length-1):n}class h{schemasById;_onDidChangeSchema=new i;onDidChangeSchema=this._onDidChangeSchema.event;constructor(){this.schemasById={}}registerSchema(e,t){this.schemasById[a(e)]=t,this._onDidChangeSchema.fire(e)}notifySchemaChanged(e){this._onDidChangeSchema.fire(e)}getSchemaContributions(){return{schemas:this.schemasById}}getSchemaContent(e){const t=this.schemasById[e];return t?r(t):void 0}hasSchemaContent(e){return!!this.schemasById[e]}}const c=new h;s.Registry.add(o.JSONContribution,c);export{o as Extensions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter, Event } from "../../../base/common/event.js";
+import { getCompressedContent, IJSONSchema } from "../../../base/common/jsonSchema.js";
+import * as platform from "../../registry/common/platform.js";
+const Extensions = {
+  JSONContribution: "base.contributions.json"
+};
+function normalizeId(id) {
+  if (id.length > 0 && id.charAt(id.length - 1) === "#") {
+    return id.substring(0, id.length - 1);
+  }
+  return id;
+}
+__name(normalizeId, "normalizeId");
+class JSONContributionRegistry {
+  static {
+    __name(this, "JSONContributionRegistry");
+  }
+  schemasById;
+  _onDidChangeSchema = new Emitter();
+  onDidChangeSchema = this._onDidChangeSchema.event;
+  constructor() {
+    this.schemasById = {};
+  }
+  registerSchema(uri, unresolvedSchemaContent) {
+    this.schemasById[normalizeId(uri)] = unresolvedSchemaContent;
+    this._onDidChangeSchema.fire(uri);
+  }
+  notifySchemaChanged(uri) {
+    this._onDidChangeSchema.fire(uri);
+  }
+  getSchemaContributions() {
+    return {
+      schemas: this.schemasById
+    };
+  }
+  getSchemaContent(uri) {
+    const schema = this.schemasById[uri];
+    return schema ? getCompressedContent(schema) : void 0;
+  }
+  hasSchemaContent(uri) {
+    return !!this.schemasById[uri];
+  }
+}
+const jsonContributionRegistry = new JSONContributionRegistry();
+platform.Registry.add(Extensions.JSONContribution, jsonContributionRegistry);
+export {
+  Extensions
+};
+//# sourceMappingURL=jsonContributionRegistry.js.map

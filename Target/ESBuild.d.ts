@@ -1,4 +1,5 @@
 import type { BuildOptions } from "esbuild";
+export declare const Development: boolean;
 /**
  * @module ESBuild
  *

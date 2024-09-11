@@ -1,1 +1,69 @@
-import{Button as m}from"../../../../base/browser/ui/button/button.js";import"../../../../base/common/actions.js";import{DisposableStore as d}from"../../../../base/common/lifecycle.js";import"../../../../platform/actions/common/actions.js";import"../../../../platform/contextkey/common/contextkey.js";import"../../../../platform/keybinding/common/keybinding.js";import{defaultButtonStyles as b}from"../../../../platform/theme/browser/defaultStyles.js";import{CommentCommandId as p}from"../common/commentCommandIds.js";class k{constructor(t,r,a,i,n){this.keybindingService=t;this.contextKeyService=r;this.container=a;this.actionHandler=i;this.maxActions=n}_buttonElements=[];_toDispose=new d;_actions=[];setActions(t,r=!1){this._toDispose.clear(),this._buttonElements.forEach(n=>n.remove()),this._buttonElements=[];const a=t.getActions({shouldForwardArgs:!0});let i=!r;for(const n of a){const[,l]=n;this._actions=l;for(const e of l){let s=this.keybindingService.lookupKeybinding(e.id,this.contextKeyService)?.getLabel();!s&&i&&(s=this.keybindingService.lookupKeybinding(p.Submit,this.contextKeyService)?.getLabel());const c=s?`${e.label} (${s})`:e.label,o=new m(this.container,{secondary:!i,title:c,...b});if(i=!1,this._buttonElements.push(o.element),this._toDispose.add(o),this._toDispose.add(o.onDidClick(()=>this.actionHandler(e))),o.enabled=e.enabled,o.label=e.label,this.maxActions!==void 0&&this._buttonElements.length>=this.maxActions){console.warn("An extension has contributed more than the allowable number of actions to a comments menu.");return}}}}triggerDefaultAction(){if(this._actions.length){const t=this._actions[0];if(t.enabled)return this.actionHandler(t)}}dispose(){this._toDispose.dispose()}}export{k as CommentFormActions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Button } from "../../../../base/browser/ui/button/button.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IMenu } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { defaultButtonStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { CommentCommandId } from "../common/commentCommandIds.js";
+class CommentFormActions {
+  constructor(keybindingService, contextKeyService, container, actionHandler, maxActions) {
+    this.keybindingService = keybindingService;
+    this.contextKeyService = contextKeyService;
+    this.container = container;
+    this.actionHandler = actionHandler;
+    this.maxActions = maxActions;
+  }
+  static {
+    __name(this, "CommentFormActions");
+  }
+  _buttonElements = [];
+  _toDispose = new DisposableStore();
+  _actions = [];
+  setActions(menu, hasOnlySecondaryActions = false) {
+    this._toDispose.clear();
+    this._buttonElements.forEach((b) => b.remove());
+    this._buttonElements = [];
+    const groups = menu.getActions({ shouldForwardArgs: true });
+    let isPrimary = !hasOnlySecondaryActions;
+    for (const group of groups) {
+      const [, actions] = group;
+      this._actions = actions;
+      for (const action of actions) {
+        let keybinding = this.keybindingService.lookupKeybinding(action.id, this.contextKeyService)?.getLabel();
+        if (!keybinding && isPrimary) {
+          keybinding = this.keybindingService.lookupKeybinding(CommentCommandId.Submit, this.contextKeyService)?.getLabel();
+        }
+        const title = keybinding ? `${action.label} (${keybinding})` : action.label;
+        const button = new Button(this.container, { secondary: !isPrimary, title, ...defaultButtonStyles });
+        isPrimary = false;
+        this._buttonElements.push(button.element);
+        this._toDispose.add(button);
+        this._toDispose.add(button.onDidClick(() => this.actionHandler(action)));
+        button.enabled = action.enabled;
+        button.label = action.label;
+        if (this.maxActions !== void 0 && this._buttonElements.length >= this.maxActions) {
+          console.warn(`An extension has contributed more than the allowable number of actions to a comments menu.`);
+          return;
+        }
+      }
+    }
+  }
+  triggerDefaultAction() {
+    if (this._actions.length) {
+      const lastAction = this._actions[0];
+      if (lastAction.enabled) {
+        return this.actionHandler(lastAction);
+      }
+    }
+  }
+  dispose() {
+    this._toDispose.dispose();
+  }
+}
+export {
+  CommentFormActions
+};
+//# sourceMappingURL=commentFormActions.js.map

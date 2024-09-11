@@ -1,1 +1,36 @@
-var i;(l=>{function t(e){return typeof e?.showDirectoryPicker=="function"}l.supported=t;function r(e){const n=e;return n?typeof n.kind=="string"&&typeof n.queryPermission=="function"&&typeof n.requestPermission=="function":!1}l.isFileSystemHandle=r;function o(e){return e.kind==="file"}l.isFileSystemFileHandle=o;function s(e){return e.kind==="directory"}l.isFileSystemDirectoryHandle=s})(i||={});export{i as WebFileSystemAccess};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var WebFileSystemAccess;
+((WebFileSystemAccess2) => {
+  function supported(obj) {
+    if (typeof obj?.showDirectoryPicker === "function") {
+      return true;
+    }
+    return false;
+  }
+  WebFileSystemAccess2.supported = supported;
+  __name(supported, "supported");
+  function isFileSystemHandle(handle) {
+    const candidate = handle;
+    if (!candidate) {
+      return false;
+    }
+    return typeof candidate.kind === "string" && typeof candidate.queryPermission === "function" && typeof candidate.requestPermission === "function";
+  }
+  WebFileSystemAccess2.isFileSystemHandle = isFileSystemHandle;
+  __name(isFileSystemHandle, "isFileSystemHandle");
+  function isFileSystemFileHandle(handle) {
+    return handle.kind === "file";
+  }
+  WebFileSystemAccess2.isFileSystemFileHandle = isFileSystemFileHandle;
+  __name(isFileSystemFileHandle, "isFileSystemFileHandle");
+  function isFileSystemDirectoryHandle(handle) {
+    return handle.kind === "directory";
+  }
+  WebFileSystemAccess2.isFileSystemDirectoryHandle = isFileSystemDirectoryHandle;
+  __name(isFileSystemDirectoryHandle, "isFileSystemDirectoryHandle");
+})(WebFileSystemAccess || (WebFileSystemAccess = {}));
+export {
+  WebFileSystemAccess
+};
+//# sourceMappingURL=webFileSystemAccess.js.map

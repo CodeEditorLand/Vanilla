@@ -1,6 +1,287 @@
-var R=Object.defineProperty;var W=Object.getOwnPropertyDescriptor;var I=(m,a,e,t)=>{for(var o=t>1?void 0:t?W(a,e):a,n=m.length-1,g;n>=0;n--)(g=m[n])&&(o=(t?g(a,e,o):g(o))||o);return t&&o&&R(a,e,o),o},s=(m,a)=>(e,t)=>a(e,t,m);import{createStyleSheetFromObservable as F}from"../../../../../base/browser/domObservable.js";import{alert as E}from"../../../../../base/browser/ui/aria/aria.js";import{timeout as K}from"../../../../../base/common/async.js";import{cancelOnDispose as C}from"../../../../../base/common/cancellation.js";import{readHotReloadableExport as L}from"../../../../../base/common/hotReloadHelpers.js";import{Disposable as M,toDisposable as G}from"../../../../../base/common/lifecycle.js";import{autorun as O,constObservable as P,derived as b,derivedDisposable as x,derivedObservableWithCache as U,mapObservableArrayCached as H,observableFromEvent as l,observableSignal as k,observableValue as A,runOnChange as w,runOnChangeWithStore as z,transaction as _,waitForState as B}from"../../../../../base/common/observable.js";import{isUndefined as N}from"../../../../../base/common/types.js";import{localize as Z}from"../../../../../nls.js";import{IAccessibilityService as $}from"../../../../../platform/accessibility/common/accessibility.js";import{AccessibilitySignal as j,IAccessibilitySignalService as q}from"../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{ICommandService as J}from"../../../../../platform/commands/common/commands.js";import{IConfigurationService as Q}from"../../../../../platform/configuration/common/configuration.js";import{IContextKeyService as X}from"../../../../../platform/contextkey/common/contextkey.js";import{IInstantiationService as Y}from"../../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as ee}from"../../../../../platform/keybinding/common/keybinding.js";import{CoreEditingCommands as f}from"../../../../browser/coreCommands.js";import"../../../../browser/editorBrowser.js";import{observableCodeEditor as te}from"../../../../browser/observableCodeEditor.js";import{EditorOption as c}from"../../../../common/config/editorOptions.js";import{Position as D}from"../../../../common/core/position.js";import"../../../../common/core/range.js";import{CursorChangeReason as ie}from"../../../../common/cursorEvents.js";import{ILanguageFeatureDebounceService as oe}from"../../../../common/services/languageFeatureDebounce.js";import{ILanguageFeaturesService as ne}from"../../../../common/services/languageFeatures.js";import{InlineCompletionsHintsWidget as re,InlineSuggestionHintsContentWidget as se}from"../hintsWidget/inlineCompletionsHintsWidget.js";import{InlineCompletionsModel as ae}from"../model/inlineCompletionsModel.js";import{SuggestWidgetAdaptor as de}from"../model/suggestWidgetAdaptor.js";import{GhostTextView as le}from"../view/ghostTextView.js";import{inlineSuggestCommitId as ce}from"./commandIds.js";import{InlineCompletionContextKeys as ge}from"./inlineCompletionContextKeys.js";let p=class extends M{constructor(e,t,o,n,g,d,y,me,pe,ue){super();this.editor=e;this._instantiationService=t;this._contextKeyService=o;this._configurationService=n;this._commandService=g;this._debounceService=d;this._languageFeaturesService=y;this._accessibilitySignalService=me;this._keybindingService=pe;this._accessibilityService=ue;this._register(new ge(this._contextKeyService,this.model)),this._register(w(this._editorObs.onDidType,(i,r)=>{this._enabled.get()&&this.model.get()?.trigger()})),this._register(this._commandService.onDidExecuteCommand(i=>{new Set([f.Tab.id,f.DeleteLeft.id,f.DeleteRight.id,ce,"acceptSelectedSuggestion"]).has(i.commandId)&&e.hasTextFocus()&&this._enabled.get()&&this._editorObs.forceUpdate(u=>{this.model.get()?.trigger(u)})})),this._register(w(this._editorObs.selections,(i,r,u)=>{u.some(h=>h.reason===ie.Explicit||h.source==="api")&&this.model.get()?.stop()})),this._register(this.editor.onDidBlurEditorWidget(()=>{this._contextKeyService.getContextKeyValue("accessibleViewIsShown")||this._configurationService.getValue("editor.inlineSuggest.keepOnBlur")||e.getOption(c.inlineSuggest).keepOnBlur||se.dropDownVisible||_(i=>{this.model.get()?.stop(i)})})),this._register(O(i=>{const r=this.model.read(i)?.state.read(i);r?.suggestItem?r.primaryGhostText.lineCount>=2&&this._suggestWidgetAdaptor.forceRenderingAbove():this._suggestWidgetAdaptor.stopForceRenderingAbove()})),this._register(G(()=>{this._suggestWidgetAdaptor.stopForceRenderingAbove()}));const T=U(this,(i,r)=>{const h=this.model.read(i)?.state.read(i);return this._suggestWidgetSelectedItem.get()?r:h?.inlineCompletion?.semanticId});this._register(z(b(i=>(this._playAccessibilitySignal.read(i),T.read(i),{})),async(i,r,u,h)=>{const v=this.model.get(),S=v?.state.get();if(!S||!v)return;const V=v.textModel.getLineContent(S.primaryGhostText.lineNumber);await K(50,C(h)),await B(this._suggestWidgetSelectedItem,N,()=>!1,C(h)),await this._accessibilitySignalService.playSignal(j.inlineSuggestion),this.editor.getOption(c.screenReaderAnnounceInlineSuggestion)&&this._provideScreenReaderUpdate(S.primaryGhostText.renderForScreenReader(V))})),this._register(new re(this.editor,this.model,this._instantiationService)),this._register(F(b(i=>{const r=this._fontFamily.read(i);return r===""||r==="default"?"":`
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { createStyleSheetFromObservable } from "../../../../../base/browser/domObservable.js";
+import { alert } from "../../../../../base/browser/ui/aria/aria.js";
+import { timeout } from "../../../../../base/common/async.js";
+import { cancelOnDispose } from "../../../../../base/common/cancellation.js";
+import { readHotReloadableExport } from "../../../../../base/common/hotReloadHelpers.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable, ISettableObservable, ITransaction, autorun, constObservable, derived, derivedDisposable, derivedObservableWithCache, mapObservableArrayCached, observableFromEvent, observableSignal, observableValue, runOnChange, runOnChangeWithStore, transaction, waitForState } from "../../../../../base/common/observable.js";
+import { isUndefined } from "../../../../../base/common/types.js";
+import { localize } from "../../../../../nls.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { CoreEditingCommands } from "../../../../browser/coreCommands.js";
+import { ICodeEditor } from "../../../../browser/editorBrowser.js";
+import { observableCodeEditor } from "../../../../browser/observableCodeEditor.js";
+import { EditorOption } from "../../../../common/config/editorOptions.js";
+import { Position } from "../../../../common/core/position.js";
+import { Range } from "../../../../common/core/range.js";
+import { CursorChangeReason } from "../../../../common/cursorEvents.js";
+import { ILanguageFeatureDebounceService } from "../../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../../common/services/languageFeatures.js";
+import { InlineCompletionsHintsWidget, InlineSuggestionHintsContentWidget } from "../hintsWidget/inlineCompletionsHintsWidget.js";
+import { InlineCompletionsModel } from "../model/inlineCompletionsModel.js";
+import { SuggestWidgetAdaptor } from "../model/suggestWidgetAdaptor.js";
+import { GhostTextView } from "../view/ghostTextView.js";
+import { inlineSuggestCommitId } from "./commandIds.js";
+import { InlineCompletionContextKeys } from "./inlineCompletionContextKeys.js";
+let InlineCompletionsController = class extends Disposable {
+  constructor(editor, _instantiationService, _contextKeyService, _configurationService, _commandService, _debounceService, _languageFeaturesService, _accessibilitySignalService, _keybindingService, _accessibilityService) {
+    super();
+    this.editor = editor;
+    this._instantiationService = _instantiationService;
+    this._contextKeyService = _contextKeyService;
+    this._configurationService = _configurationService;
+    this._commandService = _commandService;
+    this._debounceService = _debounceService;
+    this._languageFeaturesService = _languageFeaturesService;
+    this._accessibilitySignalService = _accessibilitySignalService;
+    this._keybindingService = _keybindingService;
+    this._accessibilityService = _accessibilityService;
+    this._register(new InlineCompletionContextKeys(this._contextKeyService, this.model));
+    this._register(runOnChange(this._editorObs.onDidType, (_value, _changes) => {
+      if (this._enabled.get()) {
+        this.model.get()?.trigger();
+      }
+    }));
+    this._register(this._commandService.onDidExecuteCommand((e) => {
+      const commands = /* @__PURE__ */ new Set([
+        CoreEditingCommands.Tab.id,
+        CoreEditingCommands.DeleteLeft.id,
+        CoreEditingCommands.DeleteRight.id,
+        inlineSuggestCommitId,
+        "acceptSelectedSuggestion"
+      ]);
+      if (commands.has(e.commandId) && editor.hasTextFocus() && this._enabled.get()) {
+        this._editorObs.forceUpdate((tx) => {
+          this.model.get()?.trigger(tx);
+        });
+      }
+    }));
+    this._register(runOnChange(this._editorObs.selections, (_value, _, changes) => {
+      if (changes.some((e) => e.reason === CursorChangeReason.Explicit || e.source === "api")) {
+        this.model.get()?.stop();
+      }
+    }));
+    this._register(this.editor.onDidBlurEditorWidget(() => {
+      if (this._contextKeyService.getContextKeyValue("accessibleViewIsShown") || this._configurationService.getValue("editor.inlineSuggest.keepOnBlur") || editor.getOption(EditorOption.inlineSuggest).keepOnBlur || InlineSuggestionHintsContentWidget.dropDownVisible) {
+        return;
+      }
+      transaction((tx) => {
+        this.model.get()?.stop(tx);
+      });
+    }));
+    this._register(autorun((reader) => {
+      const state = this.model.read(reader)?.state.read(reader);
+      if (state?.suggestItem) {
+        if (state.primaryGhostText.lineCount >= 2) {
+          this._suggestWidgetAdaptor.forceRenderingAbove();
+        }
+      } else {
+        this._suggestWidgetAdaptor.stopForceRenderingAbove();
+      }
+    }));
+    this._register(toDisposable(() => {
+      this._suggestWidgetAdaptor.stopForceRenderingAbove();
+    }));
+    const currentInlineCompletionBySemanticId = derivedObservableWithCache(this, (reader, last) => {
+      const model = this.model.read(reader);
+      const state = model?.state.read(reader);
+      if (this._suggestWidgetSelectedItem.get()) {
+        return last;
+      }
+      return state?.inlineCompletion?.semanticId;
+    });
+    this._register(runOnChangeWithStore(derived((reader) => {
+      this._playAccessibilitySignal.read(reader);
+      currentInlineCompletionBySemanticId.read(reader);
+      return {};
+    }), async (_value, _, _deltas, store) => {
+      const model = this.model.get();
+      const state = model?.state.get();
+      if (!state || !model) {
+        return;
+      }
+      const lineText = model.textModel.getLineContent(state.primaryGhostText.lineNumber);
+      await timeout(50, cancelOnDispose(store));
+      await waitForState(this._suggestWidgetSelectedItem, isUndefined, () => false, cancelOnDispose(store));
+      await this._accessibilitySignalService.playSignal(AccessibilitySignal.inlineSuggestion);
+      if (this.editor.getOption(EditorOption.screenReaderAnnounceInlineSuggestion)) {
+        this._provideScreenReaderUpdate(state.primaryGhostText.renderForScreenReader(lineText));
+      }
+    }));
+    this._register(new InlineCompletionsHintsWidget(this.editor, this.model, this._instantiationService));
+    this._register(createStyleSheetFromObservable(derived((reader) => {
+      const fontFamily = this._fontFamily.read(reader);
+      if (fontFamily === "" || fontFamily === "default") {
+        return "";
+      }
+      return `
 .monaco-editor .ghost-text-decoration,
 .monaco-editor .ghost-text-decoration-preview,
 .monaco-editor .ghost-text {
-	font-family: ${r};
-}`}))),this._register(this._configurationService.onDidChangeConfiguration(i=>{i.affectsConfiguration("accessibility.verbosity.inlineCompletions")&&this.editor.updateOptions({inlineCompletionsAccessibilityVerbose:this._configurationService.getValue("accessibility.verbosity.inlineCompletions")})})),this.editor.updateOptions({inlineCompletionsAccessibilityVerbose:this._configurationService.getValue("accessibility.verbosity.inlineCompletions")})}static ID="editor.contrib.inlineCompletionsController";static get(e){return e.getContribution(p.ID)}_editorObs=te(this.editor);_positions=b(this,e=>this._editorObs.selections.read(e)?.map(t=>t.getEndPosition())??[new D(1,1)]);_suggestWidgetAdaptor=this._register(new de(this.editor,()=>(this._editorObs.forceUpdate(),this.model.get()?.selectedInlineCompletion.get()?.toSingleTextEdit(void 0)),e=>this._editorObs.forceUpdate(t=>{this.model.get()?.handleSuggestAccepted(e)})));_suggestWidgetSelectedItem=l(this,e=>this._suggestWidgetAdaptor.onDidSelectedItemChange(()=>{this._editorObs.forceUpdate(t=>e(void 0))}),()=>this._suggestWidgetAdaptor.selectedItem);_enabledInConfig=l(this,this.editor.onDidChangeConfiguration,()=>this.editor.getOption(c.inlineSuggest).enabled);_isScreenReaderEnabled=l(this,this._accessibilityService.onDidChangeScreenReaderOptimized,()=>this._accessibilityService.isScreenReaderOptimized());_editorDictationInProgress=l(this,this._contextKeyService.onDidChangeContext,()=>this._contextKeyService.getContext(this.editor.getDomNode()).getValue("editorDictation.inProgress")===!0);_enabled=b(this,e=>this._enabledInConfig.read(e)&&(!this._isScreenReaderEnabled.read(e)||!this._editorDictationInProgress.read(e)));_debounceValue=this._debounceService.for(this._languageFeaturesService.inlineCompletionsProvider,"InlineCompletionsDebounce",{min:50,max:50});model=x(this,e=>{if(this._editorObs.isReadonly.read(e))return;const t=this._editorObs.model.read(e);return t?this._instantiationService.createInstance(ae,t,this._suggestWidgetSelectedItem,this._editorObs.versionId,this._positions,this._debounceValue,l(this.editor.onDidChangeConfiguration,()=>this.editor.getOption(c.suggest).preview),l(this.editor.onDidChangeConfiguration,()=>this.editor.getOption(c.suggest).previewMode),l(this.editor.onDidChangeConfiguration,()=>this.editor.getOption(c.inlineSuggest).mode),this._enabled):void 0}).recomputeInitiallyAndOnChange(this._store);_ghostTexts=b(this,e=>this.model.read(e)?.ghostTexts.read(e)??[]);_stablizedGhostTexts=he(this._ghostTexts,this._store);_ghostTextWidgets=H(this,this._stablizedGhostTexts,(e,t)=>x(o=>this._instantiationService.createInstance(L(le,o),this.editor,{ghostText:e,minReservedLineCount:P(0),targetTextModel:this.model.map(n=>n?.textModel)})).recomputeInitiallyAndOnChange(t)).recomputeInitiallyAndOnChange(this._store);_playAccessibilitySignal=k(this);_fontFamily=l(this,this.editor.onDidChangeConfiguration,()=>this.editor.getOption(c.inlineSuggest).fontFamily);playAccessibilitySignal(e){this._playAccessibilitySignal.trigger(e)}_provideScreenReaderUpdate(e){const t=this._contextKeyService.getContextKeyValue("accessibleViewIsShown"),o=this._keybindingService.lookupKeybinding("editor.action.accessibleView");let n;!t&&o&&this.editor.getOption(c.inlineCompletionsAccessibilityVerbose)&&(n=Z("showAccessibleViewHint","Inspect this in the accessible view ({0})",o.getAriaLabel())),E(n?e+", "+n:e)}shouldShowHoverAt(e){const t=this.model.get()?.primaryGhostText.get();return t?t.parts.some(o=>e.containsPosition(new D(t.lineNumber,o.column))):!1}shouldShowHoverAtViewZone(e){return this._ghostTextWidgets.get()[0]?.get().ownsViewZone(e)??!1}hide(){_(e=>{this.model.get()?.stop(e)})}};p=I([s(1,Y),s(2,X),s(3,Q),s(4,J),s(5,oe),s(6,ne),s(7,q),s(8,ee),s(9,$)],p);function he(m,a){const e=A("result",[]),t=[];return a.add(O(o=>{const n=m.read(o);_(g=>{if(n.length!==t.length){t.length=n.length;for(let d=0;d<t.length;d++)t[d]||(t[d]=A("item",n[d]));e.set([...t],g)}t.forEach((d,y)=>d.set(n[y],g))})})),e}export{p as InlineCompletionsController};
+	font-family: ${fontFamily};
+}`;
+    })));
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("accessibility.verbosity.inlineCompletions")) {
+        this.editor.updateOptions({ inlineCompletionsAccessibilityVerbose: this._configurationService.getValue("accessibility.verbosity.inlineCompletions") });
+      }
+    }));
+    this.editor.updateOptions({ inlineCompletionsAccessibilityVerbose: this._configurationService.getValue("accessibility.verbosity.inlineCompletions") });
+  }
+  static {
+    __name(this, "InlineCompletionsController");
+  }
+  static ID = "editor.contrib.inlineCompletionsController";
+  static get(editor) {
+    return editor.getContribution(InlineCompletionsController.ID);
+  }
+  _editorObs = observableCodeEditor(this.editor);
+  _positions = derived(this, (reader) => this._editorObs.selections.read(reader)?.map((s) => s.getEndPosition()) ?? [new Position(1, 1)]);
+  _suggestWidgetAdaptor = this._register(new SuggestWidgetAdaptor(
+    this.editor,
+    () => {
+      this._editorObs.forceUpdate();
+      return this.model.get()?.selectedInlineCompletion.get()?.toSingleTextEdit(void 0);
+    },
+    (item) => this._editorObs.forceUpdate((_tx) => {
+      this.model.get()?.handleSuggestAccepted(item);
+    })
+  ));
+  _suggestWidgetSelectedItem = observableFromEvent(this, (cb) => this._suggestWidgetAdaptor.onDidSelectedItemChange(() => {
+    this._editorObs.forceUpdate((_tx) => cb(void 0));
+  }), () => this._suggestWidgetAdaptor.selectedItem);
+  _enabledInConfig = observableFromEvent(this, this.editor.onDidChangeConfiguration, () => this.editor.getOption(EditorOption.inlineSuggest).enabled);
+  _isScreenReaderEnabled = observableFromEvent(this, this._accessibilityService.onDidChangeScreenReaderOptimized, () => this._accessibilityService.isScreenReaderOptimized());
+  _editorDictationInProgress = observableFromEvent(
+    this,
+    this._contextKeyService.onDidChangeContext,
+    () => this._contextKeyService.getContext(this.editor.getDomNode()).getValue("editorDictation.inProgress") === true
+  );
+  _enabled = derived(this, (reader) => this._enabledInConfig.read(reader) && (!this._isScreenReaderEnabled.read(reader) || !this._editorDictationInProgress.read(reader)));
+  _debounceValue = this._debounceService.for(
+    this._languageFeaturesService.inlineCompletionsProvider,
+    "InlineCompletionsDebounce",
+    { min: 50, max: 50 }
+  );
+  model = derivedDisposable(this, (reader) => {
+    if (this._editorObs.isReadonly.read(reader)) {
+      return void 0;
+    }
+    const textModel = this._editorObs.model.read(reader);
+    if (!textModel) {
+      return void 0;
+    }
+    const model = this._instantiationService.createInstance(
+      InlineCompletionsModel,
+      textModel,
+      this._suggestWidgetSelectedItem,
+      this._editorObs.versionId,
+      this._positions,
+      this._debounceValue,
+      observableFromEvent(this.editor.onDidChangeConfiguration, () => this.editor.getOption(EditorOption.suggest).preview),
+      observableFromEvent(this.editor.onDidChangeConfiguration, () => this.editor.getOption(EditorOption.suggest).previewMode),
+      observableFromEvent(this.editor.onDidChangeConfiguration, () => this.editor.getOption(EditorOption.inlineSuggest).mode),
+      this._enabled
+    );
+    return model;
+  }).recomputeInitiallyAndOnChange(this._store);
+  _ghostTexts = derived(this, (reader) => {
+    const model = this.model.read(reader);
+    return model?.ghostTexts.read(reader) ?? [];
+  });
+  _stablizedGhostTexts = convertItemsToStableObservables(this._ghostTexts, this._store);
+  _ghostTextWidgets = mapObservableArrayCached(
+    this,
+    this._stablizedGhostTexts,
+    (ghostText, store) => derivedDisposable(
+      (reader) => this._instantiationService.createInstance(readHotReloadableExport(GhostTextView, reader), this.editor, {
+        ghostText,
+        minReservedLineCount: constObservable(0),
+        targetTextModel: this.model.map((v) => v?.textModel)
+      })
+    ).recomputeInitiallyAndOnChange(store)
+  ).recomputeInitiallyAndOnChange(this._store);
+  _playAccessibilitySignal = observableSignal(this);
+  _fontFamily = observableFromEvent(this, this.editor.onDidChangeConfiguration, () => this.editor.getOption(EditorOption.inlineSuggest).fontFamily);
+  playAccessibilitySignal(tx) {
+    this._playAccessibilitySignal.trigger(tx);
+  }
+  _provideScreenReaderUpdate(content) {
+    const accessibleViewShowing = this._contextKeyService.getContextKeyValue("accessibleViewIsShown");
+    const accessibleViewKeybinding = this._keybindingService.lookupKeybinding("editor.action.accessibleView");
+    let hint;
+    if (!accessibleViewShowing && accessibleViewKeybinding && this.editor.getOption(EditorOption.inlineCompletionsAccessibilityVerbose)) {
+      hint = localize("showAccessibleViewHint", "Inspect this in the accessible view ({0})", accessibleViewKeybinding.getAriaLabel());
+    }
+    alert(hint ? content + ", " + hint : content);
+  }
+  shouldShowHoverAt(range) {
+    const ghostText = this.model.get()?.primaryGhostText.get();
+    if (ghostText) {
+      return ghostText.parts.some((p) => range.containsPosition(new Position(ghostText.lineNumber, p.column)));
+    }
+    return false;
+  }
+  shouldShowHoverAtViewZone(viewZoneId) {
+    return this._ghostTextWidgets.get()[0]?.get().ownsViewZone(viewZoneId) ?? false;
+  }
+  hide() {
+    transaction((tx) => {
+      this.model.get()?.stop(tx);
+    });
+  }
+};
+InlineCompletionsController = __decorateClass([
+  __decorateParam(1, IInstantiationService),
+  __decorateParam(2, IContextKeyService),
+  __decorateParam(3, IConfigurationService),
+  __decorateParam(4, ICommandService),
+  __decorateParam(5, ILanguageFeatureDebounceService),
+  __decorateParam(6, ILanguageFeaturesService),
+  __decorateParam(7, IAccessibilitySignalService),
+  __decorateParam(8, IKeybindingService),
+  __decorateParam(9, IAccessibilityService)
+], InlineCompletionsController);
+function convertItemsToStableObservables(items, store) {
+  const result = observableValue("result", []);
+  const innerObservables = [];
+  store.add(autorun((reader) => {
+    const itemsValue = items.read(reader);
+    transaction((tx) => {
+      if (itemsValue.length !== innerObservables.length) {
+        innerObservables.length = itemsValue.length;
+        for (let i = 0; i < innerObservables.length; i++) {
+          if (!innerObservables[i]) {
+            innerObservables[i] = observableValue("item", itemsValue[i]);
+          }
+        }
+        result.set([...innerObservables], tx);
+      }
+      innerObservables.forEach((o, i) => o.set(itemsValue[i], tx));
+    });
+  }));
+  return result;
+}
+__name(convertItemsToStableObservables, "convertItemsToStableObservables");
+export {
+  InlineCompletionsController
+};
+//# sourceMappingURL=inlineCompletionsController.js.map

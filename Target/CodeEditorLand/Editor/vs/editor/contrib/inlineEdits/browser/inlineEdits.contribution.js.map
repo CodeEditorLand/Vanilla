@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/editor/contrib/inlineEdits/browser/inlineEdits.contribution.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { EditorContributionInstantiation, registerEditorAction, registerEditorContribution } from '../../../browser/editorExtensions.js';\nimport {\n\tTriggerInlineEditAction, ShowNextInlineEditAction, ShowPreviousInlineEditAction,\n\tAcceptInlineEdit, HideInlineEdit,\n} from './commands.js';\nimport { InlineEditsController } from './inlineEditsController.js';\n\nregisterEditorContribution(InlineEditsController.ID, InlineEditsController, EditorContributionInstantiation.Eventually);\n\nregisterEditorAction(TriggerInlineEditAction);\nregisterEditorAction(ShowNextInlineEditAction);\nregisterEditorAction(ShowPreviousInlineEditAction);\nregisterEditorAction(AcceptInlineEdit);\nregisterEditorAction(HideInlineEdit);\n"],
+  "mappings": "AAKA,SAAS,iCAAiC,sBAAsB,kCAAkC;AAClG;AAAA,EACC;AAAA,EAAyB;AAAA,EAA0B;AAAA,EACnD;AAAA,EAAkB;AAAA,OACZ;AACP,SAAS,6BAA6B;AAEtC,2BAA2B,sBAAsB,IAAI,uBAAuB,gCAAgC,UAAU;AAEtH,qBAAqB,uBAAuB;AAC5C,qBAAqB,wBAAwB;AAC7C,qBAAqB,4BAA4B;AACjD,qBAAqB,gBAAgB;AACrC,qBAAqB,cAAc;",
+  "names": []
+}

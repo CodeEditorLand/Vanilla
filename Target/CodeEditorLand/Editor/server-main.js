@@ -1,12 +1,238 @@
-import"./bootstrap-server.js";import*as y from"path";import*as x from"http";import*as D from"os";import*as C from"readline";import{performance as w}from"perf_hooks";import{fileURLToPath as P}from"url";import I from"minimist";import*as b from"./bootstrap-node.js";import*as N from"./bootstrap-amd.js";import{resolveNLSConfiguration as T}from"./vs/base/node/nls.js";import{product as l}from"./bootstrap-meta.js";import*as u from"./vs/base/common/performance.js";const O=y.dirname(P(import.meta.url));u.mark("code/server/start"),global.vscodeServerStartTime=w.now();async function V(){const e=I(process.argv.slice(2),{boolean:["start-server","list-extensions","print-ip-address","help","version","accept-server-license-terms","update-extensions"],string:["install-extension","install-builtin-extension","uninstall-extension","locate-extension","socket-path","host","port","compatibility"],alias:{help:"h",version:"v"}});["host","port","accept-server-license-terms"].forEach(t=>{if(!e[t]){const s=process.env[`VSCODE_SERVER_${t.toUpperCase().replace("-","_")}`];s&&(e[t]=s)}});const n=["list-extensions","locate-extension"],r=["install-extension","install-builtin-extension","uninstall-extension","update-extensions"],i=e.help||e.version||n.some(t=>!!e[t])||r.some(t=>!!e[t])&&!e["start-server"],a=await T({userLocale:"en",osLocale:"en",commit:l.commit,userDataPath:"",nlsMetadataPath:O});if(i){A(a).then(t=>{t.spawnCli()});return}let o=null,p=null;const m=()=>(p||(p=A(a).then(async t=>{const s=await t.createServer(c);return o=s,s})),p);if(Array.isArray(l.serverLicense)&&l.serverLicense.length&&(console.log(l.serverLicense.join(`
-`)),l.serverLicensePrompt&&e["accept-server-license-terms"]!==!0)){U()&&(console.log("To accept the license terms, start the server with --accept-server-license-terms"),process.exit(1));try{await L(l.serverLicensePrompt)||process.exit(1)}catch(t){console.log(t),process.exit(1)}}let h=!0,E=!0,c=null;const f=x.createServer(async(t,s)=>(h&&(h=!1,u.mark("code/server/firstRequest")),(await m()).handleRequest(t,s)));f.on("upgrade",async(t,s)=>(E&&(E=!1,u.mark("code/server/firstWebSocket")),(await m()).handleUpgrade(t,s))),f.on("error",async t=>(await m()).handleServerError(t));const S=g(e.host)||(e.compatibility!=="1.63"?"localhost":void 0),_=e["socket-path"]?{path:g(e["socket-path"])}:{host:S,port:await H(S,g(e.port))};f.listen(_,async()=>{let t=Array.isArray(l.serverGreeting)&&l.serverGreeting.length?`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./bootstrap-server.js";
+import * as path from "path";
+import * as http from "http";
+import * as os from "os";
+import * as readline from "readline";
+import { performance } from "perf_hooks";
+import { fileURLToPath } from "url";
+import minimist from "minimist";
+import * as bootstrapNode from "./bootstrap-node.js";
+import * as bootstrapAmd from "./bootstrap-amd.js";
+import { resolveNLSConfiguration } from "./vs/base/node/nls.js";
+import { product } from "./bootstrap-meta.js";
+import * as perf from "./vs/base/common/performance.js";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+perf.mark("code/server/start");
+global.vscodeServerStartTime = performance.now();
+async function start() {
+  const parsedArgs = minimist(process.argv.slice(2), {
+    boolean: ["start-server", "list-extensions", "print-ip-address", "help", "version", "accept-server-license-terms", "update-extensions"],
+    string: ["install-extension", "install-builtin-extension", "uninstall-extension", "locate-extension", "socket-path", "host", "port", "compatibility"],
+    alias: { help: "h", version: "v" }
+  });
+  ["host", "port", "accept-server-license-terms"].forEach((e) => {
+    if (!parsedArgs[e]) {
+      const envValue = process.env[`VSCODE_SERVER_${e.toUpperCase().replace("-", "_")}`];
+      if (envValue) {
+        parsedArgs[e] = envValue;
+      }
+    }
+  });
+  const extensionLookupArgs = ["list-extensions", "locate-extension"];
+  const extensionInstallArgs = ["install-extension", "install-builtin-extension", "uninstall-extension", "update-extensions"];
+  const shouldSpawnCli = parsedArgs.help || parsedArgs.version || extensionLookupArgs.some((a) => !!parsedArgs[a]) || extensionInstallArgs.some((a) => !!parsedArgs[a]) && !parsedArgs["start-server"];
+  const nlsConfiguration = await resolveNLSConfiguration({ userLocale: "en", osLocale: "en", commit: product.commit, userDataPath: "", nlsMetadataPath: __dirname });
+  if (shouldSpawnCli) {
+    loadCode(nlsConfiguration).then((mod) => {
+      mod.spawnCli();
+    });
+    return;
+  }
+  let _remoteExtensionHostAgentServer = null;
+  let _remoteExtensionHostAgentServerPromise = null;
+  const getRemoteExtensionHostAgentServer = /* @__PURE__ */ __name(() => {
+    if (!_remoteExtensionHostAgentServerPromise) {
+      _remoteExtensionHostAgentServerPromise = loadCode(nlsConfiguration).then(async (mod) => {
+        const server2 = await mod.createServer(address);
+        _remoteExtensionHostAgentServer = server2;
+        return server2;
+      });
+    }
+    return _remoteExtensionHostAgentServerPromise;
+  }, "getRemoteExtensionHostAgentServer");
+  if (Array.isArray(product.serverLicense) && product.serverLicense.length) {
+    console.log(product.serverLicense.join("\n"));
+    if (product.serverLicensePrompt && parsedArgs["accept-server-license-terms"] !== true) {
+      if (hasStdinWithoutTty()) {
+        console.log("To accept the license terms, start the server with --accept-server-license-terms");
+        process.exit(1);
+      }
+      try {
+        const accept = await prompt(product.serverLicensePrompt);
+        if (!accept) {
+          process.exit(1);
+        }
+      } catch (e) {
+        console.log(e);
+        process.exit(1);
+      }
+    }
+  }
+  let firstRequest = true;
+  let firstWebSocket = true;
+  let address = null;
+  const server = http.createServer(async (req, res) => {
+    if (firstRequest) {
+      firstRequest = false;
+      perf.mark("code/server/firstRequest");
+    }
+    const remoteExtensionHostAgentServer = await getRemoteExtensionHostAgentServer();
+    return remoteExtensionHostAgentServer.handleRequest(req, res);
+  });
+  server.on("upgrade", async (req, socket) => {
+    if (firstWebSocket) {
+      firstWebSocket = false;
+      perf.mark("code/server/firstWebSocket");
+    }
+    const remoteExtensionHostAgentServer = await getRemoteExtensionHostAgentServer();
+    return remoteExtensionHostAgentServer.handleUpgrade(req, socket);
+  });
+  server.on("error", async (err) => {
+    const remoteExtensionHostAgentServer = await getRemoteExtensionHostAgentServer();
+    return remoteExtensionHostAgentServer.handleServerError(err);
+  });
+  const host = sanitizeStringArg(parsedArgs["host"]) || (parsedArgs["compatibility"] !== "1.63" ? "localhost" : void 0);
+  const nodeListenOptions = parsedArgs["socket-path"] ? { path: sanitizeStringArg(parsedArgs["socket-path"]) } : { host, port: await parsePort(host, sanitizeStringArg(parsedArgs["port"])) };
+  server.listen(nodeListenOptions, async () => {
+    let output = Array.isArray(product.serverGreeting) && product.serverGreeting.length ? `
 
-${l.serverGreeting.join(`
-`)}
+${product.serverGreeting.join("\n")}
 
-`:"";if(typeof _.port=="number"&&e["print-ip-address"]){const s=D.networkInterfaces();Object.keys(s).forEach(function(d){s[d]?.forEach(function(v){!v.internal&&v.family==="IPv4"&&(t+=`IP Address: ${v.address}
-`)})})}if(c=f.address(),c===null)throw new Error("Unexpected server address");t+=`Server bound to ${typeof c=="string"?c:`${c.address}:${c.port} (${c.family})`}
-`,t+=`Extension host agent listening on ${typeof c=="string"?c:c.port}
-`,console.log(t),u.mark("code/server/started"),global.vscodeServerListenTime=w.now(),await m()}),process.on("exit",()=>{f.close(),o&&o.dispose()})}function g(e){return Array.isArray(e)&&(e=e.pop()),typeof e=="string"?e:void 0}async function H(e,n){if(n){let r;if(n.match(/^\d+$/))return parseInt(n,10);if(r=k(n)){const i=await $(e,r.start,r.end);if(i!==void 0)return i;console.warn(`--port: Could not find free port in range: ${r.start} - ${r.end} (inclusive).`),process.exit(1)}else console.warn(`--port "${n}" is not a valid number or range. Ranges must be in the form 'from-to' with 'from' an integer larger than 0 and not larger than 'end'.`),process.exit(1)}return 8e3}function k(e){const n=e.match(/^(\d+)-(\d+)$/);if(n){const r=parseInt(n[1],10),i=parseInt(n[2],10);if(r>0&&r<=i&&i<=65535)return{start:r,end:i}}}async function $(e,n,r){const i=a=>new Promise(o=>{const p=x.createServer();p.listen(a,e,()=>{p.close(),o(!0)}).on("error",()=>{o(!1)})});for(let a=n;a<=r;a++)if(await i(a))return a}function A(e){return new Promise((n,r)=>{process.env.VSCODE_NLS_CONFIG=JSON.stringify(e),process.env.VSCODE_HANDLES_SIGPIPE="true",process.env.VSCODE_DEV?(process.env.VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH=process.env.VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH||y.join(O,"..","remote","node_modules"),b.devInjectNodeModuleLookupPath(process.env.VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH)):delete process.env.VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH,N.load("vs/server/node/server.main",n,r)})}function U(){try{return!process.stdin.isTTY}catch{}return!1}function L(e){const n=C.createInterface({input:process.stdin,output:process.stdout});return new Promise((r,i)=>{n.question(e+" ",async function(a){n.close();const o=a.toString().trim().toLowerCase();o===""||o==="y"||o==="yes"?r(!0):o==="n"||o==="no"?r(!1):(process.stdout.write(`
-Invalid Response. Answer either yes (y, yes) or no (n, no)
-`),r(await L(e)))})})}V();
+` : ``;
+    if (typeof nodeListenOptions.port === "number" && parsedArgs["print-ip-address"]) {
+      const ifaces = os.networkInterfaces();
+      Object.keys(ifaces).forEach(function(ifname) {
+        ifaces[ifname]?.forEach(function(iface) {
+          if (!iface.internal && iface.family === "IPv4") {
+            output += `IP Address: ${iface.address}
+`;
+          }
+        });
+      });
+    }
+    address = server.address();
+    if (address === null) {
+      throw new Error("Unexpected server address");
+    }
+    output += `Server bound to ${typeof address === "string" ? address : `${address.address}:${address.port} (${address.family})`}
+`;
+    output += `Extension host agent listening on ${typeof address === "string" ? address : address.port}
+`;
+    console.log(output);
+    perf.mark("code/server/started");
+    global.vscodeServerListenTime = performance.now();
+    await getRemoteExtensionHostAgentServer();
+  });
+  process.on("exit", () => {
+    server.close();
+    if (_remoteExtensionHostAgentServer) {
+      _remoteExtensionHostAgentServer.dispose();
+    }
+  });
+}
+__name(start, "start");
+function sanitizeStringArg(val) {
+  if (Array.isArray(val)) {
+    val = val.pop();
+  }
+  return typeof val === "string" ? val : void 0;
+}
+__name(sanitizeStringArg, "sanitizeStringArg");
+async function parsePort(host, strPort) {
+  if (strPort) {
+    let range;
+    if (strPort.match(/^\d+$/)) {
+      return parseInt(strPort, 10);
+    } else if (range = parseRange(strPort)) {
+      const port = await findFreePort(host, range.start, range.end);
+      if (port !== void 0) {
+        return port;
+      }
+      console.warn(`--port: Could not find free port in range: ${range.start} - ${range.end} (inclusive).`);
+      process.exit(1);
+    } else {
+      console.warn(`--port "${strPort}" is not a valid number or range. Ranges must be in the form 'from-to' with 'from' an integer larger than 0 and not larger than 'end'.`);
+      process.exit(1);
+    }
+  }
+  return 8e3;
+}
+__name(parsePort, "parsePort");
+function parseRange(strRange) {
+  const match = strRange.match(/^(\d+)-(\d+)$/);
+  if (match) {
+    const start2 = parseInt(match[1], 10), end = parseInt(match[2], 10);
+    if (start2 > 0 && start2 <= end && end <= 65535) {
+      return { start: start2, end };
+    }
+  }
+  return void 0;
+}
+__name(parseRange, "parseRange");
+async function findFreePort(host, start2, end) {
+  const testPort = /* @__PURE__ */ __name((port) => {
+    return new Promise((resolve) => {
+      const server = http.createServer();
+      server.listen(port, host, () => {
+        server.close();
+        resolve(true);
+      }).on("error", () => {
+        resolve(false);
+      });
+    });
+  }, "testPort");
+  for (let port = start2; port <= end; port++) {
+    if (await testPort(port)) {
+      return port;
+    }
+  }
+  return void 0;
+}
+__name(findFreePort, "findFreePort");
+function loadCode(nlsConfiguration) {
+  return new Promise((resolve, reject) => {
+    process.env["VSCODE_NLS_CONFIG"] = JSON.stringify(nlsConfiguration);
+    process.env["VSCODE_HANDLES_SIGPIPE"] = "true";
+    if (process.env["VSCODE_DEV"]) {
+      process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"] = process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"] || path.join(__dirname, "..", "remote", "node_modules");
+      bootstrapNode.devInjectNodeModuleLookupPath(process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"]);
+    } else {
+      delete process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"];
+    }
+    bootstrapAmd.load("vs/server/node/server.main", resolve, reject);
+  });
+}
+__name(loadCode, "loadCode");
+function hasStdinWithoutTty() {
+  try {
+    return !process.stdin.isTTY;
+  } catch (error) {
+  }
+  return false;
+}
+__name(hasStdinWithoutTty, "hasStdinWithoutTty");
+function prompt(question) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  return new Promise((resolve, reject) => {
+    rl.question(question + " ", async function(data) {
+      rl.close();
+      const str = data.toString().trim().toLowerCase();
+      if (str === "" || str === "y" || str === "yes") {
+        resolve(true);
+      } else if (str === "n" || str === "no") {
+        resolve(false);
+      } else {
+        process.stdout.write("\nInvalid Response. Answer either yes (y, yes) or no (n, no)\n");
+        resolve(await prompt(question));
+      }
+    });
+  });
+}
+__name(prompt, "prompt");
+start();
+//# sourceMappingURL=server-main.js.map

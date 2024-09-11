@@ -1,1 +1,246 @@
-import{localize as f}from"../../../../nls.js";import{deepClone as b}from"../../../../base/common/objects.js";import{ThemeIcon as R}from"../../../../base/common/themables.js";import{buttonForeground as L,foreground as w}from"../../../../platform/theme/common/colorRegistry.js";import{chartsBlue as E,chartsGreen as D,chartsOrange as V,chartsPurple as N,chartsRed as P,chartsYellow as k}from"../../../../platform/theme/common/colors/chartsColors.js";import{asCssVariable as v,registerColor as I,transparent as B}from"../../../../platform/theme/common/colorUtils.js";import"../common/history.js";import{rot as T}from"../../../../base/common/numbers.js";import{svgElem as _}from"../../../../base/browser/dom.js";const m=22,s=11,C=4,g=5,M=I("scmGraph.historyItemRefColor",E,f("scmGraphHistoryItemRefColor","History item reference color.")),re=I("scmGraph.historyItemRemoteRefColor",N,f("scmGraphHistoryItemRemoteRefColor","History item remote reference color.")),oe=I("scmGraph.historyItemBaseRefColor",V,f("scmGraphHistoryItemBaseRefColor","History item base reference color.")),ne=I("scmGraph.historyItemHoverDefaultLabelForeground",w,f("scmGraphHistoryItemHoverDefaultLabelForeground","History item hover default label foreground color.")),se=I("scmGraph.historyItemHoverDefaultLabelBackground",B(w,.2),f("scmGraphHistoryItemHoverDefaultLabelBackground","History item hover default label background color.")),ie=I("scmGraph.historyItemHoverLabelForeground",L,f("scmGraphHistoryItemHoverLabelForeground","History item hover label foreground color.")),ce=I("scmGraph.historyItemHoverAdditionsForeground","gitDecoration.addedResourceForeground",f("scmGraph.HistoryItemHoverAdditionsForeground","History item hover additions foreground color.")),le=I("scmGraph.historyItemHoverDeletionsForeground","gitDecoration.deletedResourceForeground",f("scmGraph.HistoryItemHoverDeletionsForeground","History item hover deletions foreground color.")),A=[I("scmGraph.foreground1",D,f("scmGraphForeground1","Source control graph foreground color (1).")),I("scmGraph.foreground2",P,f("scmGraphForeground2","Source control graph foreground color (2).")),I("scmGraph.foreground3",k,f("scmGraphForeground3","Source control graph foreground color (3)."))];function G(i,e){for(const o of i.references??[]){const n=e.get(o.id);if(n!==void 0)return n}}function S(i){const e=document.createElementNS("http://www.w3.org/2000/svg","path");return e.setAttribute("fill","none"),e.setAttribute("stroke-width","1px"),e.setAttribute("stroke-linecap","round"),e.style.stroke=v(i),e}function $(i,e,o){const n=document.createElementNS("http://www.w3.org/2000/svg","circle");return n.setAttribute("cx",`${s*(i+1)}`),n.setAttribute("cy",`${s}`),n.setAttribute("r",`${e}`),n.style.fill=v(o),n}function x(i,e,o,n){const a=S(n);return a.setAttribute("d",`M ${i} ${e} V ${o}`),a}function W(i,e){for(let o=i.length-1;o>=0;o--)if(i[o].id===e)return o;return-1}function de(i){const e=document.createElementNS("http://www.w3.org/2000/svg","svg");e.classList.add("graph");const o=i.historyItem,n=i.inputSwimlanes,a=i.outputSwimlanes,d=n.findIndex(r=>r.id===o.id),p=d!==-1?d:n.length,h=p<a.length?a[p].color:p<n.length?n[p].color:M;let u=0;for(let r=0;r<n.length;r++){const c=n[r].color;if(n[r].id===o.id)if(r!==p){const t=[],l=S(c);t.push(`M ${s*(r+1)} 0`),t.push(`A ${s} ${s} 0 0 1 ${s*r} ${s}`),t.push(`H ${s*(p+1)}`),l.setAttribute("d",t.join(" ")),e.append(l)}else u++;else if(u<a.length&&n[r].id===a[u].id){if(r===u){const t=x(s*(r+1),0,m,c);e.append(t)}else{const t=[],l=S(c);t.push(`M ${s*(r+1)} 0`),t.push("V 6"),t.push(`A ${g} ${g} 0 0 1 ${s*(r+1)-g} ${m/2}`),t.push(`H ${s*(u+1)+g}`),t.push(`A ${g} ${g} 0 0 0 ${s*(u+1)} ${m/2+g}`),t.push(`V ${m}`),l.setAttribute("d",t.join(" ")),e.append(l)}u++}}for(let r=1;r<o.parentIds.length;r++){const c=W(a,o.parentIds[r]);if(c===-1)continue;const t=[],l=S(a[c].color);t.push(`M ${s*c} ${m/2}`),t.push(`A ${s} ${s} 0 0 1 ${s*(c+1)} ${m}`),t.push(`M ${s*c} ${m/2}`),t.push(`H ${s*(p+1)} `),l.setAttribute("d",t.join(" ")),e.append(l)}if(d!==-1){const r=x(s*(p+1),0,m/2,n[d].color);e.append(r)}if(o.parentIds.length>0){const r=x(s*(p+1),m/2,m,h);e.append(r)}if(o.parentIds.length>1){const r=$(p,C+1,h);e.append(r);const c=$(p,C-1,h);e.append(c)}else{if(o.references?.some(c=>R.isThemeIcon(c.icon)&&c.icon.id==="target")){const c=$(p,C+2,h);e.append(c)}const r=$(p,C,h);e.append(r)}return e.style.height=`${m}px`,e.style.width=`${s*(Math.max(n.length,a.length,1)+1)}px`,e}function ae(i){const e=_("svg",{style:{height:`${m}px`,width:`${s*(i.length+1)}px`}});for(let o=0;o<i.length;o++){const n=x(s*(o+1),0,m,i[o].color);e.root.append(n)}return e.root}function pe(i,e=new Map){let o=-1;const n=[];for(let a=0;a<i.length;a++){const d=i[a],h=(n.at(-1)?.outputSwimlanes??[]).map(t=>b(t)),u=[];let r=!1;if(d.parentIds.length>0)for(const t of h){if(t.id===d.id){r||(u.push({id:d.parentIds[0],color:G(d,e)??t.color}),r=!0);continue}u.push(b(t))}for(let t=r?1:0;t<d.parentIds.length;t++){let l;if(!r)l=G(d,e);else{const H=i.find(y=>y.id===d.parentIds[t]);l=H?G(H,e):void 0}l||(o=T(o+1,A.length),l=A[o]),u.push({id:d.parentIds[t],color:l})}const c=(d.references??[]).map(t=>{let l=e.get(t.id);if(e.has(t.id)&&l===void 0){const H=h.findIndex(F=>F.id===d.id),y=H!==-1?H:h.length;l=y<u.length?u[y].color:y<h.length?h[y].color:M}return{...t,color:l}});n.push({historyItem:{...d,references:c},inputSwimlanes:h,outputSwimlanes:u})}return n}export{m as SWIMLANE_HEIGHT,s as SWIMLANE_WIDTH,A as colorRegistry,oe as historyItemBaseRefColor,ce as historyItemHoverAdditionsForeground,se as historyItemHoverDefaultLabelBackground,ne as historyItemHoverDefaultLabelForeground,le as historyItemHoverDeletionsForeground,ie as historyItemHoverLabelForeground,M as historyItemRefColor,re as historyItemRemoteRefColor,ae as renderSCMHistoryGraphPlaceholder,de as renderSCMHistoryItemGraph,pe as toISCMHistoryItemViewModelArray};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../nls.js";
+import { deepClone } from "../../../../base/common/objects.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { buttonForeground, foreground } from "../../../../platform/theme/common/colorRegistry.js";
+import { chartsBlue, chartsGreen, chartsOrange, chartsPurple, chartsRed, chartsYellow } from "../../../../platform/theme/common/colors/chartsColors.js";
+import { asCssVariable, ColorIdentifier, registerColor, transparent } from "../../../../platform/theme/common/colorUtils.js";
+import { ISCMHistoryItem, ISCMHistoryItemGraphNode, ISCMHistoryItemViewModel } from "../common/history.js";
+import { rot } from "../../../../base/common/numbers.js";
+import { svgElem } from "../../../../base/browser/dom.js";
+const SWIMLANE_HEIGHT = 22;
+const SWIMLANE_WIDTH = 11;
+const CIRCLE_RADIUS = 4;
+const SWIMLANE_CURVE_RADIUS = 5;
+const historyItemRefColor = registerColor("scmGraph.historyItemRefColor", chartsBlue, localize("scmGraphHistoryItemRefColor", "History item reference color."));
+const historyItemRemoteRefColor = registerColor("scmGraph.historyItemRemoteRefColor", chartsPurple, localize("scmGraphHistoryItemRemoteRefColor", "History item remote reference color."));
+const historyItemBaseRefColor = registerColor("scmGraph.historyItemBaseRefColor", chartsOrange, localize("scmGraphHistoryItemBaseRefColor", "History item base reference color."));
+const historyItemHoverDefaultLabelForeground = registerColor("scmGraph.historyItemHoverDefaultLabelForeground", foreground, localize("scmGraphHistoryItemHoverDefaultLabelForeground", "History item hover default label foreground color."));
+const historyItemHoverDefaultLabelBackground = registerColor("scmGraph.historyItemHoverDefaultLabelBackground", transparent(foreground, 0.2), localize("scmGraphHistoryItemHoverDefaultLabelBackground", "History item hover default label background color."));
+const historyItemHoverLabelForeground = registerColor("scmGraph.historyItemHoverLabelForeground", buttonForeground, localize("scmGraphHistoryItemHoverLabelForeground", "History item hover label foreground color."));
+const historyItemHoverAdditionsForeground = registerColor("scmGraph.historyItemHoverAdditionsForeground", "gitDecoration.addedResourceForeground", localize("scmGraph.HistoryItemHoverAdditionsForeground", "History item hover additions foreground color."));
+const historyItemHoverDeletionsForeground = registerColor("scmGraph.historyItemHoverDeletionsForeground", "gitDecoration.deletedResourceForeground", localize("scmGraph.HistoryItemHoverDeletionsForeground", "History item hover deletions foreground color."));
+const colorRegistry = [
+  registerColor("scmGraph.foreground1", chartsGreen, localize("scmGraphForeground1", "Source control graph foreground color (1).")),
+  registerColor("scmGraph.foreground2", chartsRed, localize("scmGraphForeground2", "Source control graph foreground color (2).")),
+  registerColor("scmGraph.foreground3", chartsYellow, localize("scmGraphForeground3", "Source control graph foreground color (3)."))
+];
+function getLabelColorIdentifier(historyItem, colorMap) {
+  for (const ref of historyItem.references ?? []) {
+    const colorIdentifier = colorMap.get(ref.id);
+    if (colorIdentifier !== void 0) {
+      return colorIdentifier;
+    }
+  }
+  return void 0;
+}
+__name(getLabelColorIdentifier, "getLabelColorIdentifier");
+function createPath(colorIdentifier) {
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke-width", "1px");
+  path.setAttribute("stroke-linecap", "round");
+  path.style.stroke = asCssVariable(colorIdentifier);
+  return path;
+}
+__name(createPath, "createPath");
+function drawCircle(index, radius, colorIdentifier) {
+  const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  circle.setAttribute("cx", `${SWIMLANE_WIDTH * (index + 1)}`);
+  circle.setAttribute("cy", `${SWIMLANE_WIDTH}`);
+  circle.setAttribute("r", `${radius}`);
+  circle.style.fill = asCssVariable(colorIdentifier);
+  return circle;
+}
+__name(drawCircle, "drawCircle");
+function drawVerticalLine(x1, y1, y2, color) {
+  const path = createPath(color);
+  path.setAttribute("d", `M ${x1} ${y1} V ${y2}`);
+  return path;
+}
+__name(drawVerticalLine, "drawVerticalLine");
+function findLastIndex(nodes, id) {
+  for (let i = nodes.length - 1; i >= 0; i--) {
+    if (nodes[i].id === id) {
+      return i;
+    }
+  }
+  return -1;
+}
+__name(findLastIndex, "findLastIndex");
+function renderSCMHistoryItemGraph(historyItemViewModel) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.classList.add("graph");
+  const historyItem = historyItemViewModel.historyItem;
+  const inputSwimlanes = historyItemViewModel.inputSwimlanes;
+  const outputSwimlanes = historyItemViewModel.outputSwimlanes;
+  const inputIndex = inputSwimlanes.findIndex((node) => node.id === historyItem.id);
+  const circleIndex = inputIndex !== -1 ? inputIndex : inputSwimlanes.length;
+  const circleColor = circleIndex < outputSwimlanes.length ? outputSwimlanes[circleIndex].color : circleIndex < inputSwimlanes.length ? inputSwimlanes[circleIndex].color : historyItemRefColor;
+  let outputSwimlaneIndex = 0;
+  for (let index = 0; index < inputSwimlanes.length; index++) {
+    const color = inputSwimlanes[index].color;
+    if (inputSwimlanes[index].id === historyItem.id) {
+      if (index !== circleIndex) {
+        const d = [];
+        const path = createPath(color);
+        d.push(`M ${SWIMLANE_WIDTH * (index + 1)} 0`);
+        d.push(`A ${SWIMLANE_WIDTH} ${SWIMLANE_WIDTH} 0 0 1 ${SWIMLANE_WIDTH * index} ${SWIMLANE_WIDTH}`);
+        d.push(`H ${SWIMLANE_WIDTH * (circleIndex + 1)}`);
+        path.setAttribute("d", d.join(" "));
+        svg.append(path);
+      } else {
+        outputSwimlaneIndex++;
+      }
+    } else {
+      if (outputSwimlaneIndex < outputSwimlanes.length && inputSwimlanes[index].id === outputSwimlanes[outputSwimlaneIndex].id) {
+        if (index === outputSwimlaneIndex) {
+          const path = drawVerticalLine(SWIMLANE_WIDTH * (index + 1), 0, SWIMLANE_HEIGHT, color);
+          svg.append(path);
+        } else {
+          const d = [];
+          const path = createPath(color);
+          d.push(`M ${SWIMLANE_WIDTH * (index + 1)} 0`);
+          d.push(`V 6`);
+          d.push(`A ${SWIMLANE_CURVE_RADIUS} ${SWIMLANE_CURVE_RADIUS} 0 0 1 ${SWIMLANE_WIDTH * (index + 1) - SWIMLANE_CURVE_RADIUS} ${SWIMLANE_HEIGHT / 2}`);
+          d.push(`H ${SWIMLANE_WIDTH * (outputSwimlaneIndex + 1) + SWIMLANE_CURVE_RADIUS}`);
+          d.push(`A ${SWIMLANE_CURVE_RADIUS} ${SWIMLANE_CURVE_RADIUS} 0 0 0 ${SWIMLANE_WIDTH * (outputSwimlaneIndex + 1)} ${SWIMLANE_HEIGHT / 2 + SWIMLANE_CURVE_RADIUS}`);
+          d.push(`V ${SWIMLANE_HEIGHT}`);
+          path.setAttribute("d", d.join(" "));
+          svg.append(path);
+        }
+        outputSwimlaneIndex++;
+      }
+    }
+  }
+  for (let i = 1; i < historyItem.parentIds.length; i++) {
+    const parentOutputIndex = findLastIndex(outputSwimlanes, historyItem.parentIds[i]);
+    if (parentOutputIndex === -1) {
+      continue;
+    }
+    const d = [];
+    const path = createPath(outputSwimlanes[parentOutputIndex].color);
+    d.push(`M ${SWIMLANE_WIDTH * parentOutputIndex} ${SWIMLANE_HEIGHT / 2}`);
+    d.push(`A ${SWIMLANE_WIDTH} ${SWIMLANE_WIDTH} 0 0 1 ${SWIMLANE_WIDTH * (parentOutputIndex + 1)} ${SWIMLANE_HEIGHT}`);
+    d.push(`M ${SWIMLANE_WIDTH * parentOutputIndex} ${SWIMLANE_HEIGHT / 2}`);
+    d.push(`H ${SWIMLANE_WIDTH * (circleIndex + 1)} `);
+    path.setAttribute("d", d.join(" "));
+    svg.append(path);
+  }
+  if (inputIndex !== -1) {
+    const path = drawVerticalLine(SWIMLANE_WIDTH * (circleIndex + 1), 0, SWIMLANE_HEIGHT / 2, inputSwimlanes[inputIndex].color);
+    svg.append(path);
+  }
+  if (historyItem.parentIds.length > 0) {
+    const path = drawVerticalLine(SWIMLANE_WIDTH * (circleIndex + 1), SWIMLANE_HEIGHT / 2, SWIMLANE_HEIGHT, circleColor);
+    svg.append(path);
+  }
+  if (historyItem.parentIds.length > 1) {
+    const circleOuter = drawCircle(circleIndex, CIRCLE_RADIUS + 1, circleColor);
+    svg.append(circleOuter);
+    const circleInner = drawCircle(circleIndex, CIRCLE_RADIUS - 1, circleColor);
+    svg.append(circleInner);
+  } else {
+    if (historyItem.references?.some((ref) => ThemeIcon.isThemeIcon(ref.icon) && ref.icon.id === "target")) {
+      const outerCircle = drawCircle(circleIndex, CIRCLE_RADIUS + 2, circleColor);
+      svg.append(outerCircle);
+    }
+    const circle = drawCircle(circleIndex, CIRCLE_RADIUS, circleColor);
+    svg.append(circle);
+  }
+  svg.style.height = `${SWIMLANE_HEIGHT}px`;
+  svg.style.width = `${SWIMLANE_WIDTH * (Math.max(inputSwimlanes.length, outputSwimlanes.length, 1) + 1)}px`;
+  return svg;
+}
+__name(renderSCMHistoryItemGraph, "renderSCMHistoryItemGraph");
+function renderSCMHistoryGraphPlaceholder(columns) {
+  const elements = svgElem("svg", {
+    style: { height: `${SWIMLANE_HEIGHT}px`, width: `${SWIMLANE_WIDTH * (columns.length + 1)}px` }
+  });
+  for (let index = 0; index < columns.length; index++) {
+    const path = drawVerticalLine(SWIMLANE_WIDTH * (index + 1), 0, SWIMLANE_HEIGHT, columns[index].color);
+    elements.root.append(path);
+  }
+  return elements.root;
+}
+__name(renderSCMHistoryGraphPlaceholder, "renderSCMHistoryGraphPlaceholder");
+function toISCMHistoryItemViewModelArray(historyItems, colorMap = /* @__PURE__ */ new Map()) {
+  let colorIndex = -1;
+  const viewModels = [];
+  for (let index = 0; index < historyItems.length; index++) {
+    const historyItem = historyItems[index];
+    const outputSwimlanesFromPreviousItem = viewModels.at(-1)?.outputSwimlanes ?? [];
+    const inputSwimlanes = outputSwimlanesFromPreviousItem.map((i) => deepClone(i));
+    const outputSwimlanes = [];
+    let firstParentAdded = false;
+    if (historyItem.parentIds.length > 0) {
+      for (const node of inputSwimlanes) {
+        if (node.id === historyItem.id) {
+          if (!firstParentAdded) {
+            outputSwimlanes.push({
+              id: historyItem.parentIds[0],
+              color: getLabelColorIdentifier(historyItem, colorMap) ?? node.color
+            });
+            firstParentAdded = true;
+          }
+          continue;
+        }
+        outputSwimlanes.push(deepClone(node));
+      }
+    }
+    for (let i = firstParentAdded ? 1 : 0; i < historyItem.parentIds.length; i++) {
+      let colorIdentifier;
+      if (!firstParentAdded) {
+        colorIdentifier = getLabelColorIdentifier(historyItem, colorMap);
+      } else {
+        const historyItemParent = historyItems.find((h) => h.id === historyItem.parentIds[i]);
+        colorIdentifier = historyItemParent ? getLabelColorIdentifier(historyItemParent, colorMap) : void 0;
+      }
+      if (!colorIdentifier) {
+        colorIndex = rot(colorIndex + 1, colorRegistry.length);
+        colorIdentifier = colorRegistry[colorIndex];
+      }
+      outputSwimlanes.push({
+        id: historyItem.parentIds[i],
+        color: colorIdentifier
+      });
+    }
+    const references = (historyItem.references ?? []).map((ref) => {
+      let color = colorMap.get(ref.id);
+      if (colorMap.has(ref.id) && color === void 0) {
+        const inputIndex = inputSwimlanes.findIndex((node) => node.id === historyItem.id);
+        const circleIndex = inputIndex !== -1 ? inputIndex : inputSwimlanes.length;
+        color = circleIndex < outputSwimlanes.length ? outputSwimlanes[circleIndex].color : circleIndex < inputSwimlanes.length ? inputSwimlanes[circleIndex].color : historyItemRefColor;
+      }
+      return { ...ref, color };
+    });
+    viewModels.push({
+      historyItem: {
+        ...historyItem,
+        references
+      },
+      inputSwimlanes,
+      outputSwimlanes
+    });
+  }
+  return viewModels;
+}
+__name(toISCMHistoryItemViewModelArray, "toISCMHistoryItemViewModelArray");
+export {
+  SWIMLANE_HEIGHT,
+  SWIMLANE_WIDTH,
+  colorRegistry,
+  historyItemBaseRefColor,
+  historyItemHoverAdditionsForeground,
+  historyItemHoverDefaultLabelBackground,
+  historyItemHoverDefaultLabelForeground,
+  historyItemHoverDeletionsForeground,
+  historyItemHoverLabelForeground,
+  historyItemRefColor,
+  historyItemRemoteRefColor,
+  renderSCMHistoryGraphPlaceholder,
+  renderSCMHistoryItemGraph,
+  toISCMHistoryItemViewModelArray
+};
+//# sourceMappingURL=scmHistory.js.map

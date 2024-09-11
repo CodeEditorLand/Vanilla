@@ -1,1 +1,226 @@
-var x=Object.defineProperty;var _=Object.getOwnPropertyDescriptor;var S=(h,n,e,r)=>{for(var t=r>1?void 0:r?_(n,e):n,o=h.length-1,a;o>=0;o--)(a=h[o])&&(t=(r?a(n,e,t):a(t))||t);return r&&t&&x(n,e,t),t},p=(h,n)=>(e,r)=>n(e,r,h);import{URI as C}from"../../../../base/common/uri.js";import{ILanguageService as R}from"../../../../editor/common/languages/language.js";import{CommandsRegistry as b}from"../../../../platform/commands/common/commands.js";import{IInstantiationService as y}from"../../../../platform/instantiation/common/instantiation.js";import{IWorkbenchThemeService as z}from"../../../services/themes/common/workbenchThemeService.js";import{IEditorService as w}from"../../../services/editor/common/editorService.js";import{EditorResourceAccessor as E}from"../../../common/editor.js";import{ITextMateTokenizationService as $}from"../../../services/textMate/browser/textMateTokenizationFeature.js";import{TokenizationRegistry as F}from"../../../../editor/common/languages.js";import{TokenMetadata as M}from"../../../../editor/common/encodedTokenAttributes.js";import{findMatchingThemeRule as N}from"../../../services/textMate/common/TMHelper.js";import{Color as u}from"../../../../base/common/color.js";import{IFileService as L}from"../../../../platform/files/common/files.js";import{basename as A}from"../../../../base/common/resources.js";import{Schemas as H}from"../../../../base/common/network.js";import{splitLines as U}from"../../../../base/common/strings.js";class O{_theme;_cache;_defaultColor;constructor(n){this._theme=n,this._cache=Object.create(null),this._defaultColor="#000000";for(let e=0,r=this._theme.tokenColors.length;e<r;e++){const t=this._theme.tokenColors[e];t.scope||(this._defaultColor=t.settings.foreground)}}_generateExplanation(n,e){return`${n}: ${u.Format.CSS.formatHexA(e,!0).toUpperCase()}`}explainTokenColor(n,e){const r=this._findMatchingThemeRule(n);if(!r){const o=u.fromHex(this._defaultColor);if(!e.equals(o))throw new Error(`[${this._theme.label}]: Unexpected color ${u.Format.CSS.formatHexA(e)} for ${n}. Expected default ${u.Format.CSS.formatHexA(o)}`);return this._generateExplanation("default",e)}const t=u.fromHex(r.settings.foreground);if(!e.equals(t))throw new Error(`[${this._theme.label}]: Unexpected color ${u.Format.CSS.formatHexA(e)} for ${n}. Expected ${u.Format.CSS.formatHexA(t)} coming in from ${r.rawSelector}`);return this._generateExplanation(r.rawSelector,e)}_findMatchingThemeRule(n){return this._cache[n]||(this._cache[n]=N(this._theme,n.split(" "))),this._cache[n]}}let g=class{constructor(n,e,r){this.languageService=n;this.themeService=e;this.textMateService=r}_themedTokenize(n,e){const r=F.getColorMap();let t=null;const o=[];let a=0;for(let c=0,i=e.length;c<i;c++){const s=e[c],l=n.tokenizeLine2(s,t);for(let m=0,k=l.tokens.length>>>1;m<k;m++){const f=l.tokens[m<<1],T=l.tokens[(m<<1)+1],d=m+1<k?l.tokens[m+1<<1]:s.length,v=s.substring(f,d),I=M.getForeground(T);o[a++]={text:v,color:r[I]}}t=l.ruleStack}return o}_tokenize(n,e){let r=null;const t=[];let o=0;for(let a=0,c=e.length;a<c;a++){const i=e[a],s=n.tokenizeLine(i,r);let l=null;for(let m=0,k=s.tokens.length;m<k;m++){const f=s.tokens[m],T=i.substring(f.startIndex,f.endIndex),d=f.scopes.join(" ");l===d?t[o-1].c+=T:(l=d,t[o++]={c:T,t:d,r:{dark_plus:void 0,light_plus:void 0,dark_vs:void 0,light_vs:void 0,hc_black:void 0}})}r=s.ruleStack}return t}async _getThemesResult(n,e){const r=this.themeService.getColorTheme(),t=i=>{const s="vscode-theme-defaults-themes-",l=i.indexOf(s);if(l!==-1)return i.substring(l+s.length,i.length-5)},o={},c=(await this.themeService.getColorThemes()).filter(i=>!!t(i.id));for(const i of c){const s=i.id;if(await this.themeService.setColorTheme(s,void 0)){const m=t(s);o[m]={document:new O(this.themeService.getColorTheme()),tokens:this._themedTokenize(n,e)}}}return await this.themeService.setColorTheme(r.id,void 0),o}_enrichResult(n,e){const r={},t=Object.keys(e);for(const o of t)r[o]=0;for(let o=0,a=n.length;o<a;o++){const c=n[o];for(const i of t){const s=e[i].tokens[r[i]];s.text=s.text.substr(c.c.length),c.r[i]=e[i].document.explainTokenColor(c.t,s.color),s.text.length===0&&r[i]++}}}captureSyntaxTokens(n,e){const r=this.languageService.guessLanguageIdByFilepathOrFirstLine(C.file(n));return this.textMateService.createTokenizer(r).then(t=>{if(!t)return[];const o=U(e),a=this._tokenize(t,o);return this._getThemesResult(t,o).then(c=>(this._enrichResult(a,c),a.filter(i=>i.c.length>0)))})}};g=S([p(0,R),p(1,z),p(2,$)],g),b.registerCommand("_workbench.captureSyntaxTokens",function(h,n){const e=r=>{const t=h.get(L),o=A(r),a=h.get(y).createInstance(g);return t.readFile(r).then(c=>a.captureSyntaxTokens(o,c.value.toString()))};if(n)return e(n);{const r=h.get(w),t=r.activeEditor?E.getCanonicalUri(r.activeEditor,{filterByScheme:H.file}):null;t?e(t).then(o=>{console.log(o)}):console.log("No file editor active")}});
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { URI } from "../../../../base/common/uri.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchThemeService, IWorkbenchColorTheme } from "../../../services/themes/common/workbenchThemeService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { EditorResourceAccessor } from "../../../common/editor.js";
+import { ITextMateTokenizationService } from "../../../services/textMate/browser/textMateTokenizationFeature.js";
+import { TokenizationRegistry } from "../../../../editor/common/languages.js";
+import { TokenMetadata } from "../../../../editor/common/encodedTokenAttributes.js";
+import { ThemeRule, findMatchingThemeRule } from "../../../services/textMate/common/TMHelper.js";
+import { Color } from "../../../../base/common/color.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { basename } from "../../../../base/common/resources.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { splitLines } from "../../../../base/common/strings.js";
+class ThemeDocument {
+  static {
+    __name(this, "ThemeDocument");
+  }
+  _theme;
+  _cache;
+  _defaultColor;
+  constructor(theme) {
+    this._theme = theme;
+    this._cache = /* @__PURE__ */ Object.create(null);
+    this._defaultColor = "#000000";
+    for (let i = 0, len = this._theme.tokenColors.length; i < len; i++) {
+      const rule = this._theme.tokenColors[i];
+      if (!rule.scope) {
+        this._defaultColor = rule.settings.foreground;
+      }
+    }
+  }
+  _generateExplanation(selector, color) {
+    return `${selector}: ${Color.Format.CSS.formatHexA(color, true).toUpperCase()}`;
+  }
+  explainTokenColor(scopes, color) {
+    const matchingRule = this._findMatchingThemeRule(scopes);
+    if (!matchingRule) {
+      const expected2 = Color.fromHex(this._defaultColor);
+      if (!color.equals(expected2)) {
+        throw new Error(`[${this._theme.label}]: Unexpected color ${Color.Format.CSS.formatHexA(color)} for ${scopes}. Expected default ${Color.Format.CSS.formatHexA(expected2)}`);
+      }
+      return this._generateExplanation("default", color);
+    }
+    const expected = Color.fromHex(matchingRule.settings.foreground);
+    if (!color.equals(expected)) {
+      throw new Error(`[${this._theme.label}]: Unexpected color ${Color.Format.CSS.formatHexA(color)} for ${scopes}. Expected ${Color.Format.CSS.formatHexA(expected)} coming in from ${matchingRule.rawSelector}`);
+    }
+    return this._generateExplanation(matchingRule.rawSelector, color);
+  }
+  _findMatchingThemeRule(scopes) {
+    if (!this._cache[scopes]) {
+      this._cache[scopes] = findMatchingThemeRule(this._theme, scopes.split(" "));
+    }
+    return this._cache[scopes];
+  }
+}
+let Snapper = class {
+  constructor(languageService, themeService, textMateService) {
+    this.languageService = languageService;
+    this.themeService = themeService;
+    this.textMateService = textMateService;
+  }
+  static {
+    __name(this, "Snapper");
+  }
+  _themedTokenize(grammar, lines) {
+    const colorMap = TokenizationRegistry.getColorMap();
+    let state = null;
+    const result = [];
+    let resultLen = 0;
+    for (let i = 0, len = lines.length; i < len; i++) {
+      const line = lines[i];
+      const tokenizationResult = grammar.tokenizeLine2(line, state);
+      for (let j = 0, lenJ = tokenizationResult.tokens.length >>> 1; j < lenJ; j++) {
+        const startOffset = tokenizationResult.tokens[j << 1];
+        const metadata = tokenizationResult.tokens[(j << 1) + 1];
+        const endOffset = j + 1 < lenJ ? tokenizationResult.tokens[j + 1 << 1] : line.length;
+        const tokenText = line.substring(startOffset, endOffset);
+        const color = TokenMetadata.getForeground(metadata);
+        result[resultLen++] = {
+          text: tokenText,
+          color: colorMap[color]
+        };
+      }
+      state = tokenizationResult.ruleStack;
+    }
+    return result;
+  }
+  _tokenize(grammar, lines) {
+    let state = null;
+    const result = [];
+    let resultLen = 0;
+    for (let i = 0, len = lines.length; i < len; i++) {
+      const line = lines[i];
+      const tokenizationResult = grammar.tokenizeLine(line, state);
+      let lastScopes = null;
+      for (let j = 0, lenJ = tokenizationResult.tokens.length; j < lenJ; j++) {
+        const token = tokenizationResult.tokens[j];
+        const tokenText = line.substring(token.startIndex, token.endIndex);
+        const tokenScopes = token.scopes.join(" ");
+        if (lastScopes === tokenScopes) {
+          result[resultLen - 1].c += tokenText;
+        } else {
+          lastScopes = tokenScopes;
+          result[resultLen++] = {
+            c: tokenText,
+            t: tokenScopes,
+            r: {
+              dark_plus: void 0,
+              light_plus: void 0,
+              dark_vs: void 0,
+              light_vs: void 0,
+              hc_black: void 0
+            }
+          };
+        }
+      }
+      state = tokenizationResult.ruleStack;
+    }
+    return result;
+  }
+  async _getThemesResult(grammar, lines) {
+    const currentTheme = this.themeService.getColorTheme();
+    const getThemeName = /* @__PURE__ */ __name((id) => {
+      const part = "vscode-theme-defaults-themes-";
+      const startIdx = id.indexOf(part);
+      if (startIdx !== -1) {
+        return id.substring(startIdx + part.length, id.length - 5);
+      }
+      return void 0;
+    }, "getThemeName");
+    const result = {};
+    const themeDatas = await this.themeService.getColorThemes();
+    const defaultThemes = themeDatas.filter((themeData) => !!getThemeName(themeData.id));
+    for (const defaultTheme of defaultThemes) {
+      const themeId = defaultTheme.id;
+      const success = await this.themeService.setColorTheme(themeId, void 0);
+      if (success) {
+        const themeName = getThemeName(themeId);
+        result[themeName] = {
+          document: new ThemeDocument(this.themeService.getColorTheme()),
+          tokens: this._themedTokenize(grammar, lines)
+        };
+      }
+    }
+    await this.themeService.setColorTheme(currentTheme.id, void 0);
+    return result;
+  }
+  _enrichResult(result, themesResult) {
+    const index = {};
+    const themeNames = Object.keys(themesResult);
+    for (const themeName of themeNames) {
+      index[themeName] = 0;
+    }
+    for (let i = 0, len = result.length; i < len; i++) {
+      const token = result[i];
+      for (const themeName of themeNames) {
+        const themedToken = themesResult[themeName].tokens[index[themeName]];
+        themedToken.text = themedToken.text.substr(token.c.length);
+        token.r[themeName] = themesResult[themeName].document.explainTokenColor(token.t, themedToken.color);
+        if (themedToken.text.length === 0) {
+          index[themeName]++;
+        }
+      }
+    }
+  }
+  captureSyntaxTokens(fileName, content) {
+    const languageId = this.languageService.guessLanguageIdByFilepathOrFirstLine(URI.file(fileName));
+    return this.textMateService.createTokenizer(languageId).then((grammar) => {
+      if (!grammar) {
+        return [];
+      }
+      const lines = splitLines(content);
+      const result = this._tokenize(grammar, lines);
+      return this._getThemesResult(grammar, lines).then((themesResult) => {
+        this._enrichResult(result, themesResult);
+        return result.filter((t) => t.c.length > 0);
+      });
+    });
+  }
+};
+Snapper = __decorateClass([
+  __decorateParam(0, ILanguageService),
+  __decorateParam(1, IWorkbenchThemeService),
+  __decorateParam(2, ITextMateTokenizationService)
+], Snapper);
+CommandsRegistry.registerCommand("_workbench.captureSyntaxTokens", function(accessor, resource) {
+  const process = /* @__PURE__ */ __name((resource2) => {
+    const fileService = accessor.get(IFileService);
+    const fileName = basename(resource2);
+    const snapper = accessor.get(IInstantiationService).createInstance(Snapper);
+    return fileService.readFile(resource2).then((content) => {
+      return snapper.captureSyntaxTokens(fileName, content.value.toString());
+    });
+  }, "process");
+  if (!resource) {
+    const editorService = accessor.get(IEditorService);
+    const file = editorService.activeEditor ? EditorResourceAccessor.getCanonicalUri(editorService.activeEditor, { filterByScheme: Schemas.file }) : null;
+    if (file) {
+      process(file).then((result) => {
+        console.log(result);
+      });
+    } else {
+      console.log("No file editor active");
+    }
+  } else {
+    return process(resource);
+  }
+  return void 0;
+});
+//# sourceMappingURL=themes.test.contribution.js.map

@@ -1,2 +1,816 @@
-import{CancellationTokenSource as V}from"../../../../../base/common/cancellation.js";import{Codicon as E}from"../../../../../base/common/codicons.js";import{KeyCode as g,KeyMod as l}from"../../../../../base/common/keyCodes.js";import{isEqual as te}from"../../../../../base/common/resources.js";import{isCodeEditor as oe,isDiffEditor as ne}from"../../../../../editor/browser/editorBrowser.js";import"../../../../../editor/browser/editorExtensions.js";import{IBulkEditService as re,ResourceTextEdit as N}from"../../../../../editor/browser/services/bulkEditService.js";import{ICodeEditorService as R}from"../../../../../editor/browser/services/codeEditorService.js";import{Range as ie}from"../../../../../editor/common/core/range.js";import{EditorContextKeys as B}from"../../../../../editor/common/editorContextKeys.js";import{isLocation as ce}from"../../../../../editor/common/languages.js";import{ILanguageService as se}from"../../../../../editor/common/languages/language.js";import"../../../../../editor/common/model.js";import{ILanguageFeaturesService as de}from"../../../../../editor/common/services/languageFeatures.js";import{CopyAction as ae}from"../../../../../editor/contrib/clipboard/browser/clipboard.js";import{localize as _,localize2 as I}from"../../../../../nls.js";import{Action2 as b,MenuId as y,registerAction2 as h}from"../../../../../platform/actions/common/actions.js";import{IClipboardService as K}from"../../../../../platform/clipboard/common/clipboardService.js";import{ContextKeyExpr as m}from"../../../../../platform/contextkey/common/contextkey.js";import{IInstantiationService as H}from"../../../../../platform/instantiation/common/instantiation.js";import{KeybindingWeight as T}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{INotificationService as le,Severity as ue}from"../../../../../platform/notification/common/notification.js";import{IProgressService as me,ProgressLocation as pe}from"../../../../../platform/progress/common/progress.js";import{TerminalLocation as Ce}from"../../../../../platform/terminal/common/terminal.js";import"../../../../common/editor.js";import{accessibleViewInCodeBlock as D}from"../../../accessibility/browser/accessibilityConfiguration.js";import{CHAT_CATEGORY as v}from"./chatActions.js";import{IChatWidgetService as z,IChatCodeBlockContextProviderService as ge}from"../chat.js";import{DefaultChatTextEditor as X}from"../codeBlockPart.js";import{CONTEXT_IN_CHAT_INPUT as j,CONTEXT_IN_CHAT_SESSION as k,CONTEXT_CHAT_ENABLED as S,CONTEXT_CHAT_EDIT_APPLIED as G}from"../../common/chatContextKeys.js";import{ChatCopyKind as Y,IChatService as w}from"../../common/chatService.js";import{isRequestVM as fe,isResponseVM as f}from"../../common/chatViewModel.js";import{insertCell as Ie}from"../../../notebook/browser/controller/cellOperations.js";import"../../../notebook/browser/notebookBrowser.js";import{CellKind as he,NOTEBOOK_EDITOR_ID as ve}from"../../../notebook/common/notebookCommon.js";import{ITerminalEditorService as ke,ITerminalGroupService as ye,ITerminalService as Ee}from"../../../terminal/browser/terminal.js";import{IEditorService as W}from"../../../../services/editor/common/editorService.js";import{ITextFileService as Ae}from"../../../../services/textfile/common/textfiles.js";import*as Se from"../../../../../base/common/strings.js";import{CharCode as J}from"../../../../../base/common/charCode.js";import{InlineChatController as we}from"../../../inlineChat/browser/inlineChatController.js";import{coalesce as xe}from"../../../../../base/common/arrays.js";import{AsyncIterableObject as Be}from"../../../../../base/common/async.js";import{ResourceMap as be}from"../../../../../base/common/map.js";import{URI as Te}from"../../../../../base/common/uri.js";const L=["fish","ps1","pwsh","powershell","sh","shellscript","zsh"];function U(c){return typeof c=="object"&&c!==null&&"code"in c&&"element"in c}function Me(c){return typeof c=="object"&&c!==null&&"element"in c}function F(c){return f(c.element)&&c.element.errorDetails?.responseIsFiltered}function Re(c){return f(c.element)?c.element.usedContext?.documents:void 0}function We(c){const r=new be;for(const e of c){let t,o;if(Te.isUri(e.reference)?t=e.reference:ce(e.reference)&&(t=e.reference.uri,o=e.reference.range),t){const n=r.get(t);n?o&&n.ranges.push(o):r.set(t,{uri:t,version:-1,ranges:o?[o]:[]})}}return[...r.values()]}function Fe(c){return f(c.element)?[{type:"response",message:c.element.response.toMarkdown(),references:We(c.element.contentReferences)}]:fe(c.element)?[{type:"request",message:c.element.messageText}]:[]}class q extends b{run(r,...e){let t=e[0];if(!U(t)){const o=r.get(R),n=o.getFocusedCodeEditor()||o.getActiveCodeEditor();if(!n||(t=$(n,r),!U(t)))return}return this.runWithContext(r,t)}}class Q extends q{async runWithContext(r,e){const t=r.get(W),o=r.get(Ae);if(F(e))return;if(t.activeEditorPane?.getId()===ve)return this.handleNotebookEditor(r,t.activeEditorPane.getControl(),e);let n=t.activeTextEditorControl;if(ne(n)&&(n=n.getOriginalEditor().hasTextFocus()?n.getOriginalEditor():n.getModifiedEditor()),!oe(n)||!n.hasModel())return;const d=n.getModel().uri,s=o.files.get(d)??o.untitled.get(d);!s||s.isReadonly()||await this.handleTextEditor(r,n,e)}async handleNotebookEditor(r,e,t){if(!e.hasModel()||e.isReadOnly)return;if(e.activeCodeEditor?.hasTextFocus()){const a=e.activeCodeEditor;if(a.hasModel())return this.handleTextEditor(r,a,t)}const o=r.get(se),n=r.get(w),d=e.getFocus(),s=Math.max(d.end-1,0);Ie(o,e,s,he.Code,"below",t.code,!0),this.notifyUserAction(n,t)}async computeEdits(r,e,t){const o=e.getModel(),n=e.getSelection()??new ie(o.getLineCount(),1,o.getLineCount(),1),d=Pe(t.code,o,n.startLineNumber);if(d!==void 0)return{edits:[new N(o.uri,{range:n,text:d})]}}get showPreview(){return!1}async handleTextEditor(r,e,t){const o=r.get(re),n=r.get(R),d=r.get(w),s=await this.computeEdits(r,e,t);if(this.notifyUserAction(d,t,s),!!s)if(this.showPreview){if(!await this.applyWithInlinePreview(n,s.edits,e)){await o.apply(s.edits,{showPreview:!0});const i=e.getModel();n.listCodeEditors().find(p=>p.getModel()?.uri.toString()===i.uri.toString())?.focus()}}else{await o.apply(s.edits);const a=e.getModel();n.listCodeEditors().find(i=>i.getModel()?.uri.toString()===a.uri.toString())?.focus()}}async applyWithInlinePreview(r,e,t){const o=e[0];if(!N.is(o))return!1;const n=o.resource,d=xe(e.map(a=>N.is(a)&&te(n,a.resource)?a.textEdit:void 0));if(d.length!==e.length)return!1;const s=await r.openCodeEditor({resource:n},t);if(s){const a=we.get(s);if(a){const i=new V;try{return await a.reviewEdits(d[0].range,Be.fromArray(d),i.token)}finally{i.dispose()}}}return!1}notifyUserAction(r,e,t){f(e.element)&&r.notifyUserAction({agentId:e.element.agent?.id,command:e.element.slashCommand?.name,sessionId:e.element.sessionId,requestId:e.element.requestId,result:e.element.result,action:{kind:"insert",codeBlockIndex:e.codeBlockIndex,totalCharacters:e.code.length,userAction:this.desc.id,codeMapper:t?.codeMapper}})}}function Pe(c,r,e){const t=Se.splitLines(c);if(t.length===0)return;const o=r.getFormattingOptions(),n=Z(r.getLineContent(e),o.tabSize).level,d=t.map(i=>Z(i,o.tabSize)),s=d.reduce((i,p,u)=>p.length!==t[u].length?Math.min(p.level,i):i,Number.MAX_VALUE);if(s===Number.MAX_VALUE||s===n)return;const a=[];for(let i=0;i<t.length;i++){const{level:p,length:u}=d[i],C=Math.max(0,n+p-s),A=o.insertSpaces?" ".repeat(o.tabSize*C):"	".repeat(C);a.push(A+t[i].substring(u))}return a.join(`
-`)}function Z(c,r){let e=0,t=0,o=0,n=0;const d=c.length;for(;o<d;){const s=c.charCodeAt(o);if(s===J.Space)e++,e===r&&(t++,e=0,n=o+1);else if(s===J.Tab)t++,e=0,n=o+1;else break;o++}return{level:t,length:n}}function Gt(){h(class extends b{constructor(){super({id:"workbench.action.chat.copyCodeBlock",title:I("interactive.copyCodeBlock.label","Copy"),f1:!1,category:v,icon:E.copy,menu:{id:y.ChatCodeBlock,group:"navigation",order:30}})}run(e,...t){const o=t[0];if(!U(o)||F(o))return;e.get(K).writeText(o.code),f(o.element)&&e.get(w).notifyUserAction({agentId:o.element.agent?.id,command:o.element.slashCommand?.name,sessionId:o.element.sessionId,requestId:o.element.requestId,result:o.element.result,action:{kind:"copy",codeBlockIndex:o.codeBlockIndex,copyKind:Y.Toolbar,copiedCharacters:o.code.length,totalCharacters:o.code.length,copiedText:o.code}})}}),ae?.addImplementation(5e4,"chat-codeblock",r=>{const e=r.get(R).getFocusedCodeEditor();if(!e)return!1;const t=e.getModel();if(!t)return!1;const o=$(e,r);if(!o)return!1;const n=e.getSelections()?.length===1&&e.getSelection()?.isEmpty(),d=n?t.getValue():e.getSelections()?.reduce((p,u)=>p+t.getValueInRange(u),"")??"",s=t.getValueLength(),a=r.get(w),i=o.element;return i&&a.notifyUserAction({agentId:i.agent?.id,command:i.slashCommand?.name,sessionId:i.sessionId,requestId:i.requestId,result:i.result,action:{kind:"copy",codeBlockIndex:o.codeBlockIndex,copyKind:Y.Action,copiedText:d,copiedCharacters:d.length,totalCharacters:s}}),n?(r.get(K).writeText(o.code),!0):!1}),h(class extends Q{constructor(){super({id:"workbench.action.chat.applyInEditor",title:I("interactive.applyInEditor.label","Apply in Editor"),precondition:S,f1:!0,category:v,icon:E.sparkle,menu:{id:y.ChatCodeBlock,group:"navigation",when:m.and(k,...L.map(e=>m.notEquals(B.languageId.key,e))),order:10},keybinding:{when:m.or(m.and(k,j.negate()),D),primary:l.CtrlCmd|g.Enter,mac:{primary:l.WinCtrl|g.Enter},weight:T.ExternalExtension+1}})}async computeEdits(e,t,o){const n=e.get(me),d=e.get(le),s=t.getModel(),a=e.get(de).mappedEditsProvider.ordered(s);if(a.length>0){const i=[],p=s.uri,u=s.getVersionId(),C=t.getSelections();C.length>0&&i.push([{uri:p,version:u,ranges:C}]);const A=Re(o);A&&i.push(A);const x=new V;try{const M=await n.withProgress({location:pe.Notification,delay:500,sticky:!0,cancellable:!0},async ee=>{for(const P of a){ee.report({message:_("applyCodeBlock.progress","Applying code block using {0}...",P.displayName)});const O=await P.provideMappedEdits(s,[o.code],{documents:i,conversation:Fe(o)},x.token);if(O)return{edits:O.edits,codeMapper:P.displayName}}},()=>x.cancel());if(M)return M}catch(M){d.notify({severity:ue.Error,message:_("applyCodeBlock.error","Failed to apply code block: {0}",M.message)})}finally{x.dispose()}}}get showPreview(){return!0}}),h(class extends Q{constructor(){super({id:"workbench.action.chat.insertCodeBlock",title:I("interactive.insertCodeBlock.label","Insert At Cursor"),precondition:S,f1:!0,category:v,icon:E.insert,menu:{id:y.ChatCodeBlock,group:"navigation",when:k,order:20},keybinding:{when:m.or(m.and(k,j.negate()),D),primary:l.CtrlCmd|g.Enter,mac:{primary:l.WinCtrl|g.Enter},weight:T.ExternalExtension+1}})}}),h(class extends q{constructor(){super({id:"workbench.action.chat.insertIntoNewFile",title:I("interactive.insertIntoNewFile.label","Insert into New File"),precondition:S,f1:!0,category:v,icon:E.newFile,menu:{id:y.ChatCodeBlock,group:"navigation",isHiddenByDefault:!0,order:40}})}async runWithContext(e,t){if(F(t))return;const o=e.get(W),n=e.get(w);o.openEditor({contents:t.code,languageId:t.languageId,resource:void 0}),f(t.element)&&n.notifyUserAction({agentId:t.element.agent?.id,command:t.element.slashCommand?.name,sessionId:t.element.sessionId,requestId:t.element.requestId,result:t.element.result,action:{kind:"insert",codeBlockIndex:t.codeBlockIndex,totalCharacters:t.code.length,newFile:!0,userAction:this.desc.id}})}}),h(class extends q{constructor(){super({id:"workbench.action.chat.runInTerminal",title:I("interactive.runInTerminal.label","Insert into Terminal"),precondition:S,f1:!0,category:v,icon:E.terminal,menu:[{id:y.ChatCodeBlock,group:"navigation",when:m.and(k,m.or(...L.map(e=>m.equals(B.languageId.key,e))))},{id:y.ChatCodeBlock,group:"navigation",isHiddenByDefault:!0,when:m.and(k,...L.map(e=>m.notEquals(B.languageId.key,e)))}],keybinding:[{primary:l.CtrlCmd|l.Alt|g.Enter,mac:{primary:l.WinCtrl|l.Alt|g.Enter},weight:T.EditorContrib,when:m.or(k,D)}]})}async runWithContext(e,t){if(F(t))return;const o=e.get(w),n=e.get(Ee),d=e.get(W),s=e.get(ke),a=e.get(ye);let i=await n.getActiveOrCreateInstance();if(i=i.xterm?.isStdinDisabled||i.shellLaunchConfig.isFeatureTerminal?await n.createTerminal():i,n.setActiveInstance(i),await i.focusWhenReady(!0),i.target===Ce.Editor){const u=d.findEditors(i.resource);s.openEditor(i,{viewColumn:u?.[0].groupId})}else a.showPanel(!0);i.runCommand(t.code,!1),f(t.element)&&o.notifyUserAction({agentId:t.element.agent?.id,command:t.element.slashCommand?.name,sessionId:t.element.sessionId,requestId:t.element.requestId,result:t.element.result,action:{kind:"runInTerminal",codeBlockIndex:t.codeBlockIndex,languageId:t.languageId}})}});function c(r,e){const t=r.get(R),n=r.get(z).lastFocusedWidget;if(!n)return;const s=t.getFocusedCodeEditor()?.getModel()?.uri,a=s?n.getCodeBlockInfoForEditor(s):void 0,i=!n.inputEditor.hasWidgetFocus()&&n.getFocus(),p=f(i)?i:void 0,u=a?a.element:p??n.viewModel?.getItems().reverse().find(x=>f(x));if(!u||!f(u))return;n.reveal(u);const C=n.getCodeBlockInfosForResponse(u),A=a?(a.codeBlockIndex+(e?-1:1)+C.length)%C.length:e?C.length-1:0;C[A]?.focus()}h(class extends b{constructor(){super({id:"workbench.action.chat.nextCodeBlock",title:I("interactive.nextCodeBlock.label","Next Code Block"),keybinding:{primary:l.CtrlCmd|l.Alt|g.PageDown,mac:{primary:l.CtrlCmd|l.Alt|g.PageDown},weight:T.WorkbenchContrib,when:k},precondition:S,f1:!0,category:v})}run(e,...t){c(e)}}),h(class extends b{constructor(){super({id:"workbench.action.chat.previousCodeBlock",title:I("interactive.previousCodeBlock.label","Previous Code Block"),keybinding:{primary:l.CtrlCmd|l.Alt|g.PageUp,mac:{primary:l.CtrlCmd|l.Alt|g.PageUp},weight:T.WorkbenchContrib,when:k},precondition:S,f1:!0,category:v})}run(e,...t){c(e,!0)}})}function $(c,r){const e=r.get(z),t=r.get(ge),o=c.getModel();if(!o)return;const d=e.lastFocusedWidget?.getCodeBlockInfoForEditor(o.uri);if(!d){for(const s of t.providers){const a=s.getCodeBlockContext(c);if(a)return a}return}return{element:d.element,codeBlockIndex:d.codeBlockIndex,code:c.getValue(),languageId:c.getModel().getLanguageId()}}function Qt(){class c extends b{run(e,...t){const o=t[0];if(Me(o))return this.runWithContext(e,o)}}h(class extends c{constructor(){super({id:"workbench.action.chat.applyCompareEdits",title:I("interactive.compare.apply","Apply Edits"),f1:!1,category:v,icon:E.check,precondition:m.and(B.hasChanges,G.negate()),menu:{id:y.ChatCompareBlock,group:"navigation",order:1}})}async runWithContext(e,t){const o=e.get(W);await e.get(H).createInstance(X).apply(t.element,t.edit,t.diffEditor),await o.openEditor({resource:t.edit.uri,options:{revealIfVisible:!0}})}}),h(class extends c{constructor(){super({id:"workbench.action.chat.discardCompareEdits",title:I("interactive.compare.discard","Discard Edits"),f1:!1,category:v,icon:E.trash,precondition:m.and(B.hasChanges,G.negate()),menu:{id:y.ChatCompareBlock,group:"navigation",order:2}})}async runWithContext(e,t){e.get(H).createInstance(X).discard(t.element,t.edit)}})}export{U as isCodeBlockActionContext,Me as isCodeCompareBlockActionContext,Gt as registerChatCodeBlockActions,Qt as registerChatCodeCompareBlockActions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { isEqual } from "../../../../../base/common/resources.js";
+import { IActiveCodeEditor, ICodeEditor, isCodeEditor, isDiffEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { ServicesAccessor } from "../../../../../editor/browser/editorExtensions.js";
+import { IBulkEditService, ResourceTextEdit } from "../../../../../editor/browser/services/bulkEditService.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
+import { ConversationRequest, ConversationResponse, DocumentContextItem, isLocation, IWorkspaceFileEdit, IWorkspaceTextEdit } from "../../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
+import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
+import { CopyAction } from "../../../../../editor/contrib/clipboard/browser/clipboard.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { INotificationService, Severity } from "../../../../../platform/notification/common/notification.js";
+import { IProgressService, ProgressLocation } from "../../../../../platform/progress/common/progress.js";
+import { TerminalLocation } from "../../../../../platform/terminal/common/terminal.js";
+import { IUntitledTextResourceEditorInput } from "../../../../common/editor.js";
+import { accessibleViewInCodeBlock } from "../../../accessibility/browser/accessibilityConfiguration.js";
+import { CHAT_CATEGORY } from "./chatActions.js";
+import { IChatWidgetService, IChatCodeBlockContextProviderService } from "../chat.js";
+import { DefaultChatTextEditor, ICodeBlockActionContext, ICodeCompareBlockActionContext } from "../codeBlockPart.js";
+import { CONTEXT_IN_CHAT_INPUT, CONTEXT_IN_CHAT_SESSION, CONTEXT_CHAT_ENABLED, CONTEXT_CHAT_EDIT_APPLIED } from "../../common/chatContextKeys.js";
+import { ChatCopyKind, IChatContentReference, IChatService, IDocumentContext } from "../../common/chatService.js";
+import { IChatResponseViewModel, isRequestVM, isResponseVM } from "../../common/chatViewModel.js";
+import { insertCell } from "../../../notebook/browser/controller/cellOperations.js";
+import { INotebookEditor } from "../../../notebook/browser/notebookBrowser.js";
+import { CellKind, NOTEBOOK_EDITOR_ID } from "../../../notebook/common/notebookCommon.js";
+import { ITerminalEditorService, ITerminalGroupService, ITerminalService } from "../../../terminal/browser/terminal.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { ITextFileService } from "../../../../services/textfile/common/textfiles.js";
+import * as strings from "../../../../../base/common/strings.js";
+import { CharCode } from "../../../../../base/common/charCode.js";
+import { InlineChatController } from "../../../inlineChat/browser/inlineChatController.js";
+import { coalesce } from "../../../../../base/common/arrays.js";
+import { AsyncIterableObject } from "../../../../../base/common/async.js";
+import { ResourceMap } from "../../../../../base/common/map.js";
+import { URI } from "../../../../../base/common/uri.js";
+const shellLangIds = [
+  "fish",
+  "ps1",
+  "pwsh",
+  "powershell",
+  "sh",
+  "shellscript",
+  "zsh"
+];
+function isCodeBlockActionContext(thing) {
+  return typeof thing === "object" && thing !== null && "code" in thing && "element" in thing;
+}
+__name(isCodeBlockActionContext, "isCodeBlockActionContext");
+function isCodeCompareBlockActionContext(thing) {
+  return typeof thing === "object" && thing !== null && "element" in thing;
+}
+__name(isCodeCompareBlockActionContext, "isCodeCompareBlockActionContext");
+function isResponseFiltered(context) {
+  return isResponseVM(context.element) && context.element.errorDetails?.responseIsFiltered;
+}
+__name(isResponseFiltered, "isResponseFiltered");
+function getUsedDocuments(context) {
+  return isResponseVM(context.element) ? context.element.usedContext?.documents : void 0;
+}
+__name(getUsedDocuments, "getUsedDocuments");
+function getReferencesAsDocumentContext(res) {
+  const map = new ResourceMap();
+  for (const r of res) {
+    let uri;
+    let range;
+    if (URI.isUri(r.reference)) {
+      uri = r.reference;
+    } else if (isLocation(r.reference)) {
+      uri = r.reference.uri;
+      range = r.reference.range;
+    }
+    if (uri) {
+      const item = map.get(uri);
+      if (item) {
+        if (range) {
+          item.ranges.push(range);
+        }
+      } else {
+        map.set(uri, { uri, version: -1, ranges: range ? [range] : [] });
+      }
+    }
+  }
+  return [...map.values()];
+}
+__name(getReferencesAsDocumentContext, "getReferencesAsDocumentContext");
+function getChatConversation(context) {
+  if (isResponseVM(context.element)) {
+    return [{
+      type: "response",
+      message: context.element.response.toMarkdown(),
+      references: getReferencesAsDocumentContext(context.element.contentReferences)
+    }];
+  } else if (isRequestVM(context.element)) {
+    return [{
+      type: "request",
+      message: context.element.messageText
+    }];
+  } else {
+    return [];
+  }
+}
+__name(getChatConversation, "getChatConversation");
+class ChatCodeBlockAction extends Action2 {
+  static {
+    __name(this, "ChatCodeBlockAction");
+  }
+  run(accessor, ...args) {
+    let context = args[0];
+    if (!isCodeBlockActionContext(context)) {
+      const codeEditorService = accessor.get(ICodeEditorService);
+      const editor = codeEditorService.getFocusedCodeEditor() || codeEditorService.getActiveCodeEditor();
+      if (!editor) {
+        return;
+      }
+      context = getContextFromEditor(editor, accessor);
+      if (!isCodeBlockActionContext(context)) {
+        return;
+      }
+    }
+    return this.runWithContext(accessor, context);
+  }
+}
+class InsertCodeBlockAction extends ChatCodeBlockAction {
+  static {
+    __name(this, "InsertCodeBlockAction");
+  }
+  async runWithContext(accessor, context) {
+    const editorService = accessor.get(IEditorService);
+    const textFileService = accessor.get(ITextFileService);
+    if (isResponseFiltered(context)) {
+      return;
+    }
+    if (editorService.activeEditorPane?.getId() === NOTEBOOK_EDITOR_ID) {
+      return this.handleNotebookEditor(accessor, editorService.activeEditorPane.getControl(), context);
+    }
+    let activeEditorControl = editorService.activeTextEditorControl;
+    if (isDiffEditor(activeEditorControl)) {
+      activeEditorControl = activeEditorControl.getOriginalEditor().hasTextFocus() ? activeEditorControl.getOriginalEditor() : activeEditorControl.getModifiedEditor();
+    }
+    if (!isCodeEditor(activeEditorControl)) {
+      return;
+    }
+    if (!activeEditorControl.hasModel()) {
+      return;
+    }
+    const activeModelUri = activeEditorControl.getModel().uri;
+    const activeTextModel = textFileService.files.get(activeModelUri) ?? textFileService.untitled.get(activeModelUri);
+    if (!activeTextModel || activeTextModel.isReadonly()) {
+      return;
+    }
+    await this.handleTextEditor(accessor, activeEditorControl, context);
+  }
+  async handleNotebookEditor(accessor, notebookEditor, context) {
+    if (!notebookEditor.hasModel()) {
+      return;
+    }
+    if (notebookEditor.isReadOnly) {
+      return;
+    }
+    if (notebookEditor.activeCodeEditor?.hasTextFocus()) {
+      const codeEditor = notebookEditor.activeCodeEditor;
+      if (codeEditor.hasModel()) {
+        return this.handleTextEditor(accessor, codeEditor, context);
+      }
+    }
+    const languageService = accessor.get(ILanguageService);
+    const chatService = accessor.get(IChatService);
+    const focusRange = notebookEditor.getFocus();
+    const next = Math.max(focusRange.end - 1, 0);
+    insertCell(languageService, notebookEditor, next, CellKind.Code, "below", context.code, true);
+    this.notifyUserAction(chatService, context);
+  }
+  async computeEdits(accessor, codeEditor, codeBlockActionContext) {
+    const activeModel = codeEditor.getModel();
+    const range = codeEditor.getSelection() ?? new Range(activeModel.getLineCount(), 1, activeModel.getLineCount(), 1);
+    const text = reindent(codeBlockActionContext.code, activeModel, range.startLineNumber);
+    if (text !== void 0) {
+      return { edits: [new ResourceTextEdit(activeModel.uri, { range, text })] };
+    }
+    return void 0;
+  }
+  get showPreview() {
+    return false;
+  }
+  async handleTextEditor(accessor, codeEditor, codeBlockActionContext) {
+    const bulkEditService = accessor.get(IBulkEditService);
+    const codeEditorService = accessor.get(ICodeEditorService);
+    const chatService = accessor.get(IChatService);
+    const result = await this.computeEdits(accessor, codeEditor, codeBlockActionContext);
+    this.notifyUserAction(chatService, codeBlockActionContext, result);
+    if (!result) {
+      return;
+    }
+    if (this.showPreview) {
+      const showWithPreview = await this.applyWithInlinePreview(codeEditorService, result.edits, codeEditor);
+      if (!showWithPreview) {
+        await bulkEditService.apply(result.edits, { showPreview: true });
+        const activeModel = codeEditor.getModel();
+        codeEditorService.listCodeEditors().find((editor) => editor.getModel()?.uri.toString() === activeModel.uri.toString())?.focus();
+      }
+    } else {
+      await bulkEditService.apply(result.edits);
+      const activeModel = codeEditor.getModel();
+      codeEditorService.listCodeEditors().find((editor) => editor.getModel()?.uri.toString() === activeModel.uri.toString())?.focus();
+    }
+  }
+  async applyWithInlinePreview(codeEditorService, edits, codeEditor) {
+    const firstEdit = edits[0];
+    if (!ResourceTextEdit.is(firstEdit)) {
+      return false;
+    }
+    const resource = firstEdit.resource;
+    const textEdits = coalesce(edits.map((edit) => ResourceTextEdit.is(edit) && isEqual(resource, edit.resource) ? edit.textEdit : void 0));
+    if (textEdits.length !== edits.length) {
+      return false;
+    }
+    const editorToApply = await codeEditorService.openCodeEditor({ resource }, codeEditor);
+    if (editorToApply) {
+      const inlineChatController = InlineChatController.get(editorToApply);
+      if (inlineChatController) {
+        const cancellationTokenSource = new CancellationTokenSource();
+        try {
+          return await inlineChatController.reviewEdits(textEdits[0].range, AsyncIterableObject.fromArray(textEdits), cancellationTokenSource.token);
+        } finally {
+          cancellationTokenSource.dispose();
+        }
+      }
+    }
+    return false;
+  }
+  notifyUserAction(chatService, context, result) {
+    if (isResponseVM(context.element)) {
+      chatService.notifyUserAction({
+        agentId: context.element.agent?.id,
+        command: context.element.slashCommand?.name,
+        sessionId: context.element.sessionId,
+        requestId: context.element.requestId,
+        result: context.element.result,
+        action: {
+          kind: "insert",
+          codeBlockIndex: context.codeBlockIndex,
+          totalCharacters: context.code.length,
+          userAction: this.desc.id,
+          codeMapper: result?.codeMapper
+        }
+      });
+    }
+  }
+}
+function reindent(codeBlockContent, model, seletionStartLine) {
+  const newContent = strings.splitLines(codeBlockContent);
+  if (newContent.length === 0) {
+    return void 0;
+  }
+  const formattingOptions = model.getFormattingOptions();
+  const codeIndentLevel = computeIndentation(model.getLineContent(seletionStartLine), formattingOptions.tabSize).level;
+  const indents = newContent.map((line) => computeIndentation(line, formattingOptions.tabSize));
+  const newContentIndentLevel = indents.reduce((min, indent, index) => {
+    if (indent.length !== newContent[index].length) {
+      return Math.min(indent.level, min);
+    }
+    return min;
+  }, Number.MAX_VALUE);
+  if (newContentIndentLevel === Number.MAX_VALUE || newContentIndentLevel === codeIndentLevel) {
+    return void 0;
+  }
+  const newLines = [];
+  for (let i = 0; i < newContent.length; i++) {
+    const { level, length } = indents[i];
+    const newLevel = Math.max(0, codeIndentLevel + level - newContentIndentLevel);
+    const newIndentation = formattingOptions.insertSpaces ? " ".repeat(formattingOptions.tabSize * newLevel) : "	".repeat(newLevel);
+    newLines.push(newIndentation + newContent[i].substring(length));
+  }
+  return newLines.join("\n");
+}
+__name(reindent, "reindent");
+function computeIndentation(line, tabSize) {
+  let nSpaces = 0;
+  let level = 0;
+  let i = 0;
+  let length = 0;
+  const len = line.length;
+  while (i < len) {
+    const chCode = line.charCodeAt(i);
+    if (chCode === CharCode.Space) {
+      nSpaces++;
+      if (nSpaces === tabSize) {
+        level++;
+        nSpaces = 0;
+        length = i + 1;
+      }
+    } else if (chCode === CharCode.Tab) {
+      level++;
+      nSpaces = 0;
+      length = i + 1;
+    } else {
+      break;
+    }
+    i++;
+  }
+  return { level, length };
+}
+__name(computeIndentation, "computeIndentation");
+function registerChatCodeBlockActions() {
+  registerAction2(class CopyCodeBlockAction extends Action2 {
+    static {
+      __name(this, "CopyCodeBlockAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.copyCodeBlock",
+        title: localize2("interactive.copyCodeBlock.label", "Copy"),
+        f1: false,
+        category: CHAT_CATEGORY,
+        icon: Codicon.copy,
+        menu: {
+          id: MenuId.ChatCodeBlock,
+          group: "navigation",
+          order: 30
+        }
+      });
+    }
+    run(accessor, ...args) {
+      const context = args[0];
+      if (!isCodeBlockActionContext(context) || isResponseFiltered(context)) {
+        return;
+      }
+      const clipboardService = accessor.get(IClipboardService);
+      clipboardService.writeText(context.code);
+      if (isResponseVM(context.element)) {
+        const chatService = accessor.get(IChatService);
+        chatService.notifyUserAction({
+          agentId: context.element.agent?.id,
+          command: context.element.slashCommand?.name,
+          sessionId: context.element.sessionId,
+          requestId: context.element.requestId,
+          result: context.element.result,
+          action: {
+            kind: "copy",
+            codeBlockIndex: context.codeBlockIndex,
+            copyKind: ChatCopyKind.Toolbar,
+            copiedCharacters: context.code.length,
+            totalCharacters: context.code.length,
+            copiedText: context.code
+          }
+        });
+      }
+    }
+  });
+  CopyAction?.addImplementation(5e4, "chat-codeblock", (accessor) => {
+    const editor = accessor.get(ICodeEditorService).getFocusedCodeEditor();
+    if (!editor) {
+      return false;
+    }
+    const editorModel = editor.getModel();
+    if (!editorModel) {
+      return false;
+    }
+    const context = getContextFromEditor(editor, accessor);
+    if (!context) {
+      return false;
+    }
+    const noSelection = editor.getSelections()?.length === 1 && editor.getSelection()?.isEmpty();
+    const copiedText = noSelection ? editorModel.getValue() : editor.getSelections()?.reduce((acc, selection) => acc + editorModel.getValueInRange(selection), "") ?? "";
+    const totalCharacters = editorModel.getValueLength();
+    const chatService = accessor.get(IChatService);
+    const element = context.element;
+    if (element) {
+      chatService.notifyUserAction({
+        agentId: element.agent?.id,
+        command: element.slashCommand?.name,
+        sessionId: element.sessionId,
+        requestId: element.requestId,
+        result: element.result,
+        action: {
+          kind: "copy",
+          codeBlockIndex: context.codeBlockIndex,
+          copyKind: ChatCopyKind.Action,
+          copiedText,
+          copiedCharacters: copiedText.length,
+          totalCharacters
+        }
+      });
+    }
+    if (noSelection) {
+      accessor.get(IClipboardService).writeText(context.code);
+      return true;
+    }
+    return false;
+  });
+  registerAction2(class SmartApplyInEditorAction extends InsertCodeBlockAction {
+    static {
+      __name(this, "SmartApplyInEditorAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.applyInEditor",
+        title: localize2("interactive.applyInEditor.label", "Apply in Editor"),
+        precondition: CONTEXT_CHAT_ENABLED,
+        f1: true,
+        category: CHAT_CATEGORY,
+        icon: Codicon.sparkle,
+        menu: {
+          id: MenuId.ChatCodeBlock,
+          group: "navigation",
+          when: ContextKeyExpr.and(
+            CONTEXT_IN_CHAT_SESSION,
+            ...shellLangIds.map((e) => ContextKeyExpr.notEquals(EditorContextKeys.languageId.key, e))
+          ),
+          order: 10
+        },
+        keybinding: {
+          when: ContextKeyExpr.or(ContextKeyExpr.and(CONTEXT_IN_CHAT_SESSION, CONTEXT_IN_CHAT_INPUT.negate()), accessibleViewInCodeBlock),
+          primary: KeyMod.CtrlCmd | KeyCode.Enter,
+          mac: { primary: KeyMod.WinCtrl | KeyCode.Enter },
+          weight: KeybindingWeight.ExternalExtension + 1
+        }
+      });
+    }
+    async computeEdits(accessor, codeEditor, codeBlockActionContext) {
+      const progressService = accessor.get(IProgressService);
+      const notificationService = accessor.get(INotificationService);
+      const activeModel = codeEditor.getModel();
+      const mappedEditsProviders = accessor.get(ILanguageFeaturesService).mappedEditsProvider.ordered(activeModel);
+      if (mappedEditsProviders.length > 0) {
+        const docRefs = [];
+        const currentDocUri = activeModel.uri;
+        const currentDocVersion = activeModel.getVersionId();
+        const selections = codeEditor.getSelections();
+        if (selections.length > 0) {
+          docRefs.push([
+            {
+              uri: currentDocUri,
+              version: currentDocVersion,
+              ranges: selections
+            }
+          ]);
+        }
+        const usedDocuments = getUsedDocuments(codeBlockActionContext);
+        if (usedDocuments) {
+          docRefs.push(usedDocuments);
+        }
+        const cancellationTokenSource = new CancellationTokenSource();
+        try {
+          const edits = await progressService.withProgress(
+            { location: ProgressLocation.Notification, delay: 500, sticky: true, cancellable: true },
+            async (progress) => {
+              for (const provider of mappedEditsProviders) {
+                progress.report({ message: localize("applyCodeBlock.progress", "Applying code block using {0}...", provider.displayName) });
+                const mappedEdits = await provider.provideMappedEdits(
+                  activeModel,
+                  [codeBlockActionContext.code],
+                  {
+                    documents: docRefs,
+                    conversation: getChatConversation(codeBlockActionContext)
+                  },
+                  cancellationTokenSource.token
+                );
+                if (mappedEdits) {
+                  return { edits: mappedEdits.edits, codeMapper: provider.displayName };
+                }
+              }
+              return void 0;
+            },
+            () => cancellationTokenSource.cancel()
+          );
+          if (edits) {
+            return edits;
+          }
+        } catch (e) {
+          notificationService.notify({ severity: Severity.Error, message: localize("applyCodeBlock.error", "Failed to apply code block: {0}", e.message) });
+        } finally {
+          cancellationTokenSource.dispose();
+        }
+      }
+      return void 0;
+    }
+    get showPreview() {
+      return true;
+    }
+  });
+  registerAction2(class SmartApplyInEditorAction extends InsertCodeBlockAction {
+    static {
+      __name(this, "SmartApplyInEditorAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.insertCodeBlock",
+        title: localize2("interactive.insertCodeBlock.label", "Insert At Cursor"),
+        precondition: CONTEXT_CHAT_ENABLED,
+        f1: true,
+        category: CHAT_CATEGORY,
+        icon: Codicon.insert,
+        menu: {
+          id: MenuId.ChatCodeBlock,
+          group: "navigation",
+          when: CONTEXT_IN_CHAT_SESSION,
+          order: 20
+        },
+        keybinding: {
+          when: ContextKeyExpr.or(ContextKeyExpr.and(CONTEXT_IN_CHAT_SESSION, CONTEXT_IN_CHAT_INPUT.negate()), accessibleViewInCodeBlock),
+          primary: KeyMod.CtrlCmd | KeyCode.Enter,
+          mac: { primary: KeyMod.WinCtrl | KeyCode.Enter },
+          weight: KeybindingWeight.ExternalExtension + 1
+        }
+      });
+    }
+  });
+  registerAction2(class InsertIntoNewFileAction extends ChatCodeBlockAction {
+    static {
+      __name(this, "InsertIntoNewFileAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.insertIntoNewFile",
+        title: localize2("interactive.insertIntoNewFile.label", "Insert into New File"),
+        precondition: CONTEXT_CHAT_ENABLED,
+        f1: true,
+        category: CHAT_CATEGORY,
+        icon: Codicon.newFile,
+        menu: {
+          id: MenuId.ChatCodeBlock,
+          group: "navigation",
+          isHiddenByDefault: true,
+          order: 40
+        }
+      });
+    }
+    async runWithContext(accessor, context) {
+      if (isResponseFiltered(context)) {
+        return;
+      }
+      const editorService = accessor.get(IEditorService);
+      const chatService = accessor.get(IChatService);
+      editorService.openEditor({ contents: context.code, languageId: context.languageId, resource: void 0 });
+      if (isResponseVM(context.element)) {
+        chatService.notifyUserAction({
+          agentId: context.element.agent?.id,
+          command: context.element.slashCommand?.name,
+          sessionId: context.element.sessionId,
+          requestId: context.element.requestId,
+          result: context.element.result,
+          action: {
+            kind: "insert",
+            codeBlockIndex: context.codeBlockIndex,
+            totalCharacters: context.code.length,
+            newFile: true,
+            userAction: this.desc.id
+          }
+        });
+      }
+    }
+  });
+  registerAction2(class RunInTerminalAction extends ChatCodeBlockAction {
+    static {
+      __name(this, "RunInTerminalAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.runInTerminal",
+        title: localize2("interactive.runInTerminal.label", "Insert into Terminal"),
+        precondition: CONTEXT_CHAT_ENABLED,
+        f1: true,
+        category: CHAT_CATEGORY,
+        icon: Codicon.terminal,
+        menu: [
+          {
+            id: MenuId.ChatCodeBlock,
+            group: "navigation",
+            when: ContextKeyExpr.and(
+              CONTEXT_IN_CHAT_SESSION,
+              ContextKeyExpr.or(...shellLangIds.map((e) => ContextKeyExpr.equals(EditorContextKeys.languageId.key, e)))
+            )
+          },
+          {
+            id: MenuId.ChatCodeBlock,
+            group: "navigation",
+            isHiddenByDefault: true,
+            when: ContextKeyExpr.and(
+              CONTEXT_IN_CHAT_SESSION,
+              ...shellLangIds.map((e) => ContextKeyExpr.notEquals(EditorContextKeys.languageId.key, e))
+            )
+          }
+        ],
+        keybinding: [{
+          primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.Enter,
+          mac: {
+            primary: KeyMod.WinCtrl | KeyMod.Alt | KeyCode.Enter
+          },
+          weight: KeybindingWeight.EditorContrib,
+          when: ContextKeyExpr.or(CONTEXT_IN_CHAT_SESSION, accessibleViewInCodeBlock)
+        }]
+      });
+    }
+    async runWithContext(accessor, context) {
+      if (isResponseFiltered(context)) {
+        return;
+      }
+      const chatService = accessor.get(IChatService);
+      const terminalService = accessor.get(ITerminalService);
+      const editorService = accessor.get(IEditorService);
+      const terminalEditorService = accessor.get(ITerminalEditorService);
+      const terminalGroupService = accessor.get(ITerminalGroupService);
+      let terminal = await terminalService.getActiveOrCreateInstance();
+      const unusableTerminal = terminal.xterm?.isStdinDisabled || terminal.shellLaunchConfig.isFeatureTerminal;
+      terminal = unusableTerminal ? await terminalService.createTerminal() : terminal;
+      terminalService.setActiveInstance(terminal);
+      await terminal.focusWhenReady(true);
+      if (terminal.target === TerminalLocation.Editor) {
+        const existingEditors = editorService.findEditors(terminal.resource);
+        terminalEditorService.openEditor(terminal, { viewColumn: existingEditors?.[0].groupId });
+      } else {
+        terminalGroupService.showPanel(true);
+      }
+      terminal.runCommand(context.code, false);
+      if (isResponseVM(context.element)) {
+        chatService.notifyUserAction({
+          agentId: context.element.agent?.id,
+          command: context.element.slashCommand?.name,
+          sessionId: context.element.sessionId,
+          requestId: context.element.requestId,
+          result: context.element.result,
+          action: {
+            kind: "runInTerminal",
+            codeBlockIndex: context.codeBlockIndex,
+            languageId: context.languageId
+          }
+        });
+      }
+    }
+  });
+  function navigateCodeBlocks(accessor, reverse) {
+    const codeEditorService = accessor.get(ICodeEditorService);
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const widget = chatWidgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    const editor = codeEditorService.getFocusedCodeEditor();
+    const editorUri = editor?.getModel()?.uri;
+    const curCodeBlockInfo = editorUri ? widget.getCodeBlockInfoForEditor(editorUri) : void 0;
+    const focused = !widget.inputEditor.hasWidgetFocus() && widget.getFocus();
+    const focusedResponse = isResponseVM(focused) ? focused : void 0;
+    const currentResponse = curCodeBlockInfo ? curCodeBlockInfo.element : focusedResponse ?? widget.viewModel?.getItems().reverse().find((item) => isResponseVM(item));
+    if (!currentResponse || !isResponseVM(currentResponse)) {
+      return;
+    }
+    widget.reveal(currentResponse);
+    const responseCodeblocks = widget.getCodeBlockInfosForResponse(currentResponse);
+    const focusIdx = curCodeBlockInfo ? (curCodeBlockInfo.codeBlockIndex + (reverse ? -1 : 1) + responseCodeblocks.length) % responseCodeblocks.length : reverse ? responseCodeblocks.length - 1 : 0;
+    responseCodeblocks[focusIdx]?.focus();
+  }
+  __name(navigateCodeBlocks, "navigateCodeBlocks");
+  registerAction2(class NextCodeBlockAction extends Action2 {
+    static {
+      __name(this, "NextCodeBlockAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.nextCodeBlock",
+        title: localize2("interactive.nextCodeBlock.label", "Next Code Block"),
+        keybinding: {
+          primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageDown,
+          mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageDown },
+          weight: KeybindingWeight.WorkbenchContrib,
+          when: CONTEXT_IN_CHAT_SESSION
+        },
+        precondition: CONTEXT_CHAT_ENABLED,
+        f1: true,
+        category: CHAT_CATEGORY
+      });
+    }
+    run(accessor, ...args) {
+      navigateCodeBlocks(accessor);
+    }
+  });
+  registerAction2(class PreviousCodeBlockAction extends Action2 {
+    static {
+      __name(this, "PreviousCodeBlockAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.previousCodeBlock",
+        title: localize2("interactive.previousCodeBlock.label", "Previous Code Block"),
+        keybinding: {
+          primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageUp,
+          mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageUp },
+          weight: KeybindingWeight.WorkbenchContrib,
+          when: CONTEXT_IN_CHAT_SESSION
+        },
+        precondition: CONTEXT_CHAT_ENABLED,
+        f1: true,
+        category: CHAT_CATEGORY
+      });
+    }
+    run(accessor, ...args) {
+      navigateCodeBlocks(accessor, true);
+    }
+  });
+}
+__name(registerChatCodeBlockActions, "registerChatCodeBlockActions");
+function getContextFromEditor(editor, accessor) {
+  const chatWidgetService = accessor.get(IChatWidgetService);
+  const chatCodeBlockContextProviderService = accessor.get(IChatCodeBlockContextProviderService);
+  const model = editor.getModel();
+  if (!model) {
+    return;
+  }
+  const widget = chatWidgetService.lastFocusedWidget;
+  const codeBlockInfo = widget?.getCodeBlockInfoForEditor(model.uri);
+  if (!codeBlockInfo) {
+    for (const provider of chatCodeBlockContextProviderService.providers) {
+      const context = provider.getCodeBlockContext(editor);
+      if (context) {
+        return context;
+      }
+    }
+    return;
+  }
+  return {
+    element: codeBlockInfo.element,
+    codeBlockIndex: codeBlockInfo.codeBlockIndex,
+    code: editor.getValue(),
+    languageId: editor.getModel().getLanguageId()
+  };
+}
+__name(getContextFromEditor, "getContextFromEditor");
+function registerChatCodeCompareBlockActions() {
+  class ChatCompareCodeBlockAction extends Action2 {
+    static {
+      __name(this, "ChatCompareCodeBlockAction");
+    }
+    run(accessor, ...args) {
+      const context = args[0];
+      if (!isCodeCompareBlockActionContext(context)) {
+        return;
+      }
+      return this.runWithContext(accessor, context);
+    }
+  }
+  registerAction2(class ApplyEditsCompareBlockAction extends ChatCompareCodeBlockAction {
+    static {
+      __name(this, "ApplyEditsCompareBlockAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.applyCompareEdits",
+        title: localize2("interactive.compare.apply", "Apply Edits"),
+        f1: false,
+        category: CHAT_CATEGORY,
+        icon: Codicon.check,
+        precondition: ContextKeyExpr.and(EditorContextKeys.hasChanges, CONTEXT_CHAT_EDIT_APPLIED.negate()),
+        menu: {
+          id: MenuId.ChatCompareBlock,
+          group: "navigation",
+          order: 1
+        }
+      });
+    }
+    async runWithContext(accessor, context) {
+      const editorService = accessor.get(IEditorService);
+      const instaService = accessor.get(IInstantiationService);
+      const editor = instaService.createInstance(DefaultChatTextEditor);
+      await editor.apply(context.element, context.edit, context.diffEditor);
+      await editorService.openEditor({
+        resource: context.edit.uri,
+        options: { revealIfVisible: true }
+      });
+    }
+  });
+  registerAction2(class DiscardEditsCompareBlockAction extends ChatCompareCodeBlockAction {
+    static {
+      __name(this, "DiscardEditsCompareBlockAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.discardCompareEdits",
+        title: localize2("interactive.compare.discard", "Discard Edits"),
+        f1: false,
+        category: CHAT_CATEGORY,
+        icon: Codicon.trash,
+        precondition: ContextKeyExpr.and(EditorContextKeys.hasChanges, CONTEXT_CHAT_EDIT_APPLIED.negate()),
+        menu: {
+          id: MenuId.ChatCompareBlock,
+          group: "navigation",
+          order: 2
+        }
+      });
+    }
+    async runWithContext(accessor, context) {
+      const instaService = accessor.get(IInstantiationService);
+      const editor = instaService.createInstance(DefaultChatTextEditor);
+      editor.discard(context.element, context.edit);
+    }
+  });
+}
+__name(registerChatCodeCompareBlockActions, "registerChatCodeCompareBlockActions");
+export {
+  isCodeBlockActionContext,
+  isCodeCompareBlockActionContext,
+  registerChatCodeBlockActions,
+  registerChatCodeCompareBlockActions
+};
+//# sourceMappingURL=chatCodeblockActions.js.map

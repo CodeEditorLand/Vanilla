@@ -1,1 +1,90 @@
-var y=Object.defineProperty;var D=Object.getOwnPropertyDescriptor;var s=(a,t,r,i)=>{for(var o=i>1?void 0:i?D(t,r):t,n=a.length-1,m;n>=0;n--)(m=a[n])&&(o=(i?m(t,r,o):m(o))||o);return i&&o&&y(t,r,o),o},e=(a,t)=>(r,i)=>t(r,i,a);import{generateUuid as h}from"../../../../base/common/uuid.js";import{IExtensionGalleryService as M}from"../../../../platform/extensionManagement/common/extensionManagement.js";import"../../../../base/common/uri.js";import{ExtensionManagementService as P}from"../common/extensionManagementService.js";import{InstantiationType as U,registerSingleton as w}from"../../../../platform/instantiation/common/extensions.js";import{IExtensionManagementServerService as b,IWorkbenchExtensionManagementService as k}from"../common/extensionManagement.js";import{Schemas as L}from"../../../../base/common/network.js";import{IConfigurationService as R}from"../../../../platform/configuration/common/configuration.js";import{IDownloadService as T}from"../../../../platform/download/common/download.js";import{IProductService as W}from"../../../../platform/product/common/productService.js";import{INativeWorkbenchEnvironmentService as q}from"../../environment/electron-sandbox/environmentService.js";import{joinPath as C}from"../../../../base/common/resources.js";import{IUserDataSyncEnablementService as F}from"../../../../platform/userDataSync/common/userDataSync.js";import{IDialogService as G}from"../../../../platform/dialogs/common/dialogs.js";import{IWorkspaceTrustRequestService as N}from"../../../../platform/workspace/common/workspaceTrust.js";import{IExtensionManifestPropertiesService as O}from"../../extensions/common/extensionManifestPropertiesService.js";import{IInstantiationService as V}from"../../../../platform/instantiation/common/instantiation.js";import{IFileService as X}from"../../../../platform/files/common/files.js";import{ILogService as j}from"../../../../platform/log/common/log.js";import{IUserDataProfileService as B}from"../../userDataProfile/common/userDataProfile.js";import{IExtensionsScannerService as z}from"../../../../platform/extensionManagement/common/extensionsScannerService.js";import{ITelemetryService as A}from"../../../../platform/telemetry/common/telemetry.js";let c=class extends P{constructor(r,i,o,n,m,S,v,I,l,p,f,d,E,g,u,x){super(i,o,n,m,S,v,I,l,p,f,d,E,g,u,x);this.environmentService=r}async installVSIXInServer(r,i,o){if(r.scheme===L.vscodeRemote&&i===this.extensionManagementServerService.localExtensionManagementServer){const n=C(this.environmentService.tmpDir,h());await this.downloadService.download(r,n),r=n}return super.installVSIXInServer(r,i,o)}};c=s([e(0,q),e(1,b),e(2,M),e(3,B),e(4,R),e(5,W),e(6,T),e(7,F),e(8,G),e(9,N),e(10,O),e(11,X),e(12,j),e(13,V),e(14,z),e(15,A)],c),w(k,c,U.Delayed);export{c as ExtensionManagementService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { ILocalExtension, IExtensionGalleryService, InstallOptions } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ExtensionManagementService as BaseExtensionManagementService } from "../common/extensionManagementService.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IExtensionManagementServer, IExtensionManagementServerService, IWorkbenchExtensionManagementService } from "../common/extensionManagement.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDownloadService } from "../../../../platform/download/common/download.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { joinPath } from "../../../../base/common/resources.js";
+import { IUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IWorkspaceTrustRequestService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IExtensionManifestPropertiesService } from "../../extensions/common/extensionManifestPropertiesService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { IExtensionsScannerService } from "../../../../platform/extensionManagement/common/extensionsScannerService.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+let ExtensionManagementService = class extends BaseExtensionManagementService {
+  constructor(environmentService, extensionManagementServerService, extensionGalleryService, userDataProfileService, configurationService, productService, downloadService, userDataSyncEnablementService, dialogService, workspaceTrustRequestService, extensionManifestPropertiesService, fileService, logService, instantiationService, extensionsScannerService, telemetryService) {
+    super(
+      extensionManagementServerService,
+      extensionGalleryService,
+      userDataProfileService,
+      configurationService,
+      productService,
+      downloadService,
+      userDataSyncEnablementService,
+      dialogService,
+      workspaceTrustRequestService,
+      extensionManifestPropertiesService,
+      fileService,
+      logService,
+      instantiationService,
+      extensionsScannerService,
+      telemetryService
+    );
+    this.environmentService = environmentService;
+  }
+  static {
+    __name(this, "ExtensionManagementService");
+  }
+  async installVSIXInServer(vsix, server, options) {
+    if (vsix.scheme === Schemas.vscodeRemote && server === this.extensionManagementServerService.localExtensionManagementServer) {
+      const downloadedLocation = joinPath(this.environmentService.tmpDir, generateUuid());
+      await this.downloadService.download(vsix, downloadedLocation);
+      vsix = downloadedLocation;
+    }
+    return super.installVSIXInServer(vsix, server, options);
+  }
+};
+ExtensionManagementService = __decorateClass([
+  __decorateParam(0, INativeWorkbenchEnvironmentService),
+  __decorateParam(1, IExtensionManagementServerService),
+  __decorateParam(2, IExtensionGalleryService),
+  __decorateParam(3, IUserDataProfileService),
+  __decorateParam(4, IConfigurationService),
+  __decorateParam(5, IProductService),
+  __decorateParam(6, IDownloadService),
+  __decorateParam(7, IUserDataSyncEnablementService),
+  __decorateParam(8, IDialogService),
+  __decorateParam(9, IWorkspaceTrustRequestService),
+  __decorateParam(10, IExtensionManifestPropertiesService),
+  __decorateParam(11, IFileService),
+  __decorateParam(12, ILogService),
+  __decorateParam(13, IInstantiationService),
+  __decorateParam(14, IExtensionsScannerService),
+  __decorateParam(15, ITelemetryService)
+], ExtensionManagementService);
+registerSingleton(IWorkbenchExtensionManagementService, ExtensionManagementService, InstantiationType.Delayed);
+export {
+  ExtensionManagementService
+};
+//# sourceMappingURL=extensionManagementService.js.map

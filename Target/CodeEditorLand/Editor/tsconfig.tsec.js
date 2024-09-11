@@ -1,1 +1,5 @@
-var t="./Asset/tsconfig.tsec-BTV3IK75.json";export{t as default};
+var tsconfig_tsec_default = "./Asset/tsconfig.tsec-BTV3IK75.json";
+export {
+  tsconfig_tsec_default as default
+};
+//# sourceMappingURL=tsconfig.tsec.js.map

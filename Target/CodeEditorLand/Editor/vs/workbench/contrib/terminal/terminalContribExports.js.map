@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/contrib/terminal/terminalContribExports.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nexport { TerminalChatController } from '../terminalContrib/chat/browser/terminalChatController.js';\nexport { TerminalChatContextKeys } from '../terminalContrib/chat/browser/terminalChat.js';\n"],
+  "mappings": "AAKA,SAAS,8BAA8B;AACvC,SAAS,+BAA+B;",
+  "names": []
+}

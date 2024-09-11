@@ -1,1 +1,89 @@
-import"./lifecycle.js";import{env as a}from"./process.js";function c(){return a&&!!a.VSCODE_DEV}function u(t){if(c()){const p=g();return p.add(t),{dispose(){p.delete(t)}}}else return{dispose(){}}}function g(){s||(s=new Set);const t=globalThis;return t.$hotReload_applyNewExports||(t.$hotReload_applyNewExports=p=>{const i={config:{mode:void 0},...p},n=[];for(const e of s){const o=e(i);o&&n.push(o)}if(n.length>0)return e=>{let o=!1;for(const r of n)r(e)&&(o=!0);return o}}),s}let s;c()&&u(({oldExports:t,newSrc:p,config:i})=>{if(i.mode==="patch-prototype")return n=>{for(const e in n){const o=n[e];if(console.log(`[hot-reload] Patching prototype methods of '${e}'`,{exportedItem:o}),typeof o=="function"&&o.prototype){const r=t[e];if(r){for(const d of Object.getOwnPropertyNames(o.prototype)){const l=Object.getOwnPropertyDescriptor(o.prototype,d),f=Object.getOwnPropertyDescriptor(r.prototype,d);l?.value?.toString()!==f?.value?.toString()&&console.log(`[hot-reload] Patching prototype method '${e}.${d}'`),Object.defineProperty(r.prototype,d,l)}n[e]=r}}}return!0}});export{c as isHotReloadEnabled,u as registerHotReloadHandler};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDisposable } from "./lifecycle.js";
+import { env } from "./process.js";
+function isHotReloadEnabled() {
+  return env && !!env["VSCODE_DEV"];
+}
+__name(isHotReloadEnabled, "isHotReloadEnabled");
+function registerHotReloadHandler(handler) {
+  if (!isHotReloadEnabled()) {
+    return { dispose() {
+    } };
+  } else {
+    const handlers = registerGlobalHotReloadHandler();
+    handlers.add(handler);
+    return {
+      dispose() {
+        handlers.delete(handler);
+      }
+    };
+  }
+}
+__name(registerHotReloadHandler, "registerHotReloadHandler");
+function registerGlobalHotReloadHandler() {
+  if (!hotReloadHandlers) {
+    hotReloadHandlers = /* @__PURE__ */ new Set();
+  }
+  const g = globalThis;
+  if (!g.$hotReload_applyNewExports) {
+    g.$hotReload_applyNewExports = (args) => {
+      const args2 = { config: { mode: void 0 }, ...args };
+      const results = [];
+      for (const h of hotReloadHandlers) {
+        const result = h(args2);
+        if (result) {
+          results.push(result);
+        }
+      }
+      if (results.length > 0) {
+        return (newExports) => {
+          let result = false;
+          for (const r of results) {
+            if (r(newExports)) {
+              result = true;
+            }
+          }
+          return result;
+        };
+      }
+      return void 0;
+    };
+  }
+  return hotReloadHandlers;
+}
+__name(registerGlobalHotReloadHandler, "registerGlobalHotReloadHandler");
+let hotReloadHandlers = void 0;
+if (isHotReloadEnabled()) {
+  registerHotReloadHandler(({ oldExports, newSrc, config }) => {
+    if (config.mode !== "patch-prototype") {
+      return void 0;
+    }
+    return (newExports) => {
+      for (const key in newExports) {
+        const exportedItem = newExports[key];
+        console.log(`[hot-reload] Patching prototype methods of '${key}'`, { exportedItem });
+        if (typeof exportedItem === "function" && exportedItem.prototype) {
+          const oldExportedItem = oldExports[key];
+          if (oldExportedItem) {
+            for (const prop of Object.getOwnPropertyNames(exportedItem.prototype)) {
+              const descriptor = Object.getOwnPropertyDescriptor(exportedItem.prototype, prop);
+              const oldDescriptor = Object.getOwnPropertyDescriptor(oldExportedItem.prototype, prop);
+              if (descriptor?.value?.toString() !== oldDescriptor?.value?.toString()) {
+                console.log(`[hot-reload] Patching prototype method '${key}.${prop}'`);
+              }
+              Object.defineProperty(oldExportedItem.prototype, prop, descriptor);
+            }
+            newExports[key] = oldExportedItem;
+          }
+        }
+      }
+      return true;
+    };
+  });
+}
+export {
+  isHotReloadEnabled,
+  registerHotReloadHandler
+};
+//# sourceMappingURL=hotReload.js.map

@@ -1,1 +1,26 @@
-class n{constructor(){this._domFrameLog()}_frameId=0;_domFrameLog(){}debug(...t){const o=new Date;console.log(`${o.getSeconds()}:${o.getMilliseconds().toString().padStart(3,"0")}`,`frame #${this._frameId}: `,...t)}}const a=new n;function r(...e){a.debug(...e)}export{r as notebookDebug};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class NotebookLogger {
+  static {
+    __name(this, "NotebookLogger");
+  }
+  constructor() {
+    this._domFrameLog();
+  }
+  _frameId = 0;
+  _domFrameLog() {
+  }
+  debug(...args) {
+    const date = /* @__PURE__ */ new Date();
+    console.log(`${date.getSeconds()}:${date.getMilliseconds().toString().padStart(3, "0")}`, `frame #${this._frameId}: `, ...args);
+  }
+}
+const instance = new NotebookLogger();
+function notebookDebug(...args) {
+  instance.debug(...args);
+}
+__name(notebookDebug, "notebookDebug");
+export {
+  notebookDebug
+};
+//# sourceMappingURL=notebookLogger.js.map
