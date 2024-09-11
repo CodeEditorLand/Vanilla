@@ -1,1 +1,1 @@
-var t="./Asset/tsconfig.monaco-A7XB3KVL.json";export{t as default};
+var t="./Asset/tsconfig.monaco-FQQDTNOG.json";export{t as default};
