@@ -1,10 +1,1 @@
-import { Event } from "../../../../base/common/event.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IProgressIndicator } from "../../../../platform/progress/common/progress.js";
-import { IPaneComposite } from "../../../common/panecomposite.js";
-import { IView, IViewPaneContainer, ViewContainer, ViewContainerLocation } from "../../../common/views.js";
-const IViewsService = createDecorator("viewsService");
-export {
-  IViewsService
-};
-//# sourceMappingURL=viewsService.js.map
+import"../../../../base/common/event.js";import{createDecorator as i}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/progress/common/progress.js";import"../../../common/panecomposite.js";import"../../../common/views.js";const g=i("viewsService");export{g as IViewsService};

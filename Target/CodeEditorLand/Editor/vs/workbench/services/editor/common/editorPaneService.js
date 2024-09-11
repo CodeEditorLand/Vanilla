@@ -1,8 +1,1 @@
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IWillInstantiateEditorPaneEvent } from "../../../common/editor.js";
-import { Event } from "../../../../base/common/event.js";
-const IEditorPaneService = createDecorator("editorPaneService");
-export {
-  IEditorPaneService
-};
-//# sourceMappingURL=editorPaneService.js.map
+import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"../../../common/editor.js";import"../../../../base/common/event.js";const a=e("editorPaneService");export{a as IEditorPaneService};

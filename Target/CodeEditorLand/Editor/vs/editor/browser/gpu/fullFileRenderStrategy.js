@@ -1,20 +1,4 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { getActiveWindow } from "../../../base/browser/dom.js";
-import { BugIndicatingError } from "../../../base/common/errors.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { EditorOption } from "../../common/config/editorOptions.js";
-import { BindingId } from "./gpu.js";
-import { GPULifecycle } from "./gpuDisposable.js";
-import { quadVertices } from "./gpuUtils.js";
-import { GlyphRasterizer } from "./raster/glyphRasterizer.js";
-var Constants = /* @__PURE__ */ ((Constants2) => {
-  Constants2[Constants2["IndicesPerCell"] = 6] = "IndicesPerCell";
-  return Constants2;
-})(Constants || {});
-const fullFileRenderStrategyWgsl = (
-  /*wgsl*/
-  `
+import{getActiveWindow as C}from"../../../base/browser/dom.js";import{BugIndicatingError as z}from"../../../base/common/errors.js";import{Disposable as j}from"../../../base/common/lifecycle.js";import{EditorOption as w}from"../../common/config/editorOptions.js";import{BindingId as r}from"./gpu.js";import{GPULifecycle as D}from"./gpuDisposable.js";import{quadVertices as N}from"./gpuUtils.js";import{GlyphRasterizer as k}from"./raster/glyphRasterizer.js";var Y=(O=>(O[O.IndicesPerCell=6]="IndicesPerCell",O))(Y||{});const $=`
 struct GlyphInfo {
 	position: vec2f,
 	size: vec2f,
@@ -49,14 +33,14 @@ struct VSOutput {
 };
 
 // Uniforms
-@group(0) @binding(${BindingId.ViewportUniform})         var<uniform>       layoutInfo:      LayoutInfo;
-@group(0) @binding(${BindingId.AtlasDimensionsUniform})  var<uniform>       atlasDims:       vec2f;
-@group(0) @binding(${BindingId.ScrollOffset})            var<uniform>       scrollOffset:    ScrollOffset;
+@group(0) @binding(${r.ViewportUniform})         var<uniform>       layoutInfo:      LayoutInfo;
+@group(0) @binding(${r.AtlasDimensionsUniform})  var<uniform>       atlasDims:       vec2f;
+@group(0) @binding(${r.ScrollOffset})            var<uniform>       scrollOffset:    ScrollOffset;
 
 // Storage buffers
-@group(0) @binding(${BindingId.GlyphInfo0})              var<storage, read> glyphInfo0:      array<GlyphInfo>;
-@group(0) @binding(${BindingId.GlyphInfo1})              var<storage, read> glyphInfo1:      array<GlyphInfo>;
-@group(0) @binding(${BindingId.Cells})                   var<storage, read> cells:           array<Cell>;
+@group(0) @binding(${r.GlyphInfo0})              var<storage, read> glyphInfo0:      array<GlyphInfo>;
+@group(0) @binding(${r.GlyphInfo1})              var<storage, read> glyphInfo1:      array<GlyphInfo>;
+@group(0) @binding(${r.Cells})                   var<storage, read> cells:           array<Cell>;
 
 @vertex fn vs(
 	vert: Vertex,
@@ -94,190 +78,10 @@ struct VSOutput {
 	return vsOut;
 }
 
-@group(0) @binding(${BindingId.TextureSampler}) var ourSampler: sampler;
-@group(0) @binding(${BindingId.Texture})        var ourTexture: texture_2d_array<f32>;
+@group(0) @binding(${r.TextureSampler}) var ourSampler: sampler;
+@group(0) @binding(${r.Texture})        var ourTexture: texture_2d_array<f32>;
 
 @fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
 	return textureSample(ourTexture, ourSampler, vsOut.texcoord, u32(vsOut.layerIndex));
 }
-`
-);
-var CellBufferInfo = /* @__PURE__ */ ((CellBufferInfo2) => {
-  CellBufferInfo2[CellBufferInfo2["FloatsPerEntry"] = 6] = "FloatsPerEntry";
-  CellBufferInfo2[CellBufferInfo2["BytesPerEntry"] = 24] = "BytesPerEntry";
-  CellBufferInfo2[CellBufferInfo2["Offset_X"] = 0] = "Offset_X";
-  CellBufferInfo2[CellBufferInfo2["Offset_Y"] = 1] = "Offset_Y";
-  CellBufferInfo2[CellBufferInfo2["Offset_Unused1"] = 2] = "Offset_Unused1";
-  CellBufferInfo2[CellBufferInfo2["Offset_Unused2"] = 3] = "Offset_Unused2";
-  CellBufferInfo2[CellBufferInfo2["GlyphIndex"] = 4] = "GlyphIndex";
-  CellBufferInfo2[CellBufferInfo2["TextureIndex"] = 5] = "TextureIndex";
-  return CellBufferInfo2;
-})(CellBufferInfo || {});
-class FullFileRenderStrategy extends Disposable {
-  constructor(_context, _device, _canvas, _atlas) {
-    super();
-    this._context = _context;
-    this._device = _device;
-    this._canvas = _canvas;
-    this._atlas = _atlas;
-    const activeWindow = getActiveWindow();
-    const fontFamily = this._context.configuration.options.get(EditorOption.fontFamily);
-    const fontSize = Math.ceil(this._context.configuration.options.get(EditorOption.fontSize) * activeWindow.devicePixelRatio);
-    this._glyphRasterizer = this._register(new GlyphRasterizer(fontSize, fontFamily));
-    const bufferSize = FullFileRenderStrategy._lineCount * FullFileRenderStrategy._columnCount * 6 /* IndicesPerCell */ * Float32Array.BYTES_PER_ELEMENT;
-    this._cellBindBuffer = this._register(GPULifecycle.createBuffer(this._device, {
-      label: "Monaco full file cell buffer",
-      size: bufferSize,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
-    })).object;
-    this._cellValueBuffers = [
-      new ArrayBuffer(bufferSize),
-      new ArrayBuffer(bufferSize)
-    ];
-    const scrollOffsetBufferSize = 2;
-    this._scrollOffsetBindBuffer = this._register(GPULifecycle.createBuffer(this._device, {
-      label: "Monaco scroll offset buffer",
-      size: scrollOffsetBufferSize * Float32Array.BYTES_PER_ELEMENT,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-    })).object;
-    this._scrollOffsetValueBuffers = [
-      new Float32Array(scrollOffsetBufferSize),
-      new Float32Array(scrollOffsetBufferSize)
-    ];
-  }
-  static {
-    __name(this, "FullFileRenderStrategy");
-  }
-  static _lineCount = 3e3;
-  static _columnCount = 200;
-  wgsl = fullFileRenderStrategyWgsl;
-  _glyphRasterizer;
-  _cellBindBuffer;
-  /**
-   * The cell value buffers, these hold the cells and their glyphs. It's double buffers such that
-   * the thread doesn't block when one is being uploaded to the GPU.
-   */
-  _cellValueBuffers;
-  _activeDoubleBufferIndex = 0;
-  _upToDateLines = [/* @__PURE__ */ new Set(), /* @__PURE__ */ new Set()];
-  _visibleObjectCount = 0;
-  _scrollOffsetBindBuffer;
-  _scrollOffsetValueBuffers;
-  get bindGroupEntries() {
-    return [
-      { binding: BindingId.Cells, resource: { buffer: this._cellBindBuffer } },
-      { binding: BindingId.ScrollOffset, resource: { buffer: this._scrollOffsetBindBuffer } }
-    ];
-  }
-  update(viewportData, viewLineOptions) {
-    let chars = "";
-    let y = 0;
-    let x = 0;
-    let screenAbsoluteX = 0;
-    let screenAbsoluteY = 0;
-    let zeroToOneX = 0;
-    let zeroToOneY = 0;
-    let wgslX = 0;
-    let wgslY = 0;
-    let xOffset = 0;
-    let glyph;
-    let cellIndex = 0;
-    let tokenStartIndex = 0;
-    let tokenEndIndex = 0;
-    let tokenMetadata = 0;
-    let lineData;
-    let content = "";
-    let fillStartIndex = 0;
-    let fillEndIndex = 0;
-    let tokens;
-    const activeWindow = getActiveWindow();
-    const scrollTop = this._context.viewLayout.getCurrentScrollTop() * activeWindow.devicePixelRatio;
-    const scrollOffsetBuffer = this._scrollOffsetValueBuffers[this._activeDoubleBufferIndex];
-    scrollOffsetBuffer[1] = scrollTop;
-    this._device.queue.writeBuffer(this._scrollOffsetBindBuffer, 0, scrollOffsetBuffer);
-    const cellBuffer = new Float32Array(this._cellValueBuffers[this._activeDoubleBufferIndex]);
-    const lineIndexCount = FullFileRenderStrategy._columnCount * 6 /* IndicesPerCell */;
-    const upToDateLines = this._upToDateLines[this._activeDoubleBufferIndex];
-    let dirtyLineStart = Number.MAX_SAFE_INTEGER;
-    let dirtyLineEnd = 0;
-    for (y = viewportData.startLineNumber; y <= viewportData.endLineNumber; y++) {
-      dirtyLineStart = Math.min(dirtyLineStart, y);
-      dirtyLineEnd = Math.max(dirtyLineEnd, y);
-      lineData = viewportData.getViewLineRenderingData(y);
-      content = lineData.content;
-      xOffset = 0;
-      tokens = lineData.tokens;
-      tokenStartIndex = lineData.minColumn - 1;
-      tokenEndIndex = 0;
-      for (let tokenIndex = 0, tokensLen = tokens.getCount(); tokenIndex < tokensLen; tokenIndex++) {
-        tokenEndIndex = tokens.getEndOffset(tokenIndex);
-        if (tokenEndIndex <= tokenStartIndex) {
-          continue;
-        }
-        tokenMetadata = tokens.getMetadata(tokenIndex);
-        for (x = tokenStartIndex; x < tokenEndIndex; x++) {
-          if (x > FullFileRenderStrategy._columnCount) {
-            break;
-          }
-          chars = content.charAt(x);
-          if (chars === " ") {
-            continue;
-          }
-          if (chars === "	") {
-            xOffset += 3;
-            continue;
-          }
-          glyph = this._atlas.getGlyph(this._glyphRasterizer, chars, tokenMetadata);
-          screenAbsoluteX = Math.round((x + xOffset) * viewLineOptions.spaceWidth * activeWindow.devicePixelRatio);
-          screenAbsoluteY = Math.ceil(
-            // Top of line including line height
-            (viewportData.relativeVerticalOffset[y - viewportData.startLineNumber] + // Delta to top of line after line height
-            Math.floor((viewportData.lineHeight - this._context.configuration.options.get(EditorOption.fontSize)) / 2)) * activeWindow.devicePixelRatio
-          );
-          zeroToOneX = screenAbsoluteX / this._canvas.width;
-          zeroToOneY = screenAbsoluteY / this._canvas.height;
-          wgslX = zeroToOneX * 2 - 1;
-          wgslY = zeroToOneY * 2 - 1;
-          cellIndex = ((y - 1) * FullFileRenderStrategy._columnCount + (x + xOffset)) * 6 /* IndicesPerCell */;
-          cellBuffer[cellIndex + 0 /* Offset_X */] = wgslX;
-          cellBuffer[cellIndex + 1 /* Offset_Y */] = -wgslY;
-          cellBuffer[cellIndex + 4 /* GlyphIndex */] = glyph.glyphIndex;
-          cellBuffer[cellIndex + 5 /* TextureIndex */] = glyph.pageIndex;
-        }
-        tokenStartIndex = tokenEndIndex;
-      }
-      fillStartIndex = ((y - 1) * FullFileRenderStrategy._columnCount + (tokenEndIndex + xOffset)) * 6 /* IndicesPerCell */;
-      fillEndIndex = y * FullFileRenderStrategy._columnCount * 6 /* IndicesPerCell */;
-      cellBuffer.fill(0, fillStartIndex, fillEndIndex);
-      upToDateLines.add(y);
-    }
-    const visibleObjectCount = (viewportData.endLineNumber - viewportData.startLineNumber + 1) * lineIndexCount;
-    if (dirtyLineStart <= dirtyLineEnd) {
-      this._device.queue.writeBuffer(
-        this._cellBindBuffer,
-        (dirtyLineStart - 1) * lineIndexCount * Float32Array.BYTES_PER_ELEMENT,
-        cellBuffer.buffer,
-        (dirtyLineStart - 1) * lineIndexCount * Float32Array.BYTES_PER_ELEMENT,
-        (dirtyLineEnd - dirtyLineStart + 1) * lineIndexCount * Float32Array.BYTES_PER_ELEMENT
-      );
-    }
-    this._activeDoubleBufferIndex = this._activeDoubleBufferIndex ? 0 : 1;
-    this._visibleObjectCount = visibleObjectCount;
-    return visibleObjectCount;
-  }
-  draw(pass, viewportData) {
-    if (this._visibleObjectCount <= 0) {
-      throw new BugIndicatingError("Attempt to draw 0 objects");
-    }
-    pass.draw(
-      quadVertices.length / 2,
-      this._visibleObjectCount,
-      void 0,
-      (viewportData.startLineNumber - 1) * FullFileRenderStrategy._columnCount
-    );
-  }
-}
-export {
-  FullFileRenderStrategy
-};
-//# sourceMappingURL=fullFileRenderStrategy.js.map
+`;var X=(e=>(e[e.FloatsPerEntry=6]="FloatsPerEntry",e[e.BytesPerEntry=24]="BytesPerEntry",e[e.Offset_X=0]="Offset_X",e[e.Offset_Y=1]="Offset_Y",e[e.Offset_Unused1=2]="Offset_Unused1",e[e.Offset_Unused2=3]="Offset_Unused2",e[e.GlyphIndex=4]="GlyphIndex",e[e.TextureIndex=5]="TextureIndex",e))(X||{});class o extends j{constructor(i,v,c,t){super();this._context=i;this._device=v;this._canvas=c;this._atlas=t;const n=C(),m=this._context.configuration.options.get(w.fontFamily),e=Math.ceil(this._context.configuration.options.get(w.fontSize)*n.devicePixelRatio);this._glyphRasterizer=this._register(new k(e,m));const s=o._lineCount*o._columnCount*6*Float32Array.BYTES_PER_ELEMENT;this._cellBindBuffer=this._register(D.createBuffer(this._device,{label:"Monaco full file cell buffer",size:s,usage:GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST})).object,this._cellValueBuffers=[new ArrayBuffer(s),new ArrayBuffer(s)];const l=2;this._scrollOffsetBindBuffer=this._register(D.createBuffer(this._device,{label:"Monaco scroll offset buffer",size:l*Float32Array.BYTES_PER_ELEMENT,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST})).object,this._scrollOffsetValueBuffers=[new Float32Array(l),new Float32Array(l)]}static _lineCount=3e3;static _columnCount=200;wgsl=$;_glyphRasterizer;_cellBindBuffer;_cellValueBuffers;_activeDoubleBufferIndex=0;_upToDateLines=[new Set,new Set];_visibleObjectCount=0;_scrollOffsetBindBuffer;_scrollOffsetValueBuffers;get bindGroupEntries(){return[{binding:r.Cells,resource:{buffer:this._cellBindBuffer}},{binding:r.ScrollOffset,resource:{buffer:this._scrollOffsetBindBuffer}}]}update(i,v){let c="",t=0,n=0,m=0,e=0,s=0,l=0,E=0,T=0,p=0,I,d=0,y=0,a=0,P=0,h,L="",S=0,G=0,g;const B=C(),M=this._context.viewLayout.getCurrentScrollTop()*B.devicePixelRatio,A=this._scrollOffsetValueBuffers[this._activeDoubleBufferIndex];A[1]=M,this._device.queue.writeBuffer(this._scrollOffsetBindBuffer,0,A);const f=new Float32Array(this._cellValueBuffers[this._activeDoubleBufferIndex]),x=o._columnCount*6,U=this._upToDateLines[this._activeDoubleBufferIndex];let u=Number.MAX_SAFE_INTEGER,_=0;for(t=i.startLineNumber;t<=i.endLineNumber;t++){u=Math.min(u,t),_=Math.max(_,t),h=i.getViewLineRenderingData(t),L=h.content,p=0,g=h.tokens,y=h.minColumn-1,a=0;for(let b=0,R=g.getCount();b<R;b++)if(a=g.getEndOffset(b),!(a<=y)){for(P=g.getMetadata(b),n=y;n<a&&!(n>o._columnCount);n++)if(c=L.charAt(n),c!==" "){if(c==="	"){p+=3;continue}I=this._atlas.getGlyph(this._glyphRasterizer,c,P),m=Math.round((n+p)*v.spaceWidth*B.devicePixelRatio),e=Math.ceil((i.relativeVerticalOffset[t-i.startLineNumber]+Math.floor((i.lineHeight-this._context.configuration.options.get(w.fontSize))/2))*B.devicePixelRatio),s=m/this._canvas.width,l=e/this._canvas.height,E=s*2-1,T=l*2-1,d=((t-1)*o._columnCount+(n+p))*6,f[d+0]=E,f[d+1]=-T,f[d+4]=I.glyphIndex,f[d+5]=I.pageIndex}y=a}S=((t-1)*o._columnCount+(a+p))*6,G=t*o._columnCount*6,f.fill(0,S,G),U.add(t)}const V=(i.endLineNumber-i.startLineNumber+1)*x;return u<=_&&this._device.queue.writeBuffer(this._cellBindBuffer,(u-1)*x*Float32Array.BYTES_PER_ELEMENT,f.buffer,(u-1)*x*Float32Array.BYTES_PER_ELEMENT,(_-u+1)*x*Float32Array.BYTES_PER_ELEMENT),this._activeDoubleBufferIndex=this._activeDoubleBufferIndex?0:1,this._visibleObjectCount=V,V}draw(i,v){if(this._visibleObjectCount<=0)throw new z("Attempt to draw 0 objects");i.draw(N.length/2,this._visibleObjectCount,void 0,(v.startLineNumber-1)*o._columnCount)}}export{o as FullFileRenderStrategy};

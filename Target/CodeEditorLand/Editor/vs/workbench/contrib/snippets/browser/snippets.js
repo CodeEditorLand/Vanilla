@@ -1,7 +1,1 @@
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { SnippetFile, Snippet } from "./snippetsFile.js";
-const ISnippetsService = createDecorator("snippetService");
-export {
-  ISnippetsService
-};
-//# sourceMappingURL=snippets.js.map
+import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"./snippetsFile.js";const o=e("snippetService");export{o as ISnippetsService};
