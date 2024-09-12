@@ -1,0 +1,1 @@
+import"../notebookCommon.js";import{toFormattedString as r}from"../../../../../base/common/jsonFormatter.js";function s(a,t){let e={};if(a){const n=new Set([...Object.keys(t)]);for(const o of n)a[o]||(e[o]=t[o])}else e=t;return r(e,{})}export{s as getFormattedNotebookMetadataJSON};
