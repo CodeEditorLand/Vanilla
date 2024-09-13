@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/contrib/debug/electron-sandbox/extensionHostDebugService.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { IExtensionHostDebugService } from \"../../../../platform/debug/common/extensionHostDebug.js\";\nimport {\n\tExtensionHostDebugBroadcastChannel,\n\tExtensionHostDebugChannelClient,\n} from \"../../../../platform/debug/common/extensionHostDebugIpc.js\";\nimport { registerMainProcessRemoteService } from \"../../../../platform/ipc/electron-sandbox/services.js\";\n\nregisterMainProcessRemoteService(\n\tIExtensionHostDebugService,\n\tExtensionHostDebugBroadcastChannel.ChannelName,\n\t{ channelClientCtor: ExtensionHostDebugChannelClient },\n);\n"],
-  "mappings": "AAKA,SAAS,kCAAkC;AAC3C;AAAA,EACC;AAAA,EACA;AAAA,OACM;AACP,SAAS,wCAAwC;AAEjD;AAAA,EACC;AAAA,EACA,mCAAmC;AAAA,EACnC,EAAE,mBAAmB,gCAAgC;AACtD;",
-  "names": []
-}

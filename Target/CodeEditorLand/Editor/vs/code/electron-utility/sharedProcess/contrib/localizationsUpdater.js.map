@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/code/electron-utility/sharedProcess/contrib/localizationsUpdater.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { Disposable } from \"../../../../base/common/lifecycle.js\";\nimport { ILanguagePackService } from \"../../../../platform/languagePacks/common/languagePacks.js\";\nimport type { NativeLanguagePackService } from \"../../../../platform/languagePacks/node/languagePacks.js\";\n\nexport class LocalizationsUpdater extends Disposable {\n\tconstructor(\n\t\t@ILanguagePackService private readonly localizationsService: NativeLanguagePackService\n\t) {\n\t\tsuper();\n\n\t\tthis.updateLocalizations();\n\t}\n\n\tprivate updateLocalizations(): void {\n\t\tthis.localizationsService.update();\n\t}\n}\n"],
-  "mappings": ";;;;;;;;;;;;AAKA,SAAS,kBAAkB;AAC3B,SAAS,4BAA4B;AAG9B,IAAM,uBAAN,cAAmC,WAAW;AAAA,EACpD,YACwC,sBACtC;AACD,UAAM;AAFiC;AAIvC,SAAK,oBAAoB;AAAA,EAC1B;AAAA,EAhBD,OASqD;AAAA;AAAA;AAAA,EAS5C,sBAA4B;AACnC,SAAK,qBAAqB,OAAO;AAAA,EAClC;AACD;AAZa,uBAAN;AAAA,EAEJ;AAAA,GAFU;",
-  "names": []
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/contrib/notebook/browser/contrib/find/media/notebookFind.css"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\n.monaco-workbench .notebookOverlay.notebook-editor.find-hide-transition {\n\toverflow-y: hidden;\n}\n\n.monaco-workbench .notebookOverlay.notebook-editor.find-show-transition {\n\toverflow-y: hidden;\n}\n\n.monaco-workbench\n\t.notebookOverlay.notebook-editor\n\t.simple-fr-find-part-wrapper\n\t.matchesCount {\n\ttext-align: center;\n\ttext-overflow: ellipsis;\n\toverflow: hidden;\n\twhite-space: nowrap;\n\tpadding: 0 2px;\n\tbox-sizing: border-box;\n}\n\n.monaco-workbench .nb-findScope {\n\tbackground-color: var(--vscode-editor-findRangeHighlightBackground);\n}\n"],
-  "mappings": "AAKA,CAAC,iBAAiB,CAAC,eAAe,CAAC,eAAe,CAAC;AAClD,cAAY;AACb;AAEA,CAJC,iBAIiB,CAJC,eAIe,CAJC,eAIe,CAAC;AAClD,cAAY;AACb;AAEA,CARC,iBASA,CATkB,eASF,CATkB,gBAUlC,CAAC,4BACD,CAAC;AACD,cAAY;AACZ,iBAAe;AACf,YAAU;AACV,eAAa;AACb,WAAS,EAAE;AACX,cAAY;AACb;AAEA,CApBC,iBAoBiB,CAAC;AAClB,oBAAkB,IAAI;AACvB;",
-  "names": []
-}

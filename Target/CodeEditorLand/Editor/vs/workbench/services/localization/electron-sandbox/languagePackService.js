@@ -1,4 +1,1 @@
-import { registerSharedProcessRemoteService } from "../../../../platform/ipc/electron-sandbox/services.js";
-import { ILanguagePackService } from "../../../../platform/languagePacks/common/languagePacks.js";
-registerSharedProcessRemoteService(ILanguagePackService, "languagePacks");
-//# sourceMappingURL=languagePackService.js.map
+import{registerSharedProcessRemoteService as e}from"../../../../platform/ipc/electron-sandbox/services.js";import{ILanguagePackService as r}from"../../../../platform/languagePacks/common/languagePacks.js";e(r,"languagePacks");

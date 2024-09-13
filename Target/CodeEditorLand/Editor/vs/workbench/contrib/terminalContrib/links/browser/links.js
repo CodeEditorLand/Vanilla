@@ -1,17 +1,1 @@
-import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
-const ITerminalLinkProviderService = createDecorator(
-  "terminalLinkProviderService"
-);
-var TerminalBuiltinLinkType = /* @__PURE__ */ ((TerminalBuiltinLinkType2) => {
-  TerminalBuiltinLinkType2["LocalFile"] = "LocalFile";
-  TerminalBuiltinLinkType2["LocalFolderOutsideWorkspace"] = "LocalFolderOutsideWorkspace";
-  TerminalBuiltinLinkType2["LocalFolderInWorkspace"] = "LocalFolderInWorkspace";
-  TerminalBuiltinLinkType2["Search"] = "Search";
-  TerminalBuiltinLinkType2["Url"] = "Url";
-  return TerminalBuiltinLinkType2;
-})(TerminalBuiltinLinkType || {});
-export {
-  ITerminalLinkProviderService,
-  TerminalBuiltinLinkType
-};
-//# sourceMappingURL=links.js.map
+import{createDecorator as r}from"../../../../../platform/instantiation/common/instantiation.js";const o=r("terminalLinkProviderService");var i=(e=>(e.LocalFile="LocalFile",e.LocalFolderOutsideWorkspace="LocalFolderOutsideWorkspace",e.LocalFolderInWorkspace="LocalFolderInWorkspace",e.Search="Search",e.Url="Url",e))(i||{});export{o as ITerminalLinkProviderService,i as TerminalBuiltinLinkType};

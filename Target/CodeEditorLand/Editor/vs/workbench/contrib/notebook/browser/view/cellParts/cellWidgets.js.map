@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/contrib/notebook/browser/view/cellParts/cellWidgets.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nexport interface IClickTarget {\n\ttype: ClickTargetType;\n\tevent: MouseEvent;\n}\n\nexport enum ClickTargetType {\n\tContainer = 0,\n\tContributedTextItem = 1,\n\tContributedCommandItem = 2,\n}\n"],
-  "mappings": "AAUO,IAAK,kBAAL,kBAAKA,qBAAL;AACN,EAAAA,kCAAA,eAAY,KAAZ;AACA,EAAAA,kCAAA,yBAAsB,KAAtB;AACA,EAAAA,kCAAA,4BAAyB,KAAzB;AAHW,SAAAA;AAAA,GAAA;",
-  "names": ["ClickTargetType"]
-}

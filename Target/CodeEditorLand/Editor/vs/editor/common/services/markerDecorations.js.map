@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/editor/common/services/markerDecorations.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport type { Event } from \"../../../base/common/event.js\";\nimport type { URI } from \"../../../base/common/uri.js\";\nimport { createDecorator } from \"../../../platform/instantiation/common/instantiation.js\";\nimport type { IMarker } from \"../../../platform/markers/common/markers.js\";\nimport type { Range } from \"../core/range.js\";\nimport type { IModelDecoration, ITextModel } from \"../model.js\";\n\nexport const IMarkerDecorationsService =\n\tcreateDecorator<IMarkerDecorationsService>(\"markerDecorationsService\");\n\nexport interface IMarkerDecorationsService {\n\treadonly _serviceBrand: undefined;\n\n\tonDidChangeMarker: Event<ITextModel>;\n\n\tgetMarker(uri: URI, decoration: IModelDecoration): IMarker | null;\n\n\tgetLiveMarkers(uri: URI): [Range, IMarker][];\n}\n"],
-  "mappings": "AAOA,SAAS,uBAAuB;AAKzB,MAAM,4BACZ,gBAA2C,0BAA0B;",
-  "names": []
-}

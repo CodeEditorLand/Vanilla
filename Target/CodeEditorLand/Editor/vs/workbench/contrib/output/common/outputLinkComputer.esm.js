@@ -1,4 +1,1 @@
-import { bootstrapSimpleWorker } from "../../../../base/common/worker/simpleWorkerBootstrap.js";
-import { create } from "./outputLinkComputer.js";
-bootstrapSimpleWorker(create);
-//# sourceMappingURL=outputLinkComputer.esm.js.map
+import{bootstrapSimpleWorker as r}from"../../../../base/common/worker/simpleWorkerBootstrap.js";import{create as o}from"./outputLinkComputer.js";r(o);

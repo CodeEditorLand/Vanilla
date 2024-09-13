@@ -1,5 +1,1 @@
-const flatTestItemDelimiter = " \u203A ";
-export {
-  flatTestItemDelimiter
-};
-//# sourceMappingURL=display.js.map
+const t=" \u203A ";export{t as flatTestItemDelimiter};
