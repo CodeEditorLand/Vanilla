@@ -1,5 +1,1 @@
-var workspaceTrust_default = "../../../../../../Asset/workspaceTrust-CHBRZFKZ.svg";
-export {
-  workspaceTrust_default as default
-};
-//# sourceMappingURL=workspaceTrust.js.map
+var t="../../../../../../Asset/workspaceTrust-CHBRZFKZ.svg";export{t as default};

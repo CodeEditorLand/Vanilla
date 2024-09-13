@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/base/common/functional.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\n/**\n * Given a function, returns a function that is only calling that function once.\n */\nexport function createSingleCallFunction<T extends Function>(\n\tthis: unknown,\n\tfn: T,\n\tfnDidRunCallback?: () => void,\n): T {\n\tlet didCall = false;\n\tlet result: unknown;\n\n\treturn (() => {\n\t\tif (didCall) {\n\t\t\treturn result;\n\t\t}\n\n\t\tdidCall = true;\n\t\tif (fnDidRunCallback) {\n\t\t\ttry {\n\t\t\t\tresult = fn.apply(this, arguments);\n\t\t\t} finally {\n\t\t\t\tfnDidRunCallback();\n\t\t\t}\n\t\t} else {\n\t\t\tresult = fn.apply(this, arguments);\n\t\t}\n\n\t\treturn result;\n\t}) as unknown as T;\n}\n"],
-  "mappings": ";;AAQO,SAAS,yBAEf,IACA,kBACI;AACJ,MAAI,UAAU;AACd,MAAI;AAEJ,SAAQ,MAAM;AACb,QAAI,SAAS;AACZ,aAAO;AAAA,IACR;AAEA,cAAU;AACV,QAAI,kBAAkB;AACrB,UAAI;AACH,iBAAS,GAAG,MAAM,MAAM,SAAS;AAAA,MAClC,UAAE;AACD,yBAAiB;AAAA,MAClB;AAAA,IACD,OAAO;AACN,eAAS,GAAG,MAAM,MAAM,SAAS;AAAA,IAClC;AAEA,WAAO;AAAA,EACR;AACD;AA1BgB;",
-  "names": []
-}

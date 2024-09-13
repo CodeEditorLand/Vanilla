@@ -1,7 +1,1 @@
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { refineServiceDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-const IWorkbenchEnvironmentService = refineServiceDecorator(IEnvironmentService);
-export {
-  IWorkbenchEnvironmentService
-};
-//# sourceMappingURL=environmentService.js.map
+import{IEnvironmentService as e}from"../../../../platform/environment/common/environment.js";import{refineServiceDecorator as o}from"../../../../platform/instantiation/common/instantiation.js";const i=o(e);export{i as IWorkbenchEnvironmentService};

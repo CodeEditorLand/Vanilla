@@ -1,4 +1,1 @@
-import { IEncryptionService } from "../../../../platform/encryption/common/encryptionService.js";
-import { registerMainProcessRemoteService } from "../../../../platform/ipc/electron-sandbox/services.js";
-registerMainProcessRemoteService(IEncryptionService, "encryption");
-//# sourceMappingURL=encryptionService.js.map
+import{IEncryptionService as r}from"../../../../platform/encryption/common/encryptionService.js";import{registerMainProcessRemoteService as e}from"../../../../platform/ipc/electron-sandbox/services.js";e(r,"encryption");

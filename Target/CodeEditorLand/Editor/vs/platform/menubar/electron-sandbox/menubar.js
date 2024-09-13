@@ -1,6 +1,1 @@
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-const IMenubarService = createDecorator("menubarService");
-export {
-  IMenubarService
-};
-//# sourceMappingURL=menubar.js.map
+import{createDecorator as e}from"../../instantiation/common/instantiation.js";const n=e("menubarService");export{n as IMenubarService};

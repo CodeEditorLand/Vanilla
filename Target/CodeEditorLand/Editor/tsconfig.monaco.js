@@ -1,5 +1,1 @@
-var tsconfig_monaco_default = "./Asset/tsconfig.monaco-ODGRZC2G.json";
-export {
-  tsconfig_monaco_default as default
-};
-//# sourceMappingURL=tsconfig.monaco.js.map
+var t="./Asset/tsconfig.monaco-ODGRZC2G.json";export{t as default};

@@ -1,12 +1,1 @@
-var WorkingCopyCapabilities = /* @__PURE__ */ ((WorkingCopyCapabilities2) => {
-  WorkingCopyCapabilities2[WorkingCopyCapabilities2["None"] = 0] = "None";
-  WorkingCopyCapabilities2[WorkingCopyCapabilities2["Untitled"] = 2] = "Untitled";
-  WorkingCopyCapabilities2[WorkingCopyCapabilities2["Scratchpad"] = 4] = "Scratchpad";
-  return WorkingCopyCapabilities2;
-})(WorkingCopyCapabilities || {});
-const NO_TYPE_ID = "";
-export {
-  NO_TYPE_ID,
-  WorkingCopyCapabilities
-};
-//# sourceMappingURL=workingCopy.js.map
+var o=(e=>(e[e.None=0]="None",e[e.Untitled=2]="Untitled",e[e.Scratchpad=4]="Scratchpad",e))(o||{});const n="";export{n as NO_TYPE_ID,o as WorkingCopyCapabilities};

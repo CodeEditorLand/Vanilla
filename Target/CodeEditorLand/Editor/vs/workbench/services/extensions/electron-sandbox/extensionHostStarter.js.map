@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/services/extensions/electron-sandbox/extensionHostStarter.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport {\n\tIExtensionHostStarter,\n\tipcExtensionHostStarterChannelName,\n} from \"../../../../platform/extensions/common/extensionHostStarter.js\";\nimport { registerMainProcessRemoteService } from \"../../../../platform/ipc/electron-sandbox/services.js\";\n\nregisterMainProcessRemoteService(\n\tIExtensionHostStarter,\n\tipcExtensionHostStarterChannelName,\n);\n"],
-  "mappings": "AAKA;AAAA,EACC;AAAA,EACA;AAAA,OACM;AACP,SAAS,wCAAwC;AAEjD;AAAA,EACC;AAAA,EACA;AACD;",
-  "names": []
-}

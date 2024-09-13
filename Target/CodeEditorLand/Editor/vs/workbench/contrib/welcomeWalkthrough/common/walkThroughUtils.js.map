@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/contrib/welcomeWalkthrough/common/walkThroughUtils.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { Color, RGBA } from \"../../../../base/common/color.js\";\nimport { localize } from \"../../../../nls.js\";\nimport { registerColor } from \"../../../../platform/theme/common/colorRegistry.js\";\n\nexport const embeddedEditorBackground = registerColor(\n\t\"walkThrough.embeddedEditorBackground\",\n\t{\n\t\tdark: new Color(new RGBA(0, 0, 0, 0.4)),\n\t\tlight: \"#f4f4f4\",\n\t\thcDark: null,\n\t\thcLight: null,\n\t},\n\tlocalize(\n\t\t\"walkThrough.embeddedEditorBackground\",\n\t\t\"Background color for the embedded editors on the Interactive Playground.\",\n\t),\n);\n"],
-  "mappings": "AAKA,SAAS,OAAO,YAAY;AAC5B,SAAS,gBAAgB;AACzB,SAAS,qBAAqB;AAEvB,MAAM,2BAA2B;AAAA,EACvC;AAAA,EACA;AAAA,IACC,MAAM,IAAI,MAAM,IAAI,KAAK,GAAG,GAAG,GAAG,GAAG,CAAC;AAAA,IACtC,OAAO;AAAA,IACP,QAAQ;AAAA,IACR,SAAS;AAAA,EACV;AAAA,EACA;AAAA,IACC;AAAA,IACA;AAAA,EACD;AACD;",
-  "names": []
-}

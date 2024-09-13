@@ -1,16 +1,10 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as platform from "../../../../../base/common/platform.js";
-import { IWorkbenchEnvironmentService } from "../../../../services/environment/common/environmentService.js";
-function content(accessor) {
-  const isServerless = platform.isWeb && !accessor.get(IWorkbenchEnvironmentService).remoteAuthority;
-  return `
+import*as t from"../../../../../base/common/platform.js";import{IWorkbenchEnvironmentService as n}from"../../../../services/environment/common/environmentService.js";function i(o){const e=t.isWeb&&!o.get(n).remoteAuthority;return`
 ## Interactive Editor Playground
 The core editor in VS Code is packed with features.  This page highlights a number of them and lets you interactively try them out through the use of a number of embedded editors.  For full details on the editor features for VS Code and more head over to our [documentation](https://code.visualstudio.com/docs).
 
 * [Multi-cursor Editing](#multi-cursor-editing) - block selection, select all occurrences, add additional cursors and more.
 * [IntelliSense](#intellisense) - get code assistance and parameter suggestions for your code and external modules.
-* [Line Actions](#line-actions) - quickly move lines around to re-order your code.${isServerless ? "" : `
+* [Line Actions](#line-actions) - quickly move lines around to re-order your code.${e?"":`
 * [Rename Refactoring](#rename-refactoring) - quickly rename symbols across your code base.`}
 * [Formatting](#formatting) - keep your code looking great with inbuilt document & selection formatting.
 * [Code Folding](#code-folding) - focus on the most relevant parts of your code by folding other areas.
@@ -69,7 +63,7 @@ Since it's very common to work with the entire text in a line we provide a set o
 >**Tip:** Another very common task is to comment out a block of code - you can toggle commenting by pressing kb(editor.action.commentLine).
 
 
-${isServerless ? "" : `
+${e?"":`
 ### Rename Refactoring
 It's easy to rename a symbol such as a function name or variable name.  Hit kb(editor.action.rename) while in the symbol |Book| to rename all instances - this will occur across all files in a project. You also have |Rename Symbol| in the right-click context menu.
 
@@ -185,10 +179,4 @@ That's all for now,
 
 Happy Coding! \u{1F389}
 
-`.replace(/\|/g, "`");
-}
-__name(content, "content");
-export {
-  content as default
-};
-//# sourceMappingURL=vs_code_editor_walkthrough.js.map
+`.replace(/\|/g,"`")}export{i as default};

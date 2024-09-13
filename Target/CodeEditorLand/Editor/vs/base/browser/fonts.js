@@ -1,6 +1,1 @@
-import { isMacintosh, isWindows } from "../common/platform.js";
-const DEFAULT_FONT_FAMILY = isWindows ? '"Segoe WPC", "Segoe UI", sans-serif' : isMacintosh ? "-apple-system, BlinkMacSystemFont, sans-serif" : 'system-ui, "Ubuntu", "Droid Sans", sans-serif';
-export {
-  DEFAULT_FONT_FAMILY
-};
-//# sourceMappingURL=fonts.js.map
+import{isMacintosh as s,isWindows as e}from"../common/platform.js";const n=e?'"Segoe WPC", "Segoe UI", sans-serif':s?"-apple-system, BlinkMacSystemFont, sans-serif":'system-ui, "Ubuntu", "Droid Sans", sans-serif';export{n as DEFAULT_FONT_FAMILY};

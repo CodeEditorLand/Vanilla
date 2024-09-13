@@ -1,5 +1,1 @@
-var menuBar_default = "../../../../../../Asset/menuBar-VWJHYVJ6.svg";
-export {
-  menuBar_default as default
-};
-//# sourceMappingURL=menuBar.js.map
+var e="../../../../../../Asset/menuBar-VWJHYVJ6.svg";export{e as default};

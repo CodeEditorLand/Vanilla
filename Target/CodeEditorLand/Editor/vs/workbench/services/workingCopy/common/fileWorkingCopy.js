@@ -1,9 +1,1 @@
-var SnapshotContext = /* @__PURE__ */ ((SnapshotContext2) => {
-  SnapshotContext2[SnapshotContext2["Save"] = 1] = "Save";
-  SnapshotContext2[SnapshotContext2["Backup"] = 2] = "Backup";
-  return SnapshotContext2;
-})(SnapshotContext || {});
-export {
-  SnapshotContext
-};
-//# sourceMappingURL=fileWorkingCopy.js.map
+var o=(e=>(e[e.Save=1]="Save",e[e.Backup=2]="Backup",e))(o||{});export{o as SnapshotContext};

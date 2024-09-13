@@ -1,17 +1,1 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-class CombinedSpliceable {
-  constructor(spliceables) {
-    this.spliceables = spliceables;
-  }
-  static {
-    __name(this, "CombinedSpliceable");
-  }
-  splice(start, deleteCount, elements) {
-    this.spliceables.forEach((s) => s.splice(start, deleteCount, elements));
-  }
-}
-export {
-  CombinedSpliceable
-};
-//# sourceMappingURL=splice.js.map
+class s{constructor(e){this.spliceables=e}splice(e,l,i){this.spliceables.forEach(c=>c.splice(e,l,i))}}export{s as CombinedSpliceable};
