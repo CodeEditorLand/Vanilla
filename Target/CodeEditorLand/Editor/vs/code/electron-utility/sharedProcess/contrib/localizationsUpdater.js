@@ -1,1 +1,34 @@
-var u=Object.defineProperty;var n=Object.getOwnPropertyDescriptor;var v=(o,e,i,r)=>{for(var a=r>1?void 0:r?n(e,i):e,c=o.length-1,s;c>=0;c--)(s=o[c])&&(a=(r?s(e,i,a):s(a))||a);return r&&a&&u(e,i,a),a},p=(o,e)=>(i,r)=>e(i,r,o);import{Disposable as g}from"../../../../base/common/lifecycle.js";import{ILanguagePackService as l}from"../../../../platform/languagePacks/common/languagePacks.js";import"../../../../platform/languagePacks/node/languagePacks.js";let t=class extends g{constructor(i){super();this.localizationsService=i;this.updateLocalizations()}updateLocalizations(){this.localizationsService.update()}};t=v([p(0,l)],t);export{t as LocalizationsUpdater};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguagePackService } from "../../../../platform/languagePacks/common/languagePacks.js";
+let LocalizationsUpdater = class extends Disposable {
+  constructor(localizationsService) {
+    super();
+    this.localizationsService = localizationsService;
+    this.updateLocalizations();
+  }
+  static {
+    __name(this, "LocalizationsUpdater");
+  }
+  updateLocalizations() {
+    this.localizationsService.update();
+  }
+};
+LocalizationsUpdater = __decorateClass([
+  __decorateParam(0, ILanguagePackService)
+], LocalizationsUpdater);
+export {
+  LocalizationsUpdater
+};
+//# sourceMappingURL=localizationsUpdater.js.map

@@ -1,1 +1,63 @@
-import"../../../../base/common/cancellation.js";import"../../../../base/common/event.js";import{createDecorator as t}from"../../../../platform/instantiation/common/instantiation.js";const w=t("lifecycleService");var i=(n=>(n[n.Default=1]="Default",n[n.Last=2]="Last",n))(i||{}),d=(e=>(e[e.CLOSE=1]="CLOSE",e[e.QUIT=2]="QUIT",e[e.RELOAD=3]="RELOAD",e[e.LOAD=4]="LOAD",e))(d||{}),a=(o=>(o[o.NewWindow=1]="NewWindow",o[o.ReloadedWindow=3]="ReloadedWindow",o[o.ReopenedWindow=4]="ReopenedWindow",o))(a||{});function E(r){switch(r){case 1:return"NewWindow";case 3:return"ReloadedWindow";case 4:return"ReopenedWindow"}}var l=(e=>(e[e.Starting=1]="Starting",e[e.Ready=2]="Ready",e[e.Restored=3]="Restored",e[e.Eventually=4]="Eventually",e))(l||{});function y(r){switch(r){case 1:return"Starting";case 2:return"Ready";case 3:return"Restored";case 4:return"Eventually"}}export{w as ILifecycleService,l as LifecyclePhase,y as LifecyclePhaseToString,d as ShutdownReason,a as StartupKind,E as StartupKindToString,i as WillShutdownJoinerOrder};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const ILifecycleService = createDecorator("lifecycleService");
+var WillShutdownJoinerOrder = /* @__PURE__ */ ((WillShutdownJoinerOrder2) => {
+  WillShutdownJoinerOrder2[WillShutdownJoinerOrder2["Default"] = 1] = "Default";
+  WillShutdownJoinerOrder2[WillShutdownJoinerOrder2["Last"] = 2] = "Last";
+  return WillShutdownJoinerOrder2;
+})(WillShutdownJoinerOrder || {});
+var ShutdownReason = /* @__PURE__ */ ((ShutdownReason2) => {
+  ShutdownReason2[ShutdownReason2["CLOSE"] = 1] = "CLOSE";
+  ShutdownReason2[ShutdownReason2["QUIT"] = 2] = "QUIT";
+  ShutdownReason2[ShutdownReason2["RELOAD"] = 3] = "RELOAD";
+  ShutdownReason2[ShutdownReason2["LOAD"] = 4] = "LOAD";
+  return ShutdownReason2;
+})(ShutdownReason || {});
+var StartupKind = /* @__PURE__ */ ((StartupKind2) => {
+  StartupKind2[StartupKind2["NewWindow"] = 1] = "NewWindow";
+  StartupKind2[StartupKind2["ReloadedWindow"] = 3] = "ReloadedWindow";
+  StartupKind2[StartupKind2["ReopenedWindow"] = 4] = "ReopenedWindow";
+  return StartupKind2;
+})(StartupKind || {});
+function StartupKindToString(startupKind) {
+  switch (startupKind) {
+    case 1 /* NewWindow */:
+      return "NewWindow";
+    case 3 /* ReloadedWindow */:
+      return "ReloadedWindow";
+    case 4 /* ReopenedWindow */:
+      return "ReopenedWindow";
+  }
+}
+__name(StartupKindToString, "StartupKindToString");
+var LifecyclePhase = /* @__PURE__ */ ((LifecyclePhase2) => {
+  LifecyclePhase2[LifecyclePhase2["Starting"] = 1] = "Starting";
+  LifecyclePhase2[LifecyclePhase2["Ready"] = 2] = "Ready";
+  LifecyclePhase2[LifecyclePhase2["Restored"] = 3] = "Restored";
+  LifecyclePhase2[LifecyclePhase2["Eventually"] = 4] = "Eventually";
+  return LifecyclePhase2;
+})(LifecyclePhase || {});
+function LifecyclePhaseToString(phase) {
+  switch (phase) {
+    case 1 /* Starting */:
+      return "Starting";
+    case 2 /* Ready */:
+      return "Ready";
+    case 3 /* Restored */:
+      return "Restored";
+    case 4 /* Eventually */:
+      return "Eventually";
+  }
+}
+__name(LifecyclePhaseToString, "LifecyclePhaseToString");
+export {
+  ILifecycleService,
+  LifecyclePhase,
+  LifecyclePhaseToString,
+  ShutdownReason,
+  StartupKind,
+  StartupKindToString,
+  WillShutdownJoinerOrder
+};
+//# sourceMappingURL=lifecycle.js.map

@@ -1,1 +1,14 @@
-import"../../../base/common/event.js";import"../../../base/common/htmlContent.js";import"../../../base/common/lifecycle.js";import"../../../base/common/uri.js";import"../model.js";import"../../../platform/editor/common/editor.js";import{createDecorator as o}from"../../../platform/instantiation/common/instantiation.js";const f=o("textModelService");function E(e){return!!e.textEditorModel}export{f as ITextModelService,E as isResolvedTextEditorModel};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+const ITextModelService = createDecorator("textModelService");
+function isResolvedTextEditorModel(model) {
+  const candidate = model;
+  return !!candidate.textEditorModel;
+}
+__name(isResolvedTextEditorModel, "isResolvedTextEditorModel");
+export {
+  ITextModelService,
+  isResolvedTextEditorModel
+};
+//# sourceMappingURL=resolverService.js.map

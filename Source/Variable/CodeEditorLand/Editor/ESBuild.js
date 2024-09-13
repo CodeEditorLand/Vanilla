@@ -26,7 +26,7 @@ export default {
     plugins: [
         {
             name: "Target",
-            setup({ onStart, initialOptions: { outdir } }) {
+            setup({ onStart, onEnd, initialOptions: { outdir } }) {
                 onStart(async () => {
                     try {
                         outdir
@@ -37,6 +37,14 @@ export default {
                     }
                     catch (_Error) {
                         console.log(_Error);
+                    }
+                });
+                onEnd((result) => {
+                    if (result.errors.length > 0) {
+                        result.errors.forEach((error) => console.error(error));
+                    }
+                    if (result.warnings.length > 0) {
+                        result.warnings.forEach((warning) => console.warn(warning));
                     }
                 });
             },

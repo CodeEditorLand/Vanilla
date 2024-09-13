@@ -1,1 +1,80 @@
-var c=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var d=(t,o,e,r)=>{for(var i=r>1?void 0:r?m(o,e):o,n=t.length-1,u;n>=0;n--)(u=t[n])&&(i=(r?u(o,e,i):u(i))||i);return r&&i&&c(o,e,i),i},s=(t,o)=>(e,r)=>o(e,r,t);import"../../../../base/common/lifecycle.js";import*as l from"../../../../nls.js";import{IConfigurationService as g}from"../../../../platform/configuration/common/configuration.js";import{IDialogService as p}from"../../../../platform/dialogs/common/dialogs.js";import"../../../common/contributions.js";import{IDebugService as f}from"./debug.js";import{ILifecycleService as b}from"../../../services/lifecycle/common/lifecycle.js";let a=class{constructor(o,e,r,i){this.debugService=e;this.configurationService=r;this.dialogService=i;this.disposable=o.onBeforeShutdown(async n=>n.veto(this.shouldVetoShutdown(n.reason),"veto.debug"))}disposable;shouldVetoShutdown(o){const e=this.debugService.getModel().getSessions().filter(i=>i.parentSession===void 0);return e.length===0||this.configurationService.getValue("debug").confirmOnExit==="never"?!1:this.showWindowCloseConfirmation(e.length)}dispose(){return this.disposable.dispose()}async showWindowCloseConfirmation(o){let e;return o===1?e=l.localize("debug.debugSessionCloseConfirmationSingular","There is an active debug session, are you sure you want to stop it?"):e=l.localize("debug.debugSessionCloseConfirmationPlural","There are active debug sessions, are you sure you want to stop them?"),!(await this.dialogService.confirm({message:e,type:"warning",primaryButton:l.localize({key:"debug.stop",comment:["&& denotes a mnemonic"]},"&&Stop Debugging")})).confirmed}};a=d([s(0,b),s(1,f),s(2,g),s(3,p)],a);export{a as DebugLifecycle};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as nls from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import {
+  ILifecycleService
+} from "../../../services/lifecycle/common/lifecycle.js";
+import { IDebugService } from "./debug.js";
+let DebugLifecycle = class {
+  constructor(lifecycleService, debugService, configurationService, dialogService) {
+    this.debugService = debugService;
+    this.configurationService = configurationService;
+    this.dialogService = dialogService;
+    this.disposable = lifecycleService.onBeforeShutdown(async (e) => e.veto(this.shouldVetoShutdown(e.reason), "veto.debug"));
+  }
+  static {
+    __name(this, "DebugLifecycle");
+  }
+  disposable;
+  shouldVetoShutdown(_reason) {
+    const rootSessions = this.debugService.getModel().getSessions().filter((s) => s.parentSession === void 0);
+    if (rootSessions.length === 0) {
+      return false;
+    }
+    const shouldConfirmOnExit = this.configurationService.getValue(
+      "debug"
+    ).confirmOnExit;
+    if (shouldConfirmOnExit === "never") {
+      return false;
+    }
+    return this.showWindowCloseConfirmation(rootSessions.length);
+  }
+  dispose() {
+    return this.disposable.dispose();
+  }
+  async showWindowCloseConfirmation(numSessions) {
+    let message;
+    if (numSessions === 1) {
+      message = nls.localize(
+        "debug.debugSessionCloseConfirmationSingular",
+        "There is an active debug session, are you sure you want to stop it?"
+      );
+    } else {
+      message = nls.localize(
+        "debug.debugSessionCloseConfirmationPlural",
+        "There are active debug sessions, are you sure you want to stop them?"
+      );
+    }
+    const res = await this.dialogService.confirm({
+      message,
+      type: "warning",
+      primaryButton: nls.localize(
+        { key: "debug.stop", comment: ["&& denotes a mnemonic"] },
+        "&&Stop Debugging"
+      )
+    });
+    return !res.confirmed;
+  }
+};
+DebugLifecycle = __decorateClass([
+  __decorateParam(0, ILifecycleService),
+  __decorateParam(1, IDebugService),
+  __decorateParam(2, IConfigurationService),
+  __decorateParam(3, IDialogService)
+], DebugLifecycle);
+export {
+  DebugLifecycle
+};
+//# sourceMappingURL=debugLifecycle.js.map

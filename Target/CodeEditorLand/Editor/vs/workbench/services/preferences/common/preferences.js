@@ -1,1 +1,62 @@
-import"../../../../base/common/collections.js";import"../../../../base/common/event.js";import"../../../../base/common/filters.js";import"../../../../base/common/jsonSchema.js";import"../../../../base/common/keybindings.js";import"../../../../base/common/uri.js";import"../../../../editor/common/core/range.js";import"../../../../editor/common/editorCommon.js";import"../../../../platform/configuration/common/configuration.js";import"../../../../platform/configuration/common/configurationRegistry.js";import"../../../../platform/editor/common/editor.js";import"../../../../platform/extensions/common/extensions.js";import{createDecorator as i}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/keybinding/common/resolvedKeybindingItem.js";import{DEFAULT_EDITOR_ASSOCIATION as r}from"../../../common/editor.js";import"../../../common/editor/editorInput.js";import"./preferencesModels.js";var o=(e=>(e.Null="null",e.Enum="enum",e.String="string",e.MultilineString="multiline-string",e.Integer="integer",e.Number="number",e.Boolean="boolean",e.Array="array",e.Exclude="exclude",e.Include="include",e.Complex="complex",e.NullableInteger="nullable-integer",e.NullableNumber="nullable-number",e.Object="object",e.BooleanObject="boolean-object",e.LanguageTag="language-tag",e.ExtensionToggle="extension-toggle",e))(o||{}),s=(n=>(n[n.None=0]="None",n[n.LanguageTagSettingMatch=1]="LanguageTagSettingMatch",n[n.RemoteMatch=2]="RemoteMatch",n[n.DescriptionOrValueMatch=4]="DescriptionOrValueMatch",n[n.KeyMatch=8]="KeyMatch",n))(s||{});function q(t){return{...t,override:r.id,pinned:!0}}const W=i("preferencesService"),H="editor.contrib.defineKeybinding",Y=".vscode/settings.json",z="workbench.settings.openDefaultSettings",Q="workbench.settings.useSplitJSON",X="settings";export{z as DEFAULT_SETTINGS_EDITOR_SETTING,H as DEFINE_KEYBINDING_EDITOR_CONTRIB_ID,Y as FOLDER_SETTINGS_PATH,W as IPreferencesService,X as SETTINGS_AUTHORITY,s as SettingMatchType,o as SettingValueType,Q as USE_SPLIT_JSON_SETTING,q as validateSettingsEditorOptions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  DEFAULT_EDITOR_ASSOCIATION
+} from "../../../common/editor.js";
+var SettingValueType = /* @__PURE__ */ ((SettingValueType2) => {
+  SettingValueType2["Null"] = "null";
+  SettingValueType2["Enum"] = "enum";
+  SettingValueType2["String"] = "string";
+  SettingValueType2["MultilineString"] = "multiline-string";
+  SettingValueType2["Integer"] = "integer";
+  SettingValueType2["Number"] = "number";
+  SettingValueType2["Boolean"] = "boolean";
+  SettingValueType2["Array"] = "array";
+  SettingValueType2["Exclude"] = "exclude";
+  SettingValueType2["Include"] = "include";
+  SettingValueType2["Complex"] = "complex";
+  SettingValueType2["NullableInteger"] = "nullable-integer";
+  SettingValueType2["NullableNumber"] = "nullable-number";
+  SettingValueType2["Object"] = "object";
+  SettingValueType2["BooleanObject"] = "boolean-object";
+  SettingValueType2["LanguageTag"] = "language-tag";
+  SettingValueType2["ExtensionToggle"] = "extension-toggle";
+  return SettingValueType2;
+})(SettingValueType || {});
+var SettingMatchType = /* @__PURE__ */ ((SettingMatchType2) => {
+  SettingMatchType2[SettingMatchType2["None"] = 0] = "None";
+  SettingMatchType2[SettingMatchType2["LanguageTagSettingMatch"] = 1] = "LanguageTagSettingMatch";
+  SettingMatchType2[SettingMatchType2["RemoteMatch"] = 2] = "RemoteMatch";
+  SettingMatchType2[SettingMatchType2["DescriptionOrValueMatch"] = 4] = "DescriptionOrValueMatch";
+  SettingMatchType2[SettingMatchType2["KeyMatch"] = 8] = "KeyMatch";
+  return SettingMatchType2;
+})(SettingMatchType || {});
+function validateSettingsEditorOptions(options) {
+  return {
+    // Inherit provided options
+    ...options,
+    // Enforce some options for settings specifically
+    override: DEFAULT_EDITOR_ASSOCIATION.id,
+    pinned: true
+  };
+}
+__name(validateSettingsEditorOptions, "validateSettingsEditorOptions");
+const IPreferencesService = createDecorator("preferencesService");
+const DEFINE_KEYBINDING_EDITOR_CONTRIB_ID = "editor.contrib.defineKeybinding";
+const FOLDER_SETTINGS_PATH = ".vscode/settings.json";
+const DEFAULT_SETTINGS_EDITOR_SETTING = "workbench.settings.openDefaultSettings";
+const USE_SPLIT_JSON_SETTING = "workbench.settings.useSplitJSON";
+const SETTINGS_AUTHORITY = "settings";
+export {
+  DEFAULT_SETTINGS_EDITOR_SETTING,
+  DEFINE_KEYBINDING_EDITOR_CONTRIB_ID,
+  FOLDER_SETTINGS_PATH,
+  IPreferencesService,
+  SETTINGS_AUTHORITY,
+  SettingMatchType,
+  SettingValueType,
+  USE_SPLIT_JSON_SETTING,
+  validateSettingsEditorOptions
+};
+//# sourceMappingURL=preferences.js.map

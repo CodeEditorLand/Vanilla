@@ -1,1 +1,174 @@
-import"../common/history.js";import"../common/scm.js";import{MenuItemAction as u}from"../../../../platform/actions/common/actions.js";import"../../../../base/browser/ui/actionbar/actionbar.js";import"../../../../base/common/lifecycle.js";import{Action as p}from"../../../../base/common/actions.js";import{createActionViewItem as d,createAndFillInActionBarActions as l,createAndFillInContextMenuActions as M}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{equals as a}from"../../../../base/common/arrays.js";import{ActionViewItem as S}from"../../../../base/browser/ui/actionbar/actionViewItems.js";import{renderLabelWithIcons as C}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import"../../../../platform/commands/common/commands.js";import"../../../../editor/common/languages.js";import{reset as A}from"../../../../base/browser/dom.js";import"../../../../platform/instantiation/common/instantiation.js";import{ResourceTree as y}from"../../../../base/common/resourceTree.js";function oe(e){return Array.isArray(e.repositories)&&Array.isArray(e.visibleRepositories)}function ie(e){return!!e.provider&&!!e.input}function ne(e){return!!e.validateInput&&typeof e.value=="string"}function se(e){return e.type==="actionButton"}function I(e){return!!e.provider&&!!e.resources}function ce(e){return!!e.sourceUri&&I(e.resourceGroup)}function ue(e){return y.isResourceNode(e)&&I(e.context)}function ae(e){return e.type==="historyItemViewModel"}function Ie(e){return e.type==="historyItemLoadMore"}const m=(e,t)=>e instanceof u&&t instanceof u?e.id===t.id&&e.enabled===t.enabled&&e.hideActions?.isHidden===t.hideActions?.isHidden:e.id===t.id&&e.enabled===t.enabled;function f(e,t,r){let n=[],s=[];const c=()=>{const o=[],i=[];l(e,{shouldForwardArgs:!0},{primary:o,secondary:i},r),!(a(n,o,m)&&a(s,i,m))&&(n=o,s=i,t(o,i))};return c(),e.onDidChange(c)}function me(e,t){return f(e,r=>{t.clear(),t.push(r,{icon:!0,label:!1})},"inline")}function pe(e){const t=[],r=[];return M(e,{shouldForwardArgs:!0},{primary:t,secondary:r},"inline"),r}class v extends p{constructor(r,n){super(`statusbaraction{${r.id}}`,r.title,"",!0);this.command=r;this.commandService=n;this.tooltip=r.tooltip||""}run(){return this.commandService.executeCommand(this.command.id,...this.command.arguments||[])}}class R extends S{constructor(t,r){super(null,t,{...r,icon:!1,label:!0})}updateLabel(){this.options.label&&this.label&&A(this.label,...C(this.action.label))}}function de(e){return(t,r)=>t instanceof v?new R(t,r):d(e,t,r)}function le(e){return`${e.contextValue}:${e.label}${e.rootUri?`:${e.rootUri.toString()}`:""}`}function Me(e){return e.groups.reduce((t,r)=>t+r.resources.length,0)}export{v as StatusBarAction,pe as collectContextMenuActions,f as connectPrimaryMenu,me as connectPrimaryMenuToInlineActionBar,de as getActionViewItemProvider,le as getProviderKey,Me as getRepositoryResourceCount,se as isSCMActionButton,Ie as isSCMHistoryItemLoadMoreTreeElement,ae as isSCMHistoryItemViewModelTreeElement,ne as isSCMInput,ie as isSCMRepository,ce as isSCMResource,I as isSCMResourceGroup,ue as isSCMResourceNode,oe as isSCMViewService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { reset } from "../../../../base/browser/dom.js";
+import {
+  ActionViewItem
+} from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Action } from "../../../../base/common/actions.js";
+import { equals } from "../../../../base/common/arrays.js";
+import {
+  ResourceTree
+} from "../../../../base/common/resourceTree.js";
+import {
+  createActionViewItem,
+  createAndFillInActionBarActions,
+  createAndFillInContextMenuActions
+} from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import {
+  MenuItemAction
+} from "../../../../platform/actions/common/actions.js";
+function isSCMViewService(element) {
+  return Array.isArray(element.repositories) && Array.isArray(element.visibleRepositories);
+}
+__name(isSCMViewService, "isSCMViewService");
+function isSCMRepository(element) {
+  return !!element.provider && !!element.input;
+}
+__name(isSCMRepository, "isSCMRepository");
+function isSCMInput(element) {
+  return !!element.validateInput && typeof element.value === "string";
+}
+__name(isSCMInput, "isSCMInput");
+function isSCMActionButton(element) {
+  return element.type === "actionButton";
+}
+__name(isSCMActionButton, "isSCMActionButton");
+function isSCMResourceGroup(element) {
+  return !!element.provider && !!element.resources;
+}
+__name(isSCMResourceGroup, "isSCMResourceGroup");
+function isSCMResource(element) {
+  return !!element.sourceUri && isSCMResourceGroup(element.resourceGroup);
+}
+__name(isSCMResource, "isSCMResource");
+function isSCMResourceNode(element) {
+  return ResourceTree.isResourceNode(element) && isSCMResourceGroup(element.context);
+}
+__name(isSCMResourceNode, "isSCMResourceNode");
+function isSCMHistoryItemViewModelTreeElement(element) {
+  return element.type === "historyItemViewModel";
+}
+__name(isSCMHistoryItemViewModelTreeElement, "isSCMHistoryItemViewModelTreeElement");
+function isSCMHistoryItemLoadMoreTreeElement(element) {
+  return element.type === "historyItemLoadMore";
+}
+__name(isSCMHistoryItemLoadMoreTreeElement, "isSCMHistoryItemLoadMoreTreeElement");
+const compareActions = /* @__PURE__ */ __name((a, b) => {
+  if (a instanceof MenuItemAction && b instanceof MenuItemAction) {
+    return a.id === b.id && a.enabled === b.enabled && a.hideActions?.isHidden === b.hideActions?.isHidden;
+  }
+  return a.id === b.id && a.enabled === b.enabled;
+}, "compareActions");
+function connectPrimaryMenu(menu, callback, primaryGroup) {
+  let cachedPrimary = [];
+  let cachedSecondary = [];
+  const updateActions = /* @__PURE__ */ __name(() => {
+    const primary = [];
+    const secondary = [];
+    createAndFillInActionBarActions(
+      menu,
+      { shouldForwardArgs: true },
+      { primary, secondary },
+      primaryGroup
+    );
+    if (equals(cachedPrimary, primary, compareActions) && equals(cachedSecondary, secondary, compareActions)) {
+      return;
+    }
+    cachedPrimary = primary;
+    cachedSecondary = secondary;
+    callback(primary, secondary);
+  }, "updateActions");
+  updateActions();
+  return menu.onDidChange(updateActions);
+}
+__name(connectPrimaryMenu, "connectPrimaryMenu");
+function connectPrimaryMenuToInlineActionBar(menu, actionBar) {
+  return connectPrimaryMenu(
+    menu,
+    (primary) => {
+      actionBar.clear();
+      actionBar.push(primary, { icon: true, label: false });
+    },
+    "inline"
+  );
+}
+__name(connectPrimaryMenuToInlineActionBar, "connectPrimaryMenuToInlineActionBar");
+function collectContextMenuActions(menu) {
+  const primary = [];
+  const actions = [];
+  createAndFillInContextMenuActions(
+    menu,
+    { shouldForwardArgs: true },
+    { primary, secondary: actions },
+    "inline"
+  );
+  return actions;
+}
+__name(collectContextMenuActions, "collectContextMenuActions");
+class StatusBarAction extends Action {
+  constructor(command, commandService) {
+    super(`statusbaraction{${command.id}}`, command.title, "", true);
+    this.command = command;
+    this.commandService = commandService;
+    this.tooltip = command.tooltip || "";
+  }
+  static {
+    __name(this, "StatusBarAction");
+  }
+  run() {
+    return this.commandService.executeCommand(
+      this.command.id,
+      ...this.command.arguments || []
+    );
+  }
+}
+class StatusBarActionViewItem extends ActionViewItem {
+  static {
+    __name(this, "StatusBarActionViewItem");
+  }
+  constructor(action, options) {
+    super(null, action, { ...options, icon: false, label: true });
+  }
+  updateLabel() {
+    if (this.options.label && this.label) {
+      reset(this.label, ...renderLabelWithIcons(this.action.label));
+    }
+  }
+}
+function getActionViewItemProvider(instaService) {
+  return (action, options) => {
+    if (action instanceof StatusBarAction) {
+      return new StatusBarActionViewItem(action, options);
+    }
+    return createActionViewItem(instaService, action, options);
+  };
+}
+__name(getActionViewItemProvider, "getActionViewItemProvider");
+function getProviderKey(provider) {
+  return `${provider.contextValue}:${provider.label}${provider.rootUri ? `:${provider.rootUri.toString()}` : ""}`;
+}
+__name(getProviderKey, "getProviderKey");
+function getRepositoryResourceCount(provider) {
+  return provider.groups.reduce((r, g) => r + g.resources.length, 0);
+}
+__name(getRepositoryResourceCount, "getRepositoryResourceCount");
+export {
+  StatusBarAction,
+  collectContextMenuActions,
+  connectPrimaryMenu,
+  connectPrimaryMenuToInlineActionBar,
+  getActionViewItemProvider,
+  getProviderKey,
+  getRepositoryResourceCount,
+  isSCMActionButton,
+  isSCMHistoryItemLoadMoreTreeElement,
+  isSCMHistoryItemViewModelTreeElement,
+  isSCMInput,
+  isSCMRepository,
+  isSCMResource,
+  isSCMResourceGroup,
+  isSCMResourceNode,
+  isSCMViewService
+};
+//# sourceMappingURL=util.js.map

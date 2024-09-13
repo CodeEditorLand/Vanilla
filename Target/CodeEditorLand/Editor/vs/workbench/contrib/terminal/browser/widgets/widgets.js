@@ -1,1 +1,1 @@
-import"../../../../../base/common/lifecycle.js";
+//# sourceMappingURL=widgets.js.map

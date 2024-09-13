@@ -1,1 +1,154 @@
-import{Emitter as R,Event as E}from"../../../../../base/common/event.js";import{Disposable as U,DisposableStore as v}from"../../../../../base/common/lifecycle.js";import"../../../../../base/common/uri.js";import{UnchangedRegion as L}from"../../../../../editor/browser/widget/diffEditor/diffEditorViewModel.js";import"../../../../../editor/common/services/editorWorker.js";import"../../../../../editor/common/services/resolverService.js";import"../../../../../editor/common/services/textResourceConfiguration.js";import"../../../../../platform/configuration/common/configuration.js";import{getEditorPadding as m}from"./diffCellEditorOptions.js";import{HeightOfHiddenLinesRegionInDiffEditor as I}from"./diffElementViewModel.js";class z extends U{constructor(i,n,o,d,r){super();this.editorWorkerService=n;this.textModelResolverService=o;this.textConfigurationService=d;this.lineHeight=r;this.options=this._register(x(i))}options;static Empty={options:{enabled:!1,contextLineCount:0,minimumLineCount:0,revealLineCount:0,onDidChangeEnablement:E.None},computeEditorHeight:(i,n)=>Promise.resolve(0)};async computeEditorHeight(i,n){const{numberOfUnchangedRegions:o,numberOfVisibleLines:d}=await y(i,n,this.options,this.editorWorkerService,this.textModelResolverService,this.textConfigurationService),r=d,a=o*I;return r*this.lineHeight+m(r).top+m(r).bottom+a}}function x(e){const t=new v,i=t.add(new R),n={enabled:e.getValue("diffEditor.hideUnchangedRegions.enabled"),minimumLineCount:e.getValue("diffEditor.hideUnchangedRegions.minimumLineCount"),contextLineCount:e.getValue("diffEditor.hideUnchangedRegions.contextLineCount"),revealLineCount:e.getValue("diffEditor.hideUnchangedRegions.revealLineCount"),onDidChangeEnablement:i.event.bind(i),dispose:()=>t.dispose()};return t.add(e.onDidChangeConfiguration(o=>{o.affectsConfiguration("diffEditor.hideUnchangedRegions.minimumLineCount")&&(n.minimumLineCount=e.getValue("diffEditor.hideUnchangedRegions.minimumLineCount")),o.affectsConfiguration("diffEditor.hideUnchangedRegions.contextLineCount")&&(n.contextLineCount=e.getValue("diffEditor.hideUnchangedRegions.contextLineCount")),o.affectsConfiguration("diffEditor.hideUnchangedRegions.revealLineCount")&&(n.revealLineCount=e.getValue("diffEditor.hideUnchangedRegions.revealLineCount")),o.affectsConfiguration("diffEditor.hideUnchangedRegions.enabled")&&(n.enabled=e.getValue("diffEditor.hideUnchangedRegions.enabled"),i.fire(n.enabled))})),n}async function y(e,t,i,n,o,d){const[r,a]=await Promise.all([o.createModelReference(e),o.createModelReference(t)]);try{const f=d.getValue(e,"diffEditor.ignoreTrimWhitespace"),s=await n.computeDiff(e,t,{ignoreTrimWhitespace:f,maxComputationTimeMs:0,computeMoves:!1},"advanced"),c=r.object.textEditorModel.getLineCount(),g=a.object.textEditorModel.getLineCount(),u=s?L.fromDiffs(s.changes,c,g,i.minimumLineCount??3,i.contextLineCount??3):[],l=Math.max(c,g),h=u.length,p=l-u.reduce((C,b)=>C+b.lineCount,0);return{numberOfUnchangedRegions:h,numberOfVisibleLines:p}}finally{r.dispose(),a.dispose()}}export{z as UnchangedEditorRegionsService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../../base/common/lifecycle.js";
+import { UnchangedRegion } from "../../../../../editor/browser/widget/diffEditor/diffEditorViewModel.js";
+import { getEditorPadding } from "./diffCellEditorOptions.js";
+import { HeightOfHiddenLinesRegionInDiffEditor } from "./diffElementViewModel.js";
+class UnchangedEditorRegionsService extends Disposable {
+  constructor(configurationService, editorWorkerService, textModelResolverService, textConfigurationService, lineHeight) {
+    super();
+    this.editorWorkerService = editorWorkerService;
+    this.textModelResolverService = textModelResolverService;
+    this.textConfigurationService = textConfigurationService;
+    this.lineHeight = lineHeight;
+    this.options = this._register(
+      createHideUnchangedRegionOptions(configurationService)
+    );
+  }
+  static {
+    __name(this, "UnchangedEditorRegionsService");
+  }
+  options;
+  static Empty = {
+    options: {
+      enabled: false,
+      contextLineCount: 0,
+      minimumLineCount: 0,
+      revealLineCount: 0,
+      onDidChangeEnablement: Event.None
+    },
+    computeEditorHeight: /* @__PURE__ */ __name((_originalUri, _modifiedUri) => Promise.resolve(0), "computeEditorHeight")
+  };
+  async computeEditorHeight(originalUri, modifiedUri) {
+    const { numberOfUnchangedRegions, numberOfVisibleLines } = await computeInputUnchangedLines(
+      originalUri,
+      modifiedUri,
+      this.options,
+      this.editorWorkerService,
+      this.textModelResolverService,
+      this.textConfigurationService
+    );
+    const lineCount = numberOfVisibleLines;
+    const unchangeRegionsHeight = numberOfUnchangedRegions * HeightOfHiddenLinesRegionInDiffEditor;
+    return lineCount * this.lineHeight + getEditorPadding(lineCount).top + getEditorPadding(lineCount).bottom + unchangeRegionsHeight;
+  }
+}
+function createHideUnchangedRegionOptions(configurationService) {
+  const disposables = new DisposableStore();
+  const unchangedRegionsEnablementEmitter = disposables.add(
+    new Emitter()
+  );
+  const options = {
+    enabled: configurationService.getValue(
+      "diffEditor.hideUnchangedRegions.enabled"
+    ),
+    minimumLineCount: configurationService.getValue(
+      "diffEditor.hideUnchangedRegions.minimumLineCount"
+    ),
+    contextLineCount: configurationService.getValue(
+      "diffEditor.hideUnchangedRegions.contextLineCount"
+    ),
+    revealLineCount: configurationService.getValue(
+      "diffEditor.hideUnchangedRegions.revealLineCount"
+    ),
+    // We only care about enable/disablement.
+    // If user changes counters when a diff editor is open, we do not care, might as well ask user to reload.
+    // Simpler and almost never going to happen.
+    onDidChangeEnablement: unchangedRegionsEnablementEmitter.event.bind(
+      unchangedRegionsEnablementEmitter
+    ),
+    dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose")
+  };
+  disposables.add(
+    configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "diffEditor.hideUnchangedRegions.minimumLineCount"
+      )) {
+        options.minimumLineCount = configurationService.getValue(
+          "diffEditor.hideUnchangedRegions.minimumLineCount"
+        );
+      }
+      if (e.affectsConfiguration(
+        "diffEditor.hideUnchangedRegions.contextLineCount"
+      )) {
+        options.contextLineCount = configurationService.getValue(
+          "diffEditor.hideUnchangedRegions.contextLineCount"
+        );
+      }
+      if (e.affectsConfiguration(
+        "diffEditor.hideUnchangedRegions.revealLineCount"
+      )) {
+        options.revealLineCount = configurationService.getValue(
+          "diffEditor.hideUnchangedRegions.revealLineCount"
+        );
+      }
+      if (e.affectsConfiguration(
+        "diffEditor.hideUnchangedRegions.enabled"
+      )) {
+        options.enabled = configurationService.getValue(
+          "diffEditor.hideUnchangedRegions.enabled"
+        );
+        unchangedRegionsEnablementEmitter.fire(options.enabled);
+      }
+    })
+  );
+  return options;
+}
+__name(createHideUnchangedRegionOptions, "createHideUnchangedRegionOptions");
+async function computeInputUnchangedLines(originalUri, modifiedUri, unchangedRegionOptions, editorWorkerService, textModelResolverService, textConfigurationService) {
+  const [originalModel, modifiedModel] = await Promise.all([
+    textModelResolverService.createModelReference(originalUri),
+    textModelResolverService.createModelReference(modifiedUri)
+  ]);
+  try {
+    const ignoreTrimWhitespace = textConfigurationService.getValue(
+      originalUri,
+      "diffEditor.ignoreTrimWhitespace"
+    );
+    const diff = await editorWorkerService.computeDiff(
+      originalUri,
+      modifiedUri,
+      {
+        ignoreTrimWhitespace,
+        maxComputationTimeMs: 0,
+        computeMoves: false
+      },
+      "advanced"
+    );
+    const originalLineCount = originalModel.object.textEditorModel.getLineCount();
+    const modifiedLineCount = modifiedModel.object.textEditorModel.getLineCount();
+    const unchanged = diff ? UnchangedRegion.fromDiffs(
+      diff.changes,
+      originalLineCount,
+      modifiedLineCount,
+      unchangedRegionOptions.minimumLineCount ?? 3,
+      unchangedRegionOptions.contextLineCount ?? 3
+    ) : [];
+    const totalLines = Math.max(originalLineCount, modifiedLineCount);
+    const numberOfUnchangedRegions = unchanged.length;
+    const numberOfVisibleLines = totalLines - unchanged.reduce((prev, curr) => prev + curr.lineCount, 0);
+    return { numberOfUnchangedRegions, numberOfVisibleLines };
+  } finally {
+    originalModel.dispose();
+    modifiedModel.dispose();
+  }
+}
+__name(computeInputUnchangedLines, "computeInputUnchangedLines");
+export {
+  UnchangedEditorRegionsService
+};
+//# sourceMappingURL=unchangedEditorRegions.js.map

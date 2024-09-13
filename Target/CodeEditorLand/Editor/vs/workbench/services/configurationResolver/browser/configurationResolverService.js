@@ -1,1 +1,67 @@
-var f=Object.defineProperty;var s=Object.getOwnPropertyDescriptor;var p=(m,o,t,i)=>{for(var r=i>1?void 0:i?s(o,t):o,c=m.length-1,n;c>=0;c--)(n=m[c])&&(r=(i?n(o,t,r):n(r))||r);return i&&r&&f(o,t,r),r},e=(m,o)=>(t,i)=>o(t,i,m);import{ICommandService as d}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as u}from"../../../../platform/configuration/common/configuration.js";import{InstantiationType as g,registerSingleton as l}from"../../../../platform/instantiation/common/extensions.js";import{ILabelService as x}from"../../../../platform/label/common/label.js";import{IQuickInputService as C}from"../../../../platform/quickinput/common/quickInput.js";import{IStorageService as E}from"../../../../platform/storage/common/storage.js";import{IWorkspaceContextService as k}from"../../../../platform/workspace/common/workspace.js";import{BaseConfigurationResolverService as P}from"./baseConfigurationResolverService.js";import{IConfigurationResolverService as b}from"../common/configurationResolver.js";import{IEditorService as h}from"../../editor/common/editorService.js";import{IExtensionService as y}from"../../extensions/common/extensions.js";import{IPathService as L}from"../../path/common/pathService.js";let I=class extends P{constructor(o,t,i,r,c,n,S,a,v){super({getAppRoot:()=>{},getExecPath:()=>{}},Promise.resolve(Object.create(null)),o,t,i,r,c,n,S,a,v)}};I=p([e(0,h),e(1,u),e(2,d),e(3,k),e(4,C),e(5,x),e(6,L),e(7,y),e(8,E)],I),l(b,I,g.Delayed);export{I as ConfigurationResolverService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { IConfigurationResolverService } from "../common/configurationResolver.js";
+import { BaseConfigurationResolverService } from "./baseConfigurationResolverService.js";
+let ConfigurationResolverService = class extends BaseConfigurationResolverService {
+  static {
+    __name(this, "ConfigurationResolverService");
+  }
+  constructor(editorService, configurationService, commandService, workspaceContextService, quickInputService, labelService, pathService, extensionService, storageService) {
+    super(
+      { getAppRoot: /* @__PURE__ */ __name(() => void 0, "getAppRoot"), getExecPath: /* @__PURE__ */ __name(() => void 0, "getExecPath") },
+      Promise.resolve(/* @__PURE__ */ Object.create(null)),
+      editorService,
+      configurationService,
+      commandService,
+      workspaceContextService,
+      quickInputService,
+      labelService,
+      pathService,
+      extensionService,
+      storageService
+    );
+  }
+};
+ConfigurationResolverService = __decorateClass([
+  __decorateParam(0, IEditorService),
+  __decorateParam(1, IConfigurationService),
+  __decorateParam(2, ICommandService),
+  __decorateParam(3, IWorkspaceContextService),
+  __decorateParam(4, IQuickInputService),
+  __decorateParam(5, ILabelService),
+  __decorateParam(6, IPathService),
+  __decorateParam(7, IExtensionService),
+  __decorateParam(8, IStorageService)
+], ConfigurationResolverService);
+registerSingleton(
+  IConfigurationResolverService,
+  ConfigurationResolverService,
+  InstantiationType.Delayed
+);
+export {
+  ConfigurationResolverService
+};
+//# sourceMappingURL=configurationResolverService.js.map

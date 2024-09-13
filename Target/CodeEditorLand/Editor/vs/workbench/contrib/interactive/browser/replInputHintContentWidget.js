@@ -1,1 +1,167 @@
-var b=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var p=(h,r,i,o)=>{for(var n=o>1?void 0:o?v(r,i):r,e=h.length-1,t;e>=0;e--)(t=h[e])&&(n=(o?t(r,i,n):t(n))||n);return o&&n&&b(r,i,n),n},c=(h,r)=>(i,o)=>r(i,o,h);import*as l from"../../../../base/browser/dom.js";import{status as C}from"../../../../base/browser/ui/aria/aria.js";import{KeybindingLabel as E}from"../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";import{Event as I}from"../../../../base/common/event.js";import"../../../../base/common/keybindings.js";import{Disposable as N}from"../../../../base/common/lifecycle.js";import{OS as x}from"../../../../base/common/platform.js";import{ContentWidgetPositionPreference as S}from"../../../../editor/browser/editorBrowser.js";import{EditorOption as L}from"../../../../editor/common/config/editorOptions.js";import{localize as f}from"../../../../nls.js";import{IConfigurationService as k}from"../../../../platform/configuration/common/configuration.js";import{IKeybindingService as D}from"../../../../platform/keybinding/common/keybinding.js";import{AccessibilityVerbositySettingId as u}from"../../accessibility/browser/accessibilityConfiguration.js";import{InteractiveWindowSetting as y}from"./interactiveCommon.js";let s=class extends N{constructor(i,o,n){super();this.editor=i;this.configurationService=o;this.keybindingService=n;this._register(this.editor.onDidChangeConfiguration(t=>{this.domNode&&t.hasChanged(L.fontInfo)&&this.editor.applyFontInfo(this.domNode)}));const e=I.debounce(this.editor.onDidFocusEditorText,()=>{},500);this._register(e(()=>{this.editor.hasTextFocus()&&this.ariaLabel&&o.getValue(u.ReplInputHint)&&C(this.ariaLabel)})),this._register(o.onDidChangeConfiguration(t=>{t.affectsConfiguration(y.executeWithShiftEnter)&&this.setHint()})),this.editor.addContentWidget(this)}static ID="replInput.widget.emptyHint";domNode;ariaLabel="";getId(){return s.ID}getPosition(){return{position:{lineNumber:1,column:1},preference:[S.EXACT]}}getDomNode(){return this.domNode||(this.domNode=l.$(".empty-editor-hint"),this.domNode.style.width="max-content",this.domNode.style.paddingLeft="4px",this.setHint(),this._register(l.addDisposableListener(this.domNode,"click",()=>{this.editor.focus()})),this.editor.applyFontInfo(this.domNode)),this.domNode}setHint(){if(!this.domNode)return;for(;this.domNode.firstChild;)this.domNode.removeChild(this.domNode.firstChild);const i=l.$("div.empty-hint-text");i.style.cursor="text",i.style.whiteSpace="nowrap";const o=this.getKeybinding(),n=o?.getLabel();if(o&&n){const e=f("emptyHintText","Press {0} to execute. ",n),[t,d]=e.split(n).map(m=>{const g=l.$("span",void 0,m);return g.style.fontStyle="italic",g});i.appendChild(t);const a=new E(i,x);a.set(o),a.element.style.width="min-content",a.element.style.display="inline",i.appendChild(d),this.domNode.append(i),this.ariaLabel=e.concat(f("disableHint"," Toggle {0} in settings to disable this hint.",u.ReplInputHint))}}getKeybinding(){const i=this.keybindingService.lookupKeybindings("interactive.execute"),o=this.configurationService.getValue(y.executeWithShiftEnter),n=(e,t="")=>{const d=e.getDispatchChords(),a=t+"Enter",m=t+"[Enter]";return d.length===1&&(d[0]===a||d[0]===m)};if(o){const e=i.find(t=>n(t,"shift+"));if(e)return e}else{let e=i.find(t=>n(t));if(e||(e=this.keybindingService.lookupKeybindings("python.execInREPLEnter").find(t=>n(t)),e))return e}return i?.[0]}dispose(){super.dispose(),this.editor.removeContentWidget(this)}};s=p([c(1,k),c(2,D)],s);export{s as ReplInputHintContentWidget};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../base/browser/dom.js";
+import { status } from "../../../../base/browser/ui/aria/aria.js";
+import { KeybindingLabel } from "../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { OS } from "../../../../base/common/platform.js";
+import {
+  ContentWidgetPositionPreference
+} from "../../../../editor/browser/editorBrowser.js";
+import {
+  EditorOption
+} from "../../../../editor/common/config/editorOptions.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { InteractiveWindowSetting } from "./interactiveCommon.js";
+let ReplInputHintContentWidget = class extends Disposable {
+  constructor(editor, configurationService, keybindingService) {
+    super();
+    this.editor = editor;
+    this.configurationService = configurationService;
+    this.keybindingService = keybindingService;
+    this._register(this.editor.onDidChangeConfiguration((e) => {
+      if (this.domNode && e.hasChanged(EditorOption.fontInfo)) {
+        this.editor.applyFontInfo(this.domNode);
+      }
+    }));
+    const onDidFocusEditorText = Event.debounce(this.editor.onDidFocusEditorText, () => void 0, 500);
+    this._register(onDidFocusEditorText(() => {
+      if (this.editor.hasTextFocus() && this.ariaLabel && configurationService.getValue(AccessibilityVerbositySettingId.ReplInputHint)) {
+        status(this.ariaLabel);
+      }
+    }));
+    this._register(configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(InteractiveWindowSetting.executeWithShiftEnter)) {
+        this.setHint();
+      }
+    }));
+    this.editor.addContentWidget(this);
+  }
+  static {
+    __name(this, "ReplInputHintContentWidget");
+  }
+  static ID = "replInput.widget.emptyHint";
+  domNode;
+  ariaLabel = "";
+  getId() {
+    return ReplInputHintContentWidget.ID;
+  }
+  getPosition() {
+    return {
+      position: { lineNumber: 1, column: 1 },
+      preference: [ContentWidgetPositionPreference.EXACT]
+    };
+  }
+  getDomNode() {
+    if (!this.domNode) {
+      this.domNode = dom.$(".empty-editor-hint");
+      this.domNode.style.width = "max-content";
+      this.domNode.style.paddingLeft = "4px";
+      this.setHint();
+      this._register(
+        dom.addDisposableListener(this.domNode, "click", () => {
+          this.editor.focus();
+        })
+      );
+      this.editor.applyFontInfo(this.domNode);
+    }
+    return this.domNode;
+  }
+  setHint() {
+    if (!this.domNode) {
+      return;
+    }
+    while (this.domNode.firstChild) {
+      this.domNode.removeChild(this.domNode.firstChild);
+    }
+    const hintElement = dom.$("div.empty-hint-text");
+    hintElement.style.cursor = "text";
+    hintElement.style.whiteSpace = "nowrap";
+    const keybinding = this.getKeybinding();
+    const keybindingHintLabel = keybinding?.getLabel();
+    if (keybinding && keybindingHintLabel) {
+      const actionPart = localize(
+        "emptyHintText",
+        "Press {0} to execute. ",
+        keybindingHintLabel
+      );
+      const [before, after] = actionPart.split(keybindingHintLabel).map((fragment) => {
+        const hintPart = dom.$("span", void 0, fragment);
+        hintPart.style.fontStyle = "italic";
+        return hintPart;
+      });
+      hintElement.appendChild(before);
+      const label = new KeybindingLabel(hintElement, OS);
+      label.set(keybinding);
+      label.element.style.width = "min-content";
+      label.element.style.display = "inline";
+      hintElement.appendChild(after);
+      this.domNode.append(hintElement);
+      this.ariaLabel = actionPart.concat(
+        localize(
+          "disableHint",
+          " Toggle {0} in settings to disable this hint.",
+          AccessibilityVerbositySettingId.ReplInputHint
+        )
+      );
+    }
+  }
+  getKeybinding() {
+    const keybindings = this.keybindingService.lookupKeybindings(
+      "interactive.execute"
+    );
+    const shiftEnterConfig = this.configurationService.getValue(
+      InteractiveWindowSetting.executeWithShiftEnter
+    );
+    const hasEnterChord = /* @__PURE__ */ __name((kb, modifier = "") => {
+      const chords = kb.getDispatchChords();
+      const chord = modifier + "Enter";
+      const chordAlt = modifier + "[Enter]";
+      return chords.length === 1 && (chords[0] === chord || chords[0] === chordAlt);
+    }, "hasEnterChord");
+    if (shiftEnterConfig) {
+      const keybinding = keybindings.find(
+        (kb) => hasEnterChord(kb, "shift+")
+      );
+      if (keybinding) {
+        return keybinding;
+      }
+    } else {
+      let keybinding = keybindings.find((kb) => hasEnterChord(kb));
+      if (keybinding) {
+        return keybinding;
+      }
+      keybinding = this.keybindingService.lookupKeybindings("python.execInREPLEnter").find((kb) => hasEnterChord(kb));
+      if (keybinding) {
+        return keybinding;
+      }
+    }
+    return keybindings?.[0];
+  }
+  dispose() {
+    super.dispose();
+    this.editor.removeContentWidget(this);
+  }
+};
+ReplInputHintContentWidget = __decorateClass([
+  __decorateParam(1, IConfigurationService),
+  __decorateParam(2, IKeybindingService)
+], ReplInputHintContentWidget);
+export {
+  ReplInputHintContentWidget
+};
+//# sourceMappingURL=replInputHintContentWidget.js.map

@@ -1,1 +1,6 @@
-import"../../../base/common/event.js";import"../editorBrowser.js";import"../../common/editorCommon.js";import"../../common/model.js";import"../../../platform/editor/common/editor.js";import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";import"../../../base/common/uri.js";import"../../../base/common/lifecycle.js";const D=e("codeEditorService");export{D as ICodeEditorService};
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+const ICodeEditorService = createDecorator("codeEditorService");
+export {
+  ICodeEditorService
+};
+//# sourceMappingURL=codeEditorService.js.map

@@ -1,1 +1,21 @@
-import"../../../../platform/instantiation/common/instantiation.js";import"./userActivityService.js";class r{todo=[];add=t=>{this.todo.push(t)};take(t,i){this.add=e=>i.createInstance(e,t),this.todo.forEach(this.add),this.todo=[]}}const v=new r;export{v as userActivityRegistry};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class UserActivityRegistry {
+  static {
+    __name(this, "UserActivityRegistry");
+  }
+  todo = [];
+  add = /* @__PURE__ */ __name((ctor) => {
+    this.todo.push(ctor);
+  }, "add");
+  take(userActivityService, instantiation) {
+    this.add = (ctor) => instantiation.createInstance(ctor, userActivityService);
+    this.todo.forEach(this.add);
+    this.todo = [];
+  }
+}
+const userActivityRegistry = new UserActivityRegistry();
+export {
+  userActivityRegistry
+};
+//# sourceMappingURL=userActivityRegistry.js.map

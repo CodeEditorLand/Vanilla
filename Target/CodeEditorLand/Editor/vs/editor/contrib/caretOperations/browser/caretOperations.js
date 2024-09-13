@@ -1,1 +1,61 @@
-import"../../../browser/editorBrowser.js";import{EditorAction as d,registerEditorAction as r}from"../../../browser/editorExtensions.js";import"../../../common/editorCommon.js";import{EditorContextKeys as s}from"../../../common/editorContextKeys.js";import{MoveCaretCommand as m}from"./moveCaretCommand.js";import*as c from"../../../../nls.js";class n extends d{left;constructor(o,e){super(e),this.left=o}run(o,e){if(!e.hasModel())return;const i=[],a=e.getSelections();for(const l of a)i.push(new m(l,this.left));e.pushUndoStop(),e.executeCommands(this.id,i),e.pushUndoStop()}}class p extends n{constructor(){super(!0,{id:"editor.action.moveCarretLeftAction",label:c.localize("caret.moveLeft","Move Selected Text Left"),alias:"Move Selected Text Left",precondition:s.writable})}}class f extends n{constructor(){super(!1,{id:"editor.action.moveCarretRightAction",label:c.localize("caret.moveRight","Move Selected Text Right"),alias:"Move Selected Text Right",precondition:s.writable})}}r(p),r(f);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import {
+  EditorAction,
+  registerEditorAction
+} from "../../../browser/editorExtensions.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { MoveCaretCommand } from "./moveCaretCommand.js";
+class MoveCaretAction extends EditorAction {
+  static {
+    __name(this, "MoveCaretAction");
+  }
+  left;
+  constructor(left, opts) {
+    super(opts);
+    this.left = left;
+  }
+  run(accessor, editor) {
+    if (!editor.hasModel()) {
+      return;
+    }
+    const commands = [];
+    const selections = editor.getSelections();
+    for (const selection of selections) {
+      commands.push(new MoveCaretCommand(selection, this.left));
+    }
+    editor.pushUndoStop();
+    editor.executeCommands(this.id, commands);
+    editor.pushUndoStop();
+  }
+}
+class MoveCaretLeftAction extends MoveCaretAction {
+  static {
+    __name(this, "MoveCaretLeftAction");
+  }
+  constructor() {
+    super(true, {
+      id: "editor.action.moveCarretLeftAction",
+      label: nls.localize("caret.moveLeft", "Move Selected Text Left"),
+      alias: "Move Selected Text Left",
+      precondition: EditorContextKeys.writable
+    });
+  }
+}
+class MoveCaretRightAction extends MoveCaretAction {
+  static {
+    __name(this, "MoveCaretRightAction");
+  }
+  constructor() {
+    super(false, {
+      id: "editor.action.moveCarretRightAction",
+      label: nls.localize("caret.moveRight", "Move Selected Text Right"),
+      alias: "Move Selected Text Right",
+      precondition: EditorContextKeys.writable
+    });
+  }
+}
+registerEditorAction(MoveCaretLeftAction);
+registerEditorAction(MoveCaretRightAction);
+//# sourceMappingURL=caretOperations.js.map

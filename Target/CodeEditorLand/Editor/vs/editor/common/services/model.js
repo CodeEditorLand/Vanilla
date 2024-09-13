@@ -1,1 +1,6 @@
-import"../../../base/common/event.js";import"../../../base/common/uri.js";import"../model.js";import"../languages/language.js";import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";import"../languages.js";const M=e("modelService");export{M as IModelService};
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+const IModelService = createDecorator("modelService");
+export {
+  IModelService
+};
+//# sourceMappingURL=model.js.map

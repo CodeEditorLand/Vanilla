@@ -1,9 +1,414 @@
-var F=Object.defineProperty;var V=Object.getOwnPropertyDescriptor;var S=(h,a,t,e)=>{for(var i=e>1?void 0:e?V(a,t):a,r=h.length-1,o;r>=0;r--)(o=h[r])&&(i=(e?o(a,t,i):o(i))||i);return e&&i&&F(a,t,i),i},c=(h,a)=>(t,e)=>a(t,e,h);import{createStyleSheet2 as k}from"../../../../base/browser/dom.js";import{CancellationTokenSource as L}from"../../../../base/common/cancellation.js";import{onUnexpectedExternalError as x}from"../../../../base/common/errors.js";import{Disposable as O}from"../../../../base/common/lifecycle.js";import{autorun as g,constObservable as p,derivedDisposable as B,observableFromEvent as E,observableSignalFromEvent as b,observableValue as y,transaction as K}from"../../../../base/common/observable.js";import{ICommandService as N}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as W}from"../../../../platform/configuration/common/configuration.js";import{IContextKeyService as j,RawContextKey as P}from"../../../../platform/contextkey/common/contextkey.js";import{IInstantiationService as q}from"../../../../platform/instantiation/common/instantiation.js";import"../../../browser/editorBrowser.js";import{IDiffProviderFactoryService as M}from"../../../browser/widget/diffEditor/diffProviderFactoryService.js";import{EditorOption as I}from"../../../common/config/editorOptions.js";import{EditOperation as G}from"../../../common/core/editOperation.js";import{Position as w}from"../../../common/core/position.js";import{Range as v}from"../../../common/core/range.js";import{InlineEditTriggerKind as D}from"../../../common/languages.js";import{ILanguageFeaturesService as H}from"../../../common/services/languageFeatures.js";import{IModelService as U}from"../../../common/services/model.js";import{GhostText as Z,GhostTextPart as $}from"../../inlineCompletions/browser/model/ghostText.js";import{GhostTextWidget as z}from"./ghostTextWidget.js";import{InlineEditHintsWidget as J}from"./inlineEditHintsWidget.js";import{InlineEditSideBySideWidget as Q}from"./inlineEditSideBySideWidget.js";let u=class extends O{constructor(t,e,i,r,o,d,s,f){super();this.editor=t;this.instantiationService=e;this.contextKeyService=i;this.languageFeaturesService=r;this._commandService=o;this._configurationService=d;this._diffProviderFactoryService=s;this._modelService=f;const C=b("InlineEditController.modelContentChangedSignal",t.onDidChangeModelContent);this._register(g(n=>{this._enabled.read(n)&&(C.read(n),!this._isAccepting.read(n)&&this.getInlineEdit(t,!0))}));const m=E(this,t.onDidChangeCursorPosition,()=>t.getPosition());this._register(g(n=>{if(!this._enabled.read(n))return;const l=m.read(n);l&&this.checkCursorPosition(l)})),this._register(g(n=>{const l=this._currentEdit.read(n);if(this._isCursorAtInlineEditContext.set(!1),!l){this._isVisibleContext.set(!1);return}this._isVisibleContext.set(!0);const _=t.getPosition();_&&this.checkCursorPosition(_)}));const R=b("InlineEditController.editorBlurSignal",t.onDidBlurEditorWidget);this._register(g(async n=>{this._enabled.read(n)&&(R.read(n),!(this._configurationService.getValue("editor.experimentalInlineEdit.keepOnBlur")||t.getOption(I.inlineEdit).keepOnBlur)&&(this._currentRequestCts?.dispose(!0),this._currentRequestCts=void 0,await this.clear(!1)))}));const T=b("InlineEditController.editorFocusSignal",t.onDidFocusEditorText);this._register(g(n=>{this._enabled.read(n)&&(T.read(n),this.getInlineEdit(t,!0))}));const A=this._register(k());this._register(g(n=>{const l=this._fontFamily.read(n);A.setStyle(l===""||l==="default"?"":`
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { createStyleSheet2 } from "../../../../base/browser/dom.js";
+import {
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
+import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
+import {
+  Disposable
+} from "../../../../base/common/lifecycle.js";
+import {
+  autorun,
+  constObservable,
+  derivedDisposable,
+  observableFromEvent,
+  observableSignalFromEvent,
+  observableValue,
+  transaction
+} from "../../../../base/common/observable.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IDiffProviderFactoryService } from "../../../browser/widget/diffEditor/diffProviderFactoryService.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
+import { EditOperation } from "../../../common/core/editOperation.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import {
+  InlineEditTriggerKind
+} from "../../../common/languages.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { IModelService } from "../../../common/services/model.js";
+import {
+  GhostText,
+  GhostTextPart
+} from "../../inlineCompletions/browser/model/ghostText.js";
+import { GhostTextWidget } from "./ghostTextWidget.js";
+import { InlineEditHintsWidget } from "./inlineEditHintsWidget.js";
+import { InlineEditSideBySideWidget } from "./inlineEditSideBySideWidget.js";
+let InlineEditController = class extends Disposable {
+  constructor(editor, instantiationService, contextKeyService, languageFeaturesService, _commandService, _configurationService, _diffProviderFactoryService, _modelService) {
+    super();
+    this.editor = editor;
+    this.instantiationService = instantiationService;
+    this.contextKeyService = contextKeyService;
+    this.languageFeaturesService = languageFeaturesService;
+    this._commandService = _commandService;
+    this._configurationService = _configurationService;
+    this._diffProviderFactoryService = _diffProviderFactoryService;
+    this._modelService = _modelService;
+    const modelChangedSignal = observableSignalFromEvent("InlineEditController.modelContentChangedSignal", editor.onDidChangeModelContent);
+    this._register(autorun((reader) => {
+      if (!this._enabled.read(reader)) {
+        return;
+      }
+      modelChangedSignal.read(reader);
+      if (this._isAccepting.read(reader)) {
+        return;
+      }
+      this.getInlineEdit(editor, true);
+    }));
+    const cursorPosition = observableFromEvent(this, editor.onDidChangeCursorPosition, () => editor.getPosition());
+    this._register(autorun((reader) => {
+      if (!this._enabled.read(reader)) {
+        return;
+      }
+      const pos = cursorPosition.read(reader);
+      if (pos) {
+        this.checkCursorPosition(pos);
+      }
+    }));
+    this._register(autorun((reader) => {
+      const currentEdit = this._currentEdit.read(reader);
+      this._isCursorAtInlineEditContext.set(false);
+      if (!currentEdit) {
+        this._isVisibleContext.set(false);
+        return;
+      }
+      this._isVisibleContext.set(true);
+      const pos = editor.getPosition();
+      if (pos) {
+        this.checkCursorPosition(pos);
+      }
+    }));
+    const editorBlurSingal = observableSignalFromEvent("InlineEditController.editorBlurSignal", editor.onDidBlurEditorWidget);
+    this._register(autorun(async (reader) => {
+      if (!this._enabled.read(reader)) {
+        return;
+      }
+      editorBlurSingal.read(reader);
+      if (this._configurationService.getValue("editor.experimentalInlineEdit.keepOnBlur") || editor.getOption(EditorOption.inlineEdit).keepOnBlur) {
+        return;
+      }
+      this._currentRequestCts?.dispose(true);
+      this._currentRequestCts = void 0;
+      await this.clear(false);
+    }));
+    const editorFocusSignal = observableSignalFromEvent("InlineEditController.editorFocusSignal", editor.onDidFocusEditorText);
+    this._register(autorun((reader) => {
+      if (!this._enabled.read(reader)) {
+        return;
+      }
+      editorFocusSignal.read(reader);
+      this.getInlineEdit(editor, true);
+    }));
+    const styleElement = this._register(createStyleSheet2());
+    this._register(autorun((reader) => {
+      const fontFamily = this._fontFamily.read(reader);
+      styleElement.setStyle(fontFamily === "" || fontFamily === "default" ? `` : `
 .monaco-editor .inline-edit-decoration,
 .monaco-editor .inline-edit-decoration-preview,
 .monaco-editor .inline-edit {
-	font-family: ${l};
-}`)})),this._register(new J(this.editor,this._currentWidget,this.instantiationService)),this._register(new Q(this.editor,this._currentEdit,this.instantiationService,this._diffProviderFactoryService,this._modelService))}static ID="editor.contrib.inlineEditController";static inlineEditVisibleKey="inlineEditVisible";static inlineEditVisibleContext=new P(this.inlineEditVisibleKey,!1);_isVisibleContext=u.inlineEditVisibleContext.bindTo(this.contextKeyService);static cursorAtInlineEditKey="cursorAtInlineEdit";static cursorAtInlineEditContext=new P(this.cursorAtInlineEditKey,!1);_isCursorAtInlineEditContext=u.cursorAtInlineEditContext.bindTo(this.contextKeyService);static get(t){return t.getContribution(u.ID)}_currentEdit=y(this,void 0);_currentWidget=B(this._currentEdit,t=>{const e=this._currentEdit.read(t);if(!e)return;const i=e.range.endLineNumber,r=e.range.endColumn,o=e.text.endsWith(`
-`)&&!(e.range.startLineNumber===e.range.endLineNumber&&e.range.startColumn===e.range.endColumn)?e.text.slice(0,-1):e.text,d=new Z(i,[new $(r,o,!1)]),s=e.range.startLineNumber===e.range.endLineNumber&&d.parts.length===1&&d.parts[0].lines.length===1,f=e.text==="";return!s&&!f?void 0:this.instantiationService.createInstance(z,this.editor,{ghostText:p(d),minReservedLineCount:p(0),targetTextModel:p(this.editor.getModel()??void 0),range:p(e.range)})});_currentRequestCts;_jumpBackPosition;_isAccepting=y(this,!1);_enabled=E(this,this.editor.onDidChangeConfiguration,()=>this.editor.getOption(I.inlineEdit).enabled);_fontFamily=E(this,this.editor.onDidChangeConfiguration,()=>this.editor.getOption(I.inlineEdit).fontFamily);checkCursorPosition(t){if(!this._currentEdit){this._isCursorAtInlineEditContext.set(!1);return}const e=this._currentEdit.get();if(!e){this._isCursorAtInlineEditContext.set(!1);return}this._isCursorAtInlineEditContext.set(v.containsPosition(e.range,t))}validateInlineEdit(t,e){if(e.text.includes(`
-`)&&e.range.startLineNumber!==e.range.endLineNumber&&e.range.startColumn!==e.range.endColumn){if(e.range.startColumn!==1)return!1;const r=e.range.endLineNumber,o=e.range.endColumn,d=t.getModel()?.getLineLength(r)??0;if(o!==d+1)return!1}return!0}async fetchInlineEdit(t,e){this._currentRequestCts&&this._currentRequestCts.dispose(!0);const i=t.getModel();if(!i)return;const r=i.getVersionId(),o=this.languageFeaturesService.inlineEditProvider.all(i);if(o.length===0)return;const d=o[0];this._currentRequestCts=new L;const s=this._currentRequestCts.token,f=e?D.Automatic:D.Invoke;if(e&&await X(50,s),s.isCancellationRequested||i.isDisposed()||i.getVersionId()!==r)return;const m=await d.provideInlineEdit(i,{triggerKind:f},s);if(m&&!(s.isCancellationRequested||i.isDisposed()||i.getVersionId()!==r)&&this.validateInlineEdit(t,m))return m}async getInlineEdit(t,e){this._isCursorAtInlineEditContext.set(!1),await this.clear();const i=await this.fetchInlineEdit(t,e);i&&this._currentEdit.set(i,void 0)}async trigger(){await this.getInlineEdit(this.editor,!1)}async jumpBack(){this._jumpBackPosition&&(this.editor.setPosition(this._jumpBackPosition),this.editor.revealPositionInCenterIfOutsideViewport(this._jumpBackPosition))}async accept(){this._isAccepting.set(!0,void 0);const t=this._currentEdit.get();if(!t)return;let e=t.text;t.text.startsWith(`
-`)&&(e=t.text.substring(1)),this.editor.pushUndoStop(),this.editor.executeEdits("acceptCurrent",[G.replace(v.lift(t.range),e)]),t.accepted&&await this._commandService.executeCommand(t.accepted.id,...t.accepted.arguments||[]).then(void 0,x),this.freeEdit(t),K(i=>{this._currentEdit.set(void 0,i),this._isAccepting.set(!1,i)})}jumpToCurrent(){this._jumpBackPosition=this.editor.getSelection()?.getStartPosition();const t=this._currentEdit.get();if(!t)return;const e=w.lift({lineNumber:t.range.startLineNumber,column:t.range.startColumn});this.editor.setPosition(e),this.editor.revealPositionInCenterIfOutsideViewport(e)}async clear(t=!0){const e=this._currentEdit.get();e&&e?.rejected&&t&&await this._commandService.executeCommand(e.rejected.id,...e.rejected.arguments||[]).then(void 0,x),e&&this.freeEdit(e),this._currentEdit.set(void 0,void 0)}freeEdit(t){const e=this.editor.getModel();if(!e)return;const i=this.languageFeaturesService.inlineEditProvider.all(e);i.length!==0&&i[0].freeInlineEdit(t)}shouldShowHoverAt(t){const e=this._currentEdit.get(),i=this._currentWidget.get();if(!e||!i)return!1;const r=e,o=i.model;if(v.containsPosition(r.range,t.getStartPosition())||v.containsPosition(r.range,t.getEndPosition()))return!0;const s=o.ghostText.get();return s?s.parts.some(f=>t.containsPosition(new w(s.lineNumber,f.column))):!1}shouldShowHoverAtViewZone(t){return this._currentWidget.get()?.ownsViewZone(t)??!1}};u=S([c(1,q),c(2,j),c(3,H),c(4,N),c(5,W),c(6,M),c(7,U)],u);function X(h,a){return new Promise(t=>{let e;const i=setTimeout(()=>{e&&e.dispose(),t()},h);a&&(e=a.onCancellationRequested(()=>{clearTimeout(i),e&&e.dispose(),t()}))})}export{u as InlineEditController};
+	font-family: ${fontFamily};
+}`);
+    }));
+    this._register(new InlineEditHintsWidget(this.editor, this._currentWidget, this.instantiationService));
+    this._register(new InlineEditSideBySideWidget(this.editor, this._currentEdit, this.instantiationService, this._diffProviderFactoryService, this._modelService));
+  }
+  static {
+    __name(this, "InlineEditController");
+  }
+  static ID = "editor.contrib.inlineEditController";
+  static inlineEditVisibleKey = "inlineEditVisible";
+  static inlineEditVisibleContext = new RawContextKey(this.inlineEditVisibleKey, false);
+  _isVisibleContext = InlineEditController.inlineEditVisibleContext.bindTo(
+    this.contextKeyService
+  );
+  static cursorAtInlineEditKey = "cursorAtInlineEdit";
+  static cursorAtInlineEditContext = new RawContextKey(this.cursorAtInlineEditKey, false);
+  _isCursorAtInlineEditContext = InlineEditController.cursorAtInlineEditContext.bindTo(
+    this.contextKeyService
+  );
+  static get(editor) {
+    return editor.getContribution(
+      InlineEditController.ID
+    );
+  }
+  _currentEdit = observableValue(this, void 0);
+  _currentWidget = derivedDisposable(this._currentEdit, (reader) => {
+    const edit = this._currentEdit.read(reader);
+    if (!edit) {
+      return void 0;
+    }
+    const line = edit.range.endLineNumber;
+    const column = edit.range.endColumn;
+    const textToDisplay = edit.text.endsWith("\n") && !(edit.range.startLineNumber === edit.range.endLineNumber && edit.range.startColumn === edit.range.endColumn) ? edit.text.slice(0, -1) : edit.text;
+    const ghostText = new GhostText(line, [
+      new GhostTextPart(column, textToDisplay, false)
+    ]);
+    const isSingleLine = edit.range.startLineNumber === edit.range.endLineNumber && ghostText.parts.length === 1 && ghostText.parts[0].lines.length === 1;
+    const isPureRemoval = edit.text === "";
+    if (!isSingleLine && !isPureRemoval) {
+      return void 0;
+    }
+    const instance = this.instantiationService.createInstance(
+      GhostTextWidget,
+      this.editor,
+      {
+        ghostText: constObservable(ghostText),
+        minReservedLineCount: constObservable(0),
+        targetTextModel: constObservable(
+          this.editor.getModel() ?? void 0
+        ),
+        range: constObservable(edit.range)
+      }
+    );
+    return instance;
+  });
+  _currentRequestCts;
+  _jumpBackPosition;
+  _isAccepting = observableValue(
+    this,
+    false
+  );
+  _enabled = observableFromEvent(
+    this,
+    this.editor.onDidChangeConfiguration,
+    () => this.editor.getOption(EditorOption.inlineEdit).enabled
+  );
+  _fontFamily = observableFromEvent(
+    this,
+    this.editor.onDidChangeConfiguration,
+    () => this.editor.getOption(EditorOption.inlineEdit).fontFamily
+  );
+  checkCursorPosition(position) {
+    if (!this._currentEdit) {
+      this._isCursorAtInlineEditContext.set(false);
+      return;
+    }
+    const gt = this._currentEdit.get();
+    if (!gt) {
+      this._isCursorAtInlineEditContext.set(false);
+      return;
+    }
+    this._isCursorAtInlineEditContext.set(
+      Range.containsPosition(gt.range, position)
+    );
+  }
+  validateInlineEdit(editor, edit) {
+    if (edit.text.includes("\n") && edit.range.startLineNumber !== edit.range.endLineNumber && edit.range.startColumn !== edit.range.endColumn) {
+      const firstColumn = edit.range.startColumn;
+      if (firstColumn !== 1) {
+        return false;
+      }
+      const lastLine = edit.range.endLineNumber;
+      const lastColumn = edit.range.endColumn;
+      const lineLength = editor.getModel()?.getLineLength(lastLine) ?? 0;
+      if (lastColumn !== lineLength + 1) {
+        return false;
+      }
+    }
+    return true;
+  }
+  async fetchInlineEdit(editor, auto) {
+    if (this._currentRequestCts) {
+      this._currentRequestCts.dispose(true);
+    }
+    const model = editor.getModel();
+    if (!model) {
+      return;
+    }
+    const modelVersion = model.getVersionId();
+    const providers = this.languageFeaturesService.inlineEditProvider.all(model);
+    if (providers.length === 0) {
+      return;
+    }
+    const provider = providers[0];
+    this._currentRequestCts = new CancellationTokenSource();
+    const token = this._currentRequestCts.token;
+    const triggerKind = auto ? InlineEditTriggerKind.Automatic : InlineEditTriggerKind.Invoke;
+    const shouldDebounce = auto;
+    if (shouldDebounce) {
+      await wait(50, token);
+    }
+    if (token.isCancellationRequested || model.isDisposed() || model.getVersionId() !== modelVersion) {
+      return;
+    }
+    const edit = await provider.provideInlineEdit(
+      model,
+      { triggerKind },
+      token
+    );
+    if (!edit) {
+      return;
+    }
+    if (token.isCancellationRequested || model.isDisposed() || model.getVersionId() !== modelVersion) {
+      return;
+    }
+    if (!this.validateInlineEdit(editor, edit)) {
+      return;
+    }
+    return edit;
+  }
+  async getInlineEdit(editor, auto) {
+    this._isCursorAtInlineEditContext.set(false);
+    await this.clear();
+    const edit = await this.fetchInlineEdit(editor, auto);
+    if (!edit) {
+      return;
+    }
+    this._currentEdit.set(edit, void 0);
+  }
+  async trigger() {
+    await this.getInlineEdit(this.editor, false);
+  }
+  async jumpBack() {
+    if (!this._jumpBackPosition) {
+      return;
+    }
+    this.editor.setPosition(this._jumpBackPosition);
+    this.editor.revealPositionInCenterIfOutsideViewport(
+      this._jumpBackPosition
+    );
+  }
+  async accept() {
+    this._isAccepting.set(true, void 0);
+    const data = this._currentEdit.get();
+    if (!data) {
+      return;
+    }
+    let text = data.text;
+    if (data.text.startsWith("\n")) {
+      text = data.text.substring(1);
+    }
+    this.editor.pushUndoStop();
+    this.editor.executeEdits("acceptCurrent", [
+      EditOperation.replace(Range.lift(data.range), text)
+    ]);
+    if (data.accepted) {
+      await this._commandService.executeCommand(
+        data.accepted.id,
+        ...data.accepted.arguments || []
+      ).then(void 0, onUnexpectedExternalError);
+    }
+    this.freeEdit(data);
+    transaction((tx) => {
+      this._currentEdit.set(void 0, tx);
+      this._isAccepting.set(false, tx);
+    });
+  }
+  jumpToCurrent() {
+    this._jumpBackPosition = this.editor.getSelection()?.getStartPosition();
+    const data = this._currentEdit.get();
+    if (!data) {
+      return;
+    }
+    const position = Position.lift({
+      lineNumber: data.range.startLineNumber,
+      column: data.range.startColumn
+    });
+    this.editor.setPosition(position);
+    this.editor.revealPositionInCenterIfOutsideViewport(position);
+  }
+  async clear(sendRejection = true) {
+    const edit = this._currentEdit.get();
+    if (edit && edit?.rejected && sendRejection) {
+      await this._commandService.executeCommand(
+        edit.rejected.id,
+        ...edit.rejected.arguments || []
+      ).then(void 0, onUnexpectedExternalError);
+    }
+    if (edit) {
+      this.freeEdit(edit);
+    }
+    this._currentEdit.set(void 0, void 0);
+  }
+  freeEdit(edit) {
+    const model = this.editor.getModel();
+    if (!model) {
+      return;
+    }
+    const providers = this.languageFeaturesService.inlineEditProvider.all(model);
+    if (providers.length === 0) {
+      return;
+    }
+    providers[0].freeInlineEdit(edit);
+  }
+  shouldShowHoverAt(range) {
+    const currentEdit = this._currentEdit.get();
+    const currentWidget = this._currentWidget.get();
+    if (!currentEdit) {
+      return false;
+    }
+    if (!currentWidget) {
+      return false;
+    }
+    const edit = currentEdit;
+    const model = currentWidget.model;
+    const overReplaceRange = Range.containsPosition(edit.range, range.getStartPosition()) || Range.containsPosition(edit.range, range.getEndPosition());
+    if (overReplaceRange) {
+      return true;
+    }
+    const ghostText = model.ghostText.get();
+    if (ghostText) {
+      return ghostText.parts.some(
+        (p) => range.containsPosition(
+          new Position(ghostText.lineNumber, p.column)
+        )
+      );
+    }
+    return false;
+  }
+  shouldShowHoverAtViewZone(viewZoneId) {
+    return this._currentWidget.get()?.ownsViewZone(viewZoneId) ?? false;
+  }
+};
+InlineEditController = __decorateClass([
+  __decorateParam(1, IInstantiationService),
+  __decorateParam(2, IContextKeyService),
+  __decorateParam(3, ILanguageFeaturesService),
+  __decorateParam(4, ICommandService),
+  __decorateParam(5, IConfigurationService),
+  __decorateParam(6, IDiffProviderFactoryService),
+  __decorateParam(7, IModelService)
+], InlineEditController);
+function wait(ms, cancellationToken) {
+  return new Promise((resolve) => {
+    let d;
+    const handle = setTimeout(() => {
+      if (d) {
+        d.dispose();
+      }
+      resolve();
+    }, ms);
+    if (cancellationToken) {
+      d = cancellationToken.onCancellationRequested(() => {
+        clearTimeout(handle);
+        if (d) {
+          d.dispose();
+        }
+        resolve();
+      });
+    }
+  });
+}
+__name(wait, "wait");
+export {
+  InlineEditController
+};
+//# sourceMappingURL=inlineEditController.js.map

@@ -1,1 +1,218 @@
-var y=Object.defineProperty;var I=Object.getOwnPropertyDescriptor;var g=(n,e,t,a)=>{for(var r=a>1?void 0:a?I(e,t):e,l=n.length-1,o;l>=0;l--)(o=n[l])&&(r=(a?o(e,t,r):o(r))||r);return a&&r&&y(e,t,r),r},f=(n,e)=>(t,a)=>e(t,a,n);import*as i from"../../../../nls.js";import*as R from"../../../../base/common/path.js";import{DEFAULT_TERMINAL_OSX as b}from"../../../../platform/externalTerminal/common/externalTerminal.js";import{MenuId as w,MenuRegistry as v}from"../../../../platform/actions/common/actions.js";import{KeyMod as u,KeyCode as S}from"../../../../base/common/keyCodes.js";import{IHistoryService as T}from"../../../services/history/common/history.js";import{KeybindingsRegistry as E,KeybindingWeight as K}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{Schemas as s}from"../../../../base/common/network.js";import{Extensions as z,ConfigurationScope as d}from"../../../../platform/configuration/common/configurationRegistry.js";import{Registry as h}from"../../../../platform/registry/common/platform.js";import{Extensions as A}from"../../../common/contributions.js";import{IExternalTerminalService as x}from"../../../../platform/externalTerminal/electron-sandbox/externalTerminalService.js";import{IConfigurationService as P}from"../../../../platform/configuration/common/configuration.js";import{TerminalContextKeys as k}from"../../terminal/common/terminalContextKey.js";import{IRemoteAuthorityResolverService as W}from"../../../../platform/remote/common/remoteAuthorityResolver.js";import{LifecyclePhase as U}from"../../../services/lifecycle/common/lifecycle.js";const C="workbench.action.terminal.openNativeConsole";E.registerCommandAndKeybindingRule({id:C,primary:u.CtrlCmd|u.Shift|S.KeyC,when:k.notFocus,weight:K.WorkbenchContrib,handler:async n=>{const e=n.get(T),t=n.get(x),a=n.get(P),r=n.get(W),l=e.getLastActiveWorkspaceRoot(),o=a.getValue("terminal.external");if(l?.scheme===s.file){t.openTerminal(o,l.fsPath);return}try{if(l?.scheme===s.vscodeRemote){const c=await r.getCanonicalURI(l);if(c.scheme===s.file){t.openTerminal(o,c.fsPath);return}}}catch{}const p=e.getLastActiveFile(s.file);if(p?.scheme===s.file){t.openTerminal(o,R.dirname(p.fsPath));return}try{if(p?.scheme===s.vscodeRemote){const c=await r.getCanonicalURI(p);if(c.scheme===s.file){t.openTerminal(o,c.fsPath);return}}}catch{}t.openTerminal(o,void 0)}}),v.appendMenuItem(w.CommandPalette,{command:{id:C,title:i.localize2("globalConsoleAction","Open New External Terminal")}});let m=class{constructor(e){this._externalTerminalService=e;this._updateConfiguration()}_serviceBrand;async _updateConfiguration(){const e=await this._externalTerminalService.getDefaultTerminalForPlatforms();h.as(z.Configuration).registerConfiguration({id:"externalTerminal",order:100,title:i.localize("terminalConfigurationTitle","External Terminal"),type:"object",properties:{"terminal.explorerKind":{type:"string",enum:["integrated","external","both"],enumDescriptions:[i.localize("terminal.explorerKind.integrated","Use VS Code's integrated terminal."),i.localize("terminal.explorerKind.external","Use the configured external terminal."),i.localize("terminal.explorerKind.both","Use the other two together.")],description:i.localize("explorer.openInTerminalKind","When opening a file from the Explorer in a terminal, determines what kind of terminal will be launched"),default:"integrated"},"terminal.sourceControlRepositoriesKind":{type:"string",enum:["integrated","external","both"],enumDescriptions:[i.localize("terminal.sourceControlRepositoriesKind.integrated","Use VS Code's integrated terminal."),i.localize("terminal.sourceControlRepositoriesKind.external","Use the configured external terminal."),i.localize("terminal.sourceControlRepositoriesKind.both","Use the other two together.")],description:i.localize("sourceControlRepositories.openInTerminalKind","When opening a repository from the Source Control Repositories view in a terminal, determines what kind of terminal will be launched"),default:"integrated"},"terminal.external.windowsExec":{type:"string",description:i.localize("terminal.external.windowsExec","Customizes which terminal to run on Windows."),default:e.windows,scope:d.APPLICATION},"terminal.external.osxExec":{type:"string",description:i.localize("terminal.external.osxExec","Customizes which terminal application to run on macOS."),default:b,scope:d.APPLICATION},"terminal.external.linuxExec":{type:"string",description:i.localize("terminal.external.linuxExec","Customizes which terminal to run on Linux."),default:e.linux,scope:d.APPLICATION}}})}};m=g([f(0,x)],m);const _=h.as(A.Workbench);_.registerWorkbenchContribution(m,U.Restored);export{m as ExternalTerminalContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { Schemas } from "../../../../base/common/network.js";
+import * as paths from "../../../../base/common/path.js";
+import * as nls from "../../../../nls.js";
+import {
+  MenuId,
+  MenuRegistry
+} from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  ConfigurationScope,
+  Extensions
+} from "../../../../platform/configuration/common/configurationRegistry.js";
+import {
+  DEFAULT_TERMINAL_OSX
+} from "../../../../platform/externalTerminal/common/externalTerminal.js";
+import { IExternalTerminalService } from "../../../../platform/externalTerminal/electron-sandbox/externalTerminalService.js";
+import {
+  KeybindingWeight,
+  KeybindingsRegistry
+} from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import {
+  Extensions as WorkbenchExtensions
+} from "../../../common/contributions.js";
+import { IHistoryService } from "../../../services/history/common/history.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { TerminalContextKeys } from "../../terminal/common/terminalContextKey.js";
+const OPEN_NATIVE_CONSOLE_COMMAND_ID = "workbench.action.terminal.openNativeConsole";
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: OPEN_NATIVE_CONSOLE_COMMAND_ID,
+  primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyC,
+  when: TerminalContextKeys.notFocus,
+  weight: KeybindingWeight.WorkbenchContrib,
+  handler: /* @__PURE__ */ __name(async (accessor) => {
+    const historyService = accessor.get(IHistoryService);
+    const terminalService = accessor.get(IExternalTerminalService);
+    const configurationService = accessor.get(IConfigurationService);
+    const remoteAuthorityResolverService = accessor.get(
+      IRemoteAuthorityResolverService
+    );
+    const root = historyService.getLastActiveWorkspaceRoot();
+    const config = configurationService.getValue(
+      "terminal.external"
+    );
+    if (root?.scheme === Schemas.file) {
+      terminalService.openTerminal(config, root.fsPath);
+      return;
+    }
+    try {
+      if (root?.scheme === Schemas.vscodeRemote) {
+        const canonicalUri = await remoteAuthorityResolverService.getCanonicalURI(root);
+        if (canonicalUri.scheme === Schemas.file) {
+          terminalService.openTerminal(config, canonicalUri.fsPath);
+          return;
+        }
+      }
+    } catch {
+    }
+    const activeFile = historyService.getLastActiveFile(Schemas.file);
+    if (activeFile?.scheme === Schemas.file) {
+      terminalService.openTerminal(
+        config,
+        paths.dirname(activeFile.fsPath)
+      );
+      return;
+    }
+    try {
+      if (activeFile?.scheme === Schemas.vscodeRemote) {
+        const canonicalUri = await remoteAuthorityResolverService.getCanonicalURI(
+          activeFile
+        );
+        if (canonicalUri.scheme === Schemas.file) {
+          terminalService.openTerminal(config, canonicalUri.fsPath);
+          return;
+        }
+      }
+    } catch {
+    }
+    terminalService.openTerminal(config, void 0);
+  }, "handler")
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: OPEN_NATIVE_CONSOLE_COMMAND_ID,
+    title: nls.localize2(
+      "globalConsoleAction",
+      "Open New External Terminal"
+    )
+  }
+});
+let ExternalTerminalContribution = class {
+  constructor(_externalTerminalService) {
+    this._externalTerminalService = _externalTerminalService;
+    this._updateConfiguration();
+  }
+  static {
+    __name(this, "ExternalTerminalContribution");
+  }
+  _serviceBrand;
+  async _updateConfiguration() {
+    const terminals = await this._externalTerminalService.getDefaultTerminalForPlatforms();
+    const configurationRegistry = Registry.as(
+      Extensions.Configuration
+    );
+    configurationRegistry.registerConfiguration({
+      id: "externalTerminal",
+      order: 100,
+      title: nls.localize(
+        "terminalConfigurationTitle",
+        "External Terminal"
+      ),
+      type: "object",
+      properties: {
+        "terminal.explorerKind": {
+          type: "string",
+          enum: ["integrated", "external", "both"],
+          enumDescriptions: [
+            nls.localize(
+              "terminal.explorerKind.integrated",
+              "Use VS Code's integrated terminal."
+            ),
+            nls.localize(
+              "terminal.explorerKind.external",
+              "Use the configured external terminal."
+            ),
+            nls.localize(
+              "terminal.explorerKind.both",
+              "Use the other two together."
+            )
+          ],
+          description: nls.localize(
+            "explorer.openInTerminalKind",
+            "When opening a file from the Explorer in a terminal, determines what kind of terminal will be launched"
+          ),
+          default: "integrated"
+        },
+        "terminal.sourceControlRepositoriesKind": {
+          type: "string",
+          enum: ["integrated", "external", "both"],
+          enumDescriptions: [
+            nls.localize(
+              "terminal.sourceControlRepositoriesKind.integrated",
+              "Use VS Code's integrated terminal."
+            ),
+            nls.localize(
+              "terminal.sourceControlRepositoriesKind.external",
+              "Use the configured external terminal."
+            ),
+            nls.localize(
+              "terminal.sourceControlRepositoriesKind.both",
+              "Use the other two together."
+            )
+          ],
+          description: nls.localize(
+            "sourceControlRepositories.openInTerminalKind",
+            "When opening a repository from the Source Control Repositories view in a terminal, determines what kind of terminal will be launched"
+          ),
+          default: "integrated"
+        },
+        "terminal.external.windowsExec": {
+          type: "string",
+          description: nls.localize(
+            "terminal.external.windowsExec",
+            "Customizes which terminal to run on Windows."
+          ),
+          default: terminals.windows,
+          scope: ConfigurationScope.APPLICATION
+        },
+        "terminal.external.osxExec": {
+          type: "string",
+          description: nls.localize(
+            "terminal.external.osxExec",
+            "Customizes which terminal application to run on macOS."
+          ),
+          default: DEFAULT_TERMINAL_OSX,
+          scope: ConfigurationScope.APPLICATION
+        },
+        "terminal.external.linuxExec": {
+          type: "string",
+          description: nls.localize(
+            "terminal.external.linuxExec",
+            "Customizes which terminal to run on Linux."
+          ),
+          default: terminals.linux,
+          scope: ConfigurationScope.APPLICATION
+        }
+      }
+    });
+  }
+};
+ExternalTerminalContribution = __decorateClass([
+  __decorateParam(0, IExternalTerminalService)
+], ExternalTerminalContribution);
+const workbenchRegistry = Registry.as(
+  WorkbenchExtensions.Workbench
+);
+workbenchRegistry.registerWorkbenchContribution(
+  ExternalTerminalContribution,
+  LifecyclePhase.Restored
+);
+export {
+  ExternalTerminalContribution
+};
+//# sourceMappingURL=externalTerminal.contribution.js.map

@@ -1,1 +1,94 @@
-var p=Object.defineProperty;var y=Object.getOwnPropertyDescriptor;var c=(a,e,o,r)=>{for(var t=r>1?void 0:r?y(e,o):e,s=a.length-1,i;s>=0;s--)(i=a[s])&&(t=(r?i(e,o,t):i(t))||t);return r&&t&&p(e,o,t),t},l=(a,e)=>(o,r)=>e(o,r,a);import{createWebWorker as f}from"../../../base/browser/defaultWorkerFactory.js";import"../../../base/common/uri.js";import"../../../base/common/worker/simpleWorker.js";import{InstantiationType as g,registerSingleton as I}from"../../instantiation/common/extensions.js";import{createDecorator as d}from"../../instantiation/common/instantiation.js";import{ILogService as u}from"../../log/common/log.js";import"../common/profiling.js";import"../common/profilingModel.js";import{reportSample as P}from"../common/profilingTelemetrySpec.js";import{ITelemetryService as v}from"../../telemetry/common/telemetry.js";var U=(r=>(r[r.Failure=0]="Failure",r[r.Irrelevant=1]="Irrelevant",r[r.Interesting=2]="Interesting",r))(U||{});const S=d("IProfileAnalysisWorkerService");let n=class{constructor(e,o){this._telemetryService=e;this._logService=o}async _withWorker(e){const o=f("vs/platform/profiling/electron-sandbox/profileAnalysisWorker","CpuProfileAnalysisWorker");try{return await e(o.proxy)}finally{o.dispose()}}async analyseBottomUp(e,o,r,t){return this._withWorker(async s=>{const i=await s.$analyseBottomUp(e);if(i.kind===2)for(const m of i.samples)P({sample:m,perfBaseline:r,source:o(m.url)},this._telemetryService,this._logService,t);return i.kind})}async analyseByLocation(e,o){return this._withWorker(async r=>await r.$analyseByUrlCategory(e,o))}};n=c([l(0,v),l(1,u)],n),I(S,n,g.Delayed);export{S as IProfileAnalysisWorkerService,U as ProfilingOutput};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { createWebWorker } from "../../../base/browser/defaultWorkerFactory.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../instantiation/common/extensions.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { ILogService } from "../../log/common/log.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { reportSample } from "../common/profilingTelemetrySpec.js";
+var ProfilingOutput = /* @__PURE__ */ ((ProfilingOutput2) => {
+  ProfilingOutput2[ProfilingOutput2["Failure"] = 0] = "Failure";
+  ProfilingOutput2[ProfilingOutput2["Irrelevant"] = 1] = "Irrelevant";
+  ProfilingOutput2[ProfilingOutput2["Interesting"] = 2] = "Interesting";
+  return ProfilingOutput2;
+})(ProfilingOutput || {});
+const IProfileAnalysisWorkerService = createDecorator(
+  "IProfileAnalysisWorkerService"
+);
+let ProfileAnalysisWorkerService = class {
+  constructor(_telemetryService, _logService) {
+    this._telemetryService = _telemetryService;
+    this._logService = _logService;
+  }
+  static {
+    __name(this, "ProfileAnalysisWorkerService");
+  }
+  async _withWorker(callback) {
+    const worker = createWebWorker(
+      "vs/platform/profiling/electron-sandbox/profileAnalysisWorker",
+      "CpuProfileAnalysisWorker"
+    );
+    try {
+      const r = await callback(worker.proxy);
+      return r;
+    } finally {
+      worker.dispose();
+    }
+  }
+  async analyseBottomUp(profile, callFrameClassifier, perfBaseline, sendAsErrorTelemtry) {
+    return this._withWorker(async (worker) => {
+      const result = await worker.$analyseBottomUp(profile);
+      if (result.kind === 2 /* Interesting */) {
+        for (const sample of result.samples) {
+          reportSample(
+            {
+              sample,
+              perfBaseline,
+              source: callFrameClassifier(sample.url)
+            },
+            this._telemetryService,
+            this._logService,
+            sendAsErrorTelemtry
+          );
+        }
+      }
+      return result.kind;
+    });
+  }
+  async analyseByLocation(profile, locations) {
+    return this._withWorker(async (worker) => {
+      const result = await worker.$analyseByUrlCategory(
+        profile,
+        locations
+      );
+      return result;
+    });
+  }
+};
+ProfileAnalysisWorkerService = __decorateClass([
+  __decorateParam(0, ITelemetryService),
+  __decorateParam(1, ILogService)
+], ProfileAnalysisWorkerService);
+registerSingleton(
+  IProfileAnalysisWorkerService,
+  ProfileAnalysisWorkerService,
+  InstantiationType.Delayed
+);
+export {
+  IProfileAnalysisWorkerService,
+  ProfilingOutput
+};
+//# sourceMappingURL=profileAnalysisWorkerService.js.map

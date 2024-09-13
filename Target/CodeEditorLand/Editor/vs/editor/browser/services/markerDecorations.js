@@ -1,1 +1,39 @@
-var I=Object.defineProperty;var a=Object.getOwnPropertyDescriptor;var s=(d,r,i,t)=>{for(var o=t>1?void 0:t?a(r,i):r,m=d.length-1,n;m>=0;m--)(n=d[m])&&(o=(t?n(r,i,o):n(o))||o);return t&&o&&I(r,i,o),o},c=(d,r)=>(i,t)=>r(i,t,d);import{IMarkerDecorationsService as p}from"../../common/services/markerDecorations.js";import{EditorContributionInstantiation as E,registerEditorContribution as f}from"../editorExtensions.js";import"../editorBrowser.js";import"../../common/editorCommon.js";let e=class{static ID="editor.contrib.markerDecorations";constructor(r,i){}dispose(){}};e=s([c(1,p)],e),f(e.ID,e,E.Eager);export{e as MarkerDecorationsContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IMarkerDecorationsService } from "../../common/services/markerDecorations.js";
+import {
+  EditorContributionInstantiation,
+  registerEditorContribution
+} from "../editorExtensions.js";
+let MarkerDecorationsContribution = class {
+  static {
+    __name(this, "MarkerDecorationsContribution");
+  }
+  static ID = "editor.contrib.markerDecorations";
+  constructor(_editor, _markerDecorationsService) {
+  }
+  dispose() {
+  }
+};
+MarkerDecorationsContribution = __decorateClass([
+  __decorateParam(1, IMarkerDecorationsService)
+], MarkerDecorationsContribution);
+registerEditorContribution(
+  MarkerDecorationsContribution.ID,
+  MarkerDecorationsContribution,
+  EditorContributionInstantiation.Eager
+);
+export {
+  MarkerDecorationsContribution
+};
+//# sourceMappingURL=markerDecorations.js.map

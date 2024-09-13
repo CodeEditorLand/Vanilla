@@ -1,1 +1,85 @@
-var O=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var v=(n,e,r,o)=>{for(var i=o>1?void 0:o?h(e,r):e,s=n.length-1,a;s>=0;s--)(a=n[s])&&(i=(o?a(e,r,i):a(i))||i);return o&&i&&O(e,r,i),i},t=(n,e)=>(r,o)=>e(r,o,n);import*as S from"../../../../base/common/objects.js";import"../../editorBrowser.js";import{ICodeEditorService as E}from"../../services/codeEditorService.js";import{CodeEditorWidget as _}from"./codeEditorWidget.js";import"../../../common/config/editorOptions.js";import{ILanguageConfigurationService as w}from"../../../common/languages/languageConfigurationRegistry.js";import{ILanguageFeaturesService as l}from"../../../common/services/languageFeatures.js";import{IAccessibilityService as y}from"../../../../platform/accessibility/common/accessibility.js";import{ICommandService as x}from"../../../../platform/commands/common/commands.js";import{IContextKeyService as L}from"../../../../platform/contextkey/common/contextkey.js";import{IInstantiationService as N}from"../../../../platform/instantiation/common/instantiation.js";import{INotificationService as D}from"../../../../platform/notification/common/notification.js";import{IThemeService as P}from"../../../../platform/theme/common/themeService.js";let p=class extends _{_parentEditor;_overwriteOptions;constructor(e,r,o,i,s,a,m,d,I,g,c,u,f){super(e,{...i.getRawOptions(),overflowWidgetsDomNode:i.getOverflowWidgetsDomNode()},o,s,a,m,d,I,g,c,u,f),this._parentEditor=i,this._overwriteOptions=r,super.updateOptions(this._overwriteOptions),this._register(i.onDidChangeConfiguration(C=>this._onParentConfigurationChanged(C)))}getParentEditor(){return this._parentEditor}_onParentConfigurationChanged(e){super.updateOptions(this._parentEditor.getRawOptions()),super.updateOptions(this._overwriteOptions)}updateOptions(e){S.mixin(this._overwriteOptions,e,!0),super.updateOptions(this._overwriteOptions)}};p=v([t(4,N),t(5,E),t(6,x),t(7,L),t(8,P),t(9,D),t(10,y),t(11,w),t(12,l)],p);export{p as EmbeddedCodeEditorWidget};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as objects from "../../../../base/common/objects.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { ICodeEditorService } from "../../services/codeEditorService.js";
+import {
+  CodeEditorWidget
+} from "./codeEditorWidget.js";
+let EmbeddedCodeEditorWidget = class extends CodeEditorWidget {
+  static {
+    __name(this, "EmbeddedCodeEditorWidget");
+  }
+  _parentEditor;
+  _overwriteOptions;
+  constructor(domElement, options, codeEditorWidgetOptions, parentEditor, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService) {
+    super(
+      domElement,
+      {
+        ...parentEditor.getRawOptions(),
+        overflowWidgetsDomNode: parentEditor.getOverflowWidgetsDomNode()
+      },
+      codeEditorWidgetOptions,
+      instantiationService,
+      codeEditorService,
+      commandService,
+      contextKeyService,
+      themeService,
+      notificationService,
+      accessibilityService,
+      languageConfigurationService,
+      languageFeaturesService
+    );
+    this._parentEditor = parentEditor;
+    this._overwriteOptions = options;
+    super.updateOptions(this._overwriteOptions);
+    this._register(
+      parentEditor.onDidChangeConfiguration(
+        (e) => this._onParentConfigurationChanged(e)
+      )
+    );
+  }
+  getParentEditor() {
+    return this._parentEditor;
+  }
+  _onParentConfigurationChanged(e) {
+    super.updateOptions(this._parentEditor.getRawOptions());
+    super.updateOptions(this._overwriteOptions);
+  }
+  updateOptions(newOptions) {
+    objects.mixin(this._overwriteOptions, newOptions, true);
+    super.updateOptions(this._overwriteOptions);
+  }
+};
+EmbeddedCodeEditorWidget = __decorateClass([
+  __decorateParam(4, IInstantiationService),
+  __decorateParam(5, ICodeEditorService),
+  __decorateParam(6, ICommandService),
+  __decorateParam(7, IContextKeyService),
+  __decorateParam(8, IThemeService),
+  __decorateParam(9, INotificationService),
+  __decorateParam(10, IAccessibilityService),
+  __decorateParam(11, ILanguageConfigurationService),
+  __decorateParam(12, ILanguageFeaturesService)
+], EmbeddedCodeEditorWidget);
+export {
+  EmbeddedCodeEditorWidget
+};
+//# sourceMappingURL=embeddedCodeEditorWidget.js.map

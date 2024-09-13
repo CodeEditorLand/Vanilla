@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/contrib/performance/browser/performance.web.contribution.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { Registry } from \"../../../../platform/registry/common/platform.js\";\nimport {\n\tExtensions,\n\ttype IWorkbenchContributionsRegistry,\n} from \"../../../common/contributions.js\";\nimport { LifecyclePhase } from \"../../../services/lifecycle/common/lifecycle.js\";\nimport {\n\tBrowserResourcePerformanceMarks,\n\tBrowserStartupTimings,\n} from \"./startupTimings.js\";\n\n// -- startup timings\n\nRegistry.as<IWorkbenchContributionsRegistry>(\n\tExtensions.Workbench,\n).registerWorkbenchContribution(\n\tBrowserResourcePerformanceMarks,\n\tLifecyclePhase.Eventually,\n);\n\nRegistry.as<IWorkbenchContributionsRegistry>(\n\tExtensions.Workbench,\n).registerWorkbenchContribution(\n\tBrowserStartupTimings,\n\tLifecyclePhase.Eventually,\n);\n"],
+  "mappings": "AAKA,SAAS,gBAAgB;AACzB;AAAA,EACC;AAAA,OAEM;AACP,SAAS,sBAAsB;AAC/B;AAAA,EACC;AAAA,EACA;AAAA,OACM;AAIP,SAAS;AAAA,EACR,WAAW;AACZ,EAAE;AAAA,EACD;AAAA,EACA,eAAe;AAChB;AAEA,SAAS;AAAA,EACR,WAAW;AACZ,EAAE;AAAA,EACD;AAAA,EACA,eAAe;AAChB;",
+  "names": []
+}

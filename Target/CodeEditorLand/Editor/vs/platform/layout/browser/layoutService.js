@@ -1,1 +1,6 @@
-import"../../../base/browser/dom.js";import"../../../base/common/event.js";import"../../../base/common/lifecycle.js";import{createDecorator as e}from"../../instantiation/common/instantiation.js";const l=e("layoutService");export{l as ILayoutService};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const ILayoutService = createDecorator("layoutService");
+export {
+  ILayoutService
+};
+//# sourceMappingURL=layoutService.js.map

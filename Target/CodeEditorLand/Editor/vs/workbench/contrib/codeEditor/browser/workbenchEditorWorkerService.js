@@ -1,1 +1,49 @@
-var n=Object.defineProperty;var u=Object.getOwnPropertyDescriptor;var g=(m,r,i,o)=>{for(var e=o>1?void 0:o?u(r,i):r,a=m.length-1,c;a>=0;a--)(c=m[a])&&(e=(o?c(r,i,e):c(e))||e);return o&&e&&n(r,i,e),e},t=(m,r)=>(i,o)=>r(i,o,m);import{WorkerDescriptor as p}from"../../../../base/browser/defaultWorkerFactory.js";import{EditorWorkerService as f}from"../../../../editor/browser/services/editorWorkerService.js";import{ILanguageConfigurationService as v}from"../../../../editor/common/languages/languageConfigurationRegistry.js";import{ILanguageFeaturesService as I}from"../../../../editor/common/services/languageFeatures.js";import{IModelService as S}from"../../../../editor/common/services/model.js";import{ITextResourceConfigurationService as L}from"../../../../editor/common/services/textResourceConfiguration.js";import{ILogService as x}from"../../../../platform/log/common/log.js";let s=class extends f{constructor(r,i,o,e,a){const c=new p("vs/editor/common/services/editorSimpleWorker","TextEditorWorker");super(c,r,i,o,e,a)}};s=g([t(0,S),t(1,L),t(2,x),t(3,v),t(4,I)],s);export{s as WorkbenchEditorWorkerService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { WorkerDescriptor } from "../../../../base/browser/defaultWorkerFactory.js";
+import { EditorWorkerService } from "../../../../editor/browser/services/editorWorkerService.js";
+import { ILanguageConfigurationService } from "../../../../editor/common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+let WorkbenchEditorWorkerService = class extends EditorWorkerService {
+  static {
+    __name(this, "WorkbenchEditorWorkerService");
+  }
+  constructor(modelService, configurationService, logService, languageConfigurationService, languageFeaturesService) {
+    const workerDescriptor = new WorkerDescriptor(
+      "vs/editor/common/services/editorSimpleWorker",
+      "TextEditorWorker"
+    );
+    super(
+      workerDescriptor,
+      modelService,
+      configurationService,
+      logService,
+      languageConfigurationService,
+      languageFeaturesService
+    );
+  }
+};
+WorkbenchEditorWorkerService = __decorateClass([
+  __decorateParam(0, IModelService),
+  __decorateParam(1, ITextResourceConfigurationService),
+  __decorateParam(2, ILogService),
+  __decorateParam(3, ILanguageConfigurationService),
+  __decorateParam(4, ILanguageFeaturesService)
+], WorkbenchEditorWorkerService);
+export {
+  WorkbenchEditorWorkerService
+};
+//# sourceMappingURL=workbenchEditorWorkerService.js.map

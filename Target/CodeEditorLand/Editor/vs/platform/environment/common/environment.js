@@ -1,1 +1,11 @@
-import"../../../base/common/uri.js";import"./argv.js";import{createDecorator as e,refineServiceDecorator as n}from"../../instantiation/common/instantiation.js";const o=e("environmentService"),c=n(o);export{o as IEnvironmentService,c as INativeEnvironmentService};
+import {
+  createDecorator,
+  refineServiceDecorator
+} from "../../instantiation/common/instantiation.js";
+const IEnvironmentService = createDecorator("environmentService");
+const INativeEnvironmentService = refineServiceDecorator(IEnvironmentService);
+export {
+  IEnvironmentService,
+  INativeEnvironmentService
+};
+//# sourceMappingURL=environment.js.map

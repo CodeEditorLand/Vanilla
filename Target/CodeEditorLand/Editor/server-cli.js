@@ -1,1 +1,32 @@
-import"./bootstrap-server.js";import*as o from"path";import{fileURLToPath as t}from"url";import*as s from"./bootstrap-node.js";import*as _ from"./bootstrap-amd.js";import{resolveNLSConfiguration as a}from"./vs/base/node/nls.js";import{product as n}from"./bootstrap-meta.js";const e=o.dirname(t(import.meta.url));async function i(){const r=await a({userLocale:"en",osLocale:"en",commit:n.commit,userDataPath:"",nlsMetadataPath:e});process.env.VSCODE_NLS_CONFIG=JSON.stringify(r),process.env.VSCODE_DEV?(process.env.VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH=process.env.VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH||o.join(e,"..","remote","node_modules"),s.devInjectNodeModuleLookupPath(process.env.VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH)):delete process.env.VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH,_.load("vs/server/node/server.cli")}i();
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./bootstrap-server.js";
+import * as path from "path";
+import { fileURLToPath } from "url";
+import * as bootstrapAmd from "./bootstrap-amd.js";
+import { product } from "./bootstrap-meta.js";
+import * as bootstrapNode from "./bootstrap-node.js";
+import { resolveNLSConfiguration } from "./vs/base/node/nls.js";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+async function start() {
+  const nlsConfiguration = await resolveNLSConfiguration({
+    userLocale: "en",
+    osLocale: "en",
+    commit: product.commit,
+    userDataPath: "",
+    nlsMetadataPath: __dirname
+  });
+  process.env["VSCODE_NLS_CONFIG"] = JSON.stringify(nlsConfiguration);
+  if (process.env["VSCODE_DEV"]) {
+    process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"] = process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"] || path.join(__dirname, "..", "remote", "node_modules");
+    bootstrapNode.devInjectNodeModuleLookupPath(
+      process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"]
+    );
+  } else {
+    delete process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"];
+  }
+  bootstrapAmd.load("vs/server/node/server.cli");
+}
+__name(start, "start");
+start();
+//# sourceMappingURL=server-cli.js.map

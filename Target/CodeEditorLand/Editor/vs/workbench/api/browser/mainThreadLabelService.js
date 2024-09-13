@@ -1,1 +1,48 @@
-var p=Object.defineProperty;var c=Object.getOwnPropertyDescriptor;var l=(s,o,e,r)=>{for(var t=r>1?void 0:r?c(o,e):o,i=s.length-1,m;i>=0;i--)(m=s[i])&&(t=(r?m(o,e,t):m(t))||t);return r&&t&&p(o,e,t),t},b=(s,o)=>(e,r)=>o(e,r,s);import{Disposable as n,DisposableMap as u}from"../../../base/common/lifecycle.js";import{ILabelService as d}from"../../../platform/label/common/label.js";import{MainContext as L}from"../common/extHost.protocol.js";import{extHostNamedCustomer as v}from"../../services/extensions/common/extHostCustomers.js";let a=class extends n{constructor(e,r){super();this._labelService=r}_resourceLabelFormatters=this._register(new u);$registerResourceLabelFormatter(e,r){r.priority=!0;const t=this._labelService.registerCachedFormatter(r);this._resourceLabelFormatters.set(e,t)}$unregisterResourceLabelFormatter(e){this._resourceLabelFormatters.deleteAndDispose(e)}};a=l([v(L.MainThreadLabelService),b(1,d)],a);export{a as MainThreadLabelService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
+import {
+  ILabelService
+} from "../../../platform/label/common/label.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  MainContext
+} from "../common/extHost.protocol.js";
+let MainThreadLabelService = class extends Disposable {
+  constructor(_, _labelService) {
+    super();
+    this._labelService = _labelService;
+  }
+  _resourceLabelFormatters = this._register(
+    new DisposableMap()
+  );
+  $registerResourceLabelFormatter(handle, formatter) {
+    formatter.priority = true;
+    const disposable = this._labelService.registerCachedFormatter(formatter);
+    this._resourceLabelFormatters.set(handle, disposable);
+  }
+  $unregisterResourceLabelFormatter(handle) {
+    this._resourceLabelFormatters.deleteAndDispose(handle);
+  }
+};
+__name(MainThreadLabelService, "MainThreadLabelService");
+MainThreadLabelService = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadLabelService),
+  __decorateParam(1, ILabelService)
+], MainThreadLabelService);
+export {
+  MainThreadLabelService
+};
+//# sourceMappingURL=mainThreadLabelService.js.map

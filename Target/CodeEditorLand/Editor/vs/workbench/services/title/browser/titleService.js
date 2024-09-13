@@ -1,1 +1,6 @@
-import{createDecorator as r}from"../../../../platform/instantiation/common/instantiation.js";import"../../../browser/parts/titlebar/titlebarPart.js";import"../../editor/common/editorGroupsService.js";const l=r("titleService");export{l as ITitleService};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const ITitleService = createDecorator("titleService");
+export {
+  ITitleService
+};
+//# sourceMappingURL=titleService.js.map

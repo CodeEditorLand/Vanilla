@@ -1,1 +1,23 @@
-import{createDecorator as o}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/editor/common/editor.js";import"../../../common/editor.js";import"../../../common/editor/editorInput.js";import"../../../../base/common/event.js";import"../../../../editor/common/editorCommon.js";import{isEditorGroup as r}from"./editorGroupsService.js";import"../../../../base/common/uri.js";import"../../../common/editor/editorGroupModel.js";import"../../../../base/common/lifecycle.js";const M=o("editorService"),w=-1,L=-2,j=-3;function q(e){return typeof e=="number"||r(e)}export{w as ACTIVE_GROUP,j as AUX_WINDOW_GROUP,M as IEditorService,L as SIDE_GROUP,q as isPreferredGroup};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  isEditorGroup
+} from "./editorGroupsService.js";
+const IEditorService = createDecorator("editorService");
+const ACTIVE_GROUP = -1;
+const SIDE_GROUP = -2;
+const AUX_WINDOW_GROUP = -3;
+function isPreferredGroup(obj) {
+  const candidate = obj;
+  return typeof obj === "number" || isEditorGroup(candidate);
+}
+__name(isPreferredGroup, "isPreferredGroup");
+export {
+  ACTIVE_GROUP,
+  AUX_WINDOW_GROUP,
+  IEditorService,
+  SIDE_GROUP,
+  isPreferredGroup
+};
+//# sourceMappingURL=editorService.js.map

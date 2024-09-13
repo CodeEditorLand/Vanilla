@@ -1,1 +1,1 @@
-import"../common/event.js";
+//# sourceMappingURL=history.js.map

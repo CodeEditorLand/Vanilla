@@ -1,1 +1,564 @@
-import{equals as W}from"./arrays.js";import{isThenable as S}from"./async.js";import{CharCode as I}from"./charCode.js";import{isEqualOrParent as _}from"./extpath.js";import{LRUCache as q}from"./map.js";import{basename as F,extname as j,posix as w,sep as b}from"./path.js";import{isLinux as H}from"./platform.js";import{escapeRegExpCharacters as R,ltrim as N}from"./strings.js";function ge(){return Object.create(null)}const h="**",$="/",x="[/\\\\]",E="[^/\\\\]",V=/\//g;function v(n,t){switch(n){case 0:return"";case 1:return`${E}*?`;default:return`(?:${x}|${E}+${x}${t?`|${x}${E}+`:""})*?`}}function O(n,t){if(!n)return[];const e=[];let i=!1,s=!1,o="";for(const f of n){switch(f){case t:if(!i&&!s){e.push(o),o="";continue}break;case"{":i=!0;break;case"}":i=!1;break;case"[":s=!0;break;case"]":s=!1;break}o+=f}return o&&e.push(o),e}function G(n){if(!n)return"";let t="";const e=O(n,$);if(e.every(i=>i===h))t=".*";else{let i=!1;e.forEach((s,o)=>{if(s===h){if(i)return;t+=v(2,o===e.length-1)}else{let f=!1,r="",a=!1,u="";for(const l of s){if(l!=="}"&&f){r+=l;continue}if(a&&(l!=="]"||!u)){let c;l==="-"?c=l:(l==="^"||l==="!")&&!u?c="^":l===$?c="":c=R(l),u+=c;continue}switch(l){case"{":f=!0;continue;case"[":a=!0;continue;case"}":{const g=`(?:${O(r,",").map(P=>G(P)).join("|")})`;t+=g,f=!1,r="";break}case"]":{t+="["+u+"]",a=!1,u="";break}case"?":t+=E;continue;case"*":t+=v(1);continue;default:t+=R(l)}}o<e.length-1&&(e[o+1]!==h||o+2<e.length)&&(t+=x)}i=s===h})}return t}const U=/^\*\*\/\*\.[\w\.-]+$/,X=/^\*\*\/([\w\.-]+)\/?$/,D=/^{\*\*\/\*?[\w\.-]+\/?(,\*\*\/\*?[\w\.-]+\/?)*}$/,K=/^{\*\*\/\*?[\w\.-]+(\/(\*\*)?)?(,\*\*\/\*?[\w\.-]+(\/(\*\*)?)?)*}$/,M=/^\*\*((\/[\w\.-]+)+)\/?$/,z=/^([\w\.-]+(\/[\w\.-]+)*)\/?$/,A=new q(1e4),k=function(){return!1},p=function(){return null};function y(n,t){if(!n)return p;let e;typeof n!="string"?e=n.pattern:e=n,e=e.trim();const i=`${e}_${!!t.trimForExclusions}`;let s=A.get(i);if(s)return T(s,n);let o;return U.test(e)?s=J(e.substr(4),e):(o=X.exec(B(e,t)))?s=Q(o[1],e):(t.trimForExclusions?K:D).test(e)?s=Y(e,t):(o=M.exec(B(e,t)))?s=L(o[1].substr(1),e,!0):(o=z.exec(B(e,t)))?s=L(o[1],e,!1):s=Z(e),A.set(i,s),T(s,n)}function T(n,t){if(typeof t=="string")return n;const e=function(i,s){return _(i,t.base,!H)?n(N(i.substr(t.base.length),b),s):null};return e.allBasenames=n.allBasenames,e.allPaths=n.allPaths,e.basenames=n.basenames,e.patterns=n.patterns,e}function B(n,t){return t.trimForExclusions&&n.endsWith("/**")?n.substr(0,n.length-2):n}function J(n,t){return function(e,i){return typeof e=="string"&&e.endsWith(n)?t:null}}function Q(n,t){const e=`/${n}`,i=`\\${n}`,s=function(f,r){return typeof f!="string"?null:r?r===n?t:null:f===n||f.endsWith(e)||f.endsWith(i)?t:null},o=[n];return s.basenames=o,s.patterns=[t],s.allBasenames=o,s}function Y(n,t){const e=C(n.slice(1,-1).split(",").map(r=>y(r,t)).filter(r=>r!==p),n),i=e.length;if(!i)return p;if(i===1)return e[0];const s=function(r,a){for(let u=0,l=e.length;u<l;u++)if(e[u](r,a))return n;return null},o=e.find(r=>!!r.allBasenames);o&&(s.allBasenames=o.allBasenames);const f=e.reduce((r,a)=>a.allPaths?r.concat(a.allPaths):r,[]);return f.length&&(s.allPaths=f),s}function L(n,t,e){const i=b===w.sep,s=i?n:n.replace(V,b),o=b+s,f=w.sep+n;let r;return e?r=function(a,u){return typeof a=="string"&&(a===s||a.endsWith(o)||!i&&(a===n||a.endsWith(f)))?t:null}:r=function(a,u){return typeof a=="string"&&(a===s||!i&&a===n)?t:null},r.allPaths=[(e?"*/":"./")+n],r}function Z(n){try{const t=new RegExp(`^${G(n)}$`);return function(e){return t.lastIndex=0,typeof e=="string"&&t.test(e)?n:null}}catch{return p}}function Pe(n,t,e){return!n||typeof t!="string"?!1:ee(n)(t,void 0,e)}function ee(n,t={}){if(!n)return k;if(typeof n=="string"||ne(n)){const e=y(n,t);if(e===p)return k;const i=function(s,o){return!!e(s,o)};return e.allBasenames&&(i.allBasenames=e.allBasenames),e.allPaths&&(i.allPaths=e.allPaths),i}return te(n,t)}function ne(n){const t=n;return t?typeof t.base=="string"&&typeof t.pattern=="string":!1}function pe(n){return n.allBasenames||[]}function me(n){return n.allPaths||[]}function te(n,t){const e=C(Object.getOwnPropertyNames(n).map(r=>re(r,n[r],t)).filter(r=>r!==p)),i=e.length;if(!i)return p;if(!e.some(r=>!!r.requiresSiblings)){if(i===1)return e[0];const r=function(l,c){let g;for(let P=0,d=e.length;P<d;P++){const m=e[P](l,c);if(typeof m=="string")return m;S(m)&&(g||(g=[]),g.push(m))}return g?(async()=>{for(const P of g){const d=await P;if(typeof d=="string")return d}return null})():null},a=e.find(l=>!!l.allBasenames);a&&(r.allBasenames=a.allBasenames);const u=e.reduce((l,c)=>c.allPaths?l.concat(c.allPaths):l,[]);return u.length&&(r.allPaths=u),r}const s=function(r,a,u){let l,c;for(let g=0,P=e.length;g<P;g++){const d=e[g];d.requiresSiblings&&u&&(a||(a=F(r)),l||(l=a.substr(0,a.length-j(r).length)));const m=d(r,a,l,u);if(typeof m=="string")return m;S(m)&&(c||(c=[]),c.push(m))}return c?(async()=>{for(const g of c){const P=await g;if(typeof P=="string")return P}return null})():null},o=e.find(r=>!!r.allBasenames);o&&(s.allBasenames=o.allBasenames);const f=e.reduce((r,a)=>a.allPaths?r.concat(a.allPaths):r,[]);return f.length&&(s.allPaths=f),s}function re(n,t,e){if(t===!1)return p;const i=y(n,e);if(i===p)return p;if(typeof t=="boolean")return i;if(t){const s=t.when;if(typeof s=="string"){const o=(f,r,a,u)=>{if(!u||!i(f,r))return null;const l=s.replace("$(basename)",()=>a),c=u(l);return S(c)?c.then(g=>g?n:null):c?n:null};return o.requiresSiblings=!0,o}}return i}function C(n,t){const e=n.filter(r=>!!r.basenames);if(e.length<2)return n;const i=e.reduce((r,a)=>{const u=a.basenames;return u?r.concat(u):r},[]);let s;if(t){s=[];for(let r=0,a=i.length;r<a;r++)s.push(t)}else s=e.reduce((r,a)=>{const u=a.patterns;return u?r.concat(u):r},[]);const o=function(r,a){if(typeof r!="string")return null;if(!a){let l;for(l=r.length;l>0;l--){const c=r.charCodeAt(l-1);if(c===I.Slash||c===I.Backslash)break}a=r.substr(l)}const u=i.indexOf(a);return u!==-1?s[u]:null};o.basenames=i,o.patterns=s,o.allBasenames=i;const f=n.filter(r=>!r.basenames);return f.push(o),f}function de(n,t){return W(n,t,(e,i)=>typeof e=="string"&&typeof i=="string"?e===i:typeof e!="string"&&typeof i!="string"?e.base===i.base&&e.pattern===i.pattern:!1)}export{h as GLOBSTAR,$ as GLOB_SPLIT,pe as getBasenameTerms,ge as getEmptyExpression,me as getPathTerms,ne as isRelativePattern,Pe as match,ee as parse,de as patternsEquals,O as splitGlobAware};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { equals } from "./arrays.js";
+import { isThenable } from "./async.js";
+import { CharCode } from "./charCode.js";
+import { isEqualOrParent } from "./extpath.js";
+import { LRUCache } from "./map.js";
+import { basename, extname, posix, sep } from "./path.js";
+import { isLinux } from "./platform.js";
+import { escapeRegExpCharacters, ltrim } from "./strings.js";
+function getEmptyExpression() {
+  return /* @__PURE__ */ Object.create(null);
+}
+__name(getEmptyExpression, "getEmptyExpression");
+const GLOBSTAR = "**";
+const GLOB_SPLIT = "/";
+const PATH_REGEX = "[/\\\\]";
+const NO_PATH_REGEX = "[^/\\\\]";
+const ALL_FORWARD_SLASHES = /\//g;
+function starsToRegExp(starCount, isLastPattern) {
+  switch (starCount) {
+    case 0:
+      return "";
+    case 1:
+      return `${NO_PATH_REGEX}*?`;
+    // 1 star matches any number of characters except path separator (/ and \) - non greedy (?)
+    default:
+      return `(?:${PATH_REGEX}|${NO_PATH_REGEX}+${PATH_REGEX}${isLastPattern ? `|${PATH_REGEX}${NO_PATH_REGEX}+` : ""})*?`;
+  }
+}
+__name(starsToRegExp, "starsToRegExp");
+function splitGlobAware(pattern, splitChar) {
+  if (!pattern) {
+    return [];
+  }
+  const segments = [];
+  let inBraces = false;
+  let inBrackets = false;
+  let curVal = "";
+  for (const char of pattern) {
+    switch (char) {
+      case splitChar:
+        if (!inBraces && !inBrackets) {
+          segments.push(curVal);
+          curVal = "";
+          continue;
+        }
+        break;
+      case "{":
+        inBraces = true;
+        break;
+      case "}":
+        inBraces = false;
+        break;
+      case "[":
+        inBrackets = true;
+        break;
+      case "]":
+        inBrackets = false;
+        break;
+    }
+    curVal += char;
+  }
+  if (curVal) {
+    segments.push(curVal);
+  }
+  return segments;
+}
+__name(splitGlobAware, "splitGlobAware");
+function parseRegExp(pattern) {
+  if (!pattern) {
+    return "";
+  }
+  let regEx = "";
+  const segments = splitGlobAware(pattern, GLOB_SPLIT);
+  if (segments.every((segment) => segment === GLOBSTAR)) {
+    regEx = ".*";
+  } else {
+    let previousSegmentWasGlobStar = false;
+    segments.forEach((segment, index) => {
+      if (segment === GLOBSTAR) {
+        if (previousSegmentWasGlobStar) {
+          return;
+        }
+        regEx += starsToRegExp(2, index === segments.length - 1);
+      } else {
+        let inBraces = false;
+        let braceVal = "";
+        let inBrackets = false;
+        let bracketVal = "";
+        for (const char of segment) {
+          if (char !== "}" && inBraces) {
+            braceVal += char;
+            continue;
+          }
+          if (inBrackets && (char !== "]" || !bracketVal)) {
+            let res;
+            if (char === "-") {
+              res = char;
+            } else if ((char === "^" || char === "!") && !bracketVal) {
+              res = "^";
+            } else if (char === GLOB_SPLIT) {
+              res = "";
+            } else {
+              res = escapeRegExpCharacters(char);
+            }
+            bracketVal += res;
+            continue;
+          }
+          switch (char) {
+            case "{":
+              inBraces = true;
+              continue;
+            case "[":
+              inBrackets = true;
+              continue;
+            case "}": {
+              const choices = splitGlobAware(braceVal, ",");
+              const braceRegExp = `(?:${choices.map((choice) => parseRegExp(choice)).join("|")})`;
+              regEx += braceRegExp;
+              inBraces = false;
+              braceVal = "";
+              break;
+            }
+            case "]": {
+              regEx += "[" + bracketVal + "]";
+              inBrackets = false;
+              bracketVal = "";
+              break;
+            }
+            case "?":
+              regEx += NO_PATH_REGEX;
+              continue;
+            case "*":
+              regEx += starsToRegExp(1);
+              continue;
+            default:
+              regEx += escapeRegExpCharacters(char);
+          }
+        }
+        if (index < segments.length - 1 && // more segments to come after this
+        (segments[index + 1] !== GLOBSTAR || // next segment is not **, or...
+        index + 2 < segments.length)) {
+          regEx += PATH_REGEX;
+        }
+      }
+      previousSegmentWasGlobStar = segment === GLOBSTAR;
+    });
+  }
+  return regEx;
+}
+__name(parseRegExp, "parseRegExp");
+const T1 = /^\*\*\/\*\.[\w.-]+$/;
+const T2 = /^\*\*\/([\w.-]+)\/?$/;
+const T3 = /^{\*\*\/\*?[\w.-]+\/?(,\*\*\/\*?[\w.-]+\/?)*}$/;
+const T3_2 = /^{\*\*\/\*?[\w.-]+(\/(\*\*)?)?(,\*\*\/\*?[\w.-]+(\/(\*\*)?)?)*}$/;
+const T4 = /^\*\*((\/[\w.-]+)+)\/?$/;
+const T5 = /^([\w.-]+(\/[\w.-]+)*)\/?$/;
+const CACHE = new LRUCache(1e4);
+const FALSE = /* @__PURE__ */ __name(() => false, "FALSE");
+const NULL = /* @__PURE__ */ __name(() => null, "NULL");
+function parsePattern(arg1, options) {
+  if (!arg1) {
+    return NULL;
+  }
+  let pattern;
+  if (typeof arg1 !== "string") {
+    pattern = arg1.pattern;
+  } else {
+    pattern = arg1;
+  }
+  pattern = pattern.trim();
+  const patternKey = `${pattern}_${!!options.trimForExclusions}`;
+  let parsedPattern = CACHE.get(patternKey);
+  if (parsedPattern) {
+    return wrapRelativePattern(parsedPattern, arg1);
+  }
+  let match2;
+  if (T1.test(pattern)) {
+    parsedPattern = trivia1(pattern.substr(4), pattern);
+  } else if (match2 = T2.exec(trimForExclusions(pattern, options))) {
+    parsedPattern = trivia2(match2[1], pattern);
+  } else if ((options.trimForExclusions ? T3_2 : T3).test(pattern)) {
+    parsedPattern = trivia3(pattern, options);
+  } else if (match2 = T4.exec(trimForExclusions(pattern, options))) {
+    parsedPattern = trivia4and5(match2[1].substr(1), pattern, true);
+  } else if (match2 = T5.exec(trimForExclusions(pattern, options))) {
+    parsedPattern = trivia4and5(match2[1], pattern, false);
+  } else {
+    parsedPattern = toRegExp(pattern);
+  }
+  CACHE.set(patternKey, parsedPattern);
+  return wrapRelativePattern(parsedPattern, arg1);
+}
+__name(parsePattern, "parsePattern");
+function wrapRelativePattern(parsedPattern, arg2) {
+  if (typeof arg2 === "string") {
+    return parsedPattern;
+  }
+  const wrappedPattern = /* @__PURE__ */ __name((path, basename2) => {
+    if (!isEqualOrParent(path, arg2.base, !isLinux)) {
+      return null;
+    }
+    return parsedPattern(
+      ltrim(path.substr(arg2.base.length), sep),
+      basename2
+    );
+  }, "wrappedPattern");
+  wrappedPattern.allBasenames = parsedPattern.allBasenames;
+  wrappedPattern.allPaths = parsedPattern.allPaths;
+  wrappedPattern.basenames = parsedPattern.basenames;
+  wrappedPattern.patterns = parsedPattern.patterns;
+  return wrappedPattern;
+}
+__name(wrapRelativePattern, "wrapRelativePattern");
+function trimForExclusions(pattern, options) {
+  return options.trimForExclusions && pattern.endsWith("/**") ? pattern.substr(0, pattern.length - 2) : pattern;
+}
+__name(trimForExclusions, "trimForExclusions");
+function trivia1(base, pattern) {
+  return (path, basename2) => typeof path === "string" && path.endsWith(base) ? pattern : null;
+}
+__name(trivia1, "trivia1");
+function trivia2(base, pattern) {
+  const slashBase = `/${base}`;
+  const backslashBase = `\\${base}`;
+  const parsedPattern = /* @__PURE__ */ __name((path, basename2) => {
+    if (typeof path !== "string") {
+      return null;
+    }
+    if (basename2) {
+      return basename2 === base ? pattern : null;
+    }
+    return path === base || path.endsWith(slashBase) || path.endsWith(backslashBase) ? pattern : null;
+  }, "parsedPattern");
+  const basenames = [base];
+  parsedPattern.basenames = basenames;
+  parsedPattern.patterns = [pattern];
+  parsedPattern.allBasenames = basenames;
+  return parsedPattern;
+}
+__name(trivia2, "trivia2");
+function trivia3(pattern, options) {
+  const parsedPatterns = aggregateBasenameMatches(
+    pattern.slice(1, -1).split(",").map((pattern2) => parsePattern(pattern2, options)).filter((pattern2) => pattern2 !== NULL),
+    pattern
+  );
+  const patternsLength = parsedPatterns.length;
+  if (!patternsLength) {
+    return NULL;
+  }
+  if (patternsLength === 1) {
+    return parsedPatterns[0];
+  }
+  const parsedPattern = /* @__PURE__ */ __name((path, basename2) => {
+    for (let i = 0, n = parsedPatterns.length; i < n; i++) {
+      if (parsedPatterns[i](path, basename2)) {
+        return pattern;
+      }
+    }
+    return null;
+  }, "parsedPattern");
+  const withBasenames = parsedPatterns.find(
+    (pattern2) => !!pattern2.allBasenames
+  );
+  if (withBasenames) {
+    parsedPattern.allBasenames = withBasenames.allBasenames;
+  }
+  const allPaths = parsedPatterns.reduce(
+    (all, current) => current.allPaths ? all.concat(current.allPaths) : all,
+    []
+  );
+  if (allPaths.length) {
+    parsedPattern.allPaths = allPaths;
+  }
+  return parsedPattern;
+}
+__name(trivia3, "trivia3");
+function trivia4and5(targetPath, pattern, matchPathEnds) {
+  const usingPosixSep = sep === posix.sep;
+  const nativePath = usingPosixSep ? targetPath : targetPath.replace(ALL_FORWARD_SLASHES, sep);
+  const nativePathEnd = sep + nativePath;
+  const targetPathEnd = posix.sep + targetPath;
+  let parsedPattern;
+  if (matchPathEnds) {
+    parsedPattern = /* @__PURE__ */ __name((path, basename2) => typeof path === "string" && (path === nativePath || path.endsWith(nativePathEnd) || !usingPosixSep && (path === targetPath || path.endsWith(targetPathEnd))) ? pattern : null, "parsedPattern");
+  } else {
+    parsedPattern = /* @__PURE__ */ __name((path, basename2) => typeof path === "string" && (path === nativePath || !usingPosixSep && path === targetPath) ? pattern : null, "parsedPattern");
+  }
+  parsedPattern.allPaths = [(matchPathEnds ? "*/" : "./") + targetPath];
+  return parsedPattern;
+}
+__name(trivia4and5, "trivia4and5");
+function toRegExp(pattern) {
+  try {
+    const regExp = new RegExp(`^${parseRegExp(pattern)}$`);
+    return (path) => {
+      regExp.lastIndex = 0;
+      return typeof path === "string" && regExp.test(path) ? pattern : null;
+    };
+  } catch (error) {
+    return NULL;
+  }
+}
+__name(toRegExp, "toRegExp");
+function match(arg1, path, hasSibling) {
+  if (!arg1 || typeof path !== "string") {
+    return false;
+  }
+  return parse(arg1)(path, void 0, hasSibling);
+}
+__name(match, "match");
+function parse(arg1, options = {}) {
+  if (!arg1) {
+    return FALSE;
+  }
+  if (typeof arg1 === "string" || isRelativePattern(arg1)) {
+    const parsedPattern = parsePattern(arg1, options);
+    if (parsedPattern === NULL) {
+      return FALSE;
+    }
+    const resultPattern = /* @__PURE__ */ __name((path, basename2) => !!parsedPattern(path, basename2), "resultPattern");
+    if (parsedPattern.allBasenames) {
+      resultPattern.allBasenames = parsedPattern.allBasenames;
+    }
+    if (parsedPattern.allPaths) {
+      resultPattern.allPaths = parsedPattern.allPaths;
+    }
+    return resultPattern;
+  }
+  return parsedExpression(arg1, options);
+}
+__name(parse, "parse");
+function isRelativePattern(obj) {
+  const rp = obj;
+  if (!rp) {
+    return false;
+  }
+  return typeof rp.base === "string" && typeof rp.pattern === "string";
+}
+__name(isRelativePattern, "isRelativePattern");
+function getBasenameTerms(patternOrExpression) {
+  return patternOrExpression.allBasenames || [];
+}
+__name(getBasenameTerms, "getBasenameTerms");
+function getPathTerms(patternOrExpression) {
+  return patternOrExpression.allPaths || [];
+}
+__name(getPathTerms, "getPathTerms");
+function parsedExpression(expression, options) {
+  const parsedPatterns = aggregateBasenameMatches(
+    Object.getOwnPropertyNames(expression).map(
+      (pattern) => parseExpressionPattern(pattern, expression[pattern], options)
+    ).filter((pattern) => pattern !== NULL)
+  );
+  const patternsLength = parsedPatterns.length;
+  if (!patternsLength) {
+    return NULL;
+  }
+  if (!parsedPatterns.some(
+    (parsedPattern) => !!parsedPattern.requiresSiblings
+  )) {
+    if (patternsLength === 1) {
+      return parsedPatterns[0];
+    }
+    const resultExpression2 = /* @__PURE__ */ __name((path, basename2) => {
+      let resultPromises;
+      for (let i = 0, n = parsedPatterns.length; i < n; i++) {
+        const result = parsedPatterns[i](path, basename2);
+        if (typeof result === "string") {
+          return result;
+        }
+        if (isThenable(result)) {
+          if (!resultPromises) {
+            resultPromises = [];
+          }
+          resultPromises.push(result);
+        }
+      }
+      if (resultPromises) {
+        return (async () => {
+          for (const resultPromise of resultPromises) {
+            const result = await resultPromise;
+            if (typeof result === "string") {
+              return result;
+            }
+          }
+          return null;
+        })();
+      }
+      return null;
+    }, "resultExpression");
+    const withBasenames2 = parsedPatterns.find(
+      (pattern) => !!pattern.allBasenames
+    );
+    if (withBasenames2) {
+      resultExpression2.allBasenames = withBasenames2.allBasenames;
+    }
+    const allPaths2 = parsedPatterns.reduce(
+      (all, current) => current.allPaths ? all.concat(current.allPaths) : all,
+      []
+    );
+    if (allPaths2.length) {
+      resultExpression2.allPaths = allPaths2;
+    }
+    return resultExpression2;
+  }
+  const resultExpression = /* @__PURE__ */ __name((path, base, hasSibling) => {
+    let name;
+    let resultPromises;
+    for (let i = 0, n = parsedPatterns.length; i < n; i++) {
+      const parsedPattern = parsedPatterns[i];
+      if (parsedPattern.requiresSiblings && hasSibling) {
+        if (!base) {
+          base = basename(path);
+        }
+        if (!name) {
+          name = base.substr(0, base.length - extname(path).length);
+        }
+      }
+      const result = parsedPattern(path, base, name, hasSibling);
+      if (typeof result === "string") {
+        return result;
+      }
+      if (isThenable(result)) {
+        if (!resultPromises) {
+          resultPromises = [];
+        }
+        resultPromises.push(result);
+      }
+    }
+    if (resultPromises) {
+      return (async () => {
+        for (const resultPromise of resultPromises) {
+          const result = await resultPromise;
+          if (typeof result === "string") {
+            return result;
+          }
+        }
+        return null;
+      })();
+    }
+    return null;
+  }, "resultExpression");
+  const withBasenames = parsedPatterns.find(
+    (pattern) => !!pattern.allBasenames
+  );
+  if (withBasenames) {
+    resultExpression.allBasenames = withBasenames.allBasenames;
+  }
+  const allPaths = parsedPatterns.reduce(
+    (all, current) => current.allPaths ? all.concat(current.allPaths) : all,
+    []
+  );
+  if (allPaths.length) {
+    resultExpression.allPaths = allPaths;
+  }
+  return resultExpression;
+}
+__name(parsedExpression, "parsedExpression");
+function parseExpressionPattern(pattern, value, options) {
+  if (value === false) {
+    return NULL;
+  }
+  const parsedPattern = parsePattern(pattern, options);
+  if (parsedPattern === NULL) {
+    return NULL;
+  }
+  if (typeof value === "boolean") {
+    return parsedPattern;
+  }
+  if (value) {
+    const when = value.when;
+    if (typeof when === "string") {
+      const result = /* @__PURE__ */ __name((path, basename2, name, hasSibling) => {
+        if (!hasSibling || !parsedPattern(path, basename2)) {
+          return null;
+        }
+        const clausePattern = when.replace("$(basename)", () => name);
+        const matched = hasSibling(clausePattern);
+        return isThenable(matched) ? matched.then((match2) => match2 ? pattern : null) : matched ? pattern : null;
+      }, "result");
+      result.requiresSiblings = true;
+      return result;
+    }
+  }
+  return parsedPattern;
+}
+__name(parseExpressionPattern, "parseExpressionPattern");
+function aggregateBasenameMatches(parsedPatterns, result) {
+  const basenamePatterns = parsedPatterns.filter(
+    (parsedPattern) => !!parsedPattern.basenames
+  );
+  if (basenamePatterns.length < 2) {
+    return parsedPatterns;
+  }
+  const basenames = basenamePatterns.reduce((all, current) => {
+    const basenames2 = current.basenames;
+    return basenames2 ? all.concat(basenames2) : all;
+  }, []);
+  let patterns;
+  if (result) {
+    patterns = [];
+    for (let i = 0, n = basenames.length; i < n; i++) {
+      patterns.push(result);
+    }
+  } else {
+    patterns = basenamePatterns.reduce((all, current) => {
+      const patterns2 = current.patterns;
+      return patterns2 ? all.concat(patterns2) : all;
+    }, []);
+  }
+  const aggregate = /* @__PURE__ */ __name((path, basename2) => {
+    if (typeof path !== "string") {
+      return null;
+    }
+    if (!basename2) {
+      let i;
+      for (i = path.length; i > 0; i--) {
+        const ch = path.charCodeAt(i - 1);
+        if (ch === CharCode.Slash || ch === CharCode.Backslash) {
+          break;
+        }
+      }
+      basename2 = path.substr(i);
+    }
+    const index = basenames.indexOf(basename2);
+    return index !== -1 ? patterns[index] : null;
+  }, "aggregate");
+  aggregate.basenames = basenames;
+  aggregate.patterns = patterns;
+  aggregate.allBasenames = basenames;
+  const aggregatedPatterns = parsedPatterns.filter(
+    (parsedPattern) => !parsedPattern.basenames
+  );
+  aggregatedPatterns.push(aggregate);
+  return aggregatedPatterns;
+}
+__name(aggregateBasenameMatches, "aggregateBasenameMatches");
+function patternsEquals(patternsA, patternsB) {
+  return equals(patternsA, patternsB, (a, b) => {
+    if (typeof a === "string" && typeof b === "string") {
+      return a === b;
+    }
+    if (typeof a !== "string" && typeof b !== "string") {
+      return a.base === b.base && a.pattern === b.pattern;
+    }
+    return false;
+  });
+}
+__name(patternsEquals, "patternsEquals");
+export {
+  GLOBSTAR,
+  GLOB_SPLIT,
+  getBasenameTerms,
+  getEmptyExpression,
+  getPathTerms,
+  isRelativePattern,
+  match,
+  parse,
+  patternsEquals,
+  splitGlobAware
+};
+//# sourceMappingURL=glob.js.map

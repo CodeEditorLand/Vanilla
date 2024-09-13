@@ -1,1 +1,5 @@
-var s="../Asset/README-CDCBBWT5.md";export{s as default};
+var README_default = "../Asset/README-CDCBBWT5.md";
+export {
+  README_default as default
+};
+//# sourceMappingURL=README.js.map

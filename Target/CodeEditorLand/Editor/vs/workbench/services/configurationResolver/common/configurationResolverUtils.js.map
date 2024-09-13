@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/services/configurationResolver/common/configurationResolverUtils.ts"],
+  "sourcesContent": ["import type { IJSONSchema } from \"../../../../base/common/jsonSchema.js\";\n/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\nimport * as nls from \"../../../../nls.js\";\n\nexport function applyDeprecatedVariableMessage(schema: IJSONSchema) {\n\tschema.pattern = schema.pattern || \"^(?!.*\\\\$\\\\{(env|config|command)\\\\.)\";\n\tschema.patternErrorMessage =\n\t\tschema.patternErrorMessage ||\n\t\tnls.localize(\n\t\t\t\"deprecatedVariables\",\n\t\t\t\"'env.', 'config.' and 'command.' are deprecated, use 'env:', 'config:' and 'command:' instead.\",\n\t\t);\n}\n"],
+  "mappings": ";;AAKA,YAAY,SAAS;AAEd,SAAS,+BAA+B,QAAqB;AACnE,SAAO,UAAU,OAAO,WAAW;AACnC,SAAO,sBACN,OAAO,uBACP,IAAI;AAAA,IACH;AAAA,IACA;AAAA,EACD;AACF;AARgB;",
+  "names": []
+}

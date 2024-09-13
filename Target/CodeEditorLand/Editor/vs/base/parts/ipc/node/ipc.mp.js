@@ -1,1 +1,86 @@
-import{isUtilityProcess as c}from"../../sandbox/node/electronTypes.js";import{VSBuffer as i}from"../../../common/buffer.js";import{IPCServer as l}from"../common/ipc.js";import{Emitter as g,Event as r}from"../../../common/event.js";import{assertType as m}from"../../../common/types.js";class v{constructor(e){this.port=e;e.start()}onMessage=r.fromNodeEventEmitter(this.port,"message",e=>e.data?i.wrap(e.data):i.alloc(0));send(e){this.port.postMessage(e.buffer)}disconnect(){this.port.close()}}class a extends l{static getOnDidClientConnect(e){m(c(process),"Electron Utility Process");const o=new g;return process.parentPort.on("message",t=>{if(e?.handledClientConnection(t))return;const n=t.ports.at(0);n&&o.fire(n)}),r.map(o.event,t=>({protocol:new v(t),onDidClientDisconnect:r.fromNodeEventEmitter(t,"close")}))}constructor(e){super(a.getOnDidClientConnect(e))}}function F(s,e,o){const t=n=>{n.data===e&&(s.removeListener("message",t),o())};s.on("message",t)}export{a as Server,F as once};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../common/buffer.js";
+import { Emitter, Event } from "../../../common/event.js";
+import { assertType } from "../../../common/types.js";
+import {
+  isUtilityProcess
+} from "../../sandbox/node/electronTypes.js";
+import {
+  IPCServer
+} from "../common/ipc.js";
+class Protocol {
+  constructor(port) {
+    this.port = port;
+    port.start();
+  }
+  static {
+    __name(this, "Protocol");
+  }
+  onMessage = Event.fromNodeEventEmitter(
+    this.port,
+    "message",
+    (e) => {
+      if (e.data) {
+        return VSBuffer.wrap(e.data);
+      }
+      return VSBuffer.alloc(0);
+    }
+  );
+  send(message) {
+    this.port.postMessage(message.buffer);
+  }
+  disconnect() {
+    this.port.close();
+  }
+}
+class Server extends IPCServer {
+  static {
+    __name(this, "Server");
+  }
+  static getOnDidClientConnect(filter) {
+    assertType(isUtilityProcess(process), "Electron Utility Process");
+    const onCreateMessageChannel = new Emitter();
+    process.parentPort.on("message", (e) => {
+      if (filter?.handledClientConnection(e)) {
+        return;
+      }
+      const port = e.ports.at(0);
+      if (port) {
+        onCreateMessageChannel.fire(port);
+      }
+    });
+    return Event.map(onCreateMessageChannel.event, (port) => {
+      const protocol = new Protocol(port);
+      const result = {
+        protocol,
+        // Not part of the standard spec, but in Electron we get a `close` event
+        // when the other side closes. We can use this to detect disconnects
+        // (https://github.com/electron/electron/blob/11-x-y/docs/api/message-port-main.md#event-close)
+        onDidClientDisconnect: Event.fromNodeEventEmitter(
+          port,
+          "close"
+        )
+      };
+      return result;
+    });
+  }
+  constructor(filter) {
+    super(Server.getOnDidClientConnect(filter));
+  }
+}
+function once(port, message, callback) {
+  const listener = /* @__PURE__ */ __name((e) => {
+    if (e.data === message) {
+      port.removeListener("message", listener);
+      callback();
+    }
+  }, "listener");
+  port.on("message", listener);
+}
+__name(once, "once");
+export {
+  Server,
+  once
+};
+//# sourceMappingURL=ipc.mp.js.map

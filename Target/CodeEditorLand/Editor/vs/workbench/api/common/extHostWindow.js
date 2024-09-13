@@ -1,1 +1,98 @@
-var m=Object.defineProperty;var w=Object.getOwnPropertyDescriptor;var d=(a,e,t,o)=>{for(var i=o>1?void 0:o?w(e,t):e,r=a.length-1,s;r>=0;r--)(s=a[r])&&(i=(o?s(e,t,i):s(i))||i);return o&&i&&m(e,t,i),i},c=(a,e)=>(t,o)=>e(t,o,a);import{Emitter as W}from"../../../base/common/event.js";import{Schemas as f}from"../../../base/common/network.js";import{isFalsyOrWhitespace as h}from"../../../base/common/strings.js";import{URI as p}from"../../../base/common/uri.js";import{createDecorator as S}from"../../../platform/instantiation/common/instantiation.js";import{IExtHostRpcService as u}from"./extHostRpcService.js";import"vscode";import{MainContext as l}from"./extHost.protocol.js";let n=class{static InitialState={focused:!0,active:!0};_proxy;_onDidChangeWindowState=new W;onDidChangeWindowState=this._onDidChangeWindowState.event;_state=n.InitialState;getState(){const e=this._state;return{get focused(){return e.focused},get active(){return e.active}}}constructor(e){this._proxy=e.getProxy(l.MainThreadWindow),this._proxy.$getInitialState().then(({isFocused:t,isActive:o})=>{this.onDidChangeWindowProperty("focused",t),this.onDidChangeWindowProperty("active",o)})}$onDidChangeWindowFocus(e){this.onDidChangeWindowProperty("focused",e)}$onDidChangeWindowActive(e){this.onDidChangeWindowProperty("active",e)}onDidChangeWindowProperty(e,t){t!==this._state[e]&&(this._state={...this._state,[e]:t},this._onDidChangeWindowState.fire(this._state))}openUri(e,t){let o;if(typeof e=="string"){o=e;try{e=p.parse(e)}catch{return Promise.reject(`Invalid uri - '${e}'`)}}return h(e.scheme)?Promise.reject("Invalid scheme - cannot be empty"):e.scheme===f.command?Promise.reject(`Invalid scheme '${e.scheme}'`):this._proxy.$openUri(e,o,t)}async asExternalUri(e,t){if(h(e.scheme))return Promise.reject("Invalid scheme - cannot be empty");const o=await this._proxy.$asExternalUri(e,t);return p.from(o)}};n=d([c(0,u)],n);const j=S("IExtHostWindow");export{n as ExtHostWindow,j as IExtHostWindow};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../base/common/event.js";
+import { Schemas } from "../../../base/common/network.js";
+import { isFalsyOrWhitespace } from "../../../base/common/strings.js";
+import { URI } from "../../../base/common/uri.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import {
+  MainContext
+} from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+let ExtHostWindow = class {
+  static {
+    __name(this, "ExtHostWindow");
+  }
+  static InitialState = {
+    focused: true,
+    active: true
+  };
+  _proxy;
+  _onDidChangeWindowState = new Emitter();
+  onDidChangeWindowState = this._onDidChangeWindowState.event;
+  _state = ExtHostWindow.InitialState;
+  getState() {
+    const state = this._state;
+    return {
+      get focused() {
+        return state.focused;
+      },
+      get active() {
+        return state.active;
+      }
+    };
+  }
+  constructor(extHostRpc) {
+    this._proxy = extHostRpc.getProxy(MainContext.MainThreadWindow);
+    this._proxy.$getInitialState().then(({ isFocused, isActive }) => {
+      this.onDidChangeWindowProperty("focused", isFocused);
+      this.onDidChangeWindowProperty("active", isActive);
+    });
+  }
+  $onDidChangeWindowFocus(value) {
+    this.onDidChangeWindowProperty("focused", value);
+  }
+  $onDidChangeWindowActive(value) {
+    this.onDidChangeWindowProperty("active", value);
+  }
+  onDidChangeWindowProperty(property, value) {
+    if (value === this._state[property]) {
+      return;
+    }
+    this._state = { ...this._state, [property]: value };
+    this._onDidChangeWindowState.fire(this._state);
+  }
+  openUri(stringOrUri, options) {
+    let uriAsString;
+    if (typeof stringOrUri === "string") {
+      uriAsString = stringOrUri;
+      try {
+        stringOrUri = URI.parse(stringOrUri);
+      } catch (e) {
+        return Promise.reject(`Invalid uri - '${stringOrUri}'`);
+      }
+    }
+    if (isFalsyOrWhitespace(stringOrUri.scheme)) {
+      return Promise.reject("Invalid scheme - cannot be empty");
+    } else if (stringOrUri.scheme === Schemas.command) {
+      return Promise.reject(`Invalid scheme '${stringOrUri.scheme}'`);
+    }
+    return this._proxy.$openUri(stringOrUri, uriAsString, options);
+  }
+  async asExternalUri(uri, options) {
+    if (isFalsyOrWhitespace(uri.scheme)) {
+      return Promise.reject("Invalid scheme - cannot be empty");
+    }
+    const result = await this._proxy.$asExternalUri(uri, options);
+    return URI.from(result);
+  }
+};
+ExtHostWindow = __decorateClass([
+  __decorateParam(0, IExtHostRpcService)
+], ExtHostWindow);
+const IExtHostWindow = createDecorator("IExtHostWindow");
+export {
+  ExtHostWindow,
+  IExtHostWindow
+};
+//# sourceMappingURL=extHostWindow.js.map

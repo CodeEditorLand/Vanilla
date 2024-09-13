@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../Dependency/CodeEditorLand/Editor/Source/bootstrap-cli.js"],
+  "sourcesContent": ["// Delete `VSCODE_CWD` very early. We have seen\n// reports where `code .` would use the wrong\n// current working directory due to our variable\n// somehow escaping to the parent shell\n// (https://github.com/microsoft/vscode/issues/126399)\ndelete process.env[\"VSCODE_CWD\"];\n"],
+  "mappings": "AAKA,OAAO,QAAQ,IAAI,YAAY;",
+  "names": []
+}

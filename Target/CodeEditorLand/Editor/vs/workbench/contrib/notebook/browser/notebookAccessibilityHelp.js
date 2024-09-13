@@ -1,2 +1,98 @@
-import"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{NOTEBOOK_EDITOR_FOCUSED as c}from"../common/notebookContextKeys.js";import{localize as e}from"../../../../nls.js";import"../../../../editor/browser/editorBrowser.js";import{AccessibleViewProviderId as r,AccessibleViewType as i,AccessibleContentProvider as s}from"../../../../platform/accessibility/browser/accessibleView.js";import{AccessibilityVerbositySettingId as d}from"../../accessibility/browser/accessibilityConfiguration.js";import{IEditorService as u}from"../../../services/editor/common/editorService.js";import"../../../common/editor.js";import{ICodeEditorService as l}from"../../../../editor/browser/services/codeEditorService.js";class x{priority=105;name="notebook";when=c;type=i.Help;getProvider(o){const t=o.get(l).getActiveCodeEditor()||o.get(l).getFocusedCodeEditor()||o.get(u).activeEditorPane;if(t)return a(o,t)}}function b(){return[e("notebook.overview","The notebook view is a collection of code and markdown cells. Code cells can be executed and will produce output directly below the cell."),e("notebook.cell.edit","The Edit Cell command{0} will focus on the cell input.","<keybinding:notebook.cell.edit>"),e("notebook.cell.quitEdit","The Quit Edit command{0} will set focus on the cell container. The default (Escape) key may need to be pressed twice first exit the virtual cursor if active.","<keybinding:notebook.cell.quitEdit>"),e("notebook.cell.focusInOutput","The Focus Output command{0} will set focus in the cell's output.","<keybinding:notebook.cell.focusInOutput>"),e("notebook.focusNextEditor","The Focus Next Cell Editor command{0} will set focus in the next cell's editor.","<keybinding:notebook.focusNextEditor>"),e("notebook.focusPreviousEditor","The Focus Previous Cell Editor command{0} will set focus in the previous cell's editor.","<keybinding:notebook.focusPreviousEditor>"),e("notebook.cellNavigation","The up and down arrows will also move focus between cells while focused on the outer cell container."),e("notebook.cell.executeAndFocusContainer","The Execute Cell command{0} executes the cell that currently has focus.","<keybinding:notebook.cell.executeAndFocusContainer>"),e("notebook.cell.insertCodeCellBelowAndFocusContainer","The Insert Cell Above{0} and Below{1} commands will create new empty code cells.","<keybinding:notebook.cell.insertCodeCellAbove>","<keybinding:notebook.cell.insertCodeCellBelow>"),e("notebook.changeCellType","The Change Cell to Code/Markdown commands are used to switch between cell types.")].join(`
-`)}function a(n,o){const t=b();return new s(r.Notebook,{type:i.Help},()=>t,()=>o.focus(),d.Notebook)}export{x as NotebookAccessibilityHelp,a as getAccessibilityHelpProvider,b as getAccessibilityHelpText};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { localize } from "../../../../nls.js";
+import {
+  AccessibleContentProvider,
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { NOTEBOOK_EDITOR_FOCUSED } from "../common/notebookContextKeys.js";
+class NotebookAccessibilityHelp {
+  static {
+    __name(this, "NotebookAccessibilityHelp");
+  }
+  priority = 105;
+  name = "notebook";
+  when = NOTEBOOK_EDITOR_FOCUSED;
+  type = AccessibleViewType.Help;
+  getProvider(accessor) {
+    const activeEditor = accessor.get(ICodeEditorService).getActiveCodeEditor() || accessor.get(ICodeEditorService).getFocusedCodeEditor() || accessor.get(IEditorService).activeEditorPane;
+    if (!activeEditor) {
+      return;
+    }
+    return getAccessibilityHelpProvider(accessor, activeEditor);
+  }
+}
+function getAccessibilityHelpText() {
+  return [
+    localize(
+      "notebook.overview",
+      "The notebook view is a collection of code and markdown cells. Code cells can be executed and will produce output directly below the cell."
+    ),
+    localize(
+      "notebook.cell.edit",
+      "The Edit Cell command{0} will focus on the cell input.",
+      "<keybinding:notebook.cell.edit>"
+    ),
+    localize(
+      "notebook.cell.quitEdit",
+      "The Quit Edit command{0} will set focus on the cell container. The default (Escape) key may need to be pressed twice first exit the virtual cursor if active.",
+      "<keybinding:notebook.cell.quitEdit>"
+    ),
+    localize(
+      "notebook.cell.focusInOutput",
+      "The Focus Output command{0} will set focus in the cell's output.",
+      "<keybinding:notebook.cell.focusInOutput>"
+    ),
+    localize(
+      "notebook.focusNextEditor",
+      "The Focus Next Cell Editor command{0} will set focus in the next cell's editor.",
+      "<keybinding:notebook.focusNextEditor>"
+    ),
+    localize(
+      "notebook.focusPreviousEditor",
+      "The Focus Previous Cell Editor command{0} will set focus in the previous cell's editor.",
+      "<keybinding:notebook.focusPreviousEditor>"
+    ),
+    localize(
+      "notebook.cellNavigation",
+      "The up and down arrows will also move focus between cells while focused on the outer cell container."
+    ),
+    localize(
+      "notebook.cell.executeAndFocusContainer",
+      "The Execute Cell command{0} executes the cell that currently has focus.",
+      "<keybinding:notebook.cell.executeAndFocusContainer>"
+    ),
+    localize(
+      "notebook.cell.insertCodeCellBelowAndFocusContainer",
+      "The Insert Cell Above{0} and Below{1} commands will create new empty code cells.",
+      "<keybinding:notebook.cell.insertCodeCellAbove>",
+      "<keybinding:notebook.cell.insertCodeCellBelow>"
+    ),
+    localize(
+      "notebook.changeCellType",
+      "The Change Cell to Code/Markdown commands are used to switch between cell types."
+    )
+  ].join("\n");
+}
+__name(getAccessibilityHelpText, "getAccessibilityHelpText");
+function getAccessibilityHelpProvider(accessor, editor) {
+  const helpText = getAccessibilityHelpText();
+  return new AccessibleContentProvider(
+    AccessibleViewProviderId.Notebook,
+    { type: AccessibleViewType.Help },
+    () => helpText,
+    () => editor.focus(),
+    AccessibilityVerbositySettingId.Notebook
+  );
+}
+__name(getAccessibilityHelpProvider, "getAccessibilityHelpProvider");
+export {
+  NotebookAccessibilityHelp,
+  getAccessibilityHelpProvider,
+  getAccessibilityHelpText
+};
+//# sourceMappingURL=notebookAccessibilityHelp.js.map

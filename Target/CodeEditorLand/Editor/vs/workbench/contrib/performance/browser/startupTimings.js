@@ -1,2 +1,148 @@
-var I=Object.defineProperty;var g=Object.getOwnPropertyDescriptor;var m=(a,o,e,t)=>{for(var i=t>1?void 0:t?g(o,e):o,n=a.length-1,s;n>=0;n--)(s=a[n])&&(i=(t?s(o,e,i):s(i))||i);return t&&i&&I(o,e,i),i},r=(a,o)=>(e,t)=>o(e,t,a);import{isCodeEditor as P}from"../../../../editor/browser/editorBrowser.js";import{ILifecycleService as l,StartupKind as _,StartupKindToString as C}from"../../../services/lifecycle/common/lifecycle.js";import{IUpdateService as S}from"../../../../platform/update/common/update.js";import*as E from"../../files/common/files.js";import{IEditorService as f}from"../../../services/editor/common/editorService.js";import{IWorkspaceTrustManagementService as u}from"../../../../platform/workspace/common/workspaceTrust.js";import{IPaneCompositePartService as h}from"../../../services/panecomposite/browser/panecomposite.js";import{ViewContainerLocation as d}from"../../../common/views.js";import{ILogService as b}from"../../../../platform/log/common/log.js";import{IProductService as k}from"../../../../platform/product/common/productService.js";import{ITelemetryService as y}from"../../../../platform/telemetry/common/telemetry.js";import{IBrowserWorkbenchEnvironmentService as L}from"../../../services/environment/browser/environmentService.js";import{ITimerService as W}from"../../../services/timer/browser/timerService.js";import"../../../common/contributions.js";import{posix as w}from"../../../../base/common/path.js";import{hash as $}from"../../../../base/common/hash.js";let c=class{constructor(o,e,t,i,n){this._editorService=o;this._paneCompositeService=e;this._lifecycleService=t;this._updateService=i;this._workspaceTrustService=n}async _isStandardStartup(){if(this._lifecycleService.startupKind!==_.NewWindow)return C(this._lifecycleService.startupKind);if(!this._workspaceTrustService.isWorkspaceTrusted())return"Workspace not trusted";const o=this._paneCompositeService.getActivePaneComposite(d.Sidebar);if(!o||o.getId()!==E.VIEWLET_ID)return"Explorer viewlet not visible";const e=this._editorService.visibleEditorPanes;if(e.length!==1)return`Expected text editor count : 1, Actual : ${e.length}`;if(!P(e[0].getControl()))return"Active editor is not a text editor";const t=this._paneCompositeService.getActivePaneComposite(d.Panel);if(t)return`Current active panel : ${this._paneCompositeService.getPaneComposite(t.getId(),d.Panel)?.name}`;if(await this._updateService.isLatestVersion()===!1)return"Not on latest version, updates available"}};c=m([r(0,f),r(1,h),r(2,l),r(3,S),r(4,u)],c);let p=class extends c{constructor(e,t,i,n,s,x,T,A,D,M){super(e,t,i,n,s);this.timerService=x;this.logService=T;this.environmentService=A;this.telemetryService=D;this.productService=M;this.logPerfMarks()}async logPerfMarks(){if(!this.environmentService.profDurationMarkers)return;await this.timerService.whenReady();const e=await this._isStandardStartup(),t=await this.timerService.perfBaseline,[i,n]=this.environmentService.profDurationMarkers,s=`${this.timerService.getDuration(i,n)}	${this.productService.nameShort}	${(this.productService.commit||"").slice(0,10)||"0000000000"}	${this.telemetryService.sessionId}	${e===void 0?"standard_start":"NO_standard_start : "+e}	${String(t).padStart(4,"0")}ms
-`;this.logService.info(`[prof-timers] ${s}`)}};p=m([r(0,f),r(1,h),r(2,l),r(3,S),r(4,u),r(5,W),r(6,b),r(7,L),r(8,y),r(9,k)],p);let v=class{constructor(o){for(const e of performance.getEntriesByType("resource"))try{const t=new URL(e.name),i=w.basename(t.pathname);o.publicLog2("startup.resource.perf",{hosthash:`H${$(t.host).toString(16)}`,name:i,duration:e.duration})}catch{}}};v=m([r(0,y)],v);export{v as BrowserResourcePerformanceMarks,p as BrowserStartupTimings,c as StartupTimings};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { hash } from "../../../../base/common/hash.js";
+import { posix } from "../../../../base/common/path.js";
+import { isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { ViewContainerLocation } from "../../../common/views.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import {
+  ILifecycleService,
+  StartupKind,
+  StartupKindToString
+} from "../../../services/lifecycle/common/lifecycle.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { ITimerService } from "../../../services/timer/browser/timerService.js";
+import * as files from "../../files/common/files.js";
+let StartupTimings = class {
+  constructor(_editorService, _paneCompositeService, _lifecycleService, _updateService, _workspaceTrustService) {
+    this._editorService = _editorService;
+    this._paneCompositeService = _paneCompositeService;
+    this._lifecycleService = _lifecycleService;
+    this._updateService = _updateService;
+    this._workspaceTrustService = _workspaceTrustService;
+  }
+  static {
+    __name(this, "StartupTimings");
+  }
+  async _isStandardStartup() {
+    if (this._lifecycleService.startupKind !== StartupKind.NewWindow) {
+      return StartupKindToString(this._lifecycleService.startupKind);
+    }
+    if (!this._workspaceTrustService.isWorkspaceTrusted()) {
+      return "Workspace not trusted";
+    }
+    const activeViewlet = this._paneCompositeService.getActivePaneComposite(
+      ViewContainerLocation.Sidebar
+    );
+    if (!activeViewlet || activeViewlet.getId() !== files.VIEWLET_ID) {
+      return "Explorer viewlet not visible";
+    }
+    const visibleEditorPanes = this._editorService.visibleEditorPanes;
+    if (visibleEditorPanes.length !== 1) {
+      return `Expected text editor count : 1, Actual : ${visibleEditorPanes.length}`;
+    }
+    if (!isCodeEditor(visibleEditorPanes[0].getControl())) {
+      return "Active editor is not a text editor";
+    }
+    const activePanel = this._paneCompositeService.getActivePaneComposite(
+      ViewContainerLocation.Panel
+    );
+    if (activePanel) {
+      return `Current active panel : ${this._paneCompositeService.getPaneComposite(activePanel.getId(), ViewContainerLocation.Panel)?.name}`;
+    }
+    const isLatestVersion = await this._updateService.isLatestVersion();
+    if (isLatestVersion === false) {
+      return "Not on latest version, updates available";
+    }
+    return void 0;
+  }
+};
+StartupTimings = __decorateClass([
+  __decorateParam(0, IEditorService),
+  __decorateParam(1, IPaneCompositePartService),
+  __decorateParam(2, ILifecycleService),
+  __decorateParam(3, IUpdateService),
+  __decorateParam(4, IWorkspaceTrustManagementService)
+], StartupTimings);
+let BrowserStartupTimings = class extends StartupTimings {
+  constructor(editorService, paneCompositeService, lifecycleService, updateService, workspaceTrustService, timerService, logService, environmentService, telemetryService, productService) {
+    super(editorService, paneCompositeService, lifecycleService, updateService, workspaceTrustService);
+    this.timerService = timerService;
+    this.logService = logService;
+    this.environmentService = environmentService;
+    this.telemetryService = telemetryService;
+    this.productService = productService;
+    this.logPerfMarks();
+  }
+  static {
+    __name(this, "BrowserStartupTimings");
+  }
+  async logPerfMarks() {
+    if (!this.environmentService.profDurationMarkers) {
+      return;
+    }
+    await this.timerService.whenReady();
+    const standardStartupError = await this._isStandardStartup();
+    const perfBaseline = await this.timerService.perfBaseline;
+    const [from, to] = this.environmentService.profDurationMarkers;
+    const content = `${this.timerService.getDuration(from, to)}	${this.productService.nameShort}	${(this.productService.commit || "").slice(0, 10) || "0000000000"}	${this.telemetryService.sessionId}	${standardStartupError === void 0 ? "standard_start" : "NO_standard_start : " + standardStartupError}	${String(perfBaseline).padStart(4, "0")}ms
+`;
+    this.logService.info(`[prof-timers] ${content}`);
+  }
+};
+BrowserStartupTimings = __decorateClass([
+  __decorateParam(0, IEditorService),
+  __decorateParam(1, IPaneCompositePartService),
+  __decorateParam(2, ILifecycleService),
+  __decorateParam(3, IUpdateService),
+  __decorateParam(4, IWorkspaceTrustManagementService),
+  __decorateParam(5, ITimerService),
+  __decorateParam(6, ILogService),
+  __decorateParam(7, IBrowserWorkbenchEnvironmentService),
+  __decorateParam(8, ITelemetryService),
+  __decorateParam(9, IProductService)
+], BrowserStartupTimings);
+let BrowserResourcePerformanceMarks = class {
+  static {
+    __name(this, "BrowserResourcePerformanceMarks");
+  }
+  constructor(telemetryService) {
+    for (const item of performance.getEntriesByType("resource")) {
+      try {
+        const url = new URL(item.name);
+        const name = posix.basename(url.pathname);
+        telemetryService.publicLog2("startup.resource.perf", {
+          hosthash: `H${hash(url.host).toString(16)}`,
+          name,
+          duration: item.duration
+        });
+      } catch {
+      }
+    }
+  }
+};
+BrowserResourcePerformanceMarks = __decorateClass([
+  __decorateParam(0, ITelemetryService)
+], BrowserResourcePerformanceMarks);
+export {
+  BrowserResourcePerformanceMarks,
+  BrowserStartupTimings,
+  StartupTimings
+};
+//# sourceMappingURL=startupTimings.js.map

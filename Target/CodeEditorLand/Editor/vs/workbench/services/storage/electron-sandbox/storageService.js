@@ -1,1 +1,32 @@
-import"../../../../platform/environment/common/environment.js";import"../../../../platform/ipc/common/mainProcessService.js";import{RemoteStorageService as s}from"../../../../platform/storage/common/storageService.js";import"../../../../platform/userDataProfile/common/userDataProfile.js";import"../../../../platform/workspace/common/workspace.js";import"../../userDataProfile/common/userDataProfile.js";class h extends s{constructor(e,r,i,o,t){super(e,{currentProfile:r.currentProfile,defaultProfile:i.defaultProfile},o,t);this.userDataProfileService=r;this.registerListeners()}registerListeners(){this._register(this.userDataProfileService.onDidChangeCurrentProfile(e=>e.join(this.switchToProfile(e.profile))))}}export{h as NativeWorkbenchStorageService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { RemoteStorageService } from "../../../../platform/storage/common/storageService.js";
+class NativeWorkbenchStorageService extends RemoteStorageService {
+  constructor(workspace, userDataProfileService, userDataProfilesService, mainProcessService, environmentService) {
+    super(
+      workspace,
+      {
+        currentProfile: userDataProfileService.currentProfile,
+        defaultProfile: userDataProfilesService.defaultProfile
+      },
+      mainProcessService,
+      environmentService
+    );
+    this.userDataProfileService = userDataProfileService;
+    this.registerListeners();
+  }
+  static {
+    __name(this, "NativeWorkbenchStorageService");
+  }
+  registerListeners() {
+    this._register(
+      this.userDataProfileService.onDidChangeCurrentProfile(
+        (e) => e.join(this.switchToProfile(e.profile))
+      )
+    );
+  }
+}
+export {
+  NativeWorkbenchStorageService
+};
+//# sourceMappingURL=storageService.js.map

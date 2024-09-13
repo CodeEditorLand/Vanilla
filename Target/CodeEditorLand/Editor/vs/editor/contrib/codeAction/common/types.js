@@ -1,1 +1,171 @@
-import"../../../../base/common/cancellation.js";import{onUnexpectedExternalError as d}from"../../../../base/common/errors.js";import{HierarchicalKind as t}from"../../../../base/common/hierarchicalKind.js";import"../../../common/core/position.js";import"../../../common/languages.js";import"../../../../platform/actionWidget/common/actionWidget.js";const l=new class{QuickFix=new t("quickfix");Refactor=new t("refactor");RefactorExtract=this.Refactor.append("extract");RefactorInline=this.Refactor.append("inline");RefactorMove=this.Refactor.append("move");RefactorRewrite=this.Refactor.append("rewrite");Notebook=new t("notebook");Source=new t("source");SourceOrganizeImports=this.Source.append("organizeImports");SourceFixAll=this.Source.append("fixAll");SurroundWith=this.Refactor.append("surround")};var s=(o=>(o.IfSingle="ifSingle",o.First="first",o.Never="never",o))(s||{}),u=(r=>(r.Refactor="refactor",r.RefactorPreview="refactor preview",r.Lightbulb="lightbulb",r.Default="other (default)",r.SourceAction="source action",r.QuickFix="quick fix action",r.FixAll="fix all",r.OrganizeImports="organize imports",r.AutoFix="auto fix",r.QuickFixHover="quick fix hover window",r.OnSave="save participants",r.ProblemsView="problems view",r))(u||{});function w(i,e){return!(i.include&&!i.include.intersects(e)||i.excludes&&i.excludes.some(n=>c(e,n,i.include))||!i.includeSourceActions&&l.Source.contains(e))}function k(i,e){const n=e.kind?new t(e.kind):void 0;return!(i.include&&(!n||!i.include.contains(n))||i.excludes&&n&&i.excludes.some(o=>c(n,o,i.include))||!i.includeSourceActions&&n&&l.Source.contains(n)||i.onlyIncludePreferredActions&&!e.isPreferred)}function c(i,e,n){return!(!e.contains(i)||n&&e.contains(n))}class a{constructor(e,n,o){this.kind=e;this.apply=n;this.preferred=o}static fromUser(e,n){return!e||typeof e!="object"?new a(n.kind,n.apply,!1):new a(a.getKindFromUser(e,n.kind),a.getApplyFromUser(e,n.apply),a.getPreferredUser(e))}static getApplyFromUser(e,n){switch(typeof e.apply=="string"?e.apply.toLowerCase():""){case"first":return"first";case"never":return"never";case"ifsingle":return"ifSingle";default:return n}}static getKindFromUser(e,n){return typeof e.kind=="string"?new t(e.kind):n}static getPreferredUser(e){return typeof e.preferred=="boolean"?e.preferred:!1}}class F{constructor(e,n,o){this.action=e;this.provider=n;this.highlightRange=o}async resolve(e){if(this.provider?.resolveCodeAction&&!this.action.edit){let n;try{n=await this.provider.resolveCodeAction(this.action,e)}catch(o){d(o)}n&&(this.action.edit=n.edit)}return this}}export{s as CodeActionAutoApply,a as CodeActionCommandArgs,F as CodeActionItem,l as CodeActionKind,u as CodeActionTriggerSource,k as filtersAction,w as mayIncludeActionsOfKind};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
+import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
+const CodeActionKind = new class {
+  QuickFix = new HierarchicalKind("quickfix");
+  Refactor = new HierarchicalKind("refactor");
+  RefactorExtract = this.Refactor.append("extract");
+  RefactorInline = this.Refactor.append("inline");
+  RefactorMove = this.Refactor.append("move");
+  RefactorRewrite = this.Refactor.append("rewrite");
+  Notebook = new HierarchicalKind("notebook");
+  Source = new HierarchicalKind("source");
+  SourceOrganizeImports = this.Source.append("organizeImports");
+  SourceFixAll = this.Source.append("fixAll");
+  SurroundWith = this.Refactor.append("surround");
+}();
+var CodeActionAutoApply = /* @__PURE__ */ ((CodeActionAutoApply2) => {
+  CodeActionAutoApply2["IfSingle"] = "ifSingle";
+  CodeActionAutoApply2["First"] = "first";
+  CodeActionAutoApply2["Never"] = "never";
+  return CodeActionAutoApply2;
+})(CodeActionAutoApply || {});
+var CodeActionTriggerSource = /* @__PURE__ */ ((CodeActionTriggerSource2) => {
+  CodeActionTriggerSource2["Refactor"] = "refactor";
+  CodeActionTriggerSource2["RefactorPreview"] = "refactor preview";
+  CodeActionTriggerSource2["Lightbulb"] = "lightbulb";
+  CodeActionTriggerSource2["Default"] = "other (default)";
+  CodeActionTriggerSource2["SourceAction"] = "source action";
+  CodeActionTriggerSource2["QuickFix"] = "quick fix action";
+  CodeActionTriggerSource2["FixAll"] = "fix all";
+  CodeActionTriggerSource2["OrganizeImports"] = "organize imports";
+  CodeActionTriggerSource2["AutoFix"] = "auto fix";
+  CodeActionTriggerSource2["QuickFixHover"] = "quick fix hover window";
+  CodeActionTriggerSource2["OnSave"] = "save participants";
+  CodeActionTriggerSource2["ProblemsView"] = "problems view";
+  return CodeActionTriggerSource2;
+})(CodeActionTriggerSource || {});
+function mayIncludeActionsOfKind(filter, providedKind) {
+  if (filter.include && !filter.include.intersects(providedKind)) {
+    return false;
+  }
+  if (filter.excludes) {
+    if (filter.excludes.some(
+      (exclude) => excludesAction(providedKind, exclude, filter.include)
+    )) {
+      return false;
+    }
+  }
+  if (!filter.includeSourceActions && CodeActionKind.Source.contains(providedKind)) {
+    return false;
+  }
+  return true;
+}
+__name(mayIncludeActionsOfKind, "mayIncludeActionsOfKind");
+function filtersAction(filter, action) {
+  const actionKind = action.kind ? new HierarchicalKind(action.kind) : void 0;
+  if (filter.include) {
+    if (!actionKind || !filter.include.contains(actionKind)) {
+      return false;
+    }
+  }
+  if (filter.excludes) {
+    if (actionKind && filter.excludes.some(
+      (exclude) => excludesAction(actionKind, exclude, filter.include)
+    )) {
+      return false;
+    }
+  }
+  if (!filter.includeSourceActions) {
+    if (actionKind && CodeActionKind.Source.contains(actionKind)) {
+      return false;
+    }
+  }
+  if (filter.onlyIncludePreferredActions) {
+    if (!action.isPreferred) {
+      return false;
+    }
+  }
+  return true;
+}
+__name(filtersAction, "filtersAction");
+function excludesAction(providedKind, exclude, include) {
+  if (!exclude.contains(providedKind)) {
+    return false;
+  }
+  if (include && exclude.contains(include)) {
+    return false;
+  }
+  return true;
+}
+__name(excludesAction, "excludesAction");
+class CodeActionCommandArgs {
+  constructor(kind, apply, preferred) {
+    this.kind = kind;
+    this.apply = apply;
+    this.preferred = preferred;
+  }
+  static {
+    __name(this, "CodeActionCommandArgs");
+  }
+  static fromUser(arg, defaults) {
+    if (!arg || typeof arg !== "object") {
+      return new CodeActionCommandArgs(
+        defaults.kind,
+        defaults.apply,
+        false
+      );
+    }
+    return new CodeActionCommandArgs(
+      CodeActionCommandArgs.getKindFromUser(arg, defaults.kind),
+      CodeActionCommandArgs.getApplyFromUser(arg, defaults.apply),
+      CodeActionCommandArgs.getPreferredUser(arg)
+    );
+  }
+  static getApplyFromUser(arg, defaultAutoApply) {
+    switch (typeof arg.apply === "string" ? arg.apply.toLowerCase() : "") {
+      case "first":
+        return "first" /* First */;
+      case "never":
+        return "never" /* Never */;
+      case "ifsingle":
+        return "ifSingle" /* IfSingle */;
+      default:
+        return defaultAutoApply;
+    }
+  }
+  static getKindFromUser(arg, defaultKind) {
+    return typeof arg.kind === "string" ? new HierarchicalKind(arg.kind) : defaultKind;
+  }
+  static getPreferredUser(arg) {
+    return typeof arg.preferred === "boolean" ? arg.preferred : false;
+  }
+}
+class CodeActionItem {
+  constructor(action, provider, highlightRange) {
+    this.action = action;
+    this.provider = provider;
+    this.highlightRange = highlightRange;
+  }
+  static {
+    __name(this, "CodeActionItem");
+  }
+  async resolve(token) {
+    if (this.provider?.resolveCodeAction && !this.action.edit) {
+      let action;
+      try {
+        action = await this.provider.resolveCodeAction(
+          this.action,
+          token
+        );
+      } catch (err) {
+        onUnexpectedExternalError(err);
+      }
+      if (action) {
+        this.action.edit = action.edit;
+      }
+    }
+    return this;
+  }
+}
+export {
+  CodeActionAutoApply,
+  CodeActionCommandArgs,
+  CodeActionItem,
+  CodeActionKind,
+  CodeActionTriggerSource,
+  filtersAction,
+  mayIncludeActionsOfKind
+};
+//# sourceMappingURL=types.js.map

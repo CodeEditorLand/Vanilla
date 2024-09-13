@@ -1,1 +1,406 @@
-import{URI as E}from"../../../../../base/common/uri.js";import{localize as C,localize2 as y}from"../../../../../nls.js";import{Action2 as x,MenuId as s,MenuRegistry as m}from"../../../../../platform/actions/common/actions.js";import{ContextKeyExpr as a}from"../../../../../platform/contextkey/common/contextkey.js";import"../../../../../platform/instantiation/common/instantiation.js";import{KeybindingWeight as p}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{getNotebookEditorFromEditorPane as I,cellRangeToViewCells as T}from"../notebookBrowser.js";import{INTERACTIVE_WINDOW_IS_ACTIVE_EDITOR as S,NOTEBOOK_EDITOR_EDITABLE as O,NOTEBOOK_EDITOR_FOCUSED as _,NOTEBOOK_IS_ACTIVE_EDITOR as k,NOTEBOOK_KERNEL_COUNT as M,NOTEBOOK_KERNEL_SOURCE_COUNT as W}from"../../common/notebookContextKeys.js";import{isICellRange as g}from"../../common/notebookRange.js";import{IEditorService as f}from"../../../../services/editor/common/editorService.js";import{isEditorCommandsContext as R}from"../../../../common/editor.js";import{INotebookEditorService as w}from"../services/notebookEditorService.js";import{ITelemetryService as A}from"../../../../../platform/telemetry/common/telemetry.js";import"../../../../../base/common/actions.js";import"../../../../../base/common/types.js";import"../../../../../base/common/jsonSchema.js";import{MarshalledId as U}from"../../../../../base/common/marshallingIds.js";import"../../../../../editor/browser/editorBrowser.js";import{isEqual as F}from"../../../../../base/common/resources.js";const Ie="_notebook.selectKernel",h=y("notebookActions.category","Notebook"),ke="inline/cell",ge="inline/output",he=p.EditorContrib,Ne=p.WorkbenchContrib+1;var L=(r=>(r[r.EditCell=0]="EditCell",r[r.ExecuteAboveCells=1]="ExecuteAboveCells",r[r.ExecuteCellAndBelow=2]="ExecuteCellAndBelow",r[r.SaveCell=3]="SaveCell",r[r.SplitCell=4]="SplitCell",r[r.ClearCellOutput=5]="ClearCellOutput",r))(L||{}),P=(i=>(i.Copy="1_copy",i.Insert="2_insert",i.Edit="3_edit",i.Share="4_share",i))(P||{});function N(n){const e=I(n.activeEditorPane);if(!e||!e.hasModel())return;const t=e.getActiveCell(),o=e.getSelectionViewModels();return{cell:t,selectedCells:o,notebookEditor:e}}function V(n,e){const o=n.get(w).listNotebookEditors().find(i=>i.hasModel()&&i.textModel.uri.toString()===e.toString());if(o&&o.hasModel())return o}function K(n,e){const t=E.revive(e);if(t){const o=V(n,t);if(o)return{notebookEditor:o}}}function ve(n,e){let t;for(const[,o]of n.notebookEditor.codeEditors)if(F(o.getModel()?.uri,e.uri)){t=o;break}return t}class D extends x{constructor(e){if(e.f1!==!1){e.f1=!1;const t={id:s.CommandPalette,when:a.or(k,S)};e.menu?Array.isArray(e.menu)||(e.menu=[e.menu]):e.menu=[],e.menu=[...e.menu,t]}e.category=h,super(e)}async run(e,t,...o){const l=!!t?this.isNotebookActionContext(t)?"notebookToolbar":"editorToolbar":void 0;if(!(!this.isNotebookActionContext(t)&&(t=this.getEditorContextFromArgsOrActive(e,t,...o),!t)))return l!==void 0&&e.get(A).publicLog2("workbenchActionExecuted",{id:this.desc.id,from:l}),this.runWithContext(e,t)}isNotebookActionContext(e){return!!e&&!!e.notebookEditor}getEditorContextFromArgsOrActive(e,t,...o){return N(e.get(f))}}class ye extends x{constructor(e){if(e.f1!==!1){e.f1=!1;const t={id:s.CommandPalette,when:k};e.menu?Array.isArray(e.menu)||(e.menu=[e.menu]):e.menu=[],e.menu=[...e.menu,t]}e.category=h,super(e)}parseArgs(e,...t){}isCellToolbarContext(e){return!!e&&!!e.notebookEditor&&e.$mid===U.NotebookCellActionContext}async run(e,...t){const o=t[0],i=this.isCellToolbarContext(o),l=R(o),r=i?"cellToolbar":l?"editorToolbar":"other",u=e.get(A);if(i)return u.publicLog2("workbenchActionExecuted",{id:this.desc.id,from:r}),this.runWithContext(e,o);const d=this.parseArgs(e,...t);if(d)return u.publicLog2("workbenchActionExecuted",{id:this.desc.id,from:r}),this.runWithContext(e,d);const c=b(e);if(c){const v=c.getSelections().length===0?[c.getFocus()]:c.getSelections();return u.publicLog2("workbenchActionExecuted",{id:this.desc.id,from:r}),this.runWithContext(e,{ui:!1,notebookEditor:c,selectedCells:T(c,v)})}}}class Te extends D{isCellActionContext(e){return!!e&&!!e.notebookEditor&&!!e.cell}getCellContextFromArgs(e,t,...o){}async run(e,t,...o){if(this.isCellActionContext(t))return e.get(A).publicLog2("workbenchActionExecuted",{id:this.desc.id,from:"cellToolbar"}),this.runWithContext(e,t);const i=this.getCellContextFromArgs(e,t,...o);if(i)return this.runWithContext(e,i);const l=this.getEditorContextFromArgsOrActive(e);if(this.isCellActionContext(l))return this.runWithContext(e,l)}}const Se=a.or(a.greater(M.key,0),a.greater(W.key,0));function B(n){if(n===void 0)return!1;const e=n.ranges;return!(!e||!Array.isArray(e)||e.some(t=>!g(t))||n.document&&!E.revive(n.document))}function b(n,e){const t=K(n,e)?.notebookEditor;if(t)return t;const o=I(n.get(f).activeEditorPane);if(!(!o||!o.hasModel()))return o}function Oe(n,...e){const t=e[0];if(B(t)){const i=b(n,t.document);if(!i)return;const r=t.ranges.map(d=>i.getCellsInRange(d).slice(0)).flat(),u=t.autoReveal;return{ui:!1,notebookEditor:i,selectedCells:r,autoReveal:u}}if(g(t)){const i=e[1],l=b(n,i);return l?{ui:!1,notebookEditor:l,selectedCells:l.getCellsInRange(t)}:void 0}const o=N(n.get(f));return o?{ui:!1,notebookEditor:o.notebookEditor,selectedCells:o.selectedCells??[],cell:o.cell}:void 0}const _e=[{isOptional:!0,name:"options",description:"The cell range options",schema:{type:"object",required:["ranges"],properties:{ranges:{type:"array",items:[{type:"object",required:["start","end"],properties:{start:{type:"number"},end:{type:"number"}}}]},document:{type:"object",description:"The document uri"},autoReveal:{type:"boolean",description:"Whether the cell should be revealed into view automatically"}}}}];m.appendMenuItem(s.NotebookCellTitle,{submenu:s.NotebookCellInsert,title:C("notebookMenu.insertCell","Insert Cell"),group:"2_insert",when:O.isEqualTo(!0)}),m.appendMenuItem(s.EditorContext,{submenu:s.NotebookCellTitle,title:C("notebookMenu.cellTitle","Notebook Cell"),group:"2_insert",when:_}),m.appendMenuItem(s.NotebookCellTitle,{title:C("miShare","Share"),submenu:s.EditorContextShare,group:"4_share"});export{ke as CELL_TITLE_CELL_GROUP_ID,ge as CELL_TITLE_OUTPUT_GROUP_ID,P as CellOverflowToolbarGroups,L as CellToolbarOrder,h as NOTEBOOK_ACTIONS_CATEGORY,he as NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT,Ne as NOTEBOOK_OUTPUT_WEBVIEW_ACTION_WEIGHT,D as NotebookAction,Te as NotebookCellAction,ye as NotebookMultiCellAction,Ie as SELECT_KERNEL_ID,_e as cellExecutionArgs,Se as executeNotebookCondition,ve as findTargetCellEditor,N as getContextFromActiveEditor,K as getContextFromUri,b as getEditorFromArgsOrActivePane,Oe as parseMultiCellExecutionArgs};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { MarshalledId } from "../../../../../base/common/marshallingIds.js";
+import { isEqual } from "../../../../../base/common/resources.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import {
+  Action2,
+  MenuId,
+  MenuRegistry
+} from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { isEditorCommandsContext } from "../../../../common/editor.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import {
+  INTERACTIVE_WINDOW_IS_ACTIVE_EDITOR,
+  NOTEBOOK_EDITOR_EDITABLE,
+  NOTEBOOK_EDITOR_FOCUSED,
+  NOTEBOOK_IS_ACTIVE_EDITOR,
+  NOTEBOOK_KERNEL_COUNT,
+  NOTEBOOK_KERNEL_SOURCE_COUNT
+} from "../../common/notebookContextKeys.js";
+import { isICellRange } from "../../common/notebookRange.js";
+import {
+  cellRangeToViewCells,
+  getNotebookEditorFromEditorPane
+} from "../notebookBrowser.js";
+import { INotebookEditorService } from "../services/notebookEditorService.js";
+const SELECT_KERNEL_ID = "_notebook.selectKernel";
+const NOTEBOOK_ACTIONS_CATEGORY = localize2(
+  "notebookActions.category",
+  "Notebook"
+);
+const CELL_TITLE_CELL_GROUP_ID = "inline/cell";
+const CELL_TITLE_OUTPUT_GROUP_ID = "inline/output";
+const NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT = KeybindingWeight.EditorContrib;
+const NOTEBOOK_OUTPUT_WEBVIEW_ACTION_WEIGHT = KeybindingWeight.WorkbenchContrib + 1;
+var CellToolbarOrder = /* @__PURE__ */ ((CellToolbarOrder2) => {
+  CellToolbarOrder2[CellToolbarOrder2["EditCell"] = 0] = "EditCell";
+  CellToolbarOrder2[CellToolbarOrder2["ExecuteAboveCells"] = 1] = "ExecuteAboveCells";
+  CellToolbarOrder2[CellToolbarOrder2["ExecuteCellAndBelow"] = 2] = "ExecuteCellAndBelow";
+  CellToolbarOrder2[CellToolbarOrder2["SaveCell"] = 3] = "SaveCell";
+  CellToolbarOrder2[CellToolbarOrder2["SplitCell"] = 4] = "SplitCell";
+  CellToolbarOrder2[CellToolbarOrder2["ClearCellOutput"] = 5] = "ClearCellOutput";
+  return CellToolbarOrder2;
+})(CellToolbarOrder || {});
+var CellOverflowToolbarGroups = /* @__PURE__ */ ((CellOverflowToolbarGroups2) => {
+  CellOverflowToolbarGroups2["Copy"] = "1_copy";
+  CellOverflowToolbarGroups2["Insert"] = "2_insert";
+  CellOverflowToolbarGroups2["Edit"] = "3_edit";
+  CellOverflowToolbarGroups2["Share"] = "4_share";
+  return CellOverflowToolbarGroups2;
+})(CellOverflowToolbarGroups || {});
+function getContextFromActiveEditor(editorService) {
+  const editor = getNotebookEditorFromEditorPane(
+    editorService.activeEditorPane
+  );
+  if (!editor || !editor.hasModel()) {
+    return;
+  }
+  const activeCell = editor.getActiveCell();
+  const selectedCells = editor.getSelectionViewModels();
+  return {
+    cell: activeCell,
+    selectedCells,
+    notebookEditor: editor
+  };
+}
+__name(getContextFromActiveEditor, "getContextFromActiveEditor");
+function getWidgetFromUri(accessor, uri) {
+  const notebookEditorService = accessor.get(INotebookEditorService);
+  const widget = notebookEditorService.listNotebookEditors().find(
+    (widget2) => widget2.hasModel() && widget2.textModel.uri.toString() === uri.toString()
+  );
+  if (widget && widget.hasModel()) {
+    return widget;
+  }
+  return void 0;
+}
+__name(getWidgetFromUri, "getWidgetFromUri");
+function getContextFromUri(accessor, context) {
+  const uri = URI.revive(context);
+  if (uri) {
+    const widget = getWidgetFromUri(accessor, uri);
+    if (widget) {
+      return {
+        notebookEditor: widget
+      };
+    }
+  }
+  return void 0;
+}
+__name(getContextFromUri, "getContextFromUri");
+function findTargetCellEditor(context, targetCell) {
+  let foundEditor;
+  for (const [, codeEditor] of context.notebookEditor.codeEditors) {
+    if (isEqual(codeEditor.getModel()?.uri, targetCell.uri)) {
+      foundEditor = codeEditor;
+      break;
+    }
+  }
+  return foundEditor;
+}
+__name(findTargetCellEditor, "findTargetCellEditor");
+class NotebookAction extends Action2 {
+  static {
+    __name(this, "NotebookAction");
+  }
+  constructor(desc) {
+    if (desc.f1 !== false) {
+      desc.f1 = false;
+      const f1Menu = {
+        id: MenuId.CommandPalette,
+        when: ContextKeyExpr.or(
+          NOTEBOOK_IS_ACTIVE_EDITOR,
+          INTERACTIVE_WINDOW_IS_ACTIVE_EDITOR
+        )
+      };
+      if (!desc.menu) {
+        desc.menu = [];
+      } else if (!Array.isArray(desc.menu)) {
+        desc.menu = [desc.menu];
+      }
+      desc.menu = [...desc.menu, f1Menu];
+    }
+    desc.category = NOTEBOOK_ACTIONS_CATEGORY;
+    super(desc);
+  }
+  async run(accessor, context, ...additionalArgs) {
+    const isFromUI = !!context;
+    const from = isFromUI ? this.isNotebookActionContext(context) ? "notebookToolbar" : "editorToolbar" : void 0;
+    if (!this.isNotebookActionContext(context)) {
+      context = this.getEditorContextFromArgsOrActive(
+        accessor,
+        context,
+        ...additionalArgs
+      );
+      if (!context) {
+        return;
+      }
+    }
+    if (from !== void 0) {
+      const telemetryService = accessor.get(ITelemetryService);
+      telemetryService.publicLog2("workbenchActionExecuted", { id: this.desc.id, from });
+    }
+    return this.runWithContext(accessor, context);
+  }
+  isNotebookActionContext(context) {
+    return !!context && !!context.notebookEditor;
+  }
+  getEditorContextFromArgsOrActive(accessor, context, ...additionalArgs) {
+    return getContextFromActiveEditor(accessor.get(IEditorService));
+  }
+}
+class NotebookMultiCellAction extends Action2 {
+  static {
+    __name(this, "NotebookMultiCellAction");
+  }
+  constructor(desc) {
+    if (desc.f1 !== false) {
+      desc.f1 = false;
+      const f1Menu = {
+        id: MenuId.CommandPalette,
+        when: NOTEBOOK_IS_ACTIVE_EDITOR
+      };
+      if (!desc.menu) {
+        desc.menu = [];
+      } else if (!Array.isArray(desc.menu)) {
+        desc.menu = [desc.menu];
+      }
+      desc.menu = [...desc.menu, f1Menu];
+    }
+    desc.category = NOTEBOOK_ACTIONS_CATEGORY;
+    super(desc);
+  }
+  parseArgs(accessor, ...args) {
+    return void 0;
+  }
+  isCellToolbarContext(context) {
+    return !!context && !!context.notebookEditor && context.$mid === MarshalledId.NotebookCellActionContext;
+  }
+  /**
+   * The action/command args are resolved in following order
+   * `run(accessor, cellToolbarContext)` from cell toolbar
+   * `run(accessor, ...args)` from command service with arguments
+   * `run(accessor, undefined)` from keyboard shortcuts, command palatte, etc
+   */
+  async run(accessor, ...additionalArgs) {
+    const context = additionalArgs[0];
+    const isFromCellToolbar = this.isCellToolbarContext(context);
+    const isFromEditorToolbar = isEditorCommandsContext(context);
+    const from = isFromCellToolbar ? "cellToolbar" : isFromEditorToolbar ? "editorToolbar" : "other";
+    const telemetryService = accessor.get(ITelemetryService);
+    if (isFromCellToolbar) {
+      telemetryService.publicLog2("workbenchActionExecuted", { id: this.desc.id, from });
+      return this.runWithContext(accessor, context);
+    }
+    const parsedArgs = this.parseArgs(accessor, ...additionalArgs);
+    if (parsedArgs) {
+      telemetryService.publicLog2("workbenchActionExecuted", { id: this.desc.id, from });
+      return this.runWithContext(accessor, parsedArgs);
+    }
+    const editor = getEditorFromArgsOrActivePane(accessor);
+    if (editor) {
+      const selectedCellRange = editor.getSelections().length === 0 ? [editor.getFocus()] : editor.getSelections();
+      telemetryService.publicLog2("workbenchActionExecuted", { id: this.desc.id, from });
+      return this.runWithContext(accessor, {
+        ui: false,
+        notebookEditor: editor,
+        selectedCells: cellRangeToViewCells(editor, selectedCellRange)
+      });
+    }
+  }
+}
+class NotebookCellAction extends NotebookAction {
+  static {
+    __name(this, "NotebookCellAction");
+  }
+  isCellActionContext(context) {
+    return !!context && !!context.notebookEditor && !!context.cell;
+  }
+  getCellContextFromArgs(accessor, context, ...additionalArgs) {
+    return void 0;
+  }
+  async run(accessor, context, ...additionalArgs) {
+    if (this.isCellActionContext(context)) {
+      const telemetryService = accessor.get(ITelemetryService);
+      telemetryService.publicLog2("workbenchActionExecuted", {
+        id: this.desc.id,
+        from: "cellToolbar"
+      });
+      return this.runWithContext(accessor, context);
+    }
+    const contextFromArgs = this.getCellContextFromArgs(
+      accessor,
+      context,
+      ...additionalArgs
+    );
+    if (contextFromArgs) {
+      return this.runWithContext(accessor, contextFromArgs);
+    }
+    const activeEditorContext = this.getEditorContextFromArgsOrActive(accessor);
+    if (this.isCellActionContext(activeEditorContext)) {
+      return this.runWithContext(accessor, activeEditorContext);
+    }
+  }
+}
+const executeNotebookCondition = ContextKeyExpr.or(
+  ContextKeyExpr.greater(NOTEBOOK_KERNEL_COUNT.key, 0),
+  ContextKeyExpr.greater(NOTEBOOK_KERNEL_SOURCE_COUNT.key, 0)
+);
+function isMultiCellArgs(arg) {
+  if (arg === void 0) {
+    return false;
+  }
+  const ranges = arg.ranges;
+  if (!ranges) {
+    return false;
+  }
+  if (!Array.isArray(ranges) || ranges.some((range) => !isICellRange(range))) {
+    return false;
+  }
+  if (arg.document) {
+    const uri = URI.revive(arg.document);
+    if (!uri) {
+      return false;
+    }
+  }
+  return true;
+}
+__name(isMultiCellArgs, "isMultiCellArgs");
+function getEditorFromArgsOrActivePane(accessor, context) {
+  const editorFromUri = getContextFromUri(accessor, context)?.notebookEditor;
+  if (editorFromUri) {
+    return editorFromUri;
+  }
+  const editor = getNotebookEditorFromEditorPane(
+    accessor.get(IEditorService).activeEditorPane
+  );
+  if (!editor || !editor.hasModel()) {
+    return;
+  }
+  return editor;
+}
+__name(getEditorFromArgsOrActivePane, "getEditorFromArgsOrActivePane");
+function parseMultiCellExecutionArgs(accessor, ...args) {
+  const firstArg = args[0];
+  if (isMultiCellArgs(firstArg)) {
+    const editor = getEditorFromArgsOrActivePane(
+      accessor,
+      firstArg.document
+    );
+    if (!editor) {
+      return;
+    }
+    const ranges = firstArg.ranges;
+    const selectedCells = ranges.flatMap(
+      (range) => editor.getCellsInRange(range).slice(0)
+    );
+    const autoReveal = firstArg.autoReveal;
+    return {
+      ui: false,
+      notebookEditor: editor,
+      selectedCells,
+      autoReveal
+    };
+  }
+  if (isICellRange(firstArg)) {
+    const secondArg = args[1];
+    const editor = getEditorFromArgsOrActivePane(accessor, secondArg);
+    if (!editor) {
+      return;
+    }
+    return {
+      ui: false,
+      notebookEditor: editor,
+      selectedCells: editor.getCellsInRange(firstArg)
+    };
+  }
+  const context = getContextFromActiveEditor(accessor.get(IEditorService));
+  return context ? {
+    ui: false,
+    notebookEditor: context.notebookEditor,
+    selectedCells: context.selectedCells ?? [],
+    cell: context.cell
+  } : void 0;
+}
+__name(parseMultiCellExecutionArgs, "parseMultiCellExecutionArgs");
+const cellExecutionArgs = [
+  {
+    isOptional: true,
+    name: "options",
+    description: "The cell range options",
+    schema: {
+      type: "object",
+      required: ["ranges"],
+      properties: {
+        ranges: {
+          type: "array",
+          items: [
+            {
+              type: "object",
+              required: ["start", "end"],
+              properties: {
+                start: {
+                  type: "number"
+                },
+                end: {
+                  type: "number"
+                }
+              }
+            }
+          ]
+        },
+        document: {
+          type: "object",
+          description: "The document uri"
+        },
+        autoReveal: {
+          type: "boolean",
+          description: "Whether the cell should be revealed into view automatically"
+        }
+      }
+    }
+  }
+];
+MenuRegistry.appendMenuItem(MenuId.NotebookCellTitle, {
+  submenu: MenuId.NotebookCellInsert,
+  title: localize("notebookMenu.insertCell", "Insert Cell"),
+  group: "2_insert" /* Insert */,
+  when: NOTEBOOK_EDITOR_EDITABLE.isEqualTo(true)
+});
+MenuRegistry.appendMenuItem(MenuId.EditorContext, {
+  submenu: MenuId.NotebookCellTitle,
+  title: localize("notebookMenu.cellTitle", "Notebook Cell"),
+  group: "2_insert" /* Insert */,
+  when: NOTEBOOK_EDITOR_FOCUSED
+});
+MenuRegistry.appendMenuItem(MenuId.NotebookCellTitle, {
+  title: localize("miShare", "Share"),
+  submenu: MenuId.EditorContextShare,
+  group: "4_share" /* Share */
+});
+export {
+  CELL_TITLE_CELL_GROUP_ID,
+  CELL_TITLE_OUTPUT_GROUP_ID,
+  CellOverflowToolbarGroups,
+  CellToolbarOrder,
+  NOTEBOOK_ACTIONS_CATEGORY,
+  NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT,
+  NOTEBOOK_OUTPUT_WEBVIEW_ACTION_WEIGHT,
+  NotebookAction,
+  NotebookCellAction,
+  NotebookMultiCellAction,
+  SELECT_KERNEL_ID,
+  cellExecutionArgs,
+  executeNotebookCondition,
+  findTargetCellEditor,
+  getContextFromActiveEditor,
+  getContextFromUri,
+  getEditorFromArgsOrActivePane,
+  parseMultiCellExecutionArgs
+};
+//# sourceMappingURL=coreActions.js.map

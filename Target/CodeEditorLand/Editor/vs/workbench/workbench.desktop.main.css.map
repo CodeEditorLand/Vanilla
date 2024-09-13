@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/workbench.desktop.main.css"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\n/* NOTE: THIS FILE WILL BE OVERWRITTEN DURING BUILD TIME, DO NOT EDIT */\n\ndiv.monaco.main.css {\n}\n"],
+  "mappings": "AAOA,GAAG,CAAC,MAAM,CAAC,IAAI,CAAC;AAChB;",
+  "names": []
+}

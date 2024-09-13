@@ -1,1 +1,66 @@
-import"../../../../../base/common/uri.js";import"../../../../../platform/terminal/common/terminal.js";import"../terminal.js";import"../../../../../platform/terminal/common/environmentVariable.js";const I="remoteterminal";var s=(t=>(t.OnPtyHostExitEvent="$onPtyHostExitEvent",t.OnPtyHostStartEvent="$onPtyHostStartEvent",t.OnPtyHostUnresponsiveEvent="$onPtyHostUnresponsiveEvent",t.OnPtyHostResponsiveEvent="$onPtyHostResponsiveEvent",t.OnPtyHostRequestResolveVariablesEvent="$onPtyHostRequestResolveVariablesEvent",t.OnProcessDataEvent="$onProcessDataEvent",t.OnProcessReadyEvent="$onProcessReadyEvent",t.OnProcessExitEvent="$onProcessExitEvent",t.OnProcessReplayEvent="$onProcessReplayEvent",t.OnProcessOrphanQuestion="$onProcessOrphanQuestion",t.OnExecuteCommand="$onExecuteCommand",t.OnDidRequestDetach="$onDidRequestDetach",t.OnDidChangeProperty="$onDidChangeProperty",t))(s||{}),r=(o=>(o.RestartPtyHost="$restartPtyHost",o.CreateProcess="$createProcess",o.AttachToProcess="$attachToProcess",o.DetachFromProcess="$detachFromProcess",o.ListProcesses="$listProcesses",o.GetLatency="$getLatency",o.GetPerformanceMarks="$getPerformanceMarks",o.OrphanQuestionReply="$orphanQuestionReply",o.AcceptPtyHostResolvedVariables="$acceptPtyHostResolvedVariables",o.Start="$start",o.Input="$input",o.AcknowledgeDataEvent="$acknowledgeDataEvent",o.Shutdown="$shutdown",o.Resize="$resize",o.ClearBuffer="$clearBuffer",o.GetInitialCwd="$getInitialCwd",o.GetCwd="$getCwd",o.ProcessBinary="$processBinary",o.SendCommandResult="$sendCommandResult",o.InstallAutoReply="$installAutoReply",o.UninstallAllAutoReplies="$uninstallAllAutoReplies",o.GetDefaultSystemShell="$getDefaultSystemShell",o.GetProfiles="$getProfiles",o.GetEnvironment="$getEnvironment",o.GetWslPath="$getWslPath",o.GetTerminalLayoutInfo="$getTerminalLayoutInfo",o.SetTerminalLayoutInfo="$setTerminalLayoutInfo",o.SerializeTerminalState="$serializeTerminalState",o.ReviveTerminalProcesses="$reviveTerminalProcesses",o.GetRevivedPtyNewId="$getRevivedPtyNewId",o.SetUnicodeVersion="$setUnicodeVersion",o.ReduceConnectionGraceTime="$reduceConnectionGraceTime",o.UpdateIcon="$updateIcon",o.UpdateTitle="$updateTitle",o.UpdateProperty="$updateProperty",o.RefreshProperty="$refreshProperty",o.RequestDetachInstance="$requestDetachInstance",o.AcceptDetachInstanceReply="$acceptDetachInstanceReply",o.AcceptDetachedInstance="$acceptDetachedInstance",o.FreePortKillProcess="$freePortKillProcess",o))(r||{});export{I as REMOTE_TERMINAL_CHANNEL_NAME,s as RemoteTerminalChannelEvent,r as RemoteTerminalChannelRequest};
+const REMOTE_TERMINAL_CHANNEL_NAME = "remoteterminal";
+var RemoteTerminalChannelEvent = /* @__PURE__ */ ((RemoteTerminalChannelEvent2) => {
+  RemoteTerminalChannelEvent2["OnPtyHostExitEvent"] = "$onPtyHostExitEvent";
+  RemoteTerminalChannelEvent2["OnPtyHostStartEvent"] = "$onPtyHostStartEvent";
+  RemoteTerminalChannelEvent2["OnPtyHostUnresponsiveEvent"] = "$onPtyHostUnresponsiveEvent";
+  RemoteTerminalChannelEvent2["OnPtyHostResponsiveEvent"] = "$onPtyHostResponsiveEvent";
+  RemoteTerminalChannelEvent2["OnPtyHostRequestResolveVariablesEvent"] = "$onPtyHostRequestResolveVariablesEvent";
+  RemoteTerminalChannelEvent2["OnProcessDataEvent"] = "$onProcessDataEvent";
+  RemoteTerminalChannelEvent2["OnProcessReadyEvent"] = "$onProcessReadyEvent";
+  RemoteTerminalChannelEvent2["OnProcessExitEvent"] = "$onProcessExitEvent";
+  RemoteTerminalChannelEvent2["OnProcessReplayEvent"] = "$onProcessReplayEvent";
+  RemoteTerminalChannelEvent2["OnProcessOrphanQuestion"] = "$onProcessOrphanQuestion";
+  RemoteTerminalChannelEvent2["OnExecuteCommand"] = "$onExecuteCommand";
+  RemoteTerminalChannelEvent2["OnDidRequestDetach"] = "$onDidRequestDetach";
+  RemoteTerminalChannelEvent2["OnDidChangeProperty"] = "$onDidChangeProperty";
+  return RemoteTerminalChannelEvent2;
+})(RemoteTerminalChannelEvent || {});
+var RemoteTerminalChannelRequest = /* @__PURE__ */ ((RemoteTerminalChannelRequest2) => {
+  RemoteTerminalChannelRequest2["RestartPtyHost"] = "$restartPtyHost";
+  RemoteTerminalChannelRequest2["CreateProcess"] = "$createProcess";
+  RemoteTerminalChannelRequest2["AttachToProcess"] = "$attachToProcess";
+  RemoteTerminalChannelRequest2["DetachFromProcess"] = "$detachFromProcess";
+  RemoteTerminalChannelRequest2["ListProcesses"] = "$listProcesses";
+  RemoteTerminalChannelRequest2["GetLatency"] = "$getLatency";
+  RemoteTerminalChannelRequest2["GetPerformanceMarks"] = "$getPerformanceMarks";
+  RemoteTerminalChannelRequest2["OrphanQuestionReply"] = "$orphanQuestionReply";
+  RemoteTerminalChannelRequest2["AcceptPtyHostResolvedVariables"] = "$acceptPtyHostResolvedVariables";
+  RemoteTerminalChannelRequest2["Start"] = "$start";
+  RemoteTerminalChannelRequest2["Input"] = "$input";
+  RemoteTerminalChannelRequest2["AcknowledgeDataEvent"] = "$acknowledgeDataEvent";
+  RemoteTerminalChannelRequest2["Shutdown"] = "$shutdown";
+  RemoteTerminalChannelRequest2["Resize"] = "$resize";
+  RemoteTerminalChannelRequest2["ClearBuffer"] = "$clearBuffer";
+  RemoteTerminalChannelRequest2["GetInitialCwd"] = "$getInitialCwd";
+  RemoteTerminalChannelRequest2["GetCwd"] = "$getCwd";
+  RemoteTerminalChannelRequest2["ProcessBinary"] = "$processBinary";
+  RemoteTerminalChannelRequest2["SendCommandResult"] = "$sendCommandResult";
+  RemoteTerminalChannelRequest2["InstallAutoReply"] = "$installAutoReply";
+  RemoteTerminalChannelRequest2["UninstallAllAutoReplies"] = "$uninstallAllAutoReplies";
+  RemoteTerminalChannelRequest2["GetDefaultSystemShell"] = "$getDefaultSystemShell";
+  RemoteTerminalChannelRequest2["GetProfiles"] = "$getProfiles";
+  RemoteTerminalChannelRequest2["GetEnvironment"] = "$getEnvironment";
+  RemoteTerminalChannelRequest2["GetWslPath"] = "$getWslPath";
+  RemoteTerminalChannelRequest2["GetTerminalLayoutInfo"] = "$getTerminalLayoutInfo";
+  RemoteTerminalChannelRequest2["SetTerminalLayoutInfo"] = "$setTerminalLayoutInfo";
+  RemoteTerminalChannelRequest2["SerializeTerminalState"] = "$serializeTerminalState";
+  RemoteTerminalChannelRequest2["ReviveTerminalProcesses"] = "$reviveTerminalProcesses";
+  RemoteTerminalChannelRequest2["GetRevivedPtyNewId"] = "$getRevivedPtyNewId";
+  RemoteTerminalChannelRequest2["SetUnicodeVersion"] = "$setUnicodeVersion";
+  RemoteTerminalChannelRequest2["ReduceConnectionGraceTime"] = "$reduceConnectionGraceTime";
+  RemoteTerminalChannelRequest2["UpdateIcon"] = "$updateIcon";
+  RemoteTerminalChannelRequest2["UpdateTitle"] = "$updateTitle";
+  RemoteTerminalChannelRequest2["UpdateProperty"] = "$updateProperty";
+  RemoteTerminalChannelRequest2["RefreshProperty"] = "$refreshProperty";
+  RemoteTerminalChannelRequest2["RequestDetachInstance"] = "$requestDetachInstance";
+  RemoteTerminalChannelRequest2["AcceptDetachInstanceReply"] = "$acceptDetachInstanceReply";
+  RemoteTerminalChannelRequest2["AcceptDetachedInstance"] = "$acceptDetachedInstance";
+  RemoteTerminalChannelRequest2["FreePortKillProcess"] = "$freePortKillProcess";
+  return RemoteTerminalChannelRequest2;
+})(RemoteTerminalChannelRequest || {});
+export {
+  REMOTE_TERMINAL_CHANNEL_NAME,
+  RemoteTerminalChannelEvent,
+  RemoteTerminalChannelRequest
+};
+//# sourceMappingURL=terminal.js.map

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/services/workingCopy/electron-sandbox/workingCopyHistoryService.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport {\n\tInstantiationType,\n\tregisterSingleton,\n} from \"../../../../platform/instantiation/common/extensions.js\";\nimport { IWorkingCopyHistoryService } from \"../common/workingCopyHistory.js\";\nimport { NativeWorkingCopyHistoryService } from \"../common/workingCopyHistoryService.js\";\n\n// Register Service\nregisterSingleton(\n\tIWorkingCopyHistoryService,\n\tNativeWorkingCopyHistoryService,\n\tInstantiationType.Delayed,\n);\n"],
+  "mappings": "AAKA;AAAA,EACC;AAAA,EACA;AAAA,OACM;AACP,SAAS,kCAAkC;AAC3C,SAAS,uCAAuC;AAGhD;AAAA,EACC;AAAA,EACA;AAAA,EACA,kBAAkB;AACnB;",
+  "names": []
+}

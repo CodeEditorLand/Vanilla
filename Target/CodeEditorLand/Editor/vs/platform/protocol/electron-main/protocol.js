@@ -1,1 +1,8 @@
-import"../../../base/common/lifecycle.js";import"../../../base/common/uri.js";import{createDecorator as e}from"../../instantiation/common/instantiation.js";const a=e("protocolMainService");export{a as IProtocolMainService};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IProtocolMainService = createDecorator(
+  "protocolMainService"
+);
+export {
+  IProtocolMainService
+};
+//# sourceMappingURL=protocol.js.map

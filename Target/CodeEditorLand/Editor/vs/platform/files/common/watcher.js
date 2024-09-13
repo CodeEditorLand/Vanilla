@@ -1,1 +1,284 @@
-import"../../../base/common/event.js";import{GLOBSTAR as l,parse as u}from"../../../base/common/glob.js";import{Disposable as d,DisposableStore as p,MutableDisposable as g}from"../../../base/common/lifecycle.js";import{isAbsolute as v}from"../../../base/common/path.js";import{isLinux as h}from"../../../base/common/platform.js";import{URI as f}from"../../../base/common/uri.js";import{FileChangeFilter as n,FileChangeType as a,isParent as I}from"./files.js";function T(s){return typeof s.correlationId=="number"}function A(s){return s.recursive===!0}class c extends d{constructor(t,r,i,o){super();this.onFileChanges=t;this.onLogMessage=r;this.verboseLogging=i;this.options=o}static MAX_RESTARTS=5;watcher;watcherDisposables=this._register(new g);requests=void 0;restartCounter=0;init(){const t=new p;this.watcherDisposables.value=t,this.watcher=this.createWatcher(t),this.watcher.setVerboseLogging(this.verboseLogging),t.add(this.watcher.onDidChangeFile(r=>this.onFileChanges(r))),t.add(this.watcher.onDidLogMessage(r=>this.onLogMessage(r))),t.add(this.watcher.onDidError(r=>this.onError(r.error,r.request)))}onError(t,r){this.canRestart(t,r)?this.restartCounter<c.MAX_RESTARTS&&this.requests?(this.error(`restarting watcher after unexpected error: ${t}`),this.restart(this.requests)):this.error(`gave up attempting to restart watcher after unexpected error: ${t}`):this.error(t)}canRestart(t,r){return!(!this.options.restartOnError||r||t.indexOf("No space left on device")!==-1||t.indexOf("EMFILE")!==-1)}restart(t){this.restartCounter++,this.init(),this.watch(t)}async watch(t){this.requests=t,await this.watcher?.watch(t)}async setVerboseLogging(t){this.verboseLogging=t,await this.watcher?.setVerboseLogging(t)}error(t){this.onLogMessage({type:"error",message:`[File Watcher (${this.options.type})] ${t}`})}trace(t){this.onLogMessage({type:"trace",message:`[File Watcher (${this.options.type})] ${t}`})}dispose(){return this.watcher=void 0,super.dispose()}}class U extends c{constructor(e,t,r){super(e,t,r,{type:"node.js",restartOnError:!1})}}class M extends c{constructor(e,t,r){super(e,t,r,{type:"universal",restartOnError:!0})}}function S(s){return s.map(e=>({type:e.type,resource:f.revive(e.resource),cId:e.cId}))}function O(s){const e=new y;for(const t of s)e.processEvent(t);return e.coalesce()}function D(s,e){return typeof e=="string"&&!e.startsWith(l)&&!v(e)?{base:s,pattern:e}:e}function N(s,e){const t=[];for(const r of e)t.push(u(D(s,r)));return t}class y{coalesced=new Set;mapPathToChange=new Map;toKey(e){return h?e.resource.fsPath:e.resource.fsPath.toLowerCase()}processEvent(e){const t=this.mapPathToChange.get(this.toKey(e));let r=!1;if(t){const i=t.type,o=e.type;t.resource.fsPath!==e.resource.fsPath&&(e.type===a.DELETED||e.type===a.ADDED)?r=!0:i===a.ADDED&&o===a.DELETED?(this.mapPathToChange.delete(this.toKey(e)),this.coalesced.delete(t)):i===a.DELETED&&o===a.ADDED?t.type=a.UPDATED:i===a.ADDED&&o===a.UPDATED||(t.type=o)}else r=!0;r&&(this.coalesced.add(e),this.mapPathToChange.set(this.toKey(e),e))}coalesce(){const e=[],t=[];return Array.from(this.coalesced).filter(r=>r.type!==a.DELETED?(e.push(r),!1):!0).sort((r,i)=>r.resource.fsPath.length-i.resource.fsPath.length).filter(r=>t.some(i=>I(r.resource.fsPath,i,!h))?!1:(t.push(r.resource.fsPath),!0)).concat(e)}}function $(s,e){if(typeof e=="number")switch(s.type){case a.ADDED:return(e&n.ADDED)===0;case a.DELETED:return(e&n.DELETED)===0;case a.UPDATED:return(e&n.UPDATED)===0}return!1}function K(s){if(typeof s=="number"){const e=[];return s&n.ADDED&&e.push("Added"),s&n.DELETED&&e.push("Deleted"),s&n.UPDATED&&e.push("Updated"),e.length===0?"<all>":`[${e.join(", ")}]`}return"<none>"}export{U as AbstractNonRecursiveWatcherClient,M as AbstractUniversalWatcherClient,c as AbstractWatcherClient,O as coalesceEvents,$ as isFiltered,A as isRecursiveWatchRequest,T as isWatchRequestWithCorrelation,D as normalizeWatcherPattern,N as parseWatcherPatterns,K as requestFilterToString,S as reviveFileChanges};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  GLOBSTAR,
+  parse
+} from "../../../base/common/glob.js";
+import {
+  Disposable,
+  DisposableStore,
+  MutableDisposable
+} from "../../../base/common/lifecycle.js";
+import { isAbsolute } from "../../../base/common/path.js";
+import { isLinux } from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
+import {
+  FileChangeFilter,
+  FileChangeType,
+  isParent
+} from "./files.js";
+function isWatchRequestWithCorrelation(request) {
+  return typeof request.correlationId === "number";
+}
+__name(isWatchRequestWithCorrelation, "isWatchRequestWithCorrelation");
+function isRecursiveWatchRequest(request) {
+  return request.recursive === true;
+}
+__name(isRecursiveWatchRequest, "isRecursiveWatchRequest");
+class AbstractWatcherClient extends Disposable {
+  constructor(onFileChanges, onLogMessage, verboseLogging, options) {
+    super();
+    this.onFileChanges = onFileChanges;
+    this.onLogMessage = onLogMessage;
+    this.verboseLogging = verboseLogging;
+    this.options = options;
+  }
+  static {
+    __name(this, "AbstractWatcherClient");
+  }
+  static MAX_RESTARTS = 5;
+  watcher;
+  watcherDisposables = this._register(
+    new MutableDisposable()
+  );
+  requests = void 0;
+  restartCounter = 0;
+  init() {
+    const disposables = new DisposableStore();
+    this.watcherDisposables.value = disposables;
+    this.watcher = this.createWatcher(disposables);
+    this.watcher.setVerboseLogging(this.verboseLogging);
+    disposables.add(
+      this.watcher.onDidChangeFile(
+        (changes) => this.onFileChanges(changes)
+      )
+    );
+    disposables.add(
+      this.watcher.onDidLogMessage((msg) => this.onLogMessage(msg))
+    );
+    disposables.add(
+      this.watcher.onDidError((e) => this.onError(e.error, e.request))
+    );
+  }
+  onError(error, failedRequest) {
+    if (this.canRestart(error, failedRequest)) {
+      if (this.restartCounter < AbstractWatcherClient.MAX_RESTARTS && this.requests) {
+        this.error(
+          `restarting watcher after unexpected error: ${error}`
+        );
+        this.restart(this.requests);
+      } else {
+        this.error(
+          `gave up attempting to restart watcher after unexpected error: ${error}`
+        );
+      }
+    } else {
+      this.error(error);
+    }
+  }
+  canRestart(error, failedRequest) {
+    if (!this.options.restartOnError) {
+      return false;
+    }
+    if (failedRequest) {
+      return false;
+    }
+    if (error.indexOf("No space left on device") !== -1 || error.indexOf("EMFILE") !== -1) {
+      return false;
+    }
+    return true;
+  }
+  restart(requests) {
+    this.restartCounter++;
+    this.init();
+    this.watch(requests);
+  }
+  async watch(requests) {
+    this.requests = requests;
+    await this.watcher?.watch(requests);
+  }
+  async setVerboseLogging(verboseLogging) {
+    this.verboseLogging = verboseLogging;
+    await this.watcher?.setVerboseLogging(verboseLogging);
+  }
+  error(message) {
+    this.onLogMessage({
+      type: "error",
+      message: `[File Watcher (${this.options.type})] ${message}`
+    });
+  }
+  trace(message) {
+    this.onLogMessage({
+      type: "trace",
+      message: `[File Watcher (${this.options.type})] ${message}`
+    });
+  }
+  dispose() {
+    this.watcher = void 0;
+    return super.dispose();
+  }
+}
+class AbstractNonRecursiveWatcherClient extends AbstractWatcherClient {
+  static {
+    __name(this, "AbstractNonRecursiveWatcherClient");
+  }
+  constructor(onFileChanges, onLogMessage, verboseLogging) {
+    super(onFileChanges, onLogMessage, verboseLogging, {
+      type: "node.js",
+      restartOnError: false
+    });
+  }
+}
+class AbstractUniversalWatcherClient extends AbstractWatcherClient {
+  static {
+    __name(this, "AbstractUniversalWatcherClient");
+  }
+  constructor(onFileChanges, onLogMessage, verboseLogging) {
+    super(onFileChanges, onLogMessage, verboseLogging, {
+      type: "universal",
+      restartOnError: true
+    });
+  }
+}
+function reviveFileChanges(changes) {
+  return changes.map((change) => ({
+    type: change.type,
+    resource: URI.revive(change.resource),
+    cId: change.cId
+  }));
+}
+__name(reviveFileChanges, "reviveFileChanges");
+function coalesceEvents(changes) {
+  const coalescer = new EventCoalescer();
+  for (const event of changes) {
+    coalescer.processEvent(event);
+  }
+  return coalescer.coalesce();
+}
+__name(coalesceEvents, "coalesceEvents");
+function normalizeWatcherPattern(path, pattern) {
+  if (typeof pattern === "string" && !pattern.startsWith(GLOBSTAR) && !isAbsolute(pattern)) {
+    return { base: path, pattern };
+  }
+  return pattern;
+}
+__name(normalizeWatcherPattern, "normalizeWatcherPattern");
+function parseWatcherPatterns(path, patterns) {
+  const parsedPatterns = [];
+  for (const pattern of patterns) {
+    parsedPatterns.push(parse(normalizeWatcherPattern(path, pattern)));
+  }
+  return parsedPatterns;
+}
+__name(parseWatcherPatterns, "parseWatcherPatterns");
+class EventCoalescer {
+  static {
+    __name(this, "EventCoalescer");
+  }
+  coalesced = /* @__PURE__ */ new Set();
+  mapPathToChange = /* @__PURE__ */ new Map();
+  toKey(event) {
+    if (isLinux) {
+      return event.resource.fsPath;
+    }
+    return event.resource.fsPath.toLowerCase();
+  }
+  processEvent(event) {
+    const existingEvent = this.mapPathToChange.get(this.toKey(event));
+    let keepEvent = false;
+    if (existingEvent) {
+      const currentChangeType = existingEvent.type;
+      const newChangeType = event.type;
+      if (existingEvent.resource.fsPath !== event.resource.fsPath && (event.type === FileChangeType.DELETED || event.type === FileChangeType.ADDED)) {
+        keepEvent = true;
+      } else if (currentChangeType === FileChangeType.ADDED && newChangeType === FileChangeType.DELETED) {
+        this.mapPathToChange.delete(this.toKey(event));
+        this.coalesced.delete(existingEvent);
+      } else if (currentChangeType === FileChangeType.DELETED && newChangeType === FileChangeType.ADDED) {
+        existingEvent.type = FileChangeType.UPDATED;
+      } else if (currentChangeType === FileChangeType.ADDED && newChangeType === FileChangeType.UPDATED) {
+      } else {
+        existingEvent.type = newChangeType;
+      }
+    } else {
+      keepEvent = true;
+    }
+    if (keepEvent) {
+      this.coalesced.add(event);
+      this.mapPathToChange.set(this.toKey(event), event);
+    }
+  }
+  coalesce() {
+    const addOrChangeEvents = [];
+    const deletedPaths = [];
+    return Array.from(this.coalesced).filter((e) => {
+      if (e.type !== FileChangeType.DELETED) {
+        addOrChangeEvents.push(e);
+        return false;
+      }
+      return true;
+    }).sort((e1, e2) => {
+      return e1.resource.fsPath.length - e2.resource.fsPath.length;
+    }).filter((e) => {
+      if (deletedPaths.some(
+        (deletedPath) => isParent(
+          e.resource.fsPath,
+          deletedPath,
+          !isLinux
+        )
+      )) {
+        return false;
+      }
+      deletedPaths.push(e.resource.fsPath);
+      return true;
+    }).concat(addOrChangeEvents);
+  }
+}
+function isFiltered(event, filter) {
+  if (typeof filter === "number") {
+    switch (event.type) {
+      case FileChangeType.ADDED:
+        return (filter & FileChangeFilter.ADDED) === 0;
+      case FileChangeType.DELETED:
+        return (filter & FileChangeFilter.DELETED) === 0;
+      case FileChangeType.UPDATED:
+        return (filter & FileChangeFilter.UPDATED) === 0;
+    }
+  }
+  return false;
+}
+__name(isFiltered, "isFiltered");
+function requestFilterToString(filter) {
+  if (typeof filter === "number") {
+    const filters = [];
+    if (filter & FileChangeFilter.ADDED) {
+      filters.push("Added");
+    }
+    if (filter & FileChangeFilter.DELETED) {
+      filters.push("Deleted");
+    }
+    if (filter & FileChangeFilter.UPDATED) {
+      filters.push("Updated");
+    }
+    if (filters.length === 0) {
+      return "<all>";
+    }
+    return `[${filters.join(", ")}]`;
+  }
+  return "<none>";
+}
+__name(requestFilterToString, "requestFilterToString");
+export {
+  AbstractNonRecursiveWatcherClient,
+  AbstractUniversalWatcherClient,
+  AbstractWatcherClient,
+  coalesceEvents,
+  isFiltered,
+  isRecursiveWatchRequest,
+  isWatchRequestWithCorrelation,
+  normalizeWatcherPattern,
+  parseWatcherPatterns,
+  requestFilterToString,
+  reviveFileChanges
+};
+//# sourceMappingURL=watcher.js.map

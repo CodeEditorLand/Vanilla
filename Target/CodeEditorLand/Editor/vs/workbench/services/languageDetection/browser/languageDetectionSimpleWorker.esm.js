@@ -1,1 +1,4 @@
-import{create as r}from"./languageDetectionSimpleWorker.js";import{bootstrapSimpleWorker as o}from"../../../../base/common/worker/simpleWorkerBootstrap.js";o(r);
+import { bootstrapSimpleWorker } from "../../../../base/common/worker/simpleWorkerBootstrap.js";
+import { create } from "./languageDetectionSimpleWorker.js";
+bootstrapSimpleWorker(create);
+//# sourceMappingURL=languageDetectionSimpleWorker.esm.js.map

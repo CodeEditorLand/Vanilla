@@ -1,7 +1,596 @@
-var _=Object.defineProperty;var M=Object.getOwnPropertyDescriptor;var g=(m,t,e,i)=>{for(var a=i>1?void 0:i?M(t,e):t,r=m.length-1,s;r>=0;r--)(s=m[r])&&(a=(i?s(t,e,a):s(a))||a);return i&&a&&_(t,e,a),a},o=(m,t)=>(e,i)=>t(e,i,m);import{localize as w}from"../../../../nls.js";import{URI as T}from"../../../../base/common/uri.js";import{TextResourceEditorInput as C}from"../../../common/editor/textResourceEditorInput.js";import{ITextModelService as S}from"../../../../editor/common/services/resolverService.js";import"../../../../editor/common/model.js";import{ILifecycleService as x,LifecyclePhase as c,StartupKindToString as R}from"../../../services/lifecycle/common/lifecycle.js";import{ILanguageService as $}from"../../../../editor/common/languages/language.js";import{IInstantiationService as D}from"../../../../platform/instantiation/common/instantiation.js";import{IModelService as W}from"../../../../editor/common/services/model.js";import{ITimerService as E}from"../../../services/timer/browser/timerService.js";import{IExtensionService as L}from"../../../services/extensions/common/extensions.js";import{dispose as B}from"../../../../base/common/lifecycle.js";import{ICodeEditorService as P}from"../../../../editor/browser/services/codeEditorService.js";import{writeTransientState as F}from"../../codeEditor/browser/toggleWordWrap.js";import{LoaderEventType as l,LoaderStats as b,isESM as k}from"../../../../base/common/amd.js";import{IProductService as A}from"../../../../platform/product/common/productService.js";import{ITextFileService as U}from"../../../services/textfile/common/textfiles.js";import{IEditorService as j}from"../../../services/editor/common/editorService.js";import{ByteSize as h,IFileService as q}from"../../../../platform/files/common/files.js";import{ILabelService as N}from"../../../../platform/label/common/label.js";import{isWeb as z}from"../../../../base/common/platform.js";import{IFilesConfigurationService as G}from"../../../services/filesConfiguration/common/filesConfigurationService.js";import{ITerminalService as K}from"../../terminal/browser/terminal.js";import"../../../../base/common/performance.js";import{ITextResourceConfigurationService as O}from"../../../../editor/common/services/textResourceConfiguration.js";import{Registry as I}from"../../../../platform/registry/common/platform.js";import{Extensions as y,getWorkbenchContribution as V}from"../../../common/contributions.js";import{ICustomEditorLabelService as H}from"../../../services/editor/common/customEditorLabelService.js";let p=class{constructor(t,e){this._instaService=t;this._registration=e.registerTextModelContentProvider("perf",t.createInstance(v))}static get(){return V(p.ID)}static ID="workbench.contrib.perfview";_inputUri=T.from({scheme:"perf",path:"Startup Performance"});_registration;dispose(){this._registration.dispose()}getInputUri(){return this._inputUri}getEditorInput(){return this._instaService.createInstance(u)}};p=g([o(0,D),o(1,S)],p);let u=class extends C{static Id="PerfviewInput";get typeId(){return u.Id}constructor(t,e,i,a,r,s,n,d){super(p.get().getInputUri(),w("name","Startup Performance"),void 0,void 0,void 0,t,e,i,a,r,s,n,d)}};u=g([o(0,S),o(1,U),o(2,j),o(3,q),o(4,N),o(5,G),o(6,O),o(7,H)],u);let v=class{constructor(t,e,i,a,r,s,n,d){this._modelService=t;this._languageService=e;this._editorService=i;this._lifecycleService=a;this._timerService=r;this._extensionService=s;this._productService=n;this._terminalService=d}_model;_modelDisposables=[];provideTextContent(t){if(!this._model||this._model.isDisposed()){B(this._modelDisposables);const e=this._languageService.createById("markdown");this._model=this._modelService.getModel(t)||this._modelService.createModel("Loading...",e,t),this._modelDisposables.push(e.onDidChange(i=>{this._model?.setLanguage(i)})),this._modelDisposables.push(this._extensionService.onDidChangeExtensionsStatus(this._updateModel,this)),F(this._model,{wordWrapOverride:"off"},this._editorService)}return this._updateModel(),Promise.resolve(this._model)}_updateModel(){Promise.all([this._timerService.whenReady(),this._lifecycleService.when(c.Eventually),this._extensionService.whenInstalledExtensionsRegistered(),this._terminalService.whenConnected]).then(()=>{if(this._model&&!this._model.isDisposed()){const t=b.get(),e=new Y;this._addSummary(e),e.blank(),this._addSummaryTable(e,t),e.blank(),this._addExtensionsTable(e),e.blank(),this._addPerfMarksTable("Terminal Stats",e,this._timerService.getPerformanceMarks().find(i=>i[0]==="renderer")?.[1].filter(i=>i.name.startsWith("code/terminal/"))),e.blank(),this._addWorkbenchContributionsPerfMarksTable(e),e.blank(),this._addRawPerfMarks(e),k||(e.blank(),this._addLoaderStats(e,t),e.blank(),this._addCachedDataStats(e)),e.blank(),this._addResourceTimingStats(e),this._model.setValue(e.value)}})}_addSummary(t){const e=this._timerService.startupMetrics;t.heading(2,"System Info"),t.li(`${this._productService.nameShort}: ${this._productService.version} (${this._productService.commit||"0000000"})`),t.li(`OS: ${e.platform}(${e.release})`),e.cpus&&t.li(`CPUs: ${e.cpus.model}(${e.cpus.count} x ${e.cpus.speed})`),typeof e.totalmem=="number"&&typeof e.freemem=="number"&&t.li(`Memory(System): ${(e.totalmem/h.GB).toFixed(2)} GB(${(e.freemem/h.GB).toFixed(2)}GB free)`),e.meminfo&&t.li(`Memory(Process): ${(e.meminfo.workingSetSize/h.KB).toFixed(2)} MB working set(${(e.meminfo.privateBytes/h.KB).toFixed(2)}MB private, ${(e.meminfo.sharedBytes/h.KB).toFixed(2)}MB shared)`),t.li(`VM(likelihood): ${e.isVMLikelyhood}%`),t.li(`Initial Startup: ${e.initialStartup}`),t.li(`Has ${e.windowCount-1} other windows`),t.li(`Screen Reader Active: ${e.hasAccessibilitySupport}`),t.li(`Empty Workspace: ${e.emptyWorkbench}`)}_addSummaryTable(t,e){const i=this._timerService.startupMetrics,a=I.as(y.Workbench).timings,r=[];r.push(["start => app.isReady",i.timers.ellapsedAppReady,"[main]",`initial startup: ${i.initialStartup}`]),r.push(["nls:start => nls:end",i.timers.ellapsedNlsGeneration,"[main]",`initial startup: ${i.initialStartup}`]),r.push(["import(main.bundle.js)",i.timers.ellapsedLoadMainBundle,"[main]",`initial startup: ${i.initialStartup}`]),r.push(["start crash reporter",i.timers.ellapsedCrashReporter,"[main]",`initial startup: ${i.initialStartup}`]),r.push(["serve main IPC handle",i.timers.ellapsedMainServer,"[main]",`initial startup: ${i.initialStartup}`]),r.push(["create window",i.timers.ellapsedWindowCreate,"[main]",`initial startup: ${i.initialStartup}, ${i.initialStartup?`state: ${i.timers.ellapsedWindowRestoreState}ms, widget: ${i.timers.ellapsedBrowserWindowCreate}ms, show: ${i.timers.ellapsedWindowMaximize}ms`:""}`]),r.push(["app.isReady => window.loadUrl()",i.timers.ellapsedWindowLoad,"[main]",`initial startup: ${i.initialStartup}`]),r.push(["window.loadUrl() => begin to import(workbench.desktop.main.js)",i.timers.ellapsedWindowLoadToRequire,"[main->renderer]",R(i.windowKind)]),r.push(["import(workbench.desktop.main.js)",i.timers.ellapsedRequire,"[renderer]",`cached data: ${i.didUseCachedData?"YES":"NO"}${e?`, node_modules took ${e.nodeRequireTotal}ms`:""}`]),r.push(["wait for window config",i.timers.ellapsedWaitForWindowConfig,"[renderer]",void 0]),r.push(["init storage (global & workspace)",i.timers.ellapsedStorageInit,"[renderer]",void 0]),r.push(["init workspace service",i.timers.ellapsedWorkspaceServiceInit,"[renderer]",void 0]),z&&(r.push(["init settings and global state from settings sync service",i.timers.ellapsedRequiredUserDataInit,"[renderer]",void 0]),r.push(["init keybindings, snippets & extensions from settings sync service",i.timers.ellapsedOtherUserDataInit,"[renderer]",void 0])),r.push(["register extensions & spawn extension host",i.timers.ellapsedExtensions,"[renderer]",void 0]),r.push(["restore viewlet",i.timers.ellapsedViewletRestore,"[renderer]",i.viewletId]),r.push(["restore panel",i.timers.ellapsedPanelRestore,"[renderer]",i.panelId]),r.push(["restore & resolve visible editors",i.timers.ellapsedEditorRestore,"[renderer]",`${i.editorIds.length}: ${i.editorIds.join(", ")}`]),r.push(["create workbench contributions",i.timers.ellapsedWorkbenchContributions,"[renderer]",`${(a.get(c.Starting)?.length??0)+(a.get(c.Starting)?.length??0)} blocking startup`]),r.push(["overall workbench load",i.timers.ellapsedWorkbench,"[renderer]",void 0]),r.push(["workbench ready",i.ellapsed,"[main->renderer]",void 0]),r.push(["renderer ready",i.timers.ellapsedRenderer,"[renderer]",void 0]),r.push(["shared process connection ready",i.timers.ellapsedSharedProcesConnected,"[renderer->sharedprocess]",void 0]),r.push(["extensions registered",i.timers.ellapsedExtensionsReady,"[renderer]",void 0]),t.heading(2,"Performance Marks"),t.table(["What","Duration","Process","Info"],r)}_addExtensionsTable(t){const e=[],i=[],a=this._extensionService.getExtensionsStatus();for(const s in a){const{activationTimes:n}=a[s];n&&(n.activationReason.startup?e.push([s,n.activationReason.startup,n.codeLoadingTime,n.activateCallTime,n.activateResolvedTime,n.activationReason.activationEvent,n.activationReason.extensionId.value]):i.push([s,n.activationReason.startup,n.codeLoadingTime,n.activateCallTime,n.activateResolvedTime,n.activationReason.activationEvent,n.activationReason.extensionId.value]))}const r=e.concat(i);r.length>0&&(t.heading(2,"Extension Activation Stats"),t.table(["Extension","Eager","Load Code","Call Activate","Finish Activate","Event","By"],r))}_addPerfMarksTable(t,e,i){if(!i)return;const a=[];let r=-1,s=0;for(const{name:n,startTime:d}of i){const f=r!==-1?d-r:0;s+=f,a.push([n,Math.round(d),Math.round(f),Math.round(s)]),r=d}t&&e.heading(2,t),e.table(["Name","Timestamp","Delta","Total"],a)}_addWorkbenchContributionsPerfMarksTable(t){t.heading(2,"Workbench Contributions Blocking Restore");const e=I.as(y.Workbench).timings;t.li(`Total (LifecyclePhase.Starting): ${e.get(c.Starting)?.length} (${e.get(c.Starting)?.reduce((a,r)=>a+r[1],0)}ms)`),t.li(`Total (LifecyclePhase.Ready): ${e.get(c.Ready)?.length} (${e.get(c.Ready)?.reduce((a,r)=>a+r[1],0)}ms)`),t.blank();const i=this._timerService.getPerformanceMarks().find(a=>a[0]==="renderer")?.[1].filter(a=>a.name.startsWith("code/willCreateWorkbenchContribution/1")||a.name.startsWith("code/didCreateWorkbenchContribution/1")||a.name.startsWith("code/willCreateWorkbenchContribution/2")||a.name.startsWith("code/didCreateWorkbenchContribution/2"));this._addPerfMarksTable(void 0,t,i)}_addRawPerfMarks(t){for(const[e,i]of this._timerService.getPerformanceMarks()){t.heading(2,`Raw Perf Marks: ${e}`),t.value+="```\n",t.value+=`Name	Timestamp	Delta	Total
-`;let a=-1,r=0;for(const{name:s,startTime:n}of i){const d=a!==-1?n-a:0;r+=d,t.value+=`${s}	${n}	${d}	${r}
-`,a=n}t.value+="```\n"}}_addLoaderStats(t,e){t.heading(2,"Loader Stats"),t.heading(3,"Load AMD-module"),t.table(["Module","Duration"],e.amdLoad),t.blank(),t.heading(3,"Load commonjs-module"),t.table(["Module","Duration"],e.nodeRequire),t.blank(),t.heading(3,"Invoke AMD-module factory"),t.table(["Module","Duration"],e.amdInvoke),t.blank(),t.heading(3,"Invoke commonjs-module"),t.table(["Module","Duration"],e.nodeEval)}_addCachedDataStats(t){const e=new Map;if(e.set(l.CachedDataCreated,[]),e.set(l.CachedDataFound,[]),e.set(l.CachedDataMissed,[]),e.set(l.CachedDataRejected,[]),!k&&typeof require.getStats=="function")for(const a of require.getStats())e.has(a.type)&&e.get(a.type).push(a.detail);const i=a=>{if(a){a.sort();for(const r of a)t.li(`${r}`);t.blank()}};t.heading(2,"Node Cached Data Stats"),t.blank(),t.heading(3,"cached data used"),i(e.get(l.CachedDataFound)),t.heading(3,"cached data missed"),i(e.get(l.CachedDataMissed)),t.heading(3,"cached data rejected"),i(e.get(l.CachedDataRejected)),t.heading(3,"cached data created (lazy, might need refreshes)"),i(e.get(l.CachedDataCreated))}_addResourceTimingStats(t){const e=performance.getEntriesByType("resource").map(i=>[i.name,i.duration]);e.length&&(t.heading(2,"Resource Timing Stats"),t.table(["Name","Duration"],e))}};v=g([o(0,W),o(1,$),o(2,P),o(3,x),o(4,E),o(5,L),o(6,A),o(7,K)],v);class Y{value="";heading(t,e){return this.value+=`${"#".repeat(t)} ${e}
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  LoaderEventType,
+  LoaderStats,
+  isESM
+} from "../../../../base/common/amd.js";
+import {
+  dispose
+} from "../../../../base/common/lifecycle.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import {
+  ITextModelService
+} from "../../../../editor/common/services/resolverService.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { localize } from "../../../../nls.js";
+import {
+  ByteSize,
+  IFileService
+} from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  Extensions as WorkbenchExtensions,
+  getWorkbenchContribution
+} from "../../../common/contributions.js";
+import { TextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
+import { ICustomEditorLabelService } from "../../../services/editor/common/customEditorLabelService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
+import {
+  ILifecycleService,
+  LifecyclePhase,
+  StartupKindToString
+} from "../../../services/lifecycle/common/lifecycle.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { ITimerService } from "../../../services/timer/browser/timerService.js";
+import { writeTransientState } from "../../codeEditor/browser/toggleWordWrap.js";
+import { ITerminalService } from "../../terminal/browser/terminal.js";
+let PerfviewContrib = class {
+  constructor(_instaService, textModelResolverService) {
+    this._instaService = _instaService;
+    this._registration = textModelResolverService.registerTextModelContentProvider("perf", _instaService.createInstance(PerfModelContentProvider));
+  }
+  static {
+    __name(this, "PerfviewContrib");
+  }
+  static get() {
+    return getWorkbenchContribution(PerfviewContrib.ID);
+  }
+  static ID = "workbench.contrib.perfview";
+  _inputUri = URI.from({
+    scheme: "perf",
+    path: "Startup Performance"
+  });
+  _registration;
+  dispose() {
+    this._registration.dispose();
+  }
+  getInputUri() {
+    return this._inputUri;
+  }
+  getEditorInput() {
+    return this._instaService.createInstance(PerfviewInput);
+  }
+};
+PerfviewContrib = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, ITextModelService)
+], PerfviewContrib);
+let PerfviewInput = class extends TextResourceEditorInput {
+  static {
+    __name(this, "PerfviewInput");
+  }
+  static Id = "PerfviewInput";
+  get typeId() {
+    return PerfviewInput.Id;
+  }
+  constructor(textModelResolverService, textFileService, editorService, fileService, labelService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService) {
+    super(
+      PerfviewContrib.get().getInputUri(),
+      localize("name", "Startup Performance"),
+      void 0,
+      void 0,
+      void 0,
+      textModelResolverService,
+      textFileService,
+      editorService,
+      fileService,
+      labelService,
+      filesConfigurationService,
+      textResourceConfigurationService,
+      customEditorLabelService
+    );
+  }
+};
+PerfviewInput = __decorateClass([
+  __decorateParam(0, ITextModelService),
+  __decorateParam(1, ITextFileService),
+  __decorateParam(2, IEditorService),
+  __decorateParam(3, IFileService),
+  __decorateParam(4, ILabelService),
+  __decorateParam(5, IFilesConfigurationService),
+  __decorateParam(6, ITextResourceConfigurationService),
+  __decorateParam(7, ICustomEditorLabelService)
+], PerfviewInput);
+let PerfModelContentProvider = class {
+  constructor(_modelService, _languageService, _editorService, _lifecycleService, _timerService, _extensionService, _productService, _terminalService) {
+    this._modelService = _modelService;
+    this._languageService = _languageService;
+    this._editorService = _editorService;
+    this._lifecycleService = _lifecycleService;
+    this._timerService = _timerService;
+    this._extensionService = _extensionService;
+    this._productService = _productService;
+    this._terminalService = _terminalService;
+  }
+  static {
+    __name(this, "PerfModelContentProvider");
+  }
+  _model;
+  _modelDisposables = [];
+  provideTextContent(resource) {
+    if (!this._model || this._model.isDisposed()) {
+      dispose(this._modelDisposables);
+      const langId = this._languageService.createById("markdown");
+      this._model = this._modelService.getModel(resource) || this._modelService.createModel("Loading...", langId, resource);
+      this._modelDisposables.push(
+        langId.onDidChange((e) => {
+          this._model?.setLanguage(e);
+        })
+      );
+      this._modelDisposables.push(
+        this._extensionService.onDidChangeExtensionsStatus(
+          this._updateModel,
+          this
+        )
+      );
+      writeTransientState(
+        this._model,
+        { wordWrapOverride: "off" },
+        this._editorService
+      );
+    }
+    this._updateModel();
+    return Promise.resolve(this._model);
+  }
+  _updateModel() {
+    Promise.all([
+      this._timerService.whenReady(),
+      this._lifecycleService.when(LifecyclePhase.Eventually),
+      this._extensionService.whenInstalledExtensionsRegistered(),
+      this._terminalService.whenConnected
+    ]).then(() => {
+      if (this._model && !this._model.isDisposed()) {
+        const stats = LoaderStats.get();
+        const md = new MarkdownBuilder();
+        this._addSummary(md);
+        md.blank();
+        this._addSummaryTable(md, stats);
+        md.blank();
+        this._addExtensionsTable(md);
+        md.blank();
+        this._addPerfMarksTable(
+          "Terminal Stats",
+          md,
+          this._timerService.getPerformanceMarks().find((e) => e[0] === "renderer")?.[1].filter((e) => e.name.startsWith("code/terminal/"))
+        );
+        md.blank();
+        this._addWorkbenchContributionsPerfMarksTable(md);
+        md.blank();
+        this._addRawPerfMarks(md);
+        if (!isESM) {
+          md.blank();
+          this._addLoaderStats(md, stats);
+          md.blank();
+          this._addCachedDataStats(md);
+        }
+        md.blank();
+        this._addResourceTimingStats(md);
+        this._model.setValue(md.value);
+      }
+    });
+  }
+  _addSummary(md) {
+    const metrics = this._timerService.startupMetrics;
+    md.heading(2, "System Info");
+    md.li(
+      `${this._productService.nameShort}: ${this._productService.version} (${this._productService.commit || "0000000"})`
+    );
+    md.li(`OS: ${metrics.platform}(${metrics.release})`);
+    if (metrics.cpus) {
+      md.li(
+        `CPUs: ${metrics.cpus.model}(${metrics.cpus.count} x ${metrics.cpus.speed})`
+      );
+    }
+    if (typeof metrics.totalmem === "number" && typeof metrics.freemem === "number") {
+      md.li(
+        `Memory(System): ${(metrics.totalmem / ByteSize.GB).toFixed(2)} GB(${(metrics.freemem / ByteSize.GB).toFixed(2)}GB free)`
+      );
+    }
+    if (metrics.meminfo) {
+      md.li(
+        `Memory(Process): ${(metrics.meminfo.workingSetSize / ByteSize.KB).toFixed(2)} MB working set(${(metrics.meminfo.privateBytes / ByteSize.KB).toFixed(2)}MB private, ${(metrics.meminfo.sharedBytes / ByteSize.KB).toFixed(2)}MB shared)`
+      );
+    }
+    md.li(`VM(likelihood): ${metrics.isVMLikelyhood}%`);
+    md.li(`Initial Startup: ${metrics.initialStartup}`);
+    md.li(`Has ${metrics.windowCount - 1} other windows`);
+    md.li(`Screen Reader Active: ${metrics.hasAccessibilitySupport}`);
+    md.li(`Empty Workspace: ${metrics.emptyWorkbench}`);
+  }
+  _addSummaryTable(md, stats) {
+    const metrics = this._timerService.startupMetrics;
+    const contribTimings = Registry.as(
+      WorkbenchExtensions.Workbench
+    ).timings;
+    const table = [];
+    table.push([
+      "start => app.isReady",
+      metrics.timers.ellapsedAppReady,
+      "[main]",
+      `initial startup: ${metrics.initialStartup}`
+    ]);
+    table.push([
+      "nls:start => nls:end",
+      metrics.timers.ellapsedNlsGeneration,
+      "[main]",
+      `initial startup: ${metrics.initialStartup}`
+    ]);
+    table.push([
+      "import(main.bundle.js)",
+      metrics.timers.ellapsedLoadMainBundle,
+      "[main]",
+      `initial startup: ${metrics.initialStartup}`
+    ]);
+    table.push([
+      "start crash reporter",
+      metrics.timers.ellapsedCrashReporter,
+      "[main]",
+      `initial startup: ${metrics.initialStartup}`
+    ]);
+    table.push([
+      "serve main IPC handle",
+      metrics.timers.ellapsedMainServer,
+      "[main]",
+      `initial startup: ${metrics.initialStartup}`
+    ]);
+    table.push([
+      "create window",
+      metrics.timers.ellapsedWindowCreate,
+      "[main]",
+      `initial startup: ${metrics.initialStartup}, ${metrics.initialStartup ? `state: ${metrics.timers.ellapsedWindowRestoreState}ms, widget: ${metrics.timers.ellapsedBrowserWindowCreate}ms, show: ${metrics.timers.ellapsedWindowMaximize}ms` : ""}`
+    ]);
+    table.push([
+      "app.isReady => window.loadUrl()",
+      metrics.timers.ellapsedWindowLoad,
+      "[main]",
+      `initial startup: ${metrics.initialStartup}`
+    ]);
+    table.push([
+      "window.loadUrl() => begin to import(workbench.desktop.main.js)",
+      metrics.timers.ellapsedWindowLoadToRequire,
+      "[main->renderer]",
+      StartupKindToString(metrics.windowKind)
+    ]);
+    table.push([
+      "import(workbench.desktop.main.js)",
+      metrics.timers.ellapsedRequire,
+      "[renderer]",
+      `cached data: ${metrics.didUseCachedData ? "YES" : "NO"}${stats ? `, node_modules took ${stats.nodeRequireTotal}ms` : ""}`
+    ]);
+    table.push([
+      "wait for window config",
+      metrics.timers.ellapsedWaitForWindowConfig,
+      "[renderer]",
+      void 0
+    ]);
+    table.push([
+      "init storage (global & workspace)",
+      metrics.timers.ellapsedStorageInit,
+      "[renderer]",
+      void 0
+    ]);
+    table.push([
+      "init workspace service",
+      metrics.timers.ellapsedWorkspaceServiceInit,
+      "[renderer]",
+      void 0
+    ]);
+    if (isWeb) {
+      table.push([
+        "init settings and global state from settings sync service",
+        metrics.timers.ellapsedRequiredUserDataInit,
+        "[renderer]",
+        void 0
+      ]);
+      table.push([
+        "init keybindings, snippets & extensions from settings sync service",
+        metrics.timers.ellapsedOtherUserDataInit,
+        "[renderer]",
+        void 0
+      ]);
+    }
+    table.push([
+      "register extensions & spawn extension host",
+      metrics.timers.ellapsedExtensions,
+      "[renderer]",
+      void 0
+    ]);
+    table.push([
+      "restore viewlet",
+      metrics.timers.ellapsedViewletRestore,
+      "[renderer]",
+      metrics.viewletId
+    ]);
+    table.push([
+      "restore panel",
+      metrics.timers.ellapsedPanelRestore,
+      "[renderer]",
+      metrics.panelId
+    ]);
+    table.push([
+      "restore & resolve visible editors",
+      metrics.timers.ellapsedEditorRestore,
+      "[renderer]",
+      `${metrics.editorIds.length}: ${metrics.editorIds.join(", ")}`
+    ]);
+    table.push([
+      "create workbench contributions",
+      metrics.timers.ellapsedWorkbenchContributions,
+      "[renderer]",
+      `${(contribTimings.get(LifecyclePhase.Starting)?.length ?? 0) + (contribTimings.get(LifecyclePhase.Starting)?.length ?? 0)} blocking startup`
+    ]);
+    table.push([
+      "overall workbench load",
+      metrics.timers.ellapsedWorkbench,
+      "[renderer]",
+      void 0
+    ]);
+    table.push([
+      "workbench ready",
+      metrics.ellapsed,
+      "[main->renderer]",
+      void 0
+    ]);
+    table.push([
+      "renderer ready",
+      metrics.timers.ellapsedRenderer,
+      "[renderer]",
+      void 0
+    ]);
+    table.push([
+      "shared process connection ready",
+      metrics.timers.ellapsedSharedProcesConnected,
+      "[renderer->sharedprocess]",
+      void 0
+    ]);
+    table.push([
+      "extensions registered",
+      metrics.timers.ellapsedExtensionsReady,
+      "[renderer]",
+      void 0
+    ]);
+    md.heading(2, "Performance Marks");
+    md.table(["What", "Duration", "Process", "Info"], table);
+  }
+  _addExtensionsTable(md) {
+    const eager = [];
+    const normal = [];
+    const extensionsStatus = this._extensionService.getExtensionsStatus();
+    for (const id in extensionsStatus) {
+      const { activationTimes: times } = extensionsStatus[id];
+      if (!times) {
+        continue;
+      }
+      if (times.activationReason.startup) {
+        eager.push([
+          id,
+          times.activationReason.startup,
+          times.codeLoadingTime,
+          times.activateCallTime,
+          times.activateResolvedTime,
+          times.activationReason.activationEvent,
+          times.activationReason.extensionId.value
+        ]);
+      } else {
+        normal.push([
+          id,
+          times.activationReason.startup,
+          times.codeLoadingTime,
+          times.activateCallTime,
+          times.activateResolvedTime,
+          times.activationReason.activationEvent,
+          times.activationReason.extensionId.value
+        ]);
+      }
+    }
+    const table = eager.concat(normal);
+    if (table.length > 0) {
+      md.heading(2, "Extension Activation Stats");
+      md.table(
+        [
+          "Extension",
+          "Eager",
+          "Load Code",
+          "Call Activate",
+          "Finish Activate",
+          "Event",
+          "By"
+        ],
+        table
+      );
+    }
+  }
+  _addPerfMarksTable(name, md, marks) {
+    if (!marks) {
+      return;
+    }
+    const table = [];
+    let lastStartTime = -1;
+    let total = 0;
+    for (const { name: name2, startTime } of marks) {
+      const delta = lastStartTime !== -1 ? startTime - lastStartTime : 0;
+      total += delta;
+      table.push([
+        name2,
+        Math.round(startTime),
+        Math.round(delta),
+        Math.round(total)
+      ]);
+      lastStartTime = startTime;
+    }
+    if (name) {
+      md.heading(2, name);
+    }
+    md.table(["Name", "Timestamp", "Delta", "Total"], table);
+  }
+  _addWorkbenchContributionsPerfMarksTable(md) {
+    md.heading(2, "Workbench Contributions Blocking Restore");
+    const timings = Registry.as(
+      WorkbenchExtensions.Workbench
+    ).timings;
+    md.li(
+      `Total (LifecyclePhase.Starting): ${timings.get(LifecyclePhase.Starting)?.length} (${timings.get(LifecyclePhase.Starting)?.reduce((p, c) => p + c[1], 0)}ms)`
+    );
+    md.li(
+      `Total (LifecyclePhase.Ready): ${timings.get(LifecyclePhase.Ready)?.length} (${timings.get(LifecyclePhase.Ready)?.reduce((p, c) => p + c[1], 0)}ms)`
+    );
+    md.blank();
+    const marks = this._timerService.getPerformanceMarks().find((e) => e[0] === "renderer")?.[1].filter(
+      (e) => e.name.startsWith(
+        "code/willCreateWorkbenchContribution/1"
+      ) || e.name.startsWith(
+        "code/didCreateWorkbenchContribution/1"
+      ) || e.name.startsWith(
+        "code/willCreateWorkbenchContribution/2"
+      ) || e.name.startsWith("code/didCreateWorkbenchContribution/2")
+    );
+    this._addPerfMarksTable(void 0, md, marks);
+  }
+  _addRawPerfMarks(md) {
+    for (const [
+      source,
+      marks
+    ] of this._timerService.getPerformanceMarks()) {
+      md.heading(2, `Raw Perf Marks: ${source}`);
+      md.value += "```\n";
+      md.value += `Name	Timestamp	Delta	Total
+`;
+      let lastStartTime = -1;
+      let total = 0;
+      for (const { name, startTime } of marks) {
+        const delta = lastStartTime !== -1 ? startTime - lastStartTime : 0;
+        total += delta;
+        md.value += `${name}	${startTime}	${delta}	${total}
+`;
+        lastStartTime = startTime;
+      }
+      md.value += "```\n";
+    }
+  }
+  _addLoaderStats(md, stats) {
+    md.heading(2, "Loader Stats");
+    md.heading(3, "Load AMD-module");
+    md.table(["Module", "Duration"], stats.amdLoad);
+    md.blank();
+    md.heading(3, "Load commonjs-module");
+    md.table(["Module", "Duration"], stats.nodeRequire);
+    md.blank();
+    md.heading(3, "Invoke AMD-module factory");
+    md.table(["Module", "Duration"], stats.amdInvoke);
+    md.blank();
+    md.heading(3, "Invoke commonjs-module");
+    md.table(["Module", "Duration"], stats.nodeEval);
+  }
+  _addCachedDataStats(md) {
+    const map = /* @__PURE__ */ new Map();
+    map.set(LoaderEventType.CachedDataCreated, []);
+    map.set(LoaderEventType.CachedDataFound, []);
+    map.set(LoaderEventType.CachedDataMissed, []);
+    map.set(LoaderEventType.CachedDataRejected, []);
+    if (!isESM && typeof require.getStats === "function") {
+      for (const stat of require.getStats()) {
+        if (map.has(stat.type)) {
+          map.get(stat.type).push(stat.detail);
+        }
+      }
+    }
+    const printLists = /* @__PURE__ */ __name((arr) => {
+      if (arr) {
+        arr.sort();
+        for (const e of arr) {
+          md.li(`${e}`);
+        }
+        md.blank();
+      }
+    }, "printLists");
+    md.heading(2, "Node Cached Data Stats");
+    md.blank();
+    md.heading(3, "cached data used");
+    printLists(map.get(LoaderEventType.CachedDataFound));
+    md.heading(3, "cached data missed");
+    printLists(map.get(LoaderEventType.CachedDataMissed));
+    md.heading(3, "cached data rejected");
+    printLists(map.get(LoaderEventType.CachedDataRejected));
+    md.heading(3, "cached data created (lazy, might need refreshes)");
+    printLists(map.get(LoaderEventType.CachedDataCreated));
+  }
+  _addResourceTimingStats(md) {
+    const stats = performance.getEntriesByType("resource").map((entry) => {
+      return [entry.name, entry.duration];
+    });
+    if (!stats.length) {
+      return;
+    }
+    md.heading(2, "Resource Timing Stats");
+    md.table(["Name", "Duration"], stats);
+  }
+};
+PerfModelContentProvider = __decorateClass([
+  __decorateParam(0, IModelService),
+  __decorateParam(1, ILanguageService),
+  __decorateParam(2, ICodeEditorService),
+  __decorateParam(3, ILifecycleService),
+  __decorateParam(4, ITimerService),
+  __decorateParam(5, IExtensionService),
+  __decorateParam(6, IProductService),
+  __decorateParam(7, ITerminalService)
+], PerfModelContentProvider);
+class MarkdownBuilder {
+  static {
+    __name(this, "MarkdownBuilder");
+  }
+  value = "";
+  heading(level, value) {
+    this.value += `${"#".repeat(level)} ${value}
 
-`,this}blank(){return this.value+=`
-`,this}li(t){return this.value+=`* ${t}
-`,this}table(t,e){this.value+=b.toMarkdownTable(t,e)}}export{p as PerfviewContrib,u as PerfviewInput};
+`;
+    return this;
+  }
+  blank() {
+    this.value += "\n";
+    return this;
+  }
+  li(value) {
+    this.value += `* ${value}
+`;
+    return this;
+  }
+  table(header, rows) {
+    this.value += LoaderStats.toMarkdownTable(header, rows);
+  }
+}
+export {
+  PerfviewContrib,
+  PerfviewInput
+};
+//# sourceMappingURL=perfviewEditor.js.map

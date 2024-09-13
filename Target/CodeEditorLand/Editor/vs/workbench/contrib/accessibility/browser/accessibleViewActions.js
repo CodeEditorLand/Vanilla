@@ -1,1 +1,495 @@
-import{Codicon as b}from"../../../../base/common/codicons.js";import{KeyCode as o,KeyMod as e}from"../../../../base/common/keyCodes.js";import{MultiCommand as f}from"../../../../editor/browser/editorExtensions.js";import{localize as s}from"../../../../nls.js";import{Action2 as d,MenuId as m,registerAction2 as a}from"../../../../platform/actions/common/actions.js";import{ContextKeyExpr as i}from"../../../../platform/contextkey/common/contextkey.js";import{KeybindingWeight as r}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{AccessibilityCommandId as l}from"../common/accessibilityCommands.js";import{accessibilityHelpIsShown as g,accessibleViewContainsCodeBlocks as C,accessibleViewCurrentProviderId as h,accessibleViewGoToSymbolSupported as S,accessibleViewHasAssignedKeybindings as H,accessibleViewHasUnassignedKeybindings as x,accessibleViewIsShown as t,accessibleViewSupportsNavigation as k,accessibleViewVerbosityEnabled as P}from"./accessibilityConfiguration.js";import{AccessibleViewProviderId as v,IAccessibleViewService as p}from"../../../../platform/accessibility/browser/accessibleView.js";import{ICodeEditorService as W}from"../../../../editor/browser/services/codeEditorService.js";import{InlineCompletionsController as B}from"../../../../editor/contrib/inlineCompletions/browser/controller/inlineCompletionsController.js";const u={id:m.AccessibleView,group:"navigation",when:t},A={id:m.CommandPalette,group:"",order:1};class O extends d{constructor(){super({id:l.ShowNext,precondition:i.and(t,k),keybinding:{primary:e.Alt|o.BracketRight,weight:r.WorkbenchContrib},menu:[A,{...u,when:i.and(t,k)}],icon:b.arrowDown,title:s("editor.action.accessibleViewNext","Show Next in Accessible View")})}run(n){n.get(p).next()}}a(O);class T extends d{constructor(){super({id:l.NextCodeBlock,precondition:i.and(C,i.equals(h.key,v.Chat)),keybinding:{primary:e.CtrlCmd|e.Alt|o.PageDown,mac:{primary:e.CtrlCmd|e.Alt|o.PageDown},weight:r.WorkbenchContrib},icon:b.arrowRight,menu:{...u,when:i.and(t,C)},title:s("editor.action.accessibleViewNextCodeBlock","Accessible View: Next Code Block")})}run(n){n.get(p).navigateToCodeBlock("next")}}a(T);class N extends d{constructor(){super({id:l.PreviousCodeBlock,precondition:i.and(C,i.equals(h.key,v.Chat)),keybinding:{primary:e.CtrlCmd|e.Alt|o.PageUp,mac:{primary:e.CtrlCmd|e.Alt|o.PageUp},weight:r.WorkbenchContrib},icon:b.arrowLeft,menu:{...u,when:i.and(t,C)},title:s("editor.action.accessibleViewPreviousCodeBlock","Accessible View: Previous Code Block")})}run(n){n.get(p).navigateToCodeBlock("previous")}}a(N);class F extends d{constructor(){super({id:l.ShowPrevious,precondition:i.and(t,k),keybinding:{primary:e.Alt|o.BracketLeft,weight:r.WorkbenchContrib},icon:b.arrowUp,menu:[A,{...u,when:i.and(t,k)}],title:s("editor.action.accessibleViewPrevious","Show Previous in Accessible View")})}run(n){n.get(p).previous()}}a(F);class D extends d{constructor(){super({id:l.GoToSymbol,precondition:i.and(i.or(t,g),S),keybinding:{primary:e.CtrlCmd|e.Shift|o.KeyO,secondary:[e.CtrlCmd|e.Shift|o.Period],weight:r.WorkbenchContrib+10},icon:b.symbolField,menu:[A,{...u,when:i.and(i.or(t,g),S)}],title:s("editor.action.accessibleViewGoToSymbol","Go To Symbol in Accessible View")})}run(n){n.get(p).goToSymbol()}}a(D);function K(c){return c.register(),c}const ne=K(new f({id:l.OpenAccessibilityHelp,precondition:void 0,kbOpts:{primary:e.Alt|o.F1,weight:r.WorkbenchContrib,linux:{primary:e.Alt|e.Shift|o.F1,secondary:[e.Alt|o.F1]},kbExpr:g.toNegated()},menuOpts:[{menuId:m.CommandPalette,group:"",title:s("editor.action.accessibilityHelp","Open Accessibility Help"),order:1}]})),te=K(new f({id:l.OpenAccessibleView,precondition:void 0,kbOpts:{primary:e.Alt|o.F2,weight:r.WorkbenchContrib,linux:{primary:e.Alt|e.Shift|o.F2,secondary:[e.Alt|o.F2]}},menuOpts:[{menuId:m.CommandPalette,group:"",title:s("editor.action.accessibleView","Open Accessible View"),order:1}]}));class E extends d{constructor(){super({id:l.DisableVerbosityHint,precondition:i.and(i.or(t,g),P),keybinding:{primary:e.Alt|o.F6,weight:r.WorkbenchContrib},icon:b.bellSlash,menu:[A,{id:m.AccessibleView,group:"navigation",when:i.and(i.or(t,g),P)}],title:s("editor.action.accessibleViewDisableHint","Disable Accessible View Hint")})}run(n){n.get(p).disableHint()}}a(E);class L extends d{constructor(){super({id:l.AccessibilityHelpConfigureKeybindings,precondition:i.and(g,x),icon:b.key,keybinding:{primary:e.Alt|o.KeyK,weight:r.WorkbenchContrib},menu:[{id:m.AccessibleView,group:"navigation",order:3,when:x}],title:s("editor.action.accessibilityHelpConfigureUnassignedKeybindings","Accessibility Help Configure Unassigned Keybindings")})}async run(n){await n.get(p).configureKeybindings(!0)}}a(L);class U extends d{constructor(){super({id:l.AccessibilityHelpConfigureAssignedKeybindings,precondition:i.and(g,H),icon:b.key,keybinding:{primary:e.Alt|o.KeyA,weight:r.WorkbenchContrib},menu:[{id:m.AccessibleView,group:"navigation",order:4,when:H}],title:s("editor.action.accessibilityHelpConfigureAssignedKeybindings","Accessibility Help Configure Assigned Keybindings")})}async run(n){await n.get(p).configureKeybindings(!1)}}a(U);class G extends d{constructor(){super({id:l.AccessibilityHelpOpenHelpLink,precondition:i.and(g),keybinding:{primary:e.Alt|o.KeyH,weight:r.WorkbenchContrib},title:s("editor.action.accessibilityHelpOpenHelpLink","Accessibility Help Open Help Link")})}run(n){n.get(p).openHelpLink()}}a(G);class q extends d{constructor(){super({id:l.AccessibleViewAcceptInlineCompletion,precondition:i.and(t,i.equals(h.key,v.InlineCompletions)),keybinding:{primary:e.CtrlCmd|o.Slash,mac:{primary:e.WinCtrl|o.Slash},weight:r.WorkbenchContrib},icon:b.check,menu:[A,{id:m.AccessibleView,group:"navigation",order:0,when:i.and(t,i.equals(h.key,v.InlineCompletions))}],title:s("editor.action.accessibleViewAcceptInlineCompletionAction","Accept Inline Completion")})}async run(n){const V=n.get(W),y=V.getActiveCodeEditor()||V.getFocusedCodeEditor();if(!y)return;const w=B.get(y)?.model.get(),I=w?.state.get();!w||!I||(await w.accept(y),w.stop(),y.focus())}}a(q);export{ne as AccessibilityHelpAction,te as AccessibleViewAction};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../base/common/codicons.js";
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import {
+  MultiCommand
+} from "../../../../editor/browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { InlineCompletionsController } from "../../../../editor/contrib/inlineCompletions/browser/controller/inlineCompletionsController.js";
+import { localize } from "../../../../nls.js";
+import {
+  AccessibleViewProviderId,
+  IAccessibleViewService
+} from "../../../../platform/accessibility/browser/accessibleView.js";
+import {
+  Action2,
+  MenuId,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { AccessibilityCommandId } from "../common/accessibilityCommands.js";
+import {
+  accessibilityHelpIsShown,
+  accessibleViewContainsCodeBlocks,
+  accessibleViewCurrentProviderId,
+  accessibleViewGoToSymbolSupported,
+  accessibleViewHasAssignedKeybindings,
+  accessibleViewHasUnassignedKeybindings,
+  accessibleViewIsShown,
+  accessibleViewSupportsNavigation,
+  accessibleViewVerbosityEnabled
+} from "./accessibilityConfiguration.js";
+const accessibleViewMenu = {
+  id: MenuId.AccessibleView,
+  group: "navigation",
+  when: accessibleViewIsShown
+};
+const commandPalette = {
+  id: MenuId.CommandPalette,
+  group: "",
+  order: 1
+};
+class AccessibleViewNextAction extends Action2 {
+  static {
+    __name(this, "AccessibleViewNextAction");
+  }
+  constructor() {
+    super({
+      id: AccessibilityCommandId.ShowNext,
+      precondition: ContextKeyExpr.and(
+        accessibleViewIsShown,
+        accessibleViewSupportsNavigation
+      ),
+      keybinding: {
+        primary: KeyMod.Alt | KeyCode.BracketRight,
+        weight: KeybindingWeight.WorkbenchContrib
+      },
+      menu: [
+        commandPalette,
+        {
+          ...accessibleViewMenu,
+          when: ContextKeyExpr.and(
+            accessibleViewIsShown,
+            accessibleViewSupportsNavigation
+          )
+        }
+      ],
+      icon: Codicon.arrowDown,
+      title: localize(
+        "editor.action.accessibleViewNext",
+        "Show Next in Accessible View"
+      )
+    });
+  }
+  run(accessor) {
+    accessor.get(IAccessibleViewService).next();
+  }
+}
+registerAction2(AccessibleViewNextAction);
+class AccessibleViewNextCodeBlockAction extends Action2 {
+  static {
+    __name(this, "AccessibleViewNextCodeBlockAction");
+  }
+  constructor() {
+    super({
+      id: AccessibilityCommandId.NextCodeBlock,
+      precondition: ContextKeyExpr.and(
+        accessibleViewContainsCodeBlocks,
+        ContextKeyExpr.equals(
+          accessibleViewCurrentProviderId.key,
+          AccessibleViewProviderId.Chat
+        )
+      ),
+      keybinding: {
+        primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageDown,
+        mac: {
+          primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageDown
+        },
+        weight: KeybindingWeight.WorkbenchContrib
+      },
+      icon: Codicon.arrowRight,
+      menu: {
+        ...accessibleViewMenu,
+        when: ContextKeyExpr.and(
+          accessibleViewIsShown,
+          accessibleViewContainsCodeBlocks
+        )
+      },
+      title: localize(
+        "editor.action.accessibleViewNextCodeBlock",
+        "Accessible View: Next Code Block"
+      )
+    });
+  }
+  run(accessor) {
+    accessor.get(IAccessibleViewService).navigateToCodeBlock("next");
+  }
+}
+registerAction2(AccessibleViewNextCodeBlockAction);
+class AccessibleViewPreviousCodeBlockAction extends Action2 {
+  static {
+    __name(this, "AccessibleViewPreviousCodeBlockAction");
+  }
+  constructor() {
+    super({
+      id: AccessibilityCommandId.PreviousCodeBlock,
+      precondition: ContextKeyExpr.and(
+        accessibleViewContainsCodeBlocks,
+        ContextKeyExpr.equals(
+          accessibleViewCurrentProviderId.key,
+          AccessibleViewProviderId.Chat
+        )
+      ),
+      keybinding: {
+        primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageUp,
+        mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageUp },
+        weight: KeybindingWeight.WorkbenchContrib
+      },
+      icon: Codicon.arrowLeft,
+      menu: {
+        ...accessibleViewMenu,
+        when: ContextKeyExpr.and(
+          accessibleViewIsShown,
+          accessibleViewContainsCodeBlocks
+        )
+      },
+      title: localize(
+        "editor.action.accessibleViewPreviousCodeBlock",
+        "Accessible View: Previous Code Block"
+      )
+    });
+  }
+  run(accessor) {
+    accessor.get(IAccessibleViewService).navigateToCodeBlock("previous");
+  }
+}
+registerAction2(AccessibleViewPreviousCodeBlockAction);
+class AccessibleViewPreviousAction extends Action2 {
+  static {
+    __name(this, "AccessibleViewPreviousAction");
+  }
+  constructor() {
+    super({
+      id: AccessibilityCommandId.ShowPrevious,
+      precondition: ContextKeyExpr.and(
+        accessibleViewIsShown,
+        accessibleViewSupportsNavigation
+      ),
+      keybinding: {
+        primary: KeyMod.Alt | KeyCode.BracketLeft,
+        weight: KeybindingWeight.WorkbenchContrib
+      },
+      icon: Codicon.arrowUp,
+      menu: [
+        commandPalette,
+        {
+          ...accessibleViewMenu,
+          when: ContextKeyExpr.and(
+            accessibleViewIsShown,
+            accessibleViewSupportsNavigation
+          )
+        }
+      ],
+      title: localize(
+        "editor.action.accessibleViewPrevious",
+        "Show Previous in Accessible View"
+      )
+    });
+  }
+  run(accessor) {
+    accessor.get(IAccessibleViewService).previous();
+  }
+}
+registerAction2(AccessibleViewPreviousAction);
+class AccessibleViewGoToSymbolAction extends Action2 {
+  static {
+    __name(this, "AccessibleViewGoToSymbolAction");
+  }
+  constructor() {
+    super({
+      id: AccessibilityCommandId.GoToSymbol,
+      precondition: ContextKeyExpr.and(
+        ContextKeyExpr.or(
+          accessibleViewIsShown,
+          accessibilityHelpIsShown
+        ),
+        accessibleViewGoToSymbolSupported
+      ),
+      keybinding: {
+        primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyO,
+        secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Period],
+        weight: KeybindingWeight.WorkbenchContrib + 10
+      },
+      icon: Codicon.symbolField,
+      menu: [
+        commandPalette,
+        {
+          ...accessibleViewMenu,
+          when: ContextKeyExpr.and(
+            ContextKeyExpr.or(
+              accessibleViewIsShown,
+              accessibilityHelpIsShown
+            ),
+            accessibleViewGoToSymbolSupported
+          )
+        }
+      ],
+      title: localize(
+        "editor.action.accessibleViewGoToSymbol",
+        "Go To Symbol in Accessible View"
+      )
+    });
+  }
+  run(accessor) {
+    accessor.get(IAccessibleViewService).goToSymbol();
+  }
+}
+registerAction2(AccessibleViewGoToSymbolAction);
+function registerCommand(command) {
+  command.register();
+  return command;
+}
+__name(registerCommand, "registerCommand");
+const AccessibilityHelpAction = registerCommand(
+  new MultiCommand({
+    id: AccessibilityCommandId.OpenAccessibilityHelp,
+    precondition: void 0,
+    kbOpts: {
+      primary: KeyMod.Alt | KeyCode.F1,
+      weight: KeybindingWeight.WorkbenchContrib,
+      linux: {
+        primary: KeyMod.Alt | KeyMod.Shift | KeyCode.F1,
+        secondary: [KeyMod.Alt | KeyCode.F1]
+      },
+      kbExpr: accessibilityHelpIsShown.toNegated()
+    },
+    menuOpts: [
+      {
+        menuId: MenuId.CommandPalette,
+        group: "",
+        title: localize(
+          "editor.action.accessibilityHelp",
+          "Open Accessibility Help"
+        ),
+        order: 1
+      }
+    ]
+  })
+);
+const AccessibleViewAction = registerCommand(
+  new MultiCommand({
+    id: AccessibilityCommandId.OpenAccessibleView,
+    precondition: void 0,
+    kbOpts: {
+      primary: KeyMod.Alt | KeyCode.F2,
+      weight: KeybindingWeight.WorkbenchContrib,
+      linux: {
+        primary: KeyMod.Alt | KeyMod.Shift | KeyCode.F2,
+        secondary: [KeyMod.Alt | KeyCode.F2]
+      }
+    },
+    menuOpts: [
+      {
+        menuId: MenuId.CommandPalette,
+        group: "",
+        title: localize(
+          "editor.action.accessibleView",
+          "Open Accessible View"
+        ),
+        order: 1
+      }
+    ]
+  })
+);
+class AccessibleViewDisableHintAction extends Action2 {
+  static {
+    __name(this, "AccessibleViewDisableHintAction");
+  }
+  constructor() {
+    super({
+      id: AccessibilityCommandId.DisableVerbosityHint,
+      precondition: ContextKeyExpr.and(
+        ContextKeyExpr.or(
+          accessibleViewIsShown,
+          accessibilityHelpIsShown
+        ),
+        accessibleViewVerbosityEnabled
+      ),
+      keybinding: {
+        primary: KeyMod.Alt | KeyCode.F6,
+        weight: KeybindingWeight.WorkbenchContrib
+      },
+      icon: Codicon.bellSlash,
+      menu: [
+        commandPalette,
+        {
+          id: MenuId.AccessibleView,
+          group: "navigation",
+          when: ContextKeyExpr.and(
+            ContextKeyExpr.or(
+              accessibleViewIsShown,
+              accessibilityHelpIsShown
+            ),
+            accessibleViewVerbosityEnabled
+          )
+        }
+      ],
+      title: localize(
+        "editor.action.accessibleViewDisableHint",
+        "Disable Accessible View Hint"
+      )
+    });
+  }
+  run(accessor) {
+    accessor.get(IAccessibleViewService).disableHint();
+  }
+}
+registerAction2(AccessibleViewDisableHintAction);
+class AccessibilityHelpConfigureKeybindingsAction extends Action2 {
+  static {
+    __name(this, "AccessibilityHelpConfigureKeybindingsAction");
+  }
+  constructor() {
+    super({
+      id: AccessibilityCommandId.AccessibilityHelpConfigureKeybindings,
+      precondition: ContextKeyExpr.and(
+        accessibilityHelpIsShown,
+        accessibleViewHasUnassignedKeybindings
+      ),
+      icon: Codicon.key,
+      keybinding: {
+        primary: KeyMod.Alt | KeyCode.KeyK,
+        weight: KeybindingWeight.WorkbenchContrib
+      },
+      menu: [
+        {
+          id: MenuId.AccessibleView,
+          group: "navigation",
+          order: 3,
+          when: accessibleViewHasUnassignedKeybindings
+        }
+      ],
+      title: localize(
+        "editor.action.accessibilityHelpConfigureUnassignedKeybindings",
+        "Accessibility Help Configure Unassigned Keybindings"
+      )
+    });
+  }
+  async run(accessor) {
+    await accessor.get(IAccessibleViewService).configureKeybindings(true);
+  }
+}
+registerAction2(AccessibilityHelpConfigureKeybindingsAction);
+class AccessibilityHelpConfigureAssignedKeybindingsAction extends Action2 {
+  static {
+    __name(this, "AccessibilityHelpConfigureAssignedKeybindingsAction");
+  }
+  constructor() {
+    super({
+      id: AccessibilityCommandId.AccessibilityHelpConfigureAssignedKeybindings,
+      precondition: ContextKeyExpr.and(
+        accessibilityHelpIsShown,
+        accessibleViewHasAssignedKeybindings
+      ),
+      icon: Codicon.key,
+      keybinding: {
+        primary: KeyMod.Alt | KeyCode.KeyA,
+        weight: KeybindingWeight.WorkbenchContrib
+      },
+      menu: [
+        {
+          id: MenuId.AccessibleView,
+          group: "navigation",
+          order: 4,
+          when: accessibleViewHasAssignedKeybindings
+        }
+      ],
+      title: localize(
+        "editor.action.accessibilityHelpConfigureAssignedKeybindings",
+        "Accessibility Help Configure Assigned Keybindings"
+      )
+    });
+  }
+  async run(accessor) {
+    await accessor.get(IAccessibleViewService).configureKeybindings(false);
+  }
+}
+registerAction2(AccessibilityHelpConfigureAssignedKeybindingsAction);
+class AccessibilityHelpOpenHelpLinkAction extends Action2 {
+  static {
+    __name(this, "AccessibilityHelpOpenHelpLinkAction");
+  }
+  constructor() {
+    super({
+      id: AccessibilityCommandId.AccessibilityHelpOpenHelpLink,
+      precondition: ContextKeyExpr.and(accessibilityHelpIsShown),
+      keybinding: {
+        primary: KeyMod.Alt | KeyCode.KeyH,
+        weight: KeybindingWeight.WorkbenchContrib
+      },
+      title: localize(
+        "editor.action.accessibilityHelpOpenHelpLink",
+        "Accessibility Help Open Help Link"
+      )
+    });
+  }
+  run(accessor) {
+    accessor.get(IAccessibleViewService).openHelpLink();
+  }
+}
+registerAction2(AccessibilityHelpOpenHelpLinkAction);
+class AccessibleViewAcceptInlineCompletionAction extends Action2 {
+  static {
+    __name(this, "AccessibleViewAcceptInlineCompletionAction");
+  }
+  constructor() {
+    super({
+      id: AccessibilityCommandId.AccessibleViewAcceptInlineCompletion,
+      precondition: ContextKeyExpr.and(
+        accessibleViewIsShown,
+        ContextKeyExpr.equals(
+          accessibleViewCurrentProviderId.key,
+          AccessibleViewProviderId.InlineCompletions
+        )
+      ),
+      keybinding: {
+        primary: KeyMod.CtrlCmd | KeyCode.Slash,
+        mac: { primary: KeyMod.WinCtrl | KeyCode.Slash },
+        weight: KeybindingWeight.WorkbenchContrib
+      },
+      icon: Codicon.check,
+      menu: [
+        commandPalette,
+        {
+          id: MenuId.AccessibleView,
+          group: "navigation",
+          order: 0,
+          when: ContextKeyExpr.and(
+            accessibleViewIsShown,
+            ContextKeyExpr.equals(
+              accessibleViewCurrentProviderId.key,
+              AccessibleViewProviderId.InlineCompletions
+            )
+          )
+        }
+      ],
+      title: localize(
+        "editor.action.accessibleViewAcceptInlineCompletionAction",
+        "Accept Inline Completion"
+      )
+    });
+  }
+  async run(accessor) {
+    const codeEditorService = accessor.get(ICodeEditorService);
+    const editor = codeEditorService.getActiveCodeEditor() || codeEditorService.getFocusedCodeEditor();
+    if (!editor) {
+      return;
+    }
+    const model = InlineCompletionsController.get(editor)?.model.get();
+    const state = model?.state.get();
+    if (!model || !state) {
+      return;
+    }
+    await model.accept(editor);
+    model.stop();
+    editor.focus();
+  }
+}
+registerAction2(AccessibleViewAcceptInlineCompletionAction);
+export {
+  AccessibilityHelpAction,
+  AccessibleViewAction
+};
+//# sourceMappingURL=accessibleViewActions.js.map

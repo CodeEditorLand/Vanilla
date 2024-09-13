@@ -1,1 +1,6 @@
-import"../../../base/common/uri.js";import{createDecorator as e}from"../../instantiation/common/instantiation.js";const i=e("checksumService");export{i as IChecksumService};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IChecksumService = createDecorator("checksumService");
+export {
+  IChecksumService
+};
+//# sourceMappingURL=checksumService.js.map

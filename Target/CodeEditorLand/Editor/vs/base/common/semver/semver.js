@@ -1,1 +1,753 @@
-const hr={},f={exports:hr};(function(D,s){if(typeof hr=="object"&&typeof f=="object")f.exports=s();else if(typeof define=="function"&&define.amd)define([],s);else{var g=s();for(var c in g)(typeof hr=="object"?hr:D)[c]=g[c]}})(typeof self<"u"?self:void 0,function(){return function(D){var s={};function g(c){if(s[c])return s[c].exports;var o=s[c]={i:c,l:!1,exports:{}};return D[c].call(o.exports,o,o.exports,g),o.l=!0,o.exports}return g.m=D,g.c=s,g.d=function(c,o,I){g.o(c,o)||Object.defineProperty(c,o,{enumerable:!0,get:I})},g.r=function(c){typeof Symbol<"u"&&Symbol.toStringTag&&Object.defineProperty(c,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(c,"__esModule",{value:!0})},g.t=function(c,o){if(1&o&&(c=g(c)),8&o||4&o&&typeof c=="object"&&c&&c.__esModule)return c;var I=Object.create(null);if(g.r(I),Object.defineProperty(I,"default",{enumerable:!0,value:c}),2&o&&typeof c!="string")for(var P in c)g.d(I,P,function(h){return c[h]}.bind(null,P));return I},g.n=function(c){var o=c&&c.__esModule?function(){return c.default}:function(){return c};return g.d(o,"a",o),o},g.o=function(c,o){return Object.prototype.hasOwnProperty.call(c,o)},g.p="",g(g.s=0)}([function(D,s,g){(function(c){var o;s=D.exports=m,o=typeof c=="object"&&c.env&&c.env.NODE_DEBUG&&/\bsemver\b/i.test(c.env.NODE_DEBUG)?function(){var r=Array.prototype.slice.call(arguments,0);r.unshift("SEMVER")}:function(){},s.SEMVER_SPEC_VERSION="2.0.0";var I=256,P=Number.MAX_SAFE_INTEGER||9007199254740991,h=s.re=[],n=s.src=[],u=0,O=u++;n[O]="0|[1-9]\\d*";var N=u++;n[N]="[0-9]+";var K=u++;n[K]="\\d*[a-zA-Z-][a-zA-Z0-9-]*";var Q=u++;n[Q]="("+n[O]+")\\.("+n[O]+")\\.("+n[O]+")";var W=u++;n[W]="("+n[N]+")\\.("+n[N]+")\\.("+n[N]+")";var M=u++;n[M]="(?:"+n[O]+"|"+n[K]+")";var E=u++;n[E]="(?:"+n[N]+"|"+n[K]+")";var C=u++;n[C]="(?:-("+n[M]+"(?:\\."+n[M]+")*))";var $=u++;n[$]="(?:-?("+n[E]+"(?:\\."+n[E]+")*))";var tr=u++;n[tr]="[0-9A-Za-z-]+";var Z=u++;n[Z]="(?:\\+("+n[tr]+"(?:\\."+n[tr]+")*))";var mr=u++,jr="v?"+n[Q]+n[C]+"?"+n[Z]+"?";n[mr]="^"+jr+"$";var vr="[v=\\s]*"+n[W]+n[$]+"?"+n[Z]+"?",gr=u++;n[gr]="^"+vr+"$";var F=u++;n[F]="((?:<|>)?=?)";var nr=u++;n[nr]=n[N]+"|x|X|\\*";var or=u++;n[or]=n[O]+"|x|X|\\*";var X=u++;n[X]="[v=\\s]*("+n[or]+")(?:\\.("+n[or]+")(?:\\.("+n[or]+")(?:"+n[C]+")?"+n[Z]+"?)?)?";var H=u++;n[H]="[v=\\s]*("+n[nr]+")(?:\\.("+n[nr]+")(?:\\.("+n[nr]+")(?:"+n[$]+")?"+n[Z]+"?)?)?";var Tr=u++;n[Tr]="^"+n[F]+"\\s*"+n[X]+"$";var Sr=u++;n[Sr]="^"+n[F]+"\\s*"+n[H]+"$";var Rr=u++;n[Rr]="(?:^|[^\\d])(\\d{1,16})(?:\\.(\\d{1,16}))?(?:\\.(\\d{1,16}))?(?:$|[^\\d])";var ir=u++;n[ir]="(?:~>?)";var sr=u++;n[sr]="(\\s*)"+n[ir]+"\\s+",h[sr]=new RegExp(n[sr],"g");var $r=u++;n[$r]="^"+n[ir]+n[X]+"$";var kr=u++;n[kr]="^"+n[ir]+n[H]+"$";var ar=u++;n[ar]="(?:\\^)";var cr=u++;n[cr]="(\\s*)"+n[ar]+"\\s+",h[cr]=new RegExp(n[cr],"g");var Ir=u++;n[Ir]="^"+n[ar]+n[X]+"$";var Vr=u++;n[Vr]="^"+n[ar]+n[H]+"$";var xr=u++;n[xr]="^"+n[F]+"\\s*("+vr+")$|^$";var dr=u++;n[dr]="^"+n[F]+"\\s*("+jr+")$|^$";var Y=u++;n[Y]="(\\s*)"+n[F]+"\\s*("+vr+"|"+n[X]+")",h[Y]=new RegExp(n[Y],"g");var _r=u++;n[_r]="^\\s*("+n[X]+")\\s+-\\s+("+n[X]+")\\s*$";var Or=u++;n[Or]="^\\s*("+n[H]+")\\s+-\\s+("+n[H]+")\\s*$";var Mr=u++;n[Mr]="(<|>)?=?\\s*\\*";for(var z=0;z<35;z++)o(z,n[z]),h[z]||(h[z]=new RegExp(n[z]));function G(r,e){if(r instanceof m)return r;if(typeof r!="string"||r.length>I||!(e?h[gr]:h[mr]).test(r))return null;try{return new m(r,e)}catch{return null}}function m(r,e){if(r instanceof m){if(r.loose===e)return r;r=r.version}else if(typeof r!="string")throw new TypeError("Invalid Version: "+r);if(r.length>I)throw new TypeError("version is longer than "+I+" characters");if(!(this instanceof m))return new m(r,e);o("SemVer",r,e),this.loose=e;var t=r.trim().match(e?h[gr]:h[mr]);if(!t)throw new TypeError("Invalid Version: "+r);if(this.raw=r,this.major=+t[1],this.minor=+t[2],this.patch=+t[3],this.major>P||this.major<0)throw new TypeError("Invalid major version");if(this.minor>P||this.minor<0)throw new TypeError("Invalid minor version");if(this.patch>P||this.patch<0)throw new TypeError("Invalid patch version");t[4]?this.prerelease=t[4].split(".").map(function(i){if(/^[0-9]+$/.test(i)){var a=+i;if(a>=0&&a<P)return a}return i}):this.prerelease=[],this.build=t[5]?t[5].split("."):[],this.format()}s.parse=G,s.valid=function(r,e){var t=G(r,e);return t?t.version:null},s.clean=function(r,e){var t=G(r.trim().replace(/^[=v]+/,""),e);return t?t.version:null},s.SemVer=m,m.prototype.format=function(){return this.version=this.major+"."+this.minor+"."+this.patch,this.prerelease.length&&(this.version+="-"+this.prerelease.join(".")),this.version},m.prototype.toString=function(){return this.version},m.prototype.compare=function(r){return o("SemVer.compare",this.version,this.loose,r),r instanceof m||(r=new m(r,this.loose)),this.compareMain(r)||this.comparePre(r)},m.prototype.compareMain=function(r){return r instanceof m||(r=new m(r,this.loose)),J(this.major,r.major)||J(this.minor,r.minor)||J(this.patch,r.patch)},m.prototype.comparePre=function(r){if(r instanceof m||(r=new m(r,this.loose)),this.prerelease.length&&!r.prerelease.length)return-1;if(!this.prerelease.length&&r.prerelease.length)return 1;if(!this.prerelease.length&&!r.prerelease.length)return 0;var e=0;do{var t=this.prerelease[e],i=r.prerelease[e];if(o("prerelease compare",e,t,i),t===void 0&&i===void 0)return 0;if(i===void 0)return 1;if(t===void 0)return-1;if(t!==i)return J(t,i)}while(++e)},m.prototype.inc=function(r,e){switch(r){case"premajor":this.prerelease.length=0,this.patch=0,this.minor=0,this.major++,this.inc("pre",e);break;case"preminor":this.prerelease.length=0,this.patch=0,this.minor++,this.inc("pre",e);break;case"prepatch":this.prerelease.length=0,this.inc("patch",e),this.inc("pre",e);break;case"prerelease":this.prerelease.length===0&&this.inc("patch",e),this.inc("pre",e);break;case"major":this.minor===0&&this.patch===0&&this.prerelease.length!==0||this.major++,this.minor=0,this.patch=0,this.prerelease=[];break;case"minor":this.patch===0&&this.prerelease.length!==0||this.minor++,this.patch=0,this.prerelease=[];break;case"patch":this.prerelease.length===0&&this.patch++,this.prerelease=[];break;case"pre":if(this.prerelease.length===0)this.prerelease=[0];else{for(var t=this.prerelease.length;--t>=0;)typeof this.prerelease[t]=="number"&&(this.prerelease[t]++,t=-2);t===-1&&this.prerelease.push(0)}e&&(this.prerelease[0]===e?isNaN(this.prerelease[1])&&(this.prerelease=[e,0]):this.prerelease=[e,0]);break;default:throw new Error("invalid increment argument: "+r)}return this.format(),this.raw=this.version,this},s.inc=function(r,e,t,i){typeof t=="string"&&(i=t,t=void 0);try{return new m(r,t).inc(e,i).version}catch{return null}},s.diff=function(r,e){if(yr(r,e))return null;var t=G(r),i=G(e);if(t.prerelease.length||i.prerelease.length){for(var a in t)if((a==="major"||a==="minor"||a==="patch")&&t[a]!==i[a])return"pre"+a;return"prerelease"}for(var a in t)if((a==="major"||a==="minor"||a==="patch")&&t[a]!==i[a])return a},s.compareIdentifiers=J;var Cr=/^[0-9]+$/;function J(r,e){var t=Cr.test(r),i=Cr.test(e);return t&&i&&(r=+r,e=+e),t&&!i?-1:i&&!t?1:r<e?-1:r>e?1:0}function B(r,e,t){return new m(r,t).compare(new m(e,t))}function pr(r,e,t){return B(r,e,t)>0}function ur(r,e,t){return B(r,e,t)<0}function yr(r,e,t){return B(r,e,t)===0}function Ar(r,e,t){return B(r,e,t)!==0}function wr(r,e,t){return B(r,e,t)>=0}function br(r,e,t){return B(r,e,t)<=0}function fr(r,e,t,i){var a;switch(e){case"===":typeof r=="object"&&(r=r.version),typeof t=="object"&&(t=t.version),a=r===t;break;case"!==":typeof r=="object"&&(r=r.version),typeof t=="object"&&(t=t.version),a=r!==t;break;case"":case"=":case"==":a=yr(r,t,i);break;case"!=":a=Ar(r,t,i);break;case">":a=pr(r,t,i);break;case">=":a=wr(r,t,i);break;case"<":a=ur(r,t,i);break;case"<=":a=br(r,t,i);break;default:throw new TypeError("Invalid operator: "+e)}return a}function A(r,e){if(r instanceof A){if(r.loose===e)return r;r=r.value}if(!(this instanceof A))return new A(r,e);o("comparator",r,e),this.loose=e,this.parse(r),this.semver===U?this.value="":this.value=this.operator+this.semver.version,o("comp",this)}s.rcompareIdentifiers=function(r,e){return J(e,r)},s.major=function(r,e){return new m(r,e).major},s.minor=function(r,e){return new m(r,e).minor},s.patch=function(r,e){return new m(r,e).patch},s.compare=B,s.compareLoose=function(r,e){return B(r,e,!0)},s.rcompare=function(r,e,t){return B(e,r,t)},s.sort=function(r,e){return r.sort(function(t,i){return s.compare(t,i,e)})},s.rsort=function(r,e){return r.sort(function(t,i){return s.rcompare(t,i,e)})},s.gt=pr,s.lt=ur,s.eq=yr,s.neq=Ar,s.gte=wr,s.lte=br,s.cmp=fr,s.Comparator=A;var U={};function y(r,e){if(r instanceof y)return r.loose===e?r:new y(r.raw,e);if(r instanceof A)return new y(r.value,e);if(!(this instanceof y))return new y(r,e);if(this.loose=e,this.raw=r,this.set=r.split(/\s*\|\|\s*/).map(function(t){return this.parseRange(t.trim())},this).filter(function(t){return t.length}),!this.set.length)throw new TypeError("Invalid SemVer Range: "+r);this.format()}function k(r){return!r||r.toLowerCase()==="x"||r==="*"}function Nr(r,e,t,i,a,j,v,V,w,R,L,b,T){return((e=k(t)?"":k(i)?">="+t+".0.0":k(a)?">="+t+"."+i+".0":">="+e)+" "+(V=k(w)?"":k(R)?"<"+(+w+1)+".0.0":k(L)?"<"+w+"."+(+R+1)+".0":b?"<="+w+"."+R+"."+L+"-"+b:"<="+V)).trim()}function qr(r,e){for(var t=0;t<r.length;t++)if(!r[t].test(e))return!1;if(e.prerelease.length){for(t=0;t<r.length;t++)if(o(r[t].semver),r[t].semver!==U&&r[t].semver.prerelease.length>0){var i=r[t].semver;if(i.major===e.major&&i.minor===e.minor&&i.patch===e.patch)return!0}return!1}return!0}function lr(r,e,t){try{e=new y(e,t)}catch{return!1}return e.test(r)}function Er(r,e,t,i){var a,j,v,V,w;switch(r=new m(r,i),e=new y(e,i),t){case">":a=pr,j=br,v=ur,V=">",w=">=";break;case"<":a=ur,j=wr,v=pr,V="<",w="<=";break;default:throw new TypeError('Must provide a hilo val of "<" or ">"')}if(lr(r,e,i))return!1;for(var R=0;R<e.set.length;++R){var L=e.set[R],b=null,T=null;if(L.forEach(function(_){_.semver===U&&(_=new A(">=0.0.0")),b=b||_,T=T||_,a(_.semver,b.semver,i)?b=_:v(_.semver,T.semver,i)&&(T=_)}),b.operator===V||b.operator===w||(!T.operator||T.operator===V)&&j(r,T.semver)||T.operator===w&&v(r,T.semver))return!1}return!0}A.prototype.parse=function(r){var e=this.loose?h[xr]:h[dr],t=r.match(e);if(!t)throw new TypeError("Invalid comparator: "+r);this.operator=t[1],this.operator==="="&&(this.operator=""),t[2]?this.semver=new m(t[2],this.loose):this.semver=U},A.prototype.toString=function(){return this.value},A.prototype.test=function(r){return o("Comparator.test",r,this.loose),this.semver===U||(typeof r=="string"&&(r=new m(r,this.loose)),fr(r,this.operator,this.semver,this.loose))},A.prototype.intersects=function(r,e){if(!(r instanceof A))throw new TypeError("a Comparator is required");var t;if(this.operator==="")return t=new y(r.value,e),lr(this.value,t,e);if(r.operator==="")return t=new y(this.value,e),lr(r.semver,t,e);var i=!(this.operator!==">="&&this.operator!==">"||r.operator!==">="&&r.operator!==">"),a=!(this.operator!=="<="&&this.operator!=="<"||r.operator!=="<="&&r.operator!=="<"),j=this.semver.version===r.semver.version,v=!(this.operator!==">="&&this.operator!=="<="||r.operator!==">="&&r.operator!=="<="),V=fr(this.semver,"<",r.semver,e)&&(this.operator===">="||this.operator===">")&&(r.operator==="<="||r.operator==="<"),w=fr(this.semver,">",r.semver,e)&&(this.operator==="<="||this.operator==="<")&&(r.operator===">="||r.operator===">");return i||a||j&&v||V||w},s.Range=y,y.prototype.format=function(){return this.range=this.set.map(function(r){return r.join(" ").trim()}).join("||").trim(),this.range},y.prototype.toString=function(){return this.range},y.prototype.parseRange=function(r){var e=this.loose;r=r.trim(),o("range",r,e);var t=e?h[Or]:h[_r];r=r.replace(t,Nr),o("hyphen replace",r),r=r.replace(h[Y],"$1$2$3"),o("comparator trim",r,h[Y]),r=(r=(r=r.replace(h[sr],"$1~")).replace(h[cr],"$1^")).split(/\s+/).join(" ");var i=e?h[xr]:h[dr],a=r.split(" ").map(function(j){return function(v,V){return o("comp",v),v=function(w,R){return w.trim().split(/\s+/).map(function(L){return function(b,T){o("caret",b,T);var _=T?h[Vr]:h[Ir];return b.replace(_,function(q,p,l,x,d){var S;return o("caret",b,q,p,l,x,d),k(p)?S="":k(l)?S=">="+p+".0.0 <"+(+p+1)+".0.0":k(x)?S=p==="0"?">="+p+"."+l+".0 <"+p+"."+(+l+1)+".0":">="+p+"."+l+".0 <"+(+p+1)+".0.0":d?(o("replaceCaret pr",d),d.charAt(0)!=="-"&&(d="-"+d),S=p==="0"?l==="0"?">="+p+"."+l+"."+x+d+" <"+p+"."+l+"."+(+x+1):">="+p+"."+l+"."+x+d+" <"+p+"."+(+l+1)+".0":">="+p+"."+l+"."+x+d+" <"+(+p+1)+".0.0"):(o("no pr"),S=p==="0"?l==="0"?">="+p+"."+l+"."+x+" <"+p+"."+l+"."+(+x+1):">="+p+"."+l+"."+x+" <"+p+"."+(+l+1)+".0":">="+p+"."+l+"."+x+" <"+(+p+1)+".0.0"),o("caret return",S),S})}(L,R)}).join(" ")}(v,V),o("caret",v),v=function(w,R){return w.trim().split(/\s+/).map(function(L){return function(b,T){var _=T?h[kr]:h[$r];return b.replace(_,function(q,p,l,x,d){var S;return o("tilde",b,q,p,l,x,d),k(p)?S="":k(l)?S=">="+p+".0.0 <"+(+p+1)+".0.0":k(x)?S=">="+p+"."+l+".0 <"+p+"."+(+l+1)+".0":d?(o("replaceTilde pr",d),d.charAt(0)!=="-"&&(d="-"+d),S=">="+p+"."+l+"."+x+d+" <"+p+"."+(+l+1)+".0"):S=">="+p+"."+l+"."+x+" <"+p+"."+(+l+1)+".0",o("tilde return",S),S})}(L,R)}).join(" ")}(v,V),o("tildes",v),v=function(w,R){return o("replaceXRanges",w,R),w.split(/\s+/).map(function(L){return function(b,T){b=b.trim();var _=T?h[Sr]:h[Tr];return b.replace(_,function(q,p,l,x,d,S){o("xRange",b,q,p,l,x,d,S);var Pr=k(l),rr=Pr||k(x),er=rr||k(d);return p==="="&&er&&(p=""),Pr?q=p===">"||p==="<"?"<0.0.0":"*":p&&er?(rr&&(x=0),er&&(d=0),p===">"?(p=">=",rr?(l=+l+1,x=0,d=0):er&&(x=+x+1,d=0)):p==="<="&&(p="<",rr?l=+l+1:x=+x+1),q=p+l+"."+x+"."+d):rr?q=">="+l+".0.0 <"+(+l+1)+".0.0":er&&(q=">="+l+"."+x+".0 <"+l+"."+(+x+1)+".0"),o("xRange return",q),q})}(L,R)}).join(" ")}(v,V),o("xrange",v),v=function(w,R){return o("replaceStars",w,R),w.trim().replace(h[Mr],"")}(v,V),o("stars",v),v}(j,e)}).join(" ").split(/\s+/);return this.loose&&(a=a.filter(function(j){return!!j.match(i)})),a=a.map(function(j){return new A(j,e)})},y.prototype.intersects=function(r,e){if(!(r instanceof y))throw new TypeError("a Range is required");return this.set.some(function(t){return t.every(function(i){return r.set.some(function(a){return a.every(function(j){return i.intersects(j,e)})})})})},s.toComparators=function(r,e){return new y(r,e).set.map(function(t){return t.map(function(i){return i.value}).join(" ").trim().split(" ")})},y.prototype.test=function(r){if(!r)return!1;typeof r=="string"&&(r=new m(r,this.loose));for(var e=0;e<this.set.length;e++)if(qr(this.set[e],r))return!0;return!1},s.satisfies=lr,s.maxSatisfying=function(r,e,t){var i=null,a=null;try{var j=new y(e,t)}catch{return null}return r.forEach(function(v){j.test(v)&&(i&&a.compare(v)!==-1||(a=new m(i=v,t)))}),i},s.minSatisfying=function(r,e,t){var i=null,a=null;try{var j=new y(e,t)}catch{return null}return r.forEach(function(v){j.test(v)&&(i&&a.compare(v)!==1||(a=new m(i=v,t)))}),i},s.validRange=function(r,e){try{return new y(r,e).range||"*"}catch{return null}},s.ltr=function(r,e,t){return Er(r,e,"<",t)},s.gtr=function(r,e,t){return Er(r,e,">",t)},s.outside=Er,s.prerelease=function(r,e){var t=G(r,e);return t&&t.prerelease.length?t.prerelease:null},s.intersects=function(r,e,t){return r=new y(r,t),e=new y(e,t),r.intersects(e)},s.coerce=function(r){if(r instanceof m)return r;if(typeof r!="string")return null;var e=r.match(h[Rr]);return e==null?null:G((e[1]||"0")+"."+(e[2]||"0")+"."+(e[3]||"0"))}}).call(this,g(1))},function(D,s){var g,c,o=D.exports={};function I(){throw new Error("setTimeout has not been defined")}function P(){throw new Error("clearTimeout has not been defined")}function h(E){if(g===setTimeout)return setTimeout(E,0);if((g===I||!g)&&setTimeout)return g=setTimeout,setTimeout(E,0);try{return g(E,0)}catch{try{return g.call(null,E,0)}catch{return g.call(this,E,0)}}}(function(){try{g=typeof setTimeout=="function"?setTimeout:I}catch{g=I}try{c=typeof clearTimeout=="function"?clearTimeout:P}catch{c=P}})();var n,u=[],O=!1,N=-1;function K(){O&&n&&(O=!1,n.length?u=n.concat(u):N=-1,u.length&&Q())}function Q(){if(!O){var E=h(K);O=!0;for(var C=u.length;C;){for(n=u,u=[];++N<C;)n&&n[N].run();N=-1,C=u.length}n=null,O=!1,function($){if(c===clearTimeout)return clearTimeout($);if((c===P||!c)&&clearTimeout)return c=clearTimeout,clearTimeout($);try{c($)}catch{try{return c.call(null,$)}catch{return c.call(this,$)}}}(E)}}function W(E,C){this.fun=E,this.array=C}function M(){}o.nextTick=function(E){var C=new Array(arguments.length-1);if(arguments.length>1)for(var $=1;$<arguments.length;$++)C[$-1]=arguments[$];u.push(new W(E,C)),u.length!==1||O||h(Q)},W.prototype.run=function(){this.fun.apply(null,this.array)},o.title="browser",o.browser=!0,o.env={},o.argv=[],o.version="",o.versions={},o.on=M,o.addListener=M,o.once=M,o.off=M,o.removeListener=M,o.removeAllListeners=M,o.emit=M,o.prependListener=M,o.prependOnceListener=M,o.listeners=function(E){return[]},o.binding=function(E){throw new Error("process.binding is not supported")},o.cwd=function(){return"/"},o.chdir=function(E){throw new Error("process.chdir is not supported")},o.umask=function(){return 0}}])});const Lr=f.exports.SEMVER_SPEC_VERSION,Br=f.exports.parse,Dr=f.exports.valid,Xr=f.exports.coerce,zr=f.exports.clean,Gr=f.exports.inc,Zr=f.exports.major,Fr=f.exports.minor,Hr=f.exports.patch,Jr=f.exports.prerelease,Kr=f.exports.gt,Qr=f.exports.gte,Wr=f.exports.lt,Yr=f.exports.lte,Ur=f.exports.eq,re=f.exports.neq,ee=f.exports.cmp,te=f.exports.compare,ne=f.exports.rcompare,oe=f.exports.compareIdentifiers,ie=f.exports.rcompareIdentifiers,se=f.exports.compareBuild,ae=f.exports.sort,ce=f.exports.rsort,pe=f.exports.diff,ue=f.exports.validRange,fe=f.exports.satisfies,le=f.exports.maxSatisfying,he=f.exports.minSatisfying,me=f.exports.minVersion,ve=f.exports.gtr,ge=f.exports.ltr,xe=f.exports.outside,de=f.exports.intersects,ye=f.exports.SemVer,we=f.exports.Comparator,be=f.exports.Range;export{we as Comparator,be as Range,Lr as SEMVER_SPEC_VERSION,ye as SemVer,zr as clean,ee as cmp,Xr as coerce,te as compare,se as compareBuild,oe as compareIdentifiers,pe as diff,Ur as eq,Kr as gt,Qr as gte,ve as gtr,Gr as inc,de as intersects,Wr as lt,Yr as lte,ge as ltr,Zr as major,le as maxSatisfying,he as minSatisfying,me as minVersion,Fr as minor,re as neq,xe as outside,Br as parse,Hr as patch,Jr as prerelease,ne as rcompare,ie as rcompareIdentifiers,ce as rsort,fe as satisfies,ae as sort,Dr as valid,ue as validRange};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const exports = {};
+const module = { exports };
+!((e, r) => {
+  if (typeof exports == "object" && typeof module == "object")
+    module.exports = r();
+  else if (typeof define == "function" && define.amd) define([], r);
+  else {
+    var t = r();
+    for (var n in t) (typeof exports == "object" ? exports : e)[n] = t[n];
+  }
+})(
+  typeof self != "undefined" ? self : void 0,
+  () => ((e) => {
+    var r = {};
+    function t(n) {
+      if (r[n]) return r[n].exports;
+      var o = r[n] = { i: n, l: false, exports: {} };
+      return e[n].call(o.exports, o, o.exports, t), o.l = true, o.exports;
+    }
+    __name(t, "t");
+    return t.m = e, t.c = r, t.d = (e2, r2, n) => {
+      t.o(e2, r2) || Object.defineProperty(e2, r2, { enumerable: true, get: n });
+    }, t.r = (e2) => {
+      typeof Symbol != "undefined" && Symbol.toStringTag && Object.defineProperty(e2, Symbol.toStringTag, {
+        value: "Module"
+      }), Object.defineProperty(e2, "__esModule", { value: true });
+    }, t.t = (e2, r2) => {
+      if (1 & r2 && (e2 = t(e2)), 8 & r2) return e2;
+      if (4 & r2 && typeof e2 == "object" && e2 && e2.__esModule)
+        return e2;
+      var n = /* @__PURE__ */ Object.create(null);
+      if (t.r(n), Object.defineProperty(n, "default", {
+        enumerable: true,
+        value: e2
+      }), 2 & r2 && typeof e2 != "string")
+        for (var o in e2) t.d(n, o, ((r3) => e2[r3]).bind(null, o));
+      return n;
+    }, t.n = (e2) => {
+      var r2 = e2 && e2.__esModule ? () => e2.default : () => e2;
+      return t.d(r2, "a", r2), r2;
+    }, t.o = (e2, r2) => Object.prototype.hasOwnProperty.call(e2, r2), t.p = "", t(t.s = 0);
+  })([
+    function(e, r, t) {
+      ((t2) => {
+        var n;
+        r = e.exports = H, n = typeof t2 == "object" && t2.env && t2.env.NODE_DEBUG && /\bsemver\b/i.test(t2.env.NODE_DEBUG) ? () => {
+          var e2 = Array.prototype.slice.call(
+            arguments,
+            0
+          );
+          e2.unshift("SEMVER"), console.log.apply(console, e2);
+        } : () => {
+        }, r.SEMVER_SPEC_VERSION = "2.0.0";
+        var o = 256, i = Number.MAX_SAFE_INTEGER || 9007199254740991, s = r.re = [], a = r.src = [], u = 0, c = u++;
+        a[c] = "0|[1-9]\\d*";
+        var p = u++;
+        a[p] = "[0-9]+";
+        var f = u++;
+        a[f] = "\\d*[a-zA-Z-][a-zA-Z0-9-]*";
+        var l = u++;
+        a[l] = "(" + a[c] + ")\\.(" + a[c] + ")\\.(" + a[c] + ")";
+        var h = u++;
+        a[h] = "(" + a[p] + ")\\.(" + a[p] + ")\\.(" + a[p] + ")";
+        var v = u++;
+        a[v] = "(?:" + a[c] + "|" + a[f] + ")";
+        var m = u++;
+        a[m] = "(?:" + a[p] + "|" + a[f] + ")";
+        var w = u++;
+        a[w] = "(?:-(" + a[v] + "(?:\\." + a[v] + ")*))";
+        var g = u++;
+        a[g] = "(?:-?(" + a[m] + "(?:\\." + a[m] + ")*))";
+        var y = u++;
+        a[y] = "[0-9A-Za-z-]+";
+        var d = u++;
+        a[d] = "(?:\\+(" + a[y] + "(?:\\." + a[y] + ")*))";
+        var b = u++, j = "v?" + a[l] + a[w] + "?" + a[d] + "?";
+        a[b] = "^" + j + "$";
+        var E = "[v=\\s]*" + a[h] + a[g] + "?" + a[d] + "?", T = u++;
+        a[T] = "^" + E + "$";
+        var x = u++;
+        a[x] = "((?:<|>)?=?)";
+        var $ = u++;
+        a[$] = a[p] + "|x|X|\\*";
+        var k = u++;
+        a[k] = a[c] + "|x|X|\\*";
+        var S = u++;
+        a[S] = "[v=\\s]*(" + a[k] + ")(?:\\.(" + a[k] + ")(?:\\.(" + a[k] + ")(?:" + a[w] + ")?" + a[d] + "?)?)?";
+        var R = u++;
+        a[R] = "[v=\\s]*(" + a[$] + ")(?:\\.(" + a[$] + ")(?:\\.(" + a[$] + ")(?:" + a[g] + ")?" + a[d] + "?)?)?";
+        var I = u++;
+        a[I] = "^" + a[x] + "\\s*" + a[S] + "$";
+        var _ = u++;
+        a[_] = "^" + a[x] + "\\s*" + a[R] + "$";
+        var O = u++;
+        a[O] = "(?:^|[^\\d])(\\d{1,16})(?:\\.(\\d{1,16}))?(?:\\.(\\d{1,16}))?(?:$|[^\\d])";
+        var A = u++;
+        a[A] = "(?:~>?)";
+        var M = u++;
+        a[M] = "(\\s*)" + a[A] + "\\s+", s[M] = new RegExp(a[M], "g");
+        var V = u++;
+        a[V] = "^" + a[A] + a[S] + "$";
+        var P = u++;
+        a[P] = "^" + a[A] + a[R] + "$";
+        var C = u++;
+        a[C] = "(?:\\^)";
+        var L = u++;
+        a[L] = "(\\s*)" + a[C] + "\\s+", s[L] = new RegExp(a[L], "g");
+        var N = u++;
+        a[N] = "^" + a[C] + a[S] + "$";
+        var q = u++;
+        a[q] = "^" + a[C] + a[R] + "$";
+        var D = u++;
+        a[D] = "^" + a[x] + "\\s*(" + E + ")$|^$";
+        var X = u++;
+        a[X] = "^" + a[x] + "\\s*(" + j + ")$|^$";
+        var z = u++;
+        a[z] = "(\\s*)" + a[x] + "\\s*(" + E + "|" + a[S] + ")", s[z] = new RegExp(a[z], "g");
+        var G = u++;
+        a[G] = "^\\s*(" + a[S] + ")\\s+-\\s+(" + a[S] + ")\\s*$";
+        var Z = u++;
+        a[Z] = "^\\s*(" + a[R] + ")\\s+-\\s+(" + a[R] + ")\\s*$";
+        var B = u++;
+        a[B] = "(<|>)?=?\\s*\\*";
+        for (var U = 0; U < 35; U++)
+          n(U, a[U]), s[U] || (s[U] = new RegExp(a[U]));
+        function F(e2, r2) {
+          if (e2 instanceof H) return e2;
+          if (typeof e2 != "string") return null;
+          if (e2.length > o) return null;
+          if (!(r2 ? s[T] : s[b]).test(e2)) return null;
+          try {
+            return new H(e2, r2);
+          } catch (e3) {
+            return null;
+          }
+        }
+        __name(F, "F");
+        function H(e2, r2) {
+          if (e2 instanceof H) {
+            if (e2.loose === r2) return e2;
+            e2 = e2.version;
+          } else if (typeof e2 != "string")
+            throw new TypeError("Invalid Version: " + e2);
+          if (e2.length > o)
+            throw new TypeError(
+              "version is longer than " + o + " characters"
+            );
+          if (!(this instanceof H)) return new H(e2, r2);
+          n("SemVer", e2, r2), this.loose = r2;
+          var t3 = e2.trim().match(r2 ? s[T] : s[b]);
+          if (!t3) throw new TypeError("Invalid Version: " + e2);
+          if (this.raw = e2, this.major = +t3[1], this.minor = +t3[2], this.patch = +t3[3], this.major > i || this.major < 0)
+            throw new TypeError("Invalid major version");
+          if (this.minor > i || this.minor < 0)
+            throw new TypeError("Invalid minor version");
+          if (this.patch > i || this.patch < 0)
+            throw new TypeError("Invalid patch version");
+          t3[4] ? this.prerelease = t3[4].split(".").map((e3) => {
+            if (/^[0-9]+$/.test(e3)) {
+              var r3 = +e3;
+              if (r3 >= 0 && r3 < i) return r3;
+            }
+            return e3;
+          }) : this.prerelease = [], this.build = t3[5] ? t3[5].split(".") : [], this.format();
+        }
+        __name(H, "H");
+        r.parse = F, r.valid = (e2, r2) => {
+          var t3 = F(e2, r2);
+          return t3 ? t3.version : null;
+        }, r.clean = (e2, r2) => {
+          var t3 = F(e2.trim().replace(/^[=v]+/, ""), r2);
+          return t3 ? t3.version : null;
+        }, r.SemVer = H, H.prototype.format = function() {
+          return this.version = this.major + "." + this.minor + "." + this.patch, this.prerelease.length && (this.version += "-" + this.prerelease.join(".")), this.version;
+        }, H.prototype.toString = function() {
+          return this.version;
+        }, H.prototype.compare = function(e2) {
+          return n("SemVer.compare", this.version, this.loose, e2), e2 instanceof H || (e2 = new H(e2, this.loose)), this.compareMain(e2) || this.comparePre(e2);
+        }, H.prototype.compareMain = function(e2) {
+          return e2 instanceof H || (e2 = new H(e2, this.loose)), K(this.major, e2.major) || K(this.minor, e2.minor) || K(this.patch, e2.patch);
+        }, H.prototype.comparePre = function(e2) {
+          if (e2 instanceof H || (e2 = new H(e2, this.loose)), this.prerelease.length && !e2.prerelease.length)
+            return -1;
+          if (!this.prerelease.length && e2.prerelease.length)
+            return 1;
+          if (!this.prerelease.length && !e2.prerelease.length)
+            return 0;
+          var r2 = 0;
+          do {
+            var t3 = this.prerelease[r2], o2 = e2.prerelease[r2];
+            if (n("prerelease compare", r2, t3, o2), void 0 === t3 && void 0 === o2)
+              return 0;
+            if (void 0 === o2) return 1;
+            if (void 0 === t3) return -1;
+            if (t3 !== o2) return K(t3, o2);
+          } while (++r2);
+        }, H.prototype.inc = function(e2, r2) {
+          switch (e2) {
+            case "premajor":
+              this.prerelease.length = 0, this.patch = 0, this.minor = 0, this.major++, this.inc("pre", r2);
+              break;
+            case "preminor":
+              this.prerelease.length = 0, this.patch = 0, this.minor++, this.inc("pre", r2);
+              break;
+            case "prepatch":
+              this.prerelease.length = 0, this.inc("patch", r2), this.inc("pre", r2);
+              break;
+            case "prerelease":
+              this.prerelease.length === 0 && this.inc("patch", r2), this.inc("pre", r2);
+              break;
+            case "major":
+              this.minor === 0 && this.patch === 0 && this.prerelease.length !== 0 || this.major++, this.minor = 0, this.patch = 0, this.prerelease = [];
+              break;
+            case "minor":
+              this.patch === 0 && this.prerelease.length !== 0 || this.minor++, this.patch = 0, this.prerelease = [];
+              break;
+            case "patch":
+              this.prerelease.length === 0 && this.patch++, this.prerelease = [];
+              break;
+            case "pre":
+              if (this.prerelease.length === 0)
+                this.prerelease = [0];
+              else {
+                for (var t3 = this.prerelease.length; --t3 >= 0; )
+                  typeof this.prerelease[t3] == "number" && (this.prerelease[t3]++, t3 = -2);
+                t3 === -1 && this.prerelease.push(0);
+              }
+              r2 && (this.prerelease[0] === r2 ? isNaN(this.prerelease[1]) && (this.prerelease = [r2, 0]) : this.prerelease = [r2, 0]);
+              break;
+            default:
+              throw new Error(
+                "invalid increment argument: " + e2
+              );
+          }
+          return this.format(), this.raw = this.version, this;
+        }, r.inc = (e2, r2, t3, n2) => {
+          typeof t3 == "string" && (n2 = t3, t3 = void 0);
+          try {
+            return new H(e2, t3).inc(r2, n2).version;
+          } catch (e3) {
+            return null;
+          }
+        }, r.diff = (e2, r2) => {
+          if (ee(e2, r2)) return null;
+          var t3 = F(e2), n2 = F(r2);
+          if (t3.prerelease.length || n2.prerelease.length) {
+            for (var o2 in t3)
+              if ((o2 === "major" || o2 === "minor" || o2 === "patch") && t3[o2] !== n2[o2])
+                return "pre" + o2;
+            return "prerelease";
+          }
+          for (var o2 in t3)
+            if ((o2 === "major" || o2 === "minor" || o2 === "patch") && t3[o2] !== n2[o2])
+              return o2;
+        }, r.compareIdentifiers = K;
+        var J = /^[0-9]+$/;
+        function K(e2, r2) {
+          var t3 = J.test(e2), n2 = J.test(r2);
+          return t3 && n2 && (e2 = +e2, r2 = +r2), t3 && !n2 ? -1 : n2 && !t3 ? 1 : e2 < r2 ? -1 : e2 > r2 ? 1 : 0;
+        }
+        __name(K, "K");
+        function Q(e2, r2, t3) {
+          return new H(e2, t3).compare(new H(r2, t3));
+        }
+        __name(Q, "Q");
+        function W(e2, r2, t3) {
+          return Q(e2, r2, t3) > 0;
+        }
+        __name(W, "W");
+        function Y(e2, r2, t3) {
+          return Q(e2, r2, t3) < 0;
+        }
+        __name(Y, "Y");
+        function ee(e2, r2, t3) {
+          return Q(e2, r2, t3) === 0;
+        }
+        __name(ee, "ee");
+        function re(e2, r2, t3) {
+          return Q(e2, r2, t3) !== 0;
+        }
+        __name(re, "re");
+        function te(e2, r2, t3) {
+          return Q(e2, r2, t3) >= 0;
+        }
+        __name(te, "te");
+        function ne(e2, r2, t3) {
+          return Q(e2, r2, t3) <= 0;
+        }
+        __name(ne, "ne");
+        function oe(e2, r2, t3, n2) {
+          var o2;
+          switch (r2) {
+            case "===":
+              typeof e2 == "object" && (e2 = e2.version), typeof t3 == "object" && (t3 = t3.version), o2 = e2 === t3;
+              break;
+            case "!==":
+              typeof e2 == "object" && (e2 = e2.version), typeof t3 == "object" && (t3 = t3.version), o2 = e2 !== t3;
+              break;
+            case "":
+            case "=":
+            case "==":
+              o2 = ee(e2, t3, n2);
+              break;
+            case "!=":
+              o2 = re(e2, t3, n2);
+              break;
+            case ">":
+              o2 = W(e2, t3, n2);
+              break;
+            case ">=":
+              o2 = te(e2, t3, n2);
+              break;
+            case "<":
+              o2 = Y(e2, t3, n2);
+              break;
+            case "<=":
+              o2 = ne(e2, t3, n2);
+              break;
+            default:
+              throw new TypeError("Invalid operator: " + r2);
+          }
+          return o2;
+        }
+        __name(oe, "oe");
+        function ie(e2, r2) {
+          if (e2 instanceof ie) {
+            if (e2.loose === r2) return e2;
+            e2 = e2.value;
+          }
+          if (!(this instanceof ie)) return new ie(e2, r2);
+          n("comparator", e2, r2), this.loose = r2, this.parse(e2), this.semver === se ? this.value = "" : this.value = this.operator + this.semver.version, n("comp", this);
+        }
+        __name(ie, "ie");
+        r.rcompareIdentifiers = (e2, r2) => K(r2, e2), r.major = (e2, r2) => new H(e2, r2).major, r.minor = (e2, r2) => new H(e2, r2).minor, r.patch = (e2, r2) => new H(e2, r2).patch, r.compare = Q, r.compareLoose = (e2, r2) => Q(e2, r2, true), r.rcompare = (e2, r2, t3) => Q(r2, e2, t3), r.sort = (e2, t3) => e2.sort((e3, n2) => r.compare(e3, n2, t3)), r.rsort = (e2, t3) => e2.sort((e3, n2) => r.rcompare(e3, n2, t3)), r.gt = W, r.lt = Y, r.eq = ee, r.neq = re, r.gte = te, r.lte = ne, r.cmp = oe, r.Comparator = ie;
+        var se = {};
+        function ae(e2, r2) {
+          if (e2 instanceof ae)
+            return e2.loose === r2 ? e2 : new ae(e2.raw, r2);
+          if (e2 instanceof ie) return new ae(e2.value, r2);
+          if (!(this instanceof ae)) return new ae(e2, r2);
+          if (this.loose = r2, this.raw = e2, this.set = e2.split(/\s*\|\|\s*/).map(function(e3) {
+            return this.parseRange(e3.trim());
+          }, this).filter((e3) => e3.length), !this.set.length)
+            throw new TypeError("Invalid SemVer Range: " + e2);
+          this.format();
+        }
+        __name(ae, "ae");
+        function ue(e2) {
+          return !e2 || e2.toLowerCase() === "x" || e2 === "*";
+        }
+        __name(ue, "ue");
+        function ce(e2, r2, t3, n2, o2, i2, s2, a2, u2, c2, p2, f2, l2) {
+          return ((r2 = ue(t3) ? "" : ue(n2) ? ">=" + t3 + ".0.0" : ue(o2) ? ">=" + t3 + "." + n2 + ".0" : ">=" + r2) + " " + (a2 = ue(u2) ? "" : ue(c2) ? "<" + (+u2 + 1) + ".0.0" : ue(p2) ? "<" + u2 + "." + (+c2 + 1) + ".0" : f2 ? "<=" + u2 + "." + c2 + "." + p2 + "-" + f2 : "<=" + a2)).trim();
+        }
+        __name(ce, "ce");
+        function pe(e2, r2) {
+          for (var t3 = 0; t3 < e2.length; t3++)
+            if (!e2[t3].test(r2)) return false;
+          if (r2.prerelease.length) {
+            for (t3 = 0; t3 < e2.length; t3++)
+              if (n(e2[t3].semver), e2[t3].semver !== se && e2[t3].semver.prerelease.length > 0) {
+                var o2 = e2[t3].semver;
+                if (o2.major === r2.major && o2.minor === r2.minor && o2.patch === r2.patch)
+                  return true;
+              }
+            return false;
+          }
+          return true;
+        }
+        __name(pe, "pe");
+        function fe(e2, r2, t3) {
+          try {
+            r2 = new ae(r2, t3);
+          } catch (e3) {
+            return false;
+          }
+          return r2.test(e2);
+        }
+        __name(fe, "fe");
+        function le(e2, r2, t3, n2) {
+          var o2, i2, s2, a2, u2;
+          switch (e2 = new H(e2, n2), r2 = new ae(r2, n2), t3) {
+            case ">":
+              o2 = W, i2 = ne, s2 = Y, a2 = ">", u2 = ">=";
+              break;
+            case "<":
+              o2 = Y, i2 = te, s2 = W, a2 = "<", u2 = "<=";
+              break;
+            default:
+              throw new TypeError(
+                'Must provide a hilo val of "<" or ">"'
+              );
+          }
+          if (fe(e2, r2, n2)) return false;
+          for (var c2 = 0; c2 < r2.set.length; ++c2) {
+            var p2 = r2.set[c2], f2 = null, l2 = null;
+            if (p2.forEach((e3) => {
+              e3.semver === se && (e3 = new ie(">=0.0.0")), f2 = f2 || e3, l2 = l2 || e3, o2(e3.semver, f2.semver, n2) ? f2 = e3 : s2(e3.semver, l2.semver, n2) && (l2 = e3);
+            }), f2.operator === a2 || f2.operator === u2)
+              return false;
+            if ((!l2.operator || l2.operator === a2) && i2(e2, l2.semver))
+              return false;
+            if (l2.operator === u2 && s2(e2, l2.semver)) return false;
+          }
+          return true;
+        }
+        __name(le, "le");
+        ie.prototype.parse = function(e2) {
+          var r2 = this.loose ? s[D] : s[X], t3 = e2.match(r2);
+          if (!t3) throw new TypeError("Invalid comparator: " + e2);
+          this.operator = t3[1], this.operator === "=" && (this.operator = ""), t3[2] ? this.semver = new H(t3[2], this.loose) : this.semver = se;
+        }, ie.prototype.toString = function() {
+          return this.value;
+        }, ie.prototype.test = function(e2) {
+          return n("Comparator.test", e2, this.loose), this.semver === se || (typeof e2 == "string" && (e2 = new H(e2, this.loose)), oe(e2, this.operator, this.semver, this.loose));
+        }, ie.prototype.intersects = function(e2, r2) {
+          if (!(e2 instanceof ie))
+            throw new TypeError("a Comparator is required");
+          var t3;
+          if (this.operator === "")
+            return t3 = new ae(e2.value, r2), fe(this.value, t3, r2);
+          if (e2.operator === "")
+            return t3 = new ae(this.value, r2), fe(e2.semver, t3, r2);
+          var n2 = !(this.operator !== ">=" && this.operator !== ">" || e2.operator !== ">=" && e2.operator !== ">"), o2 = !(this.operator !== "<=" && this.operator !== "<" || e2.operator !== "<=" && e2.operator !== "<"), i2 = this.semver.version === e2.semver.version, s2 = !(this.operator !== ">=" && this.operator !== "<=" || e2.operator !== ">=" && e2.operator !== "<="), a2 = oe(this.semver, "<", e2.semver, r2) && (this.operator === ">=" || this.operator === ">") && (e2.operator === "<=" || e2.operator === "<"), u2 = oe(this.semver, ">", e2.semver, r2) && (this.operator === "<=" || this.operator === "<") && (e2.operator === ">=" || e2.operator === ">");
+          return n2 || o2 || i2 && s2 || a2 || u2;
+        }, r.Range = ae, ae.prototype.format = function() {
+          return this.range = this.set.map((e2) => e2.join(" ").trim()).join("||").trim(), this.range;
+        }, ae.prototype.toString = function() {
+          return this.range;
+        }, ae.prototype.parseRange = function(e2) {
+          var r2 = this.loose;
+          e2 = e2.trim(), n("range", e2, r2);
+          var t3 = r2 ? s[Z] : s[G];
+          e2 = e2.replace(t3, ce), n("hyphen replace", e2), e2 = e2.replace(s[z], "$1$2$3"), n("comparator trim", e2, s[z]), e2 = (e2 = (e2 = e2.replace(s[M], "$1~")).replace(
+            s[L],
+            "$1^"
+          )).split(/\s+/).join(" ");
+          var o2 = r2 ? s[D] : s[X], i2 = e2.split(" ").map(
+            (e3) => ((e4, r3) => (n("comp", e4), e4 = ((e5, r4) => e5.trim().split(/\s+/).map(
+              (e6) => ((e7, r5) => {
+                n("caret", e7, r5);
+                var t4 = r5 ? s[q] : s[N];
+                return e7.replace(
+                  t4,
+                  (r6, t5, o3, i3, s2) => {
+                    var a2;
+                    return n(
+                      "caret",
+                      e7,
+                      r6,
+                      t5,
+                      o3,
+                      i3,
+                      s2
+                    ), ue(t5) ? a2 = "" : ue(o3) ? a2 = ">=" + t5 + ".0.0 <" + (+t5 + 1) + ".0.0" : ue(
+                      i3
+                    ) ? a2 = t5 === "0" ? ">=" + t5 + "." + o3 + ".0 <" + t5 + "." + (+o3 + 1) + ".0" : ">=" + t5 + "." + o3 + ".0 <" + (+t5 + 1) + ".0.0" : s2 ? (n(
+                      "replaceCaret pr",
+                      s2
+                    ), s2.charAt(
+                      0
+                    ) !== "-" && (s2 = "-" + s2), a2 = t5 === "0" ? o3 === "0" ? ">=" + t5 + "." + o3 + "." + i3 + s2 + " <" + t5 + "." + o3 + "." + (+i3 + 1) : ">=" + t5 + "." + o3 + "." + i3 + s2 + " <" + t5 + "." + (+o3 + 1) + ".0" : ">=" + t5 + "." + o3 + "." + i3 + s2 + " <" + (+t5 + 1) + ".0.0") : (n(
+                      "no pr"
+                    ), a2 = t5 === "0" ? o3 === "0" ? ">=" + t5 + "." + o3 + "." + i3 + " <" + t5 + "." + o3 + "." + (+i3 + 1) : ">=" + t5 + "." + o3 + "." + i3 + " <" + t5 + "." + (+o3 + 1) + ".0" : ">=" + t5 + "." + o3 + "." + i3 + " <" + (+t5 + 1) + ".0.0"), n(
+                      "caret return",
+                      a2
+                    ), a2;
+                  }
+                );
+              })(e6, r4)
+            ).join(" "))(e4, r3), n("caret", e4), e4 = ((e5, r4) => e5.trim().split(/\s+/).map(
+              (e6) => ((e7, r5) => {
+                var t4 = r5 ? s[P] : s[V];
+                return e7.replace(
+                  t4,
+                  (r6, t5, o3, i3, s2) => {
+                    var a2;
+                    return n(
+                      "tilde",
+                      e7,
+                      r6,
+                      t5,
+                      o3,
+                      i3,
+                      s2
+                    ), ue(t5) ? a2 = "" : ue(o3) ? a2 = ">=" + t5 + ".0.0 <" + (+t5 + 1) + ".0.0" : ue(
+                      i3
+                    ) ? a2 = ">=" + t5 + "." + o3 + ".0 <" + t5 + "." + (+o3 + 1) + ".0" : s2 ? (n(
+                      "replaceTilde pr",
+                      s2
+                    ), s2.charAt(
+                      0
+                    ) !== "-" && (s2 = "-" + s2), a2 = ">=" + t5 + "." + o3 + "." + i3 + s2 + " <" + t5 + "." + (+o3 + 1) + ".0") : a2 = ">=" + t5 + "." + o3 + "." + i3 + " <" + t5 + "." + (+o3 + 1) + ".0", n(
+                      "tilde return",
+                      a2
+                    ), a2;
+                  }
+                );
+              })(e6, r4)
+            ).join(" "))(e4, r3), n("tildes", e4), e4 = ((e5, r4) => (n("replaceXRanges", e5, r4), e5.split(/\s+/).map(
+              (e6) => ((e7, r5) => {
+                e7 = e7.trim();
+                var t4 = r5 ? s[_] : s[I];
+                return e7.replace(
+                  t4,
+                  (r6, t5, o3, i3, s2, a2) => {
+                    n(
+                      "xRange",
+                      e7,
+                      r6,
+                      t5,
+                      o3,
+                      i3,
+                      s2,
+                      a2
+                    );
+                    var u2 = ue(o3), c2 = u2 || ue(i3), p2 = c2 || ue(s2);
+                    returnt === "=" && p2 && (t5 = ""), u2 ? r6 = t5 === ">" || t5 === "<" ? "<0.0.0" : "*" : t5 && p2 ? (c2 && (i3 = 0), p2 && (s2 = 0), t5 === ">" ? (t5 = ">=", c2 ? (o3 = +o3 + 1, i3 = 0, s2 = 0) : p2 && (i3 = +i3 + 1, s2 = 0)) : t5 === "<=" && (t5 = "<", c2 ? o3 = +o3 + 1 : i3 = +i3 + 1), r6 = t5 + o3 + "." + i3 + "." + s2) : c2 ? r6 = ">=" + o3 + ".0.0 <" + (+o3 + 1) + ".0.0" : p2 && (r6 = ">=" + o3 + "." + i3 + ".0 <" + o3 + "." + (+i3 + 1) + ".0"), n(
+                      "xRange return",
+                      r6
+                    ), r6;
+                  }
+                );
+              })(e6, r4)
+            ).join(" ")))(e4, r3), n("xrange", e4), e4 = ((e5, r4) => (n("replaceStars", e5, r4), e5.trim().replace(s[B], "")))(e4, r3), n("stars", e4), e4))(e3, r2)
+          ).join(" ").split(/\s+/);
+          return this.loose && (i2 = i2.filter((e3) => !!e3.match(o2))), i2 = i2.map((e3) => new ie(e3, r2));
+        }, ae.prototype.intersects = function(e2, r2) {
+          if (!(e2 instanceof ae))
+            throw new TypeError("a Range is required");
+          return this.set.some(
+            (t3) => t3.every(
+              (t4) => e2.set.some(
+                (e3) => e3.every((e4) => t4.intersects(e4, r2))
+              )
+            )
+          );
+        }, r.toComparators = (e2, r2) => new ae(e2, r2).set.map(
+          (e3) => e3.map((e4) => e4.value).join(" ").trim().split(" ")
+        ), ae.prototype.test = function(e2) {
+          if (!e2) return false;
+          typeof e2 == "string" && (e2 = new H(e2, this.loose));
+          for (var r2 = 0; r2 < this.set.length; r2++)
+            if (pe(this.set[r2], e2)) return true;
+          return false;
+        }, r.satisfies = fe, r.maxSatisfying = (e2, r2, t3) => {
+          var n2 = null, o2 = null;
+          try {
+            var i2 = new ae(r2, t3);
+          } catch (e3) {
+            return null;
+          }
+          return e2.forEach((e3) => {
+            i2.test(e3) && (n2 && o2.compare(e3) !== -1 || (o2 = new H(n2 = e3, t3)));
+          }), n2;
+        }, r.minSatisfying = (e2, r2, t3) => {
+          var n2 = null, o2 = null;
+          try {
+            var i2 = new ae(r2, t3);
+          } catch (e3) {
+            return null;
+          }
+          return e2.forEach((e3) => {
+            i2.test(e3) && (n2 && o2.compare(e3) !== 1 || (o2 = new H(n2 = e3, t3)));
+          }), n2;
+        }, r.validRange = (e2, r2) => {
+          try {
+            return new ae(e2, r2).range || "*";
+          } catch (e3) {
+            return null;
+          }
+        }, r.ltr = (e2, r2, t3) => le(e2, r2, "<", t3), r.gtr = (e2, r2, t3) => le(e2, r2, ">", t3), r.outside = le, r.prerelease = (e2, r2) => {
+          var t3 = F(e2, r2);
+          return t3 && t3.prerelease.length ? t3.prerelease : null;
+        }, r.intersects = (e2, r2, t3) => (e2 = new ae(e2, t3), r2 = new ae(r2, t3), e2.intersects(r2)), r.coerce = (e2) => {
+          if (e2 instanceof H) return e2;
+          if (typeof e2 != "string") return null;
+          var r2 = e2.match(s[O]);
+          return r2 == null ? null : F(
+            (r2[1] || "0") + "." + (r2[2] || "0") + "." + (r2[3] || "0")
+          );
+        };
+      }).call(this, t(1));
+    },
+    (e, r) => {
+      var t, n, o = e.exports = {};
+      function i() {
+        throw new Error("setTimeout has not been defined");
+      }
+      __name(i, "i");
+      function s() {
+        throw new Error("clearTimeout has not been defined");
+      }
+      __name(s, "s");
+      function a(e2) {
+        if (t === setTimeout) return setTimeout(e2, 0);
+        if ((t === i || !t) && setTimeout)
+          return t = setTimeout, setTimeout(e2, 0);
+        try {
+          return t(e2, 0);
+        } catch (r2) {
+          try {
+            return t.call(null, e2, 0);
+          } catch (r3) {
+            return t.call(this, e2, 0);
+          }
+        }
+      }
+      __name(a, "a");
+      !(() => {
+        try {
+          t = typeof setTimeout == "function" ? setTimeout : i;
+        } catch (e2) {
+          t = i;
+        }
+        try {
+          n = typeof clearTimeout == "function" ? clearTimeout : s;
+        } catch (e2) {
+          n = s;
+        }
+      })();
+      var u, c = [], p = false, f = -1;
+      function l() {
+        p && u && (p = false, u.length ? c = u.concat(c) : f = -1, c.length && h());
+      }
+      __name(l, "l");
+      function h() {
+        if (!p) {
+          var e2 = a(l);
+          p = true;
+          for (var r2 = c.length; r2; ) {
+            for (u = c, c = []; ++f < r2; ) u && u[f].run();
+            f = -1, r2 = c.length;
+          }
+          u = null, p = false, function(e3) {
+            if (n === clearTimeout) return clearTimeout(e3);
+            if ((n === s || !n) && clearTimeout)
+              return n = clearTimeout, clearTimeout(e3);
+            try {
+              n(e3);
+            } catch (r3) {
+              try {
+                return n.call(null, e3);
+              } catch (r4) {
+                return n.call(this, e3);
+              }
+            }
+          }(e2);
+        }
+      }
+      __name(h, "h");
+      function v(e2, r2) {
+        this.fun = e2, this.array = r2;
+      }
+      __name(v, "v");
+      function m() {
+      }
+      __name(m, "m");
+      o.nextTick = (e2) => {
+        var r2 = new Array(arguments.length - 1);
+        if (arguments.length > 1)
+          for (var t2 = 1; t2 < arguments.length; t2++)
+            r2[t2 - 1] = arguments[t2];
+        c.push(new v(e2, r2)), c.length !== 1 || p || a(h);
+      }, v.prototype.run = function() {
+        this.fun.apply(null, this.array);
+      }, o.title = "browser", o.browser = true, o.env = {}, o.argv = [], o.version = "", o.versions = {}, o.on = m, o.addListener = m, o.once = m, o.off = m, o.removeListener = m, o.removeAllListeners = m, o.emit = m, o.prependListener = m, o.prependOnceListener = m, o.listeners = (e2) => [], o.binding = (e2) => {
+        throw new Error("process.binding is not supported");
+      }, o.cwd = () => "/", o.chdir = (e2) => {
+        throw new Error("process.chdir is not supported");
+      }, o.umask = () => 0;
+    }
+  ])
+);
+const SEMVER_SPEC_VERSION = module.exports.SEMVER_SPEC_VERSION;
+const parse = module.exports.parse;
+const valid = module.exports.valid;
+const coerce = module.exports.coerce;
+const clean = module.exports.clean;
+const inc = module.exports.inc;
+const major = module.exports.major;
+const minor = module.exports.minor;
+const patch = module.exports.patch;
+const prerelease = module.exports.prerelease;
+const gt = module.exports.gt;
+const gte = module.exports.gte;
+const lt = module.exports.lt;
+const lte = module.exports.lte;
+const eq = module.exports.eq;
+const neq = module.exports.neq;
+const cmp = module.exports.cmp;
+const compare = module.exports.compare;
+const rcompare = module.exports.rcompare;
+const compareIdentifiers = module.exports.compareIdentifiers;
+const rcompareIdentifiers = module.exports.rcompareIdentifiers;
+const compareBuild = module.exports.compareBuild;
+const sort = module.exports.sort;
+const rsort = module.exports.rsort;
+const diff = module.exports.diff;
+const validRange = module.exports.validRange;
+const satisfies = module.exports.satisfies;
+const maxSatisfying = module.exports.maxSatisfying;
+const minSatisfying = module.exports.minSatisfying;
+const minVersion = module.exports.minVersion;
+const gtr = module.exports.gtr;
+const ltr = module.exports.ltr;
+const outside = module.exports.outside;
+const intersects = module.exports.intersects;
+const SemVer = module.exports.SemVer;
+const Comparator = module.exports.Comparator;
+const Range = module.exports.Range;
+export {
+  Comparator,
+  Range,
+  SEMVER_SPEC_VERSION,
+  SemVer,
+  clean,
+  cmp,
+  coerce,
+  compare,
+  compareBuild,
+  compareIdentifiers,
+  diff,
+  eq,
+  gt,
+  gte,
+  gtr,
+  inc,
+  intersects,
+  lt,
+  lte,
+  ltr,
+  major,
+  maxSatisfying,
+  minSatisfying,
+  minVersion,
+  minor,
+  neq,
+  outside,
+  parse,
+  patch,
+  prerelease,
+  rcompare,
+  rcompareIdentifiers,
+  rsort,
+  satisfies,
+  sort,
+  valid,
+  validRange
+};
+//# sourceMappingURL=semver.js.map

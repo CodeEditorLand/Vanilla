@@ -1,1 +1,1 @@
-import"./collections.js";import"./platform.js";
+//# sourceMappingURL=product.js.map

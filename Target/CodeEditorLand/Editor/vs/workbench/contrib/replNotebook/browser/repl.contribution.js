@@ -1,1 +1,391 @@
-var x=Object.defineProperty;var T=Object.getOwnPropertyDescriptor;var k=(i,o,t,e)=>{for(var r=e>1?void 0:e?T(o,t):o,d=i.length-1,s;d>=0;d--)(s=i[d])&&(r=(e?s(o,t,r):s(r))||r);return e&&r&&x(o,t,r),r},l=(i,o)=>(t,e)=>o(t,e,i);import{SyncDescriptor as D}from"../../../../platform/instantiation/common/descriptors.js";import{Registry as S}from"../../../../platform/registry/common/platform.js";import{EditorPaneDescriptor as P}from"../../../browser/editor.js";import{EditorExtensions as h}from"../../../common/editor.js";import{parse as O}from"../../../../base/common/marshalling.js";import{assertType as _}from"../../../../base/common/types.js";import{URI as R}from"../../../../base/common/uri.js";import{IInstantiationService as w}from"../../../../platform/instantiation/common/instantiation.js";import"../../../common/editor/editorInput.js";import{CellEditType as K,CellKind as z,NotebookSetting as A,NotebookWorkingCopyTypeIdentifier as M,REPL_EDITOR_ID as U}from"../../notebook/common/notebookCommon.js";import"../../notebook/common/notebookEditorInput.js";import{ReplEditor as F}from"./replEditor.js";import{ReplEditorInput as p}from"./replEditorInput.js";import{Disposable as C}from"../../../../base/common/lifecycle.js";import{registerWorkbenchContribution2 as W,WorkbenchPhase as N}from"../../../common/contributions.js";import{IExtensionService as L}from"../../../services/extensions/common/extensions.js";import"../../../services/workingCopy/common/workingCopy.js";import{IWorkingCopyEditorService as V}from"../../../services/workingCopy/common/workingCopyEditorService.js";import{extname as B,isEqual as q}from"../../../../base/common/resources.js";import{INotebookService as H}from"../../notebook/common/notebookService.js";import{IEditorResolverService as G,RegisteredEditorPriority as j}from"../../../services/editor/common/editorResolverService.js";import{INotebookEditorModelResolverService as J}from"../../notebook/common/notebookEditorModelResolverService.js";import{isFalsyOrWhitespace as X}from"../../../../base/common/strings.js";import{IBulkEditService as Q}from"../../../../editor/browser/services/bulkEditService.js";import"../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";import{PLAINTEXT_LANGUAGE_ID as Y}from"../../../../editor/common/languages/modesRegistry.js";import{ResourceNotebookCellEdit as Z}from"../../bulkEdit/browser/bulkCellEdits.js";import{IInteractiveHistoryService as $}from"../../interactive/browser/interactiveHistoryService.js";import"../../notebook/browser/notebookEditorWidget.js";import{INotebookEditorService as ee}from"../../notebook/browser/services/notebookEditorService.js";import{IConfigurationService as te}from"../../../../platform/configuration/common/configuration.js";import{ContextKeyExpr as u}from"../../../../platform/contextkey/common/contextkey.js";import{KeybindingsRegistry as oe,KeybindingWeight as re}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{getReplView as ie}from"../../debug/browser/repl.js";import{REPL_VIEW_ID as ne}from"../../debug/common/debug.js";import{IViewsService as de}from"../../../services/views/common/viewsService.js";import{KeyCode as g,KeyMod as v}from"../../../../base/common/keyCodes.js";import{Action2 as se,MenuId as ae,registerAction2 as ce}from"../../../../platform/actions/common/actions.js";import{localize2 as pe}from"../../../../nls.js";import{NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT as y}from"../../notebook/browser/controller/coreActions.js";import*as le from"../../notebook/browser/notebookIcons.js";import{IEditorService as ue}from"../../../services/editor/common/editorService.js";import"../../notebook/browser/notebookBrowser.js";class Ee{canSerialize(o){return o.typeId===p.ID}serialize(o){_(o instanceof p);const t={resource:o.resource,preferredResource:o.preferredResource,viewType:o.viewType,options:o.options,label:o.getName()};return JSON.stringify(t)}deserialize(o,t){const e=O(t);if(!e)return;const{resource:r,viewType:d}=e;return!e||!R.isUri(r)||typeof d!="string"?void 0:o.createInstance(p,r,e.label)}}S.as(h.EditorPane).registerEditorPane(P.create(F,U,"REPL Editor"),[new D(p)]),S.as(h.EditorFactory).registerEditorSerializer(p.ID,Ee);let E=class extends C{constructor(t,e,r,d,s){super();this.notebookEditorModelResolverService=r;this.instantiationService=d;this.configurationService=s;e.registerEditor(" ",{id:"repl",label:"repl Editor",priority:j.option},{canSupportResource:c=>t.getNotebookTextModel(c)!==void 0,singlePerResource:!0},{createUntitledEditorInput:async({resource:c,options:n})=>{const a=this.configurationService.getValue(A.InteractiveWindowPromptToSave)!==!0,f=await this.notebookEditorModelResolverService.resolve({untitledResource:c},"jupyter-notebook",{scratchpad:a});f.object.notebook.onWillDispose(()=>{f.dispose()});const I=n?.label??void 0;return{editor:this.instantiationService.createInstance(p,c,I),options:n}},createEditorInput:async({resource:c,options:n})=>{const a=n?.label??void 0;return{editor:this.instantiationService.createInstance(p,c,a),options:n}}})}static ID="workbench.contrib.replDocument"};E=k([l(0,H),l(1,G),l(2,J),l(3,w),l(4,te)],E);let m=class extends C{constructor(t,e,r){super();this.instantiationService=t;this.workingCopyEditorService=e;this.extensionService=r;this._installHandler()}static ID="workbench.contrib.replWorkingCopyEditorHandler";handles(t){const e=this._getViewType(t);return!!e&&e==="jupyter-notebook"&&B(t.resource)===".replNotebook"}isOpen(t,e){return this.handles(t)?e instanceof p&&q(t.resource,e.resource):!1}createEditor(t){return this.instantiationService.createInstance(p,t.resource,void 0)}async _installHandler(){await this.extensionService.whenInstalledExtensionsRegistered(),this._register(this.workingCopyEditorService.registerHandler(this))}_getViewType(t){return M.parse(t.typeId)}};m=k([l(0,w),l(1,V),l(2,L)],m),W(m.ID,m,N.BlockRestore),W(E.ID,E,N.BlockRestore),ce(class extends se{constructor(){super({id:"repl.execute",title:pe("repl.execute","Execute REPL input"),category:"REPL",keybinding:[{when:u.equals("activeEditor","workbench.editor.repl"),primary:v.CtrlCmd|g.Enter,weight:y},{when:u.and(u.equals("activeEditor","workbench.editor.repl"),u.equals("config.interactiveWindow.executeWithShiftEnter",!0)),primary:v.Shift|g.Enter,weight:y},{when:u.and(u.equals("activeEditor","workbench.editor.repl"),u.equals("config.interactiveWindow.executeWithShiftEnter",!1)),primary:g.Enter,weight:y}],menu:[{id:ae.ReplInputExecute}],icon:le.executeIcon,f1:!1,metadata:{description:"Execute the Contents of the Input Box",args:[{name:"resource",description:"Interactive resource Uri",isOptional:!0}]}})}async run(i,o){const t=i.get(ue),e=i.get(Q),r=i.get($),d=i.get(ee);let s;if(o){const c=R.revive(o),n=t.findEditors(c);for(const a of n)if(a.editor.typeId===p.ID){s=(await t.openEditor(a.editor,a.groupId))?.getControl();break}}else s=t.activeEditorPane?.getControl();s&&me(e,r,d,s)}});async function me(i,o,t,e){if(e&&e.notebookEditor&&e.codeEditor){const r=e.notebookEditor.textModel,d=e.codeEditor.getModel(),c=e.notebookEditor.activeKernel?.supportedLanguages[0]??Y;if(r&&d){const n=r.length-1,a=d.getValue();if(X(a))return;o.replaceLast(r.uri,a),o.addToHistory(r.uri,""),d.setValue(""),r.cells[n].resetTextBuffer(d.getTextBuffer());const f=e.notebookEditor.notebookOptions.getDisplayOptions().interactiveWindowCollapseCodeCells==="fromEditor"?{inputCollapsed:!1,outputCollapsed:!1}:void 0;await i.apply([new Z(r.uri,{editType:K.Replace,index:n,count:0,cells:[{cellKind:z.Code,mime:void 0,language:c,source:a,outputs:[],metadata:{},collapseState:f}]})]);const I={start:n,end:n+1};e.notebookEditor.revealCellRangeInView(I),await e.notebookEditor.executeNotebookCells(e.notebookEditor.getCellsInRange({start:n,end:n+1}));const b=t.getNotebookEditor(e.notebookEditor.getId());b&&(b.setSelections([I]),b.setFocus(I))}}}oe.registerCommandAndKeybindingRule({id:"list.find.replInputFocus",weight:re.WorkbenchContrib+1,when:u.equals("view",ne),primary:v.CtrlCmd|v.Alt|g.KeyF,secondary:[g.F3],handler:i=>{ie(i.get(de))?.openFind()}});export{E as ReplDocumentContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { parse } from "../../../../base/common/marshalling.js";
+import { extname, isEqual } from "../../../../base/common/resources.js";
+import { isFalsyOrWhitespace } from "../../../../base/common/strings.js";
+import { assertType } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IBulkEditService } from "../../../../editor/browser/services/bulkEditService.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../../../../editor/common/languages/modesRegistry.js";
+import { localize2 } from "../../../../nls.js";
+import {
+  Action2,
+  MenuId,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import {
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  KeybindingWeight,
+  KeybindingsRegistry
+} from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  EditorPaneDescriptor
+} from "../../../browser/editor.js";
+import {
+  WorkbenchPhase,
+  registerWorkbenchContribution2
+} from "../../../common/contributions.js";
+import {
+  EditorExtensions
+} from "../../../common/editor.js";
+import {
+  IEditorResolverService,
+  RegisteredEditorPriority
+} from "../../../services/editor/common/editorResolverService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import {
+  IWorkingCopyEditorService
+} from "../../../services/workingCopy/common/workingCopyEditorService.js";
+import { ResourceNotebookCellEdit } from "../../bulkEdit/browser/bulkCellEdits.js";
+import { getReplView } from "../../debug/browser/repl.js";
+import { REPL_VIEW_ID } from "../../debug/common/debug.js";
+import { IInteractiveHistoryService } from "../../interactive/browser/interactiveHistoryService.js";
+import { NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT } from "../../notebook/browser/controller/coreActions.js";
+import * as icons from "../../notebook/browser/notebookIcons.js";
+import { INotebookEditorService } from "../../notebook/browser/services/notebookEditorService.js";
+import {
+  CellEditType,
+  CellKind,
+  NotebookSetting,
+  NotebookWorkingCopyTypeIdentifier,
+  REPL_EDITOR_ID
+} from "../../notebook/common/notebookCommon.js";
+import { INotebookEditorModelResolverService } from "../../notebook/common/notebookEditorModelResolverService.js";
+import { INotebookService } from "../../notebook/common/notebookService.js";
+import { ReplEditor } from "./replEditor.js";
+import { ReplEditorInput } from "./replEditorInput.js";
+class ReplEditorSerializer {
+  static {
+    __name(this, "ReplEditorSerializer");
+  }
+  canSerialize(input) {
+    return input.typeId === ReplEditorInput.ID;
+  }
+  serialize(input) {
+    assertType(input instanceof ReplEditorInput);
+    const data = {
+      resource: input.resource,
+      preferredResource: input.preferredResource,
+      viewType: input.viewType,
+      options: input.options,
+      label: input.getName()
+    };
+    return JSON.stringify(data);
+  }
+  deserialize(instantiationService, raw) {
+    const data = parse(raw);
+    if (!data) {
+      return void 0;
+    }
+    const { resource, viewType } = data;
+    if (!data || !URI.isUri(resource) || typeof viewType !== "string") {
+      return void 0;
+    }
+    const input = instantiationService.createInstance(
+      ReplEditorInput,
+      resource,
+      data.label
+    );
+    return input;
+  }
+}
+Registry.as(
+  EditorExtensions.EditorPane
+).registerEditorPane(
+  EditorPaneDescriptor.create(ReplEditor, REPL_EDITOR_ID, "REPL Editor"),
+  [new SyncDescriptor(ReplEditorInput)]
+);
+Registry.as(
+  EditorExtensions.EditorFactory
+).registerEditorSerializer(ReplEditorInput.ID, ReplEditorSerializer);
+let ReplDocumentContribution = class extends Disposable {
+  constructor(notebookService, editorResolverService, notebookEditorModelResolverService, instantiationService, configurationService) {
+    super();
+    this.notebookEditorModelResolverService = notebookEditorModelResolverService;
+    this.instantiationService = instantiationService;
+    this.configurationService = configurationService;
+    editorResolverService.registerEditor(
+      // don't match anything, we don't need to support re-opening files as REPL editor at this point
+      ` `,
+      {
+        id: "repl",
+        label: "repl Editor",
+        priority: RegisteredEditorPriority.option
+      },
+      {
+        // We want to support all notebook types which could have any file extension,
+        // so we just check if the resource corresponds to a notebook
+        canSupportResource: /* @__PURE__ */ __name((uri) => notebookService.getNotebookTextModel(uri) !== void 0, "canSupportResource"),
+        singlePerResource: true
+      },
+      {
+        createUntitledEditorInput: /* @__PURE__ */ __name(async ({ resource, options }) => {
+          const scratchpad = this.configurationService.getValue(NotebookSetting.InteractiveWindowPromptToSave) !== true;
+          const ref = await this.notebookEditorModelResolverService.resolve({ untitledResource: resource }, "jupyter-notebook", { scratchpad });
+          ref.object.notebook.onWillDispose(() => {
+            ref.dispose();
+          });
+          const label = options?.label ?? void 0;
+          return { editor: this.instantiationService.createInstance(ReplEditorInput, resource, label), options };
+        }, "createUntitledEditorInput"),
+        createEditorInput: /* @__PURE__ */ __name(async ({ resource, options }) => {
+          const label = options?.label ?? void 0;
+          return { editor: this.instantiationService.createInstance(ReplEditorInput, resource, label), options };
+        }, "createEditorInput")
+      }
+    );
+  }
+  static {
+    __name(this, "ReplDocumentContribution");
+  }
+  static ID = "workbench.contrib.replDocument";
+};
+ReplDocumentContribution = __decorateClass([
+  __decorateParam(0, INotebookService),
+  __decorateParam(1, IEditorResolverService),
+  __decorateParam(2, INotebookEditorModelResolverService),
+  __decorateParam(3, IInstantiationService),
+  __decorateParam(4, IConfigurationService)
+], ReplDocumentContribution);
+let ReplWindowWorkingCopyEditorHandler = class extends Disposable {
+  constructor(instantiationService, workingCopyEditorService, extensionService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.workingCopyEditorService = workingCopyEditorService;
+    this.extensionService = extensionService;
+    this._installHandler();
+  }
+  static {
+    __name(this, "ReplWindowWorkingCopyEditorHandler");
+  }
+  static ID = "workbench.contrib.replWorkingCopyEditorHandler";
+  handles(workingCopy) {
+    const viewType = this._getViewType(workingCopy);
+    return !!viewType && viewType === "jupyter-notebook" && extname(workingCopy.resource) === ".replNotebook";
+  }
+  isOpen(workingCopy, editor) {
+    if (!this.handles(workingCopy)) {
+      return false;
+    }
+    return editor instanceof ReplEditorInput && isEqual(workingCopy.resource, editor.resource);
+  }
+  createEditor(workingCopy) {
+    return this.instantiationService.createInstance(
+      ReplEditorInput,
+      workingCopy.resource,
+      void 0
+    );
+  }
+  async _installHandler() {
+    await this.extensionService.whenInstalledExtensionsRegistered();
+    this._register(this.workingCopyEditorService.registerHandler(this));
+  }
+  _getViewType(workingCopy) {
+    return NotebookWorkingCopyTypeIdentifier.parse(workingCopy.typeId);
+  }
+};
+ReplWindowWorkingCopyEditorHandler = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, IWorkingCopyEditorService),
+  __decorateParam(2, IExtensionService)
+], ReplWindowWorkingCopyEditorHandler);
+registerWorkbenchContribution2(
+  ReplWindowWorkingCopyEditorHandler.ID,
+  ReplWindowWorkingCopyEditorHandler,
+  WorkbenchPhase.BlockRestore
+);
+registerWorkbenchContribution2(
+  ReplDocumentContribution.ID,
+  ReplDocumentContribution,
+  WorkbenchPhase.BlockRestore
+);
+registerAction2(
+  class extends Action2 {
+    constructor() {
+      super({
+        id: "repl.execute",
+        title: localize2("repl.execute", "Execute REPL input"),
+        category: "REPL",
+        keybinding: [
+          {
+            when: ContextKeyExpr.equals(
+              "activeEditor",
+              "workbench.editor.repl"
+            ),
+            primary: KeyMod.CtrlCmd | KeyCode.Enter,
+            weight: NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT
+          },
+          {
+            when: ContextKeyExpr.and(
+              ContextKeyExpr.equals(
+                "activeEditor",
+                "workbench.editor.repl"
+              ),
+              ContextKeyExpr.equals(
+                "config.interactiveWindow.executeWithShiftEnter",
+                true
+              )
+            ),
+            primary: KeyMod.Shift | KeyCode.Enter,
+            weight: NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT
+          },
+          {
+            when: ContextKeyExpr.and(
+              ContextKeyExpr.equals(
+                "activeEditor",
+                "workbench.editor.repl"
+              ),
+              ContextKeyExpr.equals(
+                "config.interactiveWindow.executeWithShiftEnter",
+                false
+              )
+            ),
+            primary: KeyCode.Enter,
+            weight: NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT
+          }
+        ],
+        menu: [
+          {
+            id: MenuId.ReplInputExecute
+          }
+        ],
+        icon: icons.executeIcon,
+        f1: false,
+        metadata: {
+          description: "Execute the Contents of the Input Box",
+          args: [
+            {
+              name: "resource",
+              description: "Interactive resource Uri",
+              isOptional: true
+            }
+          ]
+        }
+      });
+    }
+    async run(accessor, context) {
+      const editorService = accessor.get(IEditorService);
+      const bulkEditService = accessor.get(IBulkEditService);
+      const historyService = accessor.get(IInteractiveHistoryService);
+      const notebookEditorService = accessor.get(INotebookEditorService);
+      let editorControl;
+      if (context) {
+        const resourceUri = URI.revive(context);
+        const editors = editorService.findEditors(resourceUri);
+        for (const found of editors) {
+          if (found.editor.typeId === ReplEditorInput.ID) {
+            const editor = await editorService.openEditor(
+              found.editor,
+              found.groupId
+            );
+            editorControl = editor?.getControl();
+            break;
+          }
+        }
+      } else {
+        editorControl = editorService.activeEditorPane?.getControl();
+      }
+      if (editorControl) {
+        executeReplInput(
+          bulkEditService,
+          historyService,
+          notebookEditorService,
+          editorControl
+        );
+      }
+    }
+  }
+);
+async function executeReplInput(bulkEditService, historyService, notebookEditorService, editorControl) {
+  if (editorControl && editorControl.notebookEditor && editorControl.codeEditor) {
+    const notebookDocument = editorControl.notebookEditor.textModel;
+    const textModel = editorControl.codeEditor.getModel();
+    const activeKernel = editorControl.notebookEditor.activeKernel;
+    const language = activeKernel?.supportedLanguages[0] ?? PLAINTEXT_LANGUAGE_ID;
+    if (notebookDocument && textModel) {
+      const index = notebookDocument.length - 1;
+      const value = textModel.getValue();
+      if (isFalsyOrWhitespace(value)) {
+        return;
+      }
+      historyService.replaceLast(notebookDocument.uri, value);
+      historyService.addToHistory(notebookDocument.uri, "");
+      textModel.setValue("");
+      notebookDocument.cells[index].resetTextBuffer(
+        textModel.getTextBuffer()
+      );
+      const collapseState = editorControl.notebookEditor.notebookOptions.getDisplayOptions().interactiveWindowCollapseCodeCells === "fromEditor" ? {
+        inputCollapsed: false,
+        outputCollapsed: false
+      } : void 0;
+      await bulkEditService.apply([
+        new ResourceNotebookCellEdit(notebookDocument.uri, {
+          editType: CellEditType.Replace,
+          index,
+          count: 0,
+          cells: [
+            {
+              cellKind: CellKind.Code,
+              mime: void 0,
+              language,
+              source: value,
+              outputs: [],
+              metadata: {},
+              collapseState
+            }
+          ]
+        })
+      ]);
+      const range = { start: index, end: index + 1 };
+      editorControl.notebookEditor.revealCellRangeInView(range);
+      await editorControl.notebookEditor.executeNotebookCells(
+        editorControl.notebookEditor.getCellsInRange({
+          start: index,
+          end: index + 1
+        })
+      );
+      const editor = notebookEditorService.getNotebookEditor(
+        editorControl.notebookEditor.getId()
+      );
+      if (editor) {
+        editor.setSelections([range]);
+        editor.setFocus(range);
+      }
+    }
+  }
+}
+__name(executeReplInput, "executeReplInput");
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "list.find.replInputFocus",
+  weight: KeybindingWeight.WorkbenchContrib + 1,
+  when: ContextKeyExpr.equals("view", REPL_VIEW_ID),
+  primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyF,
+  secondary: [KeyCode.F3],
+  handler: /* @__PURE__ */ __name((accessor) => {
+    getReplView(accessor.get(IViewsService))?.openFind();
+  }, "handler")
+});
+export {
+  ReplDocumentContribution
+};
+//# sourceMappingURL=repl.contribution.js.map

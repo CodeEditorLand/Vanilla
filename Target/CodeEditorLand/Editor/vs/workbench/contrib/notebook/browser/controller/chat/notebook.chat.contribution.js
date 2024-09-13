@@ -1,1 +1,57 @@
-var b=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var m=(i,o,r,e)=>{for(var t=e>1?void 0:e?h(o,r):o,s=i.length-1,c;s>=0;s--)(c=i[s])&&(t=(e?c(o,r,t):c(t))||t);return e&&t&&b(o,r,t),t},a=(i,o)=>(r,e)=>o(r,e,i);import{Disposable as p}from"../../../../../../base/common/lifecycle.js";import{IContextKeyService as g}from"../../../../../../platform/contextkey/common/contextkey.js";import{registerWorkbenchContribution2 as I,WorkbenchPhase as d}from"../../../../../common/contributions.js";import{ChatAgentLocation as l,IChatAgentService as A}from"../../../../chat/common/chatAgents.js";import"./cellChatActions.js";import{CTX_NOTEBOOK_CHAT_HAS_AGENT as C}from"./notebookChatContext.js";let n=class extends p{static ID="workbench.contrib.notebookChatContribution";_ctxHasProvider;constructor(o,r){super(),this._ctxHasProvider=C.bindTo(o);const e=()=>{const t=!!r.getDefaultAgent(l.Notebook);this._ctxHasProvider.set(t)};e(),this._register(r.onDidChangeAgents(e))}};n=m([a(0,g),a(1,A)],n),I(n.ID,n,d.BlockRestore);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import {
+  IContextKeyService
+} from "../../../../../../platform/contextkey/common/contextkey.js";
+import {
+  WorkbenchPhase,
+  registerWorkbenchContribution2
+} from "../../../../../common/contributions.js";
+import {
+  ChatAgentLocation,
+  IChatAgentService
+} from "../../../../chat/common/chatAgents.js";
+import "./cellChatActions.js";
+import { CTX_NOTEBOOK_CHAT_HAS_AGENT } from "./notebookChatContext.js";
+let NotebookChatContribution = class extends Disposable {
+  static {
+    __name(this, "NotebookChatContribution");
+  }
+  static ID = "workbench.contrib.notebookChatContribution";
+  _ctxHasProvider;
+  constructor(contextKeyService, chatAgentService) {
+    super();
+    this._ctxHasProvider = CTX_NOTEBOOK_CHAT_HAS_AGENT.bindTo(contextKeyService);
+    const updateNotebookAgentStatus = /* @__PURE__ */ __name(() => {
+      const hasNotebookAgent = Boolean(
+        chatAgentService.getDefaultAgent(ChatAgentLocation.Notebook)
+      );
+      this._ctxHasProvider.set(hasNotebookAgent);
+    }, "updateNotebookAgentStatus");
+    updateNotebookAgentStatus();
+    this._register(
+      chatAgentService.onDidChangeAgents(updateNotebookAgentStatus)
+    );
+  }
+};
+NotebookChatContribution = __decorateClass([
+  __decorateParam(0, IContextKeyService),
+  __decorateParam(1, IChatAgentService)
+], NotebookChatContribution);
+registerWorkbenchContribution2(
+  NotebookChatContribution.ID,
+  NotebookChatContribution,
+  WorkbenchPhase.BlockRestore
+);
+//# sourceMappingURL=notebook.chat.contribution.js.map

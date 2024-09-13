@@ -1,1 +1,6 @@
-import"../node/backup.js";import{createDecorator as r}from"../../instantiation/common/instantiation.js";import"../common/backup.js";const i=r("backupMainService");export{i as IBackupMainService};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IBackupMainService = createDecorator("backupMainService");
+export {
+  IBackupMainService
+};
+//# sourceMappingURL=backup.js.map

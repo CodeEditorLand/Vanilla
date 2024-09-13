@@ -1,1 +1,233 @@
-var b=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var m=(c,s,e,t)=>{for(var r=t>1?void 0:t?f(s,e):s,i=c.length-1,d;i>=0;i--)(d=c[i])&&(r=(t?d(s,e,r):d(r))||r);return t&&r&&b(s,e,r),r},l=(c,s)=>(e,t)=>s(e,t,c);import{isSafari as v,isWebkitWebView as g}from"../../../base/browser/browser.js";import{$ as w,addDisposableListener as u,getActiveDocument as y,getActiveWindow as o,isHTMLElement as S,onDidRegisterWindow as T}from"../../../base/browser/dom.js";import{mainWindow as R}from"../../../base/browser/window.js";import{DeferredPromise as x}from"../../../base/common/async.js";import{Event as p}from"../../../base/common/event.js";import{hash as P}from"../../../base/common/hash.js";import{Disposable as W}from"../../../base/common/lifecycle.js";import{URI as E}from"../../../base/common/uri.js";import"../common/clipboardService.js";import{ILayoutService as C}from"../../layout/browser/layoutService.js";import{ILogService as I}from"../../log/common/log.js";const n="application/vnd.code.resources";let a=class extends W{constructor(e,t){super();this.layoutService=e;this.logService=t;(v||g)&&this.installWebKitWriteTextWorkaround(),this._register(p.runAndSubscribe(T,({window:r,disposables:i})=>{i.add(u(r.document,"copy",()=>this.clearResourcesState()))},{window:R,disposables:this._store}))}webKitPendingClipboardWritePromise;installWebKitWriteTextWorkaround(){const e=()=>{const t=new x;this.webKitPendingClipboardWritePromise&&!this.webKitPendingClipboardWritePromise.isSettled&&this.webKitPendingClipboardWritePromise.cancel(),this.webKitPendingClipboardWritePromise=t,o().navigator.clipboard.write([new ClipboardItem({"text/plain":t.p})]).catch(async r=>{(!(r instanceof Error)||r.name!=="NotAllowedError"||!t.isRejected)&&this.logService.error(r)})};this._register(p.runAndSubscribe(this.layoutService.onDidAddContainer,({container:t,disposables:r})=>{r.add(u(t,"click",e)),r.add(u(t,"keydown",e))},{container:this.layoutService.mainContainer,disposables:this._store}))}mapTextToType=new Map;async writeText(e,t){if(this.clearResourcesState(),t){this.mapTextToType.set(t,e);return}if(this.webKitPendingClipboardWritePromise)return this.webKitPendingClipboardWritePromise.complete(e);try{return await o().navigator.clipboard.writeText(e)}catch{}this.fallbackWriteText(e)}fallbackWriteText(e){const t=y(),r=t.activeElement,i=t.body.appendChild(w("textarea",{"aria-hidden":!0}));i.style.height="1px",i.style.width="1px",i.style.position="absolute",i.value=e,i.focus(),i.select(),t.execCommand("copy"),S(r)&&r.focus(),i.remove()}async readText(e){if(e)return this.mapTextToType.get(e)||"";try{return await o().navigator.clipboard.readText()}catch{}return""}findText="";async readFindText(){return this.findText}async writeFindText(e){this.findText=e}resources=[];resourcesStateHash=void 0;static MAX_RESOURCE_STATE_SOURCE_LENGTH=1e3;async writeResources(e){try{await o().navigator.clipboard.write([new ClipboardItem({[`web ${n}`]:new Blob([JSON.stringify(e.map(t=>t.toJSON()))],{type:n})})])}catch{}e.length===0?this.clearResourcesState():(this.resources=e,this.resourcesStateHash=await this.computeResourcesStateHash())}async readResources(){try{const t=await o().navigator.clipboard.read();for(const r of t)if(r.types.includes(`web ${n}`)){const i=await r.getType(`web ${n}`);return JSON.parse(await i.text()).map(h=>E.from(h))}}catch{}const e=await this.computeResourcesStateHash();return this.resourcesStateHash!==e&&this.clearResourcesState(),this.resources}async computeResourcesStateHash(){if(this.resources.length===0)return;const e=await this.readText();return P(e.substring(0,a.MAX_RESOURCE_STATE_SOURCE_LENGTH))}async hasResources(){try{const e=await o().navigator.clipboard.read();for(const t of e)if(t.types.includes(`web ${n}`))return!0}catch{}return this.resources.length>0}clearInternalState(){this.clearResourcesState()}clearResourcesState(){this.resources=[],this.resourcesStateHash=void 0}};a=m([l(0,C),l(1,I)],a);export{a as BrowserClipboardService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { isSafari, isWebkitWebView } from "../../../base/browser/browser.js";
+import {
+  $,
+  addDisposableListener,
+  getActiveDocument,
+  getActiveWindow,
+  isHTMLElement,
+  onDidRegisterWindow
+} from "../../../base/browser/dom.js";
+import { mainWindow } from "../../../base/browser/window.js";
+import { DeferredPromise } from "../../../base/common/async.js";
+import { Event } from "../../../base/common/event.js";
+import { hash } from "../../../base/common/hash.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { ILayoutService } from "../../layout/browser/layoutService.js";
+import { ILogService } from "../../log/common/log.js";
+const vscodeResourcesMime = "application/vnd.code.resources";
+let BrowserClipboardService = class extends Disposable {
+  constructor(layoutService, logService) {
+    super();
+    this.layoutService = layoutService;
+    this.logService = logService;
+    if (isSafari || isWebkitWebView) {
+      this.installWebKitWriteTextWorkaround();
+    }
+    this._register(Event.runAndSubscribe(onDidRegisterWindow, ({ window, disposables }) => {
+      disposables.add(addDisposableListener(window.document, "copy", () => this.clearResourcesState()));
+    }, { window: mainWindow, disposables: this._store }));
+  }
+  static {
+    __name(this, "BrowserClipboardService");
+  }
+  webKitPendingClipboardWritePromise;
+  // In Safari, it has the following note:
+  //
+  // "The request to write to the clipboard must be triggered during a user gesture.
+  // A call to clipboard.write or clipboard.writeText outside the scope of a user
+  // gesture(such as "click" or "touch" event handlers) will result in the immediate
+  // rejection of the promise returned by the API call."
+  // From: https://webkit.org/blog/10855/async-clipboard-api/
+  //
+  // Since extensions run in a web worker, and handle gestures in an asynchronous way,
+  // they are not classified by Safari as "in response to a user gesture" and will reject.
+  //
+  // This function sets up some handlers to work around that behavior.
+  installWebKitWriteTextWorkaround() {
+    const handler = /* @__PURE__ */ __name(() => {
+      const currentWritePromise = new DeferredPromise();
+      if (this.webKitPendingClipboardWritePromise && !this.webKitPendingClipboardWritePromise.isSettled) {
+        this.webKitPendingClipboardWritePromise.cancel();
+      }
+      this.webKitPendingClipboardWritePromise = currentWritePromise;
+      getActiveWindow().navigator.clipboard.write([
+        new ClipboardItem({
+          "text/plain": currentWritePromise.p
+        })
+      ]).catch(async (err) => {
+        if (!(err instanceof Error) || err.name !== "NotAllowedError" || !currentWritePromise.isRejected) {
+          this.logService.error(err);
+        }
+      });
+    }, "handler");
+    this._register(
+      Event.runAndSubscribe(
+        this.layoutService.onDidAddContainer,
+        ({ container, disposables }) => {
+          disposables.add(
+            addDisposableListener(container, "click", handler)
+          );
+          disposables.add(
+            addDisposableListener(container, "keydown", handler)
+          );
+        },
+        {
+          container: this.layoutService.mainContainer,
+          disposables: this._store
+        }
+      )
+    );
+  }
+  mapTextToType = /* @__PURE__ */ new Map();
+  // unsupported in web (only in-memory)
+  async writeText(text, type) {
+    this.clearResourcesState();
+    if (type) {
+      this.mapTextToType.set(type, text);
+      return;
+    }
+    if (this.webKitPendingClipboardWritePromise) {
+      return this.webKitPendingClipboardWritePromise.complete(text);
+    }
+    try {
+      return await getActiveWindow().navigator.clipboard.writeText(text);
+    } catch (error) {
+      console.error(error);
+    }
+    this.fallbackWriteText(text);
+  }
+  fallbackWriteText(text) {
+    const activeDocument = getActiveDocument();
+    const activeElement = activeDocument.activeElement;
+    const textArea = activeDocument.body.appendChild(
+      $("textarea", { "aria-hidden": true })
+    );
+    textArea.style.height = "1px";
+    textArea.style.width = "1px";
+    textArea.style.position = "absolute";
+    textArea.value = text;
+    textArea.focus();
+    textArea.select();
+    activeDocument.execCommand("copy");
+    if (isHTMLElement(activeElement)) {
+      activeElement.focus();
+    }
+    textArea.remove();
+  }
+  async readText(type) {
+    if (type) {
+      return this.mapTextToType.get(type) || "";
+    }
+    try {
+      return await getActiveWindow().navigator.clipboard.readText();
+    } catch (error) {
+      console.error(error);
+    }
+    return "";
+  }
+  findText = "";
+  // unsupported in web (only in-memory)
+  async readFindText() {
+    return this.findText;
+  }
+  async writeFindText(text) {
+    this.findText = text;
+  }
+  resources = [];
+  // unsupported in web (only in-memory)
+  resourcesStateHash = void 0;
+  static MAX_RESOURCE_STATE_SOURCE_LENGTH = 1e3;
+  async writeResources(resources) {
+    try {
+      await getActiveWindow().navigator.clipboard.write([
+        new ClipboardItem({
+          [`web ${vscodeResourcesMime}`]: new Blob(
+            [JSON.stringify(resources.map((x) => x.toJSON()))],
+            {
+              type: vscodeResourcesMime
+            }
+          )
+        })
+      ]);
+    } catch (error) {
+    }
+    if (resources.length === 0) {
+      this.clearResourcesState();
+    } else {
+      this.resources = resources;
+      this.resourcesStateHash = await this.computeResourcesStateHash();
+    }
+  }
+  async readResources() {
+    try {
+      const items = await getActiveWindow().navigator.clipboard.read();
+      for (const item of items) {
+        if (item.types.includes(`web ${vscodeResourcesMime}`)) {
+          const blob = await item.getType(
+            `web ${vscodeResourcesMime}`
+          );
+          const resources = JSON.parse(await blob.text()).map((x) => URI.from(x));
+          return resources;
+        }
+      }
+    } catch (error) {
+    }
+    const resourcesStateHash = await this.computeResourcesStateHash();
+    if (this.resourcesStateHash !== resourcesStateHash) {
+      this.clearResourcesState();
+    }
+    return this.resources;
+  }
+  async computeResourcesStateHash() {
+    if (this.resources.length === 0) {
+      return void 0;
+    }
+    const clipboardText = await this.readText();
+    return hash(
+      clipboardText.substring(
+        0,
+        BrowserClipboardService.MAX_RESOURCE_STATE_SOURCE_LENGTH
+      )
+    );
+  }
+  async hasResources() {
+    try {
+      const items = await getActiveWindow().navigator.clipboard.read();
+      for (const item of items) {
+        if (item.types.includes(`web ${vscodeResourcesMime}`)) {
+          return true;
+        }
+      }
+    } catch (error) {
+    }
+    return this.resources.length > 0;
+  }
+  clearInternalState() {
+    this.clearResourcesState();
+  }
+  clearResourcesState() {
+    this.resources = [];
+    this.resourcesStateHash = void 0;
+  }
+};
+BrowserClipboardService = __decorateClass([
+  __decorateParam(0, ILayoutService),
+  __decorateParam(1, ILogService)
+], BrowserClipboardService);
+export {
+  BrowserClipboardService
+};
+//# sourceMappingURL=clipboardService.js.map

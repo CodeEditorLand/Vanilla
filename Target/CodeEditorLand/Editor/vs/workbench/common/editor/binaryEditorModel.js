@@ -1,1 +1,70 @@
-var v=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var m=(s,i,e,t)=>{for(var r=t>1?void 0:t?f(i,e):i,a=s.length-1,o;a>=0;a--)(o=s[a])&&(r=(t?o(i,e,r):o(r))||r);return t&&r&&v(i,e,r),r},u=(s,i)=>(e,t)=>i(e,t,s);import{EditorModel as g}from"./editorModel.js";import"../../../base/common/uri.js";import{IFileService as c}from"../../../platform/files/common/files.js";import{Mimes as p}from"../../../base/common/mime.js";let n=class extends g{constructor(e,t,r){super();this.resource=e;this.name=t;this.fileService=r}mime=p.binary;size;etag;getName(){return this.name}getSize(){return this.size}getMime(){return this.mime}getETag(){return this.etag}async resolve(){if(this.fileService.hasProvider(this.resource)){const e=await this.fileService.stat(this.resource);this.etag=e.etag,typeof e.size=="number"&&(this.size=e.size)}return super.resolve()}};n=m([u(2,c)],n);export{n as BinaryEditorModel};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Mimes } from "../../../base/common/mime.js";
+import { IFileService } from "../../../platform/files/common/files.js";
+import { EditorModel } from "./editorModel.js";
+let BinaryEditorModel = class extends EditorModel {
+  constructor(resource, name, fileService) {
+    super();
+    this.resource = resource;
+    this.name = name;
+    this.fileService = fileService;
+  }
+  static {
+    __name(this, "BinaryEditorModel");
+  }
+  mime = Mimes.binary;
+  size;
+  etag;
+  /**
+   * The name of the binary resource.
+   */
+  getName() {
+    return this.name;
+  }
+  /**
+   * The size of the binary resource if known.
+   */
+  getSize() {
+    return this.size;
+  }
+  /**
+   * The mime of the binary resource if known.
+   */
+  getMime() {
+    return this.mime;
+  }
+  /**
+   * The etag of the binary resource if known.
+   */
+  getETag() {
+    return this.etag;
+  }
+  async resolve() {
+    if (this.fileService.hasProvider(this.resource)) {
+      const stat = await this.fileService.stat(this.resource);
+      this.etag = stat.etag;
+      if (typeof stat.size === "number") {
+        this.size = stat.size;
+      }
+    }
+    return super.resolve();
+  }
+};
+BinaryEditorModel = __decorateClass([
+  __decorateParam(2, IFileService)
+], BinaryEditorModel);
+export {
+  BinaryEditorModel
+};
+//# sourceMappingURL=binaryEditorModel.js.map

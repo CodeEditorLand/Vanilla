@@ -1,1 +1,157 @@
-var v=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var p=(d,s,e,o)=>{for(var t=o>1?void 0:o?f(s,e):s,n=d.length-1,r;n>=0;n--)(r=d[n])&&(t=(o?r(s,e,t):r(t))||t);return o&&t&&v(s,e,t),t},c=(d,s)=>(e,o)=>s(e,o,d);import{DisposableStore as u}from"../../../../../base/common/lifecycle.js";import*as a from"../../../../../base/browser/dom.js";import{RunOnceScheduler as _}from"../../../../../base/common/async.js";import{convertBufferRangeToViewport as m}from"./terminalLinkHelpers.js";import{isMacintosh as g}from"../../../../../base/common/platform.js";import{Emitter as y}from"../../../../../base/common/event.js";import{IConfigurationService as b}from"../../../../../platform/configuration/common/configuration.js";import"./links.js";let l=class extends u{constructor(e,o,t,n,r,i,h,L,k,C,w,S,D){super();this._xterm=e;this.range=o;this.text=t;this.uri=n;this.parsedLink=r;this.actions=i;this._viewportY=h;this._activateCallback=L;this._tooltipCallback=k;this._isHighConfidenceLink=C;this.label=w;this._type=S;this._configurationService=D;this.decorations={pointerCursor:!1,underline:this._isHighConfidenceLink}}decorations;asyncActivate;_tooltipScheduler;_hoverListeners;_onInvalidated=new y;get onInvalidated(){return this._onInvalidated.event}get type(){return this._type}dispose(){super.dispose(),this._hoverListeners?.dispose(),this._hoverListeners=void 0,this._tooltipScheduler?.dispose(),this._tooltipScheduler=void 0}activate(e,o){this.asyncActivate=this._activateCallback(e,o)}hover(e,o){const t=a.getWindow(e),n=t.document;this._hoverListeners=new u,this._hoverListeners.add(a.addDisposableListener(n,"keydown",i=>{!i.repeat&&this._isModifierDown(i)&&this._enableDecorations()})),this._hoverListeners.add(a.addDisposableListener(n,"keyup",i=>{!i.repeat&&!this._isModifierDown(i)&&this._disableDecorations()})),this._hoverListeners.add(this._xterm.onRender(i=>{const h=this.range.start.y-this._viewportY;h>=i.start&&h<=i.end&&this._onInvalidated.fire()})),this._isHighConfidenceLink&&(this._tooltipScheduler=new _(()=>{this._tooltipCallback(this,m(this.range,this._viewportY),this._isHighConfidenceLink?()=>this._enableDecorations():void 0,this._isHighConfidenceLink?()=>this._disableDecorations():void 0),this._tooltipScheduler?.dispose(),this._tooltipScheduler=void 0},this._configurationService.getValue("workbench.hover.delay")),this.add(this._tooltipScheduler),this._tooltipScheduler.schedule());const r={x:e.pageX,y:e.pageY};this._hoverListeners.add(a.addDisposableListener(n,a.EventType.MOUSE_MOVE,i=>{this._isModifierDown(i)?this._enableDecorations():this._disableDecorations(),(Math.abs(i.pageX-r.x)>t.devicePixelRatio*2||Math.abs(i.pageY-r.y)>t.devicePixelRatio*2)&&(r.x=i.pageX,r.y=i.pageY,this._tooltipScheduler?.schedule())}))}leave(){this._hoverListeners?.dispose(),this._hoverListeners=void 0,this._tooltipScheduler?.dispose(),this._tooltipScheduler=void 0}_enableDecorations(){this.decorations.pointerCursor||(this.decorations.pointerCursor=!0),this.decorations.underline||(this.decorations.underline=!0)}_disableDecorations(){this.decorations.pointerCursor&&(this.decorations.pointerCursor=!1),this.decorations.underline!==this._isHighConfidenceLink&&(this.decorations.underline=this._isHighConfidenceLink)}_isModifierDown(e){return this._configurationService.getValue("editor.multiCursorModifier")==="ctrlCmd"?!!e.altKey:g?e.metaKey:e.ctrlKey}};l=p([c(12,b)],l);export{l as TerminalLink};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../../base/browser/dom.js";
+import { RunOnceScheduler } from "../../../../../base/common/async.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { isMacintosh } from "../../../../../base/common/platform.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { convertBufferRangeToViewport } from "./terminalLinkHelpers.js";
+let TerminalLink = class extends DisposableStore {
+  constructor(_xterm, range, text, uri, parsedLink, actions, _viewportY, _activateCallback, _tooltipCallback, _isHighConfidenceLink, label, _type, _configurationService) {
+    super();
+    this._xterm = _xterm;
+    this.range = range;
+    this.text = text;
+    this.uri = uri;
+    this.parsedLink = parsedLink;
+    this.actions = actions;
+    this._viewportY = _viewportY;
+    this._activateCallback = _activateCallback;
+    this._tooltipCallback = _tooltipCallback;
+    this._isHighConfidenceLink = _isHighConfidenceLink;
+    this.label = label;
+    this._type = _type;
+    this._configurationService = _configurationService;
+    this.decorations = {
+      pointerCursor: false,
+      underline: this._isHighConfidenceLink
+    };
+  }
+  static {
+    __name(this, "TerminalLink");
+  }
+  decorations;
+  asyncActivate;
+  _tooltipScheduler;
+  _hoverListeners;
+  _onInvalidated = new Emitter();
+  get onInvalidated() {
+    return this._onInvalidated.event;
+  }
+  get type() {
+    return this._type;
+  }
+  dispose() {
+    super.dispose();
+    this._hoverListeners?.dispose();
+    this._hoverListeners = void 0;
+    this._tooltipScheduler?.dispose();
+    this._tooltipScheduler = void 0;
+  }
+  activate(event, text) {
+    this.asyncActivate = this._activateCallback(event, text);
+  }
+  hover(event, text) {
+    const w = dom.getWindow(event);
+    const d = w.document;
+    this._hoverListeners = new DisposableStore();
+    this._hoverListeners.add(
+      dom.addDisposableListener(d, "keydown", (e) => {
+        if (!e.repeat && this._isModifierDown(e)) {
+          this._enableDecorations();
+        }
+      })
+    );
+    this._hoverListeners.add(
+      dom.addDisposableListener(d, "keyup", (e) => {
+        if (!e.repeat && !this._isModifierDown(e)) {
+          this._disableDecorations();
+        }
+      })
+    );
+    this._hoverListeners.add(
+      this._xterm.onRender((e) => {
+        const viewportRangeY = this.range.start.y - this._viewportY;
+        if (viewportRangeY >= e.start && viewportRangeY <= e.end) {
+          this._onInvalidated.fire();
+        }
+      })
+    );
+    if (this._isHighConfidenceLink) {
+      this._tooltipScheduler = new RunOnceScheduler(() => {
+        this._tooltipCallback(
+          this,
+          convertBufferRangeToViewport(this.range, this._viewportY),
+          this._isHighConfidenceLink ? () => this._enableDecorations() : void 0,
+          this._isHighConfidenceLink ? () => this._disableDecorations() : void 0
+        );
+        this._tooltipScheduler?.dispose();
+        this._tooltipScheduler = void 0;
+      }, this._configurationService.getValue("workbench.hover.delay"));
+      this.add(this._tooltipScheduler);
+      this._tooltipScheduler.schedule();
+    }
+    const origin = { x: event.pageX, y: event.pageY };
+    this._hoverListeners.add(
+      dom.addDisposableListener(d, dom.EventType.MOUSE_MOVE, (e) => {
+        if (this._isModifierDown(e)) {
+          this._enableDecorations();
+        } else {
+          this._disableDecorations();
+        }
+        if (Math.abs(e.pageX - origin.x) > w.devicePixelRatio * 2 || Math.abs(e.pageY - origin.y) > w.devicePixelRatio * 2) {
+          origin.x = e.pageX;
+          origin.y = e.pageY;
+          this._tooltipScheduler?.schedule();
+        }
+      })
+    );
+  }
+  leave() {
+    this._hoverListeners?.dispose();
+    this._hoverListeners = void 0;
+    this._tooltipScheduler?.dispose();
+    this._tooltipScheduler = void 0;
+  }
+  _enableDecorations() {
+    if (!this.decorations.pointerCursor) {
+      this.decorations.pointerCursor = true;
+    }
+    if (!this.decorations.underline) {
+      this.decorations.underline = true;
+    }
+  }
+  _disableDecorations() {
+    if (this.decorations.pointerCursor) {
+      this.decorations.pointerCursor = false;
+    }
+    if (this.decorations.underline !== this._isHighConfidenceLink) {
+      this.decorations.underline = this._isHighConfidenceLink;
+    }
+  }
+  _isModifierDown(event) {
+    const multiCursorModifier = this._configurationService.getValue("editor.multiCursorModifier");
+    if (multiCursorModifier === "ctrlCmd") {
+      return !!event.altKey;
+    }
+    return isMacintosh ? event.metaKey : event.ctrlKey;
+  }
+};
+TerminalLink = __decorateClass([
+  __decorateParam(12, IConfigurationService)
+], TerminalLink);
+export {
+  TerminalLink
+};
+//# sourceMappingURL=terminalLink.js.map

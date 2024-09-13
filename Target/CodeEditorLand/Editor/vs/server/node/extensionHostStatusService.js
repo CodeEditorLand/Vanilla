@@ -1,1 +1,22 @@
-import{createDecorator as e}from"../../platform/instantiation/common/instantiation.js";import"../../workbench/services/remote/common/remoteAgentService.js";const x=e("extensionHostStatusService");class I{_serviceBrand;_exitInfo=new Map;setExitInfo(t,n){this._exitInfo.set(t,n)}getExitInfo(t){return this._exitInfo.get(t)||null}}export{I as ExtensionHostStatusService,x as IExtensionHostStatusService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../platform/instantiation/common/instantiation.js";
+const IExtensionHostStatusService = createDecorator("extensionHostStatusService");
+class ExtensionHostStatusService {
+  static {
+    __name(this, "ExtensionHostStatusService");
+  }
+  _serviceBrand;
+  _exitInfo = /* @__PURE__ */ new Map();
+  setExitInfo(reconnectionToken, info) {
+    this._exitInfo.set(reconnectionToken, info);
+  }
+  getExitInfo(reconnectionToken) {
+    return this._exitInfo.get(reconnectionToken) || null;
+  }
+}
+export {
+  ExtensionHostStatusService,
+  IExtensionHostStatusService
+};
+//# sourceMappingURL=extensionHostStatusService.js.map

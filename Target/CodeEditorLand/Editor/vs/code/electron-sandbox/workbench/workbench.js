@@ -1,68 +1,256 @@
-(function(){const u=b();performance.mark("code/didStartRenderer"),u.load(["vs/workbench/workbench.desktop.main","vs/css!vs/workbench/workbench.desktop.main"],function(e,o){return performance.mark("code/didLoadWorkbenchMain"),e.main(o)},{configureDeveloperSettings:function(e){return{forceDisableShowDevtoolsOnError:typeof e.extensionTestsPath=="string"||e["enable-smoke-test-driver"]===!0,forceEnableDeveloperKeybindings:Array.isArray(e.extensionDevelopmentPath)&&e.extensionDevelopmentPath.length>0,removeDeveloperKeybindingsAfterLoad:!0}},canModifyDOM:function(e){B(e)},beforeLoaderConfig:function(e){e.recordStats=!0},beforeRequire:function(e){performance.mark("code/willLoadWorkbenchMain"),Object.defineProperty(window,"vscodeWindowId",{get:()=>e.windowId}),window.requestIdleCallback(()=>{const o=document.createElement("canvas");o.getContext("2d")?.clearRect(0,0,o.width,o.height),o.remove()},{timeout:50})}});function b(){return window.MonacoBootstrapWindow}function B(e){performance.mark("code/willShowPartsSplash");let o=e.partsSplash;o&&(e.autoDetectHighContrast&&e.colorScheme.highContrast?(e.colorScheme.dark&&o.baseTheme!=="hc-black"||!e.colorScheme.dark&&o.baseTheme!=="hc-light")&&(o=void 0):e.autoDetectColorScheme&&(e.colorScheme.dark&&o.baseTheme!=="vs-dark"||!e.colorScheme.dark&&o.baseTheme!=="vs")&&(o=void 0)),o&&e.extensionDevelopmentPath&&(o.layoutInfo=void 0);let a,s,l;o?(a=o.baseTheme,s=o.colorInfo.editorBackground,l=o.colorInfo.foreground):e.autoDetectHighContrast&&e.colorScheme.highContrast?e.colorScheme.dark?(a="hc-black",s="#000000",l="#FFFFFF"):(a="hc-light",s="#FFFFFF",l="#000000"):e.autoDetectColorScheme&&(e.colorScheme.dark?(a="vs-dark",s="#1E1E1E",l="#CCCCCC"):(a="vs",s="#FFFFFF",l="#000000"));const n=document.createElement("style");if(n.className="initialShellColors",document.head.appendChild(n),n.textContent=`body {
-			background-color: ${s};
-			color: ${l};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+(() => {
+  const bootstrapWindow = bootstrapWindowLib();
+  performance.mark("code/didStartRenderer");
+  bootstrapWindow.load(
+    [
+      "vs/workbench/workbench.desktop.main",
+      "vs/css!vs/workbench/workbench.desktop.main"
+    ],
+    (desktopMain, configuration) => {
+      performance.mark("code/didLoadWorkbenchMain");
+      return desktopMain.main(configuration);
+    },
+    {
+      configureDeveloperSettings: /* @__PURE__ */ __name((windowConfig) => ({
+        // disable automated devtools opening on error when running extension tests
+        // as this can lead to nondeterministic test execution (devtools steals focus)
+        forceDisableShowDevtoolsOnError: typeof windowConfig.extensionTestsPath === "string" || windowConfig["enable-smoke-test-driver"] === true,
+        // enable devtools keybindings in extension development window
+        forceEnableDeveloperKeybindings: Array.isArray(windowConfig.extensionDevelopmentPath) && windowConfig.extensionDevelopmentPath.length > 0,
+        removeDeveloperKeybindingsAfterLoad: true
+      }), "configureDeveloperSettings"),
+      canModifyDOM: /* @__PURE__ */ __name((windowConfig) => {
+        showSplash(windowConfig);
+      }, "canModifyDOM"),
+      beforeLoaderConfig: /* @__PURE__ */ __name((loaderConfig) => {
+        loaderConfig.recordStats = true;
+      }, "beforeLoaderConfig"),
+      beforeRequire: /* @__PURE__ */ __name((windowConfig) => {
+        performance.mark("code/willLoadWorkbenchMain");
+        Object.defineProperty(window, "vscodeWindowId", {
+          get: /* @__PURE__ */ __name(() => windowConfig.windowId, "get")
+        });
+        window.requestIdleCallback(
+          () => {
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            context?.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.remove();
+          },
+          { timeout: 50 }
+        );
+      }, "beforeRequire")
+    }
+  );
+  function bootstrapWindowLib() {
+    return window.MonacoBootstrapWindow;
+  }
+  __name(bootstrapWindowLib, "bootstrapWindowLib");
+  function showSplash(configuration) {
+    performance.mark("code/willShowPartsSplash");
+    let data = configuration.partsSplash;
+    if (data) {
+      if (configuration.autoDetectHighContrast && configuration.colorScheme.highContrast) {
+        if (configuration.colorScheme.dark && data.baseTheme !== "hc-black" || !configuration.colorScheme.dark && data.baseTheme !== "hc-light") {
+          data = void 0;
+        }
+      } else if (configuration.autoDetectColorScheme) {
+        if (configuration.colorScheme.dark && data.baseTheme !== "vs-dark" || !configuration.colorScheme.dark && data.baseTheme !== "vs") {
+          data = void 0;
+        }
+      }
+    }
+    if (data && configuration.extensionDevelopmentPath) {
+      data.layoutInfo = void 0;
+    }
+    let baseTheme;
+    let shellBackground;
+    let shellForeground;
+    if (data) {
+      baseTheme = data.baseTheme;
+      shellBackground = data.colorInfo.editorBackground;
+      shellForeground = data.colorInfo.foreground;
+    } else if (configuration.autoDetectHighContrast && configuration.colorScheme.highContrast) {
+      if (configuration.colorScheme.dark) {
+        baseTheme = "hc-black";
+        shellBackground = "#000000";
+        shellForeground = "#FFFFFF";
+      } else {
+        baseTheme = "hc-light";
+        shellBackground = "#FFFFFF";
+        shellForeground = "#000000";
+      }
+    } else if (configuration.autoDetectColorScheme) {
+      if (configuration.colorScheme.dark) {
+        baseTheme = "vs-dark";
+        shellBackground = "#1E1E1E";
+        shellForeground = "#CCCCCC";
+      } else {
+        baseTheme = "vs";
+        shellBackground = "#FFFFFF";
+        shellForeground = "#000000";
+      }
+    }
+    const style = document.createElement("style");
+    style.className = "initialShellColors";
+    document.head.appendChild(style);
+    style.textContent = `body {
+			background-color: ${shellBackground};
+			color: ${shellForeground};
 			margin: 0;
 			padding: 0;
-		}`,typeof o?.zoomLevel=="number"&&typeof globalThis.vscode?.webFrame?.setZoomLevel=="function"&&globalThis.vscode.webFrame.setZoomLevel(o.zoomLevel),o?.layoutInfo){const{layoutInfo:t,colorInfo:r}=o,d=document.createElement("div");d.id="monaco-parts-splash",d.className=a??"vs-dark",t.windowBorder&&r.windowBorder&&(d.setAttribute("style",`
+		}`;
+    if (typeof data?.zoomLevel === "number" && typeof globalThis.vscode?.webFrame?.setZoomLevel === "function") {
+      globalThis.vscode.webFrame.setZoomLevel(data.zoomLevel);
+    }
+    if (data?.layoutInfo) {
+      const { layoutInfo, colorInfo } = data;
+      const splash = document.createElement("div");
+      splash.id = "monaco-parts-splash";
+      splash.className = baseTheme ?? "vs-dark";
+      if (layoutInfo.windowBorder && colorInfo.windowBorder) {
+        splash.setAttribute(
+          "style",
+          `
 					position: relative;
 					height: calc(100vh - 2px);
 					width: calc(100vw - 2px);
 					border: 1px solid var(--window-border-color);
-				`),d.style.setProperty("--window-border-color",r.windowBorder),t.windowBorderRadius&&(d.style.borderRadius=t.windowBorderRadius)),t.sideBarWidth=Math.min(t.sideBarWidth,window.innerWidth-(t.activityBarWidth+t.editorPartMinWidth));const c=document.createElement("div");if(c.setAttribute("style",`
+				`
+        );
+        splash.style.setProperty(
+          "--window-border-color",
+          colorInfo.windowBorder
+        );
+        if (layoutInfo.windowBorderRadius) {
+          splash.style.borderRadius = layoutInfo.windowBorderRadius;
+        }
+      }
+      layoutInfo.sideBarWidth = Math.min(
+        layoutInfo.sideBarWidth,
+        window.innerWidth - (layoutInfo.activityBarWidth + layoutInfo.editorPartMinWidth)
+      );
+      const titleDiv = document.createElement("div");
+      titleDiv.setAttribute(
+        "style",
+        `
 				position: absolute;
 				width: 100%;
-				height: ${t.titleBarHeight}px;
+				height: ${layoutInfo.titleBarHeight}px;
 				left: 0;
 				top: 0;
-				background-color: ${r.titleBarBackground};
+				background-color: ${colorInfo.titleBarBackground};
 				-webkit-app-region: drag;
-			`),d.appendChild(c),r.titleBarBorder&&t.titleBarHeight>0){const i=document.createElement("div");i.setAttribute("style",`
+			`
+      );
+      splash.appendChild(titleDiv);
+      if (colorInfo.titleBarBorder && layoutInfo.titleBarHeight > 0) {
+        const titleBorder = document.createElement("div");
+        titleBorder.setAttribute(
+          "style",
+          `
 					position: absolute;
 					width: 100%;
 					height: 1px;
 					left: 0;
 					bottom: 0;
-					border-bottom: 1px solid ${r.titleBarBorder};
-				`),c.appendChild(i)}const h=document.createElement("div");if(h.setAttribute("style",`
+					border-bottom: 1px solid ${colorInfo.titleBarBorder};
+				`
+        );
+        titleDiv.appendChild(titleBorder);
+      }
+      const activityDiv = document.createElement("div");
+      activityDiv.setAttribute(
+        "style",
+        `
 				position: absolute;
-				width: ${t.activityBarWidth}px;
-				height: calc(100% - ${t.titleBarHeight+t.statusBarHeight}px);
-				top: ${t.titleBarHeight}px;
-				${t.sideBarSide}: 0;
-				background-color: ${r.activityBarBackground};
-			`),d.appendChild(h),r.activityBarBorder&&t.activityBarWidth>0){const i=document.createElement("div");i.setAttribute("style",`
+				width: ${layoutInfo.activityBarWidth}px;
+				height: calc(100% - ${layoutInfo.titleBarHeight + layoutInfo.statusBarHeight}px);
+				top: ${layoutInfo.titleBarHeight}px;
+				${layoutInfo.sideBarSide}: 0;
+				background-color: ${colorInfo.activityBarBackground};
+			`
+      );
+      splash.appendChild(activityDiv);
+      if (colorInfo.activityBarBorder && layoutInfo.activityBarWidth > 0) {
+        const activityBorderDiv = document.createElement("div");
+        activityBorderDiv.setAttribute(
+          "style",
+          `
 					position: absolute;
 					width: 1px;
 					height: 100%;
 					top: 0;
-					${t.sideBarSide==="left"?"right":"left"}: 0;
-					${t.sideBarSide==="left"?"border-right":"border-left"}: 1px solid ${r.activityBarBorder};
-				`),h.appendChild(i)}if(e.workspace){const i=document.createElement("div");if(i.setAttribute("style",`
+					${layoutInfo.sideBarSide === "left" ? "right" : "left"}: 0;
+					${layoutInfo.sideBarSide === "left" ? "border-right" : "border-left"}: 1px solid ${colorInfo.activityBarBorder};
+				`
+        );
+        activityDiv.appendChild(activityBorderDiv);
+      }
+      if (configuration.workspace) {
+        const sideDiv = document.createElement("div");
+        sideDiv.setAttribute(
+          "style",
+          `
 					position: absolute;
-					width: ${t.sideBarWidth}px;
-					height: calc(100% - ${t.titleBarHeight+t.statusBarHeight}px);
-					top: ${t.titleBarHeight}px;
-					${t.sideBarSide}: ${t.activityBarWidth}px;
-					background-color: ${r.sideBarBackground};
-				`),d.appendChild(i),r.sideBarBorder&&t.sideBarWidth>0){const m=document.createElement("div");m.setAttribute("style",`
+					width: ${layoutInfo.sideBarWidth}px;
+					height: calc(100% - ${layoutInfo.titleBarHeight + layoutInfo.statusBarHeight}px);
+					top: ${layoutInfo.titleBarHeight}px;
+					${layoutInfo.sideBarSide}: ${layoutInfo.activityBarWidth}px;
+					background-color: ${colorInfo.sideBarBackground};
+				`
+        );
+        splash.appendChild(sideDiv);
+        if (colorInfo.sideBarBorder && layoutInfo.sideBarWidth > 0) {
+          const sideBorderDiv = document.createElement("div");
+          sideBorderDiv.setAttribute(
+            "style",
+            `
 						position: absolute;
 						width: 1px;
 						height: 100%;
 						top: 0;
 						right: 0;
-						${t.sideBarSide==="left"?"right":"left"}: 0;
-						${t.sideBarSide==="left"?"border-right":"border-left"}: 1px solid ${r.sideBarBorder};
-					`),i.appendChild(m)}}const p=document.createElement("div");if(p.setAttribute("style",`
+						${layoutInfo.sideBarSide === "left" ? "right" : "left"}: 0;
+						${layoutInfo.sideBarSide === "left" ? "border-right" : "border-left"}: 1px solid ${colorInfo.sideBarBorder};
+					`
+          );
+          sideDiv.appendChild(sideBorderDiv);
+        }
+      }
+      const statusDiv = document.createElement("div");
+      statusDiv.setAttribute(
+        "style",
+        `
 				position: absolute;
 				width: 100%;
-				height: ${t.statusBarHeight}px;
+				height: ${layoutInfo.statusBarHeight}px;
 				bottom: 0;
 				left: 0;
-				background-color: ${e.workspace?r.statusBarBackground:r.statusBarNoFolderBackground};
-			`),d.appendChild(p),r.statusBarBorder&&t.statusBarHeight>0){const i=document.createElement("div");i.setAttribute("style",`
+				background-color: ${configuration.workspace ? colorInfo.statusBarBackground : colorInfo.statusBarNoFolderBackground};
+			`
+      );
+      splash.appendChild(statusDiv);
+      if (colorInfo.statusBarBorder && layoutInfo.statusBarHeight > 0) {
+        const statusBorderDiv = document.createElement("div");
+        statusBorderDiv.setAttribute(
+          "style",
+          `
 					position: absolute;
 					width: 100%;
 					height: 1px;
 					top: 0;
-					border-top: 1px solid ${r.statusBarBorder};
-				`),p.appendChild(i)}document.body.appendChild(d)}performance.mark("code/didShowPartsSplash")}})();
+					border-top: 1px solid ${colorInfo.statusBarBorder};
+				`
+        );
+        statusDiv.appendChild(statusBorderDiv);
+      }
+      document.body.appendChild(splash);
+    }
+    performance.mark("code/didShowPartsSplash");
+  }
+  __name(showSplash, "showSplash");
+})();
+//# sourceMappingURL=workbench.js.map

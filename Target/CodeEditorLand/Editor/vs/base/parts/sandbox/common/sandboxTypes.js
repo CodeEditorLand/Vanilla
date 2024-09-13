@@ -1,1 +1,1 @@
-import"../../../common/platform.js";import"../../../common/product.js";
+//# sourceMappingURL=sandboxTypes.js.map

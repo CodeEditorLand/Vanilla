@@ -1,1 +1,66 @@
-var c=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var s=(r,a,i,t)=>{for(var e=t>1?void 0:t?p(a,i):a,n=r.length-1,l;n>=0;n--)(l=r[n])&&(e=(t?l(a,i,e):l(e))||e);return t&&e&&c(a,i,e),e},m=(r,a)=>(i,t)=>a(i,t,r);import{Emitter as d}from"../../../../../base/common/event.js";import{Disposable as g}from"../../../../../base/common/lifecycle.js";import"../../../../../editor/browser/editorBrowser.js";import{IInstantiationService as h}from"../../../../../platform/instantiation/common/instantiation.js";import{CallStackFrame as u,CallStackWidget as F}from"../../../debug/browser/callStackWidget.js";import"../../common/testTypes.js";let o=class extends g{constructor(i,t,e){super();this.container=i;this.widget=this._register(e.createInstance(F,i,t))}widget;changeStackFrameEmitter=this._register(new d);onDidChangeStackFrame=this.changeStackFrameEmitter.event;collapseAll(){this.widget.collapseAll()}update(i,t){this.widget.setFrames([i,...t.map(e=>new u(e.label,e.uri,e.position?.lineNumber,e.position?.column))])}layout(i,t){this.widget.layout(i??this.container.clientHeight,t)}};o=s([m(2,h)],o);export{o as TestResultStackWidget};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import {
+  CallStackFrame,
+  CallStackWidget
+} from "../../../debug/browser/callStackWidget.js";
+let TestResultStackWidget = class extends Disposable {
+  constructor(container, containingEditor, instantiationService) {
+    super();
+    this.container = container;
+    this.widget = this._register(
+      instantiationService.createInstance(
+        CallStackWidget,
+        container,
+        containingEditor
+      )
+    );
+  }
+  static {
+    __name(this, "TestResultStackWidget");
+  }
+  widget;
+  changeStackFrameEmitter = this._register(
+    new Emitter()
+  );
+  onDidChangeStackFrame = this.changeStackFrameEmitter.event;
+  collapseAll() {
+    this.widget.collapseAll();
+  }
+  update(messageFrame, stack) {
+    this.widget.setFrames([
+      messageFrame,
+      ...stack.map(
+        (frame) => new CallStackFrame(
+          frame.label,
+          frame.uri,
+          frame.position?.lineNumber,
+          frame.position?.column
+        )
+      )
+    ]);
+  }
+  layout(height, width) {
+    this.widget.layout(height ?? this.container.clientHeight, width);
+  }
+};
+TestResultStackWidget = __decorateClass([
+  __decorateParam(2, IInstantiationService)
+], TestResultStackWidget);
+export {
+  TestResultStackWidget
+};
+//# sourceMappingURL=testMessageStack.js.map

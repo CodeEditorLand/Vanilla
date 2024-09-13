@@ -1,1 +1,4 @@
-import{create as r}from"./profileAnalysisWorker.js";import{bootstrapSimpleWorker as o}from"../../../base/common/worker/simpleWorkerBootstrap.js";o(r);
+import { bootstrapSimpleWorker } from "../../../base/common/worker/simpleWorkerBootstrap.js";
+import { create } from "./profileAnalysisWorker.js";
+bootstrapSimpleWorker(create);
+//# sourceMappingURL=profileAnalysisWorker.esm.js.map

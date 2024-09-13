@@ -1,1 +1,4 @@
-import{DomActivityTracker as r}from"./domActivityTracker.js";import{userActivityRegistry as i}from"../common/userActivityRegistry.js";i.add(r);
+import { userActivityRegistry } from "../common/userActivityRegistry.js";
+import { DomActivityTracker } from "./domActivityTracker.js";
+userActivityRegistry.add(DomActivityTracker);
+//# sourceMappingURL=userActivityBrowser.js.map

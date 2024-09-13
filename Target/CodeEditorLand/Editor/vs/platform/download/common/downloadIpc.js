@@ -1,1 +1,46 @@
-import"../../../base/common/event.js";import{URI as o}from"../../../base/common/uri.js";import"../../../base/common/uriIpc.js";import"../../../base/parts/ipc/common/ipc.js";import"./download.js";class h{constructor(r){this.service=r}listen(r,e,n){throw new Error("Invalid listen")}call(r,e,n){switch(e){case"download":return this.service.download(o.revive(n[0]),o.revive(n[1]))}throw new Error("Invalid call")}}class f{constructor(r,e){this.channel=r;this.getUriTransformer=e}async download(r,e){const n=this.getUriTransformer();n&&(r=n.transformOutgoingURI(r),e=n.transformOutgoingURI(e)),await this.channel.call("download",[r,e])}}export{h as DownloadServiceChannel,f as DownloadServiceChannelClient};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../base/common/uri.js";
+class DownloadServiceChannel {
+  constructor(service) {
+    this.service = service;
+  }
+  static {
+    __name(this, "DownloadServiceChannel");
+  }
+  listen(_, event, arg) {
+    throw new Error("Invalid listen");
+  }
+  call(context, command, args) {
+    switch (command) {
+      case "download":
+        return this.service.download(
+          URI.revive(args[0]),
+          URI.revive(args[1])
+        );
+    }
+    throw new Error("Invalid call");
+  }
+}
+class DownloadServiceChannelClient {
+  constructor(channel, getUriTransformer) {
+    this.channel = channel;
+    this.getUriTransformer = getUriTransformer;
+  }
+  static {
+    __name(this, "DownloadServiceChannelClient");
+  }
+  async download(from, to) {
+    const uriTransformer = this.getUriTransformer();
+    if (uriTransformer) {
+      from = uriTransformer.transformOutgoingURI(from);
+      to = uriTransformer.transformOutgoingURI(to);
+    }
+    await this.channel.call("download", [from, to]);
+  }
+}
+export {
+  DownloadServiceChannel,
+  DownloadServiceChannelClient
+};
+//# sourceMappingURL=downloadIpc.js.map

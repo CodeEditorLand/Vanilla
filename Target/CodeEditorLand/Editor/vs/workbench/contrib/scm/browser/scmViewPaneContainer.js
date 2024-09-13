@@ -1,1 +1,85 @@
-var u=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var s=(c,e,o,t)=>{for(var i=t>1?void 0:t?f(e,o):e,m=c.length-1,n;m>=0;m--)(n=c[m])&&(i=(t?n(e,o,i):n(i))||i);return t&&i&&u(e,o,i),i},r=(c,e)=>(o,t)=>e(o,t,c);import"./media/scm.css";import{localize as l}from"../../../../nls.js";import{ITelemetryService as h}from"../../../../platform/telemetry/common/telemetry.js";import{HISTORY_VIEW_PANE_ID as E,REPOSITORIES_VIEW_PANE_ID as d,VIEW_PANE_ID as g,VIEWLET_ID as W}from"../common/scm.js";import{IInstantiationService as T}from"../../../../platform/instantiation/common/instantiation.js";import{IContextMenuService as _}from"../../../../platform/contextview/browser/contextView.js";import{IThemeService as x}from"../../../../platform/theme/common/themeService.js";import{IStorageService as D}from"../../../../platform/storage/common/storage.js";import{IConfigurationService as V}from"../../../../platform/configuration/common/configuration.js";import{IWorkbenchLayoutService as L}from"../../../services/layout/browser/layoutService.js";import{IExtensionService as k}from"../../../services/extensions/common/extensions.js";import{IWorkspaceContextService as y}from"../../../../platform/workspace/common/workspace.js";import{IViewDescriptorService as O}from"../../../common/views.js";import{ViewPaneContainer as b}from"../../../browser/parts/views/viewPaneContainer.js";let I=class extends b{constructor(e,o,t,i,m,n,p,v,S,a){super(W,{mergeViewWithContainerWhenSingleView:!0},t,p,e,i,o,v,m,n,S,a)}create(e){super.create(e),e.classList.add("scm-viewlet")}getOptimalWidth(){return 400}getTitle(){return this.panes.length===1?this.panes[0].id===g||this.panes[0].id===d||this.panes[0].id===E?this.panes[0].title:super.getTitle():l("source control","Source Control")}};I=s([r(0,L),r(1,h),r(2,T),r(3,_),r(4,x),r(5,D),r(6,V),r(7,k),r(8,y),r(9,O)],I);export{I as SCMViewPaneContainer};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import "./media/scm.css";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import {
+  HISTORY_VIEW_PANE_ID,
+  REPOSITORIES_VIEW_PANE_ID,
+  VIEWLET_ID,
+  VIEW_PANE_ID
+} from "../common/scm.js";
+let SCMViewPaneContainer = class extends ViewPaneContainer {
+  static {
+    __name(this, "SCMViewPaneContainer");
+  }
+  constructor(layoutService, telemetryService, instantiationService, contextMenuService, themeService, storageService, configurationService, extensionService, contextService, viewDescriptorService) {
+    super(
+      VIEWLET_ID,
+      { mergeViewWithContainerWhenSingleView: true },
+      instantiationService,
+      configurationService,
+      layoutService,
+      contextMenuService,
+      telemetryService,
+      extensionService,
+      themeService,
+      storageService,
+      contextService,
+      viewDescriptorService
+    );
+  }
+  create(parent) {
+    super.create(parent);
+    parent.classList.add("scm-viewlet");
+  }
+  getOptimalWidth() {
+    return 400;
+  }
+  getTitle() {
+    if (this.panes.length === 1) {
+      if (this.panes[0].id === VIEW_PANE_ID || this.panes[0].id === REPOSITORIES_VIEW_PANE_ID || this.panes[0].id === HISTORY_VIEW_PANE_ID) {
+        return this.panes[0].title;
+      } else {
+        return super.getTitle();
+      }
+    }
+    return localize("source control", "Source Control");
+  }
+};
+SCMViewPaneContainer = __decorateClass([
+  __decorateParam(0, IWorkbenchLayoutService),
+  __decorateParam(1, ITelemetryService),
+  __decorateParam(2, IInstantiationService),
+  __decorateParam(3, IContextMenuService),
+  __decorateParam(4, IThemeService),
+  __decorateParam(5, IStorageService),
+  __decorateParam(6, IConfigurationService),
+  __decorateParam(7, IExtensionService),
+  __decorateParam(8, IWorkspaceContextService),
+  __decorateParam(9, IViewDescriptorService)
+], SCMViewPaneContainer);
+export {
+  SCMViewPaneContainer
+};
+//# sourceMappingURL=scmViewPaneContainer.js.map

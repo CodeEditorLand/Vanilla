@@ -1,1 +1,42 @@
-var a=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var c=(n,e,o,i)=>{for(var r=i>1?void 0:i?v(e,o):e,l=n.length-1,d;l>=0;l--)(d=n[l])&&(r=(i?d(e,o,r):d(r))||r);return i&&r&&a(e,o,r),r},s=(n,e)=>(o,i)=>e(o,i,n);import{Emitter as S}from"../../../base/common/event.js";import{Disposable as f}from"../../../base/common/lifecycle.js";import{createDecorator as h}from"../../instantiation/common/instantiation.js";import{ILogService as p}from"../../log/common/log.js";const _=h("sharedProcessLifecycleService");let t=class extends f{constructor(o){super();this.logService=o}_onWillShutdown=this._register(new S);onWillShutdown=this._onWillShutdown.event;fireOnWillShutdown(){this.logService.trace("Lifecycle#onWillShutdown.fire()"),this._onWillShutdown.fire()}};t=c([s(0,p)],t);export{_ as ISharedProcessLifecycleService,t as SharedProcessLifecycleService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { ILogService } from "../../log/common/log.js";
+const ISharedProcessLifecycleService = createDecorator(
+  "sharedProcessLifecycleService"
+);
+let SharedProcessLifecycleService = class extends Disposable {
+  constructor(logService) {
+    super();
+    this.logService = logService;
+  }
+  static {
+    __name(this, "SharedProcessLifecycleService");
+  }
+  _onWillShutdown = this._register(new Emitter());
+  onWillShutdown = this._onWillShutdown.event;
+  fireOnWillShutdown() {
+    this.logService.trace("Lifecycle#onWillShutdown.fire()");
+    this._onWillShutdown.fire();
+  }
+};
+SharedProcessLifecycleService = __decorateClass([
+  __decorateParam(0, ILogService)
+], SharedProcessLifecycleService);
+export {
+  ISharedProcessLifecycleService,
+  SharedProcessLifecycleService
+};
+//# sourceMappingURL=sharedProcessLifecycleService.js.map

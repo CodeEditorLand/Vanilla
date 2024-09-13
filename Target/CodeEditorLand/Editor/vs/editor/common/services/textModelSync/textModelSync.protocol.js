@@ -1,1 +1,1 @@
-import"../../model/mirrorTextModel.js";
+//# sourceMappingURL=textModelSync.protocol.js.map

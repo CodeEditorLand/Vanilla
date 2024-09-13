@@ -1,1 +1,6 @@
-import"../../../../base/common/event.js";import{createDecorator as o}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/window/common/window.js";const p=o("hostService");export{p as IHostService};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IHostService = createDecorator("hostService");
+export {
+  IHostService
+};
+//# sourceMappingURL=host.js.map

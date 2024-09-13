@@ -1,1 +1,43 @@
-var b=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var s=(i,r,e,t)=>{for(var o=t>1?void 0:t?f(r,e):r,c=i.length-1,a;c>=0;c--)(a=i[c])&&(o=(t?a(r,e,o):a(o))||o);return t&&o&&b(r,e,o),o},m=(i,r)=>(e,t)=>r(e,t,i);import{Extensions as p}from"../../../common/contributions.js";import{Registry as I}from"../../../../platform/registry/common/platform.js";import{IInstantiationService as h}from"../../../../platform/instantiation/common/instantiation.js";import{LifecyclePhase as u}from"../../../services/lifecycle/common/lifecycle.js";import{INativeWorkbenchEnvironmentService as k}from"../../../services/environment/electron-sandbox/environmentService.js";import{DefaultConfigurationExportHelper as W}from"./configurationExportHelper.js";let n=class{constructor(r,e){e.args["export-default-configuration"]&&r.createInstance(W)}};n=s([m(0,h),m(1,k)],n),I.as(p.Workbench).registerWorkbenchContribution(n,u.Restored);export{n as ExtensionPoints};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  Extensions as WorkbenchExtensions
+} from "../../../common/contributions.js";
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { DefaultConfigurationExportHelper } from "./configurationExportHelper.js";
+let ExtensionPoints = class {
+  static {
+    __name(this, "ExtensionPoints");
+  }
+  constructor(instantiationService, environmentService) {
+    if (environmentService.args["export-default-configuration"]) {
+      instantiationService.createInstance(
+        DefaultConfigurationExportHelper
+      );
+    }
+  }
+};
+ExtensionPoints = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, INativeWorkbenchEnvironmentService)
+], ExtensionPoints);
+Registry.as(
+  WorkbenchExtensions.Workbench
+).registerWorkbenchContribution(ExtensionPoints, LifecyclePhase.Restored);
+export {
+  ExtensionPoints
+};
+//# sourceMappingURL=configurationExportHelper.contribution.js.map

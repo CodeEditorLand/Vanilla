@@ -1,1 +1,107 @@
-import{OffsetRange as S}from"../../../core/offsetRange.js";import{SequenceDiff as c,InfiniteTimeout as L,DiffAlgorithmResult as u}from"./diffAlgorithm.js";import{Array2D as D}from"../utils.js";class y{compute(n,i,d=L.instance,p){if(n.length===0||i.length===0)return u.trivial(n,i);const m=new D(n.length,i.length),r=new D(n.length,i.length),o=new D(n.length,i.length);for(let t=0;t<n.length;t++)for(let e=0;e<i.length;e++){if(!d.isValid())return u.trivialTimedOut(n,i);const A=t===0?0:m.get(t-1,e),I=e===0?0:m.get(t,e-1);let l;n.getElement(t)===i.getElement(e)?(t===0||e===0?l=0:l=m.get(t-1,e-1),t>0&&e>0&&r.get(t-1,e-1)===3&&(l+=o.get(t-1,e-1)),l+=p?p(t,e):1):l=-1;const s=Math.max(A,I,l);if(s===l){const v=t>0&&e>0?o.get(t-1,e-1):0;o.set(t,e,v+1),r.set(t,e,3)}else s===A?(o.set(t,e,0),r.set(t,e,1)):s===I&&(o.set(t,e,0),r.set(t,e,2));m.set(t,e,s)}const h=[];let a=n.length,b=i.length;function w(t,e){(t+1!==a||e+1!==b)&&h.push(new c(new S(t+1,a),new S(e+1,b))),a=t,b=e}let g=n.length-1,f=i.length-1;for(;g>=0&&f>=0;)r.get(g,f)===3?(w(g,f),g--,f--):r.get(g,f)===1?g--:f--;return w(-1,-1),h.reverse(),new u(h,!1)}}export{y as DynamicProgrammingDiffing};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { OffsetRange } from "../../../core/offsetRange.js";
+import { Array2D } from "../utils.js";
+import {
+  DiffAlgorithmResult,
+  InfiniteTimeout,
+  SequenceDiff
+} from "./diffAlgorithm.js";
+class DynamicProgrammingDiffing {
+  static {
+    __name(this, "DynamicProgrammingDiffing");
+  }
+  compute(sequence1, sequence2, timeout = InfiniteTimeout.instance, equalityScore) {
+    if (sequence1.length === 0 || sequence2.length === 0) {
+      return DiffAlgorithmResult.trivial(sequence1, sequence2);
+    }
+    const lcsLengths = new Array2D(
+      sequence1.length,
+      sequence2.length
+    );
+    const directions = new Array2D(
+      sequence1.length,
+      sequence2.length
+    );
+    const lengths = new Array2D(sequence1.length, sequence2.length);
+    for (let s12 = 0; s12 < sequence1.length; s12++) {
+      for (let s22 = 0; s22 < sequence2.length; s22++) {
+        if (!timeout.isValid()) {
+          return DiffAlgorithmResult.trivialTimedOut(
+            sequence1,
+            sequence2
+          );
+        }
+        const horizontalLen = s12 === 0 ? 0 : lcsLengths.get(s12 - 1, s22);
+        const verticalLen = s22 === 0 ? 0 : lcsLengths.get(s12, s22 - 1);
+        let extendedSeqScore;
+        if (sequence1.getElement(s12) === sequence2.getElement(s22)) {
+          if (s12 === 0 || s22 === 0) {
+            extendedSeqScore = 0;
+          } else {
+            extendedSeqScore = lcsLengths.get(s12 - 1, s22 - 1);
+          }
+          if (s12 > 0 && s22 > 0 && directions.get(s12 - 1, s22 - 1) === 3) {
+            extendedSeqScore += lengths.get(s12 - 1, s22 - 1);
+          }
+          extendedSeqScore += equalityScore ? equalityScore(s12, s22) : 1;
+        } else {
+          extendedSeqScore = -1;
+        }
+        const newValue = Math.max(
+          horizontalLen,
+          verticalLen,
+          extendedSeqScore
+        );
+        if (newValue === extendedSeqScore) {
+          const prevLen = s12 > 0 && s22 > 0 ? lengths.get(s12 - 1, s22 - 1) : 0;
+          lengths.set(s12, s22, prevLen + 1);
+          directions.set(s12, s22, 3);
+        } else if (newValue === horizontalLen) {
+          lengths.set(s12, s22, 0);
+          directions.set(s12, s22, 1);
+        } else if (newValue === verticalLen) {
+          lengths.set(s12, s22, 0);
+          directions.set(s12, s22, 2);
+        }
+        lcsLengths.set(s12, s22, newValue);
+      }
+    }
+    const result = [];
+    let lastAligningPosS1 = sequence1.length;
+    let lastAligningPosS2 = sequence2.length;
+    function reportDecreasingAligningPositions(s12, s22) {
+      if (s12 + 1 !== lastAligningPosS1 || s22 + 1 !== lastAligningPosS2) {
+        result.push(
+          new SequenceDiff(
+            new OffsetRange(s12 + 1, lastAligningPosS1),
+            new OffsetRange(s22 + 1, lastAligningPosS2)
+          )
+        );
+      }
+      lastAligningPosS1 = s12;
+      lastAligningPosS2 = s22;
+    }
+    __name(reportDecreasingAligningPositions, "reportDecreasingAligningPositions");
+    let s1 = sequence1.length - 1;
+    let s2 = sequence2.length - 1;
+    while (s1 >= 0 && s2 >= 0) {
+      if (directions.get(s1, s2) === 3) {
+        reportDecreasingAligningPositions(s1, s2);
+        s1--;
+        s2--;
+      } else if (directions.get(s1, s2) === 1) {
+        s1--;
+      } else {
+        s2--;
+      }
+    }
+    reportDecreasingAligningPositions(-1, -1);
+    result.reverse();
+    return new DiffAlgorithmResult(result, false);
+  }
+}
+export {
+  DynamicProgrammingDiffing
+};
+//# sourceMappingURL=dynamicProgrammingDiffing.js.map

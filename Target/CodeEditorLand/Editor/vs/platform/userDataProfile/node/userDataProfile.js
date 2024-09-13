@@ -1,1 +1,188 @@
-var h=Object.defineProperty;var O=Object.getOwnPropertyDescriptor;var c=(I,s,e,t)=>{for(var i=t>1?void 0:t?O(s,e):s,a=I.length-1,n;a>=0;a--)(n=I[a])&&(i=(t?n(s,e,i):n(i))||i);return t&&i&&h(s,e,i),i},o=(I,s)=>(e,t)=>s(e,t,I);import{URI as d}from"../../../base/common/uri.js";import{INativeEnvironmentService as v}from"../../environment/common/environment.js";import{IFileService as l}from"../../files/common/files.js";import{ILogService as p}from"../../log/common/log.js";import{IStateReadService as E,IStateService as P}from"../../state/node/state.js";import{IUriIdentityService as f}from"../../uriIdentity/common/uriIdentity.js";import{UserDataProfilesService as u}from"../common/userDataProfile.js";import"../../../base/common/collections.js";import{isString as R}from"../../../base/common/types.js";import{SaveStrategy as y,StateService as L}from"../../state/node/stateService.js";let S=class extends u{constructor(e,t,i,a,n){super(i,a,t,n);this.stateReadonlyService=e;this.nativeEnvironmentService=i}static PROFILE_ASSOCIATIONS_MIGRATION_KEY="profileAssociationsMigration";getStoredProfiles(){return this.stateReadonlyService.getItem(S.PROFILES_KEY,[]).map(t=>({...t,location:R(t.location)?this.uriIdentityService.extUri.joinPath(this.profilesHome,t.location):d.revive(t.location)}))}getStoredProfileAssociations(){const e=this.stateReadonlyService.getItem(S.PROFILE_ASSOCIATIONS_KEY,{});return this.stateReadonlyService.getItem(S.PROFILE_ASSOCIATIONS_MIGRATION_KEY,!1)?e:this.migrateStoredProfileAssociations(e)}getDefaultProfileExtensionsLocation(){return this.uriIdentityService.extUri.joinPath(d.file(this.nativeEnvironmentService.extensionsPath).with({scheme:this.profilesHome.scheme}),"extensions.json")}};S=c([o(0,E),o(1,f),o(2,v),o(3,l),o(4,p)],S);let r=class extends S{constructor(e,t,i,a,n){super(e,t,i,a,n);this.stateService=e}saveStoredProfiles(e){e.length?this.stateService.setItem(r.PROFILES_KEY,e.map(t=>({...t,location:this.uriIdentityService.extUri.basename(t.location)}))):this.stateService.removeItem(r.PROFILES_KEY)}getStoredProfiles(){const e=super.getStoredProfiles();return this.stateService.getItem("userDataProfilesMigration",!1)||(this.saveStoredProfiles(e),this.stateService.setItem("userDataProfilesMigration",!0)),e}saveStoredProfileAssociations(e){e.emptyWindows||e.workspaces?this.stateService.setItem(r.PROFILE_ASSOCIATIONS_KEY,e):this.stateService.removeItem(r.PROFILE_ASSOCIATIONS_KEY)}getStoredProfileAssociations(){const e="workspaceAndProfileInfo",t=this.stateService.getItem(e,void 0);if(t){this.stateService.removeItem(e);const a=t.reduce((n,{workspace:A,profile:g})=>(n[d.revive(A).toString()]=d.revive(g).toString(),n),{});this.stateService.setItem(r.PROFILE_ASSOCIATIONS_KEY,{workspaces:a})}const i=super.getStoredProfileAssociations();return this.stateService.getItem(r.PROFILE_ASSOCIATIONS_MIGRATION_KEY,!1)||(this.saveStoredProfileAssociations(i),this.stateService.setItem(r.PROFILE_ASSOCIATIONS_MIGRATION_KEY,!0)),i}};r=c([o(0,P),o(1,f),o(2,v),o(3,l),o(4,p)],r);let m=class extends r{constructor(s,e,t,i){super(new L(y.IMMEDIATE,e,i,t),s,e,t,i)}async init(){return await this.stateService.init(),super.init()}};m=c([o(0,f),o(1,v),o(2,l),o(3,p)],m);export{m as ServerUserDataProfilesService,S as UserDataProfilesReadonlyService,r as UserDataProfilesService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { isString } from "../../../base/common/types.js";
+import {
+  URI
+} from "../../../base/common/uri.js";
+import { INativeEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { IStateReadService, IStateService } from "../../state/node/state.js";
+import { SaveStrategy, StateService } from "../../state/node/stateService.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import {
+  UserDataProfilesService as BaseUserDataProfilesService
+} from "../common/userDataProfile.js";
+let UserDataProfilesReadonlyService = class extends BaseUserDataProfilesService {
+  constructor(stateReadonlyService, uriIdentityService, nativeEnvironmentService, fileService, logService) {
+    super(nativeEnvironmentService, fileService, uriIdentityService, logService);
+    this.stateReadonlyService = stateReadonlyService;
+    this.nativeEnvironmentService = nativeEnvironmentService;
+  }
+  static {
+    __name(this, "UserDataProfilesReadonlyService");
+  }
+  static PROFILE_ASSOCIATIONS_MIGRATION_KEY = "profileAssociationsMigration";
+  getStoredProfiles() {
+    const storedProfilesState = this.stateReadonlyService.getItem(UserDataProfilesReadonlyService.PROFILES_KEY, []);
+    return storedProfilesState.map((p) => ({
+      ...p,
+      location: isString(p.location) ? this.uriIdentityService.extUri.joinPath(
+        this.profilesHome,
+        p.location
+      ) : URI.revive(p.location)
+    }));
+  }
+  getStoredProfileAssociations() {
+    const associations = this.stateReadonlyService.getItem(
+      UserDataProfilesReadonlyService.PROFILE_ASSOCIATIONS_KEY,
+      {}
+    );
+    const migrated = this.stateReadonlyService.getItem(
+      UserDataProfilesReadonlyService.PROFILE_ASSOCIATIONS_MIGRATION_KEY,
+      false
+    );
+    return migrated ? associations : this.migrateStoredProfileAssociations(associations);
+  }
+  getDefaultProfileExtensionsLocation() {
+    return this.uriIdentityService.extUri.joinPath(
+      URI.file(this.nativeEnvironmentService.extensionsPath).with({
+        scheme: this.profilesHome.scheme
+      }),
+      "extensions.json"
+    );
+  }
+};
+UserDataProfilesReadonlyService = __decorateClass([
+  __decorateParam(0, IStateReadService),
+  __decorateParam(1, IUriIdentityService),
+  __decorateParam(2, INativeEnvironmentService),
+  __decorateParam(3, IFileService),
+  __decorateParam(4, ILogService)
+], UserDataProfilesReadonlyService);
+let UserDataProfilesService = class extends UserDataProfilesReadonlyService {
+  constructor(stateService, uriIdentityService, environmentService, fileService, logService) {
+    super(stateService, uriIdentityService, environmentService, fileService, logService);
+    this.stateService = stateService;
+  }
+  static {
+    __name(this, "UserDataProfilesService");
+  }
+  saveStoredProfiles(storedProfiles) {
+    if (storedProfiles.length) {
+      this.stateService.setItem(
+        UserDataProfilesService.PROFILES_KEY,
+        storedProfiles.map((profile) => ({
+          ...profile,
+          location: this.uriIdentityService.extUri.basename(
+            profile.location
+          )
+        }))
+      );
+    } else {
+      this.stateService.removeItem(UserDataProfilesService.PROFILES_KEY);
+    }
+  }
+  getStoredProfiles() {
+    const storedProfiles = super.getStoredProfiles();
+    if (!this.stateService.getItem(
+      "userDataProfilesMigration",
+      false
+    )) {
+      this.saveStoredProfiles(storedProfiles);
+      this.stateService.setItem("userDataProfilesMigration", true);
+    }
+    return storedProfiles;
+  }
+  saveStoredProfileAssociations(storedProfileAssociations) {
+    if (storedProfileAssociations.emptyWindows || storedProfileAssociations.workspaces) {
+      this.stateService.setItem(
+        UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY,
+        storedProfileAssociations
+      );
+    } else {
+      this.stateService.removeItem(
+        UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY
+      );
+    }
+  }
+  getStoredProfileAssociations() {
+    const oldKey = "workspaceAndProfileInfo";
+    const storedWorkspaceInfos = this.stateService.getItem(oldKey, void 0);
+    if (storedWorkspaceInfos) {
+      this.stateService.removeItem(oldKey);
+      const workspaces = storedWorkspaceInfos.reduce((result, { workspace, profile }) => {
+        result[URI.revive(workspace).toString()] = URI.revive(profile).toString();
+        return result;
+      }, {});
+      this.stateService.setItem(
+        UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY,
+        { workspaces }
+      );
+    }
+    const associations = super.getStoredProfileAssociations();
+    if (!this.stateService.getItem(
+      UserDataProfilesService.PROFILE_ASSOCIATIONS_MIGRATION_KEY,
+      false
+    )) {
+      this.saveStoredProfileAssociations(associations);
+      this.stateService.setItem(
+        UserDataProfilesService.PROFILE_ASSOCIATIONS_MIGRATION_KEY,
+        true
+      );
+    }
+    return associations;
+  }
+};
+UserDataProfilesService = __decorateClass([
+  __decorateParam(0, IStateService),
+  __decorateParam(1, IUriIdentityService),
+  __decorateParam(2, INativeEnvironmentService),
+  __decorateParam(3, IFileService),
+  __decorateParam(4, ILogService)
+], UserDataProfilesService);
+let ServerUserDataProfilesService = class extends UserDataProfilesService {
+  static {
+    __name(this, "ServerUserDataProfilesService");
+  }
+  constructor(uriIdentityService, environmentService, fileService, logService) {
+    super(
+      new StateService(
+        SaveStrategy.IMMEDIATE,
+        environmentService,
+        logService,
+        fileService
+      ),
+      uriIdentityService,
+      environmentService,
+      fileService,
+      logService
+    );
+  }
+  async init() {
+    await this.stateService.init();
+    return super.init();
+  }
+};
+ServerUserDataProfilesService = __decorateClass([
+  __decorateParam(0, IUriIdentityService),
+  __decorateParam(1, INativeEnvironmentService),
+  __decorateParam(2, IFileService),
+  __decorateParam(3, ILogService)
+], ServerUserDataProfilesService);
+export {
+  ServerUserDataProfilesService,
+  UserDataProfilesReadonlyService,
+  UserDataProfilesService
+};
+//# sourceMappingURL=userDataProfile.js.map

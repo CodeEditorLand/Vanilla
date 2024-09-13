@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../Dependency/CodeEditorLand/Editor/Source/bootstrap-server.js"],
+  "sourcesContent": ["// Keep bootstrap-amd.js from redefining 'fs'.\ndelete process.env[\"ELECTRON_RUN_AS_NODE\"];\n"],
+  "mappings": "AACA,OAAO,QAAQ,IAAI,sBAAsB;",
+  "names": []
+}
