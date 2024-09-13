@@ -1,1 +1,200 @@
-var x=Object.defineProperty;var P=Object.getOwnPropertyDescriptor;var l=(a,t,e,n)=>{for(var r=n>1?void 0:n?P(t,e):t,s=a.length-1,i;s>=0;s--)(i=a[s])&&(r=(n?i(t,e,r):i(r))||r);return n&&r&&x(t,e,r),r},u=(a,t)=>(e,n)=>t(e,n,a);import"../../../../base/common/jsonSchema.js";import{Disposable as m}from"../../../../base/common/lifecycle.js";import{isFalsyOrWhitespace as p}from"../../../../base/common/strings.js";import{localize as o}from"../../../../nls.js";import{MenuId as v,MenuRegistry as f,registerAction2 as g}from"../../../../platform/actions/common/actions.js";import{CommandsRegistry as _}from"../../../../platform/commands/common/commands.js";import{ContextKeyExpr as I}from"../../../../platform/contextkey/common/contextkey.js";import"../../../../platform/extensions/common/extensions.js";import{SyncDescriptor as E}from"../../../../platform/instantiation/common/descriptors.js";import{Registry as y}from"../../../../platform/registry/common/platform.js";import{WorkbenchPhase as A,registerWorkbenchContribution2 as S}from"../../../common/contributions.js";import{SignOutOfAccountAction as D}from"./actions/signOutOfAccountAction.js";import{IAuthenticationService as R}from"../../../services/authentication/common/authentication.js";import{IBrowserWorkbenchEnvironmentService as b}from"../../../services/environment/browser/environmentService.js";import{Extensions as M}from"../../../services/extensionManagement/common/extensionFeatures.js";import{ExtensionsRegistry as C}from"../../../services/extensions/common/extensionsRegistry.js";import{ManageTrustedExtensionsForAccountAction as k}from"./actions/manageTrustedExtensionsForAccountAction.js";const w=_.registerCommand("workbench.getCodeExchangeProxyEndpoints",function(a,t){return a.get(b).options?.codeExchangeProxyEndpoints}),F={type:"object",additionalProperties:!1,properties:{id:{type:"string",description:o("authentication.id","The id of the authentication provider.")},label:{type:"string",description:o("authentication.label","The human readable name of the authentication provider.")}}},T=C.registerExtensionPoint({extensionPoint:"authentication",jsonSchema:{description:o({key:"authenticationExtensionPoint",comment:["'Contributes' means adds here"]},"Contributes authentication"),type:"array",items:F},activationEventsGenerator:(a,t)=>{for(const e of a)e.id&&t.push(`onAuthenticationRequest:${e.id}`)}});class W extends m{type="table";shouldRender(t){return!!t.contributes?.authentication}render(t){const e=t.contributes?.authentication||[];if(!e.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const n=[o("authenticationlabel","Label"),o("authenticationid","ID")],r=e.sort((s,i)=>s.label.localeCompare(i.label)).map(s=>[s.label,s.id]);return{data:{headers:n,rows:r},dispose:()=>{}}}}const H=y.as(M.ExtensionFeaturesRegistry).registerExtensionFeature({id:"authentication",label:o("authentication","Authentication"),access:{canToggle:!1},renderer:new E(W)});let d=class extends m{constructor(e,n){super();this._authenticationService=e;this._environmentService=n;this._register(w),this._register(H),e.getProviderIds().length&&this._clearPlaceholderMenuItem(),this._registerHandlers(),this._registerAuthenticationExtentionPointHandler(),this._registerEnvContributedAuthenticationProviders(),this._registerActions()}static ID="workbench.contrib.authentication";_placeholderMenuItem=f.appendMenuItem(v.AccountsContext,{command:{id:"noAuthenticationProviders",title:o("authentication.Placeholder","No accounts requested yet..."),precondition:I.false()}});_registerAuthenticationExtentionPointHandler(){T.setHandler((e,{added:n,removed:r})=>{n.forEach(i=>{for(const c of i.value){if(p(c.id)){i.collector.error(o("authentication.missingId","An authentication contribution must specify an id."));continue}if(p(c.label)){i.collector.error(o("authentication.missingLabel","An authentication contribution must specify a label."));continue}this._authenticationService.declaredProviders.some(h=>h.id===c.id)?i.collector.error(o("authentication.idConflict","This authentication id '{0}' has already been registered",c.id)):this._authenticationService.registerDeclaredAuthenticationProvider(c)}}),r.flatMap(i=>i.value).forEach(i=>{const c=this._authenticationService.declaredProviders.find(h=>h.id===i.id);c&&this._authenticationService.unregisterDeclaredAuthenticationProvider(c.id)})})}_registerEnvContributedAuthenticationProviders(){if(this._environmentService.options?.authenticationProviders?.length)for(const e of this._environmentService.options.authenticationProviders)this._authenticationService.registerAuthenticationProvider(e.id,e)}_registerHandlers(){this._register(this._authenticationService.onDidRegisterAuthenticationProvider(e=>{this._clearPlaceholderMenuItem()})),this._register(this._authenticationService.onDidUnregisterAuthenticationProvider(e=>{this._authenticationService.getProviderIds().length||(this._placeholderMenuItem=f.appendMenuItem(v.AccountsContext,{command:{id:"noAuthenticationProviders",title:o("loading","Loading..."),precondition:I.false()}}))}))}_registerActions(){this._register(g(D)),this._register(g(k))}_clearPlaceholderMenuItem(){this._placeholderMenuItem?.dispose(),this._placeholderMenuItem=void 0}};d=l([u(0,R),u(1,b)],d),S(d.ID,d,A.AfterRestored);export{d as AuthenticationContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { isFalsyOrWhitespace } from "../../../../base/common/strings.js";
+import { localize } from "../../../../nls.js";
+import { MenuId, MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { SignOutOfAccountAction } from "./actions/signOutOfAccountAction.js";
+import { AuthenticationProviderInformation, IAuthenticationService } from "../../../services/authentication/common/authentication.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { Extensions, IExtensionFeatureTableRenderer, IExtensionFeaturesRegistry, IRenderedData, IRowData, ITableData } from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { ExtensionsRegistry } from "../../../services/extensions/common/extensionsRegistry.js";
+import { ManageTrustedExtensionsForAccountAction } from "./actions/manageTrustedExtensionsForAccountAction.js";
+const codeExchangeProxyCommand = CommandsRegistry.registerCommand("workbench.getCodeExchangeProxyEndpoints", function(accessor, _) {
+  const environmentService = accessor.get(IBrowserWorkbenchEnvironmentService);
+  return environmentService.options?.codeExchangeProxyEndpoints;
+});
+const authenticationDefinitionSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    id: {
+      type: "string",
+      description: localize("authentication.id", "The id of the authentication provider.")
+    },
+    label: {
+      type: "string",
+      description: localize("authentication.label", "The human readable name of the authentication provider.")
+    }
+  }
+};
+const authenticationExtPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "authentication",
+  jsonSchema: {
+    description: localize({ key: "authenticationExtensionPoint", comment: [`'Contributes' means adds here`] }, "Contributes authentication"),
+    type: "array",
+    items: authenticationDefinitionSchema
+  },
+  activationEventsGenerator: /* @__PURE__ */ __name((authenticationProviders, result) => {
+    for (const authenticationProvider of authenticationProviders) {
+      if (authenticationProvider.id) {
+        result.push(`onAuthenticationRequest:${authenticationProvider.id}`);
+      }
+    }
+  }, "activationEventsGenerator")
+});
+class AuthenticationDataRenderer extends Disposable {
+  static {
+    __name(this, "AuthenticationDataRenderer");
+  }
+  type = "table";
+  shouldRender(manifest) {
+    return !!manifest.contributes?.authentication;
+  }
+  render(manifest) {
+    const authentication = manifest.contributes?.authentication || [];
+    if (!authentication.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      localize("authenticationlabel", "Label"),
+      localize("authenticationid", "ID")
+    ];
+    const rows = authentication.sort((a, b) => a.label.localeCompare(b.label)).map((auth) => {
+      return [
+        auth.label,
+        auth.id
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+const extensionFeature = Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "authentication",
+  label: localize("authentication", "Authentication"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(AuthenticationDataRenderer)
+});
+let AuthenticationContribution = class extends Disposable {
+  constructor(_authenticationService, _environmentService) {
+    super();
+    this._authenticationService = _authenticationService;
+    this._environmentService = _environmentService;
+    this._register(codeExchangeProxyCommand);
+    this._register(extensionFeature);
+    if (_authenticationService.getProviderIds().length) {
+      this._clearPlaceholderMenuItem();
+    }
+    this._registerHandlers();
+    this._registerAuthenticationExtentionPointHandler();
+    this._registerEnvContributedAuthenticationProviders();
+    this._registerActions();
+  }
+  static {
+    __name(this, "AuthenticationContribution");
+  }
+  static ID = "workbench.contrib.authentication";
+  _placeholderMenuItem = MenuRegistry.appendMenuItem(MenuId.AccountsContext, {
+    command: {
+      id: "noAuthenticationProviders",
+      title: localize("authentication.Placeholder", "No accounts requested yet..."),
+      precondition: ContextKeyExpr.false()
+    }
+  });
+  _registerAuthenticationExtentionPointHandler() {
+    authenticationExtPoint.setHandler((extensions, { added, removed }) => {
+      added.forEach((point) => {
+        for (const provider of point.value) {
+          if (isFalsyOrWhitespace(provider.id)) {
+            point.collector.error(localize("authentication.missingId", "An authentication contribution must specify an id."));
+            continue;
+          }
+          if (isFalsyOrWhitespace(provider.label)) {
+            point.collector.error(localize("authentication.missingLabel", "An authentication contribution must specify a label."));
+            continue;
+          }
+          if (!this._authenticationService.declaredProviders.some((p) => p.id === provider.id)) {
+            this._authenticationService.registerDeclaredAuthenticationProvider(provider);
+          } else {
+            point.collector.error(localize("authentication.idConflict", "This authentication id '{0}' has already been registered", provider.id));
+          }
+        }
+      });
+      const removedExtPoints = removed.flatMap((r) => r.value);
+      removedExtPoints.forEach((point) => {
+        const provider = this._authenticationService.declaredProviders.find((provider2) => provider2.id === point.id);
+        if (provider) {
+          this._authenticationService.unregisterDeclaredAuthenticationProvider(provider.id);
+        }
+      });
+    });
+  }
+  _registerEnvContributedAuthenticationProviders() {
+    if (!this._environmentService.options?.authenticationProviders?.length) {
+      return;
+    }
+    for (const provider of this._environmentService.options.authenticationProviders) {
+      this._authenticationService.registerAuthenticationProvider(provider.id, provider);
+    }
+  }
+  _registerHandlers() {
+    this._register(this._authenticationService.onDidRegisterAuthenticationProvider((_e) => {
+      this._clearPlaceholderMenuItem();
+    }));
+    this._register(this._authenticationService.onDidUnregisterAuthenticationProvider((_e) => {
+      if (!this._authenticationService.getProviderIds().length) {
+        this._placeholderMenuItem = MenuRegistry.appendMenuItem(MenuId.AccountsContext, {
+          command: {
+            id: "noAuthenticationProviders",
+            title: localize("loading", "Loading..."),
+            precondition: ContextKeyExpr.false()
+          }
+        });
+      }
+    }));
+  }
+  _registerActions() {
+    this._register(registerAction2(SignOutOfAccountAction));
+    this._register(registerAction2(ManageTrustedExtensionsForAccountAction));
+  }
+  _clearPlaceholderMenuItem() {
+    this._placeholderMenuItem?.dispose();
+    this._placeholderMenuItem = void 0;
+  }
+};
+AuthenticationContribution = __decorateClass([
+  __decorateParam(0, IAuthenticationService),
+  __decorateParam(1, IBrowserWorkbenchEnvironmentService)
+], AuthenticationContribution);
+registerWorkbenchContribution2(AuthenticationContribution.ID, AuthenticationContribution, WorkbenchPhase.AfterRestored);
+export {
+  AuthenticationContribution
+};
+//# sourceMappingURL=authentication.contribution.js.map

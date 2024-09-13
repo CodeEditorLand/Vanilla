@@ -1,1 +1,19 @@
-import"../../../common/platform.js";import"../common/sandboxTypes.js";import"./electronTypes.js";const e=globalThis.vscode,l=e.ipcRenderer,m=e.ipcMessagePort,x=e.webFrame,b=e.process,g=e.context,I=e.webUtils;export{g as context,m as ipcMessagePort,l as ipcRenderer,b as process,x as webFrame,I as webUtils};
+import { INodeProcess, IProcessEnvironment } from "../../../common/platform.js";
+import { ISandboxConfiguration } from "../common/sandboxTypes.js";
+import { IpcRenderer, ProcessMemoryInfo, WebFrame, WebUtils } from "./electronTypes.js";
+const vscodeGlobal = globalThis.vscode;
+const ipcRenderer = vscodeGlobal.ipcRenderer;
+const ipcMessagePort = vscodeGlobal.ipcMessagePort;
+const webFrame = vscodeGlobal.webFrame;
+const process = vscodeGlobal.process;
+const context = vscodeGlobal.context;
+const webUtils = vscodeGlobal.webUtils;
+export {
+  context,
+  ipcMessagePort,
+  ipcRenderer,
+  process,
+  webFrame,
+  webUtils
+};
+//# sourceMappingURL=globals.js.map

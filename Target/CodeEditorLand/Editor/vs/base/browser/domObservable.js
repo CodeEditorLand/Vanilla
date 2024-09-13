@@ -1,1 +1,18 @@
-import{createStyleSheet2 as s}from"./dom.js";import{DisposableStore as a}from"../common/lifecycle.js";import{autorun as b}from"../common/observable.js";function S(r){const e=new a,t=e.add(s());return e.add(b(o=>{t.setStyle(r.read(o))})),e}export{S as createStyleSheetFromObservable};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createStyleSheet2 } from "./dom.js";
+import { DisposableStore, IDisposable } from "../common/lifecycle.js";
+import { autorun, IObservable } from "../common/observable.js";
+function createStyleSheetFromObservable(css) {
+  const store = new DisposableStore();
+  const w = store.add(createStyleSheet2());
+  store.add(autorun((reader) => {
+    w.setStyle(css.read(reader));
+  }));
+  return store;
+}
+__name(createStyleSheetFromObservable, "createStyleSheetFromObservable");
+export {
+  createStyleSheetFromObservable
+};
+//# sourceMappingURL=domObservable.js.map

@@ -1,1 +1,63 @@
-var m=Object.defineProperty;var d=Object.getOwnPropertyDescriptor;var c=(a,i,e,t)=>{for(var r=t>1?void 0:t?d(i,e):i,o=a.length-1,s;o>=0;o--)(s=a[o])&&(r=(t?s(i,e,r):s(r))||r);return t&&r&&m(i,e,r),r},l=(a,i)=>(e,t)=>i(e,t,a);import{raceCancellation as v}from"../../../../base/common/async.js";import"../../../../base/common/cancellation.js";import{ILogService as I}from"../../../../platform/log/common/log.js";import"../../../../platform/progress/common/progress.js";import{Disposable as S,toDisposable as g}from"../../../../base/common/lifecycle.js";import{insert as P}from"../../../../base/common/arrays.js";import"./workingCopyFileService.js";import"./storedFileWorkingCopy.js";let p=class extends S{constructor(e){super();this.logService=e}saveParticipants=[];get length(){return this.saveParticipants.length}addSaveParticipant(e){const t=P(this.saveParticipants,e);return g(()=>t())}async participate(e,t,r,o){e.model?.pushStackElement();for(const s of this.saveParticipants){if(o.isCancellationRequested||e.isDisposed())break;try{const n=s.participate(e,t,r,o);await v(n,o)}catch(n){this.logService.warn(n)}}e.model?.pushStackElement()}dispose(){this.saveParticipants.splice(0,this.saveParticipants.length),super.dispose()}};p=c([l(0,I)],p);export{p as StoredFileWorkingCopySaveParticipant};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { raceCancellation } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProgress, IProgressStep } from "../../../../platform/progress/common/progress.js";
+import { IDisposable, Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { insert } from "../../../../base/common/arrays.js";
+import { IStoredFileWorkingCopySaveParticipant, IStoredFileWorkingCopySaveParticipantContext } from "./workingCopyFileService.js";
+import { IStoredFileWorkingCopy, IStoredFileWorkingCopyModel } from "./storedFileWorkingCopy.js";
+let StoredFileWorkingCopySaveParticipant = class extends Disposable {
+  constructor(logService) {
+    super();
+    this.logService = logService;
+  }
+  static {
+    __name(this, "StoredFileWorkingCopySaveParticipant");
+  }
+  saveParticipants = [];
+  get length() {
+    return this.saveParticipants.length;
+  }
+  addSaveParticipant(participant) {
+    const remove = insert(this.saveParticipants, participant);
+    return toDisposable(() => remove());
+  }
+  async participate(workingCopy, context, progress, token) {
+    workingCopy.model?.pushStackElement();
+    for (const saveParticipant of this.saveParticipants) {
+      if (token.isCancellationRequested || workingCopy.isDisposed()) {
+        break;
+      }
+      try {
+        const promise = saveParticipant.participate(workingCopy, context, progress, token);
+        await raceCancellation(promise, token);
+      } catch (err) {
+        this.logService.warn(err);
+      }
+    }
+    workingCopy.model?.pushStackElement();
+  }
+  dispose() {
+    this.saveParticipants.splice(0, this.saveParticipants.length);
+    super.dispose();
+  }
+};
+StoredFileWorkingCopySaveParticipant = __decorateClass([
+  __decorateParam(0, ILogService)
+], StoredFileWorkingCopySaveParticipant);
+export {
+  StoredFileWorkingCopySaveParticipant
+};
+//# sourceMappingURL=storedFileWorkingCopySaveParticipant.js.map

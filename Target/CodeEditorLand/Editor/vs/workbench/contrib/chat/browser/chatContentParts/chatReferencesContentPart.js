@@ -1,1 +1,374 @@
-var P=Object.defineProperty;var H=Object.getOwnPropertyDescriptor;var L=(f,t,n,i)=>{for(var r=i>1?void 0:i?H(t,n):t,o=f.length-1,s;o>=0;o--)(s=f[o])&&(r=(i?s(t,n,r):s(r))||r);return i&&r&&P(t,n,r),r},d=(f,t)=>(n,i)=>t(n,i,f);import*as V from"../../../../../base/browser/dom.js";import{Button as O}from"../../../../../base/browser/ui/button/button.js";import"../../../../../base/browser/ui/list/list.js";import{coalesce as _}from"../../../../../base/common/arrays.js";import{Codicon as g}from"../../../../../base/common/codicons.js";import{Emitter as $}from"../../../../../base/common/event.js";import{Disposable as k,DisposableStore as F}from"../../../../../base/common/lifecycle.js";import{matchesSomeScheme as W,Schemas as E}from"../../../../../base/common/network.js";import{basename as M}from"../../../../../base/common/path.js";import{basenameOrAuthority as j,isEqualAuthority as N}from"../../../../../base/common/resources.js";import{ThemeIcon as S}from"../../../../../base/common/themables.js";import{URI as I}from"../../../../../base/common/uri.js";import{localize as m}from"../../../../../nls.js";import{IClipboardService as B}from"../../../../../platform/clipboard/common/clipboardService.js";import{IContextMenuService as K}from"../../../../../platform/contextview/browser/contextView.js";import{FileKind as G}from"../../../../../platform/files/common/files.js";import{IInstantiationService as q}from"../../../../../platform/instantiation/common/instantiation.js";import{ILabelService as z}from"../../../../../platform/label/common/label.js";import{WorkbenchList as Y}from"../../../../../platform/list/browser/listService.js";import{IOpenerService as J}from"../../../../../platform/opener/common/opener.js";import{IProductService as Q}from"../../../../../platform/product/common/productService.js";import{IThemeService as U}from"../../../../../platform/theme/common/themeService.js";import{fillEditorsDragData as X}from"../../../../browser/dnd.js";import{ResourceLabels as Z}from"../../../../browser/labels.js";import{ColorScheme as ee}from"../../../../browser/web.api.js";import{SETTINGS_AUTHORITY as te}from"../../../../services/preferences/common/preferences.js";import{createFileIconThemableTreeContainerScope as ie}from"../../../files/browser/views/explorerView.js";import{ChatResponseReferencePartStatusKind as A}from"../../common/chatService.js";import{IChatVariablesService as ne}from"../../common/chatVariables.js";import"../../common/chatViewModel.js";import"../chat.js";import{ResourcePool as re}from"./chatCollections.js";import"./chatContentParts.js";const R=V.$;let y=class extends k{constructor(n,i,r,o,s,e,l){super();this.data=n;this.contextMenuService=e;this.clipboardService=l;const c=i??(n.length>1?m("usedReferencesPlural","Used {0} references",n.length):m("usedReferencesSingular","Used {0} reference",1)),u=R(".chat-used-context-icon"),x=a=>a.usedReferencesExpanded?g.chevronDown:g.chevronRight;u.classList.add(...S.asClassNameArray(x(r)));const D=R(".chat-used-context-label",void 0),v=this._register(new O(D,{buttonBackground:void 0,buttonBorder:void 0,buttonForeground:void 0,buttonHoverBackground:void 0,buttonSecondaryBackground:void 0,buttonSecondaryForeground:void 0,buttonSecondaryHoverBackground:void 0,buttonSeparator:void 0}));this.domNode=R(".chat-used-context",void 0,D),v.label=c,v.element.prepend(u),this.updateAriaLabel(v.element,c,r.usedReferencesExpanded),this.domNode.classList.toggle("chat-used-context-collapsed",!r.usedReferencesExpanded),this._register(v.onDidClick(()=>{u.classList.remove(...S.asClassNameArray(x(r))),r.usedReferencesExpanded=!r.usedReferencesExpanded,u.classList.add(...S.asClassNameArray(x(r))),this.domNode.classList.toggle("chat-used-context-collapsed",!r.usedReferencesExpanded),this._onDidChangeHeight.fire(),this.updateAriaLabel(v.element,c,r.usedReferencesExpanded)}));const b=this._register(o.get()).object;this.domNode.appendChild(b.getHTMLElement().parentElement),this._register(b.onDidOpen(a=>{if(a.element&&"reference"in a.element&&typeof a.element.reference=="object"){const p="variableName"in a.element.reference?a.element.reference.value:a.element.reference,C=I.isUri(p)?p:p?.uri;C&&s.open(C,{fromUserGesture:!0,editorOptions:{...a.editorOptions,selection:p&&"range"in p?p.range:void 0}})}})),this._register(b.onContextMenu(a=>{if(a.browserEvent.preventDefault(),a.browserEvent.stopPropagation(),a.element&&"reference"in a.element&&typeof a.element.reference=="object"){const p="variableName"in a.element.reference?a.element.reference.value:a.element.reference,C=I.isUri(p)?p:p?.uri;C&&this.contextMenuService.showContextMenu({getAnchor:()=>a.anchor,getActions:()=>[{id:"workbench.action.chat.copyReference",title:m("copyReference","Copy"),label:m("copyReference","Copy"),tooltip:m("copyReference","Copy"),enabled:a.element?.kind==="reference",class:void 0,run:()=>{this.clipboardService.writeResources([C])}}]})}}));const w=Math.min(n.length,6)*22;b.layout(w),b.getHTMLElement().style.height=`${w}px`,b.splice(0,b.length,n)}domNode;_onDidChangeHeight=this._register(new $);onDidChangeHeight=this._onDidChangeHeight.event;hasSameContent(n,i,r){return n.kind==="references"&&n.references.length===this.data.length||n.kind==="codeCitations"&&n.citations.length===this.data.length}updateAriaLabel(n,i,r){n.ariaLabel=r?m("usedReferencesExpanded","{0}, expanded",i):m("usedReferencesCollapsed","{0}, collapsed",i)}addDisposable(n){this._register(n)}};y=L([d(4,J),d(5,K),d(6,B)],y);let T=class extends k{constructor(n,i,r,o){super();this._onDidChangeVisibility=n;this.instantiationService=i;this.themeService=r;this.labelService=o;this._pool=this._register(new re(()=>this.listFactory()))}_pool;get inUse(){return this._pool.inUse}listFactory(){const n=this._register(this.instantiationService.createInstance(Z,{onDidChangeVisibility:this._onDidChangeVisibility})),i=R(".chat-used-context-list");this._register(ie(i,this.themeService));const r=s=>{if(s.kind==="warning")return null;const{reference:e}=s;return typeof e=="string"||"variableName"in e?null:I.isUri(e)?e:e.uri};return this.instantiationService.createInstance(Y,"ChatListRenderer",i,new oe,[this.instantiationService.createInstance(h,n)],{alwaysConsumeMouseWheel:!1,accessibilityProvider:{getAriaLabel:s=>{if(s.kind==="warning")return s.content.value;const e=s.reference;return typeof e=="string"?e:"variableName"in e?e.variableName:I.isUri(e)?M(e.path):M(e.uri.path)},getWidgetAriaLabel:()=>m("chatCollapsibleList","Collapsible Chat List")},dnd:{getDragURI:s=>r(s)?.toString()??null,getDragLabel:(s,e)=>{const l=_(s.map(r));if(l.length)return l.length===1?this.labelService.getUriLabel(l[0],{relative:!0}):`${l.length}`},dispose:()=>{},onDragOver:()=>!1,drop:()=>{},onDragStart:(s,e)=>{try{const l=s.getData(),c=_(l.map(r));this.instantiationService.invokeFunction(u=>X(u,c,e))}catch{}}}})}get(){const n=this._pool.get();let i=!1;return{object:n,isStale:()=>i,dispose:()=>{i=!0,this._pool.release(n)}}}};T=L([d(1,q),d(2,U),d(3,z)],T);class oe{getHeight(t){return 22}getTemplateId(t){return h.TEMPLATE_ID}}let h=class{constructor(t,n,i,r){this.labels=t;this.themeService=n;this.chatVariablesService=i;this.productService=r}static TEMPLATE_ID="chatCollapsibleListRenderer";templateId=h.TEMPLATE_ID;renderTemplate(t){const n=new F,i=n.add(this.labels.create(t,{supportHighlights:!0,supportIcons:!0}));return{templateDisposables:n,label:i}}getReferenceIcon(t){return S.isThemeIcon(t.iconPath)?t.iconPath:this.themeService.getColorTheme().type===ee.DARK&&t.iconPath?.dark?t.iconPath?.dark:t.iconPath?.light}renderElement(t,n,i,r){if(t.kind==="warning"){i.label.setResource({name:t.content.value},{icon:g.warning});return}const o=t.reference,s=this.getReferenceIcon(t);if(i.label.element.style.display="flex",typeof o=="object"&&"variableName"in o)if(o.value){const e=I.isUri(o.value)?o.value:o.value.uri;i.label.setResource({resource:e,name:j(e),description:`#${o.variableName}`,range:"range"in o.value?o.value.range:void 0},{icon:s,title:t.options?.status?.description??t.title})}else{const e=this.chatVariablesService.getVariable(o.variableName),l=e?.icon?`$(${e.icon.id}) `:"",c=`#${o.variableName}`,u=`${l}${e?.fullName??c}`;i.label.setLabel(u,c,{title:t.options?.status?.description??e?.description})}else if(typeof o=="string")i.label.setLabel(o,void 0,{iconPath:I.isUri(s)?s:void 0,title:t.options?.status?.description??t.title});else{const e="uri"in o?o.uri:o;if(e.scheme==="https"&&N(e.authority,"github.com")&&e.path.includes("/tree/")){const l=e.path.split("/").slice(1,3).join("/"),c=e.path.split("/").slice(5).join("/");i.label.setResource({resource:e,name:l,description:c},{icon:g.github,title:t.title})}else if(e.scheme===this.productService.urlProtocol&&N(e.authority,te)){const l=e.path.substring(1);i.label.setResource({resource:e,name:l},{icon:g.settingsGear,title:m("setting.hover","Open setting '{0}'",l)})}else W(e,E.mailto,E.http,E.https)?i.label.setResource({resource:e,name:e.toString()},{icon:s??g.globe,title:t.options?.status?.description??t.title??e.toString()}):i.label.setFile(e,{fileKind:G.FILE,fileDecorations:{badges:!1,colors:!1},range:"range"in o?o.range:void 0,title:t.options?.status?.description??t.title})}for(const e of[".monaco-icon-suffix-container",".monaco-icon-name-container"]){const l=i.label.element.querySelector(e);l&&(t.options?.status?.kind===A.Omitted||t.options?.status?.kind===A.Partial?l.classList.add("warning"):l.classList.remove("warning"))}}disposeTemplate(t){t.templateDisposables.dispose()}};h=L([d(1,U),d(2,ne),d(3,Q)],h);export{y as ChatCollapsibleListContentPart,T as CollapsibleListPool};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../../base/browser/dom.js";
+import { Button } from "../../../../../base/browser/ui/button/button.js";
+import { IListRenderer, IListVirtualDelegate } from "../../../../../base/browser/ui/list/list.js";
+import { coalesce } from "../../../../../base/common/arrays.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { matchesSomeScheme, Schemas } from "../../../../../base/common/network.js";
+import { basename } from "../../../../../base/common/path.js";
+import { basenameOrAuthority, isEqualAuthority } from "../../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { localize } from "../../../../../nls.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { FileKind } from "../../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { WorkbenchList } from "../../../../../platform/list/browser/listService.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../../platform/product/common/productService.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { fillEditorsDragData } from "../../../../browser/dnd.js";
+import { IResourceLabel, ResourceLabels } from "../../../../browser/labels.js";
+import { ColorScheme } from "../../../../browser/web.api.js";
+import { SETTINGS_AUTHORITY } from "../../../../services/preferences/common/preferences.js";
+import { createFileIconThemableTreeContainerScope } from "../../../files/browser/views/explorerView.js";
+import { ChatResponseReferencePartStatusKind, IChatContentReference, IChatWarningMessage } from "../../common/chatService.js";
+import { IChatVariablesService } from "../../common/chatVariables.js";
+import { IChatRendererContent, IChatResponseViewModel } from "../../common/chatViewModel.js";
+import { ChatTreeItem } from "../chat.js";
+import { IDisposableReference, ResourcePool } from "./chatCollections.js";
+import { IChatContentPart } from "./chatContentParts.js";
+const $ = dom.$;
+let ChatCollapsibleListContentPart = class extends Disposable {
+  constructor(data, labelOverride, element, contentReferencesListPool, openerService, contextMenuService, clipboardService) {
+    super();
+    this.data = data;
+    this.contextMenuService = contextMenuService;
+    this.clipboardService = clipboardService;
+    const referencesLabel = labelOverride ?? (data.length > 1 ? localize("usedReferencesPlural", "Used {0} references", data.length) : localize("usedReferencesSingular", "Used {0} reference", 1));
+    const iconElement = $(".chat-used-context-icon");
+    const icon = /* @__PURE__ */ __name((element2) => element2.usedReferencesExpanded ? Codicon.chevronDown : Codicon.chevronRight, "icon");
+    iconElement.classList.add(...ThemeIcon.asClassNameArray(icon(element)));
+    const buttonElement = $(".chat-used-context-label", void 0);
+    const collapseButton = this._register(new Button(buttonElement, {
+      buttonBackground: void 0,
+      buttonBorder: void 0,
+      buttonForeground: void 0,
+      buttonHoverBackground: void 0,
+      buttonSecondaryBackground: void 0,
+      buttonSecondaryForeground: void 0,
+      buttonSecondaryHoverBackground: void 0,
+      buttonSeparator: void 0
+    }));
+    this.domNode = $(".chat-used-context", void 0, buttonElement);
+    collapseButton.label = referencesLabel;
+    collapseButton.element.prepend(iconElement);
+    this.updateAriaLabel(collapseButton.element, referencesLabel, element.usedReferencesExpanded);
+    this.domNode.classList.toggle("chat-used-context-collapsed", !element.usedReferencesExpanded);
+    this._register(collapseButton.onDidClick(() => {
+      iconElement.classList.remove(...ThemeIcon.asClassNameArray(icon(element)));
+      element.usedReferencesExpanded = !element.usedReferencesExpanded;
+      iconElement.classList.add(...ThemeIcon.asClassNameArray(icon(element)));
+      this.domNode.classList.toggle("chat-used-context-collapsed", !element.usedReferencesExpanded);
+      this._onDidChangeHeight.fire();
+      this.updateAriaLabel(collapseButton.element, referencesLabel, element.usedReferencesExpanded);
+    }));
+    const ref = this._register(contentReferencesListPool.get());
+    const list = ref.object;
+    this.domNode.appendChild(list.getHTMLElement().parentElement);
+    this._register(list.onDidOpen((e) => {
+      if (e.element && "reference" in e.element && typeof e.element.reference === "object") {
+        const uriOrLocation = "variableName" in e.element.reference ? e.element.reference.value : e.element.reference;
+        const uri = URI.isUri(uriOrLocation) ? uriOrLocation : uriOrLocation?.uri;
+        if (uri) {
+          openerService.open(
+            uri,
+            {
+              fromUserGesture: true,
+              editorOptions: {
+                ...e.editorOptions,
+                ...{
+                  selection: uriOrLocation && "range" in uriOrLocation ? uriOrLocation.range : void 0
+                }
+              }
+            }
+          );
+        }
+      }
+    }));
+    this._register(list.onContextMenu((e) => {
+      e.browserEvent.preventDefault();
+      e.browserEvent.stopPropagation();
+      if (e.element && "reference" in e.element && typeof e.element.reference === "object") {
+        const uriOrLocation = "variableName" in e.element.reference ? e.element.reference.value : e.element.reference;
+        const uri = URI.isUri(uriOrLocation) ? uriOrLocation : uriOrLocation?.uri;
+        if (uri) {
+          this.contextMenuService.showContextMenu({
+            getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+            getActions: /* @__PURE__ */ __name(() => {
+              return [{
+                id: "workbench.action.chat.copyReference",
+                title: localize("copyReference", "Copy"),
+                label: localize("copyReference", "Copy"),
+                tooltip: localize("copyReference", "Copy"),
+                enabled: e.element?.kind === "reference",
+                class: void 0,
+                run: /* @__PURE__ */ __name(() => {
+                  void this.clipboardService.writeResources([uri]);
+                }, "run")
+              }];
+            }, "getActions")
+          });
+        }
+      }
+    }));
+    const maxItemsShown = 6;
+    const itemsShown = Math.min(data.length, maxItemsShown);
+    const height = itemsShown * 22;
+    list.layout(height);
+    list.getHTMLElement().style.height = `${height}px`;
+    list.splice(0, list.length, data);
+  }
+  static {
+    __name(this, "ChatCollapsibleListContentPart");
+  }
+  domNode;
+  _onDidChangeHeight = this._register(new Emitter());
+  onDidChangeHeight = this._onDidChangeHeight.event;
+  hasSameContent(other, followingContent, element) {
+    return other.kind === "references" && other.references.length === this.data.length || other.kind === "codeCitations" && other.citations.length === this.data.length;
+  }
+  updateAriaLabel(element, label, expanded) {
+    element.ariaLabel = expanded ? localize("usedReferencesExpanded", "{0}, expanded", label) : localize("usedReferencesCollapsed", "{0}, collapsed", label);
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+};
+ChatCollapsibleListContentPart = __decorateClass([
+  __decorateParam(4, IOpenerService),
+  __decorateParam(5, IContextMenuService),
+  __decorateParam(6, IClipboardService)
+], ChatCollapsibleListContentPart);
+let CollapsibleListPool = class extends Disposable {
+  constructor(_onDidChangeVisibility, instantiationService, themeService, labelService) {
+    super();
+    this._onDidChangeVisibility = _onDidChangeVisibility;
+    this.instantiationService = instantiationService;
+    this.themeService = themeService;
+    this.labelService = labelService;
+    this._pool = this._register(new ResourcePool(() => this.listFactory()));
+  }
+  static {
+    __name(this, "CollapsibleListPool");
+  }
+  _pool;
+  get inUse() {
+    return this._pool.inUse;
+  }
+  listFactory() {
+    const resourceLabels = this._register(this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this._onDidChangeVisibility }));
+    const container = $(".chat-used-context-list");
+    this._register(createFileIconThemableTreeContainerScope(container, this.themeService));
+    const getDragURI = /* @__PURE__ */ __name((element) => {
+      if (element.kind === "warning") {
+        return null;
+      }
+      const { reference } = element;
+      if (typeof reference === "string" || "variableName" in reference) {
+        return null;
+      } else if (URI.isUri(reference)) {
+        return reference;
+      } else {
+        return reference.uri;
+      }
+    }, "getDragURI");
+    const list = this.instantiationService.createInstance(
+      WorkbenchList,
+      "ChatListRenderer",
+      container,
+      new CollapsibleListDelegate(),
+      [this.instantiationService.createInstance(CollapsibleListRenderer, resourceLabels)],
+      {
+        alwaysConsumeMouseWheel: false,
+        accessibilityProvider: {
+          getAriaLabel: /* @__PURE__ */ __name((element) => {
+            if (element.kind === "warning") {
+              return element.content.value;
+            }
+            const reference = element.reference;
+            if (typeof reference === "string") {
+              return reference;
+            } else if ("variableName" in reference) {
+              return reference.variableName;
+            } else if (URI.isUri(reference)) {
+              return basename(reference.path);
+            } else {
+              return basename(reference.uri.path);
+            }
+          }, "getAriaLabel"),
+          getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("chatCollapsibleList", "Collapsible Chat List"), "getWidgetAriaLabel")
+        },
+        dnd: {
+          getDragURI: /* @__PURE__ */ __name((element) => getDragURI(element)?.toString() ?? null, "getDragURI"),
+          getDragLabel: /* @__PURE__ */ __name((elements, originalEvent) => {
+            const uris = coalesce(elements.map(getDragURI));
+            if (!uris.length) {
+              return void 0;
+            } else if (uris.length === 1) {
+              return this.labelService.getUriLabel(uris[0], { relative: true });
+            } else {
+              return `${uris.length}`;
+            }
+          }, "getDragLabel"),
+          dispose: /* @__PURE__ */ __name(() => {
+          }, "dispose"),
+          onDragOver: /* @__PURE__ */ __name(() => false, "onDragOver"),
+          drop: /* @__PURE__ */ __name(() => {
+          }, "drop"),
+          onDragStart: /* @__PURE__ */ __name((data, originalEvent) => {
+            try {
+              const elements = data.getData();
+              const uris = coalesce(elements.map(getDragURI));
+              this.instantiationService.invokeFunction((accessor) => fillEditorsDragData(accessor, uris, originalEvent));
+            } catch {
+            }
+          }, "onDragStart")
+        }
+      }
+    );
+    return list;
+  }
+  get() {
+    const object = this._pool.get();
+    let stale = false;
+    return {
+      object,
+      isStale: /* @__PURE__ */ __name(() => stale, "isStale"),
+      dispose: /* @__PURE__ */ __name(() => {
+        stale = true;
+        this._pool.release(object);
+      }, "dispose")
+    };
+  }
+};
+CollapsibleListPool = __decorateClass([
+  __decorateParam(1, IInstantiationService),
+  __decorateParam(2, IThemeService),
+  __decorateParam(3, ILabelService)
+], CollapsibleListPool);
+class CollapsibleListDelegate {
+  static {
+    __name(this, "CollapsibleListDelegate");
+  }
+  getHeight(element) {
+    return 22;
+  }
+  getTemplateId(element) {
+    return CollapsibleListRenderer.TEMPLATE_ID;
+  }
+}
+let CollapsibleListRenderer = class {
+  constructor(labels, themeService, chatVariablesService, productService) {
+    this.labels = labels;
+    this.themeService = themeService;
+    this.chatVariablesService = chatVariablesService;
+    this.productService = productService;
+  }
+  static {
+    __name(this, "CollapsibleListRenderer");
+  }
+  static TEMPLATE_ID = "chatCollapsibleListRenderer";
+  templateId = CollapsibleListRenderer.TEMPLATE_ID;
+  renderTemplate(container) {
+    const templateDisposables = new DisposableStore();
+    const label = templateDisposables.add(this.labels.create(container, { supportHighlights: true, supportIcons: true }));
+    return { templateDisposables, label };
+  }
+  getReferenceIcon(data) {
+    if (ThemeIcon.isThemeIcon(data.iconPath)) {
+      return data.iconPath;
+    } else {
+      return this.themeService.getColorTheme().type === ColorScheme.DARK && data.iconPath?.dark ? data.iconPath?.dark : data.iconPath?.light;
+    }
+  }
+  renderElement(data, index, templateData, height) {
+    if (data.kind === "warning") {
+      templateData.label.setResource({ name: data.content.value }, { icon: Codicon.warning });
+      return;
+    }
+    const reference = data.reference;
+    const icon = this.getReferenceIcon(data);
+    templateData.label.element.style.display = "flex";
+    if (typeof reference === "object" && "variableName" in reference) {
+      if (reference.value) {
+        const uri = URI.isUri(reference.value) ? reference.value : reference.value.uri;
+        templateData.label.setResource(
+          {
+            resource: uri,
+            name: basenameOrAuthority(uri),
+            description: `#${reference.variableName}`,
+            range: "range" in reference.value ? reference.value.range : void 0
+          },
+          { icon, title: data.options?.status?.description ?? data.title }
+        );
+      } else {
+        const variable = this.chatVariablesService.getVariable(reference.variableName);
+        const asThemeIcon = variable?.icon ? `$(${variable.icon.id}) ` : "";
+        const asVariableName = `#${reference.variableName}`;
+        const label = `${asThemeIcon}${variable?.fullName ?? asVariableName}`;
+        templateData.label.setLabel(label, asVariableName, { title: data.options?.status?.description ?? variable?.description });
+      }
+    } else if (typeof reference === "string") {
+      templateData.label.setLabel(reference, void 0, { iconPath: URI.isUri(icon) ? icon : void 0, title: data.options?.status?.description ?? data.title });
+    } else {
+      const uri = "uri" in reference ? reference.uri : reference;
+      if (uri.scheme === "https" && isEqualAuthority(uri.authority, "github.com") && uri.path.includes("/tree/")) {
+        const label = uri.path.split("/").slice(1, 3).join("/");
+        const description = uri.path.split("/").slice(5).join("/");
+        templateData.label.setResource({ resource: uri, name: label, description }, { icon: Codicon.github, title: data.title });
+      } else if (uri.scheme === this.productService.urlProtocol && isEqualAuthority(uri.authority, SETTINGS_AUTHORITY)) {
+        const settingId = uri.path.substring(1);
+        templateData.label.setResource({ resource: uri, name: settingId }, { icon: Codicon.settingsGear, title: localize("setting.hover", "Open setting '{0}'", settingId) });
+      } else if (matchesSomeScheme(uri, Schemas.mailto, Schemas.http, Schemas.https)) {
+        templateData.label.setResource({ resource: uri, name: uri.toString() }, { icon: icon ?? Codicon.globe, title: data.options?.status?.description ?? data.title ?? uri.toString() });
+      } else {
+        templateData.label.setFile(uri, {
+          fileKind: FileKind.FILE,
+          // Should not have this live-updating data on a historical reference
+          fileDecorations: { badges: false, colors: false },
+          range: "range" in reference ? reference.range : void 0,
+          title: data.options?.status?.description ?? data.title
+        });
+      }
+    }
+    for (const selector of [".monaco-icon-suffix-container", ".monaco-icon-name-container"]) {
+      const element = templateData.label.element.querySelector(selector);
+      if (element) {
+        if (data.options?.status?.kind === ChatResponseReferencePartStatusKind.Omitted || data.options?.status?.kind === ChatResponseReferencePartStatusKind.Partial) {
+          element.classList.add("warning");
+        } else {
+          element.classList.remove("warning");
+        }
+      }
+    }
+  }
+  disposeTemplate(templateData) {
+    templateData.templateDisposables.dispose();
+  }
+};
+CollapsibleListRenderer = __decorateClass([
+  __decorateParam(1, IThemeService),
+  __decorateParam(2, IChatVariablesService),
+  __decorateParam(3, IProductService)
+], CollapsibleListRenderer);
+export {
+  ChatCollapsibleListContentPart,
+  CollapsibleListPool
+};
+//# sourceMappingURL=chatReferencesContentPart.js.map

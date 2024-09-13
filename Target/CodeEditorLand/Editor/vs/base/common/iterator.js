@@ -1,1 +1,161 @@
-var f;(a=>{function T(e){return e&&typeof e=="object"&&typeof e[Symbol.iterator]=="function"}a.is=T;const l=Object.freeze([]);function b(){return l}a.empty=b;function*u(e){yield e}a.single=u;function c(e){return T(e)?e:u(e)}a.wrap=c;function p(e){return e||l}a.from=p;function*s(e){for(let t=e.length-1;t>=0;t--)yield e[t]}a.reverse=s;function d(e){return!e||e[Symbol.iterator]().next().done===!0}a.isEmpty=d;function I(e){return e[Symbol.iterator]().next().value}a.first=I;function x(e,t){let n=0;for(const r of e)if(t(r,n++))return!0;return!1}a.some=x;function y(e,t){for(const n of e)if(t(n))return n}a.find=y;function*m(e,t){for(const n of e)t(n)&&(yield n)}a.filter=m;function*R(e,t){let n=0;for(const r of e)yield t(r,n++)}a.map=R;function*h(e,t){let n=0;for(const r of e)yield*t(r,n++)}a.flatMap=h;function*g(...e){for(const t of e)yield*t}a.concat=g;function v(e,t,n){let r=n;for(const o of e)r=t(r,o);return r}a.reduce=v;function*S(e,t,n=e.length){for(t<0&&(t+=e.length),n<0?n+=e.length:n>e.length&&(n=e.length);t<n;t++)yield e[t]}a.slice=S;function A(e,t=Number.POSITIVE_INFINITY){const n=[];if(t===0)return[n,e];const r=e[Symbol.iterator]();for(let o=0;o<t;o++){const i=r.next();if(i.done)return[n,a.empty()];n.push(i.value)}return[n,{[Symbol.iterator](){return r}}]}a.consume=A;async function w(e){const t=[];for await(const n of e)t.push(n);return Promise.resolve(t)}a.asyncToArray=w})(f||={});export{f as Iterable};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var Iterable;
+((Iterable2) => {
+  function is(thing) {
+    return thing && typeof thing === "object" && typeof thing[Symbol.iterator] === "function";
+  }
+  Iterable2.is = is;
+  __name(is, "is");
+  const _empty = Object.freeze([]);
+  function empty() {
+    return _empty;
+  }
+  Iterable2.empty = empty;
+  __name(empty, "empty");
+  function* single(element) {
+    yield element;
+  }
+  Iterable2.single = single;
+  __name(single, "single");
+  function wrap(iterableOrElement) {
+    if (is(iterableOrElement)) {
+      return iterableOrElement;
+    } else {
+      return single(iterableOrElement);
+    }
+  }
+  Iterable2.wrap = wrap;
+  __name(wrap, "wrap");
+  function from(iterable) {
+    return iterable || _empty;
+  }
+  Iterable2.from = from;
+  __name(from, "from");
+  function* reverse(array) {
+    for (let i = array.length - 1; i >= 0; i--) {
+      yield array[i];
+    }
+  }
+  Iterable2.reverse = reverse;
+  __name(reverse, "reverse");
+  function isEmpty(iterable) {
+    return !iterable || iterable[Symbol.iterator]().next().done === true;
+  }
+  Iterable2.isEmpty = isEmpty;
+  __name(isEmpty, "isEmpty");
+  function first(iterable) {
+    return iterable[Symbol.iterator]().next().value;
+  }
+  Iterable2.first = first;
+  __name(first, "first");
+  function some(iterable, predicate) {
+    let i = 0;
+    for (const element of iterable) {
+      if (predicate(element, i++)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  Iterable2.some = some;
+  __name(some, "some");
+  function find(iterable, predicate) {
+    for (const element of iterable) {
+      if (predicate(element)) {
+        return element;
+      }
+    }
+    return void 0;
+  }
+  Iterable2.find = find;
+  __name(find, "find");
+  function* filter(iterable, predicate) {
+    for (const element of iterable) {
+      if (predicate(element)) {
+        yield element;
+      }
+    }
+  }
+  Iterable2.filter = filter;
+  __name(filter, "filter");
+  function* map(iterable, fn) {
+    let index = 0;
+    for (const element of iterable) {
+      yield fn(element, index++);
+    }
+  }
+  Iterable2.map = map;
+  __name(map, "map");
+  function* flatMap(iterable, fn) {
+    let index = 0;
+    for (const element of iterable) {
+      yield* fn(element, index++);
+    }
+  }
+  Iterable2.flatMap = flatMap;
+  __name(flatMap, "flatMap");
+  function* concat(...iterables) {
+    for (const iterable of iterables) {
+      yield* iterable;
+    }
+  }
+  Iterable2.concat = concat;
+  __name(concat, "concat");
+  function reduce(iterable, reducer, initialValue) {
+    let value = initialValue;
+    for (const element of iterable) {
+      value = reducer(value, element);
+    }
+    return value;
+  }
+  Iterable2.reduce = reduce;
+  __name(reduce, "reduce");
+  function* slice(arr, from2, to = arr.length) {
+    if (from2 < 0) {
+      from2 += arr.length;
+    }
+    if (to < 0) {
+      to += arr.length;
+    } else if (to > arr.length) {
+      to = arr.length;
+    }
+    for (; from2 < to; from2++) {
+      yield arr[from2];
+    }
+  }
+  Iterable2.slice = slice;
+  __name(slice, "slice");
+  function consume(iterable, atMost = Number.POSITIVE_INFINITY) {
+    const consumed = [];
+    if (atMost === 0) {
+      return [consumed, iterable];
+    }
+    const iterator = iterable[Symbol.iterator]();
+    for (let i = 0; i < atMost; i++) {
+      const next = iterator.next();
+      if (next.done) {
+        return [consumed, Iterable2.empty()];
+      }
+      consumed.push(next.value);
+    }
+    return [consumed, { [Symbol.iterator]() {
+      return iterator;
+    } }];
+  }
+  Iterable2.consume = consume;
+  __name(consume, "consume");
+  async function asyncToArray(iterable) {
+    const result = [];
+    for await (const item of iterable) {
+      result.push(item);
+    }
+    return Promise.resolve(result);
+  }
+  Iterable2.asyncToArray = asyncToArray;
+  __name(asyncToArray, "asyncToArray");
+})(Iterable || (Iterable = {}));
+export {
+  Iterable
+};
+//# sourceMappingURL=iterator.js.map

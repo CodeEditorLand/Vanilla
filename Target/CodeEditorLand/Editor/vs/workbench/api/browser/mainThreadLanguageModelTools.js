@@ -1,1 +1,91 @@
-var T=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var c=(l,a,o,s)=>{for(var e=s>1?void 0:s?p(a,o):a,t=l.length-1,n;t>=0;t--)(n=l[t])&&(e=(s?n(a,o,e):n(e))||e);return s&&e&&T(a,o,e),e},i=(l,a)=>(o,s)=>a(o,s,l);import"../../../base/common/cancellation.js";import{MarkdownString as h}from"../../../base/common/htmlContent.js";import{Disposable as u,DisposableMap as d}from"../../../base/common/lifecycle.js";import"../../contrib/chat/common/chatModel.js";import{IChatService as m}from"../../contrib/chat/common/chatService.js";import{ILanguageModelToolsService as v}from"../../contrib/chat/common/languageModelToolsService.js";import{extHostNamedCustomer as k}from"../../services/extensions/common/extHostCustomers.js";import{ExtHostContext as C,MainContext as I}from"../common/extHost.protocol.js";import{MainThreadChatTask as _}from"./mainThreadChatAgents2.js";let r=class extends u{constructor(o,s,e){super();this._languageModelToolsService=s;this._chatService=e;this._proxy=o.getProxy(C.ExtHostLanguageModelTools),this._register(this._languageModelToolsService.onDidChangeTools(t=>this._proxy.$onDidChangeTools([...this._languageModelToolsService.getTools()])))}_proxy;_tools=this._register(new d);_countTokenCallbacks=new Map;async $getTools(){return Array.from(this._languageModelToolsService.getTools())}async $invokeTool(o,s){let e;if(o.context){const t=this._chatService.getSession(o.context?.sessionId),n=t.getRequests().at(-1),g=this._languageModelToolsService.getTool(o.toolId);e=new _(new h(`Using ${g?.displayName??o.toolId}`)),t.acceptResponseProgress(n,e)}try{return await this._languageModelToolsService.invokeTool(o,(t,n)=>this._proxy.$countTokensForInvocation(o.callId,t,n),s)}finally{e?.complete()}}$countTokensForInvocation(o,s,e){const t=this._countTokenCallbacks.get(o);if(!t)throw new Error(`Tool invocation call ${o} not found`);return t(s,e)}$registerTool(o){const s=this._languageModelToolsService.registerToolImplementation(o,{invoke:async(e,t,n)=>{try{return this._countTokenCallbacks.set(e.callId,t),await this._proxy.$invokeTool(e,n)}finally{this._countTokenCallbacks.delete(e.callId)}}});this._tools.set(o,s)}$unregisterTool(o){this._tools.deleteAndDispose(o)}};r=c([k(I.MainThreadLanguageModelTools),i(1,v),i(2,m)],r);export{r as MainThreadLanguageModelTools};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { MarkdownString } from "../../../base/common/htmlContent.js";
+import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
+import { ChatModel } from "../../contrib/chat/common/chatModel.js";
+import { IChatService, IChatTask } from "../../contrib/chat/common/chatService.js";
+import { CountTokensCallback, ILanguageModelToolsService, IToolData, IToolInvocation, IToolResult } from "../../contrib/chat/common/languageModelToolsService.js";
+import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, ExtHostLanguageModelToolsShape, MainContext, MainThreadLanguageModelToolsShape } from "../common/extHost.protocol.js";
+import { MainThreadChatTask } from "./mainThreadChatAgents2.js";
+let MainThreadLanguageModelTools = class extends Disposable {
+  constructor(extHostContext, _languageModelToolsService, _chatService) {
+    super();
+    this._languageModelToolsService = _languageModelToolsService;
+    this._chatService = _chatService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostLanguageModelTools);
+    this._register(this._languageModelToolsService.onDidChangeTools((e) => this._proxy.$onDidChangeTools([...this._languageModelToolsService.getTools()])));
+  }
+  _proxy;
+  _tools = this._register(new DisposableMap());
+  _countTokenCallbacks = /* @__PURE__ */ new Map();
+  async $getTools() {
+    return Array.from(this._languageModelToolsService.getTools());
+  }
+  async $invokeTool(dto, token) {
+    let task;
+    if (dto.context) {
+      const model = this._chatService.getSession(dto.context?.sessionId);
+      const request = model.getRequests().at(-1);
+      const tool = this._languageModelToolsService.getTool(dto.toolId);
+      task = new MainThreadChatTask(new MarkdownString(`Using ${tool?.displayName ?? dto.toolId}`));
+      model.acceptResponseProgress(request, task);
+    }
+    try {
+      return await this._languageModelToolsService.invokeTool(
+        dto,
+        (input, token2) => this._proxy.$countTokensForInvocation(dto.callId, input, token2),
+        token
+      );
+    } finally {
+      task?.complete();
+    }
+  }
+  $countTokensForInvocation(callId, input, token) {
+    const fn = this._countTokenCallbacks.get(callId);
+    if (!fn) {
+      throw new Error(`Tool invocation call ${callId} not found`);
+    }
+    return fn(input, token);
+  }
+  $registerTool(name) {
+    const disposable = this._languageModelToolsService.registerToolImplementation(
+      name,
+      {
+        invoke: /* @__PURE__ */ __name(async (dto, countTokens, token) => {
+          try {
+            this._countTokenCallbacks.set(dto.callId, countTokens);
+            return await this._proxy.$invokeTool(dto, token);
+          } finally {
+            this._countTokenCallbacks.delete(dto.callId);
+          }
+        }, "invoke")
+      }
+    );
+    this._tools.set(name, disposable);
+  }
+  $unregisterTool(name) {
+    this._tools.deleteAndDispose(name);
+  }
+};
+__name(MainThreadLanguageModelTools, "MainThreadLanguageModelTools");
+MainThreadLanguageModelTools = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadLanguageModelTools),
+  __decorateParam(1, ILanguageModelToolsService),
+  __decorateParam(2, IChatService)
+], MainThreadLanguageModelTools);
+export {
+  MainThreadLanguageModelTools
+};
+//# sourceMappingURL=mainThreadLanguageModelTools.js.map

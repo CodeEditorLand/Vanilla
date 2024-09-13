@@ -1,1 +1,35 @@
-var d=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var h=(i,r,t,o)=>{for(var e=o>1?void 0:o?m(r,t):r,n=i.length-1,c;n>=0;n--)(c=i[n])&&(e=(o?c(r,t,e):c(e))||e);return o&&e&&d(r,t,e),e},b=(i,r)=>(t,o)=>r(t,o,i);import{LifecyclePhase as f}from"../../../services/lifecycle/common/lifecycle.js";import{Registry as C}from"../../../../platform/registry/common/platform.js";import{Extensions as I}from"../../../common/contributions.js";import{ICodeEditorService as k}from"../../../../editor/browser/services/codeEditorService.js";import{INativeHostService as u}from"../../../../platform/native/common/native.js";import{Disposable as v}from"../../../../base/common/lifecycle.js";let s=class extends v{constructor(r,t){super(),this._register(t.onDidResumeOS(()=>{r.listCodeEditors().forEach(o=>o.render(!0))}))}};s=h([b(0,k),b(1,u)],s),C.as(I.Workbench).registerWorkbenchContribution(s,f.Eventually);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as WorkbenchExtensions, IWorkbenchContribution, IWorkbenchContributionsRegistry } from "../../../common/contributions.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+let SleepResumeRepaintMinimap = class extends Disposable {
+  static {
+    __name(this, "SleepResumeRepaintMinimap");
+  }
+  constructor(codeEditorService, nativeHostService) {
+    super();
+    this._register(nativeHostService.onDidResumeOS(() => {
+      codeEditorService.listCodeEditors().forEach((editor) => editor.render(true));
+    }));
+  }
+};
+SleepResumeRepaintMinimap = __decorateClass([
+  __decorateParam(0, ICodeEditorService),
+  __decorateParam(1, INativeHostService)
+], SleepResumeRepaintMinimap);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(SleepResumeRepaintMinimap, LifecyclePhase.Eventually);
+//# sourceMappingURL=sleepResumeRepaintMinimap.js.map

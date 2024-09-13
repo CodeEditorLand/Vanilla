@@ -2,8 +2,7 @@ import type { BuildOptions } from "esbuild";
 
 export const Development =
 	process.env["NODE_ENV"] === "development" ||
-	// @ts-expect-error
-	process.env["TAURI_ENV_DEBUG"] === true;
+	process.env["TAURI_ENV_DEBUG"] === "true";
 
 const Dependency = "CodeEditorLand/Editor";
 

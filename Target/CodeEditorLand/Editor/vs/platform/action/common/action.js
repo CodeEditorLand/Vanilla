@@ -1,1 +1,20 @@
-import"../../../base/common/uri.js";import"../../contextkey/common/contextkey.js";import"../../../base/common/themables.js";import"./actionCommonCategories.js";import"../../commands/common/commands.js";function I(o){return o&&typeof o=="object"&&typeof o.original=="string"&&typeof o.value=="string"}function l(o){return o?o.condition!==void 0:!1}export{l as isICommandActionToggleInfo,I as isLocalizedString};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI, UriDto } from "../../../base/common/uri.js";
+import { ContextKeyExpression } from "../../contextkey/common/contextkey.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { Categories } from "./actionCommonCategories.js";
+import { ICommandMetadata } from "../../commands/common/commands.js";
+function isLocalizedString(thing) {
+  return thing && typeof thing === "object" && typeof thing.original === "string" && typeof thing.value === "string";
+}
+__name(isLocalizedString, "isLocalizedString");
+function isICommandActionToggleInfo(thing) {
+  return thing ? thing.condition !== void 0 : false;
+}
+__name(isICommandActionToggleInfo, "isICommandActionToggleInfo");
+export {
+  isICommandActionToggleInfo,
+  isLocalizedString
+};
+//# sourceMappingURL=action.js.map

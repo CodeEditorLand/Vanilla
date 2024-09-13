@@ -1,1 +1,79 @@
-var l=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var c=(n,i,e,t)=>{for(var r=t>1?void 0:t?v(i,e):i,a=n.length-1,p;a>=0;a--)(p=n[a])&&(r=(t?p(i,e,r):p(r))||r);return t&&r&&l(i,e,r),r},o=(n,i)=>(e,t)=>i(e,t,n);import{IURLService as d}from"../../../../platform/url/common/url.js";import{URI as I}from"../../../../base/common/uri.js";import{IMainProcessService as m}from"../../../../platform/ipc/common/mainProcessService.js";import{URLHandlerChannel as S}from"../../../../platform/url/common/urlIpc.js";import{IOpenerService as h}from"../../../../platform/opener/common/opener.js";import{matchesScheme as U}from"../../../../base/common/network.js";import{IProductService as f}from"../../../../platform/product/common/productService.js";import{InstantiationType as u,registerSingleton as R}from"../../../../platform/instantiation/common/extensions.js";import{ProxyChannel as w}from"../../../../base/parts/ipc/common/ipc.js";import{INativeHostService as g}from"../../../../platform/native/common/native.js";import{NativeURLService as L}from"../../../../platform/url/common/urlService.js";import{ILogService as O}from"../../../../platform/log/common/log.js";let s=class extends L{constructor(e,t,r,a,p){super(a);this.nativeHostService=r;this.logService=p;this.urlService=w.toService(e.getChannel("url")),e.registerChannel("urlHandler",new S(this)),t.registerOpener(this)}urlService;create(e){const t=super.create(e);let r=t.query;return r?r+=`&windowId=${encodeURIComponent(this.nativeHostService.windowId)}`:r=`windowId=${encodeURIComponent(this.nativeHostService.windowId)}`,t.with({query:r})}async open(e,t){return U(e,this.productService.urlProtocol)?(typeof e=="string"&&(e=I.parse(e)),await this.urlService.open(e,t)):!1}async handleURL(e,t){const r=await super.open(e,t);return r?(this.logService.trace("URLService#handleURL(): handled",e.toString(!0)),await this.nativeHostService.focusWindow({force:!0,targetWindowId:this.nativeHostService.windowId})):this.logService.trace("URLService#handleURL(): not handled",e.toString(!0)),r}};s=c([o(0,m),o(1,h),o(2,g),o(3,f),o(4,O)],s),R(d,s,u.Eager);export{s as RelayURLService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IURLService, IURLHandler, IOpenURLOptions } from "../../../../platform/url/common/url.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { URLHandlerChannel } from "../../../../platform/url/common/urlIpc.js";
+import { IOpenerService, IOpener } from "../../../../platform/opener/common/opener.js";
+import { matchesScheme } from "../../../../base/common/network.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ProxyChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { NativeURLService } from "../../../../platform/url/common/urlService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+let RelayURLService = class extends NativeURLService {
+  constructor(mainProcessService, openerService, nativeHostService, productService, logService) {
+    super(productService);
+    this.nativeHostService = nativeHostService;
+    this.logService = logService;
+    this.urlService = ProxyChannel.toService(mainProcessService.getChannel("url"));
+    mainProcessService.registerChannel("urlHandler", new URLHandlerChannel(this));
+    openerService.registerOpener(this);
+  }
+  static {
+    __name(this, "RelayURLService");
+  }
+  urlService;
+  create(options) {
+    const uri = super.create(options);
+    let query = uri.query;
+    if (!query) {
+      query = `windowId=${encodeURIComponent(this.nativeHostService.windowId)}`;
+    } else {
+      query += `&windowId=${encodeURIComponent(this.nativeHostService.windowId)}`;
+    }
+    return uri.with({ query });
+  }
+  async open(resource, options) {
+    if (!matchesScheme(resource, this.productService.urlProtocol)) {
+      return false;
+    }
+    if (typeof resource === "string") {
+      resource = URI.parse(resource);
+    }
+    return await this.urlService.open(resource, options);
+  }
+  async handleURL(uri, options) {
+    const result = await super.open(uri, options);
+    if (result) {
+      this.logService.trace("URLService#handleURL(): handled", uri.toString(true));
+      await this.nativeHostService.focusWindow({ force: true, targetWindowId: this.nativeHostService.windowId });
+    } else {
+      this.logService.trace("URLService#handleURL(): not handled", uri.toString(true));
+    }
+    return result;
+  }
+};
+RelayURLService = __decorateClass([
+  __decorateParam(0, IMainProcessService),
+  __decorateParam(1, IOpenerService),
+  __decorateParam(2, INativeHostService),
+  __decorateParam(3, IProductService),
+  __decorateParam(4, ILogService)
+], RelayURLService);
+registerSingleton(IURLService, RelayURLService, InstantiationType.Eager);
+export {
+  RelayURLService
+};
+//# sourceMappingURL=urlService.js.map

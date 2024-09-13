@@ -1,1 +1,17 @@
-import{InlineVoiceChatAction as i,QuickVoiceChatAction as e,StartVoiceChatAction as n,VoiceChatInChatViewAction as r,StopListeningAction as c,StopListeningAndSubmitAction as a,KeywordActivationContribution as o,InstallSpeechProviderForSynthesizeChatAction as h,InstallSpeechProviderForVoiceChatAction as A,HoldToVoiceChatInChatViewAction as C,ReadChatResponseAloud as d,StopReadAloud as s,StopReadChatItemAloud as p}from"./actions/voiceChatActions.js";import{registerAction2 as t}from"../../../../platform/actions/common/actions.js";import{WorkbenchPhase as l,registerWorkbenchContribution2 as S}from"../../../common/contributions.js";t(n),t(A),t(r),t(C),t(e),t(i),t(c),t(a),t(d),t(p),t(s),t(h),S(o.ID,o,l.AfterRestored);
+import { InlineVoiceChatAction, QuickVoiceChatAction, StartVoiceChatAction, VoiceChatInChatViewAction, StopListeningAction, StopListeningAndSubmitAction, KeywordActivationContribution, InstallSpeechProviderForSynthesizeChatAction, InstallSpeechProviderForVoiceChatAction, HoldToVoiceChatInChatViewAction, ReadChatResponseAloud, StopReadAloud, StopReadChatItemAloud } from "./actions/voiceChatActions.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+registerAction2(StartVoiceChatAction);
+registerAction2(InstallSpeechProviderForVoiceChatAction);
+registerAction2(VoiceChatInChatViewAction);
+registerAction2(HoldToVoiceChatInChatViewAction);
+registerAction2(QuickVoiceChatAction);
+registerAction2(InlineVoiceChatAction);
+registerAction2(StopListeningAction);
+registerAction2(StopListeningAndSubmitAction);
+registerAction2(ReadChatResponseAloud);
+registerAction2(StopReadChatItemAloud);
+registerAction2(StopReadAloud);
+registerAction2(InstallSpeechProviderForSynthesizeChatAction);
+registerWorkbenchContribution2(KeywordActivationContribution.ID, KeywordActivationContribution, WorkbenchPhase.AfterRestored);
+//# sourceMappingURL=chat.contribution.js.map

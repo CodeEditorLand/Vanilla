@@ -1,1 +1,114 @@
-var b=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var d=(n,o,e,i)=>{for(var t=i>1?void 0:i?f(o,e):o,s=n.length-1,a;s>=0;s--)(a=n[s])&&(t=(i?a(o,e,t):a(t))||t);return i&&t&&b(o,e,t),t},r=(n,o)=>(e,i)=>o(e,i,n);import{Disposable as m}from"../../../../../../base/common/lifecycle.js";import"../../../../../../base/common/uri.js";import*as g from"../../../../../../nls.js";import{IConfigurationService as I}from"../../../../../../platform/configuration/common/configuration.js";import{IContextKeyService as u}from"../../../../../../platform/contextkey/common/contextkey.js";import{SyncDescriptor as E}from"../../../../../../platform/instantiation/common/descriptors.js";import{Registry as h}from"../../../../../../platform/registry/common/platform.js";import"../../../../../common/contributions.js";import{Extensions as S}from"../../../../../common/views.js";import{VIEWLET_ID as w}from"../../../../debug/common/debug.js";import{NOTEBOOK_VARIABLE_VIEW_ENABLED as p}from"./notebookVariableContextKeys.js";import{NotebookVariablesView as V}from"./notebookVariablesView.js";import{getNotebookEditorFromEditorPane as C}from"../../notebookBrowser.js";import{variablesViewIcon as k}from"../../notebookIcons.js";import{NotebookSetting as v}from"../../../common/notebookCommon.js";import{INotebookExecutionStateService as y}from"../../../common/notebookExecutionStateService.js";import{INotebookKernelService as D}from"../../../common/notebookKernelService.js";import{INotebookService as x}from"../../../common/notebookService.js";import{IEditorService as R}from"../../../../../services/editor/common/editorService.js";let c=class extends m{constructor(e,i,t,s,a,K){super();this.configurationService=i;this.editorService=t;this.notebookExecutionStateService=s;this.notebookKernelService=a;this.notebookDocumentService=K;this.viewEnabled=p.bindTo(e),this.listeners.push(this.editorService.onDidActiveEditorChange(()=>this.handleInitEvent())),this.listeners.push(this.notebookExecutionStateService.onDidChangeExecution(l=>this.handleInitEvent(l.notebook))),this.configListener=i.onDidChangeConfiguration(l=>this.handleConfigChange(l))}listeners=[];configListener;initialized=!1;viewEnabled;handleConfigChange(e){e.affectsConfiguration(v.notebookVariablesView)&&(this.configurationService.getValue(v.notebookVariablesView)?this.initialized?this.viewEnabled.set(!0):this.handleInitEvent():this.viewEnabled.set(!1))}handleInitEvent(e){this.configurationService.getValue(v.notebookVariablesView)&&(e||this.editorService.activeEditorPane?.getId()==="workbench.editor.notebook")&&this.hasVariableProvider(e)&&!this.initialized&&this.initializeView()&&(this.viewEnabled.set(!0),this.initialized=!0,this.listeners.forEach(i=>i.dispose()))}hasVariableProvider(e){const i=e?this.notebookDocumentService.getNotebookTextModel(e):C(this.editorService.activeEditorPane)?.getViewModel()?.notebookDocument;return i&&this.notebookKernelService.getMatchingKernel(i).selected?.hasVariableProvider}initializeView(){const e=h.as("workbench.registry.view.containers").get(w);if(e){const i=h.as(S.ViewsRegistry),t={id:"NOTEBOOK_VARIABLES",name:g.localize2("notebookVariables","Notebook Variables"),containerIcon:k,ctorDescriptor:new E(V),order:50,weight:5,canToggleVisibility:!0,canMoveView:!0,collapsed:!0,when:p};return i.registerViews([t],e),!0}return!1}dispose(){super.dispose(),this.listeners.forEach(e=>e.dispose()),this.configListener.dispose()}};c=d([r(0,u),r(1,I),r(2,R),r(3,y),r(4,D),r(5,x)],c);export{c as NotebookVariables};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable, IDisposable } from "../../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import * as nls from "../../../../../../nls.js";
+import { IConfigurationChangeEvent, IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextKey, IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { SyncDescriptor } from "../../../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../../../platform/registry/common/platform.js";
+import { IWorkbenchContribution } from "../../../../../common/contributions.js";
+import { Extensions, IViewContainersRegistry, IViewsRegistry } from "../../../../../common/views.js";
+import { VIEWLET_ID as debugContainerId } from "../../../../debug/common/debug.js";
+import { NOTEBOOK_VARIABLE_VIEW_ENABLED } from "./notebookVariableContextKeys.js";
+import { NotebookVariablesView } from "./notebookVariablesView.js";
+import { getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
+import { variablesViewIcon } from "../../notebookIcons.js";
+import { NotebookSetting } from "../../../common/notebookCommon.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { INotebookKernelService } from "../../../common/notebookKernelService.js";
+import { INotebookService } from "../../../common/notebookService.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+let NotebookVariables = class extends Disposable {
+  constructor(contextKeyService, configurationService, editorService, notebookExecutionStateService, notebookKernelService, notebookDocumentService) {
+    super();
+    this.configurationService = configurationService;
+    this.editorService = editorService;
+    this.notebookExecutionStateService = notebookExecutionStateService;
+    this.notebookKernelService = notebookKernelService;
+    this.notebookDocumentService = notebookDocumentService;
+    this.viewEnabled = NOTEBOOK_VARIABLE_VIEW_ENABLED.bindTo(contextKeyService);
+    this.listeners.push(this.editorService.onDidActiveEditorChange(() => this.handleInitEvent()));
+    this.listeners.push(this.notebookExecutionStateService.onDidChangeExecution((e) => this.handleInitEvent(e.notebook)));
+    this.configListener = configurationService.onDidChangeConfiguration((e) => this.handleConfigChange(e));
+  }
+  static {
+    __name(this, "NotebookVariables");
+  }
+  listeners = [];
+  configListener;
+  initialized = false;
+  viewEnabled;
+  handleConfigChange(e) {
+    if (e.affectsConfiguration(NotebookSetting.notebookVariablesView)) {
+      if (!this.configurationService.getValue(NotebookSetting.notebookVariablesView)) {
+        this.viewEnabled.set(false);
+      } else if (this.initialized) {
+        this.viewEnabled.set(true);
+      } else {
+        this.handleInitEvent();
+      }
+    }
+  }
+  handleInitEvent(notebook) {
+    if (this.configurationService.getValue(NotebookSetting.notebookVariablesView) && (!!notebook || this.editorService.activeEditorPane?.getId() === "workbench.editor.notebook")) {
+      if (this.hasVariableProvider(notebook) && !this.initialized && this.initializeView()) {
+        this.viewEnabled.set(true);
+        this.initialized = true;
+        this.listeners.forEach((listener) => listener.dispose());
+      }
+    }
+  }
+  hasVariableProvider(notebookUri) {
+    const notebook = notebookUri ? this.notebookDocumentService.getNotebookTextModel(notebookUri) : getNotebookEditorFromEditorPane(this.editorService.activeEditorPane)?.getViewModel()?.notebookDocument;
+    return notebook && this.notebookKernelService.getMatchingKernel(notebook).selected?.hasVariableProvider;
+  }
+  initializeView() {
+    const debugViewContainer = Registry.as("workbench.registry.view.containers").get(debugContainerId);
+    if (debugViewContainer) {
+      const viewsRegistry = Registry.as(Extensions.ViewsRegistry);
+      const viewDescriptor = {
+        id: "NOTEBOOK_VARIABLES",
+        name: nls.localize2("notebookVariables", "Notebook Variables"),
+        containerIcon: variablesViewIcon,
+        ctorDescriptor: new SyncDescriptor(NotebookVariablesView),
+        order: 50,
+        weight: 5,
+        canToggleVisibility: true,
+        canMoveView: true,
+        collapsed: true,
+        when: NOTEBOOK_VARIABLE_VIEW_ENABLED
+      };
+      viewsRegistry.registerViews([viewDescriptor], debugViewContainer);
+      return true;
+    }
+    return false;
+  }
+  dispose() {
+    super.dispose();
+    this.listeners.forEach((listener) => listener.dispose());
+    this.configListener.dispose();
+  }
+};
+NotebookVariables = __decorateClass([
+  __decorateParam(0, IContextKeyService),
+  __decorateParam(1, IConfigurationService),
+  __decorateParam(2, IEditorService),
+  __decorateParam(3, INotebookExecutionStateService),
+  __decorateParam(4, INotebookKernelService),
+  __decorateParam(5, INotebookService)
+], NotebookVariables);
+export {
+  NotebookVariables
+};
+//# sourceMappingURL=notebookVariables.js.map

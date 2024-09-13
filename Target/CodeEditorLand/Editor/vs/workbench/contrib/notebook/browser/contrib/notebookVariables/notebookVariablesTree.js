@@ -1,1 +1,98 @@
-var c=Object.defineProperty;var d=Object.getOwnPropertyDescriptor;var p=(o,e,a,t)=>{for(var r=t>1?void 0:t?d(e,a):e,i=o.length-1,s;i>=0;i--)(s=o[i])&&(r=(t?s(e,a,r):s(r))||r);return t&&r&&c(e,a,r),r},b=(o,e)=>(a,t)=>e(a,t,o);import*as l from"../../../../../../base/browser/dom.js";import"../../../../../../base/browser/ui/list/list.js";import"../../../../../../base/browser/ui/list/listWidget.js";import"../../../../../../base/browser/ui/tree/tree.js";import"../../../../../../base/common/filters.js";import{DisposableStore as u}from"../../../../../../base/common/lifecycle.js";import{localize as I}from"../../../../../../nls.js";import{IInstantiationService as E}from"../../../../../../platform/instantiation/common/instantiation.js";import{WorkbenchObjectTree as V}from"../../../../../../platform/list/browser/listService.js";import{DebugExpressionRenderer as D}from"../../../../debug/browser/debugExpressionRenderer.js";import"./notebookVariablesDataSource.js";const m=l.$,T=1024;class P extends V{}class W{getHeight(e){return 22}getTemplateId(e){return n.ID}}let n=class{expressionRenderer;static ID="variableElement";get templateId(){return n.ID}constructor(e){this.expressionRenderer=e.createInstance(D)}renderTemplate(e){const a=l.append(e,m(".expression")),t=l.append(a,m("span.name")),r=l.append(a,m("span.value"));return{expression:a,name:t,value:r,elementDisposables:new u}}renderElement(e,a,t){const r=e.element.value.trim()!==""?`${e.element.name}:`:e.element.name;t.name.textContent=r,t.name.title=e.element.type??"",t.elementDisposables.add(this.expressionRenderer.renderValue(t.value,e.element,{colorize:!0,maxValueLength:T,session:void 0}))}disposeElement(e,a,t,r){t.elementDisposables.clear()}disposeTemplate(e){e.elementDisposables.dispose()}};n=p([b(0,E)],n);class ${getWidgetAriaLabel(){return I("debugConsole","Notebook Variables")}getAriaLabel(e){return I("notebookVariableAriaLabel","Variable {0}, value {1}",e.name,e.value)}}export{$ as NotebookVariableAccessibilityProvider,n as NotebookVariableRenderer,W as NotebookVariablesDelegate,P as NotebookVariablesTree};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../../../base/browser/dom.js";
+import { IListVirtualDelegate } from "../../../../../../base/browser/ui/list/list.js";
+import { IListAccessibilityProvider } from "../../../../../../base/browser/ui/list/listWidget.js";
+import { ITreeNode, ITreeRenderer } from "../../../../../../base/browser/ui/tree/tree.js";
+import { FuzzyScore } from "../../../../../../base/common/filters.js";
+import { DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../../nls.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { WorkbenchObjectTree } from "../../../../../../platform/list/browser/listService.js";
+import { DebugExpressionRenderer } from "../../../../debug/browser/debugExpressionRenderer.js";
+import { INotebookVariableElement } from "./notebookVariablesDataSource.js";
+const $ = dom.$;
+const MAX_VALUE_RENDER_LENGTH_IN_VIEWLET = 1024;
+class NotebookVariablesTree extends WorkbenchObjectTree {
+  static {
+    __name(this, "NotebookVariablesTree");
+  }
+}
+class NotebookVariablesDelegate {
+  static {
+    __name(this, "NotebookVariablesDelegate");
+  }
+  getHeight(element) {
+    return 22;
+  }
+  getTemplateId(element) {
+    return NotebookVariableRenderer.ID;
+  }
+}
+let NotebookVariableRenderer = class {
+  static {
+    __name(this, "NotebookVariableRenderer");
+  }
+  expressionRenderer;
+  static ID = "variableElement";
+  get templateId() {
+    return NotebookVariableRenderer.ID;
+  }
+  constructor(instantiationService) {
+    this.expressionRenderer = instantiationService.createInstance(DebugExpressionRenderer);
+  }
+  renderTemplate(container) {
+    const expression = dom.append(container, $(".expression"));
+    const name = dom.append(expression, $("span.name"));
+    const value = dom.append(expression, $("span.value"));
+    const template = { expression, name, value, elementDisposables: new DisposableStore() };
+    return template;
+  }
+  renderElement(element, _index, data) {
+    const text = element.element.value.trim() !== "" ? `${element.element.name}:` : element.element.name;
+    data.name.textContent = text;
+    data.name.title = element.element.type ?? "";
+    data.elementDisposables.add(this.expressionRenderer.renderValue(data.value, element.element, {
+      colorize: true,
+      maxValueLength: MAX_VALUE_RENDER_LENGTH_IN_VIEWLET,
+      session: void 0
+    }));
+  }
+  disposeElement(element, index, templateData, height) {
+    templateData.elementDisposables.clear();
+  }
+  disposeTemplate(templateData) {
+    templateData.elementDisposables.dispose();
+  }
+};
+NotebookVariableRenderer = __decorateClass([
+  __decorateParam(0, IInstantiationService)
+], NotebookVariableRenderer);
+class NotebookVariableAccessibilityProvider {
+  static {
+    __name(this, "NotebookVariableAccessibilityProvider");
+  }
+  getWidgetAriaLabel() {
+    return localize("debugConsole", "Notebook Variables");
+  }
+  getAriaLabel(element) {
+    return localize("notebookVariableAriaLabel", "Variable {0}, value {1}", element.name, element.value);
+  }
+}
+export {
+  NotebookVariableAccessibilityProvider,
+  NotebookVariableRenderer,
+  NotebookVariablesDelegate,
+  NotebookVariablesTree
+};
+//# sourceMappingURL=notebookVariablesTree.js.map

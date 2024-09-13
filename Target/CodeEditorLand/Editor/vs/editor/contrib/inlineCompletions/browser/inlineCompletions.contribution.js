@@ -1,1 +1,20 @@
-import{EditorContributionInstantiation as e,registerEditorAction as i,registerEditorContribution as t}from"../../../browser/editorExtensions.js";import{HoverParticipantRegistry as n}from"../../hover/browser/hoverTypes.js";import{TriggerInlineSuggestionAction as r,ShowNextInlineSuggestionAction as l,ShowPreviousInlineSuggestionAction as m,AcceptNextWordOfInlineCompletion as s,AcceptInlineCompletion as p,HideInlineCompletion as g,ToggleAlwaysShowInlineSuggestionToolbar as c,AcceptNextLineOfInlineCompletion as I}from"./controller/commands.js";import{InlineCompletionsHoverParticipant as A}from"./hintsWidget/hoverParticipant.js";import{InlineCompletionsAccessibleView as f}from"./inlineCompletionsAccessibleView.js";import{InlineCompletionsController as o}from"./controller/inlineCompletionsController.js";import{AccessibleViewRegistry as C}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{registerAction2 as a}from"../../../../platform/actions/common/actions.js";t(o.ID,o,e.Eventually),i(r),i(l),i(m),i(s),i(I),i(p),i(g),a(c),n.register(A),C.register(new f);
+import { EditorContributionInstantiation, registerEditorAction, registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { HoverParticipantRegistry } from "../../hover/browser/hoverTypes.js";
+import { TriggerInlineSuggestionAction, ShowNextInlineSuggestionAction, ShowPreviousInlineSuggestionAction, AcceptNextWordOfInlineCompletion, AcceptInlineCompletion, HideInlineCompletion, ToggleAlwaysShowInlineSuggestionToolbar, AcceptNextLineOfInlineCompletion } from "./controller/commands.js";
+import { InlineCompletionsHoverParticipant } from "./hintsWidget/hoverParticipant.js";
+import { InlineCompletionsAccessibleView } from "./inlineCompletionsAccessibleView.js";
+import { InlineCompletionsController } from "./controller/inlineCompletionsController.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+registerEditorContribution(InlineCompletionsController.ID, InlineCompletionsController, EditorContributionInstantiation.Eventually);
+registerEditorAction(TriggerInlineSuggestionAction);
+registerEditorAction(ShowNextInlineSuggestionAction);
+registerEditorAction(ShowPreviousInlineSuggestionAction);
+registerEditorAction(AcceptNextWordOfInlineCompletion);
+registerEditorAction(AcceptNextLineOfInlineCompletion);
+registerEditorAction(AcceptInlineCompletion);
+registerEditorAction(HideInlineCompletion);
+registerAction2(ToggleAlwaysShowInlineSuggestionToolbar);
+HoverParticipantRegistry.register(InlineCompletionsHoverParticipant);
+AccessibleViewRegistry.register(new InlineCompletionsAccessibleView());
+//# sourceMappingURL=inlineCompletions.contribution.js.map

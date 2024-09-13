@@ -1,1 +1,39 @@
-import*as l from"../../../base/common/strings.js";import{CursorColumns as a}from"./cursorColumns.js";function f(e,o,r){let t=0;for(let n=0;n<e.length;n++)e.charAt(n)==="	"?t=a.nextIndentTabStop(t,o):t++;let i="";if(!r){const n=Math.floor(t/o);t=t%o;for(let s=0;s<n;s++)i+="	"}for(let n=0;n<t;n++)i+=" ";return i}function m(e,o,r){let t=l.firstNonWhitespaceIndex(e);return t===-1&&(t=e.length),f(e.substring(0,t),o,r)+e.substring(t)}export{m as normalizeIndentation};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as strings from "../../../base/common/strings.js";
+import { CursorColumns } from "./cursorColumns.js";
+function _normalizeIndentationFromWhitespace(str, indentSize, insertSpaces) {
+  let spacesCnt = 0;
+  for (let i = 0; i < str.length; i++) {
+    if (str.charAt(i) === "	") {
+      spacesCnt = CursorColumns.nextIndentTabStop(spacesCnt, indentSize);
+    } else {
+      spacesCnt++;
+    }
+  }
+  let result = "";
+  if (!insertSpaces) {
+    const tabsCnt = Math.floor(spacesCnt / indentSize);
+    spacesCnt = spacesCnt % indentSize;
+    for (let i = 0; i < tabsCnt; i++) {
+      result += "	";
+    }
+  }
+  for (let i = 0; i < spacesCnt; i++) {
+    result += " ";
+  }
+  return result;
+}
+__name(_normalizeIndentationFromWhitespace, "_normalizeIndentationFromWhitespace");
+function normalizeIndentation(str, indentSize, insertSpaces) {
+  let firstNonWhitespaceIndex = strings.firstNonWhitespaceIndex(str);
+  if (firstNonWhitespaceIndex === -1) {
+    firstNonWhitespaceIndex = str.length;
+  }
+  return _normalizeIndentationFromWhitespace(str.substring(0, firstNonWhitespaceIndex), indentSize, insertSpaces) + str.substring(firstNonWhitespaceIndex);
+}
+__name(normalizeIndentation, "normalizeIndentation");
+export {
+  normalizeIndentation
+};
+//# sourceMappingURL=indentation.js.map

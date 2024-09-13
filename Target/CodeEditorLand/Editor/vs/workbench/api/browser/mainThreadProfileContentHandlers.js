@@ -1,1 +1,54 @@
-var x=Object.defineProperty;var P=Object.getOwnPropertyDescriptor;var f=(i,o,e,r)=>{for(var t=r>1?void 0:r?P(o,e):o,n=i.length-1,s;n>=0;n--)(s=i[n])&&(t=(r?s(o,e,t):s(t))||t);return r&&t&&x(o,e,t),t},m=(i,o)=>(e,r)=>o(e,r,i);import"../../../base/common/cancellation.js";import{Disposable as g,DisposableMap as H}from"../../../base/common/lifecycle.js";import{revive as c}from"../../../base/common/marshalling.js";import"../../../base/common/uri.js";import{ExtHostContext as v,MainContext as C}from"../common/extHost.protocol.js";import{extHostNamedCustomer as I}from"../../services/extensions/common/extHostCustomers.js";import{IUserDataProfileImportExportService as u}from"../../services/userDataProfile/common/userDataProfile.js";let a=class extends g{constructor(e,r){super();this.userDataProfileImportExportService=r;this.proxy=e.getProxy(v.ExtHostProfileContentHandlers)}proxy;registeredHandlers=this._register(new H);async $registerProfileContentHandler(e,r,t,n){this.registeredHandlers.set(e,this.userDataProfileImportExportService.registerProfileContentHandler(e,{name:r,description:t,extensionId:n,saveProfile:async(s,l,d)=>{const p=await this.proxy.$saveProfile(e,s,l,d);return p?c(p):null},readProfile:async(s,l)=>this.proxy.$readProfile(e,s,l)}))}async $unregisterProfileContentHandler(e){this.registeredHandlers.deleteAndDispose(e)}};a=f([I(C.MainThreadProfileContentHandlers),m(1,u)],a);export{a as MainThreadProfileContentHandlers};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Disposable, DisposableMap, IDisposable } from "../../../base/common/lifecycle.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { URI } from "../../../base/common/uri.js";
+import { ExtHostContext, ExtHostProfileContentHandlersShape, MainContext, MainThreadProfileContentHandlersShape } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { ISaveProfileResult, IUserDataProfileImportExportService } from "../../services/userDataProfile/common/userDataProfile.js";
+let MainThreadProfileContentHandlers = class extends Disposable {
+  constructor(context, userDataProfileImportExportService) {
+    super();
+    this.userDataProfileImportExportService = userDataProfileImportExportService;
+    this.proxy = context.getProxy(ExtHostContext.ExtHostProfileContentHandlers);
+  }
+  proxy;
+  registeredHandlers = this._register(new DisposableMap());
+  async $registerProfileContentHandler(id, name, description, extensionId) {
+    this.registeredHandlers.set(id, this.userDataProfileImportExportService.registerProfileContentHandler(id, {
+      name,
+      description,
+      extensionId,
+      saveProfile: /* @__PURE__ */ __name(async (name2, content, token) => {
+        const result = await this.proxy.$saveProfile(id, name2, content, token);
+        return result ? revive(result) : null;
+      }, "saveProfile"),
+      readProfile: /* @__PURE__ */ __name(async (uri, token) => {
+        return this.proxy.$readProfile(id, uri, token);
+      }, "readProfile")
+    }));
+  }
+  async $unregisterProfileContentHandler(id) {
+    this.registeredHandlers.deleteAndDispose(id);
+  }
+};
+__name(MainThreadProfileContentHandlers, "MainThreadProfileContentHandlers");
+MainThreadProfileContentHandlers = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadProfileContentHandlers),
+  __decorateParam(1, IUserDataProfileImportExportService)
+], MainThreadProfileContentHandlers);
+export {
+  MainThreadProfileContentHandlers
+};
+//# sourceMappingURL=mainThreadProfileContentHandlers.js.map

@@ -1,1 +1,87 @@
-import"../editorBrowser.js";import"../../common/languages.js";import{createDecorator as c}from"../../../platform/instantiation/common/instantiation.js";import"../../../platform/progress/common/progress.js";import"../../../base/common/lifecycle.js";import{URI as p}from"../../../base/common/uri.js";import{isObject as s}from"../../../base/common/types.js";import"../../../platform/undoRedo/common/undoRedo.js";import"../../../base/common/cancellation.js";const C=c("IWorkspaceEditService");class n{constructor(t){this.metadata=t}static convert(t){return t.edits.map(e=>{if(r.is(e))return r.lift(e);if(o.is(e))return o.lift(e);throw new Error("Unsupported edit")})}}class r extends n{constructor(e,a,d=void 0,i){super(i);this.resource=e;this.textEdit=a;this.versionId=d}static is(e){return e instanceof r?!0:s(e)&&p.isUri(e.resource)&&s(e.textEdit)}static lift(e){return e instanceof r?e:new r(e.resource,e.textEdit,e.versionId,e.metadata)}}class o extends n{constructor(e,a,d={},i){super(i);this.oldResource=e;this.newResource=a;this.options=d}static is(e){return e instanceof o?!0:s(e)&&(!!e.newResource||!!e.oldResource)}static lift(e){return e instanceof o?e:new o(e.oldResource,e.newResource,e.options,e.metadata)}}export{C as IBulkEditService,n as ResourceEdit,o as ResourceFileEdit,r as ResourceTextEdit};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ICodeEditor } from "../editorBrowser.js";
+import { TextEdit, WorkspaceEdit, WorkspaceEditMetadata, IWorkspaceFileEdit, WorkspaceFileEditOptions, IWorkspaceTextEdit } from "../../common/languages.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { IProgress, IProgressStep } from "../../../platform/progress/common/progress.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { isObject } from "../../../base/common/types.js";
+import { UndoRedoSource } from "../../../platform/undoRedo/common/undoRedo.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+const IBulkEditService = createDecorator("IWorkspaceEditService");
+class ResourceEdit {
+  constructor(metadata) {
+    this.metadata = metadata;
+  }
+  static {
+    __name(this, "ResourceEdit");
+  }
+  static convert(edit) {
+    return edit.edits.map((edit2) => {
+      if (ResourceTextEdit.is(edit2)) {
+        return ResourceTextEdit.lift(edit2);
+      }
+      if (ResourceFileEdit.is(edit2)) {
+        return ResourceFileEdit.lift(edit2);
+      }
+      throw new Error("Unsupported edit");
+    });
+  }
+}
+class ResourceTextEdit extends ResourceEdit {
+  constructor(resource, textEdit, versionId = void 0, metadata) {
+    super(metadata);
+    this.resource = resource;
+    this.textEdit = textEdit;
+    this.versionId = versionId;
+  }
+  static {
+    __name(this, "ResourceTextEdit");
+  }
+  static is(candidate) {
+    if (candidate instanceof ResourceTextEdit) {
+      return true;
+    }
+    return isObject(candidate) && URI.isUri(candidate.resource) && isObject(candidate.textEdit);
+  }
+  static lift(edit) {
+    if (edit instanceof ResourceTextEdit) {
+      return edit;
+    } else {
+      return new ResourceTextEdit(edit.resource, edit.textEdit, edit.versionId, edit.metadata);
+    }
+  }
+}
+class ResourceFileEdit extends ResourceEdit {
+  constructor(oldResource, newResource, options = {}, metadata) {
+    super(metadata);
+    this.oldResource = oldResource;
+    this.newResource = newResource;
+    this.options = options;
+  }
+  static {
+    __name(this, "ResourceFileEdit");
+  }
+  static is(candidate) {
+    if (candidate instanceof ResourceFileEdit) {
+      return true;
+    } else {
+      return isObject(candidate) && (Boolean(candidate.newResource) || Boolean(candidate.oldResource));
+    }
+  }
+  static lift(edit) {
+    if (edit instanceof ResourceFileEdit) {
+      return edit;
+    } else {
+      return new ResourceFileEdit(edit.oldResource, edit.newResource, edit.options, edit.metadata);
+    }
+  }
+}
+export {
+  IBulkEditService,
+  ResourceEdit,
+  ResourceFileEdit,
+  ResourceTextEdit
+};
+//# sourceMappingURL=bulkEditService.js.map

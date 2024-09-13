@@ -1,1 +1,130 @@
-var I=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var l=(i,s,t,e)=>{for(var n=e>1?void 0:e?p(s,t):s,o=i.length-1,a;o>=0;o--)(a=i[o])&&(n=(e?a(s,t,n):a(n))||n);return e&&n&&I(s,t,n),n},d=(i,s)=>(t,e)=>s(t,e,i);import{createDecorator as c}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../base/common/event.js";import"../../../../base/common/paging.js";import"../../../../platform/extensionManagement/common/extensionManagement.js";import"../../../services/extensionManagement/common/extensionManagement.js";import"../../../../base/common/cancellation.js";import{Disposable as E}from"../../../../base/common/lifecycle.js";import{areSameExtensions as u}from"../../../../platform/extensionManagement/common/extensionManagementUtil.js";import"../../../../platform/extensions/common/extensions.js";import"../../../../base/common/uri.js";import"../../../common/views.js";import{RawContextKey as x}from"../../../../platform/contextkey/common/contextkey.js";import"../../../services/extensions/common/extensions.js";import"./extensionsInput.js";import{MenuId as g}from"../../../../platform/actions/common/actions.js";import"../../../../platform/progress/common/progress.js";import"../../../../platform/notification/common/notification.js";const xe="workbench.view.extensions";var m=(n=>(n[n.Installing=0]="Installing",n[n.Installed=1]="Installed",n[n.Uninstalling=2]="Uninstalling",n[n.Uninstalled=3]="Uninstalled",n))(m||{}),y=(o=>(o.ReloadWindow="reloadWindow",o.RestartExtensions="restartExtensions",o.DownloadUpdate="downloadUpdate",o.ApplyUpdate="applyUpdate",o.QuitAndInstall="quitAndInstall",o))(y||{});const f=c("extensionsWorkbenchService");var b=(o=>(o.Readme="readme",o.Features="features",o.Changelog="changelog",o.Dependencies="dependencies",o.ExtensionPack="extensionPack",o))(b||{});const Ie="extensions",pe="extensions.autoUpdate",ce="extensions.autoCheckUpdates",Ee="extensions.closeExtensionDetailsOnViewChange",ue="extensions.autoRestart";let r=class extends E{constructor(t,e){super();this.containers=t;this._register(e.onChange(this.update,this))}set extension(t){this.containers.forEach(e=>e.extension=t)}update(t){for(const e of this.containers)t&&e.extension?u(e.extension.identifier,t.identifier)&&(e.extension.server&&t.server&&e.extension.server!==t.server?e.updateWhenCounterExtensionChanges&&e.update():e.extension=t):e.update()}};r=l([d(1,f)],r);const ge="workbench.views.extensions.workspaceRecommendations",me="workbench.views.extensions.searchOutdated",ye="workbench.extensions.action.toggleIgnoreExtension",fe="workbench.extensions.action.installVSIX",be="workbench.extensions.command.installFromVSIX",Pe="workbench.extensions.action.listWorkspaceUnsupportedExtensions",he=new x("hasOutdatedExtensions",!1),ve=new x("hasGallery",!1),Se="_theme_",Ce="0_install",Oe="0_update",ke=new g("extensionsSearchActionsMenu");export{ce as AutoCheckUpdatesConfigurationKey,ue as AutoRestartConfigurationKey,pe as AutoUpdateConfigurationKey,ve as CONTEXT_HAS_GALLERY,Ee as CloseExtensionDetailsOnViewChangeKey,Ie as ConfigurationKey,r as ExtensionContainers,b as ExtensionEditorTab,y as ExtensionRuntimeActionType,m as ExtensionState,he as HasOutdatedExtensionsContext,f as IExtensionsWorkbenchService,Ce as INSTALL_ACTIONS_GROUP,be as INSTALL_EXTENSION_FROM_VSIX_COMMAND_ID,Pe as LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID,me as OUTDATED_EXTENSIONS_VIEW_ID,fe as SELECT_INSTALL_VSIX_EXTENSION_COMMAND_ID,Se as THEME_ACTIONS_GROUP,ye as TOGGLE_IGNORE_EXTENSION_ACTION_ID,Oe as UPDATE_ACTIONS_GROUP,xe as VIEWLET_ID,ge as WORKSPACE_RECOMMENDATIONS_VIEW_ID,ke as extensionsSearchActionsMenu};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IPager } from "../../../../base/common/paging.js";
+import { IQueryOptions, ILocalExtension, IGalleryExtension, IExtensionIdentifier, InstallOptions, IExtensionInfo, IExtensionQueryOptions, IDeprecationInfo, InstallExtensionResult } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { EnablementState, IExtensionManagementServer, IResourceExtension } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import { IExtensionManifest, ExtensionType } from "../../../../platform/extensions/common/extensions.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IView, IViewPaneContainer } from "../../../common/views.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IExtensionsStatus as IExtensionRuntimeStatus } from "../../../services/extensions/common/extensions.js";
+import { IExtensionEditorOptions } from "./extensionsInput.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { ProgressLocation } from "../../../../platform/progress/common/progress.js";
+import { Severity } from "../../../../platform/notification/common/notification.js";
+const VIEWLET_ID = "workbench.view.extensions";
+var ExtensionState = /* @__PURE__ */ ((ExtensionState2) => {
+  ExtensionState2[ExtensionState2["Installing"] = 0] = "Installing";
+  ExtensionState2[ExtensionState2["Installed"] = 1] = "Installed";
+  ExtensionState2[ExtensionState2["Uninstalling"] = 2] = "Uninstalling";
+  ExtensionState2[ExtensionState2["Uninstalled"] = 3] = "Uninstalled";
+  return ExtensionState2;
+})(ExtensionState || {});
+var ExtensionRuntimeActionType = /* @__PURE__ */ ((ExtensionRuntimeActionType2) => {
+  ExtensionRuntimeActionType2["ReloadWindow"] = "reloadWindow";
+  ExtensionRuntimeActionType2["RestartExtensions"] = "restartExtensions";
+  ExtensionRuntimeActionType2["DownloadUpdate"] = "downloadUpdate";
+  ExtensionRuntimeActionType2["ApplyUpdate"] = "applyUpdate";
+  ExtensionRuntimeActionType2["QuitAndInstall"] = "quitAndInstall";
+  return ExtensionRuntimeActionType2;
+})(ExtensionRuntimeActionType || {});
+const IExtensionsWorkbenchService = createDecorator("extensionsWorkbenchService");
+var ExtensionEditorTab = /* @__PURE__ */ ((ExtensionEditorTab2) => {
+  ExtensionEditorTab2["Readme"] = "readme";
+  ExtensionEditorTab2["Features"] = "features";
+  ExtensionEditorTab2["Changelog"] = "changelog";
+  ExtensionEditorTab2["Dependencies"] = "dependencies";
+  ExtensionEditorTab2["ExtensionPack"] = "extensionPack";
+  return ExtensionEditorTab2;
+})(ExtensionEditorTab || {});
+const ConfigurationKey = "extensions";
+const AutoUpdateConfigurationKey = "extensions.autoUpdate";
+const AutoCheckUpdatesConfigurationKey = "extensions.autoCheckUpdates";
+const CloseExtensionDetailsOnViewChangeKey = "extensions.closeExtensionDetailsOnViewChange";
+const AutoRestartConfigurationKey = "extensions.autoRestart";
+let ExtensionContainers = class extends Disposable {
+  constructor(containers, extensionsWorkbenchService) {
+    super();
+    this.containers = containers;
+    this._register(extensionsWorkbenchService.onChange(this.update, this));
+  }
+  static {
+    __name(this, "ExtensionContainers");
+  }
+  set extension(extension) {
+    this.containers.forEach((c) => c.extension = extension);
+  }
+  update(extension) {
+    for (const container of this.containers) {
+      if (extension && container.extension) {
+        if (areSameExtensions(container.extension.identifier, extension.identifier)) {
+          if (container.extension.server && extension.server && container.extension.server !== extension.server) {
+            if (container.updateWhenCounterExtensionChanges) {
+              container.update();
+            }
+          } else {
+            container.extension = extension;
+          }
+        }
+      } else {
+        container.update();
+      }
+    }
+  }
+};
+ExtensionContainers = __decorateClass([
+  __decorateParam(1, IExtensionsWorkbenchService)
+], ExtensionContainers);
+const WORKSPACE_RECOMMENDATIONS_VIEW_ID = "workbench.views.extensions.workspaceRecommendations";
+const OUTDATED_EXTENSIONS_VIEW_ID = "workbench.views.extensions.searchOutdated";
+const TOGGLE_IGNORE_EXTENSION_ACTION_ID = "workbench.extensions.action.toggleIgnoreExtension";
+const SELECT_INSTALL_VSIX_EXTENSION_COMMAND_ID = "workbench.extensions.action.installVSIX";
+const INSTALL_EXTENSION_FROM_VSIX_COMMAND_ID = "workbench.extensions.command.installFromVSIX";
+const LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID = "workbench.extensions.action.listWorkspaceUnsupportedExtensions";
+const HasOutdatedExtensionsContext = new RawContextKey("hasOutdatedExtensions", false);
+const CONTEXT_HAS_GALLERY = new RawContextKey("hasGallery", false);
+const THEME_ACTIONS_GROUP = "_theme_";
+const INSTALL_ACTIONS_GROUP = "0_install";
+const UPDATE_ACTIONS_GROUP = "0_update";
+const extensionsSearchActionsMenu = new MenuId("extensionsSearchActionsMenu");
+export {
+  AutoCheckUpdatesConfigurationKey,
+  AutoRestartConfigurationKey,
+  AutoUpdateConfigurationKey,
+  CONTEXT_HAS_GALLERY,
+  CloseExtensionDetailsOnViewChangeKey,
+  ConfigurationKey,
+  ExtensionContainers,
+  ExtensionEditorTab,
+  ExtensionRuntimeActionType,
+  ExtensionState,
+  HasOutdatedExtensionsContext,
+  IExtensionsWorkbenchService,
+  INSTALL_ACTIONS_GROUP,
+  INSTALL_EXTENSION_FROM_VSIX_COMMAND_ID,
+  LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID,
+  OUTDATED_EXTENSIONS_VIEW_ID,
+  SELECT_INSTALL_VSIX_EXTENSION_COMMAND_ID,
+  THEME_ACTIONS_GROUP,
+  TOGGLE_IGNORE_EXTENSION_ACTION_ID,
+  UPDATE_ACTIONS_GROUP,
+  VIEWLET_ID,
+  WORKSPACE_RECOMMENDATIONS_VIEW_ID,
+  extensionsSearchActionsMenu
+};
+//# sourceMappingURL=extensions.js.map

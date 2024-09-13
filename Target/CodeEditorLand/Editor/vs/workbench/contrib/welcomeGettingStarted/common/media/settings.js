@@ -1,1 +1,5 @@
-var V="../../../../../../Asset/settings-QKKOAVST.svg";export{V as default};
+var settings_default = "../../../../../../Asset/settings-QKKOAVST.svg";
+export {
+  settings_default as default
+};
+//# sourceMappingURL=settings.js.map

@@ -1,1 +1,5 @@
-var c="./Asset/package-PVCBWCM4.json";export{c as default};
+var package_default = "./Asset/package-PVCBWCM4.json";
+export {
+  package_default as default
+};
+//# sourceMappingURL=package.js.map

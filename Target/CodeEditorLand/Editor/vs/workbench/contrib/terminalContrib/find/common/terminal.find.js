@@ -1,1 +1,26 @@
-var n=(e=>(e.FindFocus="workbench.action.terminal.focusFind",e.FindHide="workbench.action.terminal.hideFind",e.FindNext="workbench.action.terminal.findNext",e.FindPrevious="workbench.action.terminal.findPrevious",e.ToggleFindRegex="workbench.action.terminal.toggleFindRegex",e.ToggleFindWholeWord="workbench.action.terminal.toggleFindWholeWord",e.ToggleFindCaseSensitive="workbench.action.terminal.toggleFindCaseSensitive",e.SearchWorkspace="workbench.action.terminal.searchWorkspace",e))(n||{});const i=["workbench.action.terminal.focusFind","workbench.action.terminal.hideFind","workbench.action.terminal.findNext","workbench.action.terminal.findPrevious","workbench.action.terminal.toggleFindRegex","workbench.action.terminal.toggleFindWholeWord","workbench.action.terminal.toggleFindCaseSensitive","workbench.action.terminal.searchWorkspace"];export{n as TerminalFindCommandId,i as defaultTerminalFindCommandToSkipShell};
+var TerminalFindCommandId = /* @__PURE__ */ ((TerminalFindCommandId2) => {
+  TerminalFindCommandId2["FindFocus"] = "workbench.action.terminal.focusFind";
+  TerminalFindCommandId2["FindHide"] = "workbench.action.terminal.hideFind";
+  TerminalFindCommandId2["FindNext"] = "workbench.action.terminal.findNext";
+  TerminalFindCommandId2["FindPrevious"] = "workbench.action.terminal.findPrevious";
+  TerminalFindCommandId2["ToggleFindRegex"] = "workbench.action.terminal.toggleFindRegex";
+  TerminalFindCommandId2["ToggleFindWholeWord"] = "workbench.action.terminal.toggleFindWholeWord";
+  TerminalFindCommandId2["ToggleFindCaseSensitive"] = "workbench.action.terminal.toggleFindCaseSensitive";
+  TerminalFindCommandId2["SearchWorkspace"] = "workbench.action.terminal.searchWorkspace";
+  return TerminalFindCommandId2;
+})(TerminalFindCommandId || {});
+const defaultTerminalFindCommandToSkipShell = [
+  "workbench.action.terminal.focusFind" /* FindFocus */,
+  "workbench.action.terminal.hideFind" /* FindHide */,
+  "workbench.action.terminal.findNext" /* FindNext */,
+  "workbench.action.terminal.findPrevious" /* FindPrevious */,
+  "workbench.action.terminal.toggleFindRegex" /* ToggleFindRegex */,
+  "workbench.action.terminal.toggleFindWholeWord" /* ToggleFindWholeWord */,
+  "workbench.action.terminal.toggleFindCaseSensitive" /* ToggleFindCaseSensitive */,
+  "workbench.action.terminal.searchWorkspace" /* SearchWorkspace */
+];
+export {
+  TerminalFindCommandId,
+  defaultTerminalFindCommandToSkipShell
+};
+//# sourceMappingURL=terminal.find.js.map

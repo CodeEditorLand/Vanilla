@@ -1,1 +1,119 @@
-var C=Object.defineProperty;var N=Object.getOwnPropertyDescriptor;var g=(m,l,r,e)=>{for(var t=e>1?void 0:e?N(l,r):l,o=m.length-1,i;o>=0;o--)(i=m[o])&&(t=(e?i(l,r,t):i(t))||t);return e&&t&&C(l,r,t),t},v=(m,l)=>(r,e)=>l(r,e,m);import*as s from"../../../../../base/browser/dom.js";import{Disposable as A,DisposableStore as S}from"../../../../../base/common/lifecycle.js";import"../../common/chatModel.js";import{Emitter as D}from"../../../../../base/common/event.js";import{IInstantiationService as E}from"../../../../../platform/instantiation/common/instantiation.js";import{ResourceLabels as $}from"../../../../browser/labels.js";import{URI as I}from"../../../../../base/common/uri.js";import{FileKind as O}from"../../../../../platform/files/common/files.js";import{Range as w}from"../../../../../editor/common/core/range.js";import{basename as F,dirname as V}from"../../../../../base/common/path.js";import{localize as c}from"../../../../../nls.js";import{ChatResponseReferencePartStatusKind as R}from"../../common/chatService.js";import{IOpenerService as _}from"../../../../../platform/opener/common/opener.js";let b=class extends A{constructor(r,e=[],t=s.$(".chat-attached-context"),o,i){super();this.variables=r;this.contentReferences=e;this.domNode=t;this.instantiationService=o;this.openerService=i;this.initAttachedContext(t)}attachedContextDisposables=this._register(new S);_onDidChangeVisibility=this._register(new D);_contextResourceLabels=this.instantiationService.createInstance($,{onDidChangeVisibility:this._onDidChangeVisibility.event});initAttachedContext(r){s.clearNode(r),this.attachedContextDisposables.clear(),s.setVisibility(!!this.variables.length,this.domNode),this.variables.forEach(e=>{const t=s.append(r,s.$(".chat-attached-context-attachment.show-file-icons")),o=this._contextResourceLabels.create(t,{supportIcons:!0}),i=I.isUri(e.value)?e.value:e.value&&typeof e.value=="object"&&"uri"in e.value&&I.isUri(e.value.uri)?e.value.uri:void 0,n=e.value&&typeof e.value=="object"&&"range"in e.value&&w.isIRange(e.value.range)?e.value.range:void 0,f=this.contentReferences.find(a=>typeof a.reference=="object"&&"variableName"in a.reference&&a.reference.variableName===e.name),y=f?.options?.status?.kind===R.Omitted,h=y||f?.options?.status?.kind===R.Partial;if(i){const a=F(i.path),d=V(i.path),p=`${a} ${d}`;let u;y?u=n?c("chat.omittedFileAttachmentWithRange","Omitted: {0}, line {1} to line {2}.",p,n.startLineNumber,n.endLineNumber):c("chat.omittedFileAttachment","Omitted: {0}.",p):h?u=n?c("chat.partialFileAttachmentWithRange","Partially attached: {0}, line {1} to line {2}.",p,n.startLineNumber,n.endLineNumber):c("chat.partialFileAttachment","Partially attached: {0}.",p):u=n?c("chat.fileAttachmentWithRange3","Attached: {0}, line {1} to line {2}.",p,n.startLineNumber,n.endLineNumber):c("chat.fileAttachment3","Attached: {0}.",p),o.setFile(i,{fileKind:O.FILE,hidePath:!0,range:n,title:f?.options?.status?.description}),t.ariaLabel=u,t.tabIndex=0,t.style.cursor="pointer",this.attachedContextDisposables.add(s.addDisposableListener(t,s.EventType.CLICK,async x=>{s.EventHelper.stop(x,!0),i&&this.openerService.open(i,{fromUserGesture:!0,editorOptions:{selection:n}})}))}else{const a=e.fullName??e.name,d=e.icon?.id?`$(${e.icon.id}) ${a}`:a;o.setLabel(d,f?.options?.status?.description),t.ariaLabel=c("chat.attachment3","Attached context: {0}.",e.name),t.tabIndex=0}h&&t.classList.add("warning");const L=f?.options?.status?.description;if(h){t.ariaLabel=`${t.ariaLabel}${L?` ${L}`:""}`;for(const a of[".monaco-icon-suffix-container",".monaco-icon-name-container"]){const d=o.element.querySelector(a);d&&d.classList.add("warning")}}})}};b=g([v(3,E),v(4,_)],b);export{b as ChatAttachmentsContentPart};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../../base/browser/dom.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { IChatRequestVariableEntry } from "../../common/chatModel.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ResourceLabels } from "../../../../browser/labels.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { FileKind } from "../../../../../platform/files/common/files.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { basename, dirname } from "../../../../../base/common/path.js";
+import { localize } from "../../../../../nls.js";
+import { ChatResponseReferencePartStatusKind, IChatContentReference } from "../../common/chatService.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+let ChatAttachmentsContentPart = class extends Disposable {
+  constructor(variables, contentReferences = [], domNode = dom.$(".chat-attached-context"), instantiationService, openerService) {
+    super();
+    this.variables = variables;
+    this.contentReferences = contentReferences;
+    this.domNode = domNode;
+    this.instantiationService = instantiationService;
+    this.openerService = openerService;
+    this.initAttachedContext(domNode);
+  }
+  static {
+    __name(this, "ChatAttachmentsContentPart");
+  }
+  attachedContextDisposables = this._register(new DisposableStore());
+  _onDidChangeVisibility = this._register(new Emitter());
+  _contextResourceLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this._onDidChangeVisibility.event });
+  initAttachedContext(container) {
+    dom.clearNode(container);
+    this.attachedContextDisposables.clear();
+    dom.setVisibility(Boolean(this.variables.length), this.domNode);
+    this.variables.forEach((attachment) => {
+      const widget = dom.append(container, dom.$(".chat-attached-context-attachment.show-file-icons"));
+      const label = this._contextResourceLabels.create(widget, { supportIcons: true });
+      const file = URI.isUri(attachment.value) ? attachment.value : attachment.value && typeof attachment.value === "object" && "uri" in attachment.value && URI.isUri(attachment.value.uri) ? attachment.value.uri : void 0;
+      const range = attachment.value && typeof attachment.value === "object" && "range" in attachment.value && Range.isIRange(attachment.value.range) ? attachment.value.range : void 0;
+      const correspondingContentReference = this.contentReferences.find((ref) => typeof ref.reference === "object" && "variableName" in ref.reference && ref.reference.variableName === attachment.name);
+      const isAttachmentOmitted = correspondingContentReference?.options?.status?.kind === ChatResponseReferencePartStatusKind.Omitted;
+      const isAttachmentPartialOrOmitted = isAttachmentOmitted || correspondingContentReference?.options?.status?.kind === ChatResponseReferencePartStatusKind.Partial;
+      if (file) {
+        const fileBasename = basename(file.path);
+        const fileDirname = dirname(file.path);
+        const friendlyName = `${fileBasename} ${fileDirname}`;
+        let ariaLabel;
+        if (isAttachmentOmitted) {
+          ariaLabel = range ? localize("chat.omittedFileAttachmentWithRange", "Omitted: {0}, line {1} to line {2}.", friendlyName, range.startLineNumber, range.endLineNumber) : localize("chat.omittedFileAttachment", "Omitted: {0}.", friendlyName);
+        } else if (isAttachmentPartialOrOmitted) {
+          ariaLabel = range ? localize("chat.partialFileAttachmentWithRange", "Partially attached: {0}, line {1} to line {2}.", friendlyName, range.startLineNumber, range.endLineNumber) : localize("chat.partialFileAttachment", "Partially attached: {0}.", friendlyName);
+        } else {
+          ariaLabel = range ? localize("chat.fileAttachmentWithRange3", "Attached: {0}, line {1} to line {2}.", friendlyName, range.startLineNumber, range.endLineNumber) : localize("chat.fileAttachment3", "Attached: {0}.", friendlyName);
+        }
+        label.setFile(file, {
+          fileKind: FileKind.FILE,
+          hidePath: true,
+          range,
+          title: correspondingContentReference?.options?.status?.description
+        });
+        widget.ariaLabel = ariaLabel;
+        widget.tabIndex = 0;
+        widget.style.cursor = "pointer";
+        this.attachedContextDisposables.add(dom.addDisposableListener(widget, dom.EventType.CLICK, async (e) => {
+          dom.EventHelper.stop(e, true);
+          if (file) {
+            this.openerService.open(
+              file,
+              {
+                fromUserGesture: true,
+                editorOptions: {
+                  selection: range
+                }
+              }
+            );
+          }
+        }));
+      } else {
+        const attachmentLabel = attachment.fullName ?? attachment.name;
+        const withIcon = attachment.icon?.id ? `$(${attachment.icon.id}) ${attachmentLabel}` : attachmentLabel;
+        label.setLabel(withIcon, correspondingContentReference?.options?.status?.description);
+        widget.ariaLabel = localize("chat.attachment3", "Attached context: {0}.", attachment.name);
+        widget.tabIndex = 0;
+      }
+      if (isAttachmentPartialOrOmitted) {
+        widget.classList.add("warning");
+      }
+      const description = correspondingContentReference?.options?.status?.description;
+      if (isAttachmentPartialOrOmitted) {
+        widget.ariaLabel = `${widget.ariaLabel}${description ? ` ${description}` : ""}`;
+        for (const selector of [".monaco-icon-suffix-container", ".monaco-icon-name-container"]) {
+          const element = label.element.querySelector(selector);
+          if (element) {
+            element.classList.add("warning");
+          }
+        }
+      }
+    });
+  }
+};
+ChatAttachmentsContentPart = __decorateClass([
+  __decorateParam(3, IInstantiationService),
+  __decorateParam(4, IOpenerService)
+], ChatAttachmentsContentPart);
+export {
+  ChatAttachmentsContentPart
+};
+//# sourceMappingURL=chatAttachmentsContentPart.js.map
