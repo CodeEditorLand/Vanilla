@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/base/browser/ui/list/splice.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport type { ISpliceable } from \"../../../common/sequence.js\";\n\nexport interface ISpreadSpliceable<T> {\n\tsplice(start: number, deleteCount: number, ...elements: T[]): void;\n}\n\nexport class CombinedSpliceable<T> implements ISpliceable<T> {\n\tconstructor(private spliceables: ISpliceable<T>[]) {}\n\n\tsplice(start: number, deleteCount: number, elements: T[]): void {\n\t\tthis.spliceables.forEach((s) => s.splice(start, deleteCount, elements));\n\t}\n}\n"],
+  "mappings": ";;AAWO,MAAM,mBAAgD;AAAA,EAC5D,YAAoB,aAA+B;AAA/B;AAAA,EAAgC;AAAA,EAZrD,OAW6D;AAAA;AAAA;AAAA,EAG5D,OAAO,OAAe,aAAqB,UAAqB;AAC/D,SAAK,YAAY,QAAQ,CAAC,MAAM,EAAE,OAAO,OAAO,aAAa,QAAQ,CAAC;AAAA,EACvE;AACD;",
+  "names": []
+}

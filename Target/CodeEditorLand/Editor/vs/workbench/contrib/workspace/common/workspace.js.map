@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/contrib/workspace/common/workspace.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { localize } from \"../../../../nls.js\";\nimport { RawContextKey } from \"../../../../platform/contextkey/common/contextkey.js\";\n\n/**\n * Trust Context Keys\n */\n\nexport const WorkspaceTrustContext = {\n\tIsEnabled: new RawContextKey<boolean>(\n\t\t\"isWorkspaceTrustEnabled\",\n\t\tfalse,\n\t\tlocalize(\n\t\t\t\"workspaceTrustEnabledCtx\",\n\t\t\t\"Whether the workspace trust feature is enabled.\",\n\t\t),\n\t),\n\tIsTrusted: new RawContextKey<boolean>(\n\t\t\"isWorkspaceTrusted\",\n\t\tfalse,\n\t\tlocalize(\n\t\t\t\"workspaceTrustedCtx\",\n\t\t\t\"Whether the current workspace has been trusted by the user.\",\n\t\t),\n\t),\n};\n\nexport const MANAGE_TRUST_COMMAND_ID = \"workbench.trust.manage\";\n"],
+  "mappings": "AAKA,SAAS,gBAAgB;AACzB,SAAS,qBAAqB;AAMvB,MAAM,wBAAwB;AAAA,EACpC,WAAW,IAAI;AAAA,IACd;AAAA,IACA;AAAA,IACA;AAAA,MACC;AAAA,MACA;AAAA,IACD;AAAA,EACD;AAAA,EACA,WAAW,IAAI;AAAA,IACd;AAAA,IACA;AAAA,IACA;AAAA,MACC;AAAA,MACA;AAAA,IACD;AAAA,EACD;AACD;AAEO,MAAM,0BAA0B;",
+  "names": []
+}

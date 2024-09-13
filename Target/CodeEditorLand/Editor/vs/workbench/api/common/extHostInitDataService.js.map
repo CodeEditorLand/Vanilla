@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/api/common/extHostInitDataService.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { createDecorator } from \"../../../platform/instantiation/common/instantiation.js\";\nimport type { IExtensionHostInitData } from \"../../services/extensions/common/extensionHostProtocol.js\";\n\nexport const IExtHostInitDataService = createDecorator<IExtHostInitDataService>(\n\t\"IExtHostInitDataService\",\n);\n\nexport interface IExtHostInitDataService\n\textends Readonly<IExtensionHostInitData> {\n\treadonly _serviceBrand: undefined;\n}\n"],
+  "mappings": "AAKA,SAAS,uBAAuB;AAGzB,MAAM,0BAA0B;AAAA,EACtC;AACD;",
+  "names": []
+}

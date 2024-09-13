@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/platform/log/node/loggerService.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport type { URI } from \"../../../base/common/uri.js\";\nimport { generateUuid } from \"../../../base/common/uuid.js\";\nimport {\n\tAbstractLoggerService,\n\ttype ILogger,\n\ttype ILoggerOptions,\n\ttype ILoggerService,\n\ttype LogLevel,\n} from \"../common/log.js\";\nimport { SpdLogLogger } from \"./spdlogLog.js\";\n\nexport class LoggerService\n\textends AbstractLoggerService\n\timplements ILoggerService\n{\n\tprotected doCreateLogger(\n\t\tresource: URI,\n\t\tlogLevel: LogLevel,\n\t\toptions?: ILoggerOptions,\n\t): ILogger {\n\t\treturn new SpdLogLogger(\n\t\t\tgenerateUuid(),\n\t\t\tresource.fsPath,\n\t\t\t!options?.donotRotate,\n\t\t\t!!options?.donotUseFormatters,\n\t\t\tlogLevel,\n\t\t);\n\t}\n}\n"],
+  "mappings": ";;AAMA,SAAS,oBAAoB;AAC7B;AAAA,EACC;AAAA,OAKM;AACP,SAAS,oBAAoB;AAEtB,MAAM,sBACJ,sBAET;AAAA,EAnBA,OAmBA;AAAA;AAAA;AAAA,EACW,eACT,UACA,UACA,SACU;AACV,WAAO,IAAI;AAAA,MACV,aAAa;AAAA,MACb,SAAS;AAAA,MACT,CAAC,SAAS;AAAA,MACV,CAAC,CAAC,SAAS;AAAA,MACX;AAAA,IACD;AAAA,EACD;AACD;",
+  "names": []
+}

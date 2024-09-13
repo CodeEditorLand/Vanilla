@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/api/worker/extHostConsoleForwarder.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { AbstractExtHostConsoleForwarder } from \"../common/extHostConsoleForwarder.js\";\nimport { IExtHostInitDataService } from \"../common/extHostInitDataService.js\";\nimport { IExtHostRpcService } from \"../common/extHostRpcService.js\";\n\nexport class ExtHostConsoleForwarder extends AbstractExtHostConsoleForwarder {\n\tconstructor(\n\t\t@IExtHostRpcService extHostRpc: IExtHostRpcService,\n\t\t@IExtHostInitDataService initData: IExtHostInitDataService,\n\t) {\n\t\tsuper(extHostRpc, initData);\n\t}\n\n\tprotected override _nativeConsoleLogMessage(\n\t\t_method: unknown,\n\t\toriginal: (...args: any[]) => void,\n\t\targs: IArguments,\n\t) {\n\t\toriginal.apply(console, args as any);\n\t}\n}\n"],
+  "mappings": ";;;;;;;;;;;;AAKA,SAAS,uCAAuC;AAChD,SAAS,+BAA+B;AACxC,SAAS,0BAA0B;AAE5B,IAAM,0BAAN,cAAsC,gCAAgC;AAAA,EAT7E,OAS6E;AAAA;AAAA;AAAA,EAC5E,YACqB,YACK,UACxB;AACD,UAAM,YAAY,QAAQ;AAAA,EAC3B;AAAA,EAEmB,yBAClB,SACA,UACA,MACC;AACD,aAAS,MAAM,SAAS,IAAW;AAAA,EACpC;AACD;AAfa,0BAAN;AAAA,EAEJ;AAAA,EACA;AAAA,GAHU;",
+  "names": []
+}

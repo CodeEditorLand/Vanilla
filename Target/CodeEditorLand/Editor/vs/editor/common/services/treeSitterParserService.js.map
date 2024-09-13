@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/editor/common/services/treeSitterParserService.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport type { Parser } from \"@vscode/tree-sitter-wasm\";\nimport type { Event } from \"../../../base/common/event.js\";\nimport { createDecorator } from \"../../../platform/instantiation/common/instantiation.js\";\nimport type { ITextModel } from \"../model.js\";\n\nexport const EDITOR_EXPERIMENTAL_PREFER_TREESITTER =\n\t\"editor.experimental.preferTreeSitter\";\n\nexport const ITreeSitterParserService =\n\tcreateDecorator<ITreeSitterParserService>(\"treeSitterParserService\");\n\nexport interface ITreeSitterParserService {\n\treadonly _serviceBrand: undefined;\n\tonDidAddLanguage: Event<{ id: string; language: Parser.Language }>;\n\tgetOrInitLanguage(languageId: string): Parser.Language | undefined;\n\tgetParseResult(textModel: ITextModel): ITreeSitterParseResult | undefined;\n}\n\nexport interface ITreeSitterParseResult {\n\treadonly tree: Parser.Tree | undefined;\n\treadonly language: Parser.Language;\n}\n"],
+  "mappings": "AAOA,SAAS,uBAAuB;AAGzB,MAAM,wCACZ;AAEM,MAAM,2BACZ,gBAA0C,yBAAyB;",
+  "names": []
+}
