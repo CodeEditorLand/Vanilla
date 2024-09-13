@@ -1,5 +1,1 @@
-import { registerMainProcessRemoteService } from "../../../../platform/ipc/electron-sandbox/services.js";
-import { IProcessMainService, IIssueMainService } from "../../../../platform/issue/common/issue.js";
-registerMainProcessRemoteService(IIssueMainService, "issue");
-registerMainProcessRemoteService(IProcessMainService, "process");
-//# sourceMappingURL=issueMainService.js.map
+import{registerMainProcessRemoteService as e}from"../../../../platform/ipc/electron-sandbox/services.js";import{IProcessMainService as r,IIssueMainService as s}from"../../../../platform/issue/common/issue.js";e(s,"issue"),e(r,"process");

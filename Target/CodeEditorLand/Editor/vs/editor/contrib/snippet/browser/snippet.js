@@ -1,5 +1,1 @@
-var snippet_default = "../../../../../Asset/snippet-QR2YUOGI.md";
-export {
-  snippet_default as default
-};
-//# sourceMappingURL=snippet.js.map
+var a="../../../../../Asset/snippet-QR2YUOGI.md";export{a as default};

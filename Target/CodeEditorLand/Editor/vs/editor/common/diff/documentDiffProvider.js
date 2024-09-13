@@ -1,6 +1,1 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { MovedText } from "./linesDiffComputer.js";
-import { DetailedLineRangeMapping } from "./rangeMapping.js";
-import { ITextModel } from "../model.js";
-//# sourceMappingURL=documentDiffProvider.js.map
+import"../../../base/common/cancellation.js";import"../../../base/common/event.js";import"./linesDiffComputer.js";import"./rangeMapping.js";import"../model.js";
