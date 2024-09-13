@@ -1,1 +1,110 @@
-var m=Object.defineProperty;var c=Object.getOwnPropertyDescriptor;var l=(n,i,e,r)=>{for(var t=r>1?void 0:r?c(i,e):i,s=n.length-1,o;s>=0;s--)(o=n[s])&&(t=(r?o(i,e,t):o(t))||t);return r&&t&&m(i,e,t),t},h=(n,i)=>(e,r)=>i(e,r,n);import{Barrier as d}from"../../../../base/common/async.js";import{ITerminalLogService as p}from"../../../../platform/terminal/common/terminal.js";import{BasePty as _}from"../common/basePty.js";import"../common/remote/remoteTerminalChannel.js";import{IRemoteAgentService as P}from"../../../services/remote/common/remoteAgentService.js";let a=class extends _{constructor(e,r,t,s,o){super(e,r);this._remoteTerminalChannel=t;this._remoteAgentService=s;this._logService=o;this._startBarrier=new d}_startBarrier;async start(){if(!await this._remoteAgentService.getEnvironment())throw new Error("Could not fetch remote environment");this._logService.trace("Spawning remote agent process",{terminalId:this.id});const r=await this._remoteTerminalChannel.start(this.id);return r&&"message"in r||this._startBarrier.open(),r}async detach(e){return await this._startBarrier.wait(),this._remoteTerminalChannel.detachFromProcess(this.id,e)}shutdown(e){this._startBarrier.wait().then(r=>{this._remoteTerminalChannel.shutdown(this.id,e)})}input(e){this._inReplay||this._startBarrier.wait().then(r=>{this._remoteTerminalChannel.input(this.id,e)})}processBinary(e){return this._remoteTerminalChannel.processBinary(this.id,e)}resize(e,r){this._inReplay||this._lastDimensions.cols===e&&this._lastDimensions.rows===r||this._startBarrier.wait().then(t=>{this._lastDimensions.cols=e,this._lastDimensions.rows=r,this._remoteTerminalChannel.resize(this.id,e,r)})}async clearBuffer(){await this._remoteTerminalChannel.clearBuffer(this.id)}freePortKillProcess(e){if(!this._remoteTerminalChannel.freePortKillProcess)throw new Error("freePortKillProcess does not exist on the local pty service");return this._remoteTerminalChannel.freePortKillProcess(e)}acknowledgeDataEvent(e){this._inReplay||this._startBarrier.wait().then(r=>{this._remoteTerminalChannel.acknowledgeDataEvent(this.id,e)})}async setUnicodeVersion(e){return this._remoteTerminalChannel.setUnicodeVersion(this.id,e)}async refreshProperty(e){return this._remoteTerminalChannel.refreshProperty(this.id,e)}async updateProperty(e,r){return this._remoteTerminalChannel.updateProperty(this.id,e,r)}handleOrphanQuestion(){this._remoteTerminalChannel.orphanQuestionReply(this.id)}};a=l([h(3,P),h(4,p)],a);export{a as RemotePty};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Barrier } from "../../../../base/common/async.js";
+import { IProcessPropertyMap, ITerminalChildProcess, ITerminalLaunchError, ITerminalLogService, ProcessPropertyType } from "../../../../platform/terminal/common/terminal.js";
+import { BasePty } from "../common/basePty.js";
+import { RemoteTerminalChannelClient } from "../common/remote/remoteTerminalChannel.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+let RemotePty = class extends BasePty {
+  constructor(id, shouldPersist, _remoteTerminalChannel, _remoteAgentService, _logService) {
+    super(id, shouldPersist);
+    this._remoteTerminalChannel = _remoteTerminalChannel;
+    this._remoteAgentService = _remoteAgentService;
+    this._logService = _logService;
+    this._startBarrier = new Barrier();
+  }
+  static {
+    __name(this, "RemotePty");
+  }
+  _startBarrier;
+  async start() {
+    const env = await this._remoteAgentService.getEnvironment();
+    if (!env) {
+      throw new Error("Could not fetch remote environment");
+    }
+    this._logService.trace("Spawning remote agent process", { terminalId: this.id });
+    const startResult = await this._remoteTerminalChannel.start(this.id);
+    if (startResult && "message" in startResult) {
+      return startResult;
+    }
+    this._startBarrier.open();
+    return startResult;
+  }
+  async detach(forcePersist) {
+    await this._startBarrier.wait();
+    return this._remoteTerminalChannel.detachFromProcess(this.id, forcePersist);
+  }
+  shutdown(immediate) {
+    this._startBarrier.wait().then((_) => {
+      this._remoteTerminalChannel.shutdown(this.id, immediate);
+    });
+  }
+  input(data) {
+    if (this._inReplay) {
+      return;
+    }
+    this._startBarrier.wait().then((_) => {
+      this._remoteTerminalChannel.input(this.id, data);
+    });
+  }
+  processBinary(e) {
+    return this._remoteTerminalChannel.processBinary(this.id, e);
+  }
+  resize(cols, rows) {
+    if (this._inReplay || this._lastDimensions.cols === cols && this._lastDimensions.rows === rows) {
+      return;
+    }
+    this._startBarrier.wait().then((_) => {
+      this._lastDimensions.cols = cols;
+      this._lastDimensions.rows = rows;
+      this._remoteTerminalChannel.resize(this.id, cols, rows);
+    });
+  }
+  async clearBuffer() {
+    await this._remoteTerminalChannel.clearBuffer(this.id);
+  }
+  freePortKillProcess(port) {
+    if (!this._remoteTerminalChannel.freePortKillProcess) {
+      throw new Error("freePortKillProcess does not exist on the local pty service");
+    }
+    return this._remoteTerminalChannel.freePortKillProcess(port);
+  }
+  acknowledgeDataEvent(charCount) {
+    if (this._inReplay) {
+      return;
+    }
+    this._startBarrier.wait().then((_) => {
+      this._remoteTerminalChannel.acknowledgeDataEvent(this.id, charCount);
+    });
+  }
+  async setUnicodeVersion(version) {
+    return this._remoteTerminalChannel.setUnicodeVersion(this.id, version);
+  }
+  async refreshProperty(type) {
+    return this._remoteTerminalChannel.refreshProperty(this.id, type);
+  }
+  async updateProperty(type, value) {
+    return this._remoteTerminalChannel.updateProperty(this.id, type, value);
+  }
+  handleOrphanQuestion() {
+    this._remoteTerminalChannel.orphanQuestionReply(this.id);
+  }
+};
+RemotePty = __decorateClass([
+  __decorateParam(3, IRemoteAgentService),
+  __decorateParam(4, ITerminalLogService)
+], RemotePty);
+export {
+  RemotePty
+};
+//# sourceMappingURL=remotePty.js.map

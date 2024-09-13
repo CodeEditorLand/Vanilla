@@ -1,1 +1,227 @@
-var x=Object.defineProperty;var R=Object.getOwnPropertyDescriptor;var h=(u,d,e,o)=>{for(var r=o>1?void 0:o?R(d,e):d,n=u.length-1,s;n>=0;n--)(s=u[n])&&(r=(o?s(d,e,r):s(r))||r);return o&&r&&x(d,e,r),r},a=(u,d)=>(e,o)=>d(e,o,u);import*as P from"../../../nls.js";import{MainContext as E,ExtHostContext as _,CandidatePortSource as p}from"../common/extHost.protocol.js";import{TunnelDtoConverter as I}from"../common/extHostTunnelService.js";import{extHostNamedCustomer as F}from"../../services/extensions/common/extHostCustomers.js";import{IRemoteExplorerService as w,PORT_AUTO_FORWARD_SETTING as g,PORT_AUTO_SOURCE_SETTING as S,PORT_AUTO_SOURCE_SETTING_HYBRID as $,PORT_AUTO_SOURCE_SETTING_OUTPUT as y}from"../../services/remote/common/remoteExplorerService.js";import{ITunnelService as H,TunnelProtocol as D}from"../../../platform/tunnel/common/tunnel.js";import{Disposable as N}from"../../../base/common/lifecycle.js";import{INotificationService as O,Severity as U}from"../../../platform/notification/common/notification.js";import{IConfigurationService as k}from"../../../platform/configuration/common/configuration.js";import{ILogService as M}from"../../../platform/log/common/log.js";import{IRemoteAgentService as K}from"../../services/remote/common/remoteAgentService.js";import"../../../base/common/cancellation.js";import{Registry as m}from"../../../platform/registry/common/platform.js";import{Extensions as v}from"../../../platform/configuration/common/configurationRegistry.js";import{IContextKeyService as G}from"../../../platform/contextkey/common/contextkey.js";import{TunnelCloseReason as T,TunnelSource as A,forwardedPortsViewEnabled as V,makeAddress as z}from"../../services/remote/common/tunnelModel.js";let c=class extends N{constructor(e,o,r,n,s,i,t,l){super();this.remoteExplorerService=o;this.tunnelService=r;this.notificationService=n;this.configurationService=s;this.logService=i;this.remoteAgentService=t;this.contextKeyService=l;this._proxy=e.getProxy(_.ExtHostTunnelService),this._register(r.onTunnelOpened(()=>this._proxy.$onDidTunnelsChange())),this._register(r.onTunnelClosed(()=>this._proxy.$onDidTunnelsChange()))}_proxy;elevateionRetry=!1;portsAttributesProviders=new Map;processFindingEnabled(){return(!!this.configurationService.getValue(g)||this.tunnelService.hasTunnelProvider)&&this.configurationService.getValue(S)!==y}async $setRemoteTunnelService(e){this.remoteExplorerService.namedProcesses.set(e,"Code Extension Host"),this.remoteExplorerService.portsFeaturesEnabled?this._proxy.$registerCandidateFinder(this.processFindingEnabled()):this._register(this.remoteExplorerService.onEnabledPortsFeatures(()=>this._proxy.$registerCandidateFinder(this.processFindingEnabled()))),this._register(this.configurationService.onDidChangeConfiguration(async o=>{if(this.remoteExplorerService.portsFeaturesEnabled&&(o.affectsConfiguration(g)||o.affectsConfiguration(S)))return this._proxy.$registerCandidateFinder(this.processFindingEnabled())})),this._register(this.tunnelService.onAddedTunnelProvider(async()=>{if(this.remoteExplorerService.portsFeaturesEnabled)return this._proxy.$registerCandidateFinder(this.processFindingEnabled())}))}_alreadyRegistered=!1;async $registerPortsAttributesProvider(e,o){this.portsAttributesProviders.set(o,e),this._alreadyRegistered||(this.remoteExplorerService.tunnelModel.addAttributesProvider(this),this._alreadyRegistered=!0)}async $unregisterPortsAttributesProvider(e){this.portsAttributesProviders.delete(e)}async providePortAttributes(e,o,r,n){if(this.portsAttributesProviders.size===0)return[];const s=Array.from(this.portsAttributesProviders.entries()).filter(i=>{const t=i[1],l=typeof t.portRange=="number"?[t.portRange,t.portRange+1]:t.portRange,C=l?e.some(f=>l[0]<=f&&f<l[1]):!0,b=!t.commandPattern||r&&r.match(t.commandPattern);return C&&b}).map(i=>i[0]);return s.length===0?[]:this._proxy.$providePortAttributes(s,e,o,r,n)}async $openTunnel(e,o){const r=await this.remoteExplorerService.forward({remote:e.remoteAddress,local:e.localAddressPort,name:e.label,source:{source:A.Extension,description:o},elevateIfNeeded:!1});if(!(!r||typeof r=="string"))return!this.elevateionRetry&&e.localAddressPort!==void 0&&r.tunnelLocalPort!==void 0&&this.tunnelService.isPortPrivileged(e.localAddressPort)&&r.tunnelLocalPort!==e.localAddressPort&&this.tunnelService.canElevate&&this.elevationPrompt(e,r,o),I.fromServiceTunnel(r)}async elevationPrompt(e,o,r){return this.notificationService.prompt(U.Info,P.localize("remote.tunnel.openTunnel","The extension {0} has forwarded port {1}. You'll need to run as superuser to use port {2} locally.",r,e.remoteAddress.port,e.localAddressPort),[{label:P.localize("remote.tunnelsView.elevationButton","Use Port {0} as Sudo...",o.tunnelRemotePort),run:async()=>{this.elevateionRetry=!0,await this.remoteExplorerService.close({host:o.tunnelRemoteHost,port:o.tunnelRemotePort},T.Other),await this.remoteExplorerService.forward({remote:e.remoteAddress,local:e.localAddressPort,name:e.label,source:{source:A.Extension,description:r},elevateIfNeeded:!0}),this.elevateionRetry=!1}}])}async $closeTunnel(e){return this.remoteExplorerService.close(e,T.Other)}async $getTunnels(){return(await this.tunnelService.tunnels).map(e=>({remoteAddress:{port:e.tunnelRemotePort,host:e.tunnelRemoteHost},localAddress:e.localAddress,privacy:e.privacy,protocol:e.protocol}))}async $onFoundNewCandidates(e){this.remoteExplorerService.onFoundNewCandidates(e)}async $setTunnelProvider(e){const o={forwardPort:(r,n)=>this._proxy.$forwardPort(r,n).then(i=>{if(i){if(typeof i=="string")return i}else return;const t=i;return this.logService.trace(`ForwardedPorts: (MainThreadTunnelService) New tunnel established by tunnel provider: ${t?.remoteAddress.host}:${t?.remoteAddress.port}`),{tunnelRemotePort:t.remoteAddress.port,tunnelRemoteHost:t.remoteAddress.host,localAddress:typeof t.localAddress=="string"?t.localAddress:z(t.localAddress.host,t.localAddress.port),tunnelLocalPort:typeof t.localAddress!="string"?t.localAddress.port:void 0,public:t.public,privacy:t.privacy,protocol:t.protocol??D.Http,dispose:async l=>(this.logService.trace(`ForwardedPorts: (MainThreadTunnelService) Closing tunnel from tunnel provider: ${t?.remoteAddress.host}:${t?.remoteAddress.port}`),this._proxy.$closeTunnel({host:t.remoteAddress.host,port:t.remoteAddress.port},l))}})};e&&this.tunnelService.setTunnelFeatures(e),this.tunnelService.setTunnelProvider(o),this.contextKeyService.createKey(V.key,!0)}async $setCandidateFilter(){this.remoteExplorerService.setCandidateFilter(e=>this._proxy.$applyCandidateFilter(e))}async $setCandidatePortSource(e){this.remoteAgentService.getEnvironment().then(()=>{switch(e){case p.None:{m.as(v.Configuration).registerDefaultConfigurations([{overrides:{"remote.autoForwardPorts":!1}}]);break}case p.Output:{m.as(v.Configuration).registerDefaultConfigurations([{overrides:{"remote.autoForwardPortsSource":y}}]);break}case p.Hybrid:{m.as(v.Configuration).registerDefaultConfigurations([{overrides:{"remote.autoForwardPortsSource":$}}]);break}default:}}).catch(()=>{})}};c=h([F(E.MainThreadTunnelService),a(1,w),a(2,H),a(3,O),a(4,k),a(5,M),a(6,K),a(7,G)],c);export{c as MainThreadTunnelService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as nls from "../../../nls.js";
+import { MainThreadTunnelServiceShape, MainContext, ExtHostContext, ExtHostTunnelServiceShape, CandidatePortSource, PortAttributesSelector, TunnelDto } from "../common/extHost.protocol.js";
+import { TunnelDtoConverter } from "../common/extHostTunnelService.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IRemoteExplorerService, PORT_AUTO_FORWARD_SETTING, PORT_AUTO_SOURCE_SETTING, PORT_AUTO_SOURCE_SETTING_HYBRID, PORT_AUTO_SOURCE_SETTING_OUTPUT } from "../../services/remote/common/remoteExplorerService.js";
+import { ITunnelProvider, ITunnelService, TunnelCreationOptions, TunnelProviderFeatures, TunnelOptions, RemoteTunnel, ProvidedPortAttributes, PortAttributesProvider, TunnelProtocol } from "../../../platform/tunnel/common/tunnel.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { INotificationService, Severity } from "../../../platform/notification/common/notification.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IRemoteAgentService } from "../../services/remote/common/remoteAgentService.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Registry } from "../../../platform/registry/common/platform.js";
+import { IConfigurationRegistry, Extensions as ConfigurationExtensions } from "../../../platform/configuration/common/configurationRegistry.js";
+import { IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
+import { CandidatePort, TunnelCloseReason, TunnelSource, forwardedPortsViewEnabled, makeAddress } from "../../services/remote/common/tunnelModel.js";
+let MainThreadTunnelService = class extends Disposable {
+  constructor(extHostContext, remoteExplorerService, tunnelService, notificationService, configurationService, logService, remoteAgentService, contextKeyService) {
+    super();
+    this.remoteExplorerService = remoteExplorerService;
+    this.tunnelService = tunnelService;
+    this.notificationService = notificationService;
+    this.configurationService = configurationService;
+    this.logService = logService;
+    this.remoteAgentService = remoteAgentService;
+    this.contextKeyService = contextKeyService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostTunnelService);
+    this._register(tunnelService.onTunnelOpened(() => this._proxy.$onDidTunnelsChange()));
+    this._register(tunnelService.onTunnelClosed(() => this._proxy.$onDidTunnelsChange()));
+  }
+  _proxy;
+  elevateionRetry = false;
+  portsAttributesProviders = /* @__PURE__ */ new Map();
+  processFindingEnabled() {
+    return (!!this.configurationService.getValue(PORT_AUTO_FORWARD_SETTING) || this.tunnelService.hasTunnelProvider) && this.configurationService.getValue(PORT_AUTO_SOURCE_SETTING) !== PORT_AUTO_SOURCE_SETTING_OUTPUT;
+  }
+  async $setRemoteTunnelService(processId) {
+    this.remoteExplorerService.namedProcesses.set(processId, "Code Extension Host");
+    if (this.remoteExplorerService.portsFeaturesEnabled) {
+      this._proxy.$registerCandidateFinder(this.processFindingEnabled());
+    } else {
+      this._register(this.remoteExplorerService.onEnabledPortsFeatures(() => this._proxy.$registerCandidateFinder(this.processFindingEnabled())));
+    }
+    this._register(this.configurationService.onDidChangeConfiguration(async (e) => {
+      if (this.remoteExplorerService.portsFeaturesEnabled && (e.affectsConfiguration(PORT_AUTO_FORWARD_SETTING) || e.affectsConfiguration(PORT_AUTO_SOURCE_SETTING))) {
+        return this._proxy.$registerCandidateFinder(this.processFindingEnabled());
+      }
+    }));
+    this._register(this.tunnelService.onAddedTunnelProvider(async () => {
+      if (this.remoteExplorerService.portsFeaturesEnabled) {
+        return this._proxy.$registerCandidateFinder(this.processFindingEnabled());
+      }
+    }));
+  }
+  _alreadyRegistered = false;
+  async $registerPortsAttributesProvider(selector, providerHandle) {
+    this.portsAttributesProviders.set(providerHandle, selector);
+    if (!this._alreadyRegistered) {
+      this.remoteExplorerService.tunnelModel.addAttributesProvider(this);
+      this._alreadyRegistered = true;
+    }
+  }
+  async $unregisterPortsAttributesProvider(providerHandle) {
+    this.portsAttributesProviders.delete(providerHandle);
+  }
+  async providePortAttributes(ports, pid, commandLine, token) {
+    if (this.portsAttributesProviders.size === 0) {
+      return [];
+    }
+    const appropriateHandles = Array.from(this.portsAttributesProviders.entries()).filter((entry) => {
+      const selector = entry[1];
+      const portRange = typeof selector.portRange === "number" ? [selector.portRange, selector.portRange + 1] : selector.portRange;
+      const portInRange = portRange ? ports.some((port) => portRange[0] <= port && port < portRange[1]) : true;
+      const commandMatches = !selector.commandPattern || commandLine && commandLine.match(selector.commandPattern);
+      return portInRange && commandMatches;
+    }).map((entry) => entry[0]);
+    if (appropriateHandles.length === 0) {
+      return [];
+    }
+    return this._proxy.$providePortAttributes(appropriateHandles, ports, pid, commandLine, token);
+  }
+  async $openTunnel(tunnelOptions, source) {
+    const tunnel = await this.remoteExplorerService.forward({
+      remote: tunnelOptions.remoteAddress,
+      local: tunnelOptions.localAddressPort,
+      name: tunnelOptions.label,
+      source: {
+        source: TunnelSource.Extension,
+        description: source
+      },
+      elevateIfNeeded: false
+    });
+    if (!tunnel || typeof tunnel === "string") {
+      return void 0;
+    }
+    if (!this.elevateionRetry && tunnelOptions.localAddressPort !== void 0 && tunnel.tunnelLocalPort !== void 0 && this.tunnelService.isPortPrivileged(tunnelOptions.localAddressPort) && tunnel.tunnelLocalPort !== tunnelOptions.localAddressPort && this.tunnelService.canElevate) {
+      this.elevationPrompt(tunnelOptions, tunnel, source);
+    }
+    return TunnelDtoConverter.fromServiceTunnel(tunnel);
+  }
+  async elevationPrompt(tunnelOptions, tunnel, source) {
+    return this.notificationService.prompt(
+      Severity.Info,
+      nls.localize("remote.tunnel.openTunnel", "The extension {0} has forwarded port {1}. You'll need to run as superuser to use port {2} locally.", source, tunnelOptions.remoteAddress.port, tunnelOptions.localAddressPort),
+      [{
+        label: nls.localize("remote.tunnelsView.elevationButton", "Use Port {0} as Sudo...", tunnel.tunnelRemotePort),
+        run: /* @__PURE__ */ __name(async () => {
+          this.elevateionRetry = true;
+          await this.remoteExplorerService.close({ host: tunnel.tunnelRemoteHost, port: tunnel.tunnelRemotePort }, TunnelCloseReason.Other);
+          await this.remoteExplorerService.forward({
+            remote: tunnelOptions.remoteAddress,
+            local: tunnelOptions.localAddressPort,
+            name: tunnelOptions.label,
+            source: {
+              source: TunnelSource.Extension,
+              description: source
+            },
+            elevateIfNeeded: true
+          });
+          this.elevateionRetry = false;
+        }, "run")
+      }]
+    );
+  }
+  async $closeTunnel(remote) {
+    return this.remoteExplorerService.close(remote, TunnelCloseReason.Other);
+  }
+  async $getTunnels() {
+    return (await this.tunnelService.tunnels).map((tunnel) => {
+      return {
+        remoteAddress: { port: tunnel.tunnelRemotePort, host: tunnel.tunnelRemoteHost },
+        localAddress: tunnel.localAddress,
+        privacy: tunnel.privacy,
+        protocol: tunnel.protocol
+      };
+    });
+  }
+  async $onFoundNewCandidates(candidates) {
+    this.remoteExplorerService.onFoundNewCandidates(candidates);
+  }
+  async $setTunnelProvider(features) {
+    const tunnelProvider = {
+      forwardPort: /* @__PURE__ */ __name((tunnelOptions, tunnelCreationOptions) => {
+        const forward = this._proxy.$forwardPort(tunnelOptions, tunnelCreationOptions);
+        return forward.then((tunnelOrError) => {
+          if (!tunnelOrError) {
+            return void 0;
+          } else if (typeof tunnelOrError === "string") {
+            return tunnelOrError;
+          }
+          const tunnel = tunnelOrError;
+          this.logService.trace(`ForwardedPorts: (MainThreadTunnelService) New tunnel established by tunnel provider: ${tunnel?.remoteAddress.host}:${tunnel?.remoteAddress.port}`);
+          return {
+            tunnelRemotePort: tunnel.remoteAddress.port,
+            tunnelRemoteHost: tunnel.remoteAddress.host,
+            localAddress: typeof tunnel.localAddress === "string" ? tunnel.localAddress : makeAddress(tunnel.localAddress.host, tunnel.localAddress.port),
+            tunnelLocalPort: typeof tunnel.localAddress !== "string" ? tunnel.localAddress.port : void 0,
+            public: tunnel.public,
+            privacy: tunnel.privacy,
+            protocol: tunnel.protocol ?? TunnelProtocol.Http,
+            dispose: /* @__PURE__ */ __name(async (silent) => {
+              this.logService.trace(`ForwardedPorts: (MainThreadTunnelService) Closing tunnel from tunnel provider: ${tunnel?.remoteAddress.host}:${tunnel?.remoteAddress.port}`);
+              return this._proxy.$closeTunnel({ host: tunnel.remoteAddress.host, port: tunnel.remoteAddress.port }, silent);
+            }, "dispose")
+          };
+        });
+      }, "forwardPort")
+    };
+    if (features) {
+      this.tunnelService.setTunnelFeatures(features);
+    }
+    this.tunnelService.setTunnelProvider(tunnelProvider);
+    this.contextKeyService.createKey(forwardedPortsViewEnabled.key, true);
+  }
+  async $setCandidateFilter() {
+    this.remoteExplorerService.setCandidateFilter((candidates) => {
+      return this._proxy.$applyCandidateFilter(candidates);
+    });
+  }
+  async $setCandidatePortSource(source) {
+    this.remoteAgentService.getEnvironment().then(() => {
+      switch (source) {
+        case CandidatePortSource.None: {
+          Registry.as(ConfigurationExtensions.Configuration).registerDefaultConfigurations([{ overrides: { "remote.autoForwardPorts": false } }]);
+          break;
+        }
+        case CandidatePortSource.Output: {
+          Registry.as(ConfigurationExtensions.Configuration).registerDefaultConfigurations([{ overrides: { "remote.autoForwardPortsSource": PORT_AUTO_SOURCE_SETTING_OUTPUT } }]);
+          break;
+        }
+        case CandidatePortSource.Hybrid: {
+          Registry.as(ConfigurationExtensions.Configuration).registerDefaultConfigurations([{ overrides: { "remote.autoForwardPortsSource": PORT_AUTO_SOURCE_SETTING_HYBRID } }]);
+          break;
+        }
+        default:
+      }
+    }).catch(() => {
+    });
+  }
+};
+__name(MainThreadTunnelService, "MainThreadTunnelService");
+MainThreadTunnelService = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadTunnelService),
+  __decorateParam(1, IRemoteExplorerService),
+  __decorateParam(2, ITunnelService),
+  __decorateParam(3, INotificationService),
+  __decorateParam(4, IConfigurationService),
+  __decorateParam(5, ILogService),
+  __decorateParam(6, IRemoteAgentService),
+  __decorateParam(7, IContextKeyService)
+], MainThreadTunnelService);
+export {
+  MainThreadTunnelService
+};
+//# sourceMappingURL=mainThreadTunnelService.js.map

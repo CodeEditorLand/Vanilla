@@ -1,1 +1,144 @@
-import{CharCode as l}from"../../../base/common/charCode.js";import"../model.js";class x{spacesDiff=0;looksLikeAlignment=!1}function _(t,d,f,b,s){s.spacesDiff=0,s.looksLikeAlignment=!1;let n;for(n=0;n<d&&n<b;n++){const e=t.charCodeAt(n),a=f.charCodeAt(n);if(e!==a)break}let C=0,u=0;for(let e=n;e<d;e++)t.charCodeAt(e)===l.Space?C++:u++;let i=0,h=0;for(let e=n;e<b;e++)f.charCodeAt(e)===l.Space?i++:h++;if(C>0&&u>0||i>0&&h>0)return;const o=Math.abs(u-h),r=Math.abs(C-i);if(o===0){s.spacesDiff=r,r>0&&0<=i-1&&i-1<t.length&&i<f.length&&f.charCodeAt(i)!==l.Space&&t.charCodeAt(i-1)===l.Space&&t.charCodeAt(t.length-1)===l.Comma&&(s.looksLikeAlignment=!0);return}if(r%o===0){s.spacesDiff=r/o;return}}function W(t,d,f){const b=Math.min(t.getLineCount(),1e4);let s=0,n=0,C="",u=0;const i=[2,4,6,8,3,5,7],h=8,o=[0,0,0,0,0,0,0,0,0],r=new x;for(let c=1;c<=b;c++){const S=t.getLineLength(c),p=t.getLineContent(c),k=S<=65536;let A=!1,m=0,D=0,g=0;for(let L=0,E=S;L<E;L++){const T=k?p.charCodeAt(L):t.getLineCharCode(c,L);if(T===l.Tab)g++;else if(T===l.Space)D++;else{A=!0,m=L;break}}if(!A||(g>0?s++:D>1&&n++,_(C,u,p,m,r),r.looksLikeAlignment&&!(f&&d===r.spacesDiff)))continue;const I=r.spacesDiff;I<=h&&o[I]++,C=p,u=m}let e=f;s!==n&&(e=s<n);let a=d;if(e){let c=e?0:.1*b;i.forEach(S=>{const p=o[S];p>c&&(c=p,a=S)}),a===4&&o[4]>0&&o[2]>0&&o[2]>=o[4]/2&&(a=2)}return{insertSpaces:e,tabSize:a}}export{W as guessIndentation};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CharCode } from "../../../base/common/charCode.js";
+import { ITextBuffer } from "../model.js";
+class SpacesDiffResult {
+  static {
+    __name(this, "SpacesDiffResult");
+  }
+  spacesDiff = 0;
+  looksLikeAlignment = false;
+}
+function spacesDiff(a, aLength, b, bLength, result) {
+  result.spacesDiff = 0;
+  result.looksLikeAlignment = false;
+  let i;
+  for (i = 0; i < aLength && i < bLength; i++) {
+    const aCharCode = a.charCodeAt(i);
+    const bCharCode = b.charCodeAt(i);
+    if (aCharCode !== bCharCode) {
+      break;
+    }
+  }
+  let aSpacesCnt = 0, aTabsCount = 0;
+  for (let j = i; j < aLength; j++) {
+    const aCharCode = a.charCodeAt(j);
+    if (aCharCode === CharCode.Space) {
+      aSpacesCnt++;
+    } else {
+      aTabsCount++;
+    }
+  }
+  let bSpacesCnt = 0, bTabsCount = 0;
+  for (let j = i; j < bLength; j++) {
+    const bCharCode = b.charCodeAt(j);
+    if (bCharCode === CharCode.Space) {
+      bSpacesCnt++;
+    } else {
+      bTabsCount++;
+    }
+  }
+  if (aSpacesCnt > 0 && aTabsCount > 0) {
+    return;
+  }
+  if (bSpacesCnt > 0 && bTabsCount > 0) {
+    return;
+  }
+  const tabsDiff = Math.abs(aTabsCount - bTabsCount);
+  const spacesDiff2 = Math.abs(aSpacesCnt - bSpacesCnt);
+  if (tabsDiff === 0) {
+    result.spacesDiff = spacesDiff2;
+    if (spacesDiff2 > 0 && 0 <= bSpacesCnt - 1 && bSpacesCnt - 1 < a.length && bSpacesCnt < b.length) {
+      if (b.charCodeAt(bSpacesCnt) !== CharCode.Space && a.charCodeAt(bSpacesCnt - 1) === CharCode.Space) {
+        if (a.charCodeAt(a.length - 1) === CharCode.Comma) {
+          result.looksLikeAlignment = true;
+        }
+      }
+    }
+    return;
+  }
+  if (spacesDiff2 % tabsDiff === 0) {
+    result.spacesDiff = spacesDiff2 / tabsDiff;
+    return;
+  }
+}
+__name(spacesDiff, "spacesDiff");
+function guessIndentation(source, defaultTabSize, defaultInsertSpaces) {
+  const linesCount = Math.min(source.getLineCount(), 1e4);
+  let linesIndentedWithTabsCount = 0;
+  let linesIndentedWithSpacesCount = 0;
+  let previousLineText = "";
+  let previousLineIndentation = 0;
+  const ALLOWED_TAB_SIZE_GUESSES = [2, 4, 6, 8, 3, 5, 7];
+  const MAX_ALLOWED_TAB_SIZE_GUESS = 8;
+  const spacesDiffCount = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  const tmp = new SpacesDiffResult();
+  for (let lineNumber = 1; lineNumber <= linesCount; lineNumber++) {
+    const currentLineLength = source.getLineLength(lineNumber);
+    const currentLineText = source.getLineContent(lineNumber);
+    const useCurrentLineText = currentLineLength <= 65536;
+    let currentLineHasContent = false;
+    let currentLineIndentation = 0;
+    let currentLineSpacesCount = 0;
+    let currentLineTabsCount = 0;
+    for (let j = 0, lenJ = currentLineLength; j < lenJ; j++) {
+      const charCode = useCurrentLineText ? currentLineText.charCodeAt(j) : source.getLineCharCode(lineNumber, j);
+      if (charCode === CharCode.Tab) {
+        currentLineTabsCount++;
+      } else if (charCode === CharCode.Space) {
+        currentLineSpacesCount++;
+      } else {
+        currentLineHasContent = true;
+        currentLineIndentation = j;
+        break;
+      }
+    }
+    if (!currentLineHasContent) {
+      continue;
+    }
+    if (currentLineTabsCount > 0) {
+      linesIndentedWithTabsCount++;
+    } else if (currentLineSpacesCount > 1) {
+      linesIndentedWithSpacesCount++;
+    }
+    spacesDiff(previousLineText, previousLineIndentation, currentLineText, currentLineIndentation, tmp);
+    if (tmp.looksLikeAlignment) {
+      if (!(defaultInsertSpaces && defaultTabSize === tmp.spacesDiff)) {
+        continue;
+      }
+    }
+    const currentSpacesDiff = tmp.spacesDiff;
+    if (currentSpacesDiff <= MAX_ALLOWED_TAB_SIZE_GUESS) {
+      spacesDiffCount[currentSpacesDiff]++;
+    }
+    previousLineText = currentLineText;
+    previousLineIndentation = currentLineIndentation;
+  }
+  let insertSpaces = defaultInsertSpaces;
+  if (linesIndentedWithTabsCount !== linesIndentedWithSpacesCount) {
+    insertSpaces = linesIndentedWithTabsCount < linesIndentedWithSpacesCount;
+  }
+  let tabSize = defaultTabSize;
+  if (insertSpaces) {
+    let tabSizeScore = insertSpaces ? 0 : 0.1 * linesCount;
+    ALLOWED_TAB_SIZE_GUESSES.forEach((possibleTabSize) => {
+      const possibleTabSizeScore = spacesDiffCount[possibleTabSize];
+      if (possibleTabSizeScore > tabSizeScore) {
+        tabSizeScore = possibleTabSizeScore;
+        tabSize = possibleTabSize;
+      }
+    });
+    if (tabSize === 4 && spacesDiffCount[4] > 0 && spacesDiffCount[2] > 0 && spacesDiffCount[2] >= spacesDiffCount[4] / 2) {
+      tabSize = 2;
+    }
+  }
+  return {
+    insertSpaces,
+    tabSize
+  };
+}
+__name(guessIndentation, "guessIndentation");
+export {
+  guessIndentation
+};
+//# sourceMappingURL=indentationGuesser.js.map

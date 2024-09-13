@@ -1,1 +1,97 @@
-var h=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var g=(a,r,e,t)=>{for(var n=t>1?void 0:t?m(r,e):r,i=a.length-1,s;i>=0;i--)(s=a[i])&&(n=(t?s(r,e,n):s(n))||n);return t&&n&&h(r,e,n),n},d=(a,r)=>(e,t)=>r(e,t,a);import{Disposable as c}from"../../../../base/common/lifecycle.js";import{IStorageService as p,StorageScope as l,StorageTarget as v}from"../../../../platform/storage/common/storage.js";import{Memento as x}from"../../../common/memento.js";import{updateContributedOpeners as _}from"./configuration.js";import{IExtensionService as u}from"../../../services/extensions/common/extensions.js";let o=class extends c{constructor(e,t){super();this._extensionService=t;this._memento=new x(o.STORAGE_ID,e),this._mementoObject=this._memento.getMemento(l.PROFILE,v.MACHINE);for(const[n,i]of Object.entries(this._mementoObject||{}))this.add(n,i.extensionId,{isCurrentlyRegistered:!1});this.invalidateOpenersOnExtensionsChanged(),this._register(this._extensionService.onDidChangeExtensions(()=>this.invalidateOpenersOnExtensionsChanged())),this._register(this._extensionService.onDidChangeExtensionsStatus(()=>this.invalidateOpenersOnExtensionsChanged()))}static STORAGE_ID="externalUriOpeners";_openers=new Map;_memento;_mementoObject;didRegisterOpener(e,t){this.add(e,t,{isCurrentlyRegistered:!0})}add(e,t,n){const i=this._openers.get(e);if(i){i.isCurrentlyRegistered=i.isCurrentlyRegistered||n.isCurrentlyRegistered;return}const s={extensionId:t,isCurrentlyRegistered:n.isCurrentlyRegistered};this._openers.set(e,s),this._mementoObject[e]=s,this._memento.saveMemento(),this.updateSchema()}delete(e){this._openers.delete(e),delete this._mementoObject[e],this._memento.saveMemento(),this.updateSchema()}async invalidateOpenersOnExtensionsChanged(){await this._extensionService.whenInstalledExtensionsRegistered();const e=this._extensionService.extensions;for(const[t,n]of this._openers){const i=e.find(s=>s.identifier.value===n.extensionId);i?this._extensionService.canRemoveExtension(i)||n.isCurrentlyRegistered||this.delete(t):this.delete(t)}}updateSchema(){const e=[],t=[];for(const[n,i]of this._openers)e.push(n),t.push(i.extensionId);_(e,t)}};o=g([d(0,p),d(1,u)],o);export{o as ContributedExternalUriOpenersStore};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { Memento } from "../../../common/memento.js";
+import { updateContributedOpeners } from "./configuration.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+let ContributedExternalUriOpenersStore = class extends Disposable {
+  constructor(storageService, _extensionService) {
+    super();
+    this._extensionService = _extensionService;
+    this._memento = new Memento(ContributedExternalUriOpenersStore.STORAGE_ID, storageService);
+    this._mementoObject = this._memento.getMemento(StorageScope.PROFILE, StorageTarget.MACHINE);
+    for (const [id, value] of Object.entries(this._mementoObject || {})) {
+      this.add(id, value.extensionId, { isCurrentlyRegistered: false });
+    }
+    this.invalidateOpenersOnExtensionsChanged();
+    this._register(this._extensionService.onDidChangeExtensions(() => this.invalidateOpenersOnExtensionsChanged()));
+    this._register(this._extensionService.onDidChangeExtensionsStatus(() => this.invalidateOpenersOnExtensionsChanged()));
+  }
+  static {
+    __name(this, "ContributedExternalUriOpenersStore");
+  }
+  static STORAGE_ID = "externalUriOpeners";
+  _openers = /* @__PURE__ */ new Map();
+  _memento;
+  _mementoObject;
+  didRegisterOpener(id, extensionId) {
+    this.add(id, extensionId, {
+      isCurrentlyRegistered: true
+    });
+  }
+  add(id, extensionId, options) {
+    const existing = this._openers.get(id);
+    if (existing) {
+      existing.isCurrentlyRegistered = existing.isCurrentlyRegistered || options.isCurrentlyRegistered;
+      return;
+    }
+    const entry = {
+      extensionId,
+      isCurrentlyRegistered: options.isCurrentlyRegistered
+    };
+    this._openers.set(id, entry);
+    this._mementoObject[id] = entry;
+    this._memento.saveMemento();
+    this.updateSchema();
+  }
+  delete(id) {
+    this._openers.delete(id);
+    delete this._mementoObject[id];
+    this._memento.saveMemento();
+    this.updateSchema();
+  }
+  async invalidateOpenersOnExtensionsChanged() {
+    await this._extensionService.whenInstalledExtensionsRegistered();
+    const registeredExtensions = this._extensionService.extensions;
+    for (const [id, entry] of this._openers) {
+      const extension = registeredExtensions.find((r) => r.identifier.value === entry.extensionId);
+      if (extension) {
+        if (!this._extensionService.canRemoveExtension(extension)) {
+          if (!entry.isCurrentlyRegistered) {
+            this.delete(id);
+          }
+        }
+      } else {
+        this.delete(id);
+      }
+    }
+  }
+  updateSchema() {
+    const ids = [];
+    const descriptions = [];
+    for (const [id, entry] of this._openers) {
+      ids.push(id);
+      descriptions.push(entry.extensionId);
+    }
+    updateContributedOpeners(ids, descriptions);
+  }
+};
+ContributedExternalUriOpenersStore = __decorateClass([
+  __decorateParam(0, IStorageService),
+  __decorateParam(1, IExtensionService)
+], ContributedExternalUriOpenersStore);
+export {
+  ContributedExternalUriOpenersStore
+};
+//# sourceMappingURL=contributedOpeners.js.map

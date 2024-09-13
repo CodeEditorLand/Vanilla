@@ -1,1 +1,15 @@
-import"../../../../base/common/cancellation.js";import"../../../../base/common/event.js";import"../../../../base/common/lifecycle.js";import"../../../../base/common/uri.js";import"../../../../editor/browser/editorBrowser.js";import"../../../../editor/common/core/range.js";import"../../../../editor/common/model.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"../common/inlineChat.js";import"./inlineChatSession.js";const y=e("IInlineChatSessionService");export{y as IInlineChatSessionService};
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IActiveCodeEditor, ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { IValidEditOperation } from "../../../../editor/common/model.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { EditMode } from "../common/inlineChat.js";
+import { Session, StashedSession } from "./inlineChatSession.js";
+const IInlineChatSessionService = createDecorator("IInlineChatSessionService");
+export {
+  IInlineChatSessionService
+};
+//# sourceMappingURL=inlineChatSessionService.js.map

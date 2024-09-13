@@ -1,1 +1,160 @@
-var p=Object.defineProperty;var g=Object.getOwnPropertyDescriptor;var u=(r,e,t,i)=>{for(var o=i>1?void 0:i?g(e,t):e,a=r.length-1,n;a>=0;a--)(n=r[a])&&(o=(i?n(e,t,o):n(o))||o);return i&&o&&p(e,t,o),o},d=(r,e)=>(t,i)=>e(t,i,r);import{ArrayQueue as c,CompareResult as s}from"../../../../base/common/arrays.js";import{onUnexpectedError as T}from"../../../../base/common/errors.js";import{DisposableStore as b,toDisposable as m}from"../../../../base/common/lifecycle.js";import{autorunOpts as y}from"../../../../base/common/observable.js";import"../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";import"../../../../editor/common/model.js";import{IStorageService as v,StorageScope as h,StorageTarget as I}from"../../../../platform/storage/common/storage.js";function G(r,e){Object.entries(e).forEach(([t,i])=>{r.style.setProperty(t,R(i))})}function R(r){return typeof r=="number"?`${r}px`:r}function M(r,e){const t=new b;let i=[];return t.add(y({debugName:()=>`Apply decorations from ${e.debugName}`},o=>{const a=e.read(o);r.changeDecorations(n=>{i=n.deltaDecorations(i,a)})})),t.add({dispose:()=>{r.changeDecorations(o=>{i=o.deltaDecorations(i,[])})}}),t}function*V(r,e,t){const i=new c(e);for(const o of r){i.takeWhile(n=>s.isGreaterThan(t(o,n)));const a=i.takeWhile(n=>s.isNeitherLessOrGreaterThan(t(o,n)));yield{left:o,rights:a||[]}}}function*F(r,e,t){const i=new c(e);for(const o of r){const a=i.takeWhile(f=>s.isGreaterThan(t(o,f)));a&&(yield{rights:a});const n=i.takeWhile(f=>s.isNeitherLessOrGreaterThan(t(o,f)));yield{left:o,rights:n||[]}}}function J(...r){return[].concat(...r)}function P(r,e){return r[e]}function Q(r,e){let t=!1;return r.then(()=>{t||e()}),m(()=>{t=!0})}function U(r,e){return Object.assign(r,e)}function x(r,e){const t={};for(const i in r)t[i]=r[i];for(const i in e){const o=e[i];typeof t[i]=="object"&&o&&typeof o=="object"?t[i]=x(t[i],o):t[i]=o}return t}let l=class{constructor(e,t){this.key=e;this.storageService=t}hasValue=!1;value=void 0;get(){if(!this.hasValue){const e=this.storageService.get(this.key,h.PROFILE);if(e!==void 0)try{this.value=JSON.parse(e)}catch(t){T(t)}this.hasValue=!0}return this.value}set(e){this.value=e,this.storageService.store(this.key,JSON.stringify(this.value),h.PROFILE,I.USER)}};l=u([d(1,v)],l);export{l as PersistentStore,M as applyObservableDecorations,J as concatArrays,x as deepMerge,P as elementAtOrUndefined,F as join,V as leftJoin,U as setFields,G as setStyle,Q as thenIfNotDisposed};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { ArrayQueue, CompareResult } from "../../../../base/common/arrays.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { DisposableStore, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { IObservable, autorunOpts } from "../../../../base/common/observable.js";
+import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { IModelDeltaDecoration } from "../../../../editor/common/model.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+function setStyle(element, style) {
+  Object.entries(style).forEach(([key, value]) => {
+    element.style.setProperty(key, toSize(value));
+  });
+}
+__name(setStyle, "setStyle");
+function toSize(value) {
+  return typeof value === "number" ? `${value}px` : value;
+}
+__name(toSize, "toSize");
+function applyObservableDecorations(editor, decorations) {
+  const d = new DisposableStore();
+  let decorationIds = [];
+  d.add(autorunOpts({ debugName: /* @__PURE__ */ __name(() => `Apply decorations from ${decorations.debugName}`, "debugName") }, (reader) => {
+    const d2 = decorations.read(reader);
+    editor.changeDecorations((a) => {
+      decorationIds = a.deltaDecorations(decorationIds, d2);
+    });
+  }));
+  d.add({
+    dispose: /* @__PURE__ */ __name(() => {
+      editor.changeDecorations((a) => {
+        decorationIds = a.deltaDecorations(decorationIds, []);
+      });
+    }, "dispose")
+  });
+  return d;
+}
+__name(applyObservableDecorations, "applyObservableDecorations");
+function* leftJoin(left, right, compare) {
+  const rightQueue = new ArrayQueue(right);
+  for (const leftElement of left) {
+    rightQueue.takeWhile((rightElement) => CompareResult.isGreaterThan(compare(leftElement, rightElement)));
+    const equals = rightQueue.takeWhile((rightElement) => CompareResult.isNeitherLessOrGreaterThan(compare(leftElement, rightElement)));
+    yield { left: leftElement, rights: equals || [] };
+  }
+}
+__name(leftJoin, "leftJoin");
+function* join(left, right, compare) {
+  const rightQueue = new ArrayQueue(right);
+  for (const leftElement of left) {
+    const skipped = rightQueue.takeWhile((rightElement) => CompareResult.isGreaterThan(compare(leftElement, rightElement)));
+    if (skipped) {
+      yield { rights: skipped };
+    }
+    const equals = rightQueue.takeWhile((rightElement) => CompareResult.isNeitherLessOrGreaterThan(compare(leftElement, rightElement)));
+    yield { left: leftElement, rights: equals || [] };
+  }
+}
+__name(join, "join");
+function concatArrays(...arrays) {
+  return [].concat(...arrays);
+}
+__name(concatArrays, "concatArrays");
+function elementAtOrUndefined(arr, index) {
+  return arr[index];
+}
+__name(elementAtOrUndefined, "elementAtOrUndefined");
+function thenIfNotDisposed(promise, then) {
+  let disposed = false;
+  promise.then(() => {
+    if (disposed) {
+      return;
+    }
+    then();
+  });
+  return toDisposable(() => {
+    disposed = true;
+  });
+}
+__name(thenIfNotDisposed, "thenIfNotDisposed");
+function setFields(obj, fields) {
+  return Object.assign(obj, fields);
+}
+__name(setFields, "setFields");
+function deepMerge(source1, source2) {
+  const result = {};
+  for (const key in source1) {
+    result[key] = source1[key];
+  }
+  for (const key in source2) {
+    const source2Value = source2[key];
+    if (typeof result[key] === "object" && source2Value && typeof source2Value === "object") {
+      result[key] = deepMerge(result[key], source2Value);
+    } else {
+      result[key] = source2Value;
+    }
+  }
+  return result;
+}
+__name(deepMerge, "deepMerge");
+let PersistentStore = class {
+  constructor(key, storageService) {
+    this.key = key;
+    this.storageService = storageService;
+  }
+  static {
+    __name(this, "PersistentStore");
+  }
+  hasValue = false;
+  value = void 0;
+  get() {
+    if (!this.hasValue) {
+      const value = this.storageService.get(this.key, StorageScope.PROFILE);
+      if (value !== void 0) {
+        try {
+          this.value = JSON.parse(value);
+        } catch (e) {
+          onUnexpectedError(e);
+        }
+      }
+      this.hasValue = true;
+    }
+    return this.value;
+  }
+  set(newValue) {
+    this.value = newValue;
+    this.storageService.store(
+      this.key,
+      JSON.stringify(this.value),
+      StorageScope.PROFILE,
+      StorageTarget.USER
+    );
+  }
+};
+PersistentStore = __decorateClass([
+  __decorateParam(1, IStorageService)
+], PersistentStore);
+export {
+  PersistentStore,
+  applyObservableDecorations,
+  concatArrays,
+  deepMerge,
+  elementAtOrUndefined,
+  join,
+  leftJoin,
+  setFields,
+  setStyle,
+  thenIfNotDisposed
+};
+//# sourceMappingURL=utils.js.map

@@ -1,1 +1,5 @@
-var H="../../../../../../Asset/languages-3SAJZM5F.svg";export{H as default};
+var languages_default = "../../../../../../Asset/languages-3SAJZM5F.svg";
+export {
+  languages_default as default
+};
+//# sourceMappingURL=languages.js.map

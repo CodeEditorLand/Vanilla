@@ -1,1 +1,116 @@
-import"../../../../base/common/cancellation.js";import"../../../../base/common/uri.js";import"../../../../platform/progress/common/progress.js";class o{constructor(e,r){this.line=e;this.character=r}isBefore(e){return!1}isBeforeOrEqual(e){return!1}isAfter(e){return!1}isAfterOrEqual(e){return!1}isEqual(e){return!1}compareTo(e){return 0}translate(e,r){return new o(0,0)}with(e){return new o(0,0)}}class n{start;end;constructor(e,r,t,i){this.start=new o(e,r),this.end=new o(t,i)}isEmpty=!1;isSingleLine=!1;contains(e){return!1}isEqual(e){return!1}intersection(e){}union(e){return new n(0,0,0,0)}with(e){return new n(0,0,0,0)}}class d{constructor(e,r,t){this.uri=e;this.ranges=r;this.previewText=t}}class m{constructor(e,r,t){this.uri=e;this.text=r;this.lineNumber=t}}var s=(t=>(t[t.None=1]="None",t[t.FilesExclude=2]="FilesExclude",t[t.SearchAndFilesExclude=3]="SearchAndFilesExclude",t))(s||{}),l=(r=>(r[r.Information=1]="Information",r[r.Warning=2]="Warning",r))(l||{});export{s as ExcludeSettingOptions,o as Position,n as Range,l as TextSearchCompleteMessageType,m as TextSearchContextNew,d as TextSearchMatchNew};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
+class Position {
+  constructor(line, character) {
+    this.line = line;
+    this.character = character;
+  }
+  static {
+    __name(this, "Position");
+  }
+  isBefore(other) {
+    return false;
+  }
+  isBeforeOrEqual(other) {
+    return false;
+  }
+  isAfter(other) {
+    return false;
+  }
+  isAfterOrEqual(other) {
+    return false;
+  }
+  isEqual(other) {
+    return false;
+  }
+  compareTo(other) {
+    return 0;
+  }
+  translate(_, _2) {
+    return new Position(0, 0);
+  }
+  with(_) {
+    return new Position(0, 0);
+  }
+}
+class Range {
+  static {
+    __name(this, "Range");
+  }
+  start;
+  end;
+  constructor(startLine, startCol, endLine, endCol) {
+    this.start = new Position(startLine, startCol);
+    this.end = new Position(endLine, endCol);
+  }
+  isEmpty = false;
+  isSingleLine = false;
+  contains(positionOrRange) {
+    return false;
+  }
+  isEqual(other) {
+    return false;
+  }
+  intersection(range) {
+    return void 0;
+  }
+  union(other) {
+    return new Range(0, 0, 0, 0);
+  }
+  with(_) {
+    return new Range(0, 0, 0, 0);
+  }
+}
+class TextSearchMatchNew {
+  /**
+   * @param uri The uri for the matching document.
+   * @param ranges The ranges associated with this match.
+   * @param previewText The text that is used to preview the match. The highlighted range in `previewText` is specified in `ranges`.
+   */
+  constructor(uri, ranges, previewText) {
+    this.uri = uri;
+    this.ranges = ranges;
+    this.previewText = previewText;
+  }
+  static {
+    __name(this, "TextSearchMatchNew");
+  }
+}
+class TextSearchContextNew {
+  /**
+   * @param uri The uri for the matching document.
+   * @param text The line of context text.
+   * @param lineNumber The line number of this line of context.
+   */
+  constructor(uri, text, lineNumber) {
+    this.uri = uri;
+    this.text = text;
+    this.lineNumber = lineNumber;
+  }
+  static {
+    __name(this, "TextSearchContextNew");
+  }
+}
+var ExcludeSettingOptions = /* @__PURE__ */ ((ExcludeSettingOptions2) => {
+  ExcludeSettingOptions2[ExcludeSettingOptions2["None"] = 1] = "None";
+  ExcludeSettingOptions2[ExcludeSettingOptions2["FilesExclude"] = 2] = "FilesExclude";
+  ExcludeSettingOptions2[ExcludeSettingOptions2["SearchAndFilesExclude"] = 3] = "SearchAndFilesExclude";
+  return ExcludeSettingOptions2;
+})(ExcludeSettingOptions || {});
+var TextSearchCompleteMessageType = /* @__PURE__ */ ((TextSearchCompleteMessageType2) => {
+  TextSearchCompleteMessageType2[TextSearchCompleteMessageType2["Information"] = 1] = "Information";
+  TextSearchCompleteMessageType2[TextSearchCompleteMessageType2["Warning"] = 2] = "Warning";
+  return TextSearchCompleteMessageType2;
+})(TextSearchCompleteMessageType || {});
+export {
+  ExcludeSettingOptions,
+  Position,
+  Range,
+  TextSearchCompleteMessageType,
+  TextSearchContextNew,
+  TextSearchMatchNew
+};
+//# sourceMappingURL=searchExtTypes.js.map

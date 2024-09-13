@@ -1,1 +1,5 @@
-var s="../../../../../../../../../Asset/shellIntegration-HV5ZGRM3.fish";export{s as default};
+var shellIntegration_default = "../../../../../../../../../Asset/shellIntegration-HV5ZGRM3.fish";
+export {
+  shellIntegration_default as default
+};
+//# sourceMappingURL=shellIntegration.js.map

@@ -1,1 +1,71 @@
-import{createHash as n}from"crypto";import"fs";import{Schemas as d}from"../../../base/common/network.js";import{isLinux as f,isMacintosh as s,isWindows as p}from"../../../base/common/platform.js";import{originalFSPath as m}from"../../../base/common/resources.js";import"../../../base/common/uri.js";import"../../workspace/common/workspace.js";const M=128/4;function b(e){function i(){let r=e.scheme===d.file?m(e):e.toString();return f||(r=r.toLowerCase()),n("md5").update(r).digest("hex")}return{id:i(),configPath:e}}function E(e,i){function r(){if(e.scheme!==d.file)return n("md5").update(e.toString()).digest("hex");if(!i)return;let t;return f?t=i.ino:s?t=i.birthtime.getTime():p&&(typeof i.birthtimeMs=="number"?t=Math.floor(i.birthtimeMs):t=i.birthtime.getTime()),n("md5").update(e.fsPath).update(t?String(t):"").digest("hex")}const o=r();if(typeof o=="string")return{id:o,uri:e}}function R(){return{id:(Date.now()+Math.round(Math.random()*1e3)).toString()}}export{M as NON_EMPTY_WORKSPACE_ID_LENGTH,R as createEmptyWorkspaceIdentifier,E as getSingleFolderWorkspaceIdentifier,b as getWorkspaceIdentifier};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createHash } from "crypto";
+import { Stats } from "fs";
+import { Schemas } from "../../../base/common/network.js";
+import { isLinux, isMacintosh, isWindows } from "../../../base/common/platform.js";
+import { originalFSPath } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { IEmptyWorkspaceIdentifier, ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+const NON_EMPTY_WORKSPACE_ID_LENGTH = 128 / 4;
+function getWorkspaceIdentifier(configPath) {
+  function getWorkspaceId() {
+    let configPathStr = configPath.scheme === Schemas.file ? originalFSPath(configPath) : configPath.toString();
+    if (!isLinux) {
+      configPathStr = configPathStr.toLowerCase();
+    }
+    return createHash("md5").update(configPathStr).digest("hex");
+  }
+  __name(getWorkspaceId, "getWorkspaceId");
+  return {
+    id: getWorkspaceId(),
+    configPath
+  };
+}
+__name(getWorkspaceIdentifier, "getWorkspaceIdentifier");
+function getSingleFolderWorkspaceIdentifier(folderUri, folderStat) {
+  function getFolderId() {
+    if (folderUri.scheme !== Schemas.file) {
+      return createHash("md5").update(folderUri.toString()).digest("hex");
+    }
+    if (!folderStat) {
+      return void 0;
+    }
+    let ctime;
+    if (isLinux) {
+      ctime = folderStat.ino;
+    } else if (isMacintosh) {
+      ctime = folderStat.birthtime.getTime();
+    } else if (isWindows) {
+      if (typeof folderStat.birthtimeMs === "number") {
+        ctime = Math.floor(folderStat.birthtimeMs);
+      } else {
+        ctime = folderStat.birthtime.getTime();
+      }
+    }
+    return createHash("md5").update(folderUri.fsPath).update(ctime ? String(ctime) : "").digest("hex");
+  }
+  __name(getFolderId, "getFolderId");
+  const folderId = getFolderId();
+  if (typeof folderId === "string") {
+    return {
+      id: folderId,
+      uri: folderUri
+    };
+  }
+  return void 0;
+}
+__name(getSingleFolderWorkspaceIdentifier, "getSingleFolderWorkspaceIdentifier");
+function createEmptyWorkspaceIdentifier() {
+  return {
+    id: (Date.now() + Math.round(Math.random() * 1e3)).toString()
+  };
+}
+__name(createEmptyWorkspaceIdentifier, "createEmptyWorkspaceIdentifier");
+export {
+  NON_EMPTY_WORKSPACE_ID_LENGTH,
+  createEmptyWorkspaceIdentifier,
+  getSingleFolderWorkspaceIdentifier,
+  getWorkspaceIdentifier
+};
+//# sourceMappingURL=workspaces.js.map

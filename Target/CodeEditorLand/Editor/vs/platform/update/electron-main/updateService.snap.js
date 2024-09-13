@@ -1,1 +1,176 @@
-var P=Object.defineProperty;var F=Object.getOwnPropertyDescriptor;var m=(s,e,t,a)=>{for(var i=a>1?void 0:a?F(e,t):e,n=s.length-1,r;n>=0;n--)(r=s[n])&&(i=(a?r(e,t,i):r(i))||i);return a&&i&&P(e,t,i),i},o=(s,e)=>(t,a)=>e(t,a,s);import{spawn as k}from"child_process";import{realpath as q,watch as L}from"fs";import{timeout as _}from"../../../base/common/async.js";import{Emitter as D,Event as f}from"../../../base/common/event.js";import*as c from"../../../base/common/path.js";import{IEnvironmentMainService as U}from"../../environment/electron-main/environmentMainService.js";import{ILifecycleMainService as I}from"../../lifecycle/electron-main/lifecycleMainService.js";import{ILogService as b}from"../../log/common/log.js";import{ITelemetryService as E}from"../../telemetry/common/telemetry.js";import{State as d,StateType as p,UpdateType as S}from"../common/update.js";import"./abstractUpdateService.js";let l=class{constructor(e,t,a){this.lifecycleMainService=e;this.logService=a;if(t.disableUpdates){this.logService.info("update#ctor - updates are disabled");return}this.setState(d.Idle(this.getUpdateType())),this.scheduleCheckForUpdates(30*1e3).then(void 0,i=>this.logService.error(i))}_state=d.Uninitialized;_onStateChange=new D;onStateChange=this._onStateChange.event;get state(){return this._state}setState(e){this.logService.info("update#setState",e.type),this._state=e,this._onStateChange.fire(e)}scheduleCheckForUpdates(e=60*60*1e3){return _(e).then(()=>this.checkForUpdates(!1)).then(()=>this.scheduleCheckForUpdates(60*60*1e3))}async checkForUpdates(e){this.logService.trace("update#checkForUpdates, state = ",this.state.type),this.state.type===p.Idle&&this.doCheckForUpdates(e)}async downloadUpdate(){this.logService.trace("update#downloadUpdate, state = ",this.state.type),this.state.type===p.AvailableForDownload&&await this.doDownloadUpdate(this.state)}doDownloadUpdate(e){return Promise.resolve(void 0)}async applyUpdate(){this.logService.trace("update#applyUpdate, state = ",this.state.type),this.state.type===p.Downloaded&&await this.doApplyUpdate()}doApplyUpdate(){return Promise.resolve(void 0)}quitAndInstall(){return this.logService.trace("update#quitAndInstall, state = ",this.state.type),this.state.type!==p.Ready||(this.logService.trace("update#quitAndInstall(): before lifecycle quit()"),this.lifecycleMainService.quit(!0).then(e=>{this.logService.trace(`update#quitAndInstall(): after lifecycle quit() with veto: ${e}`),!e&&(this.logService.trace("update#quitAndInstall(): running raw#quitAndInstall()"),this.doQuitAndInstall())})),Promise.resolve(void 0)}getUpdateType(){return S.Snap}doQuitAndInstall(){}async _applySpecificUpdate(e){}};l=m([o(0,I),o(1,U),o(2,b)],l);let h=class extends l{constructor(t,a,i,n,r,g){super(i,n,r);this.snap=t;this.snapRevision=a;this.telemetryService=g;const y=L(c.dirname(this.snap)),C=f.fromNodeEventEmitter(y,"change",(u,v)=>v),A=f.filter(C,u=>u==="current"),w=f.debounce(A,(u,v)=>v,2e3)(()=>this.checkForUpdates(!1));i.onWillShutdown(()=>{w.dispose(),y.close()})}doCheckForUpdates(){this.setState(d.CheckingForUpdates(!1)),this.isUpdateAvailable().then(t=>{t?this.setState(d.Ready({version:"something"})):(this.telemetryService.publicLog2("update:notAvailable",{explicit:!1}),this.setState(d.Idle(S.Snap)))},t=>{this.logService.error(t),this.telemetryService.publicLog2("update:notAvailable",{explicit:!1}),this.setState(d.Idle(S.Snap,t.message||t))})}doQuitAndInstall(){this.logService.trace("update#quitAndInstall(): running raw#quitAndInstall()"),k("sleep 3 && "+c.basename(process.argv[0]),{shell:!0,detached:!0,stdio:"ignore"})}async isUpdateAvailable(){const t=await new Promise((i,n)=>q(`${c.dirname(this.snap)}/current`,(r,g)=>r?n(r):i(g))),a=c.basename(t);return this.snapRevision!==a}isLatestVersion(){return this.isUpdateAvailable().then(void 0,t=>{this.logService.error("update#checkForSnapUpdate(): Could not get realpath of application.")})}};h=m([o(2,I),o(3,U),o(4,b),o(5,E)],h);export{h as SnapUpdateService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { spawn } from "child_process";
+import { realpath, watch } from "fs";
+import { timeout } from "../../../base/common/async.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import * as path from "../../../base/common/path.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { AvailableForDownload, IUpdateService, State, StateType, UpdateType } from "../common/update.js";
+import { UpdateNotAvailableClassification } from "./abstractUpdateService.js";
+let AbstractUpdateService = class {
+  constructor(lifecycleMainService, environmentMainService, logService) {
+    this.lifecycleMainService = lifecycleMainService;
+    this.logService = logService;
+    if (environmentMainService.disableUpdates) {
+      this.logService.info("update#ctor - updates are disabled");
+      return;
+    }
+    this.setState(State.Idle(this.getUpdateType()));
+    this.scheduleCheckForUpdates(30 * 1e3).then(void 0, (err) => this.logService.error(err));
+  }
+  static {
+    __name(this, "AbstractUpdateService");
+  }
+  _state = State.Uninitialized;
+  _onStateChange = new Emitter();
+  onStateChange = this._onStateChange.event;
+  get state() {
+    return this._state;
+  }
+  setState(state) {
+    this.logService.info("update#setState", state.type);
+    this._state = state;
+    this._onStateChange.fire(state);
+  }
+  scheduleCheckForUpdates(delay = 60 * 60 * 1e3) {
+    return timeout(delay).then(() => this.checkForUpdates(false)).then(() => {
+      return this.scheduleCheckForUpdates(60 * 60 * 1e3);
+    });
+  }
+  async checkForUpdates(explicit) {
+    this.logService.trace("update#checkForUpdates, state = ", this.state.type);
+    if (this.state.type !== StateType.Idle) {
+      return;
+    }
+    this.doCheckForUpdates(explicit);
+  }
+  async downloadUpdate() {
+    this.logService.trace("update#downloadUpdate, state = ", this.state.type);
+    if (this.state.type !== StateType.AvailableForDownload) {
+      return;
+    }
+    await this.doDownloadUpdate(this.state);
+  }
+  doDownloadUpdate(state) {
+    return Promise.resolve(void 0);
+  }
+  async applyUpdate() {
+    this.logService.trace("update#applyUpdate, state = ", this.state.type);
+    if (this.state.type !== StateType.Downloaded) {
+      return;
+    }
+    await this.doApplyUpdate();
+  }
+  doApplyUpdate() {
+    return Promise.resolve(void 0);
+  }
+  quitAndInstall() {
+    this.logService.trace("update#quitAndInstall, state = ", this.state.type);
+    if (this.state.type !== StateType.Ready) {
+      return Promise.resolve(void 0);
+    }
+    this.logService.trace("update#quitAndInstall(): before lifecycle quit()");
+    this.lifecycleMainService.quit(
+      true
+      /* will restart */
+    ).then((vetod) => {
+      this.logService.trace(`update#quitAndInstall(): after lifecycle quit() with veto: ${vetod}`);
+      if (vetod) {
+        return;
+      }
+      this.logService.trace("update#quitAndInstall(): running raw#quitAndInstall()");
+      this.doQuitAndInstall();
+    });
+    return Promise.resolve(void 0);
+  }
+  getUpdateType() {
+    return UpdateType.Snap;
+  }
+  doQuitAndInstall() {
+  }
+  async _applySpecificUpdate(packagePath) {
+  }
+};
+AbstractUpdateService = __decorateClass([
+  __decorateParam(0, ILifecycleMainService),
+  __decorateParam(1, IEnvironmentMainService),
+  __decorateParam(2, ILogService)
+], AbstractUpdateService);
+let SnapUpdateService = class extends AbstractUpdateService {
+  constructor(snap, snapRevision, lifecycleMainService, environmentMainService, logService, telemetryService) {
+    super(lifecycleMainService, environmentMainService, logService);
+    this.snap = snap;
+    this.snapRevision = snapRevision;
+    this.telemetryService = telemetryService;
+    const watcher = watch(path.dirname(this.snap));
+    const onChange = Event.fromNodeEventEmitter(watcher, "change", (_, fileName) => fileName);
+    const onCurrentChange = Event.filter(onChange, (n) => n === "current");
+    const onDebouncedCurrentChange = Event.debounce(onCurrentChange, (_, e) => e, 2e3);
+    const listener = onDebouncedCurrentChange(() => this.checkForUpdates(false));
+    lifecycleMainService.onWillShutdown(() => {
+      listener.dispose();
+      watcher.close();
+    });
+  }
+  static {
+    __name(this, "SnapUpdateService");
+  }
+  doCheckForUpdates() {
+    this.setState(State.CheckingForUpdates(false));
+    this.isUpdateAvailable().then((result) => {
+      if (result) {
+        this.setState(State.Ready({ version: "something" }));
+      } else {
+        this.telemetryService.publicLog2("update:notAvailable", { explicit: false });
+        this.setState(State.Idle(UpdateType.Snap));
+      }
+    }, (err) => {
+      this.logService.error(err);
+      this.telemetryService.publicLog2("update:notAvailable", { explicit: false });
+      this.setState(State.Idle(UpdateType.Snap, err.message || err));
+    });
+  }
+  doQuitAndInstall() {
+    this.logService.trace("update#quitAndInstall(): running raw#quitAndInstall()");
+    spawn("sleep 3 && " + path.basename(process.argv[0]), {
+      shell: true,
+      detached: true,
+      stdio: "ignore"
+    });
+  }
+  async isUpdateAvailable() {
+    const resolvedCurrentSnapPath = await new Promise((c, e) => realpath(`${path.dirname(this.snap)}/current`, (err, r) => err ? e(err) : c(r)));
+    const currentRevision = path.basename(resolvedCurrentSnapPath);
+    return this.snapRevision !== currentRevision;
+  }
+  isLatestVersion() {
+    return this.isUpdateAvailable().then(void 0, (err) => {
+      this.logService.error("update#checkForSnapUpdate(): Could not get realpath of application.");
+      return void 0;
+    });
+  }
+};
+SnapUpdateService = __decorateClass([
+  __decorateParam(2, ILifecycleMainService),
+  __decorateParam(3, IEnvironmentMainService),
+  __decorateParam(4, ILogService),
+  __decorateParam(5, ITelemetryService)
+], SnapUpdateService);
+export {
+  SnapUpdateService
+};
+//# sourceMappingURL=updateService.snap.js.map

@@ -1,1 +1,144 @@
-class i{lineNumber;column;constructor(e,n){this.lineNumber=e,this.column=n}with(e=this.lineNumber,n=this.column){return e===this.lineNumber&&n===this.column?this:new i(e,n)}delta(e=0,n=0){return this.with(this.lineNumber+e,this.column+n)}equals(e){return i.equals(this,e)}static equals(e,n){return!e&&!n?!0:!!e&&!!n&&e.lineNumber===n.lineNumber&&e.column===n.column}isBefore(e){return i.isBefore(this,e)}static isBefore(e,n){return e.lineNumber<n.lineNumber?!0:n.lineNumber<e.lineNumber?!1:e.column<n.column}isBeforeOrEqual(e){return i.isBeforeOrEqual(this,e)}static isBeforeOrEqual(e,n){return e.lineNumber<n.lineNumber?!0:n.lineNumber<e.lineNumber?!1:e.column<=n.column}static compare(e,n){const u=e.lineNumber|0,r=n.lineNumber|0;if(u===r){const t=e.column|0,l=n.column|0;return t-l}return u-r}clone(){return new i(this.lineNumber,this.column)}toString(){return"("+this.lineNumber+","+this.column+")"}static lift(e){return new i(e.lineNumber,e.column)}static isIPosition(e){return e&&typeof e.lineNumber=="number"&&typeof e.column=="number"}toJSON(){return{lineNumber:this.lineNumber,column:this.column}}}export{i as Position};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class Position {
+  static {
+    __name(this, "Position");
+  }
+  /**
+   * line number (starts at 1)
+   */
+  lineNumber;
+  /**
+   * column (the first character in a line is between column 1 and column 2)
+   */
+  column;
+  constructor(lineNumber, column) {
+    this.lineNumber = lineNumber;
+    this.column = column;
+  }
+  /**
+   * Create a new position from this position.
+   *
+   * @param newLineNumber new line number
+   * @param newColumn new column
+   */
+  with(newLineNumber = this.lineNumber, newColumn = this.column) {
+    if (newLineNumber === this.lineNumber && newColumn === this.column) {
+      return this;
+    } else {
+      return new Position(newLineNumber, newColumn);
+    }
+  }
+  /**
+   * Derive a new position from this position.
+   *
+   * @param deltaLineNumber line number delta
+   * @param deltaColumn column delta
+   */
+  delta(deltaLineNumber = 0, deltaColumn = 0) {
+    return this.with(this.lineNumber + deltaLineNumber, this.column + deltaColumn);
+  }
+  /**
+   * Test if this position equals other position
+   */
+  equals(other) {
+    return Position.equals(this, other);
+  }
+  /**
+   * Test if position `a` equals position `b`
+   */
+  static equals(a, b) {
+    if (!a && !b) {
+      return true;
+    }
+    return !!a && !!b && a.lineNumber === b.lineNumber && a.column === b.column;
+  }
+  /**
+   * Test if this position is before other position.
+   * If the two positions are equal, the result will be false.
+   */
+  isBefore(other) {
+    return Position.isBefore(this, other);
+  }
+  /**
+   * Test if position `a` is before position `b`.
+   * If the two positions are equal, the result will be false.
+   */
+  static isBefore(a, b) {
+    if (a.lineNumber < b.lineNumber) {
+      return true;
+    }
+    if (b.lineNumber < a.lineNumber) {
+      return false;
+    }
+    return a.column < b.column;
+  }
+  /**
+   * Test if this position is before other position.
+   * If the two positions are equal, the result will be true.
+   */
+  isBeforeOrEqual(other) {
+    return Position.isBeforeOrEqual(this, other);
+  }
+  /**
+   * Test if position `a` is before position `b`.
+   * If the two positions are equal, the result will be true.
+   */
+  static isBeforeOrEqual(a, b) {
+    if (a.lineNumber < b.lineNumber) {
+      return true;
+    }
+    if (b.lineNumber < a.lineNumber) {
+      return false;
+    }
+    return a.column <= b.column;
+  }
+  /**
+   * A function that compares positions, useful for sorting
+   */
+  static compare(a, b) {
+    const aLineNumber = a.lineNumber | 0;
+    const bLineNumber = b.lineNumber | 0;
+    if (aLineNumber === bLineNumber) {
+      const aColumn = a.column | 0;
+      const bColumn = b.column | 0;
+      return aColumn - bColumn;
+    }
+    return aLineNumber - bLineNumber;
+  }
+  /**
+   * Clone this position.
+   */
+  clone() {
+    return new Position(this.lineNumber, this.column);
+  }
+  /**
+   * Convert to a human-readable representation.
+   */
+  toString() {
+    return "(" + this.lineNumber + "," + this.column + ")";
+  }
+  // ---
+  /**
+   * Create a `Position` from an `IPosition`.
+   */
+  static lift(pos) {
+    return new Position(pos.lineNumber, pos.column);
+  }
+  /**
+   * Test if `obj` is an `IPosition`.
+   */
+  static isIPosition(obj) {
+    return obj && typeof obj.lineNumber === "number" && typeof obj.column === "number";
+  }
+  toJSON() {
+    return {
+      lineNumber: this.lineNumber,
+      column: this.column
+    };
+  }
+}
+export {
+  Position
+};
+//# sourceMappingURL=position.js.map

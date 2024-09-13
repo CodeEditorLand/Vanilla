@@ -1,1 +1,7 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"./inlineChatSession.js";const a=e("IInlineChatSavingService	");export{a as IInlineChatSavingService};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { Session } from "./inlineChatSession.js";
+const IInlineChatSavingService = createDecorator("IInlineChatSavingService	");
+export {
+  IInlineChatSavingService
+};
+//# sourceMappingURL=inlineChatSavingService.js.map

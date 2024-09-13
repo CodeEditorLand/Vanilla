@@ -1,1 +1,140 @@
-var h=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var u=(a,n,e,t)=>{for(var r=t>1?void 0:t?v(n,e):n,c=a.length-1,l;c>=0;c--)(l=a[c])&&(r=(t?l(n,e,r):l(r))||r);return t&&r&&h(n,e,r),r},i=(a,n)=>(e,t)=>n(e,t,a);import{Emitter as S}from"../../../base/common/event.js";import{Disposable as d}from"../../../base/common/lifecycle.js";import{URI as o}from"../../../base/common/uri.js";import"../../../base/parts/ipc/common/ipc.js";import{IConfigurationService as y}from"../../configuration/common/configuration.js";import{IProductService as D}from"../../product/common/productService.js";import{IStorageService as m}from"../../storage/common/storage.js";import"./userDataSync.js";import"./userDataSyncAccount.js";import{AbstractUserDataSyncStoreManagementService as U}from"./userDataSyncStoreService.js";class j{constructor(n){this.service=n}listen(n,e){switch(e){case"onDidChangeAccount":return this.service.onDidChangeAccount;case"onTokenFailed":return this.service.onTokenFailed}throw new Error(`[UserDataSyncAccountServiceChannel] Event not found: ${e}`)}call(n,e,t){switch(e){case"_getInitialData":return Promise.resolve(this.service.account);case"updateAccount":return this.service.updateAccount(t)}throw new Error("Invalid call")}}class q extends d{constructor(e){super();this.channel=e;this.channel.call("_getInitialData").then(t=>{this._account=t,this._register(this.channel.listen("onDidChangeAccount")(r=>{this._account=r,this._onDidChangeAccount.fire(r)}))})}_account;get account(){return this._account}get onTokenFailed(){return this.channel.listen("onTokenFailed")}_onDidChangeAccount=this._register(new S);onDidChangeAccount=this._onDidChangeAccount.event;updateAccount(e){return this.channel.call("updateAccount",e)}}class z{constructor(n){this.service=n}listen(n,e){switch(e){case"onDidChangeUserDataSyncStore":return this.service.onDidChangeUserDataSyncStore}throw new Error(`[UserDataSyncStoreManagementServiceChannel] Event not found: ${e}`)}call(n,e,t){switch(e){case"switch":return this.service.switch(t[0]);case"getPreviousUserDataSyncStore":return this.service.getPreviousUserDataSyncStore()}throw new Error("Invalid call")}}let s=class extends U{constructor(e,t,r,c){super(t,r,c);this.channel=e;this._register(this.channel.listen("onDidChangeUserDataSyncStore")(()=>this.updateUserDataSyncStore()))}async switch(e){return this.channel.call("switch",[e])}async getPreviousUserDataSyncStore(){const e=await this.channel.call("getPreviousUserDataSyncStore");return this.revive(e)}revive(e){return{url:o.revive(e.url),type:e.type,defaultUrl:o.revive(e.defaultUrl),insidersUrl:o.revive(e.insidersUrl),stableUrl:o.revive(e.stableUrl),canSwitch:e.canSwitch,authenticationProviders:e.authenticationProviders}}};s=u([i(1,D),i(2,y),i(3,m)],s);export{j as UserDataSyncAccountServiceChannel,q as UserDataSyncAccountServiceChannelClient,z as UserDataSyncStoreManagementServiceChannel,s as UserDataSyncStoreManagementServiceChannelClient};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { IUserDataSyncStore, IUserDataSyncStoreManagementService, UserDataSyncStoreType } from "./userDataSync.js";
+import { IUserDataSyncAccount, IUserDataSyncAccountService } from "./userDataSyncAccount.js";
+import { AbstractUserDataSyncStoreManagementService } from "./userDataSyncStoreService.js";
+class UserDataSyncAccountServiceChannel {
+  constructor(service) {
+    this.service = service;
+  }
+  static {
+    __name(this, "UserDataSyncAccountServiceChannel");
+  }
+  listen(_, event) {
+    switch (event) {
+      case "onDidChangeAccount":
+        return this.service.onDidChangeAccount;
+      case "onTokenFailed":
+        return this.service.onTokenFailed;
+    }
+    throw new Error(`[UserDataSyncAccountServiceChannel] Event not found: ${event}`);
+  }
+  call(context, command, args) {
+    switch (command) {
+      case "_getInitialData":
+        return Promise.resolve(this.service.account);
+      case "updateAccount":
+        return this.service.updateAccount(args);
+    }
+    throw new Error("Invalid call");
+  }
+}
+class UserDataSyncAccountServiceChannelClient extends Disposable {
+  constructor(channel) {
+    super();
+    this.channel = channel;
+    this.channel.call("_getInitialData").then((account) => {
+      this._account = account;
+      this._register(this.channel.listen("onDidChangeAccount")((account2) => {
+        this._account = account2;
+        this._onDidChangeAccount.fire(account2);
+      }));
+    });
+  }
+  static {
+    __name(this, "UserDataSyncAccountServiceChannelClient");
+  }
+  _account;
+  get account() {
+    return this._account;
+  }
+  get onTokenFailed() {
+    return this.channel.listen("onTokenFailed");
+  }
+  _onDidChangeAccount = this._register(new Emitter());
+  onDidChangeAccount = this._onDidChangeAccount.event;
+  updateAccount(account) {
+    return this.channel.call("updateAccount", account);
+  }
+}
+class UserDataSyncStoreManagementServiceChannel {
+  constructor(service) {
+    this.service = service;
+  }
+  static {
+    __name(this, "UserDataSyncStoreManagementServiceChannel");
+  }
+  listen(_, event) {
+    switch (event) {
+      case "onDidChangeUserDataSyncStore":
+        return this.service.onDidChangeUserDataSyncStore;
+    }
+    throw new Error(`[UserDataSyncStoreManagementServiceChannel] Event not found: ${event}`);
+  }
+  call(context, command, args) {
+    switch (command) {
+      case "switch":
+        return this.service.switch(args[0]);
+      case "getPreviousUserDataSyncStore":
+        return this.service.getPreviousUserDataSyncStore();
+    }
+    throw new Error("Invalid call");
+  }
+}
+let UserDataSyncStoreManagementServiceChannelClient = class extends AbstractUserDataSyncStoreManagementService {
+  constructor(channel, productService, configurationService, storageService) {
+    super(productService, configurationService, storageService);
+    this.channel = channel;
+    this._register(this.channel.listen("onDidChangeUserDataSyncStore")(() => this.updateUserDataSyncStore()));
+  }
+  static {
+    __name(this, "UserDataSyncStoreManagementServiceChannelClient");
+  }
+  async switch(type) {
+    return this.channel.call("switch", [type]);
+  }
+  async getPreviousUserDataSyncStore() {
+    const userDataSyncStore = await this.channel.call("getPreviousUserDataSyncStore");
+    return this.revive(userDataSyncStore);
+  }
+  revive(userDataSyncStore) {
+    return {
+      url: URI.revive(userDataSyncStore.url),
+      type: userDataSyncStore.type,
+      defaultUrl: URI.revive(userDataSyncStore.defaultUrl),
+      insidersUrl: URI.revive(userDataSyncStore.insidersUrl),
+      stableUrl: URI.revive(userDataSyncStore.stableUrl),
+      canSwitch: userDataSyncStore.canSwitch,
+      authenticationProviders: userDataSyncStore.authenticationProviders
+    };
+  }
+};
+UserDataSyncStoreManagementServiceChannelClient = __decorateClass([
+  __decorateParam(1, IProductService),
+  __decorateParam(2, IConfigurationService),
+  __decorateParam(3, IStorageService)
+], UserDataSyncStoreManagementServiceChannelClient);
+export {
+  UserDataSyncAccountServiceChannel,
+  UserDataSyncAccountServiceChannelClient,
+  UserDataSyncStoreManagementServiceChannel,
+  UserDataSyncStoreManagementServiceChannelClient
+};
+//# sourceMappingURL=userDataSyncIpc.js.map

@@ -1,1 +1,71 @@
-import{StorageScope as n,StorageTarget as A}from"../../../../platform/storage/common/storage.js";import*as r from"../../../../base/common/platform.js";import*as c from"../../../../base/common/uuid.js";import{cleanRemoteAuthority as P}from"../../../../platform/telemetry/common/telemetryUtils.js";import{mixin as D}from"../../../../base/common/objects.js";import{firstSessionDateStorageKey as b,lastSessionDateStorageKey as h,machineIdKey as u}from"../../../../platform/telemetry/common/telemetry.js";import{Gesture as C}from"../../../../base/browser/touch.js";function T(o){return o.replace(/(\d+\.\d+)(\.\d+)+/g,"$1")}function j(o,g,f,m,l,s,d,i){const e=Object.create(null),p=o.get(b,n.APPLICATION),a=o.get(h,n.APPLICATION);let t;d?t=`Redacted-${s??"web"}`:(t=o.get(u,n.APPLICATION),t||(t=c.generateUuid(),o.store(u,t,n.APPLICATION,A.MACHINE))),e["common.firstSessionDate"]=p,e["common.lastSessionDate"]=a||"",e["common.isNewSession"]=a?"0":"1",e["common.remoteAuthority"]=P(l),e["common.machineId"]=t,e.sessionID=c.generateUuid()+Date.now(),e.commitHash=g,e.version=f,e["common.platform"]=r.PlatformToString(r.platform),e["common.product"]=s??"web",e["common.userAgent"]=r.userAgent?T(r.userAgent):void 0,e["common.isTouchDevice"]=String(C.isTouchDevice()),m&&(e["common.msftInternal"]=m);let I=0;const S=Date.now();return Object.defineProperties(e,{timestamp:{get:()=>new Date,enumerable:!0},"common.timesincesessionstart":{get:()=>Date.now()-S,enumerable:!0},"common.sequence":{get:()=>I++,enumerable:!0}}),i&&D(e,i()),e}export{j as resolveWorkbenchCommonProperties};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import * as Platform from "../../../../base/common/platform.js";
+import * as uuid from "../../../../base/common/uuid.js";
+import { cleanRemoteAuthority } from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { mixin } from "../../../../base/common/objects.js";
+import { ICommonProperties, firstSessionDateStorageKey, lastSessionDateStorageKey, machineIdKey } from "../../../../platform/telemetry/common/telemetry.js";
+import { Gesture } from "../../../../base/browser/touch.js";
+function cleanUserAgent(userAgent) {
+  return userAgent.replace(/(\d+\.\d+)(\.\d+)+/g, "$1");
+}
+__name(cleanUserAgent, "cleanUserAgent");
+function resolveWorkbenchCommonProperties(storageService, commit, version, isInternalTelemetry, remoteAuthority, productIdentifier, removeMachineId, resolveAdditionalProperties) {
+  const result = /* @__PURE__ */ Object.create(null);
+  const firstSessionDate = storageService.get(firstSessionDateStorageKey, StorageScope.APPLICATION);
+  const lastSessionDate = storageService.get(lastSessionDateStorageKey, StorageScope.APPLICATION);
+  let machineId;
+  if (!removeMachineId) {
+    machineId = storageService.get(machineIdKey, StorageScope.APPLICATION);
+    if (!machineId) {
+      machineId = uuid.generateUuid();
+      storageService.store(machineIdKey, machineId, StorageScope.APPLICATION, StorageTarget.MACHINE);
+    }
+  } else {
+    machineId = `Redacted-${productIdentifier ?? "web"}`;
+  }
+  result["common.firstSessionDate"] = firstSessionDate;
+  result["common.lastSessionDate"] = lastSessionDate || "";
+  result["common.isNewSession"] = !lastSessionDate ? "1" : "0";
+  result["common.remoteAuthority"] = cleanRemoteAuthority(remoteAuthority);
+  result["common.machineId"] = machineId;
+  result["sessionID"] = uuid.generateUuid() + Date.now();
+  result["commitHash"] = commit;
+  result["version"] = version;
+  result["common.platform"] = Platform.PlatformToString(Platform.platform);
+  result["common.product"] = productIdentifier ?? "web";
+  result["common.userAgent"] = Platform.userAgent ? cleanUserAgent(Platform.userAgent) : void 0;
+  result["common.isTouchDevice"] = String(Gesture.isTouchDevice());
+  if (isInternalTelemetry) {
+    result["common.msftInternal"] = isInternalTelemetry;
+  }
+  let seq = 0;
+  const startTime = Date.now();
+  Object.defineProperties(result, {
+    // __GDPR__COMMON__ "timestamp" : { "classification": "SystemMetaData", "purpose": "FeatureInsight" }
+    "timestamp": {
+      get: /* @__PURE__ */ __name(() => /* @__PURE__ */ new Date(), "get"),
+      enumerable: true
+    },
+    // __GDPR__COMMON__ "common.timesincesessionstart" : { "classification": "SystemMetaData", "purpose": "FeatureInsight", "isMeasurement": true }
+    "common.timesincesessionstart": {
+      get: /* @__PURE__ */ __name(() => Date.now() - startTime, "get"),
+      enumerable: true
+    },
+    // __GDPR__COMMON__ "common.sequence" : { "classification": "SystemMetaData", "purpose": "FeatureInsight", "isMeasurement": true }
+    "common.sequence": {
+      get: /* @__PURE__ */ __name(() => seq++, "get"),
+      enumerable: true
+    }
+  });
+  if (resolveAdditionalProperties) {
+    mixin(result, resolveAdditionalProperties());
+  }
+  return result;
+}
+__name(resolveWorkbenchCommonProperties, "resolveWorkbenchCommonProperties");
+export {
+  resolveWorkbenchCommonProperties
+};
+//# sourceMappingURL=workbenchCommonProperties.js.map

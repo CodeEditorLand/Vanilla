@@ -1,1 +1,58 @@
-var l=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var c=(o,i,e,r)=>{for(var t=r>1?void 0:r?m(i,e):i,a=o.length-1,u;a>=0;a--)(u=o[a])&&(t=(r?u(i,e,t):u(t))||t);return r&&t&&l(i,e,t),t},s=(o,i)=>(e,r)=>i(e,r,o);import{IConfigurationService as v}from"../../../../platform/configuration/common/configuration.js";import{InstantiationType as f,registerSingleton as p}from"../../../../platform/instantiation/common/extensions.js";import{AbstractRequestService as d,IRequestService as g}from"../../../../platform/request/common/request.js";import{INativeHostService as h}from"../../../../platform/native/common/native.js";import"../../../../base/parts/request/common/request.js";import"../../../../base/common/cancellation.js";import{request as y}from"../../../../base/parts/request/browser/request.js";import{ILogService as I}from"../../../../platform/log/common/log.js";let n=class extends d{constructor(e,r,t){super(t);this.nativeHostService=e;this.configurationService=r}async request(e,r){return e.proxyAuthorization||(e.proxyAuthorization=this.configurationService.getValue("http.proxyAuthorization")),this.logAndRequest(e,()=>y(e,r))}async resolveProxy(e){return this.nativeHostService.resolveProxy(e)}async lookupAuthorization(e){return this.nativeHostService.lookupAuthorization(e)}async lookupKerberosAuthorization(e){return this.nativeHostService.lookupKerberosAuthorization(e)}async loadCertificates(){return this.nativeHostService.loadCertificates()}};n=c([s(0,h),s(1,v),s(2,I)],n),p(g,n,f.Delayed);export{n as NativeRequestService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from "../../../../platform/request/common/request.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IRequestContext, IRequestOptions } from "../../../../base/parts/request/common/request.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { request } from "../../../../base/parts/request/browser/request.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+let NativeRequestService = class extends AbstractRequestService {
+  constructor(nativeHostService, configurationService, logService) {
+    super(logService);
+    this.nativeHostService = nativeHostService;
+    this.configurationService = configurationService;
+  }
+  static {
+    __name(this, "NativeRequestService");
+  }
+  async request(options, token) {
+    if (!options.proxyAuthorization) {
+      options.proxyAuthorization = this.configurationService.getValue("http.proxyAuthorization");
+    }
+    return this.logAndRequest(options, () => request(options, token));
+  }
+  async resolveProxy(url) {
+    return this.nativeHostService.resolveProxy(url);
+  }
+  async lookupAuthorization(authInfo) {
+    return this.nativeHostService.lookupAuthorization(authInfo);
+  }
+  async lookupKerberosAuthorization(url) {
+    return this.nativeHostService.lookupKerberosAuthorization(url);
+  }
+  async loadCertificates() {
+    return this.nativeHostService.loadCertificates();
+  }
+};
+NativeRequestService = __decorateClass([
+  __decorateParam(0, INativeHostService),
+  __decorateParam(1, IConfigurationService),
+  __decorateParam(2, ILogService)
+], NativeRequestService);
+registerSingleton(IRequestService, NativeRequestService, InstantiationType.Delayed);
+export {
+  NativeRequestService
+};
+//# sourceMappingURL=requestService.js.map
