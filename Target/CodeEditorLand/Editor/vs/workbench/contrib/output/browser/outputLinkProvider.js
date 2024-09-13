@@ -1,1 +1,138 @@
-var v=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var d=(n,t,e,r)=>{for(var i=r>1?void 0:r?h(t,e):t,p=n.length-1,c;p>=0;p--)(c=n[p])&&(i=(r?c(t,e,i):c(i))||i);return r&&i&&v(t,e,i),i},o=(n,t)=>(e,r)=>t(e,r,n);import{createWebWorker as m}from"../../../../base/browser/defaultWorkerFactory.js";import{RunOnceScheduler as S}from"../../../../base/common/async.js";import{Disposable as l,dispose as g}from"../../../../base/common/lifecycle.js";import{ILanguageFeaturesService as W}from"../../../../editor/common/services/languageFeatures.js";import{IModelService as k}from"../../../../editor/common/services/model.js";import{WorkerTextModelSyncClient as y}from"../../../../editor/common/services/textModelSync/textModelSync.impl.js";import{IWorkspaceContextService as u}from"../../../../platform/workspace/common/workspace.js";import{LOG_MODE_ID as I,OUTPUT_MODE_ID as f}from"../../../services/output/common/output.js";let s=class extends l{constructor(e,r,i){super();this.contextService=e;this.modelService=r;this.languageFeaturesService=i;this.disposeWorkerScheduler=new S(()=>this.disposeWorker(),s.DISPOSE_WORKER_TIME),this.registerListeners(),this.updateLinkProviderWorker()}static DISPOSE_WORKER_TIME=3*60*1e3;worker;disposeWorkerScheduler;linkProviderRegistration;registerListeners(){this._register(this.contextService.onDidChangeWorkspaceFolders(()=>this.updateLinkProviderWorker()))}updateLinkProviderWorker(){this.contextService.getWorkspace().folders.length>0?this.linkProviderRegistration||(this.linkProviderRegistration=this.languageFeaturesService.linkProvider.register([{language:f,scheme:"*"},{language:I,scheme:"*"}],{provideLinks:async r=>{const i=await this.provideLinks(r.uri);return i&&{links:i}}})):(g(this.linkProviderRegistration),this.linkProviderRegistration=void 0),this.disposeWorker(),this.disposeWorkerScheduler.cancel()}getOrCreateWorker(){return this.disposeWorkerScheduler.schedule(),this.worker||(this.worker=new a(this.contextService,this.modelService)),this.worker}async provideLinks(e){return this.getOrCreateWorker().provideLinks(e)}disposeWorker(){this.worker&&(this.worker.dispose(),this.worker=void 0)}};s=d([o(0,u),o(1,k),o(2,W)],s);let a=class extends l{constructor(e,r){super();this.contextService=e;this._workerClient=this._register(m("vs/workbench/contrib/output/common/outputLinkComputer","OutputLinkDetectionWorker")),this._workerTextModelSyncClient=y.create(this._workerClient,r),this._initializeBarrier=this._ensureWorkspaceFolders()}_workerClient;_workerTextModelSyncClient;_initializeBarrier;async _ensureWorkspaceFolders(){await this._workerClient.proxy.$setWorkspaceFolders(this.contextService.getWorkspace().folders.map(e=>e.uri.toString()))}async provideLinks(e){return await this._initializeBarrier,await this._workerTextModelSyncClient.ensureSyncedResources([e]),this._workerClient.proxy.$computeLinks(e.toString())}};a=d([o(0,u),o(1,k)],a);export{s as OutputLinkProvider};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { createWebWorker } from "../../../../base/browser/defaultWorkerFactory.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import {
+  Disposable,
+  dispose
+} from "../../../../base/common/lifecycle.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { WorkerTextModelSyncClient } from "../../../../editor/common/services/textModelSync/textModelSync.impl.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import {
+  LOG_MODE_ID,
+  OUTPUT_MODE_ID
+} from "../../../services/output/common/output.js";
+let OutputLinkProvider = class extends Disposable {
+  constructor(contextService, modelService, languageFeaturesService) {
+    super();
+    this.contextService = contextService;
+    this.modelService = modelService;
+    this.languageFeaturesService = languageFeaturesService;
+    this.disposeWorkerScheduler = new RunOnceScheduler(() => this.disposeWorker(), OutputLinkProvider.DISPOSE_WORKER_TIME);
+    this.registerListeners();
+    this.updateLinkProviderWorker();
+  }
+  static {
+    __name(this, "OutputLinkProvider");
+  }
+  static DISPOSE_WORKER_TIME = 3 * 60 * 1e3;
+  // dispose worker after 3 minutes of inactivity
+  worker;
+  disposeWorkerScheduler;
+  linkProviderRegistration;
+  registerListeners() {
+    this._register(
+      this.contextService.onDidChangeWorkspaceFolders(
+        () => this.updateLinkProviderWorker()
+      )
+    );
+  }
+  updateLinkProviderWorker() {
+    const folders = this.contextService.getWorkspace().folders;
+    if (folders.length > 0) {
+      if (!this.linkProviderRegistration) {
+        this.linkProviderRegistration = this.languageFeaturesService.linkProvider.register(
+          [
+            { language: OUTPUT_MODE_ID, scheme: "*" },
+            { language: LOG_MODE_ID, scheme: "*" }
+          ],
+          {
+            provideLinks: /* @__PURE__ */ __name(async (model) => {
+              const links = await this.provideLinks(
+                model.uri
+              );
+              return links && { links };
+            }, "provideLinks")
+          }
+        );
+      }
+    } else {
+      dispose(this.linkProviderRegistration);
+      this.linkProviderRegistration = void 0;
+    }
+    this.disposeWorker();
+    this.disposeWorkerScheduler.cancel();
+  }
+  getOrCreateWorker() {
+    this.disposeWorkerScheduler.schedule();
+    if (!this.worker) {
+      this.worker = new OutputLinkWorkerClient(
+        this.contextService,
+        this.modelService
+      );
+    }
+    return this.worker;
+  }
+  async provideLinks(modelUri) {
+    return this.getOrCreateWorker().provideLinks(modelUri);
+  }
+  disposeWorker() {
+    if (this.worker) {
+      this.worker.dispose();
+      this.worker = void 0;
+    }
+  }
+};
+OutputLinkProvider = __decorateClass([
+  __decorateParam(0, IWorkspaceContextService),
+  __decorateParam(1, IModelService),
+  __decorateParam(2, ILanguageFeaturesService)
+], OutputLinkProvider);
+let OutputLinkWorkerClient = class extends Disposable {
+  constructor(contextService, modelService) {
+    super();
+    this.contextService = contextService;
+    this._workerClient = this._register(createWebWorker(
+      "vs/workbench/contrib/output/common/outputLinkComputer",
+      "OutputLinkDetectionWorker"
+    ));
+    this._workerTextModelSyncClient = WorkerTextModelSyncClient.create(this._workerClient, modelService);
+    this._initializeBarrier = this._ensureWorkspaceFolders();
+  }
+  static {
+    __name(this, "OutputLinkWorkerClient");
+  }
+  _workerClient;
+  _workerTextModelSyncClient;
+  _initializeBarrier;
+  async _ensureWorkspaceFolders() {
+    await this._workerClient.proxy.$setWorkspaceFolders(
+      this.contextService.getWorkspace().folders.map((folder) => folder.uri.toString())
+    );
+  }
+  async provideLinks(modelUri) {
+    await this._initializeBarrier;
+    await this._workerTextModelSyncClient.ensureSyncedResources([modelUri]);
+    return this._workerClient.proxy.$computeLinks(modelUri.toString());
+  }
+};
+OutputLinkWorkerClient = __decorateClass([
+  __decorateParam(0, IWorkspaceContextService),
+  __decorateParam(1, IModelService)
+], OutputLinkWorkerClient);
+export {
+  OutputLinkProvider
+};
+//# sourceMappingURL=outputLinkProvider.js.map

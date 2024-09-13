@@ -1,1 +1,373 @@
-var H=Object.defineProperty;var V=Object.getOwnPropertyDescriptor;var w=(h,p,e,i)=>{for(var t=i>1?void 0:i?V(p,e):p,n=h.length-1,r;n>=0;n--)(r=h[n])&&(t=(i?r(p,e,t):r(t))||t);return i&&t&&H(p,e,t),t},g=(h,p)=>(e,i)=>p(e,i,h);import{EventType as U,addDisposableListener as E,h as I}from"../../../../../base/browser/dom.js";import{ActionsOrientation as W}from"../../../../../base/browser/ui/actionbar/actionbar.js";import{HoverPosition as k}from"../../../../../base/browser/ui/hover/hoverWidget.js";import{Disposable as D}from"../../../../../base/common/lifecycle.js";import{autorun as G,autorunWithStore as j,derived as c,derivedDisposable as P,derivedWithSetter as F,observableFromEvent as K,observableValue as N}from"../../../../../base/common/observable.js";import{HiddenItemStrategy as B,MenuWorkbenchToolBar as z}from"../../../../../platform/actions/browser/toolbar.js";import{IMenuService as $,MenuId as M}from"../../../../../platform/actions/common/actions.js";import{IContextKeyService as q}from"../../../../../platform/contextkey/common/contextkey.js";import{WorkbenchHoverDelegate as J}from"../../../../../platform/hover/browser/hover.js";import{IInstantiationService as L}from"../../../../../platform/instantiation/common/instantiation.js";import{EditorOption as Q}from"../../../../common/config/editorOptions.js";import{LineRange as X,LineRangeSet as Y}from"../../../../common/core/lineRange.js";import{OffsetRange as x}from"../../../../common/core/offsetRange.js";import{Range as Z}from"../../../../common/core/range.js";import{TextEdit as ee}from"../../../../common/core/textEdit.js";import{DetailedLineRangeMapping as te}from"../../../../common/diff/rangeMapping.js";import{TextModelText as O}from"../../../../common/model/textModelText.js";import{ActionRunnerWithContext as ie}from"../../multiDiffEditor/utils.js";import{DiffEditorSash as ne}from"../components/diffEditorSash.js";import{appendRemoveOnDispose as se,applyStyle as re,prependRemoveOnDispose as oe}from"../utils.js";import{EditorGutter as ae}from"../utils/editorGutter.js";const R=[],b=35;let S=class extends D{constructor(e,i,t,n,r,a,o,s,m){super();this._diffModel=i;this._editors=t;this._options=n;this._sashLayout=r;this._boundarySashes=a;this._instantiationService=o;this._contextKeyService=s;this._menuService=m;this._register(oe(e,this.elements.root)),this._register(E(this.elements.root,"click",()=>{this._editors.modified.focus()})),this._register(re(this.elements.root,{display:this._hasActions.map(d=>d?"block":"none")})),P(this,d=>this._showSash.read(d)?new ne(e,this._sashLayout.dimensions,this._options.enableSplitViewResizing,this._boundarySashes,F(this,u=>this._sashLayout.sashLeft.read(u)-b,(u,y)=>this._sashLayout.sashLeft.set(u+b,y)),()=>this._sashLayout.resetSash()):void 0).recomputeInitiallyAndOnChange(this._store);const f=c(this,d=>{const l=this._diffModel.read(d);if(!l)return[];const u=l.diff.read(d);if(!u)return[];const y=this._selectedDiffs.read(d);if(y.length>0){const v=te.fromRangeMappings(y.flatMap(T=>T.rangeMappings));return[new C(v,!0,M.DiffEditorSelectionToolbar,void 0,l.model.original.uri,l.model.modified.uri)]}const A=this._currentDiff.read(d);return u.mappings.map(v=>new C(v.lineRangeMapping.withInnerChangesFromLineRanges(),v.lineRangeMapping===A?.lineRangeMapping,M.DiffEditorHunkToolbar,void 0,l.model.original.uri,l.model.modified.uri))});this._register(new ae(this._editors.modified,this.elements.root,{getIntersectingGutterItems:(d,l)=>f.read(l),createView:(d,l)=>this._instantiationService.createInstance(_,d,l,this)})),this._register(E(this.elements.gutter,U.MOUSE_WHEEL,d=>{this._editors.modified.getOption(Q.scrollbar).handleMouseWheel&&this._editors.modified.delegateScrollFromMouseWheelEvent(d)},{passive:!1}))}_menu=this._register(this._menuService.createMenu(M.DiffEditorHunkToolbar,this._contextKeyService));_actions=K(this,this._menu.onDidChange,()=>this._menu.getActions());_hasActions=this._actions.map(e=>e.length>0);_showSash=c(this,e=>this._options.renderSideBySide.read(e)&&this._hasActions.read(e));width=c(this,e=>this._hasActions.read(e)?b:0);elements=I("div.gutter@gutter",{style:{position:"absolute",height:"100%",width:b+"px"}},[]);computeStagedValue(e){const i=e.innerChanges??[],t=new O(this._editors.modifiedModel.get()),n=new O(this._editors.original.getModel());return new ee(i.map(o=>o.toTextEdit(t))).apply(n)}_currentDiff=c(this,e=>{const i=this._diffModel.read(e);if(!i)return;const t=i.diff.read(e)?.mappings,n=this._editors.modifiedCursor.read(e);if(n)return t?.find(r=>r.lineRangeMapping.modified.contains(n.lineNumber))});_selectedDiffs=c(this,e=>{const t=this._diffModel.read(e)?.diff.read(e);if(!t)return R;const n=this._editors.modifiedSelections.read(e);if(n.every(s=>s.isEmpty()))return R;const r=new Y(n.map(s=>X.fromRangeInclusive(s))),o=t.mappings.filter(s=>s.lineRangeMapping.innerChanges&&r.intersects(s.lineRangeMapping.modified)).map(s=>({mapping:s,rangeMappings:s.lineRangeMapping.innerChanges.filter(m=>n.some(f=>Z.areIntersecting(m.modifiedRange,f)))}));return o.length===0||o.every(s=>s.rangeMappings.length===0)?R:o});layout(e){this.elements.gutter.style.left=e+"px"}};S=w([g(6,L),g(7,q),g(8,$)],S);class C{constructor(p,e,i,t,n,r){this.mapping=p;this.showAlways=e;this.menuId=i;this.rangeOverride=t;this.originalUri=n;this.modifiedUri=r}get id(){return this.mapping.modified.toString()}get range(){return this.rangeOverride??this.mapping.modified}}let _=class extends D{constructor(e,i,t,n){super();this._item=e;const r=this._register(n.createInstance(J,"element",!0,{position:{hoverPosition:k.RIGHT}}));this._register(se(i,this._elements.root)),this._register(G(a=>{const o=this._showAlways.read(a);this._elements.root.classList.toggle("noTransition",!0),this._elements.root.classList.toggle("showAlways",o),setTimeout(()=>{this._elements.root.classList.toggle("noTransition",!1)},0)})),this._register(j((a,o)=>{this._elements.buttons.replaceChildren();const s=o.add(n.createInstance(z,this._elements.buttons,this._menuId.read(a),{orientation:W.VERTICAL,hoverDelegate:r,toolbarOptions:{primaryGroup:m=>m.startsWith("primary")},overflowBehavior:{maxItems:this._isSmall.read(a)?1:3},hiddenItemStrategy:B.Ignore,actionRunner:new ie(()=>{const m=this._item.get(),f=m.mapping;return{mapping:f,originalWithModifiedChanges:t.computeStagedValue(f),originalUri:m.originalUri,modifiedUri:m.modifiedUri}}),menuOptions:{shouldForwardArgs:!0}}));o.add(s.onDidChangeMenuItems(()=>{this._lastItemRange&&this.layout(this._lastItemRange,this._lastViewRange)}))}))}_elements=I("div.gutterItem",{style:{height:"20px",width:"34px"}},[I("div.background@background",{},[]),I("div.buttons@buttons",{},[])]);_showAlways=this._item.map(this,e=>e.showAlways);_menuId=this._item.map(this,e=>e.menuId);_isSmall=N(this,!1);_lastItemRange=void 0;_lastViewRange=void 0;layout(e,i){this._lastItemRange=e,this._lastViewRange=i;let t=this._elements.buttons.clientHeight;this._isSmall.set(this._item.get().mapping.original.startLineNumber===1&&e.length<30,void 0),t=this._elements.buttons.clientHeight;const n=e.length/2-t/2,r=t;let a=e.start+n;const o=x.tryCreate(r,i.endExclusive-r-t),s=x.tryCreate(e.start+r,e.endExclusive-t-r);s&&o&&s.start<s.endExclusive&&(a=o.clip(a),a=s.clip(a)),this._elements.buttons.style.top=`${a-e.start}px`}};_=w([g(3,L)],_);export{S as DiffEditorGutter};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  EventType,
+  addDisposableListener,
+  h
+} from "../../../../../base/browser/dom.js";
+import { ActionsOrientation } from "../../../../../base/browser/ui/actionbar/actionbar.js";
+import { HoverPosition } from "../../../../../base/browser/ui/hover/hoverWidget.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import {
+  autorun,
+  autorunWithStore,
+  derived,
+  derivedDisposable,
+  derivedWithSetter,
+  observableFromEvent,
+  observableValue
+} from "../../../../../base/common/observable.js";
+import {
+  HiddenItemStrategy,
+  MenuWorkbenchToolBar
+} from "../../../../../platform/actions/browser/toolbar.js";
+import {
+  IMenuService,
+  MenuId
+} from "../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { WorkbenchHoverDelegate } from "../../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { EditorOption } from "../../../../common/config/editorOptions.js";
+import { LineRange, LineRangeSet } from "../../../../common/core/lineRange.js";
+import { OffsetRange } from "../../../../common/core/offsetRange.js";
+import { Range } from "../../../../common/core/range.js";
+import { TextEdit } from "../../../../common/core/textEdit.js";
+import { DetailedLineRangeMapping } from "../../../../common/diff/rangeMapping.js";
+import { TextModelText } from "../../../../common/model/textModelText.js";
+import { ActionRunnerWithContext } from "../../multiDiffEditor/utils.js";
+import {
+  DiffEditorSash
+} from "../components/diffEditorSash.js";
+import {
+  appendRemoveOnDispose,
+  applyStyle,
+  prependRemoveOnDispose
+} from "../utils.js";
+import {
+  EditorGutter
+} from "../utils/editorGutter.js";
+const emptyArr = [];
+const width = 35;
+let DiffEditorGutter = class extends Disposable {
+  constructor(diffEditorRoot, _diffModel, _editors, _options, _sashLayout, _boundarySashes, _instantiationService, _contextKeyService, _menuService) {
+    super();
+    this._diffModel = _diffModel;
+    this._editors = _editors;
+    this._options = _options;
+    this._sashLayout = _sashLayout;
+    this._boundarySashes = _boundarySashes;
+    this._instantiationService = _instantiationService;
+    this._contextKeyService = _contextKeyService;
+    this._menuService = _menuService;
+    this._register(prependRemoveOnDispose(diffEditorRoot, this.elements.root));
+    this._register(addDisposableListener(this.elements.root, "click", () => {
+      this._editors.modified.focus();
+    }));
+    this._register(applyStyle(this.elements.root, { display: this._hasActions.map((a) => a ? "block" : "none") }));
+    derivedDisposable(this, (reader) => {
+      const showSash = this._showSash.read(reader);
+      return showSash ? new DiffEditorSash(
+        diffEditorRoot,
+        this._sashLayout.dimensions,
+        this._options.enableSplitViewResizing,
+        this._boundarySashes,
+        derivedWithSetter(
+          this,
+          (reader2) => this._sashLayout.sashLeft.read(reader2) - width,
+          (v, tx) => this._sashLayout.sashLeft.set(v + width, tx)
+        ),
+        () => this._sashLayout.resetSash()
+      ) : void 0;
+    }).recomputeInitiallyAndOnChange(this._store);
+    const gutterItems = derived(this, (reader) => {
+      const model = this._diffModel.read(reader);
+      if (!model) {
+        return [];
+      }
+      const diffs = model.diff.read(reader);
+      if (!diffs) {
+        return [];
+      }
+      const selection = this._selectedDiffs.read(reader);
+      if (selection.length > 0) {
+        const m = DetailedLineRangeMapping.fromRangeMappings(selection.flatMap((s) => s.rangeMappings));
+        return [
+          new DiffGutterItem(
+            m,
+            true,
+            MenuId.DiffEditorSelectionToolbar,
+            void 0,
+            model.model.original.uri,
+            model.model.modified.uri
+          )
+        ];
+      }
+      const currentDiff = this._currentDiff.read(reader);
+      return diffs.mappings.map((m) => new DiffGutterItem(
+        m.lineRangeMapping.withInnerChangesFromLineRanges(),
+        m.lineRangeMapping === currentDiff?.lineRangeMapping,
+        MenuId.DiffEditorHunkToolbar,
+        void 0,
+        model.model.original.uri,
+        model.model.modified.uri
+      ));
+    });
+    this._register(new EditorGutter(this._editors.modified, this.elements.root, {
+      getIntersectingGutterItems: /* @__PURE__ */ __name((range, reader) => gutterItems.read(reader), "getIntersectingGutterItems"),
+      createView: /* @__PURE__ */ __name((item, target) => {
+        return this._instantiationService.createInstance(DiffToolBar, item, target, this);
+      }, "createView")
+    }));
+    this._register(addDisposableListener(this.elements.gutter, EventType.MOUSE_WHEEL, (e) => {
+      if (this._editors.modified.getOption(EditorOption.scrollbar).handleMouseWheel) {
+        this._editors.modified.delegateScrollFromMouseWheelEvent(e);
+      }
+    }, { passive: false }));
+  }
+  static {
+    __name(this, "DiffEditorGutter");
+  }
+  _menu = this._register(
+    this._menuService.createMenu(
+      MenuId.DiffEditorHunkToolbar,
+      this._contextKeyService
+    )
+  );
+  _actions = observableFromEvent(
+    this,
+    this._menu.onDidChange,
+    () => this._menu.getActions()
+  );
+  _hasActions = this._actions.map((a) => a.length > 0);
+  _showSash = derived(
+    this,
+    (reader) => this._options.renderSideBySide.read(reader) && this._hasActions.read(reader)
+  );
+  width = derived(
+    this,
+    (reader) => this._hasActions.read(reader) ? width : 0
+  );
+  elements = h(
+    "div.gutter@gutter",
+    {
+      style: {
+        position: "absolute",
+        height: "100%",
+        width: width + "px"
+      }
+    },
+    []
+  );
+  computeStagedValue(mapping) {
+    const c = mapping.innerChanges ?? [];
+    const modified = new TextModelText(this._editors.modifiedModel.get());
+    const original = new TextModelText(this._editors.original.getModel());
+    const edit = new TextEdit(c.map((c2) => c2.toTextEdit(modified)));
+    const value = edit.apply(original);
+    return value;
+  }
+  _currentDiff = derived(this, (reader) => {
+    const model = this._diffModel.read(reader);
+    if (!model) {
+      return void 0;
+    }
+    const mappings = model.diff.read(reader)?.mappings;
+    const cursorPosition = this._editors.modifiedCursor.read(reader);
+    if (!cursorPosition) {
+      return void 0;
+    }
+    return mappings?.find(
+      (m) => m.lineRangeMapping.modified.contains(cursorPosition.lineNumber)
+    );
+  });
+  _selectedDiffs = derived(this, (reader) => {
+    const model = this._diffModel.read(reader);
+    const diff = model?.diff.read(reader);
+    if (!diff) {
+      return emptyArr;
+    }
+    const selections = this._editors.modifiedSelections.read(reader);
+    if (selections.every((s) => s.isEmpty())) {
+      return emptyArr;
+    }
+    const selectedLineNumbers = new LineRangeSet(
+      selections.map((s) => LineRange.fromRangeInclusive(s))
+    );
+    const selectedMappings = diff.mappings.filter(
+      (m) => m.lineRangeMapping.innerChanges && selectedLineNumbers.intersects(m.lineRangeMapping.modified)
+    );
+    const result = selectedMappings.map((mapping) => ({
+      mapping,
+      rangeMappings: mapping.lineRangeMapping.innerChanges.filter(
+        (c) => selections.some(
+          (s) => Range.areIntersecting(c.modifiedRange, s)
+        )
+      )
+    }));
+    if (result.length === 0 || result.every((r) => r.rangeMappings.length === 0)) {
+      return emptyArr;
+    }
+    return result;
+  });
+  layout(left) {
+    this.elements.gutter.style.left = left + "px";
+  }
+};
+DiffEditorGutter = __decorateClass([
+  __decorateParam(6, IInstantiationService),
+  __decorateParam(7, IContextKeyService),
+  __decorateParam(8, IMenuService)
+], DiffEditorGutter);
+class DiffGutterItem {
+  constructor(mapping, showAlways, menuId, rangeOverride, originalUri, modifiedUri) {
+    this.mapping = mapping;
+    this.showAlways = showAlways;
+    this.menuId = menuId;
+    this.rangeOverride = rangeOverride;
+    this.originalUri = originalUri;
+    this.modifiedUri = modifiedUri;
+  }
+  static {
+    __name(this, "DiffGutterItem");
+  }
+  get id() {
+    return this.mapping.modified.toString();
+  }
+  get range() {
+    return this.rangeOverride ?? this.mapping.modified;
+  }
+}
+let DiffToolBar = class extends Disposable {
+  constructor(_item, target, gutter, instantiationService) {
+    super();
+    this._item = _item;
+    const hoverDelegate = this._register(
+      instantiationService.createInstance(
+        WorkbenchHoverDelegate,
+        "element",
+        true,
+        { position: { hoverPosition: HoverPosition.RIGHT } }
+      )
+    );
+    this._register(appendRemoveOnDispose(target, this._elements.root));
+    this._register(
+      autorun((reader) => {
+        const showAlways = this._showAlways.read(reader);
+        this._elements.root.classList.toggle("noTransition", true);
+        this._elements.root.classList.toggle("showAlways", showAlways);
+        setTimeout(() => {
+          this._elements.root.classList.toggle("noTransition", false);
+        }, 0);
+      })
+    );
+    this._register(
+      autorunWithStore((reader, store) => {
+        this._elements.buttons.replaceChildren();
+        const i = store.add(
+          instantiationService.createInstance(
+            MenuWorkbenchToolBar,
+            this._elements.buttons,
+            this._menuId.read(reader),
+            {
+              orientation: ActionsOrientation.VERTICAL,
+              hoverDelegate,
+              toolbarOptions: {
+                primaryGroup: /* @__PURE__ */ __name((g) => g.startsWith("primary"), "primaryGroup")
+              },
+              overflowBehavior: {
+                maxItems: this._isSmall.read(reader) ? 1 : 3
+              },
+              hiddenItemStrategy: HiddenItemStrategy.Ignore,
+              actionRunner: new ActionRunnerWithContext(() => {
+                const item = this._item.get();
+                const mapping = item.mapping;
+                return {
+                  mapping,
+                  originalWithModifiedChanges: gutter.computeStagedValue(mapping),
+                  originalUri: item.originalUri,
+                  modifiedUri: item.modifiedUri
+                };
+              }),
+              menuOptions: {
+                shouldForwardArgs: true
+              }
+            }
+          )
+        );
+        store.add(
+          i.onDidChangeMenuItems(() => {
+            if (this._lastItemRange) {
+              this.layout(
+                this._lastItemRange,
+                this._lastViewRange
+              );
+            }
+          })
+        );
+      })
+    );
+  }
+  static {
+    __name(this, "DiffToolBar");
+  }
+  _elements = h(
+    "div.gutterItem",
+    { style: { height: "20px", width: "34px" } },
+    [
+      h("div.background@background", {}, []),
+      h("div.buttons@buttons", {}, [])
+    ]
+  );
+  _showAlways = this._item.map(
+    this,
+    (item) => item.showAlways
+  );
+  _menuId = this._item.map(this, (item) => item.menuId);
+  _isSmall = observableValue(this, false);
+  _lastItemRange = void 0;
+  _lastViewRange = void 0;
+  layout(itemRange, viewRange) {
+    this._lastItemRange = itemRange;
+    this._lastViewRange = viewRange;
+    let itemHeight = this._elements.buttons.clientHeight;
+    this._isSmall.set(
+      this._item.get().mapping.original.startLineNumber === 1 && itemRange.length < 30,
+      void 0
+    );
+    itemHeight = this._elements.buttons.clientHeight;
+    const middleHeight = itemRange.length / 2 - itemHeight / 2;
+    const margin = itemHeight;
+    let effectiveCheckboxTop = itemRange.start + middleHeight;
+    const preferredViewPortRange = OffsetRange.tryCreate(
+      margin,
+      viewRange.endExclusive - margin - itemHeight
+    );
+    const preferredParentRange = OffsetRange.tryCreate(
+      itemRange.start + margin,
+      itemRange.endExclusive - itemHeight - margin
+    );
+    if (preferredParentRange && preferredViewPortRange && preferredParentRange.start < preferredParentRange.endExclusive) {
+      effectiveCheckboxTop = preferredViewPortRange.clip(effectiveCheckboxTop);
+      effectiveCheckboxTop = preferredParentRange.clip(effectiveCheckboxTop);
+    }
+    this._elements.buttons.style.top = `${effectiveCheckboxTop - itemRange.start}px`;
+  }
+};
+DiffToolBar = __decorateClass([
+  __decorateParam(3, IInstantiationService)
+], DiffToolBar);
+export {
+  DiffEditorGutter
+};
+//# sourceMappingURL=gutterFeature.js.map

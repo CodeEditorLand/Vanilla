@@ -1,1 +1,77 @@
-import*as a from"fs";import*as p from"os";import{performance as c}from"perf_hooks";import{FileAccess as m}from"../../base/common/network.js";import{dirname as l,join as r}from"../../base/common/path.js";import*as O from"../../base/common/performance.js";import{parseArgs as f}from"../../platform/environment/node/argv.js";import E from"../../platform/product/common/product.js";import{run as u}from"./remoteExtensionHostAgentCli.js";import{createServer as S}from"./remoteExtensionHostAgentServer.js";import{serverOptions as d}from"./serverEnvironmentService.js";O.mark("code/server/codeLoaded"),global.vscodeServerCodeLoadedTime=c.now();const g={onMultipleValues:(e,i)=>{},onEmptyValue:e=>{},onUnknownOption:e=>{},onDeprecatedOption:(e,i)=>{}},o=f(process.argv.slice(2),d,g),n=o["server-data-dir"]||process.env.VSCODE_AGENT_FOLDER||r(p.homedir(),E.serverDataFolderName||".vscode-remote"),t=r(n,"data"),s=r(t,"User"),A=r(s,"globalStorage"),_=r(s,"History"),v=r(t,"Machine");o["user-data-dir"]=t;const T=l(m.asFileUri("").fsPath),I=r(T,"extensions");o["builtin-extensions-dir"]=I,o["extensions-dir"]=o["extensions-dir"]||r(n,"extensions"),[n,o["extensions-dir"],t,s,v,A,_].forEach(e=>{try{a.existsSync(e)||a.mkdirSync(e,{mode:448})}catch{}});function N(){u(o,n,d)}function C(e){return S(e,o,n)}export{C as createServer,N as spawnCli};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as fs from "fs";
+import * as os from "os";
+import { performance } from "perf_hooks";
+import { FileAccess } from "../../base/common/network.js";
+import { dirname, join } from "../../base/common/path.js";
+import * as perf from "../../base/common/performance.js";
+import {
+  parseArgs
+} from "../../platform/environment/node/argv.js";
+import product from "../../platform/product/common/product.js";
+import { run as runCli } from "./remoteExtensionHostAgentCli.js";
+import {
+  createServer as doCreateServer
+} from "./remoteExtensionHostAgentServer.js";
+import { serverOptions } from "./serverEnvironmentService.js";
+perf.mark("code/server/codeLoaded");
+global.vscodeServerCodeLoadedTime = performance.now();
+const errorReporter = {
+  onMultipleValues: /* @__PURE__ */ __name((id, usedValue) => {
+    console.error(
+      `Option '${id}' can only be defined once. Using value ${usedValue}.`
+    );
+  }, "onMultipleValues"),
+  onEmptyValue: /* @__PURE__ */ __name((id) => {
+    console.error(`Ignoring option '${id}': Value must not be empty.`);
+  }, "onEmptyValue"),
+  onUnknownOption: /* @__PURE__ */ __name((id) => {
+    console.error(`Ignoring option '${id}': not supported for server.`);
+  }, "onUnknownOption"),
+  onDeprecatedOption: /* @__PURE__ */ __name((deprecatedOption, message) => {
+    console.warn(`Option '${deprecatedOption}' is deprecated: ${message}`);
+  }, "onDeprecatedOption")
+};
+const args = parseArgs(process.argv.slice(2), serverOptions, errorReporter);
+const REMOTE_DATA_FOLDER = args["server-data-dir"] || process.env["VSCODE_AGENT_FOLDER"] || join(os.homedir(), product.serverDataFolderName || ".vscode-remote");
+const USER_DATA_PATH = join(REMOTE_DATA_FOLDER, "data");
+const APP_SETTINGS_HOME = join(USER_DATA_PATH, "User");
+const GLOBAL_STORAGE_HOME = join(APP_SETTINGS_HOME, "globalStorage");
+const LOCAL_HISTORY_HOME = join(APP_SETTINGS_HOME, "History");
+const MACHINE_SETTINGS_HOME = join(USER_DATA_PATH, "Machine");
+args["user-data-dir"] = USER_DATA_PATH;
+const APP_ROOT = dirname(FileAccess.asFileUri("").fsPath);
+const BUILTIN_EXTENSIONS_FOLDER_PATH = join(APP_ROOT, "extensions");
+args["builtin-extensions-dir"] = BUILTIN_EXTENSIONS_FOLDER_PATH;
+args["extensions-dir"] = args["extensions-dir"] || join(REMOTE_DATA_FOLDER, "extensions");
+[
+  REMOTE_DATA_FOLDER,
+  args["extensions-dir"],
+  USER_DATA_PATH,
+  APP_SETTINGS_HOME,
+  MACHINE_SETTINGS_HOME,
+  GLOBAL_STORAGE_HOME,
+  LOCAL_HISTORY_HOME
+].forEach((f) => {
+  try {
+    if (!fs.existsSync(f)) {
+      fs.mkdirSync(f, { mode: 448 });
+    }
+  } catch (err) {
+    console.error(err);
+  }
+});
+function spawnCli() {
+  runCli(args, REMOTE_DATA_FOLDER, serverOptions);
+}
+__name(spawnCli, "spawnCli");
+function createServer(address) {
+  return doCreateServer(address, args, REMOTE_DATA_FOLDER);
+}
+__name(createServer, "createServer");
+export {
+  createServer,
+  spawnCli
+};
+//# sourceMappingURL=server.main.js.map

@@ -1,1 +1,59 @@
-import{onUnexpectedExternalError as l}from"../../../../../base/common/errors.js";import{Emitter as s}from"../../../../../base/common/event.js";import{Disposable as m,toDisposable as d}from"../../../../../base/common/lifecycle.js";class c extends m{_serviceBrand;_onDidChangeProviders=this._register(new s);onDidChangeProviders=this._onDidChangeProviders.event;_onDidChangeItems=this._register(new s);onDidChangeItems=this._onDidChangeItems.event;_providers=[];registerCellStatusBarItemProvider(e){this._providers.push(e);let t;return e.onDidChangeStatusBarItems&&(t=e.onDidChangeStatusBarItems(()=>this._onDidChangeItems.fire())),this._onDidChangeProviders.fire(),d(()=>{t?.dispose();const r=this._providers.findIndex(i=>i===e);this._providers.splice(r,1)})}async getStatusBarItemsForCell(e,t,r,i){const a=this._providers.filter(o=>o.viewType===r||o.viewType==="*");return await Promise.all(a.map(async o=>{try{return await o.provideCellStatusBarItems(e,t,i)??{items:[]}}catch(n){return l(n),{items:[]}}}))}}export{c as NotebookCellStatusBarService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { onUnexpectedExternalError } from "../../../../../base/common/errors.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../../../base/common/lifecycle.js";
+class NotebookCellStatusBarService extends Disposable {
+  static {
+    __name(this, "NotebookCellStatusBarService");
+  }
+  _serviceBrand;
+  _onDidChangeProviders = this._register(
+    new Emitter()
+  );
+  onDidChangeProviders = this._onDidChangeProviders.event;
+  _onDidChangeItems = this._register(new Emitter());
+  onDidChangeItems = this._onDidChangeItems.event;
+  _providers = [];
+  registerCellStatusBarItemProvider(provider) {
+    this._providers.push(provider);
+    let changeListener;
+    if (provider.onDidChangeStatusBarItems) {
+      changeListener = provider.onDidChangeStatusBarItems(
+        () => this._onDidChangeItems.fire()
+      );
+    }
+    this._onDidChangeProviders.fire();
+    return toDisposable(() => {
+      changeListener?.dispose();
+      const idx = this._providers.findIndex((p) => p === provider);
+      this._providers.splice(idx, 1);
+    });
+  }
+  async getStatusBarItemsForCell(docUri, cellIndex, viewType, token) {
+    const providers = this._providers.filter(
+      (p) => p.viewType === viewType || p.viewType === "*"
+    );
+    return await Promise.all(
+      providers.map(async (p) => {
+        try {
+          return await p.provideCellStatusBarItems(
+            docUri,
+            cellIndex,
+            token
+          ) ?? { items: [] };
+        } catch (e) {
+          onUnexpectedExternalError(e);
+          return { items: [] };
+        }
+      })
+    );
+  }
+}
+export {
+  NotebookCellStatusBarService
+};
+//# sourceMappingURL=notebookCellStatusBarServiceImpl.js.map

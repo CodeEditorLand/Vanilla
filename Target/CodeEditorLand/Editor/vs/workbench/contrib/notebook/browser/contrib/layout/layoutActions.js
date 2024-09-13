@@ -1,1 +1,81 @@
-import{localize2 as g}from"../../../../../../nls.js";import{Action2 as c,MenuId as a,registerAction2 as f}from"../../../../../../platform/actions/common/actions.js";import{IConfigurationService as u}from"../../../../../../platform/configuration/common/configuration.js";import{NotebookSetting as r}from"../../../common/notebookCommon.js";import{NOTEBOOK_ACTIONS_CATEGORY as d}from"../../controller/coreActions.js";const m="notebook.toggleCellToolbarPosition";class T extends c{constructor(){super({id:m,title:g("notebook.toggleCellToolbarPosition","Toggle Cell Toolbar Position"),menu:[{id:a.NotebookCellTitle,group:"View",order:1}],category:d,f1:!1})}async run(e,o){const t=o&&o.ui?o.notebookEditor:void 0;if(t&&t.hasModel()){const i=t.textModel.viewType,n=e.get(u),s=n.getValue(r.cellToolbarLocation),l=this.togglePosition(i,s);await n.updateValue(r.cellToolbarLocation,l)}}togglePosition(e,o){if(typeof o=="string")if(["left","right","hidden"].indexOf(o)>=0){const t=o==="right"?"left":"right",i={default:o};return i[e]=t,i}else{const t={default:"right"};return t[e]="left",t}else{const i=(o[e]??o.default??"right")==="right"?"left":"right",n={...o};return n[e]=i,n}}}f(T);export{T as ToggleCellToolbarPositionAction};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize2 } from "../../../../../../nls.js";
+import {
+  Action2,
+  MenuId,
+  registerAction2
+} from "../../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { NotebookSetting } from "../../../common/notebookCommon.js";
+import {
+  NOTEBOOK_ACTIONS_CATEGORY
+} from "../../controller/coreActions.js";
+const TOGGLE_CELL_TOOLBAR_POSITION = "notebook.toggleCellToolbarPosition";
+class ToggleCellToolbarPositionAction extends Action2 {
+  static {
+    __name(this, "ToggleCellToolbarPositionAction");
+  }
+  constructor() {
+    super({
+      id: TOGGLE_CELL_TOOLBAR_POSITION,
+      title: localize2(
+        "notebook.toggleCellToolbarPosition",
+        "Toggle Cell Toolbar Position"
+      ),
+      menu: [
+        {
+          id: MenuId.NotebookCellTitle,
+          group: "View",
+          order: 1
+        }
+      ],
+      category: NOTEBOOK_ACTIONS_CATEGORY,
+      f1: false
+    });
+  }
+  async run(accessor, context) {
+    const editor = context && context.ui ? context.notebookEditor : void 0;
+    if (editor && editor.hasModel()) {
+      const viewType = editor.textModel.viewType;
+      const configurationService = accessor.get(IConfigurationService);
+      const toolbarPosition = configurationService.getValue(NotebookSetting.cellToolbarLocation);
+      const newConfig = this.togglePosition(viewType, toolbarPosition);
+      await configurationService.updateValue(
+        NotebookSetting.cellToolbarLocation,
+        newConfig
+      );
+    }
+  }
+  togglePosition(viewType, toolbarPosition) {
+    if (typeof toolbarPosition === "string") {
+      if (["left", "right", "hidden"].indexOf(toolbarPosition) >= 0) {
+        const newViewValue = toolbarPosition === "right" ? "left" : "right";
+        const config = {
+          default: toolbarPosition
+        };
+        config[viewType] = newViewValue;
+        return config;
+      } else {
+        const config = {
+          default: "right"
+        };
+        config[viewType] = "left";
+        return config;
+      }
+    } else {
+      const oldValue = toolbarPosition[viewType] ?? toolbarPosition["default"] ?? "right";
+      const newViewValue = oldValue === "right" ? "left" : "right";
+      const newConfig = {
+        ...toolbarPosition
+      };
+      newConfig[viewType] = newViewValue;
+      return newConfig;
+    }
+  }
+}
+registerAction2(ToggleCellToolbarPositionAction);
+export {
+  ToggleCellToolbarPositionAction
+};
+//# sourceMappingURL=layoutActions.js.map

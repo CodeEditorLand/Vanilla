@@ -1,1 +1,863 @@
-var N=Object.defineProperty;var X=Object.getOwnPropertyDescriptor;var x=(p,l,e,i)=>{for(var t=i>1?void 0:i?X(l,e):l,r=p.length-1,n;r>=0;r--)(n=p[r])&&(t=(i?n(l,e,t):n(t))||t);return i&&t&&N(l,e,t),t},o=(p,l)=>(e,i)=>l(e,i,p);import{bufferToStream as j}from"../../../../base/common/buffer.js";import{CancellationToken as D,CancellationTokenSource as $}from"../../../../base/common/cancellation.js";import{Codicon as P}from"../../../../base/common/codicons.js";import{Emitter as q}from"../../../../base/common/event.js";import{Disposable as F}from"../../../../base/common/lifecycle.js";import{Schemas as R}from"../../../../base/common/network.js";import{extname as H}from"../../../../base/common/path.js";import{basename as S,dirname as K,extname as Y,isEqual as z,joinPath as T,toLocalResource as b}from"../../../../base/common/resources.js";import{consumeStream as J}from"../../../../base/common/stream.js";import{ICodeEditorService as Q}from"../../../../editor/browser/services/codeEditorService.js";import{ILanguageService as Z}from"../../../../editor/common/languages/language.js";import{PLAINTEXT_LANGUAGE_ID as O}from"../../../../editor/common/languages/modesRegistry.js";import{createTextBufferFactoryFromSnapshot as ee,createTextBufferFactoryFromStream as ie}from"../../../../editor/common/model/textModel.js";import{IModelService as te}from"../../../../editor/common/services/model.js";import{ITextResourceConfigurationService as _}from"../../../../editor/common/services/textResourceConfiguration.js";import{localize as d}from"../../../../nls.js";import{IDialogService as re,IFileDialogService as ne}from"../../../../platform/dialogs/common/dialogs.js";import{FileOperationResult as oe,IFileService as ae}from"../../../../platform/files/common/files.js";import{IInstantiationService as se}from"../../../../platform/instantiation/common/instantiation.js";import{ILogService as de}from"../../../../platform/log/common/log.js";import{listErrorForeground as M}from"../../../../platform/theme/common/colorRegistry.js";import{IUriIdentityService as B}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{IWorkspaceContextService as ce,WORKSPACE_EXTENSION as le}from"../../../../platform/workspace/common/workspace.js";import{SaveSourceRegistry as k}from"../../../common/editor.js";import{BaseTextEditorModel as fe}from"../../../common/editor/textEditorModel.js";import{IDecorationsService as ge}from"../../decorations/common/decorations.js";import{IWorkbenchEnvironmentService as A}from"../../environment/common/environmentService.js";import{IElevatedFileService as ve}from"../../files/common/elevatedFileService.js";import{IFilesConfigurationService as ue}from"../../filesConfiguration/common/filesConfigurationService.js";import{ILifecycleService as me}from"../../lifecycle/common/lifecycle.js";import{IPathService as Se}from"../../path/common/pathService.js";import{UntitledTextEditorModel as pe}from"../../untitled/common/untitledTextEditorModel.js";import{IUntitledTextEditorService as he}from"../../untitled/common/untitledTextEditorService.js";import{IWorkingCopyFileService as Ie}from"../../workingCopy/common/workingCopyFileService.js";import{DecodeStreamErrorKind as ye,UTF8 as c,UTF8_with_bom as h,UTF16be as L,UTF16le as W,encodingExists as Re,toDecodeStream as Ee,toEncodeReadable as xe}from"../common/encoding.js";import{TextFileEditorModelManager as Fe}from"../common/textFileEditorModelManager.js";import{TextFileEditorModelState as V,TextFileOperationError as Te,TextFileOperationResult as G,stringToSnapshot as Oe,toBufferOrReadable as we}from"../common/textfiles.js";let m=class extends F{constructor(e,i,t,r,n,a,s,f,y,g,v,u,w,E,U,C,Ue,Ce){super();this.fileService=e;this.untitledTextEditorService=i;this.lifecycleService=t;this.instantiationService=r;this.modelService=n;this.environmentService=a;this.dialogService=s;this.fileDialogService=f;this.textResourceConfigurationService=y;this.filesConfigurationService=g;this.codeEditorService=v;this.pathService=u;this.workingCopyFileService=w;this.uriIdentityService=E;this.languageService=U;this.logService=C;this.elevatedFileService=Ue;this.decorationsService=Ce;this.provideDecorations()}static TEXTFILE_SAVE_CREATE_SOURCE=k.registerSource("textFileCreate.source",d("textFileCreate.source","File Created"));static TEXTFILE_SAVE_REPLACE_SOURCE=k.registerSource("textFileOverwrite.source",d("textFileOverwrite.source","File Replaced"));files=this._register(this.instantiationService.createInstance(Fe));untitled=this.untitledTextEditorService;provideDecorations(){const e=this._register(new class extends F{constructor(t){super();this.files=t;this.registerListeners()}label=d("textFileModelDecorations","Text File Model Decorations");_onDidChange=this._register(new q);onDidChange=this._onDidChange.event;registerListeners(){this._register(this.files.onDidResolve(({model:t})=>{(t.isReadonly()||t.hasState(V.ORPHAN))&&this._onDidChange.fire([t.resource])})),this._register(this.files.onDidRemove(t=>this._onDidChange.fire([t]))),this._register(this.files.onDidChangeReadonly(t=>this._onDidChange.fire([t.resource]))),this._register(this.files.onDidChangeOrphaned(t=>this._onDidChange.fire([t.resource])))}provideDecorations(t){const r=this.files.get(t);if(!r||r.isDisposed())return;const n=r.isReadonly(),a=r.hasState(V.ORPHAN);if(n&&a)return{color:M,letter:P.lockSmall,strikethrough:!0,tooltip:d("readonlyAndDeleted","Deleted, Read-only")};if(n)return{letter:P.lockSmall,tooltip:d("readonly","Read-only")};if(a)return{color:M,strikethrough:!0,tooltip:d("deleted","Deleted")}}}(this.files));this._register(this.decorationsService.registerDecorationsProvider(e))}_encoding;get encoding(){return this._encoding||(this._encoding=this._register(this.instantiationService.createInstance(I))),this._encoding}async read(e,i){const[t,r]=await this.doRead(e,{...i,preferUnbuffered:!0});return{...t,encoding:r.detected.encoding||c,value:await J(r.stream,n=>n.join(""))}}async readStream(e,i){const[t,r]=await this.doRead(e,i);return{...t,encoding:r.detected.encoding||c,value:await ie(r.stream)}}async doRead(e,i){const t=new $;let r;if(i?.preferUnbuffered){const n=await this.fileService.readFile(e,i,t.token);r={...n,value:j(n.value)}}else r=await this.fileService.readFileStream(e,i,t.token);try{const n=await this.doGetDecodedStream(e,r.value,i);return[r,n]}catch(n){throw t.dispose(!0),n.decodeStreamErrorKind===ye.STREAM_IS_BINARY?new Te(d("fileBinaryError","File seems to be binary and cannot be opened as text"),G.FILE_IS_BINARY,i):n}}async create(e,i){const t=await Promise.all(e.map(async r=>{const n=await this.getEncodedReadable(r.resource,r.value);return{resource:r.resource,contents:n,overwrite:r.options?.overwrite}}));return this.workingCopyFileService.create(t,D.None,i)}async write(e,i,t){const r=await this.getEncodedReadable(e,i,t);return t?.writeElevated&&this.elevatedFileService.isSupported(e)?this.elevatedFileService.writeFileElevated(e,r,t):this.fileService.writeFile(e,r,t)}async getEncodedReadable(e,i,t){const{encoding:r,addBOM:n}=await this.encoding.getWriteEncoding(e,t);if(r===c&&!n)return typeof i>"u"?void 0:we(i);i=i||"";const a=typeof i=="string"?Oe(i):i;return xe(a,r,{addBOM:n})}async getDecodedStream(e,i,t){return(await this.doGetDecodedStream(e,i,t)).stream}doGetDecodedStream(e,i,t){return Ee(i,{acceptTextOnly:t?.acceptTextOnly??!1,guessEncoding:t?.autoGuessEncoding||this.textResourceConfigurationService.getValue(e,"files.autoGuessEncoding"),candidateGuessEncodings:t?.candidateGuessEncodings||this.textResourceConfigurationService.getValue(e,"files.candidateGuessEncodings"),overwriteEncoding:async r=>{const{encoding:n}=await this.encoding.getPreferredReadEncoding(e,t,r??void 0);return n}})}async save(e,i){if(e.scheme===R.untitled){const t=this.untitled.get(e);if(t){let r;if(t.hasAssociatedFilePath?r=await this.suggestSavePath(e):r=await this.fileDialogService.pickFileToSave(await this.suggestSavePath(e),i?.availableFileSystems),r)return this.saveAs(e,r,i)}}else{const t=this.files.get(e);if(t)return await t.save(i)?e:void 0}}async saveAs(e,i,t){if(i||(i=await this.fileDialogService.pickFileToSave(await this.suggestSavePath(t?.suggestedTarget??e),t?.availableFileSystems)),!!i){if(this.filesConfigurationService.isReadonly(i))if(await this.confirmMakeWriteable(i))this.filesConfigurationService.updateReadonly(i,!1);else return;return z(e,i)?this.save(e,{...t,force:!0}):this.fileService.hasProvider(e)&&this.uriIdentityService.extUri.isEqual(e,i)&&await this.fileService.exists(e)?(await this.workingCopyFileService.move([{file:{source:e,target:i}}],D.None),await this.save(e,t)||await this.save(i,t),i):this.doSaveAs(e,i,t)}}async doSaveAs(e,i,t){let r=!1;const n=this.files.get(e);if(n?.isResolved())r=await this.doSaveAsTextFile(n,e,i,t);else if(this.fileService.hasProvider(e))await this.fileService.copy(e,i,!0),r=!0;else{const a=this.modelService.getModel(e);a&&(r=await this.doSaveAsTextFile(a,e,i,t))}if(r){try{await this.revert(e)}catch(a){this.logService.error(a)}return i}}async doSaveAsTextFile(e,i,t,r){let n;const a=e;typeof a.getEncoding=="function"&&(n=a.getEncoding());let s=!1,f=this.files.get(t);if(f?.isResolved())s=!0;else{s=await this.fileService.exists(t),s||await this.create([{resource:t,value:""}]);try{f=await this.files.resolve(t,{encoding:n})}catch(u){if(s&&(u.textFileOperationResult===G.FILE_IS_BINARY||u.fileOperationResult===oe.FILE_TOO_LARGE))return await this.fileService.del(t),this.doSaveAsTextFile(e,i,t,r);throw u}}let y;if(e instanceof pe&&e.hasAssociatedFilePath&&s&&this.uriIdentityService.extUri.isEqual(t,b(e.resource,this.environmentService.remoteAuthority,this.pathService.defaultUriScheme))?y=await this.confirmOverwrite(t):y=!0,!y)return!1;let g;e instanceof fe?e.isResolved()&&(g=e.textEditorModel??void 0):g=e;let v;if(f.isResolved()&&(v=f.textEditorModel),g&&v){f.updatePreferredEncoding(n),this.modelService.updateModel(v,ee(g.createSnapshot()));const u=g.getLanguageId(),w=v.getLanguageId();u!==O&&w===O&&v.setLanguage(u);const E=this.codeEditorService.getTransientModelProperties(g);if(E)for(const[U,C]of E)this.codeEditorService.setTransientModelProperty(v,U,C)}return r?.source||(r={...r,source:s?m.TEXTFILE_SAVE_REPLACE_SOURCE:m.TEXTFILE_SAVE_CREATE_SOURCE}),f.save({...r,from:i})}async confirmOverwrite(e){const{confirmed:i}=await this.dialogService.confirm({type:"warning",message:d("confirmOverwrite","'{0}' already exists. Do you want to replace it?",S(e)),detail:d("overwriteIrreversible","A file or folder with the name '{0}' already exists in the folder '{1}'. Replacing it will overwrite its current contents.",S(e),S(K(e))),primaryButton:d({key:"replaceButtonLabel",comment:["&& denotes a mnemonic"]},"&&Replace")});return i}async confirmMakeWriteable(e){const{confirmed:i}=await this.dialogService.confirm({type:"warning",message:d("confirmMakeWriteable","'{0}' is marked as read-only. Do you want to save anyway?",S(e)),detail:d("confirmMakeWriteableDetail","Paths can be configured as read-only via settings."),primaryButton:d({key:"makeWriteableButtonLabel",comment:["&& denotes a mnemonic"]},"&&Save Anyway")});return i}async suggestSavePath(e){if(this.fileService.hasProvider(e))return e;const i=this.environmentService.remoteAuthority,t=await this.fileDialogService.defaultFilePath();let r;if(e.scheme===R.untitled){const n=this.untitled.get(e);if(n){if(n.hasAssociatedFilePath)return b(e,i,this.pathService.defaultUriScheme);let a;await this.pathService.hasValidBasename(T(t,n.name),n.name)?a=n.name:a=S(e);const s=n.getLanguageId();s&&s!==O?r=this.suggestFilename(s,a):r=a}}return r||(r=S(e)),T(t,r)}suggestFilename(e,i){if(!this.languageService.getLanguageName(e))return i;const r=H(i),n=this.languageService.getExtensions(e);if(n.includes(r))return i;const a=n.at(0);if(a)return r?`${i.substring(0,i.indexOf(r))}${a}`:`${i}${a}`;const s=this.languageService.getFilenames(e);return s.includes(i)?i:s.at(0)??i}async revert(e,i){if(e.scheme===R.untitled){const t=this.untitled.get(e);if(t)return t.revert(i)}else{const t=this.files.get(e);if(t&&(t.isDirty()||i?.force))return t.revert(i)}}isDirty(e){const i=e.scheme===R.untitled?this.untitled.get(e):this.files.get(e);return i?i.isDirty():!1}};m=x([o(0,ae),o(1,he),o(2,me),o(3,se),o(4,te),o(5,A),o(6,re),o(7,ne),o(8,_),o(9,ue),o(10,Q),o(11,Se),o(12,Ie),o(13,B),o(14,Z),o(15,de),o(16,ve),o(17,ge)],m);let I=class extends F{constructor(e,i,t,r){super();this.textResourceConfigurationService=e;this.environmentService=i;this.contextService=t;this.uriIdentityService=r;this._encodingOverrides=this.getDefaultEncodingOverrides(),this.registerListeners()}_encodingOverrides;get encodingOverrides(){return this._encodingOverrides}set encodingOverrides(e){this._encodingOverrides=e}registerListeners(){this._register(this.contextService.onDidChangeWorkspaceFolders(()=>this.encodingOverrides=this.getDefaultEncodingOverrides()))}getDefaultEncodingOverrides(){const e=[];return e.push({parent:this.environmentService.userRoamingDataHome,encoding:c}),e.push({extension:le,encoding:c}),e.push({parent:this.environmentService.untitledWorkspacesHome,encoding:c}),this.contextService.getWorkspace().folders.forEach(i=>{e.push({parent:T(i.uri,".vscode"),encoding:c})}),e}async getWriteEncoding(e,i){const{encoding:t,hasBOM:r}=await this.getPreferredWriteEncoding(e,i?i.encoding:void 0);return{encoding:t,addBOM:r}}async getPreferredWriteEncoding(e,i){const t=await this.getEncodingForResource(e,i);return{encoding:t,hasBOM:t===L||t===W||t===h}}async getPreferredReadEncoding(e,i,t){let r;i?.encoding?t===h&&i.encoding===c?r=h:r=i.encoding:typeof t=="string"?r=t:this.textResourceConfigurationService.getValue(e,"files.encoding")===h&&(r=c);const n=await this.getEncodingForResource(e,r);return{encoding:n,hasBOM:n===L||n===W||n===h}}async getEncodingForResource(e,i){let t;const r=this.getEncodingOverride(e);return r?t=r:i?t=i:t=this.textResourceConfigurationService.getValue(e,"files.encoding"),t!==c&&(!t||!await Re(t))&&(t=c),t}getEncodingOverride(e){if(this.encodingOverrides?.length){for(const i of this.encodingOverrides)if(i.parent&&this.uriIdentityService.extUri.isEqualOrParent(e,i.parent)||i.extension&&Y(e)===`.${i.extension}`)return i.encoding}}};I=x([o(0,_),o(1,A),o(2,ce),o(3,B)],I);export{m as AbstractTextFileService,I as EncodingOracle};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  bufferToStream
+} from "../../../../base/common/buffer.js";
+import {
+  CancellationToken,
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { extname as pathExtname } from "../../../../base/common/path.js";
+import {
+  basename,
+  dirname,
+  extname,
+  isEqual,
+  joinPath,
+  toLocalResource
+} from "../../../../base/common/resources.js";
+import {
+  consumeStream
+} from "../../../../base/common/stream.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../../../../editor/common/languages/modesRegistry.js";
+import {
+  createTextBufferFactoryFromSnapshot,
+  createTextBufferFactoryFromStream
+} from "../../../../editor/common/model/textModel.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { localize } from "../../../../nls.js";
+import {
+  IDialogService,
+  IFileDialogService
+} from "../../../../platform/dialogs/common/dialogs.js";
+import {
+  FileOperationResult,
+  IFileService
+} from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { listErrorForeground } from "../../../../platform/theme/common/colorRegistry.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import {
+  IWorkspaceContextService,
+  WORKSPACE_EXTENSION
+} from "../../../../platform/workspace/common/workspace.js";
+import {
+  SaveSourceRegistry
+} from "../../../common/editor.js";
+import { BaseTextEditorModel } from "../../../common/editor/textEditorModel.js";
+import {
+  IDecorationsService
+} from "../../decorations/common/decorations.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IElevatedFileService } from "../../files/common/elevatedFileService.js";
+import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { UntitledTextEditorModel } from "../../untitled/common/untitledTextEditorModel.js";
+import {
+  IUntitledTextEditorService
+} from "../../untitled/common/untitledTextEditorService.js";
+import {
+  IWorkingCopyFileService
+} from "../../workingCopy/common/workingCopyFileService.js";
+import {
+  DecodeStreamErrorKind,
+  UTF8,
+  UTF8_with_bom,
+  UTF16be,
+  UTF16le,
+  encodingExists,
+  toDecodeStream,
+  toEncodeReadable
+} from "../common/encoding.js";
+import { TextFileEditorModelManager } from "../common/textFileEditorModelManager.js";
+import {
+  TextFileEditorModelState,
+  TextFileOperationError,
+  TextFileOperationResult,
+  stringToSnapshot,
+  toBufferOrReadable
+} from "../common/textfiles.js";
+let AbstractTextFileService = class extends Disposable {
+  constructor(fileService, untitledTextEditorService, lifecycleService, instantiationService, modelService, environmentService, dialogService, fileDialogService, textResourceConfigurationService, filesConfigurationService, codeEditorService, pathService, workingCopyFileService, uriIdentityService, languageService, logService, elevatedFileService, decorationsService) {
+    super();
+    this.fileService = fileService;
+    this.untitledTextEditorService = untitledTextEditorService;
+    this.lifecycleService = lifecycleService;
+    this.instantiationService = instantiationService;
+    this.modelService = modelService;
+    this.environmentService = environmentService;
+    this.dialogService = dialogService;
+    this.fileDialogService = fileDialogService;
+    this.textResourceConfigurationService = textResourceConfigurationService;
+    this.filesConfigurationService = filesConfigurationService;
+    this.codeEditorService = codeEditorService;
+    this.pathService = pathService;
+    this.workingCopyFileService = workingCopyFileService;
+    this.uriIdentityService = uriIdentityService;
+    this.languageService = languageService;
+    this.logService = logService;
+    this.elevatedFileService = elevatedFileService;
+    this.decorationsService = decorationsService;
+    this.provideDecorations();
+  }
+  static {
+    __name(this, "AbstractTextFileService");
+  }
+  static TEXTFILE_SAVE_CREATE_SOURCE = SaveSourceRegistry.registerSource(
+    "textFileCreate.source",
+    localize("textFileCreate.source", "File Created")
+  );
+  static TEXTFILE_SAVE_REPLACE_SOURCE = SaveSourceRegistry.registerSource(
+    "textFileOverwrite.source",
+    localize("textFileOverwrite.source", "File Replaced")
+  );
+  files = this._register(
+    this.instantiationService.createInstance(TextFileEditorModelManager)
+  );
+  untitled = this.untitledTextEditorService;
+  //#region decorations
+  provideDecorations() {
+    const provider = this._register(
+      new class extends Disposable {
+        constructor(files) {
+          super();
+          this.files = files;
+          this.registerListeners();
+        }
+        label = localize(
+          "textFileModelDecorations",
+          "Text File Model Decorations"
+        );
+        _onDidChange = this._register(
+          new Emitter()
+        );
+        onDidChange = this._onDidChange.event;
+        registerListeners() {
+          this._register(
+            this.files.onDidResolve(({ model }) => {
+              if (model.isReadonly() || model.hasState(TextFileEditorModelState.ORPHAN)) {
+                this._onDidChange.fire([model.resource]);
+              }
+            })
+          );
+          this._register(
+            this.files.onDidRemove(
+              (modelUri) => this._onDidChange.fire([modelUri])
+            )
+          );
+          this._register(
+            this.files.onDidChangeReadonly(
+              (model) => this._onDidChange.fire([model.resource])
+            )
+          );
+          this._register(
+            this.files.onDidChangeOrphaned(
+              (model) => this._onDidChange.fire([model.resource])
+            )
+          );
+        }
+        provideDecorations(uri) {
+          const model = this.files.get(uri);
+          if (!model || model.isDisposed()) {
+            return void 0;
+          }
+          const isReadonly = model.isReadonly();
+          const isOrphaned = model.hasState(
+            TextFileEditorModelState.ORPHAN
+          );
+          if (isReadonly && isOrphaned) {
+            return {
+              color: listErrorForeground,
+              letter: Codicon.lockSmall,
+              strikethrough: true,
+              tooltip: localize(
+                "readonlyAndDeleted",
+                "Deleted, Read-only"
+              )
+            };
+          } else if (isReadonly) {
+            return {
+              letter: Codicon.lockSmall,
+              tooltip: localize("readonly", "Read-only")
+            };
+          } else if (isOrphaned) {
+            return {
+              color: listErrorForeground,
+              strikethrough: true,
+              tooltip: localize("deleted", "Deleted")
+            };
+          }
+          return void 0;
+        }
+      }(this.files)
+    );
+    this._register(
+      this.decorationsService.registerDecorationsProvider(provider)
+    );
+  }
+  //#endregin
+  //#region text file read / write / create
+  _encoding;
+  get encoding() {
+    if (!this._encoding) {
+      this._encoding = this._register(
+        this.instantiationService.createInstance(EncodingOracle)
+      );
+    }
+    return this._encoding;
+  }
+  async read(resource, options) {
+    const [bufferStream, decoder] = await this.doRead(resource, {
+      ...options,
+      // optimization: since we know that the caller does not
+      // care about buffering, we indicate this to the reader.
+      // this reduces all the overhead the buffered reading
+      // has (open, read, close) if the provider supports
+      // unbuffered reading.
+      preferUnbuffered: true
+    });
+    return {
+      ...bufferStream,
+      encoding: decoder.detected.encoding || UTF8,
+      value: await consumeStream(
+        decoder.stream,
+        (strings) => strings.join("")
+      )
+    };
+  }
+  async readStream(resource, options) {
+    const [bufferStream, decoder] = await this.doRead(resource, options);
+    return {
+      ...bufferStream,
+      encoding: decoder.detected.encoding || UTF8,
+      value: await createTextBufferFactoryFromStream(decoder.stream)
+    };
+  }
+  async doRead(resource, options) {
+    const cts = new CancellationTokenSource();
+    let bufferStream;
+    if (options?.preferUnbuffered) {
+      const content = await this.fileService.readFile(
+        resource,
+        options,
+        cts.token
+      );
+      bufferStream = {
+        ...content,
+        value: bufferToStream(content.value)
+      };
+    } else {
+      bufferStream = await this.fileService.readFileStream(
+        resource,
+        options,
+        cts.token
+      );
+    }
+    try {
+      const decoder = await this.doGetDecodedStream(
+        resource,
+        bufferStream.value,
+        options
+      );
+      return [bufferStream, decoder];
+    } catch (error) {
+      cts.dispose(true);
+      if (error.decodeStreamErrorKind === DecodeStreamErrorKind.STREAM_IS_BINARY) {
+        throw new TextFileOperationError(
+          localize(
+            "fileBinaryError",
+            "File seems to be binary and cannot be opened as text"
+          ),
+          TextFileOperationResult.FILE_IS_BINARY,
+          options
+        );
+      } else {
+        throw error;
+      }
+    }
+  }
+  async create(operations, undoInfo) {
+    const operationsWithContents = await Promise.all(
+      operations.map(async (operation) => {
+        const contents = await this.getEncodedReadable(
+          operation.resource,
+          operation.value
+        );
+        return {
+          resource: operation.resource,
+          contents,
+          overwrite: operation.options?.overwrite
+        };
+      })
+    );
+    return this.workingCopyFileService.create(
+      operationsWithContents,
+      CancellationToken.None,
+      undoInfo
+    );
+  }
+  async write(resource, value, options) {
+    const readable = await this.getEncodedReadable(
+      resource,
+      value,
+      options
+    );
+    if (options?.writeElevated && this.elevatedFileService.isSupported(resource)) {
+      return this.elevatedFileService.writeFileElevated(
+        resource,
+        readable,
+        options
+      );
+    }
+    return this.fileService.writeFile(resource, readable, options);
+  }
+  async getEncodedReadable(resource, value, options) {
+    const { encoding, addBOM } = await this.encoding.getWriteEncoding(
+      resource,
+      options
+    );
+    if (encoding === UTF8 && !addBOM) {
+      return typeof value === "undefined" ? void 0 : toBufferOrReadable(value);
+    }
+    value = value || "";
+    const snapshot = typeof value === "string" ? stringToSnapshot(value) : value;
+    return toEncodeReadable(snapshot, encoding, { addBOM });
+  }
+  async getDecodedStream(resource, value, options) {
+    return (await this.doGetDecodedStream(resource, value, options)).stream;
+  }
+  doGetDecodedStream(resource, stream, options) {
+    return toDecodeStream(stream, {
+      acceptTextOnly: options?.acceptTextOnly ?? false,
+      guessEncoding: options?.autoGuessEncoding || this.textResourceConfigurationService.getValue(
+        resource,
+        "files.autoGuessEncoding"
+      ),
+      candidateGuessEncodings: options?.candidateGuessEncodings || this.textResourceConfigurationService.getValue(
+        resource,
+        "files.candidateGuessEncodings"
+      ),
+      overwriteEncoding: /* @__PURE__ */ __name(async (detectedEncoding) => {
+        const { encoding } = await this.encoding.getPreferredReadEncoding(
+          resource,
+          options,
+          detectedEncoding ?? void 0
+        );
+        return encoding;
+      }, "overwriteEncoding")
+    });
+  }
+  //#endregion
+  //#region save
+  async save(resource, options) {
+    if (resource.scheme === Schemas.untitled) {
+      const model = this.untitled.get(resource);
+      if (model) {
+        let targetUri;
+        if (model.hasAssociatedFilePath) {
+          targetUri = await this.suggestSavePath(resource);
+        } else {
+          targetUri = await this.fileDialogService.pickFileToSave(
+            await this.suggestSavePath(resource),
+            options?.availableFileSystems
+          );
+        }
+        if (targetUri) {
+          return this.saveAs(resource, targetUri, options);
+        }
+      }
+    } else {
+      const model = this.files.get(resource);
+      if (model) {
+        return await model.save(options) ? resource : void 0;
+      }
+    }
+    return void 0;
+  }
+  async saveAs(source, target, options) {
+    if (!target) {
+      target = await this.fileDialogService.pickFileToSave(
+        await this.suggestSavePath(options?.suggestedTarget ?? source),
+        options?.availableFileSystems
+      );
+    }
+    if (!target) {
+      return;
+    }
+    if (this.filesConfigurationService.isReadonly(target)) {
+      const confirmed = await this.confirmMakeWriteable(target);
+      if (confirmed) {
+        this.filesConfigurationService.updateReadonly(target, false);
+      } else {
+        return;
+      }
+    }
+    if (isEqual(source, target)) {
+      return this.save(source, {
+        ...options,
+        force: true
+      });
+    }
+    if (this.fileService.hasProvider(source) && this.uriIdentityService.extUri.isEqual(source, target) && await this.fileService.exists(source)) {
+      await this.workingCopyFileService.move(
+        [{ file: { source, target } }],
+        CancellationToken.None
+      );
+      const success = await this.save(source, options);
+      if (!success) {
+        await this.save(target, options);
+      }
+      return target;
+    }
+    return this.doSaveAs(source, target, options);
+  }
+  async doSaveAs(source, target, options) {
+    let success = false;
+    const textFileModel = this.files.get(source);
+    if (textFileModel?.isResolved()) {
+      success = await this.doSaveAsTextFile(
+        textFileModel,
+        source,
+        target,
+        options
+      );
+    } else if (this.fileService.hasProvider(source)) {
+      await this.fileService.copy(source, target, true);
+      success = true;
+    } else {
+      const textModel = this.modelService.getModel(source);
+      if (textModel) {
+        success = await this.doSaveAsTextFile(
+          textModel,
+          source,
+          target,
+          options
+        );
+      }
+    }
+    if (!success) {
+      return void 0;
+    }
+    try {
+      await this.revert(source);
+    } catch (error) {
+      this.logService.error(error);
+    }
+    return target;
+  }
+  async doSaveAsTextFile(sourceModel, source, target, options) {
+    let sourceModelEncoding;
+    const sourceModelWithEncodingSupport = sourceModel;
+    if (typeof sourceModelWithEncodingSupport.getEncoding === "function") {
+      sourceModelEncoding = sourceModelWithEncodingSupport.getEncoding();
+    }
+    let targetExists = false;
+    let targetModel = this.files.get(target);
+    if (targetModel?.isResolved()) {
+      targetExists = true;
+    } else {
+      targetExists = await this.fileService.exists(target);
+      if (!targetExists) {
+        await this.create([{ resource: target, value: "" }]);
+      }
+      try {
+        targetModel = await this.files.resolve(target, {
+          encoding: sourceModelEncoding
+        });
+      } catch (error) {
+        if (targetExists) {
+          if (error.textFileOperationResult === TextFileOperationResult.FILE_IS_BINARY || error.fileOperationResult === FileOperationResult.FILE_TOO_LARGE) {
+            await this.fileService.del(target);
+            return this.doSaveAsTextFile(
+              sourceModel,
+              source,
+              target,
+              options
+            );
+          }
+        }
+        throw error;
+      }
+    }
+    let write;
+    if (sourceModel instanceof UntitledTextEditorModel && sourceModel.hasAssociatedFilePath && targetExists && this.uriIdentityService.extUri.isEqual(
+      target,
+      toLocalResource(
+        sourceModel.resource,
+        this.environmentService.remoteAuthority,
+        this.pathService.defaultUriScheme
+      )
+    )) {
+      write = await this.confirmOverwrite(target);
+    } else {
+      write = true;
+    }
+    if (!write) {
+      return false;
+    }
+    let sourceTextModel;
+    if (sourceModel instanceof BaseTextEditorModel) {
+      if (sourceModel.isResolved()) {
+        sourceTextModel = sourceModel.textEditorModel ?? void 0;
+      }
+    } else {
+      sourceTextModel = sourceModel;
+    }
+    let targetTextModel;
+    if (targetModel.isResolved()) {
+      targetTextModel = targetModel.textEditorModel;
+    }
+    if (sourceTextModel && targetTextModel) {
+      targetModel.updatePreferredEncoding(sourceModelEncoding);
+      this.modelService.updateModel(
+        targetTextModel,
+        createTextBufferFactoryFromSnapshot(
+          sourceTextModel.createSnapshot()
+        )
+      );
+      const sourceLanguageId = sourceTextModel.getLanguageId();
+      const targetLanguageId = targetTextModel.getLanguageId();
+      if (sourceLanguageId !== PLAINTEXT_LANGUAGE_ID && targetLanguageId === PLAINTEXT_LANGUAGE_ID) {
+        targetTextModel.setLanguage(sourceLanguageId);
+      }
+      const sourceTransientProperties = this.codeEditorService.getTransientModelProperties(
+        sourceTextModel
+      );
+      if (sourceTransientProperties) {
+        for (const [key, value] of sourceTransientProperties) {
+          this.codeEditorService.setTransientModelProperty(
+            targetTextModel,
+            key,
+            value
+          );
+        }
+      }
+    }
+    if (!options?.source) {
+      options = {
+        ...options,
+        source: targetExists ? AbstractTextFileService.TEXTFILE_SAVE_REPLACE_SOURCE : AbstractTextFileService.TEXTFILE_SAVE_CREATE_SOURCE
+      };
+    }
+    return targetModel.save({
+      ...options,
+      from: source
+    });
+  }
+  async confirmOverwrite(resource) {
+    const { confirmed } = await this.dialogService.confirm({
+      type: "warning",
+      message: localize(
+        "confirmOverwrite",
+        "'{0}' already exists. Do you want to replace it?",
+        basename(resource)
+      ),
+      detail: localize(
+        "overwriteIrreversible",
+        "A file or folder with the name '{0}' already exists in the folder '{1}'. Replacing it will overwrite its current contents.",
+        basename(resource),
+        basename(dirname(resource))
+      ),
+      primaryButton: localize(
+        {
+          key: "replaceButtonLabel",
+          comment: ["&& denotes a mnemonic"]
+        },
+        "&&Replace"
+      )
+    });
+    return confirmed;
+  }
+  async confirmMakeWriteable(resource) {
+    const { confirmed } = await this.dialogService.confirm({
+      type: "warning",
+      message: localize(
+        "confirmMakeWriteable",
+        "'{0}' is marked as read-only. Do you want to save anyway?",
+        basename(resource)
+      ),
+      detail: localize(
+        "confirmMakeWriteableDetail",
+        "Paths can be configured as read-only via settings."
+      ),
+      primaryButton: localize(
+        {
+          key: "makeWriteableButtonLabel",
+          comment: ["&& denotes a mnemonic"]
+        },
+        "&&Save Anyway"
+      )
+    });
+    return confirmed;
+  }
+  async suggestSavePath(resource) {
+    if (this.fileService.hasProvider(resource)) {
+      return resource;
+    }
+    const remoteAuthority = this.environmentService.remoteAuthority;
+    const defaultFilePath = await this.fileDialogService.defaultFilePath();
+    let suggestedFilename;
+    if (resource.scheme === Schemas.untitled) {
+      const model = this.untitled.get(resource);
+      if (model) {
+        if (model.hasAssociatedFilePath) {
+          return toLocalResource(
+            resource,
+            remoteAuthority,
+            this.pathService.defaultUriScheme
+          );
+        }
+        let nameCandidate;
+        if (await this.pathService.hasValidBasename(
+          joinPath(defaultFilePath, model.name),
+          model.name
+        )) {
+          nameCandidate = model.name;
+        } else {
+          nameCandidate = basename(resource);
+        }
+        const languageId = model.getLanguageId();
+        if (languageId && languageId !== PLAINTEXT_LANGUAGE_ID) {
+          suggestedFilename = this.suggestFilename(
+            languageId,
+            nameCandidate
+          );
+        } else {
+          suggestedFilename = nameCandidate;
+        }
+      }
+    }
+    if (!suggestedFilename) {
+      suggestedFilename = basename(resource);
+    }
+    return joinPath(defaultFilePath, suggestedFilename);
+  }
+  suggestFilename(languageId, untitledName) {
+    const languageName = this.languageService.getLanguageName(languageId);
+    if (!languageName) {
+      return untitledName;
+    }
+    const untitledExtension = pathExtname(untitledName);
+    const extensions = this.languageService.getExtensions(languageId);
+    if (extensions.includes(untitledExtension)) {
+      return untitledName;
+    }
+    const primaryExtension = extensions.at(0);
+    if (primaryExtension) {
+      if (untitledExtension) {
+        return `${untitledName.substring(0, untitledName.indexOf(untitledExtension))}${primaryExtension}`;
+      }
+      return `${untitledName}${primaryExtension}`;
+    }
+    const filenames = this.languageService.getFilenames(languageId);
+    if (filenames.includes(untitledName)) {
+      return untitledName;
+    }
+    return filenames.at(0) ?? untitledName;
+  }
+  //#endregion
+  //#region revert
+  async revert(resource, options) {
+    if (resource.scheme === Schemas.untitled) {
+      const model = this.untitled.get(resource);
+      if (model) {
+        return model.revert(options);
+      }
+    } else {
+      const model = this.files.get(resource);
+      if (model && (model.isDirty() || options?.force)) {
+        return model.revert(options);
+      }
+    }
+  }
+  //#endregion
+  //#region dirty
+  isDirty(resource) {
+    const model = resource.scheme === Schemas.untitled ? this.untitled.get(resource) : this.files.get(resource);
+    if (model) {
+      return model.isDirty();
+    }
+    return false;
+  }
+  //#endregion
+};
+AbstractTextFileService = __decorateClass([
+  __decorateParam(0, IFileService),
+  __decorateParam(1, IUntitledTextEditorService),
+  __decorateParam(2, ILifecycleService),
+  __decorateParam(3, IInstantiationService),
+  __decorateParam(4, IModelService),
+  __decorateParam(5, IWorkbenchEnvironmentService),
+  __decorateParam(6, IDialogService),
+  __decorateParam(7, IFileDialogService),
+  __decorateParam(8, ITextResourceConfigurationService),
+  __decorateParam(9, IFilesConfigurationService),
+  __decorateParam(10, ICodeEditorService),
+  __decorateParam(11, IPathService),
+  __decorateParam(12, IWorkingCopyFileService),
+  __decorateParam(13, IUriIdentityService),
+  __decorateParam(14, ILanguageService),
+  __decorateParam(15, ILogService),
+  __decorateParam(16, IElevatedFileService),
+  __decorateParam(17, IDecorationsService)
+], AbstractTextFileService);
+let EncodingOracle = class extends Disposable {
+  constructor(textResourceConfigurationService, environmentService, contextService, uriIdentityService) {
+    super();
+    this.textResourceConfigurationService = textResourceConfigurationService;
+    this.environmentService = environmentService;
+    this.contextService = contextService;
+    this.uriIdentityService = uriIdentityService;
+    this._encodingOverrides = this.getDefaultEncodingOverrides();
+    this.registerListeners();
+  }
+  static {
+    __name(this, "EncodingOracle");
+  }
+  _encodingOverrides;
+  get encodingOverrides() {
+    return this._encodingOverrides;
+  }
+  set encodingOverrides(value) {
+    this._encodingOverrides = value;
+  }
+  registerListeners() {
+    this._register(
+      this.contextService.onDidChangeWorkspaceFolders(
+        () => this.encodingOverrides = this.getDefaultEncodingOverrides()
+      )
+    );
+  }
+  getDefaultEncodingOverrides() {
+    const defaultEncodingOverrides = [];
+    defaultEncodingOverrides.push({
+      parent: this.environmentService.userRoamingDataHome,
+      encoding: UTF8
+    });
+    defaultEncodingOverrides.push({
+      extension: WORKSPACE_EXTENSION,
+      encoding: UTF8
+    });
+    defaultEncodingOverrides.push({
+      parent: this.environmentService.untitledWorkspacesHome,
+      encoding: UTF8
+    });
+    this.contextService.getWorkspace().folders.forEach((folder) => {
+      defaultEncodingOverrides.push({
+        parent: joinPath(folder.uri, ".vscode"),
+        encoding: UTF8
+      });
+    });
+    return defaultEncodingOverrides;
+  }
+  async getWriteEncoding(resource, options) {
+    const { encoding, hasBOM } = await this.getPreferredWriteEncoding(
+      resource,
+      options ? options.encoding : void 0
+    );
+    return { encoding, addBOM: hasBOM };
+  }
+  async getPreferredWriteEncoding(resource, preferredEncoding) {
+    const resourceEncoding = await this.getEncodingForResource(
+      resource,
+      preferredEncoding
+    );
+    return {
+      encoding: resourceEncoding,
+      hasBOM: resourceEncoding === UTF16be || resourceEncoding === UTF16le || resourceEncoding === UTF8_with_bom
+      // enforce BOM for certain encodings
+    };
+  }
+  async getPreferredReadEncoding(resource, options, detectedEncoding) {
+    let preferredEncoding;
+    if (options?.encoding) {
+      if (detectedEncoding === UTF8_with_bom && options.encoding === UTF8) {
+        preferredEncoding = UTF8_with_bom;
+      } else {
+        preferredEncoding = options.encoding;
+      }
+    } else if (typeof detectedEncoding === "string") {
+      preferredEncoding = detectedEncoding;
+    } else if (this.textResourceConfigurationService.getValue(
+      resource,
+      "files.encoding"
+    ) === UTF8_with_bom) {
+      preferredEncoding = UTF8;
+    }
+    const encoding = await this.getEncodingForResource(
+      resource,
+      preferredEncoding
+    );
+    return {
+      encoding,
+      hasBOM: encoding === UTF16be || encoding === UTF16le || encoding === UTF8_with_bom
+      // enforce BOM for certain encodings
+    };
+  }
+  async getEncodingForResource(resource, preferredEncoding) {
+    let fileEncoding;
+    const override = this.getEncodingOverride(resource);
+    if (override) {
+      fileEncoding = override;
+    } else if (preferredEncoding) {
+      fileEncoding = preferredEncoding;
+    } else {
+      fileEncoding = this.textResourceConfigurationService.getValue(
+        resource,
+        "files.encoding"
+      );
+    }
+    if (fileEncoding !== UTF8) {
+      if (!fileEncoding || !await encodingExists(fileEncoding)) {
+        fileEncoding = UTF8;
+      }
+    }
+    return fileEncoding;
+  }
+  getEncodingOverride(resource) {
+    if (this.encodingOverrides?.length) {
+      for (const override of this.encodingOverrides) {
+        if (override.parent && this.uriIdentityService.extUri.isEqualOrParent(
+          resource,
+          override.parent
+        )) {
+          return override.encoding;
+        }
+        if (override.extension && extname(resource) === `.${override.extension}`) {
+          return override.encoding;
+        }
+      }
+    }
+    return void 0;
+  }
+};
+EncodingOracle = __decorateClass([
+  __decorateParam(0, ITextResourceConfigurationService),
+  __decorateParam(1, IWorkbenchEnvironmentService),
+  __decorateParam(2, IWorkspaceContextService),
+  __decorateParam(3, IUriIdentityService)
+], EncodingOracle);
+export {
+  AbstractTextFileService,
+  EncodingOracle
+};
+//# sourceMappingURL=textFileService.js.map

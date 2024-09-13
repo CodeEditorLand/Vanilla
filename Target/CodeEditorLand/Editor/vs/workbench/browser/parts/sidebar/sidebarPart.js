@@ -1,1 +1,358 @@
-var D=Object.defineProperty;var E=Object.getOwnPropertyDescriptor;var d=(I,n,i,t)=>{for(var e=t>1?void 0:t?E(n,i):n,a=I.length-1,m;a>=0;a--)(m=I[a])&&(e=(t?m(n,i,e):m(e))||e);return t&&e&&D(n,i,e),e},r=(I,n)=>(i,t)=>n(i,t,I);import"./media/sidebarpart.css";import"./sidebarActions.js";import{ActionsOrientation as N}from"../../../../base/browser/ui/actionbar/actionbar.js";import{AnchorAlignment as C}from"../../../../base/browser/ui/contextview/contextview.js";import{LayoutPriority as L}from"../../../../base/browser/ui/grid/grid.js";import{HoverPosition as g}from"../../../../base/browser/ui/hover/hoverWidget.js";import{Separator as w}from"../../../../base/common/actions.js";import{assertIsDefined as Y}from"../../../../base/common/types.js";import{localize2 as F}from"../../../../nls.js";import{Action2 as x,IMenuService as H,registerAction2 as G}from"../../../../platform/actions/common/actions.js";import{IConfigurationService as K}from"../../../../platform/configuration/common/configuration.js";import{IContextKeyService as M}from"../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as U}from"../../../../platform/contextview/browser/contextView.js";import{IHoverService as W}from"../../../../platform/hover/browser/hover.js";import{IInstantiationService as k}from"../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as z}from"../../../../platform/keybinding/common/keybinding.js";import{INotificationService as j}from"../../../../platform/notification/common/notification.js";import{IStorageService as J,StorageScope as B,StorageTarget as Z}from"../../../../platform/storage/common/storage.js";import{contrastBorder as T}from"../../../../platform/theme/common/colorRegistry.js";import{IThemeService as q}from"../../../../platform/theme/common/themeService.js";import{ActiveViewletContext as Q,SidebarFocusContext as X}from"../../../common/contextkeys.js";import{ACTIVITY_BAR_BADGE_BACKGROUND as $,ACTIVITY_BAR_BADGE_FOREGROUND as ii,ACTIVITY_BAR_TOP_ACTIVE_BORDER as ti,ACTIVITY_BAR_TOP_DRAG_AND_DROP_BORDER as ei,ACTIVITY_BAR_TOP_FOREGROUND as oi,ACTIVITY_BAR_TOP_INACTIVE_FOREGROUND as ri,SIDE_BAR_BACKGROUND as p,SIDE_BAR_BORDER as h,SIDE_BAR_DRAG_AND_DROP_BACKGROUND as si,SIDE_BAR_FOREGROUND as ni,SIDE_BAR_TITLE_FOREGROUND as ai}from"../../../common/theme.js";import{IViewDescriptorService as ci}from"../../../common/views.js";import{IExtensionService as mi}from"../../../services/extensions/common/extensions.js";import{ActivityBarPosition as o,IWorkbenchLayoutService as li,LayoutSettings as s,Parts as l,Position as y}from"../../../services/layout/browser/layoutService.js";import{ToggleActivityBarVisibilityActionId as Ii}from"../../actions/layoutActions.js";import{ActivityBarCompositeBar as ui,ActivitybarPart as u}from"../activitybar/activitybarPart.js";import{AbstractPaneCompositePart as Ai,CompositeBarPosition as A}from"../paneCompositePart.js";let c=class extends Ai{constructor(i,t,e,a,m,S,O,f,P,v,_,R,b){super(l.SIDEBAR_PART,{hasTitle:!0,borderWidth:()=>this.getColor(h)||this.getColor(T)?1:0},c.activeViewletSettingsKey,Q.bindTo(v),X.bindTo(v),"sideBar","viewlet",ai,i,t,e,a,m,S,O,f,P,v,_,b);this.configurationService=R;this.rememberActivityBarVisiblePosition(),this._register(R.onDidChangeConfiguration(V=>{V.affectsConfiguration(s.ACTIVITY_BAR_LOCATION)&&this.onDidChangeActivityBarLocation()})),this.registerActions()}static activeViewletSettingsKey="workbench.sidebar.activeviewletid";minimumWidth=170;maximumWidth=Number.POSITIVE_INFINITY;minimumHeight=0;maximumHeight=Number.POSITIVE_INFINITY;get snap(){return!0}priority=L.Low;get preferredWidth(){const i=this.getActivePaneComposite();if(!i)return;const t=i.getOptimalWidth();if(typeof t=="number")return Math.max(t,300)}activityBarPart=this._register(this.instantiationService.createInstance(u,this));onDidChangeActivityBarLocation(){this.activityBarPart.hide(),this.updateCompositeBar();const i=this.getActiveComposite()?.getId();i&&this.onTitleAreaUpdate(i),this.shouldShowActivityBar()&&this.activityBarPart.show(),this.rememberActivityBarVisiblePosition()}updateStyles(){super.updateStyles();const i=Y(this.getContainer());i.style.backgroundColor=this.getColor(p)||"",i.style.color=this.getColor(ni)||"";const t=this.getColor(h)||this.getColor(T),e=this.layoutService.getSideBarPosition()===y.LEFT;i.style.borderRightWidth=t&&e?"1px":"",i.style.borderRightStyle=t&&e?"solid":"",i.style.borderRightColor=e&&t||"",i.style.borderLeftWidth=t&&!e?"1px":"",i.style.borderLeftStyle=t&&!e?"solid":"",i.style.borderLeftColor=e?"":t||"",i.style.outlineColor=this.getColor(si)??""}layout(i,t,e,a){this.layoutService.isVisible(l.SIDEBAR_PART)&&super.layout(i,t,e,a)}getTitleAreaDropDownAnchorAlignment(){return this.layoutService.getSideBarPosition()===y.LEFT?C.LEFT:C.RIGHT}createCompositeBar(){return this.instantiationService.createInstance(ui,this.getCompositeBarOptions(),this.partId,this,!1)}getCompositeBarOptions(){return{partContainerClass:"sidebar",pinnedViewContainersKey:u.pinnedViewContainersKey,placeholderViewContainersKey:u.placeholderViewContainersKey,viewContainersWorkspaceStateKey:u.viewContainersWorkspaceStateKey,icon:!0,orientation:N.HORIZONTAL,recomputeSizes:!0,activityHoverOptions:{position:()=>this.getCompositeBarPosition()===A.BOTTOM?g.ABOVE:g.BELOW},fillExtraContextMenuActions:i=>{const t=this.getViewsSubmenuAction();t&&(i.push(new w),i.push(t))},compositeSize:0,iconSize:16,overflowActionSize:30,colors:i=>({activeBackgroundColor:i.getColor(p),inactiveBackgroundColor:i.getColor(p),activeBorderBottomColor:i.getColor(ti),activeForegroundColor:i.getColor(oi),inactiveForegroundColor:i.getColor(ri),badgeBackground:i.getColor($),badgeForeground:i.getColor(ii),dragAndDropBorder:i.getColor(ei)}),compact:!0}}shouldShowCompositeBar(){const i=this.configurationService.getValue(s.ACTIVITY_BAR_LOCATION);return i===o.TOP||i===o.BOTTOM}shouldShowActivityBar(){return this.shouldShowCompositeBar()?!1:this.configurationService.getValue(s.ACTIVITY_BAR_LOCATION)!==o.HIDDEN}getCompositeBarPosition(){switch(this.configurationService.getValue(s.ACTIVITY_BAR_LOCATION)){case o.TOP:return A.TOP;case o.BOTTOM:return A.BOTTOM;case o.HIDDEN:case o.DEFAULT:default:return A.TITLE}}rememberActivityBarVisiblePosition(){const i=this.configurationService.getValue(s.ACTIVITY_BAR_LOCATION);i!==o.HIDDEN&&this.storageService.store(s.ACTIVITY_BAR_LOCATION,i,B.PROFILE,Z.USER)}getRememberedActivityBarVisiblePosition(){switch(this.storageService.get(s.ACTIVITY_BAR_LOCATION,B.PROFILE)){case o.TOP:return o.TOP;case o.BOTTOM:return o.BOTTOM;default:return o.DEFAULT}}getPinnedPaneCompositeIds(){return this.shouldShowCompositeBar()?super.getPinnedPaneCompositeIds():this.activityBarPart.getPinnedPaneCompositeIds()}getVisiblePaneCompositeIds(){return this.shouldShowCompositeBar()?super.getVisiblePaneCompositeIds():this.activityBarPart.getVisiblePaneCompositeIds()}async focusActivityBar(){this.configurationService.getValue(s.ACTIVITY_BAR_LOCATION)===o.HIDDEN&&(await this.configurationService.updateValue(s.ACTIVITY_BAR_LOCATION,this.getRememberedActivityBarVisiblePosition()),this.onDidChangeActivityBarLocation()),this.shouldShowCompositeBar()?this.focusCompositeBar():(this.layoutService.isVisible(l.ACTIVITYBAR_PART)||this.layoutService.setPartHidden(!1,l.ACTIVITYBAR_PART),this.activityBarPart.show(!0))}registerActions(){const i=this;this._register(G(class extends x{constructor(){super({id:Ii,title:F("toggleActivityBar","Toggle Activity Bar Visibility")})}run(){const t=i.configurationService.getValue(s.ACTIVITY_BAR_LOCATION)===o.HIDDEN?i.getRememberedActivityBarVisiblePosition():o.HIDDEN;return i.configurationService.updateValue(s.ACTIVITY_BAR_LOCATION,t)}}))}toJSON(){return{type:l.SIDEBAR_PART}}};c=d([r(0,j),r(1,J),r(2,U),r(3,li),r(4,z),r(5,W),r(6,k),r(7,q),r(8,ci),r(9,M),r(10,mi),r(11,K),r(12,H)],c);export{c as SidebarPart};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import "./media/sidebarpart.css";
+import "./sidebarActions.js";
+import { ActionsOrientation } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { AnchorAlignment } from "../../../../base/browser/ui/contextview/contextview.js";
+import { LayoutPriority } from "../../../../base/browser/ui/grid/grid.js";
+import { HoverPosition } from "../../../../base/browser/ui/hover/hoverWidget.js";
+import { Separator } from "../../../../base/common/actions.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { localize2 } from "../../../../nls.js";
+import {
+  Action2,
+  IMenuService,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { contrastBorder } from "../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import {
+  ActiveViewletContext,
+  SidebarFocusContext
+} from "../../../common/contextkeys.js";
+import {
+  ACTIVITY_BAR_BADGE_BACKGROUND,
+  ACTIVITY_BAR_BADGE_FOREGROUND,
+  ACTIVITY_BAR_TOP_ACTIVE_BORDER,
+  ACTIVITY_BAR_TOP_DRAG_AND_DROP_BORDER,
+  ACTIVITY_BAR_TOP_FOREGROUND,
+  ACTIVITY_BAR_TOP_INACTIVE_FOREGROUND,
+  SIDE_BAR_BACKGROUND,
+  SIDE_BAR_BORDER,
+  SIDE_BAR_DRAG_AND_DROP_BACKGROUND,
+  SIDE_BAR_FOREGROUND,
+  SIDE_BAR_TITLE_FOREGROUND
+} from "../../../common/theme.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import {
+  ActivityBarPosition,
+  IWorkbenchLayoutService,
+  LayoutSettings,
+  Parts,
+  Position as SideBarPosition
+} from "../../../services/layout/browser/layoutService.js";
+import { ToggleActivityBarVisibilityActionId } from "../../actions/layoutActions.js";
+import {
+  ActivityBarCompositeBar,
+  ActivitybarPart
+} from "../activitybar/activitybarPart.js";
+import {
+  AbstractPaneCompositePart,
+  CompositeBarPosition
+} from "../paneCompositePart.js";
+let SidebarPart = class extends AbstractPaneCompositePart {
+  //#endregion
+  constructor(notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, configurationService, menuService) {
+    super(
+      Parts.SIDEBAR_PART,
+      { hasTitle: true, borderWidth: /* @__PURE__ */ __name(() => this.getColor(SIDE_BAR_BORDER) || this.getColor(contrastBorder) ? 1 : 0, "borderWidth") },
+      SidebarPart.activeViewletSettingsKey,
+      ActiveViewletContext.bindTo(contextKeyService),
+      SidebarFocusContext.bindTo(contextKeyService),
+      "sideBar",
+      "viewlet",
+      SIDE_BAR_TITLE_FOREGROUND,
+      notificationService,
+      storageService,
+      contextMenuService,
+      layoutService,
+      keybindingService,
+      hoverService,
+      instantiationService,
+      themeService,
+      viewDescriptorService,
+      contextKeyService,
+      extensionService,
+      menuService
+    );
+    this.configurationService = configurationService;
+    this.rememberActivityBarVisiblePosition();
+    this._register(configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(LayoutSettings.ACTIVITY_BAR_LOCATION)) {
+        this.onDidChangeActivityBarLocation();
+      }
+    }));
+    this.registerActions();
+  }
+  static {
+    __name(this, "SidebarPart");
+  }
+  static activeViewletSettingsKey = "workbench.sidebar.activeviewletid";
+  //#region IView
+  minimumWidth = 170;
+  maximumWidth = Number.POSITIVE_INFINITY;
+  minimumHeight = 0;
+  maximumHeight = Number.POSITIVE_INFINITY;
+  get snap() {
+    return true;
+  }
+  priority = LayoutPriority.Low;
+  get preferredWidth() {
+    const viewlet = this.getActivePaneComposite();
+    if (!viewlet) {
+      return;
+    }
+    const width = viewlet.getOptimalWidth();
+    if (typeof width !== "number") {
+      return;
+    }
+    return Math.max(width, 300);
+  }
+  activityBarPart = this._register(
+    this.instantiationService.createInstance(ActivitybarPart, this)
+  );
+  onDidChangeActivityBarLocation() {
+    this.activityBarPart.hide();
+    this.updateCompositeBar();
+    const id = this.getActiveComposite()?.getId();
+    if (id) {
+      this.onTitleAreaUpdate(id);
+    }
+    if (this.shouldShowActivityBar()) {
+      this.activityBarPart.show();
+    }
+    this.rememberActivityBarVisiblePosition();
+  }
+  updateStyles() {
+    super.updateStyles();
+    const container = assertIsDefined(this.getContainer());
+    container.style.backgroundColor = this.getColor(SIDE_BAR_BACKGROUND) || "";
+    container.style.color = this.getColor(SIDE_BAR_FOREGROUND) || "";
+    const borderColor = this.getColor(SIDE_BAR_BORDER) || this.getColor(contrastBorder);
+    const isPositionLeft = this.layoutService.getSideBarPosition() === SideBarPosition.LEFT;
+    container.style.borderRightWidth = borderColor && isPositionLeft ? "1px" : "";
+    container.style.borderRightStyle = borderColor && isPositionLeft ? "solid" : "";
+    container.style.borderRightColor = isPositionLeft ? borderColor || "" : "";
+    container.style.borderLeftWidth = borderColor && !isPositionLeft ? "1px" : "";
+    container.style.borderLeftStyle = borderColor && !isPositionLeft ? "solid" : "";
+    container.style.borderLeftColor = isPositionLeft ? "" : borderColor || "";
+    container.style.outlineColor = this.getColor(SIDE_BAR_DRAG_AND_DROP_BACKGROUND) ?? "";
+  }
+  layout(width, height, top, left) {
+    if (!this.layoutService.isVisible(Parts.SIDEBAR_PART)) {
+      return;
+    }
+    super.layout(width, height, top, left);
+  }
+  getTitleAreaDropDownAnchorAlignment() {
+    return this.layoutService.getSideBarPosition() === SideBarPosition.LEFT ? AnchorAlignment.LEFT : AnchorAlignment.RIGHT;
+  }
+  createCompositeBar() {
+    return this.instantiationService.createInstance(
+      ActivityBarCompositeBar,
+      this.getCompositeBarOptions(),
+      this.partId,
+      this,
+      false
+    );
+  }
+  getCompositeBarOptions() {
+    return {
+      partContainerClass: "sidebar",
+      pinnedViewContainersKey: ActivitybarPart.pinnedViewContainersKey,
+      placeholderViewContainersKey: ActivitybarPart.placeholderViewContainersKey,
+      viewContainersWorkspaceStateKey: ActivitybarPart.viewContainersWorkspaceStateKey,
+      icon: true,
+      orientation: ActionsOrientation.HORIZONTAL,
+      recomputeSizes: true,
+      activityHoverOptions: {
+        position: /* @__PURE__ */ __name(() => this.getCompositeBarPosition() === CompositeBarPosition.BOTTOM ? HoverPosition.ABOVE : HoverPosition.BELOW, "position")
+      },
+      fillExtraContextMenuActions: /* @__PURE__ */ __name((actions) => {
+        const viewsSubmenuAction = this.getViewsSubmenuAction();
+        if (viewsSubmenuAction) {
+          actions.push(new Separator());
+          actions.push(viewsSubmenuAction);
+        }
+      }, "fillExtraContextMenuActions"),
+      compositeSize: 0,
+      iconSize: 16,
+      overflowActionSize: 30,
+      colors: /* @__PURE__ */ __name((theme) => ({
+        activeBackgroundColor: theme.getColor(SIDE_BAR_BACKGROUND),
+        inactiveBackgroundColor: theme.getColor(SIDE_BAR_BACKGROUND),
+        activeBorderBottomColor: theme.getColor(
+          ACTIVITY_BAR_TOP_ACTIVE_BORDER
+        ),
+        activeForegroundColor: theme.getColor(
+          ACTIVITY_BAR_TOP_FOREGROUND
+        ),
+        inactiveForegroundColor: theme.getColor(
+          ACTIVITY_BAR_TOP_INACTIVE_FOREGROUND
+        ),
+        badgeBackground: theme.getColor(ACTIVITY_BAR_BADGE_BACKGROUND),
+        badgeForeground: theme.getColor(ACTIVITY_BAR_BADGE_FOREGROUND),
+        dragAndDropBorder: theme.getColor(
+          ACTIVITY_BAR_TOP_DRAG_AND_DROP_BORDER
+        )
+      }), "colors"),
+      compact: true
+    };
+  }
+  shouldShowCompositeBar() {
+    const activityBarPosition = this.configurationService.getValue(
+      LayoutSettings.ACTIVITY_BAR_LOCATION
+    );
+    return activityBarPosition === ActivityBarPosition.TOP || activityBarPosition === ActivityBarPosition.BOTTOM;
+  }
+  shouldShowActivityBar() {
+    if (this.shouldShowCompositeBar()) {
+      return false;
+    }
+    return this.configurationService.getValue(
+      LayoutSettings.ACTIVITY_BAR_LOCATION
+    ) !== ActivityBarPosition.HIDDEN;
+  }
+  getCompositeBarPosition() {
+    const activityBarPosition = this.configurationService.getValue(
+      LayoutSettings.ACTIVITY_BAR_LOCATION
+    );
+    switch (activityBarPosition) {
+      case ActivityBarPosition.TOP:
+        return CompositeBarPosition.TOP;
+      case ActivityBarPosition.BOTTOM:
+        return CompositeBarPosition.BOTTOM;
+      case ActivityBarPosition.HIDDEN:
+      case ActivityBarPosition.DEFAULT:
+      // noop
+      default:
+        return CompositeBarPosition.TITLE;
+    }
+  }
+  rememberActivityBarVisiblePosition() {
+    const activityBarPosition = this.configurationService.getValue(
+      LayoutSettings.ACTIVITY_BAR_LOCATION
+    );
+    if (activityBarPosition !== ActivityBarPosition.HIDDEN) {
+      this.storageService.store(
+        LayoutSettings.ACTIVITY_BAR_LOCATION,
+        activityBarPosition,
+        StorageScope.PROFILE,
+        StorageTarget.USER
+      );
+    }
+  }
+  getRememberedActivityBarVisiblePosition() {
+    const activityBarPosition = this.storageService.get(
+      LayoutSettings.ACTIVITY_BAR_LOCATION,
+      StorageScope.PROFILE
+    );
+    switch (activityBarPosition) {
+      case ActivityBarPosition.TOP:
+        return ActivityBarPosition.TOP;
+      case ActivityBarPosition.BOTTOM:
+        return ActivityBarPosition.BOTTOM;
+      default:
+        return ActivityBarPosition.DEFAULT;
+    }
+  }
+  getPinnedPaneCompositeIds() {
+    return this.shouldShowCompositeBar() ? super.getPinnedPaneCompositeIds() : this.activityBarPart.getPinnedPaneCompositeIds();
+  }
+  getVisiblePaneCompositeIds() {
+    return this.shouldShowCompositeBar() ? super.getVisiblePaneCompositeIds() : this.activityBarPart.getVisiblePaneCompositeIds();
+  }
+  async focusActivityBar() {
+    if (this.configurationService.getValue(
+      LayoutSettings.ACTIVITY_BAR_LOCATION
+    ) === ActivityBarPosition.HIDDEN) {
+      await this.configurationService.updateValue(
+        LayoutSettings.ACTIVITY_BAR_LOCATION,
+        this.getRememberedActivityBarVisiblePosition()
+      );
+      this.onDidChangeActivityBarLocation();
+    }
+    if (this.shouldShowCompositeBar()) {
+      this.focusCompositeBar();
+    } else {
+      if (!this.layoutService.isVisible(Parts.ACTIVITYBAR_PART)) {
+        this.layoutService.setPartHidden(false, Parts.ACTIVITYBAR_PART);
+      }
+      this.activityBarPart.show(true);
+    }
+  }
+  registerActions() {
+    const that = this;
+    this._register(
+      registerAction2(
+        class extends Action2 {
+          constructor() {
+            super({
+              id: ToggleActivityBarVisibilityActionId,
+              title: localize2(
+                "toggleActivityBar",
+                "Toggle Activity Bar Visibility"
+              )
+            });
+          }
+          run() {
+            const value = that.configurationService.getValue(
+              LayoutSettings.ACTIVITY_BAR_LOCATION
+            ) === ActivityBarPosition.HIDDEN ? that.getRememberedActivityBarVisiblePosition() : ActivityBarPosition.HIDDEN;
+            return that.configurationService.updateValue(
+              LayoutSettings.ACTIVITY_BAR_LOCATION,
+              value
+            );
+          }
+        }
+      )
+    );
+  }
+  toJSON() {
+    return {
+      type: Parts.SIDEBAR_PART
+    };
+  }
+};
+SidebarPart = __decorateClass([
+  __decorateParam(0, INotificationService),
+  __decorateParam(1, IStorageService),
+  __decorateParam(2, IContextMenuService),
+  __decorateParam(3, IWorkbenchLayoutService),
+  __decorateParam(4, IKeybindingService),
+  __decorateParam(5, IHoverService),
+  __decorateParam(6, IInstantiationService),
+  __decorateParam(7, IThemeService),
+  __decorateParam(8, IViewDescriptorService),
+  __decorateParam(9, IContextKeyService),
+  __decorateParam(10, IExtensionService),
+  __decorateParam(11, IConfigurationService),
+  __decorateParam(12, IMenuService)
+], SidebarPart);
+export {
+  SidebarPart
+};
+//# sourceMappingURL=sidebarPart.js.map

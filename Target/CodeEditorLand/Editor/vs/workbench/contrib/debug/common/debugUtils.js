@@ -1,1 +1,399 @@
-import{coalesce as k}from"../../../../base/common/arrays.js";import{CancellationToken as P}from"../../../../base/common/cancellation.js";import{Schemas as l}from"../../../../base/common/network.js";import{deepClone as p}from"../../../../base/common/objects.js";import{isAbsolute as y}from"../../../../base/common/path.js";import{equalsIgnoreCase as g}from"../../../../base/common/strings.js";import{URI as c}from"../../../../base/common/uri.js";import{Range as E}from"../../../../editor/common/core/range.js";const v=/{([^}]+)}/g;function q(t,e,n){return t.replace(v,(o,r)=>e&&r.length>0&&r[0]!=="_"?o:n&&n.hasOwnProperty(r)?n[r]:o)}function F(t){const e={};for(const n of Object.keys(t))n.startsWith("!")||(e[n]=t[n]);return e}function x(t){return t.configuration.request==="attach"&&!f(t)&&(!t.parentSession||x(t.parentSession))}function f(t){let e=t.configuration.type;if(e)return e==="vslsShare"&&(e=t.configuration.adapterProxy.configuration.type),g(e,"extensionhost")||g(e,"pwa-extensionhost")?t:t.parentSession?f(t.parentSession):void 0}function N(t){return t.type&&(t.label||t.program||t.runtime)}function D(t,e,n){let o,r=0;const s=/([^()[\]{}<>\s+\-/%~#^;=|,`!]|->)+/g;let i=null;for(;i=s.exec(t);){const a=i.index+1,u=a+i[0].length;if(a<=e&&u>=n){o=i[0],r=a;break}}if(o){const a=/(\w|\p{L})+/gu;let u=null;for(;(u=a.exec(o))&&!(u.index+1+r+u[0].length>=n););u&&(o=o.substring(0,a.lastIndex))}return o?{start:r,end:r+o.length-1}:{start:0,end:0}}async function O(t,e,n,o){if(t.evaluatableExpressionProvider.has(e)){const r=t.evaluatableExpressionProvider.ordered(e),s=k(await Promise.all(r.map(async i=>{try{return await i.provideEvaluatableExpression(e,n,o??P.None)}catch{return}})));if(s.length>0){let i=s[0].expression;const a=s[0].range;return i||(i=e.getLineContent(n.lineNumber).substring(a.startColumn-1,a.endColumn-1)),{range:a,matchingExpression:i}}}else{const r=e.getLineContent(n.lineNumber),{start:s,end:i}=D(r,n.column,n.column),a=r.substring(s-1,i);return{matchingExpression:a,range:new E(n.lineNumber,s,n.lineNumber,s+a.length)}}return null}const C=/^[a-zA-Z][a-zA-Z0-9+\-.]+:/;function I(t){return!!(t&&t.match(C))}function b(t){if(typeof t.path=="string"&&!(typeof t.sourceReference=="number"&&t.sourceReference>0)){if(I(t.path))return c.parse(t.path);if(y(t.path))return c.file(t.path)}return t.path}function d(t){if(typeof t.path=="object"){const e=c.revive(t.path);if(e)return e.scheme===l.file?e.fsPath:e.toString()}return t.path}function V(t,e){const n=e?b:d,o=p(t);return m(o,(r,s)=>{r&&s&&(s.path=n(s))}),o}function U(t,e){const n=e?b:d,o=p(t);return m(o,(r,s)=>{!r&&s&&(s.path=n(s))}),o}function m(t,e){switch(t.type){case"event":{const n=t;switch(n.event){case"output":e(!1,n.body.source);break;case"loadedSource":e(!1,n.body.source);break;case"breakpoint":e(!1,n.body.breakpoint.source);break;default:break}break}case"request":{const n=t;switch(n.command){case"setBreakpoints":e(!0,n.arguments.source);break;case"breakpointLocations":e(!0,n.arguments.source);break;case"source":e(!0,n.arguments.source);break;case"gotoTargets":e(!0,n.arguments.source);break;case"launchVSCode":n.arguments.args.forEach(o=>e(!1,o));break;default:break}break}case"response":{const n=t;if(n.success&&n.body)switch(n.command){case"stackTrace":n.body.stackFrames.forEach(o=>e(!1,o.source));break;case"loadedSources":n.body.sources.forEach(o=>e(!1,o));break;case"scopes":n.body.scopes.forEach(o=>e(!1,o.source));break;case"setFunctionBreakpoints":n.body.breakpoints.forEach(o=>e(!1,o.source));break;case"setBreakpoints":n.body.breakpoints.forEach(o=>e(!1,o.source));break;case"disassemble":n.body?.instructions.forEach(r=>e(!1,r.location));break;case"locations":e(!1,n.body?.source);break;default:break}break}}}function _(t){return t.filter(e=>!e.presentation?.hidden).sort((e,n)=>e.presentation?n.presentation?e.presentation.group?n.presentation.group?e.presentation.group!==n.presentation.group?e.presentation.group.localeCompare(n.presentation.group):h(e.presentation.order,n.presentation.order):-1:n.presentation.group?1:h(e.presentation.order,n.presentation.order):-1:n.presentation?1:0)}function h(t,e){return typeof t!="number"?typeof e!="number"?0:1:typeof e!="number"?-1:t-e}async function z(t,e){const n=t.getValue("debug.saveBeforeStart",{overrideIdentifier:e.activeTextEditorLanguageId});if(n!=="none"&&(await e.saveAll(),n==="allEditorsInActiveGroup")){const o=e.activeEditorPane;o&&o.input.resource?.scheme===l.untitled&&await e.save({editor:o.input,groupId:o.group.id})}await t.reloadConfiguration()}const G=(t,e)=>!t||!e?t===e:t.name===e.name&&t.path===e.path&&t.sourceReference===e.sourceReference;export{V as convertToDAPaths,U as convertToVSCPaths,F as filterExceptionsFromTelemetry,q as formatPII,O as getEvaluatableExpressionAtPosition,D as getExactExpressionStartAndEnd,f as getExtensionHostDebugSession,_ as getVisibleAndSorted,N as isDebuggerMainContribution,x as isSessionAttach,I as isUri,z as saveAllBeforeDebugStart,G as sourcesEqual};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { coalesce } from "../../../../base/common/arrays.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { deepClone } from "../../../../base/common/objects.js";
+import { isAbsolute } from "../../../../base/common/path.js";
+import { equalsIgnoreCase } from "../../../../base/common/strings.js";
+import { URI as uri } from "../../../../base/common/uri.js";
+import { Range } from "../../../../editor/common/core/range.js";
+const _formatPIIRegexp = /{([^}]+)}/g;
+function formatPII(value, excludePII, args) {
+  return value.replace(_formatPIIRegexp, (match, group) => {
+    if (excludePII && group.length > 0 && group[0] !== "_") {
+      return match;
+    }
+    return args && args.hasOwnProperty(group) ? args[group] : match;
+  });
+}
+__name(formatPII, "formatPII");
+function filterExceptionsFromTelemetry(data) {
+  const output = {};
+  for (const key of Object.keys(data)) {
+    if (!key.startsWith("!")) {
+      output[key] = data[key];
+    }
+  }
+  return output;
+}
+__name(filterExceptionsFromTelemetry, "filterExceptionsFromTelemetry");
+function isSessionAttach(session) {
+  return session.configuration.request === "attach" && !getExtensionHostDebugSession(session) && (!session.parentSession || isSessionAttach(session.parentSession));
+}
+__name(isSessionAttach, "isSessionAttach");
+function getExtensionHostDebugSession(session) {
+  let type = session.configuration.type;
+  if (!type) {
+    return;
+  }
+  if (type === "vslsShare") {
+    type = session.configuration.adapterProxy.configuration.type;
+  }
+  if (equalsIgnoreCase(type, "extensionhost") || equalsIgnoreCase(type, "pwa-extensionhost")) {
+    return session;
+  }
+  return session.parentSession ? getExtensionHostDebugSession(session.parentSession) : void 0;
+}
+__name(getExtensionHostDebugSession, "getExtensionHostDebugSession");
+function isDebuggerMainContribution(dbg) {
+  return dbg.type && (dbg.label || dbg.program || dbg.runtime);
+}
+__name(isDebuggerMainContribution, "isDebuggerMainContribution");
+function getExactExpressionStartAndEnd(lineContent, looseStart, looseEnd) {
+  let matchingExpression;
+  let startOffset = 0;
+  const expression = /([^()[\]{}<>\s+\-/%~#^;=|,`!]|->)+/g;
+  let result = null;
+  while (result = expression.exec(lineContent)) {
+    const start = result.index + 1;
+    const end = start + result[0].length;
+    if (start <= looseStart && end >= looseEnd) {
+      matchingExpression = result[0];
+      startOffset = start;
+      break;
+    }
+  }
+  if (matchingExpression) {
+    const subExpression = /(\w|\p{L})+/gu;
+    let subExpressionResult = null;
+    while (subExpressionResult = subExpression.exec(matchingExpression)) {
+      const subEnd = subExpressionResult.index + 1 + startOffset + subExpressionResult[0].length;
+      if (subEnd >= looseEnd) {
+        break;
+      }
+    }
+    if (subExpressionResult) {
+      matchingExpression = matchingExpression.substring(
+        0,
+        subExpression.lastIndex
+      );
+    }
+  }
+  return matchingExpression ? {
+    start: startOffset,
+    end: startOffset + matchingExpression.length - 1
+  } : { start: 0, end: 0 };
+}
+__name(getExactExpressionStartAndEnd, "getExactExpressionStartAndEnd");
+async function getEvaluatableExpressionAtPosition(languageFeaturesService, model, position, token) {
+  if (languageFeaturesService.evaluatableExpressionProvider.has(model)) {
+    const supports = languageFeaturesService.evaluatableExpressionProvider.ordered(
+      model
+    );
+    const results = coalesce(
+      await Promise.all(
+        supports.map(async (support) => {
+          try {
+            return await support.provideEvaluatableExpression(
+              model,
+              position,
+              token ?? CancellationToken.None
+            );
+          } catch (err) {
+            return void 0;
+          }
+        })
+      )
+    );
+    if (results.length > 0) {
+      let matchingExpression = results[0].expression;
+      const range = results[0].range;
+      if (!matchingExpression) {
+        const lineContent = model.getLineContent(position.lineNumber);
+        matchingExpression = lineContent.substring(
+          range.startColumn - 1,
+          range.endColumn - 1
+        );
+      }
+      return { range, matchingExpression };
+    }
+  } else {
+    const lineContent = model.getLineContent(position.lineNumber);
+    const { start, end } = getExactExpressionStartAndEnd(
+      lineContent,
+      position.column,
+      position.column
+    );
+    const matchingExpression = lineContent.substring(start - 1, end);
+    return {
+      matchingExpression,
+      range: new Range(
+        position.lineNumber,
+        start,
+        position.lineNumber,
+        start + matchingExpression.length
+      )
+    };
+  }
+  return null;
+}
+__name(getEvaluatableExpressionAtPosition, "getEvaluatableExpressionAtPosition");
+const _schemePattern = /^[a-zA-Z][a-zA-Z0-9+\-.]+:/;
+function isUri(s) {
+  return !!(s && s.match(_schemePattern));
+}
+__name(isUri, "isUri");
+function stringToUri(source) {
+  if (typeof source.path === "string") {
+    if (typeof source.sourceReference === "number" && source.sourceReference > 0) {
+    } else if (isUri(source.path)) {
+      return uri.parse(source.path);
+    } else {
+      if (isAbsolute(source.path)) {
+        return uri.file(source.path);
+      } else {
+      }
+    }
+  }
+  return source.path;
+}
+__name(stringToUri, "stringToUri");
+function uriToString(source) {
+  if (typeof source.path === "object") {
+    const u = uri.revive(source.path);
+    if (u) {
+      if (u.scheme === Schemas.file) {
+        return u.fsPath;
+      } else {
+        return u.toString();
+      }
+    }
+  }
+  return source.path;
+}
+__name(uriToString, "uriToString");
+function convertToDAPaths(message, toUri) {
+  const fixPath = toUri ? stringToUri : uriToString;
+  const msg = deepClone(message);
+  convertPaths(msg, (toDA, source) => {
+    if (toDA && source) {
+      source.path = fixPath(source);
+    }
+  });
+  return msg;
+}
+__name(convertToDAPaths, "convertToDAPaths");
+function convertToVSCPaths(message, toUri) {
+  const fixPath = toUri ? stringToUri : uriToString;
+  const msg = deepClone(message);
+  convertPaths(msg, (toDA, source) => {
+    if (!toDA && source) {
+      source.path = fixPath(source);
+    }
+  });
+  return msg;
+}
+__name(convertToVSCPaths, "convertToVSCPaths");
+function convertPaths(msg, fixSourcePath) {
+  switch (msg.type) {
+    case "event": {
+      const event = msg;
+      switch (event.event) {
+        case "output":
+          fixSourcePath(
+            false,
+            event.body.source
+          );
+          break;
+        case "loadedSource":
+          fixSourcePath(
+            false,
+            event.body.source
+          );
+          break;
+        case "breakpoint":
+          fixSourcePath(
+            false,
+            event.body.breakpoint.source
+          );
+          break;
+        default:
+          break;
+      }
+      break;
+    }
+    case "request": {
+      const request = msg;
+      switch (request.command) {
+        case "setBreakpoints":
+          fixSourcePath(
+            true,
+            request.arguments.source
+          );
+          break;
+        case "breakpointLocations":
+          fixSourcePath(
+            true,
+            request.arguments.source
+          );
+          break;
+        case "source":
+          fixSourcePath(
+            true,
+            request.arguments.source
+          );
+          break;
+        case "gotoTargets":
+          fixSourcePath(
+            true,
+            request.arguments.source
+          );
+          break;
+        case "launchVSCode":
+          request.arguments.args.forEach(
+            (arg) => fixSourcePath(false, arg)
+          );
+          break;
+        default:
+          break;
+      }
+      break;
+    }
+    case "response": {
+      const response = msg;
+      if (response.success && response.body) {
+        switch (response.command) {
+          case "stackTrace":
+            response.body.stackFrames.forEach(
+              (frame) => fixSourcePath(false, frame.source)
+            );
+            break;
+          case "loadedSources":
+            response.body.sources.forEach(
+              (source) => fixSourcePath(false, source)
+            );
+            break;
+          case "scopes":
+            response.body.scopes.forEach(
+              (scope) => fixSourcePath(false, scope.source)
+            );
+            break;
+          case "setFunctionBreakpoints":
+            response.body.breakpoints.forEach(
+              (bp) => fixSourcePath(false, bp.source)
+            );
+            break;
+          case "setBreakpoints":
+            response.body.breakpoints.forEach(
+              (bp) => fixSourcePath(false, bp.source)
+            );
+            break;
+          case "disassemble":
+            {
+              const di = response;
+              di.body?.instructions.forEach(
+                (di2) => fixSourcePath(false, di2.location)
+              );
+            }
+            break;
+          case "locations":
+            fixSourcePath(
+              false,
+              response.body?.source
+            );
+            break;
+          default:
+            break;
+        }
+      }
+      break;
+    }
+  }
+}
+__name(convertPaths, "convertPaths");
+function getVisibleAndSorted(array) {
+  return array.filter((config) => !config.presentation?.hidden).sort((first, second) => {
+    if (!first.presentation) {
+      if (!second.presentation) {
+        return 0;
+      }
+      return 1;
+    }
+    if (!second.presentation) {
+      return -1;
+    }
+    if (!first.presentation.group) {
+      if (!second.presentation.group) {
+        return compareOrders(
+          first.presentation.order,
+          second.presentation.order
+        );
+      }
+      return 1;
+    }
+    if (!second.presentation.group) {
+      return -1;
+    }
+    if (first.presentation.group !== second.presentation.group) {
+      return first.presentation.group.localeCompare(
+        second.presentation.group
+      );
+    }
+    return compareOrders(
+      first.presentation.order,
+      second.presentation.order
+    );
+  });
+}
+__name(getVisibleAndSorted, "getVisibleAndSorted");
+function compareOrders(first, second) {
+  if (typeof first !== "number") {
+    if (typeof second !== "number") {
+      return 0;
+    }
+    return 1;
+  }
+  if (typeof second !== "number") {
+    return -1;
+  }
+  return first - second;
+}
+__name(compareOrders, "compareOrders");
+async function saveAllBeforeDebugStart(configurationService, editorService) {
+  const saveBeforeStartConfig = configurationService.getValue(
+    "debug.saveBeforeStart",
+    { overrideIdentifier: editorService.activeTextEditorLanguageId }
+  );
+  if (saveBeforeStartConfig !== "none") {
+    await editorService.saveAll();
+    if (saveBeforeStartConfig === "allEditorsInActiveGroup") {
+      const activeEditor = editorService.activeEditorPane;
+      if (activeEditor && activeEditor.input.resource?.scheme === Schemas.untitled) {
+        await editorService.save({
+          editor: activeEditor.input,
+          groupId: activeEditor.group.id
+        });
+      }
+    }
+  }
+  await configurationService.reloadConfiguration();
+}
+__name(saveAllBeforeDebugStart, "saveAllBeforeDebugStart");
+const sourcesEqual = /* @__PURE__ */ __name((a, b) => !a || !b ? a === b : a.name === b.name && a.path === b.path && a.sourceReference === b.sourceReference, "sourcesEqual");
+export {
+  convertToDAPaths,
+  convertToVSCPaths,
+  filterExceptionsFromTelemetry,
+  formatPII,
+  getEvaluatableExpressionAtPosition,
+  getExactExpressionStartAndEnd,
+  getExtensionHostDebugSession,
+  getVisibleAndSorted,
+  isDebuggerMainContribution,
+  isSessionAttach,
+  isUri,
+  saveAllBeforeDebugStart,
+  sourcesEqual
+};
+//# sourceMappingURL=debugUtils.js.map

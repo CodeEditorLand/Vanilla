@@ -1,1 +1,69 @@
-import{Codicon as n}from"../../../../base/common/codicons.js";import{Schemas as r}from"../../../../base/common/network.js";import{join as s}from"../../../../base/common/path.js";import{URI as m}from"../../../../base/common/uri.js";import{localize as o}from"../../../../nls.js";import{areSameExtensions as d}from"../../../../platform/extensionManagement/common/extensionManagementUtil.js";import{registerIcon as p}from"../../../../platform/theme/common/iconRegistry.js";import{EditorInputCapabilities as i}from"../../../common/editor.js";import{EditorInput as a}from"../../../common/editor/editorInput.js";const x=p("extensions-editor-label-icon",n.extensions,o("extensionsEditorLabelIcon","Icon of the extensions editor label."));class t extends a{constructor(e){super();this._extension=e}static ID="workbench.extensions.input2";get typeId(){return t.ID}get capabilities(){return i.Readonly|i.Singleton}get resource(){return m.from({scheme:r.extension,path:s(this._extension.identifier.id,"extension")})}get extension(){return this._extension}getName(){return o("extensionsInputName","Extension: {0}",this._extension.displayName)}getIcon(){return x}matches(e){return super.matches(e)?!0:e instanceof t&&d(this._extension.identifier,e._extension.identifier)}}export{t as ExtensionsInput};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { join } from "../../../../base/common/path.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import {
+  EditorInputCapabilities
+} from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+const ExtensionEditorIcon = registerIcon(
+  "extensions-editor-label-icon",
+  Codicon.extensions,
+  localize(
+    "extensionsEditorLabelIcon",
+    "Icon of the extensions editor label."
+  )
+);
+class ExtensionsInput extends EditorInput {
+  constructor(_extension) {
+    super();
+    this._extension = _extension;
+  }
+  static {
+    __name(this, "ExtensionsInput");
+  }
+  static ID = "workbench.extensions.input2";
+  get typeId() {
+    return ExtensionsInput.ID;
+  }
+  get capabilities() {
+    return EditorInputCapabilities.Readonly | EditorInputCapabilities.Singleton;
+  }
+  get resource() {
+    return URI.from({
+      scheme: Schemas.extension,
+      path: join(this._extension.identifier.id, "extension")
+    });
+  }
+  get extension() {
+    return this._extension;
+  }
+  getName() {
+    return localize(
+      "extensionsInputName",
+      "Extension: {0}",
+      this._extension.displayName
+    );
+  }
+  getIcon() {
+    return ExtensionEditorIcon;
+  }
+  matches(other) {
+    if (super.matches(other)) {
+      return true;
+    }
+    return other instanceof ExtensionsInput && areSameExtensions(
+      this._extension.identifier,
+      other._extension.identifier
+    );
+  }
+}
+export {
+  ExtensionsInput
+};
+//# sourceMappingURL=extensionsInput.js.map

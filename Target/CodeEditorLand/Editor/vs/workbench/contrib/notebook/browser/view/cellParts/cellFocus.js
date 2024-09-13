@@ -1,1 +1,44 @@
-import*as e from"../../../../../../base/browser/dom.js";import{CellContentPart as l}from"../cellPart.js";class n extends l{constructor(r,t,o){super(),this._register(e.addDisposableListener(r,e.EventType.FOCUS,()=>{this.currentCell&&o.focusElement(this.currentCell)},!0)),t&&this._register(e.addDisposableListener(t,e.EventType.FOCUS,()=>{this.currentCell&&this.currentCell.outputsViewModels.length&&o.focusNotebookCell(this.currentCell,"output")}))}}export{n as CellFocusPart};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as DOM from "../../../../../../base/browser/dom.js";
+import { CellContentPart } from "../cellPart.js";
+class CellFocusPart extends CellContentPart {
+  static {
+    __name(this, "CellFocusPart");
+  }
+  constructor(containerElement, focusSinkElement, notebookEditor) {
+    super();
+    this._register(
+      DOM.addDisposableListener(
+        containerElement,
+        DOM.EventType.FOCUS,
+        () => {
+          if (this.currentCell) {
+            notebookEditor.focusElement(this.currentCell);
+          }
+        },
+        true
+      )
+    );
+    if (focusSinkElement) {
+      this._register(
+        DOM.addDisposableListener(
+          focusSinkElement,
+          DOM.EventType.FOCUS,
+          () => {
+            if (this.currentCell && this.currentCell.outputsViewModels.length) {
+              notebookEditor.focusNotebookCell(
+                this.currentCell,
+                "output"
+              );
+            }
+          }
+        )
+      );
+    }
+  }
+}
+export {
+  CellFocusPart
+};
+//# sourceMappingURL=cellFocus.js.map

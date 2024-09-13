@@ -1,1 +1,423 @@
-var w=Object.defineProperty;var M=Object.getOwnPropertyDescriptor;var I=(a,e,t,n)=>{for(var i=n>1?void 0:n?M(e,t):e,s=a.length-1,r;s>=0;s--)(r=a[s])&&(i=(n?r(e,t,i):r(i))||i);return n&&i&&w(e,t,i),i},p=(a,e)=>(t,n)=>e(t,n,a);import*as o from"../../../../base/browser/dom.js";import{StandardKeyboardEvent as v}from"../../../../base/browser/keyboardEvent.js";import{StandardMouseEvent as P}from"../../../../base/browser/mouseEvent.js";import{HoverPosition as W}from"../../../../base/browser/ui/hover/hoverWidget.js";import{Action as $}from"../../../../base/common/actions.js";import{isNonEmptyArray as A}from"../../../../base/common/arrays.js";import{CancellationToken as K}from"../../../../base/common/cancellation.js";import{Event as S}from"../../../../base/common/event.js";import{KeyCode as H}from"../../../../base/common/keyCodes.js";import{Disposable as N,DisposableStore as _,dispose as F,toDisposable as U}from"../../../../base/common/lifecycle.js";import{localize as f}from"../../../../nls.js";import{IConfigurationService as B}from"../../../../platform/configuration/common/configuration.js";import{IContextKeyService as R}from"../../../../platform/contextkey/common/contextkey.js";import{IInstantiationService as y}from"../../../../platform/instantiation/common/instantiation.js";import{IListService as O,WorkbenchAsyncDataTree as j}from"../../../../platform/list/browser/listService.js";import{editorBackground as q,foreground as Y,listFocusBackground as z,listFocusForeground as Q}from"../../../../platform/theme/common/colorRegistry.js";import{registerThemingParticipant as J}from"../../../../platform/theme/common/themeService.js";import{IExtensionsWorkbenchService as C}from"../common/extensions.js";import{Renderer as V}from"./extensionsList.js";import{getAriaLabelForExtension as X}from"./extensionsViews.js";let E=class extends N{constructor(t,n,i){super();this.instantiationService=i;this.element=o.append(t,o.$(".extensions-grid-view")),this.renderer=this.instantiationService.createInstance(V,{onFocus:S.None,onBlur:S.None},{hoverOptions:{position(){return W.BELOW}}}),this.delegate=n,this.disposableStore=this._register(new _)}element;renderer;delegate;disposableStore;setExtensions(t){this.disposableStore.clear(),t.forEach((n,i)=>this.renderExtension(n,i))}renderExtension(t,n){const i=o.append(this.element,o.$(".extension-container"));i.style.height=`${this.delegate.getHeight()}px`,i.setAttribute("tabindex","0");const s=this.renderer.renderTemplate(i);this.disposableStore.add(U(()=>this.renderer.disposeTemplate(s)));const r=this.instantiationService.createInstance(u);r.extension=t,s.name.setAttribute("tabindex","0");const d=l=>{l instanceof v&&l.keyCode!==H.Enter||(r.run(l.ctrlKey||l.metaKey),l.stopPropagation(),l.preventDefault())};this.disposableStore.add(o.addDisposableListener(s.name,o.EventType.CLICK,l=>d(new P(o.getWindow(s.name),l)))),this.disposableStore.add(o.addDisposableListener(s.name,o.EventType.KEY_DOWN,l=>d(new v(l)))),this.disposableStore.add(o.addDisposableListener(i,o.EventType.KEY_DOWN,l=>d(new v(l)))),this.renderer.renderElement(t,n,s)}};E=I([p(2,y)],E);class Z{hasChildren({hasChildren:e}){return e}getChildren(e){return e.getChildren()}}class G{getHeight(e){return 62}getTemplateId({extension:e}){return e?m.TEMPLATE_ID:b.TEMPLATE_ID}}let m=class{constructor(e){this.instantiationService=e}static TEMPLATE_ID="extension-template";get templateId(){return m.TEMPLATE_ID}renderTemplate(e){e.classList.add("extension");const t=o.append(e,o.$("img.icon")),n=o.append(e,o.$(".details")),i=o.append(n,o.$(".header")),s=o.append(i,o.$("span.name")),r=this.instantiationService.createInstance(u),d=[o.addDisposableListener(s,"click",c=>{r.run(c.ctrlKey||c.metaKey),c.stopPropagation(),c.preventDefault()})],l=o.append(i,o.$("span.identifier")),g=o.append(n,o.$(".footer")),D=o.append(g,o.$(".author"));return{icon:t,name:s,identifier:l,author:D,extensionDisposables:d,set extensionData(c){r.extension=c.extension}}}renderElement(e,t,n){const i=e.element.extension;n.extensionDisposables.push(o.addDisposableListener(n.icon,"error",()=>n.icon.src=i.iconUrlFallback,{once:!0})),n.icon.src=i.iconUrl,n.icon.complete?n.icon.style.visibility="inherit":(n.icon.style.visibility="hidden",n.icon.onload=()=>n.icon.style.visibility="inherit"),n.name.textContent=i.displayName,n.identifier.textContent=i.identifier.id,n.author.textContent=i.publisherDisplayName,n.extensionData=e.element}disposeTemplate(e){e.extensionDisposables=F(e.extensionDisposables)}};m=I([p(0,y)],m);class b{static TEMPLATE_ID="unknown-extension-template";get templateId(){return b.TEMPLATE_ID}renderTemplate(e){const t=o.append(e,o.$("div.unknown-extension"));return o.append(t,o.$("span.error-marker")).textContent=f("error","Error"),o.append(t,o.$("span.message")).textContent=f("Unknown Extension","Unknown Extension:"),{identifier:o.append(t,o.$("span.message"))}}renderElement(e,t,n){n.identifier.textContent=e.element.extension.identifier.id}disposeTemplate(e){}}let u=class extends ${constructor(t){super("extensions.action.openExtension","");this.extensionsWorkdbenchService=t}_extension;set extension(t){this._extension=t}run(t){return this._extension?this.extensionsWorkdbenchService.open(this._extension,{sideByside:t}):Promise.resolve()}};u=I([p(0,C)],u);let h=class extends j{constructor(e,t,n,i,s,r,d,l){const g=new G,D=new Z,c=[r.createInstance(m),r.createInstance(b)],k={getId({extension:x,parent:T}){return T?this.getId(T)+"/"+x.identifier.id:x.identifier.id}};super("ExtensionsTree",t,g,c,D,{indent:40,identityProvider:k,multipleSelectionSupport:!1,overrideStyles:n,accessibilityProvider:{getAriaLabel(x){return X(x.extension)},getWidgetAriaLabel(){return f("extensions","Extensions")}}},r,i,s,d),this.setInput(e),this.disposables.add(this.onDidChangeSelection(x=>{o.isKeyboardEvent(x.browserEvent)&&l.open(x.elements[0].extension,{sideByside:!1})}))}};h=I([p(3,R),p(4,O),p(5,y),p(6,B),p(7,C)],h);class L{extension;parent;getChildrenExtensionIds;childrenExtensionIds;extensionsWorkbenchService;constructor(e,t,n,i){this.extension=e,this.parent=t,this.getChildrenExtensionIds=n,this.extensionsWorkbenchService=i,this.childrenExtensionIds=this.getChildrenExtensionIds(e)}get hasChildren(){return A(this.childrenExtensionIds)}async getChildren(){return this.hasChildren?(await ee(this.childrenExtensionIds,this.extensionsWorkbenchService)).map(t=>new L(t,this,this.getChildrenExtensionIds,this.extensionsWorkbenchService)):null}}async function ee(a,e){const t=e.local.reduce((s,r)=>(s.set(r.identifier.id.toLowerCase(),r),s),new Map),n=[],i=[];for(const s of a){const r=s.toLowerCase(),d=t.get(r);d?n.push(d):i.push(r)}if(i.length){const s=await e.getExtensions(i.map(r=>({id:r})),K.None);n.push(...s)}return n}J((a,e)=>{const t=a.getColor(z);t&&e.addRule(`.extensions-grid-view .extension-container:focus { background-color: ${t}; outline: none; }`);const n=a.getColor(Q);n&&e.addRule(`.extensions-grid-view .extension-container:focus { color: ${n}; }`);const i=a.getColor(Y),s=a.getColor(q);if(i&&s){const r=i.transparent(.9).makeOpaque(s);e.addRule(`.extensions-grid-view .extension-container:not(.disabled) .author { color: ${r}; }`);const d=i.transparent(.5).makeOpaque(s);e.addRule(`.extensions-grid-view .extension-container.disabled { color: ${d}; }`)}});export{L as ExtensionData,E as ExtensionsGridView,h as ExtensionsTree,ee as getExtensions};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../base/browser/dom.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import { StandardMouseEvent } from "../../../../base/browser/mouseEvent.js";
+import { HoverPosition } from "../../../../base/browser/ui/hover/hoverWidget.js";
+import { Action } from "../../../../base/common/actions.js";
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import {
+  Disposable,
+  DisposableStore,
+  dispose,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IListService,
+  WorkbenchAsyncDataTree
+} from "../../../../platform/list/browser/listService.js";
+import {
+  editorBackground,
+  foreground,
+  listFocusBackground,
+  listFocusForeground
+} from "../../../../platform/theme/common/colorRegistry.js";
+import {
+  registerThemingParticipant
+} from "../../../../platform/theme/common/themeService.js";
+import {
+  IExtensionsWorkbenchService
+} from "../common/extensions.js";
+import { Renderer } from "./extensionsList.js";
+import { getAriaLabelForExtension } from "./extensionsViews.js";
+let ExtensionsGridView = class extends Disposable {
+  constructor(parent, delegate, instantiationService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.element = dom.append(parent, dom.$(".extensions-grid-view"));
+    this.renderer = this.instantiationService.createInstance(Renderer, { onFocus: Event.None, onBlur: Event.None }, { hoverOptions: { position() {
+      return HoverPosition.BELOW;
+    } } });
+    this.delegate = delegate;
+    this.disposableStore = this._register(new DisposableStore());
+  }
+  static {
+    __name(this, "ExtensionsGridView");
+  }
+  element;
+  renderer;
+  delegate;
+  disposableStore;
+  setExtensions(extensions) {
+    this.disposableStore.clear();
+    extensions.forEach((e, index) => this.renderExtension(e, index));
+  }
+  renderExtension(extension, index) {
+    const extensionContainer = dom.append(
+      this.element,
+      dom.$(".extension-container")
+    );
+    extensionContainer.style.height = `${this.delegate.getHeight()}px`;
+    extensionContainer.setAttribute("tabindex", "0");
+    const template = this.renderer.renderTemplate(extensionContainer);
+    this.disposableStore.add(
+      toDisposable(() => this.renderer.disposeTemplate(template))
+    );
+    const openExtensionAction = this.instantiationService.createInstance(OpenExtensionAction);
+    openExtensionAction.extension = extension;
+    template.name.setAttribute("tabindex", "0");
+    const handleEvent = /* @__PURE__ */ __name((e) => {
+      if (e instanceof StandardKeyboardEvent && e.keyCode !== KeyCode.Enter) {
+        return;
+      }
+      openExtensionAction.run(e.ctrlKey || e.metaKey);
+      e.stopPropagation();
+      e.preventDefault();
+    }, "handleEvent");
+    this.disposableStore.add(
+      dom.addDisposableListener(
+        template.name,
+        dom.EventType.CLICK,
+        (e) => handleEvent(
+          new StandardMouseEvent(dom.getWindow(template.name), e)
+        )
+      )
+    );
+    this.disposableStore.add(
+      dom.addDisposableListener(
+        template.name,
+        dom.EventType.KEY_DOWN,
+        (e) => handleEvent(new StandardKeyboardEvent(e))
+      )
+    );
+    this.disposableStore.add(
+      dom.addDisposableListener(
+        extensionContainer,
+        dom.EventType.KEY_DOWN,
+        (e) => handleEvent(new StandardKeyboardEvent(e))
+      )
+    );
+    this.renderer.renderElement(extension, index, template);
+  }
+};
+ExtensionsGridView = __decorateClass([
+  __decorateParam(2, IInstantiationService)
+], ExtensionsGridView);
+class AsyncDataSource {
+  static {
+    __name(this, "AsyncDataSource");
+  }
+  hasChildren({ hasChildren }) {
+    return hasChildren;
+  }
+  getChildren(extensionData) {
+    return extensionData.getChildren();
+  }
+}
+class VirualDelegate {
+  static {
+    __name(this, "VirualDelegate");
+  }
+  getHeight(element) {
+    return 62;
+  }
+  getTemplateId({ extension }) {
+    return extension ? ExtensionRenderer.TEMPLATE_ID : UnknownExtensionRenderer.TEMPLATE_ID;
+  }
+}
+let ExtensionRenderer = class {
+  constructor(instantiationService) {
+    this.instantiationService = instantiationService;
+  }
+  static {
+    __name(this, "ExtensionRenderer");
+  }
+  static TEMPLATE_ID = "extension-template";
+  get templateId() {
+    return ExtensionRenderer.TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    container.classList.add("extension");
+    const icon = dom.append(container, dom.$("img.icon"));
+    const details = dom.append(container, dom.$(".details"));
+    const header = dom.append(details, dom.$(".header"));
+    const name = dom.append(header, dom.$("span.name"));
+    const openExtensionAction = this.instantiationService.createInstance(OpenExtensionAction);
+    const extensionDisposables = [
+      dom.addDisposableListener(name, "click", (e) => {
+        openExtensionAction.run(e.ctrlKey || e.metaKey);
+        e.stopPropagation();
+        e.preventDefault();
+      })
+    ];
+    const identifier = dom.append(header, dom.$("span.identifier"));
+    const footer = dom.append(details, dom.$(".footer"));
+    const author = dom.append(footer, dom.$(".author"));
+    return {
+      icon,
+      name,
+      identifier,
+      author,
+      extensionDisposables,
+      set extensionData(extensionData) {
+        openExtensionAction.extension = extensionData.extension;
+      }
+    };
+  }
+  renderElement(node, index, data) {
+    const extension = node.element.extension;
+    data.extensionDisposables.push(
+      dom.addDisposableListener(
+        data.icon,
+        "error",
+        () => data.icon.src = extension.iconUrlFallback,
+        { once: true }
+      )
+    );
+    data.icon.src = extension.iconUrl;
+    if (data.icon.complete) {
+      data.icon.style.visibility = "inherit";
+    } else {
+      data.icon.style.visibility = "hidden";
+      data.icon.onload = () => data.icon.style.visibility = "inherit";
+    }
+    data.name.textContent = extension.displayName;
+    data.identifier.textContent = extension.identifier.id;
+    data.author.textContent = extension.publisherDisplayName;
+    data.extensionData = node.element;
+  }
+  disposeTemplate(templateData) {
+    templateData.extensionDisposables = dispose(
+      templateData.extensionDisposables
+    );
+  }
+};
+ExtensionRenderer = __decorateClass([
+  __decorateParam(0, IInstantiationService)
+], ExtensionRenderer);
+class UnknownExtensionRenderer {
+  static {
+    __name(this, "UnknownExtensionRenderer");
+  }
+  static TEMPLATE_ID = "unknown-extension-template";
+  get templateId() {
+    return UnknownExtensionRenderer.TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    const messageContainer = dom.append(
+      container,
+      dom.$("div.unknown-extension")
+    );
+    dom.append(messageContainer, dom.$("span.error-marker")).textContent = localize("error", "Error");
+    dom.append(messageContainer, dom.$("span.message")).textContent = localize("Unknown Extension", "Unknown Extension:");
+    const identifier = dom.append(messageContainer, dom.$("span.message"));
+    return { identifier };
+  }
+  renderElement(node, index, data) {
+    data.identifier.textContent = node.element.extension.identifier.id;
+  }
+  disposeTemplate(data) {
+  }
+}
+let OpenExtensionAction = class extends Action {
+  constructor(extensionsWorkdbenchService) {
+    super("extensions.action.openExtension", "");
+    this.extensionsWorkdbenchService = extensionsWorkdbenchService;
+  }
+  static {
+    __name(this, "OpenExtensionAction");
+  }
+  _extension;
+  set extension(extension) {
+    this._extension = extension;
+  }
+  run(sideByside) {
+    if (this._extension) {
+      return this.extensionsWorkdbenchService.open(this._extension, {
+        sideByside
+      });
+    }
+    return Promise.resolve();
+  }
+};
+OpenExtensionAction = __decorateClass([
+  __decorateParam(0, IExtensionsWorkbenchService)
+], OpenExtensionAction);
+let ExtensionsTree = class extends WorkbenchAsyncDataTree {
+  static {
+    __name(this, "ExtensionsTree");
+  }
+  constructor(input, container, overrideStyles, contextKeyService, listService, instantiationService, configurationService, extensionsWorkdbenchService) {
+    const delegate = new VirualDelegate();
+    const dataSource = new AsyncDataSource();
+    const renderers = [
+      instantiationService.createInstance(ExtensionRenderer),
+      instantiationService.createInstance(UnknownExtensionRenderer)
+    ];
+    const identityProvider = {
+      getId({ extension, parent }) {
+        return parent ? this.getId(parent) + "/" + extension.identifier.id : extension.identifier.id;
+      }
+    };
+    super(
+      "ExtensionsTree",
+      container,
+      delegate,
+      renderers,
+      dataSource,
+      {
+        indent: 40,
+        identityProvider,
+        multipleSelectionSupport: false,
+        overrideStyles,
+        accessibilityProvider: {
+          getAriaLabel(extensionData) {
+            return getAriaLabelForExtension(
+              extensionData.extension
+            );
+          },
+          getWidgetAriaLabel() {
+            return localize("extensions", "Extensions");
+          }
+        }
+      },
+      instantiationService,
+      contextKeyService,
+      listService,
+      configurationService
+    );
+    this.setInput(input);
+    this.disposables.add(
+      this.onDidChangeSelection((event) => {
+        if (dom.isKeyboardEvent(event.browserEvent)) {
+          extensionsWorkdbenchService.open(
+            event.elements[0].extension,
+            { sideByside: false }
+          );
+        }
+      })
+    );
+  }
+};
+ExtensionsTree = __decorateClass([
+  __decorateParam(3, IContextKeyService),
+  __decorateParam(4, IListService),
+  __decorateParam(5, IInstantiationService),
+  __decorateParam(6, IConfigurationService),
+  __decorateParam(7, IExtensionsWorkbenchService)
+], ExtensionsTree);
+class ExtensionData {
+  static {
+    __name(this, "ExtensionData");
+  }
+  extension;
+  parent;
+  getChildrenExtensionIds;
+  childrenExtensionIds;
+  extensionsWorkbenchService;
+  constructor(extension, parent, getChildrenExtensionIds, extensionsWorkbenchService) {
+    this.extension = extension;
+    this.parent = parent;
+    this.getChildrenExtensionIds = getChildrenExtensionIds;
+    this.extensionsWorkbenchService = extensionsWorkbenchService;
+    this.childrenExtensionIds = this.getChildrenExtensionIds(extension);
+  }
+  get hasChildren() {
+    return isNonEmptyArray(this.childrenExtensionIds);
+  }
+  async getChildren() {
+    if (this.hasChildren) {
+      const result = await getExtensions(
+        this.childrenExtensionIds,
+        this.extensionsWorkbenchService
+      );
+      return result.map(
+        (extension) => new ExtensionData(
+          extension,
+          this,
+          this.getChildrenExtensionIds,
+          this.extensionsWorkbenchService
+        )
+      );
+    }
+    return null;
+  }
+}
+async function getExtensions(extensions, extensionsWorkbenchService) {
+  const localById = extensionsWorkbenchService.local.reduce((result2, e) => {
+    result2.set(e.identifier.id.toLowerCase(), e);
+    return result2;
+  }, /* @__PURE__ */ new Map());
+  const result = [];
+  const toQuery = [];
+  for (const extensionId of extensions) {
+    const id = extensionId.toLowerCase();
+    const local = localById.get(id);
+    if (local) {
+      result.push(local);
+    } else {
+      toQuery.push(id);
+    }
+  }
+  if (toQuery.length) {
+    const galleryResult = await extensionsWorkbenchService.getExtensions(
+      toQuery.map((id) => ({ id })),
+      CancellationToken.None
+    );
+    result.push(...galleryResult);
+  }
+  return result;
+}
+__name(getExtensions, "getExtensions");
+registerThemingParticipant(
+  (theme, collector) => {
+    const focusBackground = theme.getColor(listFocusBackground);
+    if (focusBackground) {
+      collector.addRule(
+        `.extensions-grid-view .extension-container:focus { background-color: ${focusBackground}; outline: none; }`
+      );
+    }
+    const focusForeground = theme.getColor(listFocusForeground);
+    if (focusForeground) {
+      collector.addRule(
+        `.extensions-grid-view .extension-container:focus { color: ${focusForeground}; }`
+      );
+    }
+    const foregroundColor = theme.getColor(foreground);
+    const editorBackgroundColor = theme.getColor(editorBackground);
+    if (foregroundColor && editorBackgroundColor) {
+      const authorForeground = foregroundColor.transparent(0.9).makeOpaque(editorBackgroundColor);
+      collector.addRule(
+        `.extensions-grid-view .extension-container:not(.disabled) .author { color: ${authorForeground}; }`
+      );
+      const disabledExtensionForeground = foregroundColor.transparent(0.5).makeOpaque(editorBackgroundColor);
+      collector.addRule(
+        `.extensions-grid-view .extension-container.disabled { color: ${disabledExtensionForeground}; }`
+      );
+    }
+  }
+);
+export {
+  ExtensionData,
+  ExtensionsGridView,
+  ExtensionsTree,
+  getExtensions
+};
+//# sourceMappingURL=extensionsViewer.js.map

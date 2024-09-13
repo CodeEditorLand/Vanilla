@@ -1,1 +1,86 @@
-var d=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var p=(o,r,e,n)=>{for(var i=n>1?void 0:n?m(r,e):r,s=o.length-1,c;s>=0;s--)(c=o[s])&&(i=(n?c(r,e,i):c(i))||i);return n&&i&&d(r,e,i),i},t=(o,r)=>(e,n)=>r(e,n,o);import{IBackupMainService as k}from"../../backup/electron-main/backup.js";import{IWindowsMainService as I}from"../../windows/electron-main/windows.js";import{IWorkspacesHistoryMainService as w}from"./workspacesHistoryMainService.js";import{IWorkspacesManagementMainService as u}from"./workspacesManagementMainService.js";let a=class{constructor(r,e,n,i){this.workspacesManagementMainService=r;this.windowsMainService=e;this.workspacesHistoryMainService=n;this.backupMainService=i}async enterWorkspace(r,e){const n=this.windowsMainService.getWindowById(r);if(n)return this.workspacesManagementMainService.enterWorkspace(n,this.windowsMainService.getWindows(),e)}createUntitledWorkspace(r,e,n){return this.workspacesManagementMainService.createUntitledWorkspace(e,n)}deleteUntitledWorkspace(r,e){return this.workspacesManagementMainService.deleteUntitledWorkspace(e)}getWorkspaceIdentifier(r,e){return this.workspacesManagementMainService.getWorkspaceIdentifier(e)}onDidChangeRecentlyOpened=this.workspacesHistoryMainService.onDidChangeRecentlyOpened;getRecentlyOpened(r){return this.workspacesHistoryMainService.getRecentlyOpened()}addRecentlyOpened(r,e){return this.workspacesHistoryMainService.addRecentlyOpened(e)}removeRecentlyOpened(r,e){return this.workspacesHistoryMainService.removeRecentlyOpened(e)}clearRecentlyOpened(r){return this.workspacesHistoryMainService.clearRecentlyOpened()}async getDirtyWorkspaces(){return this.backupMainService.getDirtyWorkspaces()}};a=p([t(0,u),t(1,I),t(2,w),t(3,k)],a);export{a as WorkspacesMainService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IBackupMainService } from "../../backup/electron-main/backup.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { IWorkspacesHistoryMainService } from "./workspacesHistoryMainService.js";
+import { IWorkspacesManagementMainService } from "./workspacesManagementMainService.js";
+let WorkspacesMainService = class {
+  constructor(workspacesManagementMainService, windowsMainService, workspacesHistoryMainService, backupMainService) {
+    this.workspacesManagementMainService = workspacesManagementMainService;
+    this.windowsMainService = windowsMainService;
+    this.workspacesHistoryMainService = workspacesHistoryMainService;
+    this.backupMainService = backupMainService;
+  }
+  static {
+    __name(this, "WorkspacesMainService");
+  }
+  //#region Workspace Management
+  async enterWorkspace(windowId, path) {
+    const window = this.windowsMainService.getWindowById(windowId);
+    if (window) {
+      return this.workspacesManagementMainService.enterWorkspace(
+        window,
+        this.windowsMainService.getWindows(),
+        path
+      );
+    }
+    return void 0;
+  }
+  createUntitledWorkspace(windowId, folders, remoteAuthority) {
+    return this.workspacesManagementMainService.createUntitledWorkspace(
+      folders,
+      remoteAuthority
+    );
+  }
+  deleteUntitledWorkspace(windowId, workspace) {
+    return this.workspacesManagementMainService.deleteUntitledWorkspace(
+      workspace
+    );
+  }
+  getWorkspaceIdentifier(windowId, workspacePath) {
+    return this.workspacesManagementMainService.getWorkspaceIdentifier(
+      workspacePath
+    );
+  }
+  //#endregion
+  //#region Workspaces History
+  onDidChangeRecentlyOpened = this.workspacesHistoryMainService.onDidChangeRecentlyOpened;
+  getRecentlyOpened(windowId) {
+    return this.workspacesHistoryMainService.getRecentlyOpened();
+  }
+  addRecentlyOpened(windowId, recents) {
+    return this.workspacesHistoryMainService.addRecentlyOpened(recents);
+  }
+  removeRecentlyOpened(windowId, paths) {
+    return this.workspacesHistoryMainService.removeRecentlyOpened(paths);
+  }
+  clearRecentlyOpened(windowId) {
+    return this.workspacesHistoryMainService.clearRecentlyOpened();
+  }
+  //#endregion
+  //#region Dirty Workspaces
+  async getDirtyWorkspaces() {
+    return this.backupMainService.getDirtyWorkspaces();
+  }
+  //#endregion
+};
+WorkspacesMainService = __decorateClass([
+  __decorateParam(0, IWorkspacesManagementMainService),
+  __decorateParam(1, IWindowsMainService),
+  __decorateParam(2, IWorkspacesHistoryMainService),
+  __decorateParam(3, IBackupMainService)
+], WorkspacesMainService);
+export {
+  WorkspacesMainService
+};
+//# sourceMappingURL=workspacesMainService.js.map

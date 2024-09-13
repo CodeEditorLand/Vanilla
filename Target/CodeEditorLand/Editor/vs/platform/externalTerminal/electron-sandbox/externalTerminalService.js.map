@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/platform/externalTerminal/electron-sandbox/externalTerminalService.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { createDecorator } from \"../../instantiation/common/instantiation.js\";\nimport { registerMainProcessRemoteService } from \"../../ipc/electron-sandbox/services.js\";\nimport type { IExternalTerminalService as ICommonExternalTerminalService } from \"../common/externalTerminal.js\";\n\nexport const IExternalTerminalService =\n\tcreateDecorator<IExternalTerminalService>(\"externalTerminal\");\n\nexport interface IExternalTerminalService\n\textends ICommonExternalTerminalService {\n\treadonly _serviceBrand: undefined;\n}\n\nregisterMainProcessRemoteService(IExternalTerminalService, \"externalTerminal\");\n"],
+  "mappings": "AAKA,SAAS,uBAAuB;AAChC,SAAS,wCAAwC;AAG1C,MAAM,2BACZ,gBAA0C,kBAAkB;AAO7D,iCAAiC,0BAA0B,kBAAkB;",
+  "names": []
+}

@@ -1,1 +1,92 @@
-import{Emitter as s}from"../../../../base/common/event.js";import{Disposable as l}from"../../../../base/common/lifecycle.js";import{AccessibleViewProviderId as d,AccessibleViewType as n}from"../../../../platform/accessibility/browser/accessibleView.js";import{ContextKeyExpr as p}from"../../../../platform/contextkey/common/contextkey.js";import{ICodeEditorService as m}from"../../../browser/services/codeEditorService.js";import{InlineCompletionContextKeys as c}from"./controller/inlineCompletionContextKeys.js";import{InlineCompletionsController as a}from"./controller/inlineCompletionsController.js";class w{type=n.View;priority=95;name="inline-completions";when=p.and(c.inlineSuggestionVisible);getProvider(o){const e=o.get(m),t=e.getActiveCodeEditor()||e.getFocusedCodeEditor();if(!t)return;const i=a.get(t)?.model.get();if(i?.state.get())return new C(t,i)}}class C extends l{constructor(e,t){super();this._editor=e;this._model=t}_onDidChangeContent=this._register(new s);onDidChangeContent=this._onDidChangeContent.event;id=d.InlineCompletions;verbositySettingKey="accessibility.verbosity.inlineCompletions";options={language:this._editor.getModel()?.getLanguageId()??void 0,type:n.View};provideContent(){const e=this._model.state.get();if(!e)throw new Error("Inline completion is visible but state is not available");const t=this._model.textModel.getLineContent(e.primaryGhostText.lineNumber),i=e.primaryGhostText.renderForScreenReader(t);if(!i)throw new Error("Inline completion is visible but ghost text is not available");return t+i}provideNextContent(){this._model.next().then(()=>this._onDidChangeContent.fire())}providePreviousContent(){this._model.previous().then(()=>this._onDidChangeContent.fire())}onClose(){this._model.stop(),this._editor.focus()}}export{w as InlineCompletionsAccessibleView};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import {
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../platform/accessibility/browser/accessibleView.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { InlineCompletionContextKeys } from "./controller/inlineCompletionContextKeys.js";
+import { InlineCompletionsController } from "./controller/inlineCompletionsController.js";
+class InlineCompletionsAccessibleView {
+  static {
+    __name(this, "InlineCompletionsAccessibleView");
+  }
+  type = AccessibleViewType.View;
+  priority = 95;
+  name = "inline-completions";
+  when = ContextKeyExpr.and(
+    InlineCompletionContextKeys.inlineSuggestionVisible
+  );
+  getProvider(accessor) {
+    const codeEditorService = accessor.get(ICodeEditorService);
+    const editor = codeEditorService.getActiveCodeEditor() || codeEditorService.getFocusedCodeEditor();
+    if (!editor) {
+      return;
+    }
+    const model = InlineCompletionsController.get(editor)?.model.get();
+    if (!model?.state.get()) {
+      return;
+    }
+    return new InlineCompletionsAccessibleViewContentProvider(
+      editor,
+      model
+    );
+  }
+}
+class InlineCompletionsAccessibleViewContentProvider extends Disposable {
+  constructor(_editor, _model) {
+    super();
+    this._editor = _editor;
+    this._model = _model;
+  }
+  static {
+    __name(this, "InlineCompletionsAccessibleViewContentProvider");
+  }
+  _onDidChangeContent = this._register(
+    new Emitter()
+  );
+  onDidChangeContent = this._onDidChangeContent.event;
+  id = AccessibleViewProviderId.InlineCompletions;
+  verbositySettingKey = "accessibility.verbosity.inlineCompletions";
+  options = {
+    language: this._editor.getModel()?.getLanguageId() ?? void 0,
+    type: AccessibleViewType.View
+  };
+  provideContent() {
+    const state = this._model.state.get();
+    if (!state) {
+      throw new Error(
+        "Inline completion is visible but state is not available"
+      );
+    }
+    const lineText = this._model.textModel.getLineContent(
+      state.primaryGhostText.lineNumber
+    );
+    const ghostText = state.primaryGhostText.renderForScreenReader(lineText);
+    if (!ghostText) {
+      throw new Error(
+        "Inline completion is visible but ghost text is not available"
+      );
+    }
+    return lineText + ghostText;
+  }
+  provideNextContent() {
+    this._model.next().then(() => this._onDidChangeContent.fire());
+    return;
+  }
+  providePreviousContent() {
+    this._model.previous().then(() => this._onDidChangeContent.fire());
+    return;
+  }
+  onClose() {
+    this._model.stop();
+    this._editor.focus();
+  }
+}
+export {
+  InlineCompletionsAccessibleView
+};
+//# sourceMappingURL=inlineCompletionsAccessibleView.js.map

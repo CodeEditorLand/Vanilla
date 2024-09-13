@@ -1,2 +1,118 @@
-import{renderMarkdownAsPlaintext as d}from"../../../../base/browser/markdownRenderer.js";import{MarkdownString as p}from"../../../../base/common/htmlContent.js";import{Disposable as l}from"../../../../base/common/lifecycle.js";import{AccessibleViewProviderId as m,AccessibleViewType as n}from"../../../../platform/accessibility/browser/accessibleView.js";import{AccessibilityVerbositySettingId as u}from"../../accessibility/browser/accessibilityConfiguration.js";import{CONTEXT_IN_CHAT_SESSION as f}from"../common/chatContextKeys.js";import{ChatWelcomeMessageModel as g}from"../common/chatModel.js";import{isResponseVM as h}from"../common/chatViewModel.js";import{IChatWidgetService as I}from"./chat.js";class T{priority=100;name="panelChat";type=n.View;when=f;getProvider(r){const t=r.get(I).lastFocusedWidget;if(!t)return;const i=t.hasInputFocus();i&&t.focusLastMessage();const s=t,o=s.getFocus();if(o)return new w(s,o,i)}}class w extends l{constructor(e,t,i){super();this._widget=e;this._chatInputFocused=i;this._focusedItem=t}_focusedItem;id=m.Chat;verbositySettingKey=u.Chat;options={type:n.View};provideContent(){return this._getContent(this._focusedItem)}_getContent(e){const t=e instanceof g;let i=h(e)?e.response.toString():"";if(t){const s=[];for(const o of e.content)Array.isArray(o)?s.push(...o.map(a=>a.message)):s.push(o.value);i=s.join(`
-`)}return!i&&"errorDetails"in e&&e.errorDetails&&(i=e.errorDetails.message),d(new p(i),!0)}onClose(){this._widget.reveal(this._focusedItem),this._chatInputFocused?this._widget.focusInput():this._widget.focus(this._focusedItem)}provideNextContent(){const e=this._widget.getSibling(this._focusedItem,"next");if(e)return this._focusedItem=e,this._getContent(e)}providePreviousContent(){const e=this._widget.getSibling(this._focusedItem,"previous");if(e)return this._focusedItem=e,this._getContent(e)}}export{T as ChatResponseAccessibleView};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { renderMarkdownAsPlaintext } from "../../../../base/browser/markdownRenderer.js";
+import {
+  MarkdownString
+} from "../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import {
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../platform/accessibility/browser/accessibleView.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { CONTEXT_IN_CHAT_SESSION } from "../common/chatContextKeys.js";
+import { ChatWelcomeMessageModel } from "../common/chatModel.js";
+import { isResponseVM } from "../common/chatViewModel.js";
+import {
+  IChatWidgetService
+} from "./chat.js";
+class ChatResponseAccessibleView {
+  static {
+    __name(this, "ChatResponseAccessibleView");
+  }
+  priority = 100;
+  name = "panelChat";
+  type = AccessibleViewType.View;
+  when = CONTEXT_IN_CHAT_SESSION;
+  getProvider(accessor) {
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = widgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    const chatInputFocused = widget.hasInputFocus();
+    if (chatInputFocused) {
+      widget.focusLastMessage();
+    }
+    const verifiedWidget = widget;
+    const focusedItem = verifiedWidget.getFocus();
+    if (!focusedItem) {
+      return;
+    }
+    return new ChatResponseAccessibleProvider(
+      verifiedWidget,
+      focusedItem,
+      chatInputFocused
+    );
+  }
+}
+class ChatResponseAccessibleProvider extends Disposable {
+  constructor(_widget, item, _chatInputFocused) {
+    super();
+    this._widget = _widget;
+    this._chatInputFocused = _chatInputFocused;
+    this._focusedItem = item;
+  }
+  static {
+    __name(this, "ChatResponseAccessibleProvider");
+  }
+  _focusedItem;
+  id = AccessibleViewProviderId.Chat;
+  verbositySettingKey = AccessibilityVerbositySettingId.Chat;
+  options = { type: AccessibleViewType.View };
+  provideContent() {
+    return this._getContent(this._focusedItem);
+  }
+  _getContent(item) {
+    const isWelcome = item instanceof ChatWelcomeMessageModel;
+    let responseContent = isResponseVM(item) ? item.response.toString() : "";
+    if (isWelcome) {
+      const welcomeReplyContents = [];
+      for (const content of item.content) {
+        if (Array.isArray(content)) {
+          welcomeReplyContents.push(...content.map((m) => m.message));
+        } else {
+          welcomeReplyContents.push(
+            content.value
+          );
+        }
+      }
+      responseContent = welcomeReplyContents.join("\n");
+    }
+    if (!responseContent && "errorDetails" in item && item.errorDetails) {
+      responseContent = item.errorDetails.message;
+    }
+    return renderMarkdownAsPlaintext(
+      new MarkdownString(responseContent),
+      true
+    );
+  }
+  onClose() {
+    this._widget.reveal(this._focusedItem);
+    if (this._chatInputFocused) {
+      this._widget.focusInput();
+    } else {
+      this._widget.focus(this._focusedItem);
+    }
+  }
+  provideNextContent() {
+    const next = this._widget.getSibling(this._focusedItem, "next");
+    if (next) {
+      this._focusedItem = next;
+      return this._getContent(next);
+    }
+    return;
+  }
+  providePreviousContent() {
+    const previous = this._widget.getSibling(this._focusedItem, "previous");
+    if (previous) {
+      this._focusedItem = previous;
+      return this._getContent(previous);
+    }
+    return;
+  }
+}
+export {
+  ChatResponseAccessibleView
+};
+//# sourceMappingURL=chatResponseAccessibleView.js.map

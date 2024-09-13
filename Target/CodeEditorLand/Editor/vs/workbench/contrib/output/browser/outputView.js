@@ -1,1 +1,307 @@
-var T=Object.defineProperty;var L=Object.getOwnPropertyDescriptor;var f=(d,t,i,e)=>{for(var r=e>1?void 0:e?L(t,i):t,s=d.length-1,n;s>=0;s--)(n=d[s])&&(r=(e?n(t,i,r):n(r))||r);return e&&r&&T(t,i,r),r},o=(d,t)=>(i,e)=>t(i,e,d);import"./output.css";import{Dimension as E}from"../../../../base/browser/dom.js";import{createCancelablePromise as O}from"../../../../base/common/async.js";import{CursorChangeReason as K}from"../../../../editor/common/cursorEvents.js";import{ITextResourceConfigurationService as w}from"../../../../editor/common/services/textResourceConfiguration.js";import*as p from"../../../../nls.js";import{IConfigurationService as I}from"../../../../platform/configuration/common/configuration.js";import{IContextKeyService as v}from"../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as P}from"../../../../platform/contextview/browser/contextView.js";import{IFileService as _}from"../../../../platform/files/common/files.js";import{IHoverService as A}from"../../../../platform/hover/browser/hover.js";import{IInstantiationService as C}from"../../../../platform/instantiation/common/instantiation.js";import{ServiceCollection as D}from"../../../../platform/instantiation/common/serviceCollection.js";import{IKeybindingService as V}from"../../../../platform/keybinding/common/keybinding.js";import{IOpenerService as R}from"../../../../platform/opener/common/opener.js";import{IStorageService as k}from"../../../../platform/storage/common/storage.js";import{ITelemetryService as g}from"../../../../platform/telemetry/common/telemetry.js";import{IThemeService as y}from"../../../../platform/theme/common/themeService.js";import{computeEditorAriaLabel as B}from"../../../browser/editor.js";import{AbstractTextResourceEditor as j}from"../../../browser/parts/editor/textResourceEditor.js";import{ViewPane as M}from"../../../browser/parts/views/viewPane.js";import{ResourceContextKey as U}from"../../../common/contextkeys.js";import{TextResourceEditorInput as H}from"../../../common/editor/textResourceEditorInput.js";import{IViewDescriptorService as W}from"../../../common/views.js";import{IEditorGroupsService as N}from"../../../services/editor/common/editorGroupsService.js";import{IEditorService as z}from"../../../services/editor/common/editorService.js";import{CONTEXT_IN_OUTPUT as F,CONTEXT_OUTPUT_SCROLL_LOCK as G,OUTPUT_VIEW_ID as S}from"../../../services/output/common/output.js";let l=class extends M{editor;channelId;editorPromise=null;scrollLockContextKey;get scrollLock(){return!!this.scrollLockContextKey.get()}set scrollLock(t){this.scrollLockContextKey.set(t)}constructor(t,i,e,r,s,n,a,u,m,h,b){super(t,i,e,r,s,n,a,u,m,h,b),this.scrollLockContextKey=G.bindTo(this.contextKeyService);const x=this._register(a.createChild(new D([v,this.scopedContextKeyService])));this.editor=this._register(x.createInstance(c)),this._register(this.editor.onTitleAreaUpdate(()=>{this.updateTitle(this.editor.getTitle()),this.updateActions()})),this._register(this.onDidChangeBodyVisibility(()=>this.onDidChangeVisibility(this.isBodyVisible())))}showChannel(t,i){this.channelId!==t.id&&this.setInput(t),i||this.focus()}focus(){super.focus(),this.editorPromise?.then(()=>this.editor.focus())}renderBody(t){super.renderBody(t),this.editor.create(t),t.classList.add("output-view");const i=this.editor.getControl();i.setAriaOptions({role:"document",activeDescendant:void 0}),this._register(i.onDidChangeModelContent(()=>{this.scrollLock||this.editor.revealLastLine()})),this._register(i.onDidChangeCursorPosition(e=>{if(e.reason!==K.Explicit||!this.configurationService.getValue("output.smartScroll.enabled"))return;const r=i.getModel();if(r){const s=e.position.lineNumber,n=r.getLineCount();this.scrollLock=n!==s}}))}layoutBody(t,i){super.layoutBody(t,i),this.editor.layout(new E(i,t))}onDidChangeVisibility(t){this.editor.setVisible(t),t||this.clearInput()}setInput(t){this.channelId=t.id;const i=this.createInput(t);(!this.editor.input||!i.matches(this.editor.input))&&(this.editorPromise?.cancel(),this.editorPromise=O(e=>this.editor.setInput(this.createInput(t),{preserveFocus:!0},Object.create(null),e).then(()=>this.editor)))}clearInput(){this.channelId=void 0,this.editor.clearInput(),this.editorPromise=null}createInput(t){return this.instantiationService.createInstance(H,t.uri,p.localize("output model title","{0} - Output",t.label),p.localize("channel","Output channel for '{0}'",t.label),void 0,void 0)}};l=f([o(1,V),o(2,P),o(3,I),o(4,v),o(5,W),o(6,C),o(7,R),o(8,y),o(9,g),o(10,A)],l);let c=class extends j{constructor(i,e,r,s,n,a,u,m,h){super(S,u.activeGroup,i,e,r,n,a,u,m,h);this.configurationService=s;this.resourceContext=this._register(e.createInstance(U))}resourceContext;getId(){return S}getTitle(){return p.localize("output","Output")}getConfigurationOverrides(i){const e=super.getConfigurationOverrides(i);e.wordWrap="on",e.lineNumbers="off",e.glyphMargin=!1,e.lineDecorationsWidth=20,e.rulers=[],e.folding=!1,e.scrollBeyondLastLine=!1,e.renderLineHighlight="none",e.minimap={enabled:!1},e.renderValidationDecorations="editable",e.padding=void 0,e.readOnly=!0,e.domReadOnly=!0,e.unicodeHighlight={nonBasicASCII:!1,invisibleCharacters:!1,ambiguousCharacters:!1};const r=this.configurationService.getValue("[Log]");return r&&(r["editor.minimap.enabled"]&&(e.minimap={enabled:!0}),"editor.wordWrap"in r&&(e.wordWrap=r["editor.wordWrap"])),e}getAriaLabel(){return this.input?this.input.getAriaLabel():p.localize("outputViewAriaLabel","Output panel")}computeAriaLabel(){return this.input?B(this.input,void 0,void 0,this.editorGroupService.count):this.getAriaLabel()}async setInput(i,e,r,s){const n=!(e&&e.preserveFocus);this.input&&i.matches(this.input)||(this.input&&this.input.dispose(),await super.setInput(i,e,r,s),this.resourceContext.set(i.resource),n&&this.focus(),this.revealLastLine())}clearInput(){this.input&&this.input.dispose(),super.clearInput(),this.resourceContext.reset()}createEditor(i){i.setAttribute("role","document"),super.createEditor(i);const e=this.scopedContextKeyService;e&&F.bindTo(e).set(!0)}};c=f([o(0,g),o(1,C),o(2,k),o(3,I),o(4,w),o(5,y),o(6,N),o(7,z),o(8,_)],c);export{l as OutputViewPane};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import "./output.css";
+import { Dimension } from "../../../../base/browser/dom.js";
+import {
+  createCancelablePromise
+} from "../../../../base/common/async.js";
+import { CursorChangeReason } from "../../../../editor/common/cursorEvents.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import * as nls from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { computeEditorAriaLabel } from "../../../browser/editor.js";
+import { AbstractTextResourceEditor } from "../../../browser/parts/editor/textResourceEditor.js";
+import {
+  ViewPane
+} from "../../../browser/parts/views/viewPane.js";
+import { ResourceContextKey } from "../../../common/contextkeys.js";
+import { TextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import {
+  CONTEXT_IN_OUTPUT,
+  CONTEXT_OUTPUT_SCROLL_LOCK,
+  OUTPUT_VIEW_ID
+} from "../../../services/output/common/output.js";
+let OutputViewPane = class extends ViewPane {
+  static {
+    __name(this, "OutputViewPane");
+  }
+  editor;
+  channelId;
+  editorPromise = null;
+  scrollLockContextKey;
+  get scrollLock() {
+    return !!this.scrollLockContextKey.get();
+  }
+  set scrollLock(scrollLock) {
+    this.scrollLockContextKey.set(scrollLock);
+  }
+  constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService) {
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      telemetryService,
+      hoverService
+    );
+    this.scrollLockContextKey = CONTEXT_OUTPUT_SCROLL_LOCK.bindTo(
+      this.contextKeyService
+    );
+    const editorInstantiationService = this._register(
+      instantiationService.createChild(
+        new ServiceCollection([
+          IContextKeyService,
+          this.scopedContextKeyService
+        ])
+      )
+    );
+    this.editor = this._register(
+      editorInstantiationService.createInstance(OutputEditor)
+    );
+    this._register(
+      this.editor.onTitleAreaUpdate(() => {
+        this.updateTitle(this.editor.getTitle());
+        this.updateActions();
+      })
+    );
+    this._register(
+      this.onDidChangeBodyVisibility(
+        () => this.onDidChangeVisibility(this.isBodyVisible())
+      )
+    );
+  }
+  showChannel(channel, preserveFocus) {
+    if (this.channelId !== channel.id) {
+      this.setInput(channel);
+    }
+    if (!preserveFocus) {
+      this.focus();
+    }
+  }
+  focus() {
+    super.focus();
+    this.editorPromise?.then(() => this.editor.focus());
+  }
+  renderBody(container) {
+    super.renderBody(container);
+    this.editor.create(container);
+    container.classList.add("output-view");
+    const codeEditor = this.editor.getControl();
+    codeEditor.setAriaOptions({
+      role: "document",
+      activeDescendant: void 0
+    });
+    this._register(
+      codeEditor.onDidChangeModelContent(() => {
+        if (!this.scrollLock) {
+          this.editor.revealLastLine();
+        }
+      })
+    );
+    this._register(
+      codeEditor.onDidChangeCursorPosition((e) => {
+        if (e.reason !== CursorChangeReason.Explicit) {
+          return;
+        }
+        if (!this.configurationService.getValue(
+          "output.smartScroll.enabled"
+        )) {
+          return;
+        }
+        const model = codeEditor.getModel();
+        if (model) {
+          const newPositionLine = e.position.lineNumber;
+          const lastLine = model.getLineCount();
+          this.scrollLock = lastLine !== newPositionLine;
+        }
+      })
+    );
+  }
+  layoutBody(height, width) {
+    super.layoutBody(height, width);
+    this.editor.layout(new Dimension(width, height));
+  }
+  onDidChangeVisibility(visible) {
+    this.editor.setVisible(visible);
+    if (!visible) {
+      this.clearInput();
+    }
+  }
+  setInput(channel) {
+    this.channelId = channel.id;
+    const input = this.createInput(channel);
+    if (!this.editor.input || !input.matches(this.editor.input)) {
+      this.editorPromise?.cancel();
+      this.editorPromise = createCancelablePromise(
+        (token) => this.editor.setInput(
+          this.createInput(channel),
+          { preserveFocus: true },
+          /* @__PURE__ */ Object.create(null),
+          token
+        ).then(() => this.editor)
+      );
+    }
+  }
+  clearInput() {
+    this.channelId = void 0;
+    this.editor.clearInput();
+    this.editorPromise = null;
+  }
+  createInput(channel) {
+    return this.instantiationService.createInstance(
+      TextResourceEditorInput,
+      channel.uri,
+      nls.localize("output model title", "{0} - Output", channel.label),
+      nls.localize("channel", "Output channel for '{0}'", channel.label),
+      void 0,
+      void 0
+    );
+  }
+};
+OutputViewPane = __decorateClass([
+  __decorateParam(1, IKeybindingService),
+  __decorateParam(2, IContextMenuService),
+  __decorateParam(3, IConfigurationService),
+  __decorateParam(4, IContextKeyService),
+  __decorateParam(5, IViewDescriptorService),
+  __decorateParam(6, IInstantiationService),
+  __decorateParam(7, IOpenerService),
+  __decorateParam(8, IThemeService),
+  __decorateParam(9, ITelemetryService),
+  __decorateParam(10, IHoverService)
+], OutputViewPane);
+let OutputEditor = class extends AbstractTextResourceEditor {
+  constructor(telemetryService, instantiationService, storageService, configurationService, textResourceConfigurationService, themeService, editorGroupService, editorService, fileService) {
+    super(OUTPUT_VIEW_ID, editorGroupService.activeGroup, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorGroupService, editorService, fileService);
+    this.configurationService = configurationService;
+    this.resourceContext = this._register(instantiationService.createInstance(ResourceContextKey));
+  }
+  static {
+    __name(this, "OutputEditor");
+  }
+  resourceContext;
+  getId() {
+    return OUTPUT_VIEW_ID;
+  }
+  getTitle() {
+    return nls.localize("output", "Output");
+  }
+  getConfigurationOverrides(configuration) {
+    const options = super.getConfigurationOverrides(configuration);
+    options.wordWrap = "on";
+    options.lineNumbers = "off";
+    options.glyphMargin = false;
+    options.lineDecorationsWidth = 20;
+    options.rulers = [];
+    options.folding = false;
+    options.scrollBeyondLastLine = false;
+    options.renderLineHighlight = "none";
+    options.minimap = { enabled: false };
+    options.renderValidationDecorations = "editable";
+    options.padding = void 0;
+    options.readOnly = true;
+    options.domReadOnly = true;
+    options.unicodeHighlight = {
+      nonBasicASCII: false,
+      invisibleCharacters: false,
+      ambiguousCharacters: false
+    };
+    const outputConfig = this.configurationService.getValue("[Log]");
+    if (outputConfig) {
+      if (outputConfig["editor.minimap.enabled"]) {
+        options.minimap = { enabled: true };
+      }
+      if ("editor.wordWrap" in outputConfig) {
+        options.wordWrap = outputConfig["editor.wordWrap"];
+      }
+    }
+    return options;
+  }
+  getAriaLabel() {
+    return this.input ? this.input.getAriaLabel() : nls.localize("outputViewAriaLabel", "Output panel");
+  }
+  computeAriaLabel() {
+    return this.input ? computeEditorAriaLabel(
+      this.input,
+      void 0,
+      void 0,
+      this.editorGroupService.count
+    ) : this.getAriaLabel();
+  }
+  async setInput(input, options, context, token) {
+    const focus = !(options && options.preserveFocus);
+    if (this.input && input.matches(this.input)) {
+      return;
+    }
+    if (this.input) {
+      this.input.dispose();
+    }
+    await super.setInput(input, options, context, token);
+    this.resourceContext.set(input.resource);
+    if (focus) {
+      this.focus();
+    }
+    this.revealLastLine();
+  }
+  clearInput() {
+    if (this.input) {
+      this.input.dispose();
+    }
+    super.clearInput();
+    this.resourceContext.reset();
+  }
+  createEditor(parent) {
+    parent.setAttribute("role", "document");
+    super.createEditor(parent);
+    const scopedContextKeyService = this.scopedContextKeyService;
+    if (scopedContextKeyService) {
+      CONTEXT_IN_OUTPUT.bindTo(scopedContextKeyService).set(true);
+    }
+  }
+};
+OutputEditor = __decorateClass([
+  __decorateParam(0, ITelemetryService),
+  __decorateParam(1, IInstantiationService),
+  __decorateParam(2, IStorageService),
+  __decorateParam(3, IConfigurationService),
+  __decorateParam(4, ITextResourceConfigurationService),
+  __decorateParam(5, IThemeService),
+  __decorateParam(6, IEditorGroupsService),
+  __decorateParam(7, IEditorService),
+  __decorateParam(8, IFileService)
+], OutputEditor);
+export {
+  OutputViewPane
+};
+//# sourceMappingURL=outputView.js.map

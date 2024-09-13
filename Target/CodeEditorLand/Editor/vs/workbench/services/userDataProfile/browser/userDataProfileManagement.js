@@ -1,1 +1,274 @@
-var m=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var P=(l,n,e,r)=>{for(var i=r>1?void 0:r?v(n,e):n,o=l.length-1,a;o>=0;o--)(a=l[o])&&(i=(r?a(n,e,i):a(i))||i);return r&&i&&m(n,e,i),i},t=(l,n)=>(e,r)=>n(e,r,l);import{CancellationToken as h}from"../../../../base/common/cancellation.js";import{CancellationError as g}from"../../../../base/common/errors.js";import{Disposable as S}from"../../../../base/common/lifecycle.js";import{equals as D}from"../../../../base/common/objects.js";import{localize as s}from"../../../../nls.js";import{IDialogService as w}from"../../../../platform/dialogs/common/dialogs.js";import{InstantiationType as I,registerSingleton as E}from"../../../../platform/instantiation/common/extensions.js";import{ILogService as y}from"../../../../platform/log/common/log.js";import{IProductService as C}from"../../../../platform/product/common/productService.js";import{IRequestService as x,asJson as k}from"../../../../platform/request/common/request.js";import{ITelemetryService as U}from"../../../../platform/telemetry/common/telemetry.js";import{IUserDataProfilesService as A}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{IWorkspaceContextService as T,toWorkspaceIdentifier as d}from"../../../../platform/workspace/common/workspace.js";import{IWorkbenchEnvironmentService as M}from"../../environment/common/environmentService.js";import{IExtensionService as b}from"../../extensions/common/extensions.js";import{IHostService as W}from"../../host/browser/host.js";import{IUserDataProfileManagementService as R,IUserDataProfileService as L}from"../common/userDataProfile.js";let f=class extends S{constructor(e,r,i,o,a,q,F,H,O,_,B){super();this.userDataProfilesService=e;this.userDataProfileService=r;this.hostService=i;this.dialogService=o;this.workspaceContextService=a;this.extensionService=q;this.environmentService=F;this.telemetryService=H;this.productService=O;this.requestService=_;this.logService=B;this._register(e.onDidChangeProfiles(c=>this.onDidChangeProfiles(c))),this._register(e.onDidResetWorkspaces(()=>this.onDidResetWorkspaces())),this._register(r.onDidChangeCurrentProfile(c=>this.onDidChangeCurrentProfile(c))),this._register(e.onDidChangeProfiles(c=>{const u=c.updated.find(p=>this.userDataProfileService.currentProfile.id===p.id);u&&this.changeCurrentProfile(u,s("reload message when updated","The current profile has been updated. Please reload to switch back to the updated profile"))}))}_serviceBrand;onDidChangeProfiles(e){if(e.removed.some(r=>r.id===this.userDataProfileService.currentProfile.id)){this.changeCurrentProfile(this.userDataProfilesService.defaultProfile,s("reload message when removed","The current profile has been removed. Please reload to switch back to default profile"));return}}onDidResetWorkspaces(){if(!this.userDataProfileService.currentProfile.isDefault){this.changeCurrentProfile(this.userDataProfilesService.defaultProfile,s("reload message when removed","The current profile has been removed. Please reload to switch back to default profile"));return}}async onDidChangeCurrentProfile(e){e.previous.isTransient&&await this.userDataProfilesService.cleanUpTransientProfiles()}async createProfile(e,r){return this.userDataProfilesService.createNamedProfile(e,r)}async createAndEnterProfile(e,r){const i=await this.userDataProfilesService.createNamedProfile(e,r,d(this.workspaceContextService.getWorkspace()));return await this.changeCurrentProfile(i),this.telemetryService.publicLog2("profileManagementActionExecuted",{id:"createAndEnterProfile"}),i}async createAndEnterTransientProfile(){const e=await this.userDataProfilesService.createTransientProfile(d(this.workspaceContextService.getWorkspace()));return await this.changeCurrentProfile(e),this.telemetryService.publicLog2("profileManagementActionExecuted",{id:"createAndEnterTransientProfile"}),e}async updateProfile(e,r){if(!this.userDataProfilesService.profiles.some(o=>o.id===e.id))throw new Error(`Profile ${e.name} does not exist`);if(e.isDefault)throw new Error(s("cannotRenameDefaultProfile","Cannot rename the default profile"));const i=await this.userDataProfilesService.updateProfile(e,r);return this.telemetryService.publicLog2("profileManagementActionExecuted",{id:"updateProfile"}),i}async removeProfile(e){if(!this.userDataProfilesService.profiles.some(r=>r.id===e.id))throw new Error(`Profile ${e.name} does not exist`);if(e.isDefault)throw new Error(s("cannotDeleteDefaultProfile","Cannot delete the default profile"));await this.userDataProfilesService.removeProfile(e),this.telemetryService.publicLog2("profileManagementActionExecuted",{id:"removeProfile"})}async switchProfile(e){const r=d(this.workspaceContextService.getWorkspace());if(!this.userDataProfilesService.profiles.some(i=>i.id===e.id))throw new Error(`Profile ${e.name} does not exist`);this.userDataProfileService.currentProfile.id!==e.id&&(await this.userDataProfilesService.setProfileForWorkspace(r,e),await this.changeCurrentProfile(e),this.telemetryService.publicLog2("profileManagementActionExecuted",{id:"switchProfile"}))}async getBuiltinProfileTemplates(){if(this.productService.profileTemplatesUrl)try{const e=await this.requestService.request({type:"GET",url:this.productService.profileTemplatesUrl},h.None);if(e.res.statusCode===200)return await k(e)||[];this.logService.error("Could not get profile templates.",e.res.statusCode)}catch(e){this.logService.error(e)}return[]}async changeCurrentProfile(e,r){const i=!!this.environmentService.remoteAuthority,o=this.userDataProfileService.currentProfile.id!==e.id||!D(this.userDataProfileService.currentProfile.useDefaultFlags,e.useDefaultFlags);if(o&&!i&&!await this.extensionService.stopExtensionHosts(s("switch profile","Switching to a profile.")))throw this.userDataProfilesService.profiles.some(a=>a.id===this.userDataProfileService.currentProfile.id)&&await this.userDataProfilesService.setProfileForWorkspace(d(this.workspaceContextService.getWorkspace()),this.userDataProfileService.currentProfile),new g;if(await this.userDataProfileService.updateCurrentProfile(e),o)if(i){const{confirmed:a}=await this.dialogService.confirm({message:r??s("reload message","Switching a profile requires reloading VS Code."),primaryButton:s("reload button","&&Reload")});a&&await this.hostService.reload()}else await this.extensionService.startExtensionHosts()}};f=P([t(0,A),t(1,L),t(2,W),t(3,w),t(4,T),t(5,b),t(6,M),t(7,U),t(8,C),t(9,x),t(10,y)],f),E(R,f,I.Eager);export{f as UserDataProfileManagementService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { CancellationError } from "../../../../base/common/errors.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { equals } from "../../../../base/common/objects.js";
+import { localize } from "../../../../nls.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import {
+  IRequestService,
+  asJson
+} from "../../../../platform/request/common/request.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import {
+  IUserDataProfilesService
+} from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import {
+  IWorkspaceContextService,
+  toWorkspaceIdentifier
+} from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IHostService } from "../../host/browser/host.js";
+import {
+  IUserDataProfileManagementService,
+  IUserDataProfileService
+} from "../common/userDataProfile.js";
+let UserDataProfileManagementService = class extends Disposable {
+  constructor(userDataProfilesService, userDataProfileService, hostService, dialogService, workspaceContextService, extensionService, environmentService, telemetryService, productService, requestService, logService) {
+    super();
+    this.userDataProfilesService = userDataProfilesService;
+    this.userDataProfileService = userDataProfileService;
+    this.hostService = hostService;
+    this.dialogService = dialogService;
+    this.workspaceContextService = workspaceContextService;
+    this.extensionService = extensionService;
+    this.environmentService = environmentService;
+    this.telemetryService = telemetryService;
+    this.productService = productService;
+    this.requestService = requestService;
+    this.logService = logService;
+    this._register(userDataProfilesService.onDidChangeProfiles((e) => this.onDidChangeProfiles(e)));
+    this._register(userDataProfilesService.onDidResetWorkspaces(() => this.onDidResetWorkspaces()));
+    this._register(userDataProfileService.onDidChangeCurrentProfile((e) => this.onDidChangeCurrentProfile(e)));
+    this._register(userDataProfilesService.onDidChangeProfiles((e) => {
+      const updatedCurrentProfile = e.updated.find((p) => this.userDataProfileService.currentProfile.id === p.id);
+      if (updatedCurrentProfile) {
+        this.changeCurrentProfile(updatedCurrentProfile, localize("reload message when updated", "The current profile has been updated. Please reload to switch back to the updated profile"));
+      }
+    }));
+  }
+  static {
+    __name(this, "UserDataProfileManagementService");
+  }
+  _serviceBrand;
+  onDidChangeProfiles(e) {
+    if (e.removed.some(
+      (profile) => profile.id === this.userDataProfileService.currentProfile.id
+    )) {
+      this.changeCurrentProfile(
+        this.userDataProfilesService.defaultProfile,
+        localize(
+          "reload message when removed",
+          "The current profile has been removed. Please reload to switch back to default profile"
+        )
+      );
+      return;
+    }
+  }
+  onDidResetWorkspaces() {
+    if (!this.userDataProfileService.currentProfile.isDefault) {
+      this.changeCurrentProfile(
+        this.userDataProfilesService.defaultProfile,
+        localize(
+          "reload message when removed",
+          "The current profile has been removed. Please reload to switch back to default profile"
+        )
+      );
+      return;
+    }
+  }
+  async onDidChangeCurrentProfile(e) {
+    if (e.previous.isTransient) {
+      await this.userDataProfilesService.cleanUpTransientProfiles();
+    }
+  }
+  async createProfile(name, options) {
+    return this.userDataProfilesService.createNamedProfile(name, options);
+  }
+  async createAndEnterProfile(name, options) {
+    const profile = await this.userDataProfilesService.createNamedProfile(
+      name,
+      options,
+      toWorkspaceIdentifier(this.workspaceContextService.getWorkspace())
+    );
+    await this.changeCurrentProfile(profile);
+    this.telemetryService.publicLog2("profileManagementActionExecuted", { id: "createAndEnterProfile" });
+    return profile;
+  }
+  async createAndEnterTransientProfile() {
+    const profile = await this.userDataProfilesService.createTransientProfile(
+      toWorkspaceIdentifier(
+        this.workspaceContextService.getWorkspace()
+      )
+    );
+    await this.changeCurrentProfile(profile);
+    this.telemetryService.publicLog2("profileManagementActionExecuted", {
+      id: "createAndEnterTransientProfile"
+    });
+    return profile;
+  }
+  async updateProfile(profile, updateOptions) {
+    if (!this.userDataProfilesService.profiles.some(
+      (p) => p.id === profile.id
+    )) {
+      throw new Error(`Profile ${profile.name} does not exist`);
+    }
+    if (profile.isDefault) {
+      throw new Error(
+        localize(
+          "cannotRenameDefaultProfile",
+          "Cannot rename the default profile"
+        )
+      );
+    }
+    const updatedProfile = await this.userDataProfilesService.updateProfile(
+      profile,
+      updateOptions
+    );
+    this.telemetryService.publicLog2("profileManagementActionExecuted", { id: "updateProfile" });
+    return updatedProfile;
+  }
+  async removeProfile(profile) {
+    if (!this.userDataProfilesService.profiles.some(
+      (p) => p.id === profile.id
+    )) {
+      throw new Error(`Profile ${profile.name} does not exist`);
+    }
+    if (profile.isDefault) {
+      throw new Error(
+        localize(
+          "cannotDeleteDefaultProfile",
+          "Cannot delete the default profile"
+        )
+      );
+    }
+    await this.userDataProfilesService.removeProfile(profile);
+    this.telemetryService.publicLog2("profileManagementActionExecuted", { id: "removeProfile" });
+  }
+  async switchProfile(profile) {
+    const workspaceIdentifier = toWorkspaceIdentifier(
+      this.workspaceContextService.getWorkspace()
+    );
+    if (!this.userDataProfilesService.profiles.some(
+      (p) => p.id === profile.id
+    )) {
+      throw new Error(`Profile ${profile.name} does not exist`);
+    }
+    if (this.userDataProfileService.currentProfile.id === profile.id) {
+      return;
+    }
+    await this.userDataProfilesService.setProfileForWorkspace(
+      workspaceIdentifier,
+      profile
+    );
+    await this.changeCurrentProfile(profile);
+    this.telemetryService.publicLog2("profileManagementActionExecuted", { id: "switchProfile" });
+  }
+  async getBuiltinProfileTemplates() {
+    if (this.productService.profileTemplatesUrl) {
+      try {
+        const context = await this.requestService.request(
+          {
+            type: "GET",
+            url: this.productService.profileTemplatesUrl
+          },
+          CancellationToken.None
+        );
+        if (context.res.statusCode === 200) {
+          return await asJson(context) || [];
+        } else {
+          this.logService.error(
+            "Could not get profile templates.",
+            context.res.statusCode
+          );
+        }
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }
+    return [];
+  }
+  async changeCurrentProfile(profile, reloadMessage) {
+    const isRemoteWindow = !!this.environmentService.remoteAuthority;
+    const shouldRestartExtensionHosts = this.userDataProfileService.currentProfile.id !== profile.id || !equals(
+      this.userDataProfileService.currentProfile.useDefaultFlags,
+      profile.useDefaultFlags
+    );
+    if (shouldRestartExtensionHosts) {
+      if (!isRemoteWindow) {
+        if (!await this.extensionService.stopExtensionHosts(
+          localize("switch profile", "Switching to a profile.")
+        )) {
+          if (this.userDataProfilesService.profiles.some(
+            (p) => p.id === this.userDataProfileService.currentProfile.id
+          )) {
+            await this.userDataProfilesService.setProfileForWorkspace(
+              toWorkspaceIdentifier(
+                this.workspaceContextService.getWorkspace()
+              ),
+              this.userDataProfileService.currentProfile
+            );
+          }
+          throw new CancellationError();
+        }
+      }
+    }
+    await this.userDataProfileService.updateCurrentProfile(profile);
+    if (shouldRestartExtensionHosts) {
+      if (isRemoteWindow) {
+        const { confirmed } = await this.dialogService.confirm({
+          message: reloadMessage ?? localize(
+            "reload message",
+            "Switching a profile requires reloading VS Code."
+          ),
+          primaryButton: localize("reload button", "&&Reload")
+        });
+        if (confirmed) {
+          await this.hostService.reload();
+        }
+      } else {
+        await this.extensionService.startExtensionHosts();
+      }
+    }
+  }
+};
+UserDataProfileManagementService = __decorateClass([
+  __decorateParam(0, IUserDataProfilesService),
+  __decorateParam(1, IUserDataProfileService),
+  __decorateParam(2, IHostService),
+  __decorateParam(3, IDialogService),
+  __decorateParam(4, IWorkspaceContextService),
+  __decorateParam(5, IExtensionService),
+  __decorateParam(6, IWorkbenchEnvironmentService),
+  __decorateParam(7, ITelemetryService),
+  __decorateParam(8, IProductService),
+  __decorateParam(9, IRequestService),
+  __decorateParam(10, ILogService)
+], UserDataProfileManagementService);
+registerSingleton(
+  IUserDataProfileManagementService,
+  UserDataProfileManagementService,
+  InstantiationType.Eager
+);
+export {
+  UserDataProfileManagementService
+};
+//# sourceMappingURL=userDataProfileManagement.js.map

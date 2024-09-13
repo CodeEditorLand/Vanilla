@@ -1,1 +1,79 @@
-var p=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var l=(i,a,e,t)=>{for(var r=t>1?void 0:t?h(a,e):a,o=i.length-1,n;o>=0;o--)(n=i[o])&&(r=(t?n(a,e,r):n(r))||r);return t&&r&&p(a,e,r),r},g=(i,a)=>(e,t)=>a(e,t,i);import{Disposable as d,DisposableStore as c}from"../../../../base/common/lifecycle.js";import{IStorageService as u}from"../../../../platform/storage/common/storage.js";const S={deserialize:i=>JSON.parse(i),serialize:i=>JSON.stringify(i)};let s=class extends d{constructor(e,t){super();this.storage=t;this.key=e.key,this.scope=e.scope,this.target=e.target,this.serialization=e.serialization??S,this.onDidChange=this.storage.onDidChangeValue(this.scope,this.key,this._register(new c))}serialization;key;scope;target;value;onDidChange;get(e){if(this.value===void 0){const t=this.storage.get(this.key,this.scope);this.value=t===void 0?e:this.serialization.deserialize(t)}return this.value}store(e){this.value=e,this.storage.store(this.key,this.serialization.serialize(e),this.scope,this.target)}delete(){this.storage.remove(this.key,this.scope)}};s=l([g(1,u)],s);export{s as StoredValue};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
+import {
+  IStorageService
+} from "../../../../platform/storage/common/storage.js";
+const defaultSerialization = {
+  deserialize: /* @__PURE__ */ __name((d) => JSON.parse(d), "deserialize"),
+  serialize: /* @__PURE__ */ __name((d) => JSON.stringify(d), "serialize")
+};
+let StoredValue = class extends Disposable {
+  constructor(options, storage) {
+    super();
+    this.storage = storage;
+    this.key = options.key;
+    this.scope = options.scope;
+    this.target = options.target;
+    this.serialization = options.serialization ?? defaultSerialization;
+    this.onDidChange = this.storage.onDidChangeValue(this.scope, this.key, this._register(new DisposableStore()));
+  }
+  static {
+    __name(this, "StoredValue");
+  }
+  serialization;
+  key;
+  scope;
+  target;
+  value;
+  /**
+   * Emitted whenever the value is updated or deleted.
+   */
+  onDidChange;
+  get(defaultValue) {
+    if (this.value === void 0) {
+      const value = this.storage.get(this.key, this.scope);
+      this.value = value === void 0 ? defaultValue : this.serialization.deserialize(value);
+    }
+    return this.value;
+  }
+  /**
+   * Persists changes to the value.
+   * @param value
+   */
+  store(value) {
+    this.value = value;
+    this.storage.store(
+      this.key,
+      this.serialization.serialize(value),
+      this.scope,
+      this.target
+    );
+  }
+  /**
+   * Delete an element stored under the provided key from storage.
+   */
+  delete() {
+    this.storage.remove(this.key, this.scope);
+  }
+};
+StoredValue = __decorateClass([
+  __decorateParam(1, IStorageService)
+], StoredValue);
+export {
+  StoredValue
+};
+//# sourceMappingURL=storedValue.js.map

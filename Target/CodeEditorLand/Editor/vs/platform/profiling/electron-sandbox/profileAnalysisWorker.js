@@ -1,1 +1,160 @@
-import{basename as b}from"../../../base/common/path.js";import{TernarySearchTree as y}from"../../../base/common/ternarySearchTree.js";import{URI as I}from"../../../base/common/uri.js";import{Utils as h}from"../common/profiling.js";import{BottomUpNode as T,buildModel as d,processNode as k}from"../common/profilingModel.js";import{ProfilingOutput as f}from"./profileAnalysisWorkerService.js";function w(e){return new N}class N{_requestHandlerBrand;$analyseBottomUp(o){if(!h.isValidProfile(o))return{kind:f.Irrelevant,samples:[]};const n=d(o),l=U(n,5).filter(r=>!r.isSpecial);return l.length===0||l[0].percentage<10?{kind:f.Irrelevant,samples:[]}:{kind:f.Interesting,samples:l}}$analyseByUrlCategory(o,n){const l=y.forUris();l.fill(n);const r=d(o),a=new Map;for(const s of r.nodes){const c=r.locations[s.locationId];let m;try{m=l.findSubstr(I.parse(c.callFrame.url))}catch{}m||(m=p(c.callFrame));const u=(a.get(m)??0)+s.selfTime;a.set(m,u)}const t=[];for(const[s,c]of a)t.push([s,c]);return t}}function S(e){return e.functionName.startsWith("(")&&e.functionName.endsWith(")")}function p(e){let o=e.functionName||"(anonymous)";return e.url&&(o+="#",o+=b(e.url),e.lineNumber>=0&&(o+=":",o+=e.lineNumber+1),e.columnNumber>=0&&(o+=":",o+=e.columnNumber+1)),o}function g(e){let o=e.functionName||"(anonymous)";return e.url&&(o+=" (",o+=e.url,e.lineNumber>=0&&(o+=":",o+=e.lineNumber+1),e.columnNumber>=0&&(o+=":",o+=e.columnNumber+1),o+=")"),o}function F(e,o){const n={};for(const r of e.nodes)n[r.locationId]=(n[r.locationId]||0)+r.selfTime;const l=Object.entries(n).sort(([,r],[,a])=>a-r).slice(0,o).map(([r])=>Number(r));return new Set(l)}function U(e,o){const n=T.root(),l=F(e,o);for(const t of e.nodes)l.has(t.locationId)&&(k(n,t,e),n.addNode(t));const r=Object.values(n.children).sort((t,s)=>s.selfTime-t.selfTime).slice(0,o),a=[];for(const t of r){const s={selfTime:Math.round(t.selfTime/1e3),totalTime:Math.round(t.aggregateTime/1e3),location:p(t.callFrame),absLocation:g(t.callFrame),url:t.callFrame.url,caller:[],percentage:Math.round(t.selfTime/(e.duration/100)),isSpecial:S(t.callFrame)},c=[t];for(;c.length;){const m=c.pop();let i;for(const u of Object.values(m.children))(!i||i.selfTime<u.selfTime)&&(i=u);if(i){const u=Math.round(i.selfTime/(m.selfTime/100));s.caller.push({percentage:u,location:p(i.callFrame),absLocation:g(i.callFrame)}),c.push(i)}}a.push(s)}return a}export{w as create};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { basename } from "../../../base/common/path.js";
+import { TernarySearchTree } from "../../../base/common/ternarySearchTree.js";
+import { URI } from "../../../base/common/uri.js";
+import { Utils } from "../common/profiling.js";
+import {
+  BottomUpNode,
+  buildModel,
+  processNode
+} from "../common/profilingModel.js";
+import {
+  ProfilingOutput
+} from "./profileAnalysisWorkerService.js";
+function create(workerServer) {
+  return new ProfileAnalysisWorker();
+}
+__name(create, "create");
+class ProfileAnalysisWorker {
+  static {
+    __name(this, "ProfileAnalysisWorker");
+  }
+  _requestHandlerBrand;
+  $analyseBottomUp(profile) {
+    if (!Utils.isValidProfile(profile)) {
+      return { kind: ProfilingOutput.Irrelevant, samples: [] };
+    }
+    const model = buildModel(profile);
+    const samples = bottomUp(model, 5).filter((s) => !s.isSpecial);
+    if (samples.length === 0 || samples[0].percentage < 10) {
+      return { kind: ProfilingOutput.Irrelevant, samples: [] };
+    }
+    return { kind: ProfilingOutput.Interesting, samples };
+  }
+  $analyseByUrlCategory(profile, categories) {
+    const searchTree = TernarySearchTree.forUris();
+    searchTree.fill(categories);
+    const model = buildModel(profile);
+    const aggegrateByCategory = /* @__PURE__ */ new Map();
+    for (const node of model.nodes) {
+      const loc = model.locations[node.locationId];
+      let category;
+      try {
+        category = searchTree.findSubstr(URI.parse(loc.callFrame.url));
+      } catch {
+      }
+      if (!category) {
+        category = printCallFrameShort(loc.callFrame);
+      }
+      const value = aggegrateByCategory.get(category) ?? 0;
+      const newValue = value + node.selfTime;
+      aggegrateByCategory.set(category, newValue);
+    }
+    const result = [];
+    for (const [key, value] of aggegrateByCategory) {
+      result.push([key, value]);
+    }
+    return result;
+  }
+}
+function isSpecial(call) {
+  return call.functionName.startsWith("(") && call.functionName.endsWith(")");
+}
+__name(isSpecial, "isSpecial");
+function printCallFrameShort(frame) {
+  let result = frame.functionName || "(anonymous)";
+  if (frame.url) {
+    result += "#";
+    result += basename(frame.url);
+    if (frame.lineNumber >= 0) {
+      result += ":";
+      result += frame.lineNumber + 1;
+    }
+    if (frame.columnNumber >= 0) {
+      result += ":";
+      result += frame.columnNumber + 1;
+    }
+  }
+  return result;
+}
+__name(printCallFrameShort, "printCallFrameShort");
+function printCallFrameStackLike(frame) {
+  let result = frame.functionName || "(anonymous)";
+  if (frame.url) {
+    result += " (";
+    result += frame.url;
+    if (frame.lineNumber >= 0) {
+      result += ":";
+      result += frame.lineNumber + 1;
+    }
+    if (frame.columnNumber >= 0) {
+      result += ":";
+      result += frame.columnNumber + 1;
+    }
+    result += ")";
+  }
+  return result;
+}
+__name(printCallFrameStackLike, "printCallFrameStackLike");
+function getHeaviestLocationIds(model, topN) {
+  const stackSelfTime = {};
+  for (const node of model.nodes) {
+    stackSelfTime[node.locationId] = (stackSelfTime[node.locationId] || 0) + node.selfTime;
+  }
+  const locationIds = Object.entries(stackSelfTime).sort(([, a], [, b]) => b - a).slice(0, topN).map(([locationId]) => Number(locationId));
+  return new Set(locationIds);
+}
+__name(getHeaviestLocationIds, "getHeaviestLocationIds");
+function bottomUp(model, topN) {
+  const root = BottomUpNode.root();
+  const locationIds = getHeaviestLocationIds(model, topN);
+  for (const node of model.nodes) {
+    if (locationIds.has(node.locationId)) {
+      processNode(root, node, model);
+      root.addNode(node);
+    }
+  }
+  const result = Object.values(root.children).sort((a, b) => b.selfTime - a.selfTime).slice(0, topN);
+  const samples = [];
+  for (const node of result) {
+    const sample = {
+      selfTime: Math.round(node.selfTime / 1e3),
+      totalTime: Math.round(node.aggregateTime / 1e3),
+      location: printCallFrameShort(node.callFrame),
+      absLocation: printCallFrameStackLike(node.callFrame),
+      url: node.callFrame.url,
+      caller: [],
+      percentage: Math.round(node.selfTime / (model.duration / 100)),
+      isSpecial: isSpecial(node.callFrame)
+    };
+    const stack = [node];
+    while (stack.length) {
+      const node2 = stack.pop();
+      let top;
+      for (const candidate of Object.values(node2.children)) {
+        if (!top || top.selfTime < candidate.selfTime) {
+          top = candidate;
+        }
+      }
+      if (top) {
+        const percentage = Math.round(
+          top.selfTime / (node2.selfTime / 100)
+        );
+        sample.caller.push({
+          percentage,
+          location: printCallFrameShort(top.callFrame),
+          absLocation: printCallFrameStackLike(top.callFrame)
+        });
+        stack.push(top);
+      }
+    }
+    samples.push(sample);
+  }
+  return samples;
+}
+__name(bottomUp, "bottomUp");
+export {
+  create
+};
+//# sourceMappingURL=profileAnalysisWorker.js.map

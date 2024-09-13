@@ -1,1 +1,394 @@
-var L=Object.defineProperty;var O=Object.getOwnPropertyDescriptor;var y=(n,e,i,o)=>{for(var s=o>1?void 0:o?O(e,i):e,r=n.length-1,p;r>=0;r--)(p=n[r])&&(s=(o?p(e,i,s):p(s))||s);return o&&s&&L(e,i,s),s},h=(n,e)=>(i,o)=>e(i,o,n);import{KeyCode as l,KeyMod as x}from"../../../../base/common/keyCodes.js";import{DisposableStore as N}from"../../../../base/common/lifecycle.js";import{assertType as j}from"../../../../base/common/types.js";import{localize as c}from"../../../../nls.js";import{ContextKeyExpr as T,IContextKeyService as k,RawContextKey as f}from"../../../../platform/contextkey/common/contextkey.js";import{KeybindingWeight as v}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{ILogService as A}from"../../../../platform/log/common/log.js";import{EditorCommand as K,EditorContributionInstantiation as D,registerEditorCommand as u,registerEditorContribution as F}from"../../../browser/editorExtensions.js";import{Position as B}from"../../../common/core/position.js";import{EditorContextKeys as S}from"../../../common/editorContextKeys.js";import{CompletionItemKind as V}from"../../../common/languages.js";import{ILanguageConfigurationService as R}from"../../../common/languages/languageConfigurationRegistry.js";import{ILanguageFeaturesService as W}from"../../../common/services/languageFeatures.js";import{showSimpleSuggestions as H}from"../../suggest/browser/suggest.js";import{SnippetSession as q}from"./snippetSession.js";const _={overwriteBefore:0,overwriteAfter:0,undoStopBefore:!0,undoStopAfter:!0,adjustWhitespace:!0,clipboardText:void 0,overtypingCapturer:void 0};let t=class{constructor(e,i,o,s,r){this._editor=e;this._logService=i;this._languageFeaturesService=o;this._languageConfigurationService=r;this._inSnippet=t.InSnippetMode.bindTo(s),this._hasNextTabstop=t.HasNextTabstop.bindTo(s),this._hasPrevTabstop=t.HasPrevTabstop.bindTo(s)}static ID="snippetController2";static get(e){return e.getContribution(t.ID)}static InSnippetMode=new f("inSnippetMode",!1,c("inSnippetMode","Whether the editor in current in snippet mode"));static HasNextTabstop=new f("hasNextTabstop",!1,c("hasNextTabstop","Whether there is a next tab stop when in snippet mode"));static HasPrevTabstop=new f("hasPrevTabstop",!1,c("hasPrevTabstop","Whether there is a previous tab stop when in snippet mode"));_inSnippet;_hasNextTabstop;_hasPrevTabstop;_session;_snippetListener=new N;_modelVersionId=-1;_currentChoice;_choiceCompletions;dispose(){this._inSnippet.reset(),this._hasPrevTabstop.reset(),this._hasNextTabstop.reset(),this._session?.dispose(),this._snippetListener.dispose()}apply(e,i){try{this._doInsert(e,typeof i>"u"?_:{..._,...i})}catch(o){this.cancel(),this._logService.error(o),this._logService.error("snippet_error"),this._logService.error("insert_edits=",e),this._logService.error("existing_template=",this._session?this._session._logInfo():"<no_session>")}}insert(e,i){try{this._doInsert(e,typeof i>"u"?_:{..._,...i})}catch(o){this.cancel(),this._logService.error(o),this._logService.error("snippet_error"),this._logService.error("insert_template=",e),this._logService.error("existing_template=",this._session?this._session._logInfo():"<no_session>")}}_doInsert(e,i){if(this._editor.hasModel()){if(this._snippetListener.clear(),i.undoStopBefore&&this._editor.getModel().pushStackElement(),this._session&&typeof e!="string"&&this.cancel(),this._session?(j(typeof e=="string"),this._session.merge(e,i)):(this._modelVersionId=this._editor.getModel().getAlternativeVersionId(),this._session=new q(this._editor,e,i,this._languageConfigurationService),this._session.insert()),i.undoStopAfter&&this._editor.getModel().pushStackElement(),this._session?.hasChoice){const o={_debugDisplayName:"snippetChoiceCompletions",provideCompletionItems:(b,w)=>{if(!this._session||b!==this._editor.getModel()||!B.equals(this._editor.getPosition(),w))return;const{activeChoice:a}=this._session;if(!a||a.choice.options.length===0)return;const I=b.getValueInRange(a.range),M=!!a.choice.options.find(d=>d.value===I),C=[];for(let d=0;d<a.choice.options.length;d++){const m=a.choice.options[d];C.push({kind:V.Value,label:m.value,insertText:m.value,sortText:"a".repeat(d+1),range:a.range,filterText:M?`${I}_${m.value}`:void 0,command:{id:"jumpToNextSnippetPlaceholder",title:c("next","Go to next placeholder...")}})}return{suggestions:C}}},s=this._editor.getModel();let r,p=!1;const P=()=>{r?.dispose(),p=!1},E=()=>{p||(r=this._languageFeaturesService.completionProvider.register({language:s.getLanguageId(),pattern:s.uri.fsPath,scheme:s.uri.scheme,exclusive:!0},o),this._snippetListener.add(r),p=!0)};this._choiceCompletions={provider:o,enable:E,disable:P}}this._updateState(),this._snippetListener.add(this._editor.onDidChangeModelContent(o=>o.isFlush&&this.cancel())),this._snippetListener.add(this._editor.onDidChangeModel(()=>this.cancel())),this._snippetListener.add(this._editor.onDidChangeCursorSelection(()=>this._updateState()))}}_updateState(){if(!(!this._session||!this._editor.hasModel())){if(this._modelVersionId===this._editor.getModel().getAlternativeVersionId())return this.cancel();if(!this._session.hasPlaceholder)return this.cancel();if(this._session.isAtLastPlaceholder||!this._session.isSelectionWithinPlaceholders())return this._editor.getModel().pushStackElement(),this.cancel();this._inSnippet.set(!0),this._hasPrevTabstop.set(!this._session.isAtFirstPlaceholder),this._hasNextTabstop.set(!this._session.isAtLastPlaceholder),this._handleChoice()}}_handleChoice(){if(!this._session||!this._editor.hasModel()){this._currentChoice=void 0;return}const{activeChoice:e}=this._session;if(!e||!this._choiceCompletions){this._choiceCompletions?.disable(),this._currentChoice=void 0;return}this._currentChoice!==e.choice&&(this._currentChoice=e.choice,this._choiceCompletions.enable(),queueMicrotask(()=>{H(this._editor,this._choiceCompletions.provider)}))}finish(){for(;this._inSnippet.get();)this.next()}cancel(e=!1){this._inSnippet.reset(),this._hasPrevTabstop.reset(),this._hasNextTabstop.reset(),this._snippetListener.clear(),this._currentChoice=void 0,this._session?.dispose(),this._session=void 0,this._modelVersionId=-1,e&&this._editor.setSelections([this._editor.getSelection()])}prev(){this._session?.prev(),this._updateState()}next(){this._session?.next(),this._updateState()}isInSnippet(){return!!this._inSnippet.get()}getSessionEnclosingRange(){if(this._session)return this._session.getEnclosingRange()}};t=y([h(1,A),h(2,W),h(3,k),h(4,R)],t),F(t.ID,t,D.Lazy);const g=K.bindToContribution(t.get);u(new g({id:"jumpToNextSnippetPlaceholder",precondition:T.and(t.InSnippetMode,t.HasNextTabstop),handler:n=>n.next(),kbOpts:{weight:v.EditorContrib+30,kbExpr:S.textInputFocus,primary:l.Tab}})),u(new g({id:"jumpToPrevSnippetPlaceholder",precondition:T.and(t.InSnippetMode,t.HasPrevTabstop),handler:n=>n.prev(),kbOpts:{weight:v.EditorContrib+30,kbExpr:S.textInputFocus,primary:x.Shift|l.Tab}})),u(new g({id:"leaveSnippet",precondition:t.InSnippetMode,handler:n=>n.cancel(!0),kbOpts:{weight:v.EditorContrib+30,kbExpr:S.textInputFocus,primary:l.Escape,secondary:[x.Shift|l.Escape]}})),u(new g({id:"acceptSnippet",precondition:t.InSnippetMode,handler:n=>n.finish()}));export{t as SnippetController2};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import {
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
+import { assertType } from "../../../../base/common/types.js";
+import { localize } from "../../../../nls.js";
+import {
+  ContextKeyExpr,
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import {
+  EditorCommand,
+  EditorContributionInstantiation,
+  registerEditorCommand,
+  registerEditorContribution
+} from "../../../browser/editorExtensions.js";
+import { Position } from "../../../common/core/position.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import {
+  CompletionItemKind
+} from "../../../common/languages.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { showSimpleSuggestions } from "../../suggest/browser/suggest.js";
+import { SnippetSession } from "./snippetSession.js";
+const _defaultOptions = {
+  overwriteBefore: 0,
+  overwriteAfter: 0,
+  undoStopBefore: true,
+  undoStopAfter: true,
+  adjustWhitespace: true,
+  clipboardText: void 0,
+  overtypingCapturer: void 0
+};
+let SnippetController2 = class {
+  constructor(_editor, _logService, _languageFeaturesService, contextKeyService, _languageConfigurationService) {
+    this._editor = _editor;
+    this._logService = _logService;
+    this._languageFeaturesService = _languageFeaturesService;
+    this._languageConfigurationService = _languageConfigurationService;
+    this._inSnippet = SnippetController2.InSnippetMode.bindTo(contextKeyService);
+    this._hasNextTabstop = SnippetController2.HasNextTabstop.bindTo(contextKeyService);
+    this._hasPrevTabstop = SnippetController2.HasPrevTabstop.bindTo(contextKeyService);
+  }
+  static {
+    __name(this, "SnippetController2");
+  }
+  static ID = "snippetController2";
+  static get(editor) {
+    return editor.getContribution(
+      SnippetController2.ID
+    );
+  }
+  static InSnippetMode = new RawContextKey(
+    "inSnippetMode",
+    false,
+    localize(
+      "inSnippetMode",
+      "Whether the editor in current in snippet mode"
+    )
+  );
+  static HasNextTabstop = new RawContextKey(
+    "hasNextTabstop",
+    false,
+    localize(
+      "hasNextTabstop",
+      "Whether there is a next tab stop when in snippet mode"
+    )
+  );
+  static HasPrevTabstop = new RawContextKey(
+    "hasPrevTabstop",
+    false,
+    localize(
+      "hasPrevTabstop",
+      "Whether there is a previous tab stop when in snippet mode"
+    )
+  );
+  _inSnippet;
+  _hasNextTabstop;
+  _hasPrevTabstop;
+  _session;
+  _snippetListener = new DisposableStore();
+  _modelVersionId = -1;
+  _currentChoice;
+  _choiceCompletions;
+  dispose() {
+    this._inSnippet.reset();
+    this._hasPrevTabstop.reset();
+    this._hasNextTabstop.reset();
+    this._session?.dispose();
+    this._snippetListener.dispose();
+  }
+  apply(edits, opts) {
+    try {
+      this._doInsert(
+        edits,
+        typeof opts === "undefined" ? _defaultOptions : { ..._defaultOptions, ...opts }
+      );
+    } catch (e) {
+      this.cancel();
+      this._logService.error(e);
+      this._logService.error("snippet_error");
+      this._logService.error("insert_edits=", edits);
+      this._logService.error(
+        "existing_template=",
+        this._session ? this._session._logInfo() : "<no_session>"
+      );
+    }
+  }
+  insert(template, opts) {
+    try {
+      this._doInsert(
+        template,
+        typeof opts === "undefined" ? _defaultOptions : { ..._defaultOptions, ...opts }
+      );
+    } catch (e) {
+      this.cancel();
+      this._logService.error(e);
+      this._logService.error("snippet_error");
+      this._logService.error("insert_template=", template);
+      this._logService.error(
+        "existing_template=",
+        this._session ? this._session._logInfo() : "<no_session>"
+      );
+    }
+  }
+  _doInsert(template, opts) {
+    if (!this._editor.hasModel()) {
+      return;
+    }
+    this._snippetListener.clear();
+    if (opts.undoStopBefore) {
+      this._editor.getModel().pushStackElement();
+    }
+    if (this._session && typeof template !== "string") {
+      this.cancel();
+    }
+    if (this._session) {
+      assertType(typeof template === "string");
+      this._session.merge(template, opts);
+    } else {
+      this._modelVersionId = this._editor.getModel().getAlternativeVersionId();
+      this._session = new SnippetSession(
+        this._editor,
+        template,
+        opts,
+        this._languageConfigurationService
+      );
+      this._session.insert();
+    }
+    if (opts.undoStopAfter) {
+      this._editor.getModel().pushStackElement();
+    }
+    if (this._session?.hasChoice) {
+      const provider = {
+        _debugDisplayName: "snippetChoiceCompletions",
+        provideCompletionItems: /* @__PURE__ */ __name((model2, position) => {
+          if (!this._session || model2 !== this._editor.getModel() || !Position.equals(this._editor.getPosition(), position)) {
+            return void 0;
+          }
+          const { activeChoice } = this._session;
+          if (!activeChoice || activeChoice.choice.options.length === 0) {
+            return void 0;
+          }
+          const word = model2.getValueInRange(activeChoice.range);
+          const isAnyOfOptions = Boolean(
+            activeChoice.choice.options.find(
+              (o) => o.value === word
+            )
+          );
+          const suggestions = [];
+          for (let i = 0; i < activeChoice.choice.options.length; i++) {
+            const option = activeChoice.choice.options[i];
+            suggestions.push({
+              kind: CompletionItemKind.Value,
+              label: option.value,
+              insertText: option.value,
+              sortText: "a".repeat(i + 1),
+              range: activeChoice.range,
+              filterText: isAnyOfOptions ? `${word}_${option.value}` : void 0,
+              command: {
+                id: "jumpToNextSnippetPlaceholder",
+                title: localize(
+                  "next",
+                  "Go to next placeholder..."
+                )
+              }
+            });
+          }
+          return { suggestions };
+        }, "provideCompletionItems")
+      };
+      const model = this._editor.getModel();
+      let registration;
+      let isRegistered = false;
+      const disable = /* @__PURE__ */ __name(() => {
+        registration?.dispose();
+        isRegistered = false;
+      }, "disable");
+      const enable = /* @__PURE__ */ __name(() => {
+        if (!isRegistered) {
+          registration = this._languageFeaturesService.completionProvider.register(
+            {
+              language: model.getLanguageId(),
+              pattern: model.uri.fsPath,
+              scheme: model.uri.scheme,
+              exclusive: true
+            },
+            provider
+          );
+          this._snippetListener.add(registration);
+          isRegistered = true;
+        }
+      }, "enable");
+      this._choiceCompletions = { provider, enable, disable };
+    }
+    this._updateState();
+    this._snippetListener.add(
+      this._editor.onDidChangeModelContent(
+        (e) => e.isFlush && this.cancel()
+      )
+    );
+    this._snippetListener.add(
+      this._editor.onDidChangeModel(() => this.cancel())
+    );
+    this._snippetListener.add(
+      this._editor.onDidChangeCursorSelection(() => this._updateState())
+    );
+  }
+  _updateState() {
+    if (!this._session || !this._editor.hasModel()) {
+      return;
+    }
+    if (this._modelVersionId === this._editor.getModel().getAlternativeVersionId()) {
+      return this.cancel();
+    }
+    if (!this._session.hasPlaceholder) {
+      return this.cancel();
+    }
+    if (this._session.isAtLastPlaceholder || !this._session.isSelectionWithinPlaceholders()) {
+      this._editor.getModel().pushStackElement();
+      return this.cancel();
+    }
+    this._inSnippet.set(true);
+    this._hasPrevTabstop.set(!this._session.isAtFirstPlaceholder);
+    this._hasNextTabstop.set(!this._session.isAtLastPlaceholder);
+    this._handleChoice();
+  }
+  _handleChoice() {
+    if (!this._session || !this._editor.hasModel()) {
+      this._currentChoice = void 0;
+      return;
+    }
+    const { activeChoice } = this._session;
+    if (!activeChoice || !this._choiceCompletions) {
+      this._choiceCompletions?.disable();
+      this._currentChoice = void 0;
+      return;
+    }
+    if (this._currentChoice !== activeChoice.choice) {
+      this._currentChoice = activeChoice.choice;
+      this._choiceCompletions.enable();
+      queueMicrotask(() => {
+        showSimpleSuggestions(
+          this._editor,
+          this._choiceCompletions.provider
+        );
+      });
+    }
+  }
+  finish() {
+    while (this._inSnippet.get()) {
+      this.next();
+    }
+  }
+  cancel(resetSelection = false) {
+    this._inSnippet.reset();
+    this._hasPrevTabstop.reset();
+    this._hasNextTabstop.reset();
+    this._snippetListener.clear();
+    this._currentChoice = void 0;
+    this._session?.dispose();
+    this._session = void 0;
+    this._modelVersionId = -1;
+    if (resetSelection) {
+      this._editor.setSelections([this._editor.getSelection()]);
+    }
+  }
+  prev() {
+    this._session?.prev();
+    this._updateState();
+  }
+  next() {
+    this._session?.next();
+    this._updateState();
+  }
+  isInSnippet() {
+    return Boolean(this._inSnippet.get());
+  }
+  getSessionEnclosingRange() {
+    if (this._session) {
+      return this._session.getEnclosingRange();
+    }
+    return void 0;
+  }
+};
+SnippetController2 = __decorateClass([
+  __decorateParam(1, ILogService),
+  __decorateParam(2, ILanguageFeaturesService),
+  __decorateParam(3, IContextKeyService),
+  __decorateParam(4, ILanguageConfigurationService)
+], SnippetController2);
+registerEditorContribution(
+  SnippetController2.ID,
+  SnippetController2,
+  EditorContributionInstantiation.Lazy
+);
+const CommandCtor = EditorCommand.bindToContribution(
+  SnippetController2.get
+);
+registerEditorCommand(
+  new CommandCtor({
+    id: "jumpToNextSnippetPlaceholder",
+    precondition: ContextKeyExpr.and(
+      SnippetController2.InSnippetMode,
+      SnippetController2.HasNextTabstop
+    ),
+    handler: /* @__PURE__ */ __name((ctrl) => ctrl.next(), "handler"),
+    kbOpts: {
+      weight: KeybindingWeight.EditorContrib + 30,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyCode.Tab
+    }
+  })
+);
+registerEditorCommand(
+  new CommandCtor({
+    id: "jumpToPrevSnippetPlaceholder",
+    precondition: ContextKeyExpr.and(
+      SnippetController2.InSnippetMode,
+      SnippetController2.HasPrevTabstop
+    ),
+    handler: /* @__PURE__ */ __name((ctrl) => ctrl.prev(), "handler"),
+    kbOpts: {
+      weight: KeybindingWeight.EditorContrib + 30,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.Shift | KeyCode.Tab
+    }
+  })
+);
+registerEditorCommand(
+  new CommandCtor({
+    id: "leaveSnippet",
+    precondition: SnippetController2.InSnippetMode,
+    handler: /* @__PURE__ */ __name((ctrl) => ctrl.cancel(true), "handler"),
+    kbOpts: {
+      weight: KeybindingWeight.EditorContrib + 30,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyCode.Escape,
+      secondary: [KeyMod.Shift | KeyCode.Escape]
+    }
+  })
+);
+registerEditorCommand(
+  new CommandCtor({
+    id: "acceptSnippet",
+    precondition: SnippetController2.InSnippetMode,
+    handler: /* @__PURE__ */ __name((ctrl) => ctrl.finish(), "handler")
+    // kbOpts: {
+    // 	weight: KeybindingWeight.EditorContrib + 30,
+    // 	kbExpr: EditorContextKeys.textFocus,
+    // 	primary: KeyCode.Enter,
+    // }
+  })
+);
+export {
+  SnippetController2
+};
+//# sourceMappingURL=snippetController2.js.map

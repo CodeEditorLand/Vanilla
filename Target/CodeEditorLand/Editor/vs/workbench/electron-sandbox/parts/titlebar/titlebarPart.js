@@ -1,1 +1,442 @@
-var ie=Object.defineProperty;var te=Object.getOwnPropertyDescriptor;var b=(h,s,i,o)=>{for(var t=o>1?void 0:o?te(s,i):s,r=h.length-1,n;r>=0;r--)(n=h[r])&&(t=(o?n(s,i,t):n(t))||t);return o&&t&&ie(s,i,t),t},e=(h,s)=>(i,o)=>s(i,o,h);import{getZoomFactor as y,isWCOEnabled as re}from"../../../../base/browser/browser.js";import{$ as x,EventType as M,addDisposableListener as W,append as E,getWindow as m,getWindowId as k,hide as N,show as A}from"../../../../base/browser/dom.js";import{mainWindow as oe}from"../../../../base/browser/window.js";import{Codicon as l}from"../../../../base/common/codicons.js";import{Event as ne}from"../../../../base/common/event.js";import{isBigSurOrNewer as se,isLinux as K,isMacintosh as B,isNative as ae,isWindows as _}from"../../../../base/common/platform.js";import{ThemeIcon as u}from"../../../../base/common/themables.js";import{IMenuService as D,MenuId as ce}from"../../../../platform/actions/common/actions.js";import{IConfigurationService as O}from"../../../../platform/configuration/common/configuration.js";import{IContextKeyService as G}from"../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as U}from"../../../../platform/contextview/browser/contextView.js";import{IInstantiationService as F}from"../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as V}from"../../../../platform/keybinding/common/keybinding.js";import{INativeHostService as Z}from"../../../../platform/native/common/native.js";import{IStorageService as $}from"../../../../platform/storage/common/storage.js";import{IThemeService as P}from"../../../../platform/theme/common/themeService.js";import{DEFAULT_CUSTOM_TITLEBAR_HEIGHT as de,hasNativeTitlebar as H,useWindowControlsOverlay as Q}from"../../../../platform/window/common/window.js";import{BrowserTitleService as me,BrowserTitlebarPart as he}from"../../../browser/parts/titlebar/titlebarPart.js";import{IEditorGroupsService as X}from"../../../services/editor/common/editorGroupsService.js";import{IEditorService as Y}from"../../../services/editor/common/editorService.js";import{INativeWorkbenchEnvironmentService as j}from"../../../services/environment/electron-sandbox/environmentService.js";import{IHostService as q}from"../../../services/host/browser/host.js";import{IWorkbenchLayoutService as J,Parts as ve}from"../../../services/layout/browser/layoutService.js";import{NativeMenubarControl as le}from"./menubarControl.js";let p=class extends he{constructor(i,o,t,r,n,a,c,d,g,S,C,I,w,T,z,L,R){super(i,o,t,r,n,a,c,d,g,S,C,I,T,z,L,R);this.nativeHostService=w;this.bigSurOrNewer=se(a.os.release)}get minimumHeight(){return B?(this.isCommandCenterVisible?de:this.macTitlebarSize)/(this.preventZoom?y(m(this.element)):1):super.minimumHeight}get maximumHeight(){return this.minimumHeight}bigSurOrNewer;get macTitlebarSize(){return this.bigSurOrNewer?28:22}maxRestoreControl;resizer;cachedWindowControlStyles;cachedWindowControlHeight;onMenubarVisibilityChanged(i){(_||K)&&this.currentMenubarVisibility==="toggle"&&i&&this.dragRegion&&(N(this.dragRegion),setTimeout(()=>A(this.dragRegion),50)),super.onMenubarVisibilityChanged(i)}onConfigurationChanged(i){super.onConfigurationChanged(i),i.affectsConfiguration("window.doubleClickIconToClose")&&this.appIcon&&this.onUpdateAppIconDragBehavior()}onUpdateAppIconDragBehavior(){this.configurationService.getValue("window.doubleClickIconToClose")&&this.appIcon?this.appIcon.style["-webkit-app-region"]="no-drag":this.appIcon&&(this.appIcon.style["-webkit-app-region"]="drag")}installMenubar(){super.installMenubar(),!this.menubar&&this.customMenubar&&this._register(this.customMenubar.onFocusStateChange(i=>this.onMenubarFocusChanged(i)))}onMenubarFocusChanged(i){(_||K)&&this.currentMenubarVisibility!=="compact"&&this.dragRegion&&(i?N(this.dragRegion):A(this.dragRegion))}createContentArea(i){const o=super.createContentArea(i),t=m(i),r=k(t);if((B||H(this.configurationService))&&this._register(this.instantiationService.createInstance(le)),this.appIcon&&(this.onUpdateAppIconDragBehavior(),this._register(W(this.appIcon,M.DBLCLICK,()=>{this.nativeHostService.closeWindow({targetWindowId:r})}))),K&&!H(this.configurationService)&&!re()&&this.windowControlsContainer){const n=E(this.windowControlsContainer,x("div.window-icon.window-minimize"+u.asCSSSelector(l.chromeMinimize)));this._register(W(n,M.CLICK,()=>{this.nativeHostService.minimizeWindow({targetWindowId:r})})),this.maxRestoreControl=E(this.windowControlsContainer,x("div.window-icon.window-max-restore")),this._register(W(this.maxRestoreControl,M.CLICK,async()=>await this.nativeHostService.isMaximized({targetWindowId:r})?this.nativeHostService.unmaximizeWindow({targetWindowId:r}):this.nativeHostService.maximizeWindow({targetWindowId:r})));const a=E(this.windowControlsContainer,x("div.window-icon.window-close"+u.asCSSSelector(l.chromeClose)));this._register(W(a,M.CLICK,()=>{this.nativeHostService.closeWindow({targetWindowId:r})})),this.resizer=E(this.rootContainer,x("div.resizer")),this._register(ne.runAndSubscribe(this.layoutService.onDidChangeWindowMaximized,({windowId:c,maximized:d})=>{c===r&&this.onDidChangeWindowMaximized(d)},{windowId:r,maximized:this.layoutService.isWindowMaximized(t)}))}return _&&!H(this.configurationService)&&this._register(this.nativeHostService.onDidTriggerWindowSystemContextMenu(({windowId:n,x:a,y:c})=>{if(r!==n)return;const d=y(m(this.element));this.onContextMenu(new MouseEvent("mouseup",{clientX:a/d,clientY:c/d}),ce.TitleBarContext)})),o}onDidChangeWindowMaximized(i){this.maxRestoreControl&&(i?(this.maxRestoreControl.classList.remove(...u.asClassNameArray(l.chromeMaximize)),this.maxRestoreControl.classList.add(...u.asClassNameArray(l.chromeRestore))):(this.maxRestoreControl.classList.remove(...u.asClassNameArray(l.chromeRestore)),this.maxRestoreControl.classList.add(...u.asClassNameArray(l.chromeMaximize)))),this.resizer&&(i?N(this.resizer):A(this.resizer))}updateStyles(){super.updateStyles(),Q(this.configurationService)&&(!this.cachedWindowControlStyles||this.cachedWindowControlStyles.bgColor!==this.element.style.backgroundColor||this.cachedWindowControlStyles.fgColor!==this.element.style.color)&&this.nativeHostService.updateWindowControls({targetWindowId:k(m(this.element)),backgroundColor:this.element.style.backgroundColor,foregroundColor:this.element.style.color})}layout(i,o){if(super.layout(i,o),Q(this.configurationService)||B&&ae&&!H(this.configurationService)){const t=o>0||this.bigSurOrNewer?Math.round(o*y(m(this.element))):this.macTitlebarSize;t!==this.cachedWindowControlHeight&&(this.cachedWindowControlHeight=t,this.nativeHostService.updateWindowControls({targetWindowId:k(m(this.element)),height:t}))}}};p=b([e(3,U),e(4,O),e(5,j),e(6,F),e(7,P),e(8,$),e(9,J),e(10,G),e(11,q),e(12,Z),e(13,X),e(14,Y),e(15,D),e(16,V)],p);let f=class extends p{constructor(s,i,o,t,r,n,a,c,d,g,S,C,I,w){super(ve.TITLEBAR_PART,oe,"main",s,i,o,t,r,n,a,c,d,g,S,C,I,w)}};f=b([e(0,U),e(1,O),e(2,j),e(3,F),e(4,P),e(5,$),e(6,J),e(7,G),e(8,q),e(9,Z),e(10,X),e(11,Y),e(12,D),e(13,V)],f);let v=class extends p{constructor(i,o,t,r,n,a,c,d,g,S,C,I,w,T,z,L,R){const ee=v.COUNTER++;super(`workbench.parts.auxiliaryTitle.${ee}`,m(i),o,r,n,a,c,d,g,S,C,I,w,T,z,L,R);this.container=i;this.mainTitlebar=t}static COUNTER=1;get height(){return this.minimumHeight}get preventZoom(){return y(m(this.element))<1||!this.mainTitlebar.hasZoomableElements}};v=b([e(3,U),e(4,O),e(5,j),e(6,F),e(7,P),e(8,$),e(9,J),e(10,G),e(11,q),e(12,Z),e(13,X),e(14,Y),e(15,D),e(16,V)],v);class De extends me{createMainTitlebarPart(){return this.instantiationService.createInstance(f)}doCreateAuxiliaryTitlebarPart(s,i){return this.instantiationService.createInstance(v,s,i,this.mainPart)}}export{v as AuxiliaryNativeTitlebarPart,f as MainNativeTitlebarPart,De as NativeTitleService,p as NativeTitlebarPart};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  getZoomFactor,
+  isWCOEnabled
+} from "../../../../base/browser/browser.js";
+import {
+  $,
+  EventType,
+  addDisposableListener,
+  append,
+  getWindow,
+  getWindowId,
+  hide,
+  show
+} from "../../../../base/browser/dom.js";
+import {
+  mainWindow
+} from "../../../../base/browser/window.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Event } from "../../../../base/common/event.js";
+import {
+  isBigSurOrNewer,
+  isLinux,
+  isMacintosh,
+  isNative,
+  isWindows
+} from "../../../../base/common/platform.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import {
+  IMenuService,
+  MenuId
+} from "../../../../platform/actions/common/actions.js";
+import {
+  IConfigurationService
+} from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import {
+  DEFAULT_CUSTOM_TITLEBAR_HEIGHT,
+  hasNativeTitlebar,
+  useWindowControlsOverlay
+} from "../../../../platform/window/common/window.js";
+import {
+  BrowserTitleService,
+  BrowserTitlebarPart
+} from "../../../browser/parts/titlebar/titlebarPart.js";
+import {
+  IEditorGroupsService
+} from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import {
+  IWorkbenchLayoutService,
+  Parts
+} from "../../../services/layout/browser/layoutService.js";
+import { NativeMenubarControl } from "./menubarControl.js";
+let NativeTitlebarPart = class extends BrowserTitlebarPart {
+  constructor(id, targetWindow, editorGroupsContainer, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService, editorGroupService, editorService, menuService, keybindingService) {
+    super(id, targetWindow, editorGroupsContainer, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, editorGroupService, editorService, menuService, keybindingService);
+    this.nativeHostService = nativeHostService;
+    this.bigSurOrNewer = isBigSurOrNewer(environmentService.os.release);
+  }
+  static {
+    __name(this, "NativeTitlebarPart");
+  }
+  //#region IView
+  get minimumHeight() {
+    if (!isMacintosh) {
+      return super.minimumHeight;
+    }
+    return (this.isCommandCenterVisible ? DEFAULT_CUSTOM_TITLEBAR_HEIGHT : this.macTitlebarSize) / (this.preventZoom ? getZoomFactor(getWindow(this.element)) : 1);
+  }
+  get maximumHeight() {
+    return this.minimumHeight;
+  }
+  bigSurOrNewer;
+  get macTitlebarSize() {
+    if (this.bigSurOrNewer) {
+      return 28;
+    }
+    return 22;
+  }
+  //#endregion
+  maxRestoreControl;
+  resizer;
+  cachedWindowControlStyles;
+  cachedWindowControlHeight;
+  onMenubarVisibilityChanged(visible) {
+    if ((isWindows || isLinux) && this.currentMenubarVisibility === "toggle" && visible) {
+      if (this.dragRegion) {
+        hide(this.dragRegion);
+        setTimeout(() => show(this.dragRegion), 50);
+      }
+    }
+    super.onMenubarVisibilityChanged(visible);
+  }
+  onConfigurationChanged(event) {
+    super.onConfigurationChanged(event);
+    if (event.affectsConfiguration("window.doubleClickIconToClose")) {
+      if (this.appIcon) {
+        this.onUpdateAppIconDragBehavior();
+      }
+    }
+  }
+  onUpdateAppIconDragBehavior() {
+    const setting = this.configurationService.getValue(
+      "window.doubleClickIconToClose"
+    );
+    if (setting && this.appIcon) {
+      this.appIcon.style["-webkit-app-region"] = "no-drag";
+    } else if (this.appIcon) {
+      this.appIcon.style["-webkit-app-region"] = "drag";
+    }
+  }
+  installMenubar() {
+    super.installMenubar();
+    if (this.menubar) {
+      return;
+    }
+    if (this.customMenubar) {
+      this._register(
+        this.customMenubar.onFocusStateChange(
+          (e) => this.onMenubarFocusChanged(e)
+        )
+      );
+    }
+  }
+  onMenubarFocusChanged(focused) {
+    if ((isWindows || isLinux) && this.currentMenubarVisibility !== "compact" && this.dragRegion) {
+      if (focused) {
+        hide(this.dragRegion);
+      } else {
+        show(this.dragRegion);
+      }
+    }
+  }
+  createContentArea(parent) {
+    const result = super.createContentArea(parent);
+    const targetWindow = getWindow(parent);
+    const targetWindowId = getWindowId(targetWindow);
+    if (isMacintosh || hasNativeTitlebar(this.configurationService)) {
+      this._register(
+        this.instantiationService.createInstance(NativeMenubarControl)
+      );
+    }
+    if (this.appIcon) {
+      this.onUpdateAppIconDragBehavior();
+      this._register(
+        addDisposableListener(this.appIcon, EventType.DBLCLICK, () => {
+          this.nativeHostService.closeWindow({ targetWindowId });
+        })
+      );
+    }
+    if (isLinux && !hasNativeTitlebar(this.configurationService) && !isWCOEnabled() && this.windowControlsContainer) {
+      const minimizeIcon = append(
+        this.windowControlsContainer,
+        $(
+          "div.window-icon.window-minimize" + ThemeIcon.asCSSSelector(Codicon.chromeMinimize)
+        )
+      );
+      this._register(
+        addDisposableListener(minimizeIcon, EventType.CLICK, () => {
+          this.nativeHostService.minimizeWindow({ targetWindowId });
+        })
+      );
+      this.maxRestoreControl = append(
+        this.windowControlsContainer,
+        $("div.window-icon.window-max-restore")
+      );
+      this._register(
+        addDisposableListener(
+          this.maxRestoreControl,
+          EventType.CLICK,
+          async () => {
+            const maximized = await this.nativeHostService.isMaximized({
+              targetWindowId
+            });
+            if (maximized) {
+              return this.nativeHostService.unmaximizeWindow({
+                targetWindowId
+              });
+            }
+            return this.nativeHostService.maximizeWindow({
+              targetWindowId
+            });
+          }
+        )
+      );
+      const closeIcon = append(
+        this.windowControlsContainer,
+        $(
+          "div.window-icon.window-close" + ThemeIcon.asCSSSelector(Codicon.chromeClose)
+        )
+      );
+      this._register(
+        addDisposableListener(closeIcon, EventType.CLICK, () => {
+          this.nativeHostService.closeWindow({ targetWindowId });
+        })
+      );
+      this.resizer = append(this.rootContainer, $("div.resizer"));
+      this._register(
+        Event.runAndSubscribe(
+          this.layoutService.onDidChangeWindowMaximized,
+          ({ windowId, maximized }) => {
+            if (windowId === targetWindowId) {
+              this.onDidChangeWindowMaximized(maximized);
+            }
+          },
+          {
+            windowId: targetWindowId,
+            maximized: this.layoutService.isWindowMaximized(targetWindow)
+          }
+        )
+      );
+    }
+    if (isWindows && !hasNativeTitlebar(this.configurationService)) {
+      this._register(
+        this.nativeHostService.onDidTriggerWindowSystemContextMenu(
+          ({ windowId, x, y }) => {
+            if (targetWindowId !== windowId) {
+              return;
+            }
+            const zoomFactor = getZoomFactor(
+              getWindow(this.element)
+            );
+            this.onContextMenu(
+              new MouseEvent("mouseup", {
+                clientX: x / zoomFactor,
+                clientY: y / zoomFactor
+              }),
+              MenuId.TitleBarContext
+            );
+          }
+        )
+      );
+    }
+    return result;
+  }
+  onDidChangeWindowMaximized(maximized) {
+    if (this.maxRestoreControl) {
+      if (maximized) {
+        this.maxRestoreControl.classList.remove(
+          ...ThemeIcon.asClassNameArray(Codicon.chromeMaximize)
+        );
+        this.maxRestoreControl.classList.add(
+          ...ThemeIcon.asClassNameArray(Codicon.chromeRestore)
+        );
+      } else {
+        this.maxRestoreControl.classList.remove(
+          ...ThemeIcon.asClassNameArray(Codicon.chromeRestore)
+        );
+        this.maxRestoreControl.classList.add(
+          ...ThemeIcon.asClassNameArray(Codicon.chromeMaximize)
+        );
+      }
+    }
+    if (this.resizer) {
+      if (maximized) {
+        hide(this.resizer);
+      } else {
+        show(this.resizer);
+      }
+    }
+  }
+  updateStyles() {
+    super.updateStyles();
+    if (useWindowControlsOverlay(this.configurationService)) {
+      if (!this.cachedWindowControlStyles || this.cachedWindowControlStyles.bgColor !== this.element.style.backgroundColor || this.cachedWindowControlStyles.fgColor !== this.element.style.color) {
+        this.nativeHostService.updateWindowControls({
+          targetWindowId: getWindowId(getWindow(this.element)),
+          backgroundColor: this.element.style.backgroundColor,
+          foregroundColor: this.element.style.color
+        });
+      }
+    }
+  }
+  layout(width, height) {
+    super.layout(width, height);
+    if (useWindowControlsOverlay(this.configurationService) || isMacintosh && isNative && !hasNativeTitlebar(this.configurationService)) {
+      const newHeight = height > 0 || this.bigSurOrNewer ? Math.round(
+        height * getZoomFactor(getWindow(this.element))
+      ) : this.macTitlebarSize;
+      if (newHeight !== this.cachedWindowControlHeight) {
+        this.cachedWindowControlHeight = newHeight;
+        this.nativeHostService.updateWindowControls({
+          targetWindowId: getWindowId(getWindow(this.element)),
+          height: newHeight
+        });
+      }
+    }
+  }
+};
+NativeTitlebarPart = __decorateClass([
+  __decorateParam(3, IContextMenuService),
+  __decorateParam(4, IConfigurationService),
+  __decorateParam(5, INativeWorkbenchEnvironmentService),
+  __decorateParam(6, IInstantiationService),
+  __decorateParam(7, IThemeService),
+  __decorateParam(8, IStorageService),
+  __decorateParam(9, IWorkbenchLayoutService),
+  __decorateParam(10, IContextKeyService),
+  __decorateParam(11, IHostService),
+  __decorateParam(12, INativeHostService),
+  __decorateParam(13, IEditorGroupsService),
+  __decorateParam(14, IEditorService),
+  __decorateParam(15, IMenuService),
+  __decorateParam(16, IKeybindingService)
+], NativeTitlebarPart);
+let MainNativeTitlebarPart = class extends NativeTitlebarPart {
+  static {
+    __name(this, "MainNativeTitlebarPart");
+  }
+  constructor(contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService, editorGroupService, editorService, menuService, keybindingService) {
+    super(
+      Parts.TITLEBAR_PART,
+      mainWindow,
+      "main",
+      contextMenuService,
+      configurationService,
+      environmentService,
+      instantiationService,
+      themeService,
+      storageService,
+      layoutService,
+      contextKeyService,
+      hostService,
+      nativeHostService,
+      editorGroupService,
+      editorService,
+      menuService,
+      keybindingService
+    );
+  }
+};
+MainNativeTitlebarPart = __decorateClass([
+  __decorateParam(0, IContextMenuService),
+  __decorateParam(1, IConfigurationService),
+  __decorateParam(2, INativeWorkbenchEnvironmentService),
+  __decorateParam(3, IInstantiationService),
+  __decorateParam(4, IThemeService),
+  __decorateParam(5, IStorageService),
+  __decorateParam(6, IWorkbenchLayoutService),
+  __decorateParam(7, IContextKeyService),
+  __decorateParam(8, IHostService),
+  __decorateParam(9, INativeHostService),
+  __decorateParam(10, IEditorGroupsService),
+  __decorateParam(11, IEditorService),
+  __decorateParam(12, IMenuService),
+  __decorateParam(13, IKeybindingService)
+], MainNativeTitlebarPart);
+let AuxiliaryNativeTitlebarPart = class extends NativeTitlebarPart {
+  constructor(container, editorGroupsContainer, mainTitlebar, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService, editorGroupService, editorService, menuService, keybindingService) {
+    const id = AuxiliaryNativeTitlebarPart.COUNTER++;
+    super(
+      `workbench.parts.auxiliaryTitle.${id}`,
+      getWindow(container),
+      editorGroupsContainer,
+      contextMenuService,
+      configurationService,
+      environmentService,
+      instantiationService,
+      themeService,
+      storageService,
+      layoutService,
+      contextKeyService,
+      hostService,
+      nativeHostService,
+      editorGroupService,
+      editorService,
+      menuService,
+      keybindingService
+    );
+    this.container = container;
+    this.mainTitlebar = mainTitlebar;
+  }
+  static {
+    __name(this, "AuxiliaryNativeTitlebarPart");
+  }
+  static COUNTER = 1;
+  get height() {
+    return this.minimumHeight;
+  }
+  get preventZoom() {
+    return getZoomFactor(getWindow(this.element)) < 1 || !this.mainTitlebar.hasZoomableElements;
+  }
+};
+AuxiliaryNativeTitlebarPart = __decorateClass([
+  __decorateParam(3, IContextMenuService),
+  __decorateParam(4, IConfigurationService),
+  __decorateParam(5, INativeWorkbenchEnvironmentService),
+  __decorateParam(6, IInstantiationService),
+  __decorateParam(7, IThemeService),
+  __decorateParam(8, IStorageService),
+  __decorateParam(9, IWorkbenchLayoutService),
+  __decorateParam(10, IContextKeyService),
+  __decorateParam(11, IHostService),
+  __decorateParam(12, INativeHostService),
+  __decorateParam(13, IEditorGroupsService),
+  __decorateParam(14, IEditorService),
+  __decorateParam(15, IMenuService),
+  __decorateParam(16, IKeybindingService)
+], AuxiliaryNativeTitlebarPart);
+class NativeTitleService extends BrowserTitleService {
+  static {
+    __name(this, "NativeTitleService");
+  }
+  createMainTitlebarPart() {
+    return this.instantiationService.createInstance(MainNativeTitlebarPart);
+  }
+  doCreateAuxiliaryTitlebarPart(container, editorGroupsContainer) {
+    return this.instantiationService.createInstance(
+      AuxiliaryNativeTitlebarPart,
+      container,
+      editorGroupsContainer,
+      this.mainPart
+    );
+  }
+}
+export {
+  AuxiliaryNativeTitlebarPart,
+  MainNativeTitlebarPart,
+  NativeTitleService,
+  NativeTitlebarPart
+};
+//# sourceMappingURL=titlebarPart.js.map

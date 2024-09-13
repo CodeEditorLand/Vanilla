@@ -1,1 +1,103 @@
-var m=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var c=(t,e,r,s)=>{for(var o=s>1?void 0:s?v(e,r):e,i=t.length-1,p;i>=0;i--)(p=t[i])&&(o=(s?p(e,r,o):p(o))||o);return s&&o&&m(e,r,o),o},a=(t,e)=>(r,s)=>e(r,s,t);import{Action as P}from"../../../base/common/actions.js";import{localize as d}from"../../../nls.js";import{ICommandService as x}from"../../../platform/commands/common/commands.js";import{IProgressService as y,ProgressLocation as g}from"../../../platform/progress/common/progress.js";import{extHostNamedCustomer as S}from"../../services/extensions/common/extHostCustomers.js";import{ExtHostContext as _,MainContext as I}from"../common/extHost.protocol.js";class f extends P{constructor(e,r,s){super(e,r,void 0,!0,()=>s.executeCommand("_extensions.manage",e))}}let n=class{constructor(e,r,s){this._commandService=s;this._proxy=e.getProxy(_.ExtHostProgress),this._progressService=r}_progressService;_progress=new Map;_proxy;dispose(){this._progress.forEach(e=>e.resolve()),this._progress.clear()}async $startProgress(e,r,s){const o=this._createTask(e);r.location===g.Notification&&s&&(r={...r,location:g.Notification,secondaryActions:[new f(s,d("manageExtension","Manage Extension"),this._commandService)]}),this._progressService.withProgress(r,o,()=>this._proxy.$acceptProgressCanceled(e))}$progressReport(e,r){this._progress.get(e)?.progress.report(r)}$progressEnd(e){const r=this._progress.get(e);r&&(r.resolve(),this._progress.delete(e))}_createTask(e){return r=>new Promise(s=>{this._progress.set(e,{resolve:s,progress:r})})}};n=c([S(I.MainThreadProgress),a(1,y),a(2,x)],n);export{n as MainThreadProgress};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Action } from "../../../base/common/actions.js";
+import { localize } from "../../../nls.js";
+import { ICommandService } from "../../../platform/commands/common/commands.js";
+import {
+  IProgressService,
+  ProgressLocation
+} from "../../../platform/progress/common/progress.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
+class ManageExtensionAction extends Action {
+  static {
+    __name(this, "ManageExtensionAction");
+  }
+  constructor(extensionId, label, commandService) {
+    super(extensionId, label, void 0, true, () => {
+      return commandService.executeCommand(
+        "_extensions.manage",
+        extensionId
+      );
+    });
+  }
+}
+let MainThreadProgress = class {
+  constructor(extHostContext, progressService, _commandService) {
+    this._commandService = _commandService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostProgress);
+    this._progressService = progressService;
+  }
+  _progressService;
+  _progress = /* @__PURE__ */ new Map();
+  _proxy;
+  dispose() {
+    this._progress.forEach((handle) => handle.resolve());
+    this._progress.clear();
+  }
+  async $startProgress(handle, options, extensionId) {
+    const task = this._createTask(handle);
+    if (options.location === ProgressLocation.Notification && extensionId) {
+      const notificationOptions = {
+        ...options,
+        location: ProgressLocation.Notification,
+        secondaryActions: [
+          new ManageExtensionAction(
+            extensionId,
+            localize("manageExtension", "Manage Extension"),
+            this._commandService
+          )
+        ]
+      };
+      options = notificationOptions;
+    }
+    this._progressService.withProgress(
+      options,
+      task,
+      () => this._proxy.$acceptProgressCanceled(handle)
+    );
+  }
+  $progressReport(handle, message) {
+    const entry = this._progress.get(handle);
+    entry?.progress.report(message);
+  }
+  $progressEnd(handle) {
+    const entry = this._progress.get(handle);
+    if (entry) {
+      entry.resolve();
+      this._progress.delete(handle);
+    }
+  }
+  _createTask(handle) {
+    return (progress) => {
+      return new Promise((resolve) => {
+        this._progress.set(handle, { resolve, progress });
+      });
+    };
+  }
+};
+__name(MainThreadProgress, "MainThreadProgress");
+MainThreadProgress = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadProgress),
+  __decorateParam(1, IProgressService),
+  __decorateParam(2, ICommandService)
+], MainThreadProgress);
+export {
+  MainThreadProgress
+};
+//# sourceMappingURL=mainThreadProgress.js.map

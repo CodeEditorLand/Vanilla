@@ -1,1 +1,10 @@
-import{Registry as o}from"../../../../platform/registry/common/platform.js";import{Extensions as r}from"../../../common/contributions.js";import{LifecyclePhase as e}from"../../../services/lifecycle/common/lifecycle.js";import{WorkspaceTags as t}from"./workspaceTags.js";o.as(r.Workbench).registerWorkbenchContribution(t,e.Eventually);
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  Extensions as WorkbenchExtensions
+} from "../../../common/contributions.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { WorkspaceTags } from "./workspaceTags.js";
+Registry.as(
+  WorkbenchExtensions.Workbench
+).registerWorkbenchContribution(WorkspaceTags, LifecyclePhase.Eventually);
+//# sourceMappingURL=tags.contribution.js.map

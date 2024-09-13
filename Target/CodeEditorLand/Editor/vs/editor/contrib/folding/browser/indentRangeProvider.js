@@ -1,1 +1,178 @@
-import{computeIndentLevel as f}from"../../../common/model/utils.js";import{FoldingRegions as p,MAX_LINE_NUMBER as _}from"./foldingRanges.js";const R=5e3,I="indent";class F{constructor(l,n,t){this.editorModel=l;this.languageConfigurationService=n;this.foldingRangesLimit=t}id=I;dispose(){}compute(l){const n=this.languageConfigurationService.getLanguageConfiguration(this.editorModel.getLanguageId()).foldingRules,t=n&&!!n.offSide,s=n&&n.markers;return Promise.resolve(x(this.editorModel,t,s,this.foldingRangesLimit))}}class v{_startIndexes;_endIndexes;_indentOccurrences;_length;_foldingRangesLimit;constructor(l){this._startIndexes=[],this._endIndexes=[],this._indentOccurrences=[],this._length=0,this._foldingRangesLimit=l}insertFirst(l,n,t){if(l>_||n>_)return;const s=this._length;this._startIndexes[s]=l,this._endIndexes[s]=n,this._length++,t<1e3&&(this._indentOccurrences[t]=(this._indentOccurrences[t]||0)+1)}toIndentRanges(l){const n=this._foldingRangesLimit.limit;if(this._length<=n){this._foldingRangesLimit.update(this._length,!1);const t=new Uint32Array(this._length),s=new Uint32Array(this._length);for(let d=this._length-1,a=0;d>=0;d--,a++)t[a]=this._startIndexes[d],s[a]=this._endIndexes[d];return new p(t,s)}else{this._foldingRangesLimit.update(this._length,n);let t=0,s=this._indentOccurrences.length;for(let r=0;r<this._indentOccurrences.length;r++){const e=this._indentOccurrences[r];if(e){if(e+t>n){s=r;break}t+=e}}const d=l.getOptions().tabSize,a=new Uint32Array(n),i=new Uint32Array(n);for(let r=this._length-1,e=0;r>=0;r--){const h=this._startIndexes[r],g=l.getLineContent(h),o=f(g,d);(o<s||o===s&&t++<n)&&(a[e]=h,i[e]=this._endIndexes[r],e++)}return new p(a,i)}}}const b={limit:R,update:()=>{}};function x(u,l,n,t=b){const s=u.getOptions().tabSize,d=new v(t);let a;n&&(a=new RegExp(`(${n.start.source})|(?:${n.end.source})`));const i=[],r=u.getLineCount()+1;i.push({indent:-1,endAbove:r,line:r});for(let e=u.getLineCount();e>0;e--){const h=u.getLineContent(e),g=f(h,s);let o=i[i.length-1];if(g===-1){l&&(o.endAbove=e);continue}let m;if(a&&(m=h.match(a)))if(m[1]){let c=i.length-1;for(;c>0&&i[c].indent!==-2;)c--;if(c>0){i.length=c+1,o=i[c],d.insertFirst(e,o.line,g),o.line=e,o.indent=g,o.endAbove=e;continue}}else{i.push({indent:-2,endAbove:e,line:e});continue}if(o.indent>g){do i.pop(),o=i[i.length-1];while(o.indent>g);const c=o.endAbove-1;c-e>=1&&d.insertFirst(e,c,g)}o.indent===g?o.endAbove=e:i.push({indent:g,endAbove:e,line:e})}return d.toIndentRanges(u)}export{F as IndentRangeProvider,v as RangesCollector,x as computeRanges};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { computeIndentLevel } from "../../../common/model/utils.js";
+import { FoldingRegions, MAX_LINE_NUMBER } from "./foldingRanges.js";
+const MAX_FOLDING_REGIONS_FOR_INDENT_DEFAULT = 5e3;
+const ID_INDENT_PROVIDER = "indent";
+class IndentRangeProvider {
+  constructor(editorModel, languageConfigurationService, foldingRangesLimit) {
+    this.editorModel = editorModel;
+    this.languageConfigurationService = languageConfigurationService;
+    this.foldingRangesLimit = foldingRangesLimit;
+  }
+  static {
+    __name(this, "IndentRangeProvider");
+  }
+  id = ID_INDENT_PROVIDER;
+  dispose() {
+  }
+  compute(cancelationToken) {
+    const foldingRules = this.languageConfigurationService.getLanguageConfiguration(
+      this.editorModel.getLanguageId()
+    ).foldingRules;
+    const offSide = foldingRules && !!foldingRules.offSide;
+    const markers = foldingRules && foldingRules.markers;
+    return Promise.resolve(
+      computeRanges(
+        this.editorModel,
+        offSide,
+        markers,
+        this.foldingRangesLimit
+      )
+    );
+  }
+}
+class RangesCollector {
+  static {
+    __name(this, "RangesCollector");
+  }
+  _startIndexes;
+  _endIndexes;
+  _indentOccurrences;
+  _length;
+  _foldingRangesLimit;
+  constructor(foldingRangesLimit) {
+    this._startIndexes = [];
+    this._endIndexes = [];
+    this._indentOccurrences = [];
+    this._length = 0;
+    this._foldingRangesLimit = foldingRangesLimit;
+  }
+  insertFirst(startLineNumber, endLineNumber, indent) {
+    if (startLineNumber > MAX_LINE_NUMBER || endLineNumber > MAX_LINE_NUMBER) {
+      return;
+    }
+    const index = this._length;
+    this._startIndexes[index] = startLineNumber;
+    this._endIndexes[index] = endLineNumber;
+    this._length++;
+    if (indent < 1e3) {
+      this._indentOccurrences[indent] = (this._indentOccurrences[indent] || 0) + 1;
+    }
+  }
+  toIndentRanges(model) {
+    const limit = this._foldingRangesLimit.limit;
+    if (this._length <= limit) {
+      this._foldingRangesLimit.update(this._length, false);
+      const startIndexes = new Uint32Array(this._length);
+      const endIndexes = new Uint32Array(this._length);
+      for (let i = this._length - 1, k = 0; i >= 0; i--, k++) {
+        startIndexes[k] = this._startIndexes[i];
+        endIndexes[k] = this._endIndexes[i];
+      }
+      return new FoldingRegions(startIndexes, endIndexes);
+    } else {
+      this._foldingRangesLimit.update(this._length, limit);
+      let entries = 0;
+      let maxIndent = this._indentOccurrences.length;
+      for (let i = 0; i < this._indentOccurrences.length; i++) {
+        const n = this._indentOccurrences[i];
+        if (n) {
+          if (n + entries > limit) {
+            maxIndent = i;
+            break;
+          }
+          entries += n;
+        }
+      }
+      const tabSize = model.getOptions().tabSize;
+      const startIndexes = new Uint32Array(limit);
+      const endIndexes = new Uint32Array(limit);
+      for (let i = this._length - 1, k = 0; i >= 0; i--) {
+        const startIndex = this._startIndexes[i];
+        const lineContent = model.getLineContent(startIndex);
+        const indent = computeIndentLevel(lineContent, tabSize);
+        if (indent < maxIndent || indent === maxIndent && entries++ < limit) {
+          startIndexes[k] = startIndex;
+          endIndexes[k] = this._endIndexes[i];
+          k++;
+        }
+      }
+      return new FoldingRegions(startIndexes, endIndexes);
+    }
+  }
+}
+const foldingRangesLimitDefault = {
+  limit: MAX_FOLDING_REGIONS_FOR_INDENT_DEFAULT,
+  update: /* @__PURE__ */ __name(() => {
+  }, "update")
+};
+function computeRanges(model, offSide, markers, foldingRangesLimit = foldingRangesLimitDefault) {
+  const tabSize = model.getOptions().tabSize;
+  const result = new RangesCollector(foldingRangesLimit);
+  let pattern;
+  if (markers) {
+    pattern = new RegExp(
+      `(${markers.start.source})|(?:${markers.end.source})`
+    );
+  }
+  const previousRegions = [];
+  const line = model.getLineCount() + 1;
+  previousRegions.push({ indent: -1, endAbove: line, line });
+  for (let line2 = model.getLineCount(); line2 > 0; line2--) {
+    const lineContent = model.getLineContent(line2);
+    const indent = computeIndentLevel(lineContent, tabSize);
+    let previous = previousRegions[previousRegions.length - 1];
+    if (indent === -1) {
+      if (offSide) {
+        previous.endAbove = line2;
+      }
+      continue;
+    }
+    let m;
+    if (pattern && (m = lineContent.match(pattern))) {
+      if (m[1]) {
+        let i = previousRegions.length - 1;
+        while (i > 0 && previousRegions[i].indent !== -2) {
+          i--;
+        }
+        if (i > 0) {
+          previousRegions.length = i + 1;
+          previous = previousRegions[i];
+          result.insertFirst(line2, previous.line, indent);
+          previous.line = line2;
+          previous.indent = indent;
+          previous.endAbove = line2;
+          continue;
+        } else {
+        }
+      } else {
+        previousRegions.push({ indent: -2, endAbove: line2, line: line2 });
+        continue;
+      }
+    }
+    if (previous.indent > indent) {
+      do {
+        previousRegions.pop();
+        previous = previousRegions[previousRegions.length - 1];
+      } while (previous.indent > indent);
+      const endLineNumber = previous.endAbove - 1;
+      if (endLineNumber - line2 >= 1) {
+        result.insertFirst(line2, endLineNumber, indent);
+      }
+    }
+    if (previous.indent === indent) {
+      previous.endAbove = line2;
+    } else {
+      previousRegions.push({ indent, endAbove: line2, line: line2 });
+    }
+  }
+  return result.toIndentRanges(model);
+}
+__name(computeRanges, "computeRanges");
+export {
+  IndentRangeProvider,
+  RangesCollector,
+  computeRanges
+};
+//# sourceMappingURL=indentRangeProvider.js.map

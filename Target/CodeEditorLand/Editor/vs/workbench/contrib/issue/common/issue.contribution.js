@@ -1,1 +1,135 @@
-var y=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var d=(i,r,s,o)=>{for(var t=o>1?void 0:o?f(r,s):r,e=i.length-1,n;e>=0;e--)(n=i[e])&&(t=(o?n(r,s,t):n(t))||t);return o&&t&&y(r,s,t),t},p=(i,r)=>(s,o)=>r(s,o,i);import{Disposable as h}from"../../../../base/common/lifecycle.js";import{localize as R,localize2 as A}from"../../../../nls.js";import{Categories as C}from"../../../../platform/action/common/actionCommonCategories.js";import{MenuId as c,MenuRegistry as l}from"../../../../platform/actions/common/actions.js";import{CommandsRegistry as u}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as x}from"../../../../platform/configuration/common/configuration.js";import{IProductService as M}from"../../../../platform/product/common/productService.js";import{IWorkbenchIssueService as I}from"./issue.js";const m="workbench.action.openIssueReporter",O="vscode.openIssueReporter",g={description:"Open the issue reporter and optionally prefill part of the form.",args:[{name:"options",description:"Data to use to prefill the issue reporter with.",isOptional:!0,schema:{oneOf:[{type:"string",description:"The extension id to preselect."},{type:"object",properties:{extensionId:{type:"string"},issueTitle:{type:"string"},issueBody:{type:"string"}}}]}}]};let a=class extends h{constructor(r,s){if(super(),!r.reportIssueUrl)return;this._register(u.registerCommand({id:m,handler:(t,e)=>{const n=typeof e=="string"?{extensionId:e}:Array.isArray(e)?{extensionId:e[0]}:e??{};return t.get(I).openReporter(n)},metadata:g})),this._register(u.registerCommand({id:O,handler:(t,e)=>{const n=typeof e=="string"?{extensionId:e}:Array.isArray(e)?{extensionId:e[0]}:e??{};return t.get(I).openReporter(n)},metadata:g}));const o={id:m,title:A({key:"reportIssueInEnglish",comment:['Translate this to "Report Issue in English" in all languages please!']},"Report Issue..."),category:C.Help};this._register(l.appendMenuItem(c.CommandPalette,{command:o})),this._register(l.appendMenuItem(c.MenubarHelpMenu,{group:"3_feedback",command:{id:m,title:R({key:"miReportIssue",comment:["&& denotes a mnemonic",'Translate this to "Report Issue in English" in all languages please!']},"Report &&Issue")},order:3}))}};a=d([p(0,M),p(1,x)],a);export{a as BaseIssueContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import {
+  MenuId,
+  MenuRegistry
+} from "../../../../platform/actions/common/actions.js";
+import {
+  CommandsRegistry
+} from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IWorkbenchIssueService } from "./issue.js";
+const OpenIssueReporterActionId = "workbench.action.openIssueReporter";
+const OpenIssueReporterApiId = "vscode.openIssueReporter";
+const OpenIssueReporterCommandMetadata = {
+  description: "Open the issue reporter and optionally prefill part of the form.",
+  args: [
+    {
+      name: "options",
+      description: "Data to use to prefill the issue reporter with.",
+      isOptional: true,
+      schema: {
+        oneOf: [
+          {
+            type: "string",
+            description: "The extension id to preselect."
+          },
+          {
+            type: "object",
+            properties: {
+              extensionId: {
+                type: "string"
+              },
+              issueTitle: {
+                type: "string"
+              },
+              issueBody: {
+                type: "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+};
+let BaseIssueContribution = class extends Disposable {
+  static {
+    __name(this, "BaseIssueContribution");
+  }
+  constructor(productService, configurationService) {
+    super();
+    if (!productService.reportIssueUrl) {
+      return;
+    }
+    this._register(
+      CommandsRegistry.registerCommand({
+        id: OpenIssueReporterActionId,
+        handler: /* @__PURE__ */ __name((accessor, args) => {
+          const data = typeof args === "string" ? { extensionId: args } : Array.isArray(args) ? { extensionId: args[0] } : args ?? {};
+          return accessor.get(IWorkbenchIssueService).openReporter(data);
+        }, "handler"),
+        metadata: OpenIssueReporterCommandMetadata
+      })
+    );
+    this._register(
+      CommandsRegistry.registerCommand({
+        id: OpenIssueReporterApiId,
+        handler: /* @__PURE__ */ __name((accessor, args) => {
+          const data = typeof args === "string" ? { extensionId: args } : Array.isArray(args) ? { extensionId: args[0] } : args ?? {};
+          return accessor.get(IWorkbenchIssueService).openReporter(data);
+        }, "handler"),
+        metadata: OpenIssueReporterCommandMetadata
+      })
+    );
+    const reportIssue = {
+      id: OpenIssueReporterActionId,
+      title: localize2(
+        {
+          key: "reportIssueInEnglish",
+          comment: [
+            'Translate this to "Report Issue in English" in all languages please!'
+          ]
+        },
+        "Report Issue..."
+      ),
+      category: Categories.Help
+    };
+    this._register(
+      MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+        command: reportIssue
+      })
+    );
+    this._register(
+      MenuRegistry.appendMenuItem(MenuId.MenubarHelpMenu, {
+        group: "3_feedback",
+        command: {
+          id: OpenIssueReporterActionId,
+          title: localize(
+            {
+              key: "miReportIssue",
+              comment: [
+                "&& denotes a mnemonic",
+                'Translate this to "Report Issue in English" in all languages please!'
+              ]
+            },
+            "Report &&Issue"
+          )
+        },
+        order: 3
+      })
+    );
+  }
+};
+BaseIssueContribution = __decorateClass([
+  __decorateParam(0, IProductService),
+  __decorateParam(1, IConfigurationService)
+], BaseIssueContribution);
+export {
+  BaseIssueContribution
+};
+//# sourceMappingURL=issue.contribution.js.map

@@ -1,1 +1,46 @@
-import{isIOS as o}from"../../../../base/common/platform.js";import{localize as e}from"../../../../nls.js";import{Extensions as r}from"../../../../platform/configuration/common/configurationRegistry.js";import{Registry as i}from"../../../../platform/registry/common/platform.js";import{workbenchConfigurationNodeBase as t}from"../../../common/configuration.js";import{Extensions as n}from"../../../common/contributions.js";import{LifecyclePhase as s}from"../../../services/lifecycle/common/lifecycle.js";import{SashSettingsController as a}from"./sash.js";i.as(n.Workbench).registerWorkbenchContribution(a,s.Restored),i.as(r.Configuration).registerConfiguration({...t,properties:{"workbench.sash.size":{type:"number",default:o?20:4,minimum:1,maximum:20,description:e("sashSize","Controls the feedback area size in pixels of the dragging area in between views/editors. Set it to a larger value if you feel it's hard to resize views using the mouse.")},"workbench.sash.hoverDelay":{type:"number",default:300,minimum:0,maximum:2e3,description:e("sashHoverDelay","Controls the hover feedback delay in milliseconds of the dragging area in between views/editors.")}}});
+import { isIOS } from "../../../../base/common/platform.js";
+import { localize } from "../../../../nls.js";
+import {
+  Extensions as ConfigurationExtensions
+} from "../../../../platform/configuration/common/configurationRegistry.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import {
+  Extensions as WorkbenchExtensions
+} from "../../../common/contributions.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { SashSettingsController } from "./sash.js";
+Registry.as(
+  WorkbenchExtensions.Workbench
+).registerWorkbenchContribution(
+  SashSettingsController,
+  LifecyclePhase.Restored
+);
+Registry.as(
+  ConfigurationExtensions.Configuration
+).registerConfiguration({
+  ...workbenchConfigurationNodeBase,
+  properties: {
+    "workbench.sash.size": {
+      type: "number",
+      default: isIOS ? 20 : 4,
+      minimum: 1,
+      maximum: 20,
+      description: localize(
+        "sashSize",
+        "Controls the feedback area size in pixels of the dragging area in between views/editors. Set it to a larger value if you feel it's hard to resize views using the mouse."
+      )
+    },
+    "workbench.sash.hoverDelay": {
+      type: "number",
+      default: 300,
+      minimum: 0,
+      maximum: 2e3,
+      description: localize(
+        "sashHoverDelay",
+        "Controls the hover feedback delay in milliseconds of the dragging area in between views/editors."
+      )
+    }
+  }
+});
+//# sourceMappingURL=sash.contribution.js.map

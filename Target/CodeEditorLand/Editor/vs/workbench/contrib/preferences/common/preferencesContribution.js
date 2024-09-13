@@ -1,1 +1,207 @@
-var b=Object.defineProperty;var C=Object.getOwnPropertyDescriptor;var f=(a,n,e,t)=>{for(var i=t>1?void 0:t?C(n,e):n,o=a.length-1,s;o>=0;o--)(s=a[o])&&(i=(t?s(n,e,i):s(i))||i);return t&&i&&b(n,e,i),i},r=(a,n)=>(e,t)=>n(e,t,a);import{Disposable as T,dispose as S}from"../../../../base/common/lifecycle.js";import{isEqual as d}from"../../../../base/common/resources.js";import*as c from"../../../../nls.js";import{ConfigurationTarget as g,IConfigurationService as R}from"../../../../platform/configuration/common/configuration.js";import{ConfigurationScope as h,Extensions as k}from"../../../../platform/configuration/common/configurationRegistry.js";import{IFileService as D}from"../../../../platform/files/common/files.js";import{IInstantiationService as O}from"../../../../platform/instantiation/common/instantiation.js";import{Registry as W}from"../../../../platform/registry/common/platform.js";import{IWorkspaceContextService as L,WorkbenchState as v}from"../../../../platform/workspace/common/workspace.js";import{workbenchConfigurationNodeBase as w}from"../../../common/configuration.js";import{SideBySideEditorInput as P}from"../../../common/editor/sideBySideEditorInput.js";import{IEditorResolverService as _,RegisteredEditorPriority as x}from"../../../services/editor/common/editorResolverService.js";import{DEFAULT_SETTINGS_EDITOR_SETTING as u,FOLDER_SETTINGS_PATH as m,IPreferencesService as N,USE_SPLIT_JSON_SETTING as I}from"../../../services/preferences/common/preferences.js";import{ITextEditorService as F}from"../../../services/textfile/common/textEditorService.js";import{IUserDataProfileService as A}from"../../../services/userDataProfile/common/userDataProfile.js";import{SettingsFileSystemProvider as E}from"./settingsFilesystemProvider.js";let l=class extends T{constructor(e,t,i,o,s,z,U,j){super();this.instantiationService=t;this.preferencesService=i;this.userDataProfileService=o;this.workspaceService=s;this.configurationService=z;this.editorResolverService=U;this.textEditorService=j;this._register(this.configurationService.onDidChangeConfiguration(p=>{(p.affectsConfiguration(I)||p.affectsConfiguration(u))&&this.handleSettingsEditorRegistration()})),this.handleSettingsEditorRegistration();const y=this._register(this.instantiationService.createInstance(E));this._register(e.registerProvider(E.SCHEMA,y))}static ID="workbench.contrib.preferences";editorOpeningListener;handleSettingsEditorRegistration(){S(this.editorOpeningListener),(this.configurationService.getValue(I)||this.configurationService.getValue(u))&&(this.editorOpeningListener=this.editorResolverService.registerEditor("**/settings.json",{id:P.ID,label:c.localize("splitSettingsEditorLabel","Split Settings Editor"),priority:x.builtin},{},{createEditorInput:({resource:e,options:t})=>{if(d(e,this.userDataProfileService.currentProfile.settingsResource))return{editor:this.preferencesService.createSplitJsonEditorInput(g.USER_LOCAL,e),options:t};const i=this.workspaceService.getWorkbenchState();if(i===v.FOLDER){const o=this.workspaceService.getWorkspace().folders;if(d(e,o[0].toResource(m)))return{editor:this.preferencesService.createSplitJsonEditorInput(g.WORKSPACE,e),options:t}}else if(i===v.WORKSPACE){const o=this.workspaceService.getWorkspace().folders;for(const s of o)if(d(e,s.toResource(m)))return{editor:this.preferencesService.createSplitJsonEditorInput(g.WORKSPACE_FOLDER,e),options:t}}return{editor:this.textEditorService.createTextEditor({resource:e}),options:t}}}))}dispose(){S(this.editorOpeningListener),super.dispose()}};l=f([r(0,D),r(1,O),r(2,N),r(3,A),r(4,L),r(5,R),r(6,_),r(7,F)],l);const B=W.as(k.Configuration);B.registerConfiguration({...w,properties:{"workbench.settings.enableNaturalLanguageSearch":{type:"boolean",description:c.localize("enableNaturalLanguageSettingsSearch","Controls whether to enable the natural language search mode for settings. The natural language search is provided by a Microsoft online service."),default:!0,scope:h.WINDOW,tags:["usesOnlineServices"]},"workbench.settings.settingsSearchTocBehavior":{type:"string",enum:["hide","filter"],enumDescriptions:[c.localize("settingsSearchTocBehavior.hide","Hide the Table of Contents while searching."),c.localize("settingsSearchTocBehavior.filter","Filter the Table of Contents to just categories that have matching settings. Clicking on a category will filter the results to that category.")],description:c.localize("settingsSearchTocBehavior","Controls the behavior of the Settings editor Table of Contents while searching. If this setting is being changed in the Settings editor, the setting will take effect after the search query is modified."),default:"filter",scope:h.WINDOW}}});export{l as PreferencesContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  Disposable,
+  dispose
+} from "../../../../base/common/lifecycle.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import * as nls from "../../../../nls.js";
+import {
+  ConfigurationTarget,
+  IConfigurationService
+} from "../../../../platform/configuration/common/configuration.js";
+import {
+  ConfigurationScope,
+  Extensions
+} from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  IWorkspaceContextService,
+  WorkbenchState
+} from "../../../../platform/workspace/common/workspace.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
+import {
+  IEditorResolverService,
+  RegisteredEditorPriority
+} from "../../../services/editor/common/editorResolverService.js";
+import {
+  DEFAULT_SETTINGS_EDITOR_SETTING,
+  FOLDER_SETTINGS_PATH,
+  IPreferencesService,
+  USE_SPLIT_JSON_SETTING
+} from "../../../services/preferences/common/preferences.js";
+import { ITextEditorService } from "../../../services/textfile/common/textEditorService.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { SettingsFileSystemProvider } from "./settingsFilesystemProvider.js";
+let PreferencesContribution = class extends Disposable {
+  constructor(fileService, instantiationService, preferencesService, userDataProfileService, workspaceService, configurationService, editorResolverService, textEditorService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.preferencesService = preferencesService;
+    this.userDataProfileService = userDataProfileService;
+    this.workspaceService = workspaceService;
+    this.configurationService = configurationService;
+    this.editorResolverService = editorResolverService;
+    this.textEditorService = textEditorService;
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(USE_SPLIT_JSON_SETTING) || e.affectsConfiguration(DEFAULT_SETTINGS_EDITOR_SETTING)) {
+        this.handleSettingsEditorRegistration();
+      }
+    }));
+    this.handleSettingsEditorRegistration();
+    const fileSystemProvider = this._register(this.instantiationService.createInstance(SettingsFileSystemProvider));
+    this._register(fileService.registerProvider(SettingsFileSystemProvider.SCHEMA, fileSystemProvider));
+  }
+  static {
+    __name(this, "PreferencesContribution");
+  }
+  static ID = "workbench.contrib.preferences";
+  editorOpeningListener;
+  handleSettingsEditorRegistration() {
+    dispose(this.editorOpeningListener);
+    if (!!this.configurationService.getValue(USE_SPLIT_JSON_SETTING) || !!this.configurationService.getValue(
+      DEFAULT_SETTINGS_EDITOR_SETTING
+    )) {
+      this.editorOpeningListener = this.editorResolverService.registerEditor(
+        "**/settings.json",
+        {
+          id: SideBySideEditorInput.ID,
+          label: nls.localize(
+            "splitSettingsEditorLabel",
+            "Split Settings Editor"
+          ),
+          priority: RegisteredEditorPriority.builtin
+        },
+        {},
+        {
+          createEditorInput: /* @__PURE__ */ __name(({
+            resource,
+            options
+          }) => {
+            if (isEqual(
+              resource,
+              this.userDataProfileService.currentProfile.settingsResource
+            )) {
+              return {
+                editor: this.preferencesService.createSplitJsonEditorInput(
+                  ConfigurationTarget.USER_LOCAL,
+                  resource
+                ),
+                options
+              };
+            }
+            const state = this.workspaceService.getWorkbenchState();
+            if (state === WorkbenchState.FOLDER) {
+              const folders = this.workspaceService.getWorkspace().folders;
+              if (isEqual(
+                resource,
+                folders[0].toResource(
+                  FOLDER_SETTINGS_PATH
+                )
+              )) {
+                return {
+                  editor: this.preferencesService.createSplitJsonEditorInput(
+                    ConfigurationTarget.WORKSPACE,
+                    resource
+                  ),
+                  options
+                };
+              }
+            } else if (state === WorkbenchState.WORKSPACE) {
+              const folders = this.workspaceService.getWorkspace().folders;
+              for (const folder of folders) {
+                if (isEqual(
+                  resource,
+                  folder.toResource(
+                    FOLDER_SETTINGS_PATH
+                  )
+                )) {
+                  return {
+                    editor: this.preferencesService.createSplitJsonEditorInput(
+                      ConfigurationTarget.WORKSPACE_FOLDER,
+                      resource
+                    ),
+                    options
+                  };
+                }
+              }
+            }
+            return {
+              editor: this.textEditorService.createTextEditor(
+                { resource }
+              ),
+              options
+            };
+          }, "createEditorInput")
+        }
+      );
+    }
+  }
+  dispose() {
+    dispose(this.editorOpeningListener);
+    super.dispose();
+  }
+};
+PreferencesContribution = __decorateClass([
+  __decorateParam(0, IFileService),
+  __decorateParam(1, IInstantiationService),
+  __decorateParam(2, IPreferencesService),
+  __decorateParam(3, IUserDataProfileService),
+  __decorateParam(4, IWorkspaceContextService),
+  __decorateParam(5, IConfigurationService),
+  __decorateParam(6, IEditorResolverService),
+  __decorateParam(7, ITextEditorService)
+], PreferencesContribution);
+const registry = Registry.as(Extensions.Configuration);
+registry.registerConfiguration({
+  ...workbenchConfigurationNodeBase,
+  properties: {
+    "workbench.settings.enableNaturalLanguageSearch": {
+      type: "boolean",
+      description: nls.localize(
+        "enableNaturalLanguageSettingsSearch",
+        "Controls whether to enable the natural language search mode for settings. The natural language search is provided by a Microsoft online service."
+      ),
+      default: true,
+      scope: ConfigurationScope.WINDOW,
+      tags: ["usesOnlineServices"]
+    },
+    "workbench.settings.settingsSearchTocBehavior": {
+      type: "string",
+      enum: ["hide", "filter"],
+      enumDescriptions: [
+        nls.localize(
+          "settingsSearchTocBehavior.hide",
+          "Hide the Table of Contents while searching."
+        ),
+        nls.localize(
+          "settingsSearchTocBehavior.filter",
+          "Filter the Table of Contents to just categories that have matching settings. Clicking on a category will filter the results to that category."
+        )
+      ],
+      description: nls.localize(
+        "settingsSearchTocBehavior",
+        "Controls the behavior of the Settings editor Table of Contents while searching. If this setting is being changed in the Settings editor, the setting will take effect after the search query is modified."
+      ),
+      default: "filter",
+      scope: ConfigurationScope.WINDOW
+    }
+  }
+});
+export {
+  PreferencesContribution
+};
+//# sourceMappingURL=preferencesContribution.js.map

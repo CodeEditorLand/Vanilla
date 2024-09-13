@@ -1,1 +1,159 @@
-var f=Object.defineProperty;var g=Object.getOwnPropertyDescriptor;var w=(n,e,t,o)=>{for(var i=o>1?void 0:o?g(e,t):e,s=n.length-1,m;s>=0;s--)(m=n[s])&&(i=(o?m(e,t,i):m(i))||i);return o&&i&&f(e,t,i),i},b=(n,e)=>(t,o)=>e(t,o,n);import{getWindow as x}from"../../../base/browser/dom.js";import{DisposableStore as h}from"../../../base/common/lifecycle.js";import{isEqual as C}from"../../../base/common/resources.js";import{URI as u}from"../../../base/common/uri.js";import{ICodeEditorService as _}from"../../../editor/browser/services/codeEditorService.js";import{IWebviewService as W}from"../../contrib/webview/browser/webview.js";import{extHostNamedCustomer as S}from"../../services/extensions/common/extHostCustomers.js";import{ExtHostContext as D,MainContext as H}from"../common/extHost.protocol.js";import{reviveWebviewContentOptions as I}from"./mainThreadWebviews.js";class M{constructor(e,t,o,i){this.editor=e;this.line=t;this.height=o;this.webview=i;this.domNode=document.createElement("div"),this.domNode.style.zIndex="10",this.afterLineNumber=t,this.afterColumn=1,this.heightInLines=o,e.changeViewZones(s=>this._id=s.addZone(this)),i.mountTo(this.domNode,x(e.getDomNode()))}domNode;afterLineNumber;afterColumn;heightInLines;_id;dispose(){this.editor.changeViewZones(e=>this._id&&e.removeZone(this._id))}}let a=class{constructor(e,t,o){this._editorService=t;this._webviewService=o;this._proxy=e.getProxy(D.ExtHostEditorInsets)}_proxy;_disposables=new h;_insets=new Map;dispose(){this._disposables.dispose()}async $createEditorInset(e,t,o,i,s,m,y,E){let p;t=t.substr(0,t.indexOf(","));for(const d of this._editorService.listCodeEditors())if(d.getId()===t&&d.hasModel()&&C(d.getModel().uri,u.revive(o))){p=d;break}if(!p){setTimeout(()=>this._proxy.$onDidDispose(e));return}const r=new h,v=this._webviewService.createWebviewElement({title:void 0,options:{enableFindWidget:!1},contentOptions:I(m),extension:{id:y,location:u.revive(E)}}),c=new M(p,i,s,v),l=()=>{r.dispose(),this._proxy.$onDidDispose(e),this._insets.delete(e)};r.add(p.onDidChangeModel(l)),r.add(p.onDidDispose(l)),r.add(c),r.add(v),r.add(v.onMessage(d=>this._proxy.$onDidReceiveMessage(e,d.message))),this._insets.set(e,c)}$disposeEditorInset(e){const t=this.getInset(e);this._insets.delete(e),t.dispose()}$setHtml(e,t){this.getInset(e).webview.setHtml(t)}$setOptions(e,t){const o=this.getInset(e);o.webview.contentOptions=I(t)}async $postMessage(e,t){return this.getInset(e).webview.postMessage(t),!0}getInset(e){const t=this._insets.get(e);if(!t)throw new Error("Unknown inset");return t}};a=w([S(H.MainThreadEditorInsets),b(1,_),b(2,W)],a);export{a as MainThreadEditorInsets};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { getWindow } from "../../../base/browser/dom.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { isEqual } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { ICodeEditorService } from "../../../editor/browser/services/codeEditorService.js";
+import {
+  IWebviewService
+} from "../../contrib/webview/browser/webview.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
+import { reviveWebviewContentOptions } from "./mainThreadWebviews.js";
+class EditorWebviewZone {
+  // suppressMouseDown?: boolean | undefined;
+  // heightInPx?: number | undefined;
+  // minWidthInPx?: number | undefined;
+  // marginDomNode?: HTMLElement | null | undefined;
+  // onDomNodeTop?: ((top: number) => void) | undefined;
+  // onComputedHeight?: ((height: number) => void) | undefined;
+  constructor(editor, line, height, webview) {
+    this.editor = editor;
+    this.line = line;
+    this.height = height;
+    this.webview = webview;
+    this.domNode = document.createElement("div");
+    this.domNode.style.zIndex = "10";
+    this.afterLineNumber = line;
+    this.afterColumn = 1;
+    this.heightInLines = height;
+    editor.changeViewZones(
+      (accessor) => this._id = accessor.addZone(this)
+    );
+    webview.mountTo(this.domNode, getWindow(editor.getDomNode()));
+  }
+  static {
+    __name(this, "EditorWebviewZone");
+  }
+  domNode;
+  afterLineNumber;
+  afterColumn;
+  heightInLines;
+  _id;
+  dispose() {
+    this.editor.changeViewZones(
+      (accessor) => this._id && accessor.removeZone(this._id)
+    );
+  }
+}
+let MainThreadEditorInsets = class {
+  constructor(context, _editorService, _webviewService) {
+    this._editorService = _editorService;
+    this._webviewService = _webviewService;
+    this._proxy = context.getProxy(ExtHostContext.ExtHostEditorInsets);
+  }
+  _proxy;
+  _disposables = new DisposableStore();
+  _insets = /* @__PURE__ */ new Map();
+  dispose() {
+    this._disposables.dispose();
+  }
+  async $createEditorInset(handle, id, uri, line, height, options, extensionId, extensionLocation) {
+    let editor;
+    id = id.substr(0, id.indexOf(","));
+    for (const candidate of this._editorService.listCodeEditors()) {
+      if (candidate.getId() === id && candidate.hasModel() && isEqual(candidate.getModel().uri, URI.revive(uri))) {
+        editor = candidate;
+        break;
+      }
+    }
+    if (!editor) {
+      setTimeout(() => this._proxy.$onDidDispose(handle));
+      return;
+    }
+    const disposables = new DisposableStore();
+    const webview = this._webviewService.createWebviewElement({
+      title: void 0,
+      options: {
+        enableFindWidget: false
+      },
+      contentOptions: reviveWebviewContentOptions(options),
+      extension: {
+        id: extensionId,
+        location: URI.revive(extensionLocation)
+      }
+    });
+    const webviewZone = new EditorWebviewZone(
+      editor,
+      line,
+      height,
+      webview
+    );
+    const remove = /* @__PURE__ */ __name(() => {
+      disposables.dispose();
+      this._proxy.$onDidDispose(handle);
+      this._insets.delete(handle);
+    }, "remove");
+    disposables.add(editor.onDidChangeModel(remove));
+    disposables.add(editor.onDidDispose(remove));
+    disposables.add(webviewZone);
+    disposables.add(webview);
+    disposables.add(
+      webview.onMessage(
+        (msg) => this._proxy.$onDidReceiveMessage(handle, msg.message)
+      )
+    );
+    this._insets.set(handle, webviewZone);
+  }
+  $disposeEditorInset(handle) {
+    const inset = this.getInset(handle);
+    this._insets.delete(handle);
+    inset.dispose();
+  }
+  $setHtml(handle, value) {
+    const inset = this.getInset(handle);
+    inset.webview.setHtml(value);
+  }
+  $setOptions(handle, options) {
+    const inset = this.getInset(handle);
+    inset.webview.contentOptions = reviveWebviewContentOptions(options);
+  }
+  async $postMessage(handle, value) {
+    const inset = this.getInset(handle);
+    inset.webview.postMessage(value);
+    return true;
+  }
+  getInset(handle) {
+    const inset = this._insets.get(handle);
+    if (!inset) {
+      throw new Error("Unknown inset");
+    }
+    return inset;
+  }
+};
+__name(MainThreadEditorInsets, "MainThreadEditorInsets");
+MainThreadEditorInsets = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadEditorInsets),
+  __decorateParam(1, ICodeEditorService),
+  __decorateParam(2, IWebviewService)
+], MainThreadEditorInsets);
+export {
+  MainThreadEditorInsets
+};
+//# sourceMappingURL=mainThreadCodeInsets.js.map

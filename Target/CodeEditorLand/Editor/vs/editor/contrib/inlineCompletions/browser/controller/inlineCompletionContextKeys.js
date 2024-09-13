@@ -1,1 +1,119 @@
-import{Disposable as b}from"../../../../../base/common/lifecycle.js";import{autorun as d}from"../../../../../base/common/observable.js";import{firstNonWhitespaceIndex as c}from"../../../../../base/common/strings.js";import{localize as a}from"../../../../../nls.js";import{RawContextKey as r}from"../../../../../platform/contextkey/common/contextkey.js";import{CursorColumns as S}from"../../../../common/core/cursorColumns.js";class t extends b{constructor(y,T){super();this.contextKeyService=y;this.model=T;this._register(d(n=>{const e=this.model.read(n)?.state.read(n),s=!!e?.inlineCompletion&&e?.primaryGhostText!==void 0&&!e?.primaryGhostText.isEmpty();this.inlineCompletionVisible.set(s),e?.primaryGhostText&&e?.inlineCompletion&&this.suppressSuggestions.set(e.inlineCompletion.inlineCompletion.source.inlineCompletions.suppressSuggestions)})),this._register(d(n=>{const i=this.model.read(n);let e=!1,s=!0;const o=i?.primaryGhostText.read(n);if(i?.selectedSuggestItem&&o&&o.parts.length>0){const{column:p,lines:m}=o.parts[0],u=m[0],h=i.textModel.getLineIndentColumn(o.lineNumber);if(p<=h){let l=c(u);l===-1&&(l=u.length-1),e=l>0;const g=i.textModel.getOptions().tabSize;s=S.visibleColumnFromColumn(u,l+1,g)<g}}this.inlineCompletionSuggestsIndentation.set(e),this.inlineCompletionSuggestsIndentationLessThanTabSize.set(s)}))}static inlineSuggestionVisible=new r("inlineSuggestionVisible",!1,a("inlineSuggestionVisible","Whether an inline suggestion is visible"));static inlineSuggestionHasIndentation=new r("inlineSuggestionHasIndentation",!1,a("inlineSuggestionHasIndentation","Whether the inline suggestion starts with whitespace"));static inlineSuggestionHasIndentationLessThanTabSize=new r("inlineSuggestionHasIndentationLessThanTabSize",!0,a("inlineSuggestionHasIndentationLessThanTabSize","Whether the inline suggestion starts with whitespace that is less than what would be inserted by tab"));static suppressSuggestions=new r("inlineSuggestionSuppressSuggestions",void 0,a("suppressSuggestions","Whether suggestions should be suppressed for the current suggestion"));inlineCompletionVisible=t.inlineSuggestionVisible.bindTo(this.contextKeyService);inlineCompletionSuggestsIndentation=t.inlineSuggestionHasIndentation.bindTo(this.contextKeyService);inlineCompletionSuggestsIndentationLessThanTabSize=t.inlineSuggestionHasIndentationLessThanTabSize.bindTo(this.contextKeyService);suppressSuggestions=t.suppressSuggestions.bindTo(this.contextKeyService)}export{t as InlineCompletionContextKeys};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import {
+  autorun
+} from "../../../../../base/common/observable.js";
+import { firstNonWhitespaceIndex } from "../../../../../base/common/strings.js";
+import { localize } from "../../../../../nls.js";
+import {
+  RawContextKey
+} from "../../../../../platform/contextkey/common/contextkey.js";
+import { CursorColumns } from "../../../../common/core/cursorColumns.js";
+class InlineCompletionContextKeys extends Disposable {
+  constructor(contextKeyService, model) {
+    super();
+    this.contextKeyService = contextKeyService;
+    this.model = model;
+    this._register(
+      autorun((reader) => {
+        const model2 = this.model.read(reader);
+        const state = model2?.state.read(reader);
+        const isInlineCompletionVisible = !!state?.inlineCompletion && state?.primaryGhostText !== void 0 && !state?.primaryGhostText.isEmpty();
+        this.inlineCompletionVisible.set(isInlineCompletionVisible);
+        if (state?.primaryGhostText && state?.inlineCompletion) {
+          this.suppressSuggestions.set(
+            state.inlineCompletion.inlineCompletion.source.inlineCompletions.suppressSuggestions
+          );
+        }
+      })
+    );
+    this._register(
+      autorun((reader) => {
+        const model2 = this.model.read(reader);
+        let startsWithIndentation = false;
+        let startsWithIndentationLessThanTabSize = true;
+        const ghostText = model2?.primaryGhostText.read(reader);
+        if (!!model2?.selectedSuggestItem && ghostText && ghostText.parts.length > 0) {
+          const { column, lines } = ghostText.parts[0];
+          const firstLine = lines[0];
+          const indentationEndColumn = model2.textModel.getLineIndentColumn(
+            ghostText.lineNumber
+          );
+          const inIndentation = column <= indentationEndColumn;
+          if (inIndentation) {
+            let firstNonWsIdx = firstNonWhitespaceIndex(firstLine);
+            if (firstNonWsIdx === -1) {
+              firstNonWsIdx = firstLine.length - 1;
+            }
+            startsWithIndentation = firstNonWsIdx > 0;
+            const tabSize = model2.textModel.getOptions().tabSize;
+            const visibleColumnIndentation = CursorColumns.visibleColumnFromColumn(
+              firstLine,
+              firstNonWsIdx + 1,
+              tabSize
+            );
+            startsWithIndentationLessThanTabSize = visibleColumnIndentation < tabSize;
+          }
+        }
+        this.inlineCompletionSuggestsIndentation.set(
+          startsWithIndentation
+        );
+        this.inlineCompletionSuggestsIndentationLessThanTabSize.set(
+          startsWithIndentationLessThanTabSize
+        );
+      })
+    );
+  }
+  static {
+    __name(this, "InlineCompletionContextKeys");
+  }
+  static inlineSuggestionVisible = new RawContextKey(
+    "inlineSuggestionVisible",
+    false,
+    localize(
+      "inlineSuggestionVisible",
+      "Whether an inline suggestion is visible"
+    )
+  );
+  static inlineSuggestionHasIndentation = new RawContextKey(
+    "inlineSuggestionHasIndentation",
+    false,
+    localize(
+      "inlineSuggestionHasIndentation",
+      "Whether the inline suggestion starts with whitespace"
+    )
+  );
+  static inlineSuggestionHasIndentationLessThanTabSize = new RawContextKey(
+    "inlineSuggestionHasIndentationLessThanTabSize",
+    true,
+    localize(
+      "inlineSuggestionHasIndentationLessThanTabSize",
+      "Whether the inline suggestion starts with whitespace that is less than what would be inserted by tab"
+    )
+  );
+  static suppressSuggestions = new RawContextKey(
+    "inlineSuggestionSuppressSuggestions",
+    void 0,
+    localize(
+      "suppressSuggestions",
+      "Whether suggestions should be suppressed for the current suggestion"
+    )
+  );
+  inlineCompletionVisible = InlineCompletionContextKeys.inlineSuggestionVisible.bindTo(
+    this.contextKeyService
+  );
+  inlineCompletionSuggestsIndentation = InlineCompletionContextKeys.inlineSuggestionHasIndentation.bindTo(
+    this.contextKeyService
+  );
+  inlineCompletionSuggestsIndentationLessThanTabSize = InlineCompletionContextKeys.inlineSuggestionHasIndentationLessThanTabSize.bindTo(
+    this.contextKeyService
+  );
+  suppressSuggestions = InlineCompletionContextKeys.suppressSuggestions.bindTo(
+    this.contextKeyService
+  );
+}
+export {
+  InlineCompletionContextKeys
+};
+//# sourceMappingURL=inlineCompletionContextKeys.js.map

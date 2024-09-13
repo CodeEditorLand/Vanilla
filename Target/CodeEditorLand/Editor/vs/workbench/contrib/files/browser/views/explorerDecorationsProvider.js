@@ -1,1 +1,95 @@
-var l=Object.defineProperty;var c=Object.getOwnPropertyDescriptor;var m=(o,t,r,e)=>{for(var i=e>1?void 0:e?c(t,r):t,p=o.length-1,a;p>=0;p--)(a=o[p])&&(i=(e?a(t,r,i):a(i))||i);return e&&i&&l(t,r,i),i},d=(o,t)=>(r,e)=>t(r,e,o);import{toErrorMessage as f}from"../../../../../base/common/errorMessage.js";import{Emitter as D}from"../../../../../base/common/event.js";import{DisposableStore as u}from"../../../../../base/common/lifecycle.js";import{localize as n}from"../../../../../nls.js";import{listDeemphasizedForeground as h,listInvalidItemForeground as v}from"../../../../../platform/theme/common/colorRegistry.js";import{IWorkspaceContextService as I}from"../../../../../platform/workspace/common/workspace.js";import{IExplorerService as g}from"../files.js";import{explorerRootErrorEmitter as x}from"./explorerViewer.js";function y(o){if(o.isRoot&&o.error)return{tooltip:n("canNotResolve","Unable to resolve workspace folder ({0})",f(o.error)),letter:"!",color:v};if(o.isSymbolicLink)return{tooltip:n("symbolicLlink","Symbolic Link"),letter:"\u2937"};if(o.isUnknown)return{tooltip:n("unknown","Unknown File Type"),letter:"?"};if(o.isExcluded)return{color:h}}let s=class{constructor(t,r){this.explorerService=t;this.toDispose.add(this._onDidChange),this.toDispose.add(r.onDidChangeWorkspaceFolders(e=>{this._onDidChange.fire(e.changed.concat(e.added).map(i=>i.uri))})),this.toDispose.add(x.event(e=>{this._onDidChange.fire([e])}))}label=n("label","Explorer");_onDidChange=new D;toDispose=new u;get onDidChange(){return this._onDidChange.event}async provideDecorations(t){const r=this.explorerService.findClosest(t);if(!r)throw new Error("ExplorerItem not found");return y(r)}dispose(){this.toDispose.dispose()}};s=m([d(0,g),d(1,I)],s);export{s as ExplorerDecorationsProvider,y as provideDecorations};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../nls.js";
+import {
+  listDeemphasizedForeground,
+  listInvalidItemForeground
+} from "../../../../../platform/theme/common/colorRegistry.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { IExplorerService } from "../files.js";
+import { explorerRootErrorEmitter } from "./explorerViewer.js";
+function provideDecorations(fileStat) {
+  if (fileStat.isRoot && fileStat.error) {
+    return {
+      tooltip: localize(
+        "canNotResolve",
+        "Unable to resolve workspace folder ({0})",
+        toErrorMessage(fileStat.error)
+      ),
+      letter: "!",
+      color: listInvalidItemForeground
+    };
+  }
+  if (fileStat.isSymbolicLink) {
+    return {
+      tooltip: localize("symbolicLlink", "Symbolic Link"),
+      letter: "\u2937"
+    };
+  }
+  if (fileStat.isUnknown) {
+    return {
+      tooltip: localize("unknown", "Unknown File Type"),
+      letter: "?"
+    };
+  }
+  if (fileStat.isExcluded) {
+    return {
+      color: listDeemphasizedForeground
+    };
+  }
+  return void 0;
+}
+__name(provideDecorations, "provideDecorations");
+let ExplorerDecorationsProvider = class {
+  constructor(explorerService, contextService) {
+    this.explorerService = explorerService;
+    this.toDispose.add(this._onDidChange);
+    this.toDispose.add(contextService.onDidChangeWorkspaceFolders((e) => {
+      this._onDidChange.fire(e.changed.concat(e.added).map((wf) => wf.uri));
+    }));
+    this.toDispose.add(explorerRootErrorEmitter.event((resource) => {
+      this._onDidChange.fire([resource]);
+    }));
+  }
+  static {
+    __name(this, "ExplorerDecorationsProvider");
+  }
+  label = localize("label", "Explorer");
+  _onDidChange = new Emitter();
+  toDispose = new DisposableStore();
+  get onDidChange() {
+    return this._onDidChange.event;
+  }
+  async provideDecorations(resource) {
+    const fileStat = this.explorerService.findClosest(resource);
+    if (!fileStat) {
+      throw new Error("ExplorerItem not found");
+    }
+    return provideDecorations(fileStat);
+  }
+  dispose() {
+    this.toDispose.dispose();
+  }
+};
+ExplorerDecorationsProvider = __decorateClass([
+  __decorateParam(0, IExplorerService),
+  __decorateParam(1, IWorkspaceContextService)
+], ExplorerDecorationsProvider);
+export {
+  ExplorerDecorationsProvider,
+  provideDecorations
+};
+//# sourceMappingURL=explorerDecorationsProvider.js.map

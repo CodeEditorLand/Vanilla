@@ -1,1 +1,121 @@
-var g=Object.defineProperty;var b=Object.getOwnPropertyDescriptor;var a=(d,t,o,i)=>{for(var r=i>1?void 0:i?b(t,o):t,e=d.length-1,n;e>=0;e--)(n=d[e])&&(r=(i?n(t,o,r):n(r))||r);return i&&r&&g(t,o,r),r},m=(d,t)=>(o,i)=>t(o,i,d);import{Disposable as y}from"../../../../base/common/lifecycle.js";import{localize as v}from"../../../../nls.js";import{registerAction2 as s}from"../../../../platform/actions/common/actions.js";import{SyncDescriptor as l}from"../../../../platform/instantiation/common/descriptors.js";import{InstantiationType as w,registerSingleton as W}from"../../../../platform/instantiation/common/extensions.js";import{Registry as E}from"../../../../platform/registry/common/platform.js";import{EditorPaneDescriptor as S}from"../../../browser/editor.js";import{WorkbenchPhase as h,registerWorkbenchContribution2 as k}from"../../../common/contributions.js";import{EditorExtensions as u}from"../../../common/editor.js";import{IEditorGroupsService as D}from"../../../services/editor/common/editorGroupsService.js";import{IEditorService as G}from"../../../services/editor/common/editorService.js";import{HideWebViewEditorFindCommand as F,ReloadWebviewAction as R,ShowWebViewEditorFindWidgetAction as P,WebViewEditorFindNextCommand as V,WebViewEditorFindPreviousCommand as x}from"./webviewCommands.js";import{WebviewEditor as I}from"./webviewEditor.js";import{WebviewInput as c}from"./webviewEditorInput.js";import{WebviewEditorInputSerializer as f}from"./webviewEditorInputSerializer.js";import{IWebviewWorkbenchService as z,WebviewEditorService as A}from"./webviewWorkbenchService.js";E.as(u.EditorPane).registerEditorPane(S.create(I,I.ID,v("webview.editor.label","webview editor")),[new l(c)]);let p=class extends y{constructor(o,i){super();this.editorGroupService=i;this._register(o.onWillOpenEditor(r=>{const e=i.getGroup(r.groupId);e&&this.onEditorOpening(r.editor,e)}))}static ID="workbench.contrib.webviewPanel";onEditorOpening(o,i){if(!(o instanceof c)||o.typeId!==c.typeId||i.contains(o))return;let r;const e=this.editorGroupService.groups;for(const n of e)if(n.contains(o)){r=n;break}r&&r.closeEditor(o)}};p=a([m(0,G),m(1,D)],p),k(p.ID,p,h.BlockStartup),E.as(u.EditorFactory).registerEditorSerializer(f.ID,f),W(z,A,w.Delayed),s(P),s(F),s(V),s(x),s(R);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  EditorPaneDescriptor
+} from "../../../browser/editor.js";
+import {
+  WorkbenchPhase,
+  registerWorkbenchContribution2
+} from "../../../common/contributions.js";
+import {
+  EditorExtensions
+} from "../../../common/editor.js";
+import {
+  IEditorGroupsService
+} from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import {
+  HideWebViewEditorFindCommand,
+  ReloadWebviewAction,
+  ShowWebViewEditorFindWidgetAction,
+  WebViewEditorFindNextCommand,
+  WebViewEditorFindPreviousCommand
+} from "./webviewCommands.js";
+import { WebviewEditor } from "./webviewEditor.js";
+import { WebviewInput } from "./webviewEditorInput.js";
+import { WebviewEditorInputSerializer } from "./webviewEditorInputSerializer.js";
+import {
+  IWebviewWorkbenchService,
+  WebviewEditorService
+} from "./webviewWorkbenchService.js";
+Registry.as(
+  EditorExtensions.EditorPane
+).registerEditorPane(
+  EditorPaneDescriptor.create(
+    WebviewEditor,
+    WebviewEditor.ID,
+    localize("webview.editor.label", "webview editor")
+  ),
+  [new SyncDescriptor(WebviewInput)]
+);
+let WebviewPanelContribution = class extends Disposable {
+  constructor(editorService, editorGroupService) {
+    super();
+    this.editorGroupService = editorGroupService;
+    this._register(editorService.onWillOpenEditor((e) => {
+      const group = editorGroupService.getGroup(e.groupId);
+      if (group) {
+        this.onEditorOpening(e.editor, group);
+      }
+    }));
+  }
+  static {
+    __name(this, "WebviewPanelContribution");
+  }
+  static ID = "workbench.contrib.webviewPanel";
+  onEditorOpening(editor, group) {
+    if (!(editor instanceof WebviewInput) || editor.typeId !== WebviewInput.typeId) {
+      return;
+    }
+    if (group.contains(editor)) {
+      return;
+    }
+    let previousGroup;
+    const groups = this.editorGroupService.groups;
+    for (const group2 of groups) {
+      if (group2.contains(editor)) {
+        previousGroup = group2;
+        break;
+      }
+    }
+    if (!previousGroup) {
+      return;
+    }
+    previousGroup.closeEditor(editor);
+  }
+};
+WebviewPanelContribution = __decorateClass([
+  __decorateParam(0, IEditorService),
+  __decorateParam(1, IEditorGroupsService)
+], WebviewPanelContribution);
+registerWorkbenchContribution2(
+  WebviewPanelContribution.ID,
+  WebviewPanelContribution,
+  WorkbenchPhase.BlockStartup
+);
+Registry.as(
+  EditorExtensions.EditorFactory
+).registerEditorSerializer(
+  WebviewEditorInputSerializer.ID,
+  WebviewEditorInputSerializer
+);
+registerSingleton(
+  IWebviewWorkbenchService,
+  WebviewEditorService,
+  InstantiationType.Delayed
+);
+registerAction2(ShowWebViewEditorFindWidgetAction);
+registerAction2(HideWebViewEditorFindCommand);
+registerAction2(WebViewEditorFindNextCommand);
+registerAction2(WebViewEditorFindPreviousCommand);
+registerAction2(ReloadWebviewAction);
+//# sourceMappingURL=webviewPanel.contribution.js.map

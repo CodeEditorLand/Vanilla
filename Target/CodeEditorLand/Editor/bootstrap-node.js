@@ -1,1 +1,143 @@
-import*as c from"fs";import{createRequire as f}from"node:module";import*as l from"path";import{fileURLToPath as P}from"url";const u=f(import.meta.url),a={exports:{}},h=l.dirname(P(import.meta.url));if(Error.stackTraceLimit=100,!process.env.VSCODE_HANDLES_SIGPIPE){let e=!1;process.on("SIGPIPE",()=>{e||(e=!0)})}function E(){try{typeof process.env.VSCODE_CWD!="string"&&(process.env.VSCODE_CWD=process.cwd()),process.platform==="win32"&&process.chdir(l.dirname(process.execPath))}catch{}}E(),a.exports.devInjectNodeModuleLookupPath=e=>{if(!process.env.VSCODE_DEV)return;if(!e)throw new Error("Missing injectPath");u("node:module").register("./bootstrap-import.js",{parentURL:import.meta.url,data:e})},a.exports.removeGlobalNodeJsModuleLookupPaths=()=>{if(typeof process?.versions?.electron=="string")return;const e=u("module"),o=e.globalPaths,r=e._resolveLookupPaths;e._resolveLookupPaths=(i,p)=>{const t=r(i,p);if(Array.isArray(t)){let n=0;for(;n<t.length&&t[t.length-1-n]===o[o.length-1-n];)n++;return t.slice(0,t.length-n)}return t}},a.exports.configurePortable=e=>{const o=l.dirname(h);function r(s){return process.env.VSCODE_DEV?o:process.platform==="darwin"?s.dirname(s.dirname(s.dirname(o))):s.dirname(s.dirname(o))}function i(s){if(process.env.VSCODE_PORTABLE)return process.env.VSCODE_PORTABLE;if(process.platform==="win32"||process.platform==="linux")return s.join(r(s),"data");const d=e.portable||`${e.applicationName}-portable-data`;return s.join(s.dirname(r(s)),d)}const p=i(l),t=!("target"in e)&&c.existsSync(p),n=l.join(p,"tmp"),m=t&&c.existsSync(n);return t?process.env.VSCODE_PORTABLE=p:delete process.env.VSCODE_PORTABLE,m&&(process.platform==="win32"?(process.env.TMP=n,process.env.TEMP=n):process.env.TMPDIR=n),{portableDataPath:p,isPortable:t}},a.exports.enableASARSupport=()=>{},a.exports.fileUriFromPath=(e,o)=>{let r=e.replace(/\\/g,"/");r.length>0&&r.charAt(0)!=="/"&&(r=`/${r}`);let i;return o.isWindows&&r.startsWith("//")?i=encodeURI(`${o.scheme||"file"}:${r}`):i=encodeURI(`${o.scheme||"file"}://${o.fallbackAuthority||""}${r}`),i.replace(/#/g,"%23")};const v=a.exports.devInjectNodeModuleLookupPath,x=a.exports.removeGlobalNodeJsModuleLookupPaths,g=a.exports.configurePortable,D=a.exports.enableASARSupport,L=a.exports.fileUriFromPath;export{g as configurePortable,v as devInjectNodeModuleLookupPath,D as enableASARSupport,L as fileUriFromPath,x as removeGlobalNodeJsModuleLookupPaths};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as fs from "fs";
+import { createRequire } from "node:module";
+import * as path from "path";
+import { fileURLToPath } from "url";
+const require2 = createRequire(import.meta.url);
+const module = { exports: {} };
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+Error.stackTraceLimit = 100;
+if (!process.env["VSCODE_HANDLES_SIGPIPE"]) {
+  let didLogAboutSIGPIPE = false;
+  process.on("SIGPIPE", () => {
+    if (!didLogAboutSIGPIPE) {
+      didLogAboutSIGPIPE = true;
+      console.error(new Error(`Unexpected SIGPIPE`));
+    }
+  });
+}
+function setupCurrentWorkingDirectory() {
+  try {
+    if (typeof process.env["VSCODE_CWD"] !== "string") {
+      process.env["VSCODE_CWD"] = process.cwd();
+    }
+    if (process.platform === "win32") {
+      process.chdir(path.dirname(process.execPath));
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+__name(setupCurrentWorkingDirectory, "setupCurrentWorkingDirectory");
+setupCurrentWorkingDirectory();
+module.exports.devInjectNodeModuleLookupPath = (injectPath) => {
+  if (!process.env["VSCODE_DEV"]) {
+    return;
+  }
+  if (!injectPath) {
+    throw new Error("Missing injectPath");
+  }
+  const Module = require2("node:module");
+  Module.register("./bootstrap-import.js", {
+    parentURL: import.meta.url,
+    data: injectPath
+  });
+};
+module.exports.removeGlobalNodeJsModuleLookupPaths = () => {
+  if (typeof process?.versions?.electron === "string") {
+    return;
+  }
+  const Module = require2("module");
+  const globalPaths = Module.globalPaths;
+  const originalResolveLookupPaths = Module._resolveLookupPaths;
+  Module._resolveLookupPaths = (moduleName, parent) => {
+    const paths = originalResolveLookupPaths(moduleName, parent);
+    if (Array.isArray(paths)) {
+      let commonSuffixLength = 0;
+      while (commonSuffixLength < paths.length && paths[paths.length - 1 - commonSuffixLength] === globalPaths[globalPaths.length - 1 - commonSuffixLength]) {
+        commonSuffixLength++;
+      }
+      return paths.slice(0, paths.length - commonSuffixLength);
+    }
+    return paths;
+  };
+};
+module.exports.configurePortable = (product) => {
+  const appRoot = path.dirname(__dirname);
+  function getApplicationPath(path2) {
+    if (process.env["VSCODE_DEV"]) {
+      return appRoot;
+    }
+    if (process.platform === "darwin") {
+      return path2.dirname(path2.dirname(path2.dirname(appRoot)));
+    }
+    return path2.dirname(path2.dirname(appRoot));
+  }
+  __name(getApplicationPath, "getApplicationPath");
+  function getPortableDataPath(path2) {
+    if (process.env["VSCODE_PORTABLE"]) {
+      return process.env["VSCODE_PORTABLE"];
+    }
+    if (process.platform === "win32" || process.platform === "linux") {
+      return path2.join(getApplicationPath(path2), "data");
+    }
+    const portableDataName = product.portable || `${product.applicationName}-portable-data`;
+    return path2.join(
+      path2.dirname(getApplicationPath(path2)),
+      portableDataName
+    );
+  }
+  __name(getPortableDataPath, "getPortableDataPath");
+  const portableDataPath = getPortableDataPath(path);
+  const isPortable = !("target" in product) && fs.existsSync(portableDataPath);
+  const portableTempPath = path.join(portableDataPath, "tmp");
+  const isTempPortable = isPortable && fs.existsSync(portableTempPath);
+  if (isPortable) {
+    process.env["VSCODE_PORTABLE"] = portableDataPath;
+  } else {
+    delete process.env["VSCODE_PORTABLE"];
+  }
+  if (isTempPortable) {
+    if (process.platform === "win32") {
+      process.env["TMP"] = portableTempPath;
+      process.env["TEMP"] = portableTempPath;
+    } else {
+      process.env["TMPDIR"] = portableTempPath;
+    }
+  }
+  return {
+    portableDataPath,
+    isPortable
+  };
+};
+module.exports.enableASARSupport = () => {
+};
+module.exports.fileUriFromPath = (path2, config) => {
+  let pathName = path2.replace(/\\/g, "/");
+  if (pathName.length > 0 && pathName.charAt(0) !== "/") {
+    pathName = `/${pathName}`;
+  }
+  let uri;
+  if (config.isWindows && pathName.startsWith("//")) {
+    uri = encodeURI(`${config.scheme || "file"}:${pathName}`);
+  } else {
+    uri = encodeURI(
+      `${config.scheme || "file"}://${config.fallbackAuthority || ""}${pathName}`
+    );
+  }
+  return uri.replace(/#/g, "%23");
+};
+const devInjectNodeModuleLookupPath = module.exports.devInjectNodeModuleLookupPath;
+const removeGlobalNodeJsModuleLookupPaths = module.exports.removeGlobalNodeJsModuleLookupPaths;
+const configurePortable = module.exports.configurePortable;
+const enableASARSupport = module.exports.enableASARSupport;
+const fileUriFromPath = module.exports.fileUriFromPath;
+export {
+  configurePortable,
+  devInjectNodeModuleLookupPath,
+  enableASARSupport,
+  fileUriFromPath,
+  removeGlobalNodeJsModuleLookupPaths
+};
+//# sourceMappingURL=bootstrap-node.js.map

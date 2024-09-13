@@ -1,1 +1,54 @@
-import{URI as a}from"../../../../base/common/uri.js";import{Range as r}from"../../../../editor/common/core/range.js";import{createDecorator as i}from"../../../../platform/instantiation/common/instantiation.js";function s(e){return!!e&&typeof e=="object"&&"uri"in e&&e.uri instanceof a&&"version"in e&&typeof e.version=="number"&&"ranges"in e&&Array.isArray(e.ranges)&&e.ranges.every(r.isIRange)}function h(e){return!!e&&typeof e=="object"&&"documents"in e&&Array.isArray(e.documents)&&e.documents.every(s)}var d=(o=>(o[o.Complete=1]="Complete",o[o.Partial=2]="Partial",o[o.Omitted=3]="Omitted",o))(d||{}),c=(t=>(t[t.Down=0]="Down",t[t.Up=1]="Up",t))(c||{}),I=(n=>(n.IncorrectCode="incorrectCode",n.DidNotFollowInstructions="didNotFollowInstructions",n.IncompleteCode="incompleteCode",n.MissingContext="missingContext",n.PoorlyWrittenOrFormatted="poorlyWrittenOrFormatted",n.RefusedAValidRequest="refusedAValidRequest",n.OffensiveOrUnsafe="offensiveOrUnsafe",n.Other="other",n.WillReportIssue="willReportIssue",n))(I||{}),C=(t=>(t[t.Action=1]="Action",t[t.Toolbar=2]="Toolbar",t))(C||{});const g=i("IChatService"),u="accessibility.voice.keywordActivation";export{c as ChatAgentVoteDirection,I as ChatAgentVoteDownReason,C as ChatCopyKind,d as ChatResponseReferencePartStatusKind,g as IChatService,u as KEYWORD_ACTIVIATION_SETTING_ID,s as isIDocumentContext,h as isIUsedContext};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+function isIDocumentContext(obj) {
+  return !!obj && typeof obj === "object" && "uri" in obj && obj.uri instanceof URI && "version" in obj && typeof obj.version === "number" && "ranges" in obj && Array.isArray(obj.ranges) && obj.ranges.every(Range.isIRange);
+}
+__name(isIDocumentContext, "isIDocumentContext");
+function isIUsedContext(obj) {
+  return !!obj && typeof obj === "object" && "documents" in obj && Array.isArray(obj.documents) && obj.documents.every(isIDocumentContext);
+}
+__name(isIUsedContext, "isIUsedContext");
+var ChatResponseReferencePartStatusKind = /* @__PURE__ */ ((ChatResponseReferencePartStatusKind2) => {
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Complete"] = 1] = "Complete";
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Partial"] = 2] = "Partial";
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Omitted"] = 3] = "Omitted";
+  return ChatResponseReferencePartStatusKind2;
+})(ChatResponseReferencePartStatusKind || {});
+var ChatAgentVoteDirection = /* @__PURE__ */ ((ChatAgentVoteDirection2) => {
+  ChatAgentVoteDirection2[ChatAgentVoteDirection2["Down"] = 0] = "Down";
+  ChatAgentVoteDirection2[ChatAgentVoteDirection2["Up"] = 1] = "Up";
+  return ChatAgentVoteDirection2;
+})(ChatAgentVoteDirection || {});
+var ChatAgentVoteDownReason = /* @__PURE__ */ ((ChatAgentVoteDownReason2) => {
+  ChatAgentVoteDownReason2["IncorrectCode"] = "incorrectCode";
+  ChatAgentVoteDownReason2["DidNotFollowInstructions"] = "didNotFollowInstructions";
+  ChatAgentVoteDownReason2["IncompleteCode"] = "incompleteCode";
+  ChatAgentVoteDownReason2["MissingContext"] = "missingContext";
+  ChatAgentVoteDownReason2["PoorlyWrittenOrFormatted"] = "poorlyWrittenOrFormatted";
+  ChatAgentVoteDownReason2["RefusedAValidRequest"] = "refusedAValidRequest";
+  ChatAgentVoteDownReason2["OffensiveOrUnsafe"] = "offensiveOrUnsafe";
+  ChatAgentVoteDownReason2["Other"] = "other";
+  ChatAgentVoteDownReason2["WillReportIssue"] = "willReportIssue";
+  return ChatAgentVoteDownReason2;
+})(ChatAgentVoteDownReason || {});
+var ChatCopyKind = /* @__PURE__ */ ((ChatCopyKind2) => {
+  ChatCopyKind2[ChatCopyKind2["Action"] = 1] = "Action";
+  ChatCopyKind2[ChatCopyKind2["Toolbar"] = 2] = "Toolbar";
+  return ChatCopyKind2;
+})(ChatCopyKind || {});
+const IChatService = createDecorator("IChatService");
+const KEYWORD_ACTIVIATION_SETTING_ID = "accessibility.voice.keywordActivation";
+export {
+  ChatAgentVoteDirection,
+  ChatAgentVoteDownReason,
+  ChatCopyKind,
+  ChatResponseReferencePartStatusKind,
+  IChatService,
+  KEYWORD_ACTIVIATION_SETTING_ID,
+  isIDocumentContext,
+  isIUsedContext
+};
+//# sourceMappingURL=chatService.js.map

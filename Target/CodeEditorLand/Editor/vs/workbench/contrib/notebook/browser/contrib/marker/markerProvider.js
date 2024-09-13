@@ -1,1 +1,147 @@
-var h=Object.defineProperty;var k=Object.getOwnPropertyDescriptor;var l=(a,o,e,r)=>{for(var t=r>1?void 0:r?k(o,e):o,i=a.length-1,n;i>=0;i--)(n=a[i])&&(t=(r?n(o,e,t):n(t))||t);return r&&t&&h(o,e,t),t},m=(a,o)=>(e,r)=>o(e,r,a);import{throttle as b}from"../../../../../../base/common/decorators.js";import{Disposable as g}from"../../../../../../base/common/lifecycle.js";import{isEqual as f}from"../../../../../../base/common/resources.js";import{IMarkerNavigationService as _,MarkerList as I}from"../../../../../../editor/contrib/gotoError/browser/markerNavigationService.js";import{IConfigurationService as S}from"../../../../../../platform/configuration/common/configuration.js";import{IMarkerService as p,MarkerSeverity as c}from"../../../../../../platform/markers/common/markers.js";import{editorErrorForeground as E,editorWarningForeground as y}from"../../../../../../platform/theme/common/colorRegistry.js";import{WorkbenchPhase as D,registerWorkbenchContribution2 as C}from"../../../../../common/contributions.js";import{CellUri as u}from"../../../common/notebookCommon.js";import{NotebookOverviewRulerLane as R}from"../../notebookBrowser.js";import{registerNotebookContribution as N}from"../../notebookEditorExtensions.js";let d=class{constructor(o,e,r){this._markerService=o;this._configService=r;this._dispoables=e.registerProvider(this)}static ID="workbench.contrib.markerListProvider";_dispoables;dispose(){this._dispoables.dispose()}getMarkerList(o){if(!o)return;const e=u.parse(o);if(e)return new I(r=>u.parse(r)?.notebook.toString()===e.notebook.toString(),this._markerService,this._configService)}};d=l([m(0,p),m(1,_),m(2,S)],d);let s=class extends g{constructor(e,r){super();this._notebookEditor=e;this._markerService=r;this._update(),this._register(this._notebookEditor.onDidChangeModel(()=>this._update())),this._register(this._markerService.onMarkerChanged(t=>{t.some(i=>this._notebookEditor.getCellsInRange().some(n=>f(n.uri,i)))&&this._update()}))}static id="workbench.notebook.markerDecoration";_markersOverviewRulerDecorations=[];_update(){if(!this._notebookEditor.hasModel())return;const e=[];this._notebookEditor.getCellsInRange().forEach(r=>{this._markerService.read({resource:r.uri,severities:c.Error|c.Warning}).forEach(i=>{const n=i.severity===c.Error?E:y,v={startLineNumber:i.startLineNumber,startColumn:i.startColumn,endLineNumber:i.endLineNumber,endColumn:i.endColumn};e.push({handle:r.handle,options:{overviewRuler:{color:n,modelRanges:[v],includeOutput:!1,position:R.Right}}})})}),this._markersOverviewRulerDecorations=this._notebookEditor.deltaCellDecorations(this._markersOverviewRulerDecorations,e)}};l([b(100)],s.prototype,"_update",1),s=l([m(1,p)],s),C(d.ID,d,D.BlockRestore),N(s.id,s);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { throttle } from "../../../../../../base/common/decorators.js";
+import {
+  Disposable
+} from "../../../../../../base/common/lifecycle.js";
+import { isEqual } from "../../../../../../base/common/resources.js";
+import {
+  IMarkerNavigationService,
+  MarkerList
+} from "../../../../../../editor/contrib/gotoError/browser/markerNavigationService.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import {
+  IMarkerService,
+  MarkerSeverity
+} from "../../../../../../platform/markers/common/markers.js";
+import {
+  editorErrorForeground,
+  editorWarningForeground
+} from "../../../../../../platform/theme/common/colorRegistry.js";
+import {
+  WorkbenchPhase,
+  registerWorkbenchContribution2
+} from "../../../../../common/contributions.js";
+import { CellUri } from "../../../common/notebookCommon.js";
+import {
+  NotebookOverviewRulerLane
+} from "../../notebookBrowser.js";
+import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+let MarkerListProvider = class {
+  constructor(_markerService, markerNavigation, _configService) {
+    this._markerService = _markerService;
+    this._configService = _configService;
+    this._dispoables = markerNavigation.registerProvider(this);
+  }
+  static {
+    __name(this, "MarkerListProvider");
+  }
+  static ID = "workbench.contrib.markerListProvider";
+  _dispoables;
+  dispose() {
+    this._dispoables.dispose();
+  }
+  getMarkerList(resource) {
+    if (!resource) {
+      return void 0;
+    }
+    const data = CellUri.parse(resource);
+    if (!data) {
+      return void 0;
+    }
+    return new MarkerList(
+      (uri) => {
+        const otherData = CellUri.parse(uri);
+        return otherData?.notebook.toString() === data.notebook.toString();
+      },
+      this._markerService,
+      this._configService
+    );
+  }
+};
+MarkerListProvider = __decorateClass([
+  __decorateParam(0, IMarkerService),
+  __decorateParam(1, IMarkerNavigationService),
+  __decorateParam(2, IConfigurationService)
+], MarkerListProvider);
+let NotebookMarkerDecorationContribution = class extends Disposable {
+  constructor(_notebookEditor, _markerService) {
+    super();
+    this._notebookEditor = _notebookEditor;
+    this._markerService = _markerService;
+    this._update();
+    this._register(this._notebookEditor.onDidChangeModel(() => this._update()));
+    this._register(this._markerService.onMarkerChanged((e) => {
+      if (e.some((uri) => this._notebookEditor.getCellsInRange().some((cell) => isEqual(cell.uri, uri)))) {
+        this._update();
+      }
+    }));
+  }
+  static {
+    __name(this, "NotebookMarkerDecorationContribution");
+  }
+  static id = "workbench.notebook.markerDecoration";
+  _markersOverviewRulerDecorations = [];
+  _update() {
+    if (!this._notebookEditor.hasModel()) {
+      return;
+    }
+    const cellDecorations = [];
+    this._notebookEditor.getCellsInRange().forEach((cell) => {
+      const marker = this._markerService.read({
+        resource: cell.uri,
+        severities: MarkerSeverity.Error | MarkerSeverity.Warning
+      });
+      marker.forEach((m) => {
+        const color = m.severity === MarkerSeverity.Error ? editorErrorForeground : editorWarningForeground;
+        const range = {
+          startLineNumber: m.startLineNumber,
+          startColumn: m.startColumn,
+          endLineNumber: m.endLineNumber,
+          endColumn: m.endColumn
+        };
+        cellDecorations.push({
+          handle: cell.handle,
+          options: {
+            overviewRuler: {
+              color,
+              modelRanges: [range],
+              includeOutput: false,
+              position: NotebookOverviewRulerLane.Right
+            }
+          }
+        });
+      });
+    });
+    this._markersOverviewRulerDecorations = this._notebookEditor.deltaCellDecorations(
+      this._markersOverviewRulerDecorations,
+      cellDecorations
+    );
+  }
+};
+__decorateClass([
+  throttle(100)
+], NotebookMarkerDecorationContribution.prototype, "_update", 1);
+NotebookMarkerDecorationContribution = __decorateClass([
+  __decorateParam(1, IMarkerService)
+], NotebookMarkerDecorationContribution);
+registerWorkbenchContribution2(
+  MarkerListProvider.ID,
+  MarkerListProvider,
+  WorkbenchPhase.BlockRestore
+);
+registerNotebookContribution(
+  NotebookMarkerDecorationContribution.id,
+  NotebookMarkerDecorationContribution
+);
+//# sourceMappingURL=markerProvider.js.map

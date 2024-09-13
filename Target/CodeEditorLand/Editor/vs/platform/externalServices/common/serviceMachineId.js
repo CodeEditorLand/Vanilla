@@ -1,1 +1,48 @@
-import{VSBuffer as a}from"../../../base/common/buffer.js";import{generateUuid as s,isUUID as m}from"../../../base/common/uuid.js";import{StorageScope as c,StorageTarget as l}from"../../storage/common/storage.js";async function g(t,i,r){let e=r&&r.get("storage.serviceMachineId",c.APPLICATION)||null;if(e)return e;try{const o=(await i.readFile(t.serviceMachineIdResource)).value.toString();e=m(o)?o:null}catch{e=null}if(!e){e=s();try{await i.writeFile(t.serviceMachineIdResource,a.fromString(e))}catch{}}return r?.store("storage.serviceMachineId",e,c.APPLICATION,l.MACHINE),e}export{g as getServiceMachineId};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { generateUuid, isUUID } from "../../../base/common/uuid.js";
+import {
+  StorageScope,
+  StorageTarget
+} from "../../storage/common/storage.js";
+async function getServiceMachineId(environmentService, fileService, storageService) {
+  let uuid = storageService ? storageService.get(
+    "storage.serviceMachineId",
+    StorageScope.APPLICATION
+  ) || null : null;
+  if (uuid) {
+    return uuid;
+  }
+  try {
+    const contents = await fileService.readFile(
+      environmentService.serviceMachineIdResource
+    );
+    const value = contents.value.toString();
+    uuid = isUUID(value) ? value : null;
+  } catch (e) {
+    uuid = null;
+  }
+  if (!uuid) {
+    uuid = generateUuid();
+    try {
+      await fileService.writeFile(
+        environmentService.serviceMachineIdResource,
+        VSBuffer.fromString(uuid)
+      );
+    } catch (error) {
+    }
+  }
+  storageService?.store(
+    "storage.serviceMachineId",
+    uuid,
+    StorageScope.APPLICATION,
+    StorageTarget.MACHINE
+  );
+  return uuid;
+}
+__name(getServiceMachineId, "getServiceMachineId");
+export {
+  getServiceMachineId
+};
+//# sourceMappingURL=serviceMachineId.js.map

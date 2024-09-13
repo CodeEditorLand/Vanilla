@@ -1,1 +1,466 @@
-import"./media/compositepart.css";import{$ as p,Dimension as y,append as m,hide as S,show as A}from"../../../base/browser/dom.js";import{ActionsOrientation as b,prepareActions as C}from"../../../base/browser/ui/actionbar/actionbar.js";import{AnchorAlignment as T}from"../../../base/browser/ui/contextview/contextview.js";import{createInstantHoverDelegate as w,getDefaultHoverDelegate as B}from"../../../base/browser/ui/hover/hoverDelegateFactory.js";import{ProgressBar as L}from"../../../base/browser/ui/progressbar/progressbar.js";import{isCancellationError as D}from"../../../base/common/errors.js";import{Emitter as v}from"../../../base/common/event.js";import{defaultGenerator as P}from"../../../base/common/idGenerator.js";import{DisposableStore as H,MutableDisposable as M,dispose as u}from"../../../base/common/lifecycle.js";import{assertIsDefined as d}from"../../../base/common/types.js";import{localize as h}from"../../../nls.js";import{createActionViewItem as O}from"../../../platform/actions/browser/menuEntryActionViewItem.js";import{WorkbenchToolBar as E}from"../../../platform/actions/browser/toolbar.js";import{ServiceCollection as k}from"../../../platform/instantiation/common/serviceCollection.js";import{IEditorProgressService as x}from"../../../platform/progress/common/progress.js";import{StorageScope as g,StorageTarget as V}from"../../../platform/storage/common/storage.js";import{defaultProgressBarStyles as j}from"../../../platform/theme/browser/defaultStyles.js";import{AbstractProgressScope as R,ScopedProgressIndicator as K}from"../../services/progress/browser/progressIndicator.js";import{Part as _}from"../part.js";class he extends _{constructor(e,t,i,o,s,n,r,a,l,c,F,N,U,G,f,I){super(f,I,a,t,o);this.notificationService=e;this.storageService=t;this.contextMenuService=i;this.keybindingService=s;this.hoverService=n;this.instantiationService=r;this.registry=l;this.activeCompositeSettingsKey=c;this.defaultCompositeId=F;this.nameForTelemetry=N;this.compositeCSSClass=U;this.titleForegroundColor=G;this.lastActiveCompositeId=t.get(c,g.WORKSPACE,this.defaultCompositeId),this.toolbarHoverDelegate=this._register(w())}onDidCompositeOpen=this._register(new v);onDidCompositeClose=this._register(new v);toolBar;titleLabelElement;toolbarHoverDelegate;mapCompositeToCompositeContainer=new Map;mapActionsBindingToComposite=new Map;activeComposite;lastActiveCompositeId;instantiatedCompositeItems=new Map;titleLabel;progressBar;contentAreaSize;actionsListener=this._register(new M);currentCompositeOpenToken;boundarySashes;openComposite(e,t){if(this.activeComposite?.getId()===e)return t&&this.activeComposite.focus(),this.activeComposite;if(this.element)return this.doOpenComposite(e,t)}doOpenComposite(e,t=!1){const i=P.nextId();this.currentCompositeOpenToken=i,this.activeComposite&&this.hideActiveComposite(),this.updateTitle(e);const o=this.createComposite(e,!0);if(!(this.currentCompositeOpenToken!==i||this.activeComposite&&this.activeComposite.getId()!==o.getId()))return this.activeComposite?.getId()===o.getId()?(t&&o.focus(),this.onDidCompositeOpen.fire({composite:o,focus:t}),o):(this.showComposite(o),t&&o.focus(),o&&this.onDidCompositeOpen.fire({composite:o,focus:t}),o)}createComposite(e,t){const i=this.instantiatedCompositeItems.get(e);if(i)return i.composite;const o=this.registry.getComposite(e);if(o){const s=this,n=new K(d(this.progressBar),new class extends R{constructor(){super(o.id,!!t),this._register(s.onDidCompositeOpen.event(c=>this.onScopeOpened(c.composite.getId()))),this._register(s.onDidCompositeClose.event(c=>this.onScopeClosed(c.getId())))}}),r=this._register(this.instantiationService.createChild(new k([x,n]))),a=o.instantiate(r),l=new H;return this.instantiatedCompositeItems.set(e,{composite:a,disposable:l,progress:n}),l.add(a.onTitleAreaUpdate(()=>this.onTitleAreaUpdate(a.getId()),this)),l.add(r),a}throw new Error(`Unable to find composite with id ${e}`)}showComposite(e){this.activeComposite=e;const t=this.activeComposite.getId();t!==this.defaultCompositeId?this.storageService.store(this.activeCompositeSettingsKey,t,g.WORKSPACE,V.MACHINE):this.storageService.remove(this.activeCompositeSettingsKey,g.WORKSPACE),this.lastActiveCompositeId=this.activeComposite.getId();let i=this.mapCompositeToCompositeContainer.get(e.getId());if(i||(i=p(".composite"),i.classList.add(...this.compositeCSSClass.split(" ")),i.id=e.getId(),e.create(i),e.updateStyles(),this.mapCompositeToCompositeContainer.set(e.getId(),i)),!this.activeComposite||e.getId()!==this.activeComposite.getId())return;this.getContentArea()?.appendChild(i),A(i);const s=d(this.toolBar);s.actionRunner=e.getActionRunner();const n=this.registry.getComposite(e.getId());n&&n.name!==e.getTitle()&&this.updateTitle(e.getId(),e.getTitle());let r=this.mapActionsBindingToComposite.get(e.getId());r||(r=this.collectCompositeActions(e),this.mapActionsBindingToComposite.set(e.getId(),r)),r(),this.actionsListener.value=s.actionRunner.onDidRun(a=>{a.error&&!D(a.error)&&this.notificationService.error(a.error)}),e.setVisible(!0),!(!this.activeComposite||e.getId()!==this.activeComposite.getId())&&(this.contentAreaSize&&e.layout(this.contentAreaSize),this.boundarySashes&&e.setBoundarySashes(this.boundarySashes))}onTitleAreaUpdate(e){const t=this.instantiatedCompositeItems.get(e);if(t&&this.updateTitle(e,t.composite.getTitle()),this.activeComposite?.getId()===e){const i=this.collectCompositeActions(this.activeComposite);this.mapActionsBindingToComposite.set(this.activeComposite.getId(),i),i()}else this.mapActionsBindingToComposite.delete(e)}updateTitle(e,t){const i=this.registry.getComposite(e);if(!i||!this.titleLabel)return;t||(t=i.name);const o=this.keybindingService.lookupKeybinding(e);this.titleLabel.updateTitle(e,t,o?.getLabel()??void 0),d(this.toolBar).setAriaLabel(h("ariaCompositeToolbarLabel","{0} actions",t))}collectCompositeActions(e){const t=e?.getMenuIds(),i=e?.getActions().slice(0)||[],o=e?.getSecondaryActions().slice(0)||[],s=d(this.toolBar);return s.context=this.actionsContextProvider(),()=>s.setActions(C(i),C(o),t)}getActiveComposite(){return this.activeComposite}getLastActiveCompositeId(){return this.lastActiveCompositeId}hideActiveComposite(){if(!this.activeComposite)return;const e=this.activeComposite;this.activeComposite=void 0;const t=this.mapCompositeToCompositeContainer.get(e.getId());return e.setVisible(!1),t&&(t.remove(),S(t)),this.progressBar?.stop().hide(),this.toolBar&&this.collectCompositeActions()(),this.onDidCompositeClose.fire(e),e}createTitleArea(e){const t=m(e,p(".composite"));t.classList.add("title"),this.titleLabel=this.createTitleLabel(t);const i=m(t,p(".title-actions"));return this.toolBar=this._register(this.instantiationService.createInstance(E,i,{actionViewItemProvider:(o,s)=>this.actionViewItemProvider(o,s),orientation:b.HORIZONTAL,getKeyBinding:o=>this.keybindingService.lookupKeybinding(o.id),anchorAlignmentProvider:()=>this.getTitleAreaDropDownAnchorAlignment(),toggleMenuTitle:h("viewsAndMoreActions","Views and More Actions..."),telemetrySource:this.nameForTelemetry,hoverDelegate:this.toolbarHoverDelegate})),this.collectCompositeActions()(),t}createTitleLabel(e){const t=m(e,p(".title-label")),i=m(t,p("h2"));this.titleLabelElement=i;const o=this._register(this.hoverService.setupManagedHover(B("mouse"),i,""));return{updateTitle:(s,n,r)=>{(!this.activeComposite||this.activeComposite.getId()===s)&&(i.innerText=n,o.update(r?h("titleTooltip","{0} ({1})",n,r):n))},updateStyles:()=>{i.style.color=this.titleForegroundColor&&this.getColor(this.titleForegroundColor)||""}}}createHeaderArea(){return p(".composite")}createFooterArea(){return p(".composite")}updateStyles(){super.updateStyles(),d(this.titleLabel).updateStyles()}actionViewItemProvider(e,t){return this.activeComposite?this.activeComposite.getActionViewItem(e,t):O(this.instantiationService,e,t)}actionsContextProvider(){return this.activeComposite?this.activeComposite.getActionsContext():null}createContentArea(e){const t=m(e,p(".content"));return this.progressBar=this._register(new L(t,j)),this.progressBar.hide(),t}getProgressIndicator(e){const t=this.instantiatedCompositeItems.get(e);return t?t.progress:void 0}getTitleAreaDropDownAnchorAlignment(){return T.RIGHT}layout(e,t,i,o){super.layout(e,t,i,o),this.contentAreaSize=y.lift(super.layoutContents(e,t).contentSize),this.activeComposite?.layout(this.contentAreaSize)}setBoundarySashes(e){this.boundarySashes=e,this.activeComposite?.setBoundarySashes(e)}removeComposite(e){if(this.activeComposite?.getId()===e)return!1;this.mapCompositeToCompositeContainer.delete(e),this.mapActionsBindingToComposite.delete(e);const t=this.instantiatedCompositeItems.get(e);return t&&(t.composite.dispose(),u(t.disposable),this.instantiatedCompositeItems.delete(e)),!0}dispose(){this.mapCompositeToCompositeContainer.clear(),this.mapActionsBindingToComposite.clear(),this.instantiatedCompositeItems.forEach(e=>{e.composite.dispose(),u(e.disposable)}),this.instantiatedCompositeItems.clear(),super.dispose()}}export{he as CompositePart};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/compositepart.css";
+import { $, Dimension, append, hide, show } from "../../../base/browser/dom.js";
+import {
+  ActionsOrientation,
+  prepareActions
+} from "../../../base/browser/ui/actionbar/actionbar.js";
+import { AnchorAlignment } from "../../../base/browser/ui/contextview/contextview.js";
+import {
+  createInstantHoverDelegate,
+  getDefaultHoverDelegate
+} from "../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { ProgressBar } from "../../../base/browser/ui/progressbar/progressbar.js";
+import { isCancellationError } from "../../../base/common/errors.js";
+import { Emitter } from "../../../base/common/event.js";
+import { defaultGenerator } from "../../../base/common/idGenerator.js";
+import {
+  DisposableStore,
+  MutableDisposable,
+  dispose
+} from "../../../base/common/lifecycle.js";
+import { assertIsDefined } from "../../../base/common/types.js";
+import { localize } from "../../../nls.js";
+import { createActionViewItem } from "../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { WorkbenchToolBar } from "../../../platform/actions/browser/toolbar.js";
+import { ServiceCollection } from "../../../platform/instantiation/common/serviceCollection.js";
+import {
+  IEditorProgressService
+} from "../../../platform/progress/common/progress.js";
+import {
+  StorageScope,
+  StorageTarget
+} from "../../../platform/storage/common/storage.js";
+import { defaultProgressBarStyles } from "../../../platform/theme/browser/defaultStyles.js";
+import {
+  AbstractProgressScope,
+  ScopedProgressIndicator
+} from "../../services/progress/browser/progressIndicator.js";
+import { Part } from "../part.js";
+class CompositePart extends Part {
+  constructor(notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, registry, activeCompositeSettingsKey, defaultCompositeId, nameForTelemetry, compositeCSSClass, titleForegroundColor, id, options) {
+    super(id, options, themeService, storageService, layoutService);
+    this.notificationService = notificationService;
+    this.storageService = storageService;
+    this.contextMenuService = contextMenuService;
+    this.keybindingService = keybindingService;
+    this.hoverService = hoverService;
+    this.instantiationService = instantiationService;
+    this.registry = registry;
+    this.activeCompositeSettingsKey = activeCompositeSettingsKey;
+    this.defaultCompositeId = defaultCompositeId;
+    this.nameForTelemetry = nameForTelemetry;
+    this.compositeCSSClass = compositeCSSClass;
+    this.titleForegroundColor = titleForegroundColor;
+    this.lastActiveCompositeId = storageService.get(
+      activeCompositeSettingsKey,
+      StorageScope.WORKSPACE,
+      this.defaultCompositeId
+    );
+    this.toolbarHoverDelegate = this._register(
+      createInstantHoverDelegate()
+    );
+  }
+  static {
+    __name(this, "CompositePart");
+  }
+  onDidCompositeOpen = this._register(
+    new Emitter()
+  );
+  onDidCompositeClose = this._register(
+    new Emitter()
+  );
+  toolBar;
+  titleLabelElement;
+  toolbarHoverDelegate;
+  mapCompositeToCompositeContainer = /* @__PURE__ */ new Map();
+  mapActionsBindingToComposite = /* @__PURE__ */ new Map();
+  activeComposite;
+  lastActiveCompositeId;
+  instantiatedCompositeItems = /* @__PURE__ */ new Map();
+  titleLabel;
+  progressBar;
+  contentAreaSize;
+  actionsListener = this._register(new MutableDisposable());
+  currentCompositeOpenToken;
+  boundarySashes;
+  openComposite(id, focus) {
+    if (this.activeComposite?.getId() === id) {
+      if (focus) {
+        this.activeComposite.focus();
+      }
+      return this.activeComposite;
+    }
+    if (!this.element) {
+      return;
+    }
+    return this.doOpenComposite(id, focus);
+  }
+  doOpenComposite(id, focus = false) {
+    const currentCompositeOpenToken = defaultGenerator.nextId();
+    this.currentCompositeOpenToken = currentCompositeOpenToken;
+    if (this.activeComposite) {
+      this.hideActiveComposite();
+    }
+    this.updateTitle(id);
+    const composite = this.createComposite(id, true);
+    if (this.currentCompositeOpenToken !== currentCompositeOpenToken || this.activeComposite && this.activeComposite.getId() !== composite.getId()) {
+      return void 0;
+    }
+    if (this.activeComposite?.getId() === composite.getId()) {
+      if (focus) {
+        composite.focus();
+      }
+      this.onDidCompositeOpen.fire({ composite, focus });
+      return composite;
+    }
+    this.showComposite(composite);
+    if (focus) {
+      composite.focus();
+    }
+    if (composite) {
+      this.onDidCompositeOpen.fire({ composite, focus });
+    }
+    return composite;
+  }
+  createComposite(id, isActive) {
+    const compositeItem = this.instantiatedCompositeItems.get(id);
+    if (compositeItem) {
+      return compositeItem.composite;
+    }
+    const compositeDescriptor = this.registry.getComposite(id);
+    if (compositeDescriptor) {
+      const that = this;
+      const compositeProgressIndicator = new ScopedProgressIndicator(
+        assertIsDefined(this.progressBar),
+        new class extends AbstractProgressScope {
+          constructor() {
+            super(compositeDescriptor.id, !!isActive);
+            this._register(
+              that.onDidCompositeOpen.event(
+                (e) => this.onScopeOpened(e.composite.getId())
+              )
+            );
+            this._register(
+              that.onDidCompositeClose.event(
+                (e) => this.onScopeClosed(e.getId())
+              )
+            );
+          }
+        }()
+      );
+      const compositeInstantiationService = this._register(
+        this.instantiationService.createChild(
+          new ServiceCollection(
+            [IEditorProgressService, compositeProgressIndicator]
+            // provide the editor progress service for any editors instantiated within the composite
+          )
+        )
+      );
+      const composite = compositeDescriptor.instantiate(
+        compositeInstantiationService
+      );
+      const disposable = new DisposableStore();
+      this.instantiatedCompositeItems.set(id, {
+        composite,
+        disposable,
+        progress: compositeProgressIndicator
+      });
+      disposable.add(
+        composite.onTitleAreaUpdate(
+          () => this.onTitleAreaUpdate(composite.getId()),
+          this
+        )
+      );
+      disposable.add(compositeInstantiationService);
+      return composite;
+    }
+    throw new Error(`Unable to find composite with id ${id}`);
+  }
+  showComposite(composite) {
+    this.activeComposite = composite;
+    const id = this.activeComposite.getId();
+    if (id !== this.defaultCompositeId) {
+      this.storageService.store(
+        this.activeCompositeSettingsKey,
+        id,
+        StorageScope.WORKSPACE,
+        StorageTarget.MACHINE
+      );
+    } else {
+      this.storageService.remove(
+        this.activeCompositeSettingsKey,
+        StorageScope.WORKSPACE
+      );
+    }
+    this.lastActiveCompositeId = this.activeComposite.getId();
+    let compositeContainer = this.mapCompositeToCompositeContainer.get(
+      composite.getId()
+    );
+    if (!compositeContainer) {
+      compositeContainer = $(".composite");
+      compositeContainer.classList.add(
+        ...this.compositeCSSClass.split(" ")
+      );
+      compositeContainer.id = composite.getId();
+      composite.create(compositeContainer);
+      composite.updateStyles();
+      this.mapCompositeToCompositeContainer.set(
+        composite.getId(),
+        compositeContainer
+      );
+    }
+    if (!this.activeComposite || composite.getId() !== this.activeComposite.getId()) {
+      return void 0;
+    }
+    const contentArea = this.getContentArea();
+    contentArea?.appendChild(compositeContainer);
+    show(compositeContainer);
+    const toolBar = assertIsDefined(this.toolBar);
+    toolBar.actionRunner = composite.getActionRunner();
+    const descriptor = this.registry.getComposite(composite.getId());
+    if (descriptor && descriptor.name !== composite.getTitle()) {
+      this.updateTitle(composite.getId(), composite.getTitle());
+    }
+    let actionsBinding = this.mapActionsBindingToComposite.get(
+      composite.getId()
+    );
+    if (!actionsBinding) {
+      actionsBinding = this.collectCompositeActions(composite);
+      this.mapActionsBindingToComposite.set(
+        composite.getId(),
+        actionsBinding
+      );
+    }
+    actionsBinding();
+    this.actionsListener.value = toolBar.actionRunner.onDidRun((e) => {
+      if (e.error && !isCancellationError(e.error)) {
+        this.notificationService.error(e.error);
+      }
+    });
+    composite.setVisible(true);
+    if (!this.activeComposite || composite.getId() !== this.activeComposite.getId()) {
+      return;
+    }
+    if (this.contentAreaSize) {
+      composite.layout(this.contentAreaSize);
+    }
+    if (this.boundarySashes) {
+      composite.setBoundarySashes(this.boundarySashes);
+    }
+  }
+  onTitleAreaUpdate(compositeId) {
+    const composite = this.instantiatedCompositeItems.get(compositeId);
+    if (composite) {
+      this.updateTitle(compositeId, composite.composite.getTitle());
+    }
+    if (this.activeComposite?.getId() === compositeId) {
+      const actionsBinding = this.collectCompositeActions(
+        this.activeComposite
+      );
+      this.mapActionsBindingToComposite.set(
+        this.activeComposite.getId(),
+        actionsBinding
+      );
+      actionsBinding();
+    } else {
+      this.mapActionsBindingToComposite.delete(compositeId);
+    }
+  }
+  updateTitle(compositeId, compositeTitle) {
+    const compositeDescriptor = this.registry.getComposite(compositeId);
+    if (!compositeDescriptor || !this.titleLabel) {
+      return;
+    }
+    if (!compositeTitle) {
+      compositeTitle = compositeDescriptor.name;
+    }
+    const keybinding = this.keybindingService.lookupKeybinding(compositeId);
+    this.titleLabel.updateTitle(
+      compositeId,
+      compositeTitle,
+      keybinding?.getLabel() ?? void 0
+    );
+    const toolBar = assertIsDefined(this.toolBar);
+    toolBar.setAriaLabel(
+      localize(
+        "ariaCompositeToolbarLabel",
+        "{0} actions",
+        compositeTitle
+      )
+    );
+  }
+  collectCompositeActions(composite) {
+    const menuIds = composite?.getMenuIds();
+    const primaryActions = composite?.getActions().slice(0) || [];
+    const secondaryActions = composite?.getSecondaryActions().slice(0) || [];
+    const toolBar = assertIsDefined(this.toolBar);
+    toolBar.context = this.actionsContextProvider();
+    return () => toolBar.setActions(
+      prepareActions(primaryActions),
+      prepareActions(secondaryActions),
+      menuIds
+    );
+  }
+  getActiveComposite() {
+    return this.activeComposite;
+  }
+  getLastActiveCompositeId() {
+    return this.lastActiveCompositeId;
+  }
+  hideActiveComposite() {
+    if (!this.activeComposite) {
+      return void 0;
+    }
+    const composite = this.activeComposite;
+    this.activeComposite = void 0;
+    const compositeContainer = this.mapCompositeToCompositeContainer.get(
+      composite.getId()
+    );
+    composite.setVisible(false);
+    if (compositeContainer) {
+      compositeContainer.remove();
+      hide(compositeContainer);
+    }
+    this.progressBar?.stop().hide();
+    if (this.toolBar) {
+      this.collectCompositeActions()();
+    }
+    this.onDidCompositeClose.fire(composite);
+    return composite;
+  }
+  createTitleArea(parent) {
+    const titleArea = append(parent, $(".composite"));
+    titleArea.classList.add("title");
+    this.titleLabel = this.createTitleLabel(titleArea);
+    const titleActionsContainer = append(titleArea, $(".title-actions"));
+    this.toolBar = this._register(
+      this.instantiationService.createInstance(
+        WorkbenchToolBar,
+        titleActionsContainer,
+        {
+          actionViewItemProvider: /* @__PURE__ */ __name((action, options) => this.actionViewItemProvider(action, options), "actionViewItemProvider"),
+          orientation: ActionsOrientation.HORIZONTAL,
+          getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeyBinding"),
+          anchorAlignmentProvider: /* @__PURE__ */ __name(() => this.getTitleAreaDropDownAnchorAlignment(), "anchorAlignmentProvider"),
+          toggleMenuTitle: localize(
+            "viewsAndMoreActions",
+            "Views and More Actions..."
+          ),
+          telemetrySource: this.nameForTelemetry,
+          hoverDelegate: this.toolbarHoverDelegate
+        }
+      )
+    );
+    this.collectCompositeActions()();
+    return titleArea;
+  }
+  createTitleLabel(parent) {
+    const titleContainer = append(parent, $(".title-label"));
+    const titleLabel = append(titleContainer, $("h2"));
+    this.titleLabelElement = titleLabel;
+    const hover = this._register(
+      this.hoverService.setupManagedHover(
+        getDefaultHoverDelegate("mouse"),
+        titleLabel,
+        ""
+      )
+    );
+    return {
+      updateTitle: /* @__PURE__ */ __name((id, title, keybinding) => {
+        if (!this.activeComposite || this.activeComposite.getId() === id) {
+          titleLabel.innerText = title;
+          hover.update(
+            keybinding ? localize(
+              "titleTooltip",
+              "{0} ({1})",
+              title,
+              keybinding
+            ) : title
+          );
+        }
+      }, "updateTitle"),
+      updateStyles: /* @__PURE__ */ __name(() => {
+        titleLabel.style.color = this.titleForegroundColor ? this.getColor(this.titleForegroundColor) || "" : "";
+      }, "updateStyles")
+    };
+  }
+  createHeaderArea() {
+    return $(".composite");
+  }
+  createFooterArea() {
+    return $(".composite");
+  }
+  updateStyles() {
+    super.updateStyles();
+    const titleLabel = assertIsDefined(this.titleLabel);
+    titleLabel.updateStyles();
+  }
+  actionViewItemProvider(action, options) {
+    if (this.activeComposite) {
+      return this.activeComposite.getActionViewItem(action, options);
+    }
+    return createActionViewItem(this.instantiationService, action, options);
+  }
+  actionsContextProvider() {
+    if (this.activeComposite) {
+      return this.activeComposite.getActionsContext();
+    }
+    return null;
+  }
+  createContentArea(parent) {
+    const contentContainer = append(parent, $(".content"));
+    this.progressBar = this._register(
+      new ProgressBar(contentContainer, defaultProgressBarStyles)
+    );
+    this.progressBar.hide();
+    return contentContainer;
+  }
+  getProgressIndicator(id) {
+    const compositeItem = this.instantiatedCompositeItems.get(id);
+    return compositeItem ? compositeItem.progress : void 0;
+  }
+  getTitleAreaDropDownAnchorAlignment() {
+    return AnchorAlignment.RIGHT;
+  }
+  layout(width, height, top, left) {
+    super.layout(width, height, top, left);
+    this.contentAreaSize = Dimension.lift(
+      super.layoutContents(width, height).contentSize
+    );
+    this.activeComposite?.layout(this.contentAreaSize);
+  }
+  setBoundarySashes(sashes) {
+    this.boundarySashes = sashes;
+    this.activeComposite?.setBoundarySashes(sashes);
+  }
+  removeComposite(compositeId) {
+    if (this.activeComposite?.getId() === compositeId) {
+      return false;
+    }
+    this.mapCompositeToCompositeContainer.delete(compositeId);
+    this.mapActionsBindingToComposite.delete(compositeId);
+    const compositeItem = this.instantiatedCompositeItems.get(compositeId);
+    if (compositeItem) {
+      compositeItem.composite.dispose();
+      dispose(compositeItem.disposable);
+      this.instantiatedCompositeItems.delete(compositeId);
+    }
+    return true;
+  }
+  dispose() {
+    this.mapCompositeToCompositeContainer.clear();
+    this.mapActionsBindingToComposite.clear();
+    this.instantiatedCompositeItems.forEach((compositeItem) => {
+      compositeItem.composite.dispose();
+      dispose(compositeItem.disposable);
+    });
+    this.instantiatedCompositeItems.clear();
+    super.dispose();
+  }
+}
+export {
+  CompositePart
+};
+//# sourceMappingURL=compositePart.js.map

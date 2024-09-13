@@ -1,1 +1,98 @@
-var f=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var d=(i,o,t,e)=>{for(var n=e>1?void 0:e?m(o,t):o,r=i.length-1,c;r>=0;r--)(c=i[r])&&(n=(e?c(o,t,n):c(n))||n);return e&&n&&f(o,t,n),n},a=(i,o)=>(t,e)=>o(t,e,i);import{Dimension as u,getActiveDocument as p}from"../../../../base/browser/dom.js";import{HoverPosition as h}from"../../../../base/browser/ui/hover/hoverWidget.js";import{codiconsLibrary as l}from"../../../../base/common/codiconsLibrary.js";import{Lazy as I}from"../../../../base/common/lazy.js";import{Disposable as S}from"../../../../base/common/lifecycle.js";import{IHoverService as v}from"../../../../platform/hover/browser/hover.js";import{IInstantiationService as x}from"../../../../platform/instantiation/common/instantiation.js";import{defaultInputBoxStyles as y}from"../../../../platform/theme/browser/defaultStyles.js";import{getIconRegistry as B}from"../../../../platform/theme/common/iconRegistry.js";import{WorkbenchIconSelectBox as _}from"../../../services/userDataProfile/browser/iconSelectBox.js";const b=new I(()=>{const i=B().getIcons(),o=new Set;return i.filter(e=>e.id===l.blank.id||!("fontCharacter"in e.defaults)||o.has(e.defaults.fontCharacter)?!1:(o.add(e.defaults.fontCharacter),!0))});let s=class extends S{constructor(t,e){super();this._hoverService=e;this._iconSelectBox=t.createInstance(_,{icons:b.value,inputBoxStyles:y,showIconInfo:!0})}_iconSelectBox;async pickIcons(){const t=new u(486,260);return new Promise(e=>{this._register(this._iconSelectBox.onDidSelect(r=>{e(r),this._iconSelectBox.dispose()})),this._iconSelectBox.clearInput();const n=this._hoverService.showHover({content:this._iconSelectBox.domNode,target:p().body,position:{hoverPosition:h.BELOW},persistence:{sticky:!0},appearance:{showPointer:!0}},!0);n&&this._register(n),this._iconSelectBox.layout(t),this._iconSelectBox.focus()})}};s=d([a(0,x),a(1,v)],s);export{s as TerminalIconPicker};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Dimension, getActiveDocument } from "../../../../base/browser/dom.js";
+import { HoverPosition } from "../../../../base/browser/ui/hover/hoverWidget.js";
+import { codiconsLibrary } from "../../../../base/common/codiconsLibrary.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { defaultInputBoxStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import {
+  getIconRegistry
+} from "../../../../platform/theme/common/iconRegistry.js";
+import { WorkbenchIconSelectBox } from "../../../services/userDataProfile/browser/iconSelectBox.js";
+const icons = new Lazy(() => {
+  const iconDefinitions = getIconRegistry().getIcons();
+  const includedChars = /* @__PURE__ */ new Set();
+  const dedupedIcons = iconDefinitions.filter((e) => {
+    if (e.id === codiconsLibrary.blank.id) {
+      return false;
+    }
+    if (!("fontCharacter" in e.defaults)) {
+      return false;
+    }
+    if (includedChars.has(e.defaults.fontCharacter)) {
+      return false;
+    }
+    includedChars.add(e.defaults.fontCharacter);
+    return true;
+  });
+  return dedupedIcons;
+});
+let TerminalIconPicker = class extends Disposable {
+  constructor(instantiationService, _hoverService) {
+    super();
+    this._hoverService = _hoverService;
+    this._iconSelectBox = instantiationService.createInstance(WorkbenchIconSelectBox, {
+      icons: icons.value,
+      inputBoxStyles: defaultInputBoxStyles,
+      showIconInfo: true
+    });
+  }
+  static {
+    __name(this, "TerminalIconPicker");
+  }
+  _iconSelectBox;
+  async pickIcons() {
+    const dimension = new Dimension(486, 260);
+    return new Promise((resolve) => {
+      this._register(
+        this._iconSelectBox.onDidSelect((e) => {
+          resolve(e);
+          this._iconSelectBox.dispose();
+        })
+      );
+      this._iconSelectBox.clearInput();
+      const hoverWidget = this._hoverService.showHover(
+        {
+          content: this._iconSelectBox.domNode,
+          target: getActiveDocument().body,
+          position: {
+            hoverPosition: HoverPosition.BELOW
+          },
+          persistence: {
+            sticky: true
+          },
+          appearance: {
+            showPointer: true
+          }
+        },
+        true
+      );
+      if (hoverWidget) {
+        this._register(hoverWidget);
+      }
+      this._iconSelectBox.layout(dimension);
+      this._iconSelectBox.focus();
+    });
+  }
+};
+TerminalIconPicker = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, IHoverService)
+], TerminalIconPicker);
+export {
+  TerminalIconPicker
+};
+//# sourceMappingURL=terminalIconPicker.js.map

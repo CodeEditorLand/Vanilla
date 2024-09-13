@@ -1,1 +1,76 @@
-import{Disposable as n}from"../../../../../base/common/lifecycle.js";import{MouseTargetType as s}from"../../../../browser/editorBrowser.js";import{EditorOption as a}from"../../../../common/config/editorOptions.js";import{Range as d}from"../../../../common/core/range.js";import{ContentHoverController as c}from"../../../hover/browser/contentHoverController.js";import{HoverStartMode as m,HoverStartSource as u}from"../../../hover/browser/hoverOperation.js";import{ColorDecorationInjectedTextMarker as l}from"../colorDetector.js";class T extends n{constructor(r){super();this._editor=r;this._register(r.onMouseDown(t=>this.onMouseDown(t)))}static ID="editor.contrib.colorContribution";static RECOMPUTE_TIME=1e3;dispose(){super.dispose()}onMouseDown(r){const t=this._editor.getOption(a.colorDecoratorsActivatedOn);if(t!=="click"&&t!=="clickAndHover")return;const o=r.target;if(o.type!==s.CONTENT_TEXT||!o.detail.injectedText||o.detail.injectedText.options.attachedData!==l||!o.range)return;const e=this._editor.getContribution(c.ID);if(e&&!e.isColorPickerVisible){const i=new d(o.range.startLineNumber,o.range.startColumn+1,o.range.endLineNumber,o.range.endColumn+1);e.showContentHover(i,m.Immediate,u.Mouse,!1,!0)}}}export{T as HoverColorPickerContribution};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import {
+  MouseTargetType
+} from "../../../../browser/editorBrowser.js";
+import { EditorOption } from "../../../../common/config/editorOptions.js";
+import { Range } from "../../../../common/core/range.js";
+import { ContentHoverController } from "../../../hover/browser/contentHoverController.js";
+import {
+  HoverStartMode,
+  HoverStartSource
+} from "../../../hover/browser/hoverOperation.js";
+import { ColorDecorationInjectedTextMarker } from "../colorDetector.js";
+class HoverColorPickerContribution extends Disposable {
+  // ms
+  constructor(_editor) {
+    super();
+    this._editor = _editor;
+    this._register(_editor.onMouseDown((e) => this.onMouseDown(e)));
+  }
+  static {
+    __name(this, "HoverColorPickerContribution");
+  }
+  static ID = "editor.contrib.colorContribution";
+  static RECOMPUTE_TIME = 1e3;
+  dispose() {
+    super.dispose();
+  }
+  onMouseDown(mouseEvent) {
+    const colorDecoratorsActivatedOn = this._editor.getOption(
+      EditorOption.colorDecoratorsActivatedOn
+    );
+    if (colorDecoratorsActivatedOn !== "click" && colorDecoratorsActivatedOn !== "clickAndHover") {
+      return;
+    }
+    const target = mouseEvent.target;
+    if (target.type !== MouseTargetType.CONTENT_TEXT) {
+      return;
+    }
+    if (!target.detail.injectedText) {
+      return;
+    }
+    if (target.detail.injectedText.options.attachedData !== ColorDecorationInjectedTextMarker) {
+      return;
+    }
+    if (!target.range) {
+      return;
+    }
+    const hoverController = this._editor.getContribution(
+      ContentHoverController.ID
+    );
+    if (!hoverController) {
+      return;
+    }
+    if (!hoverController.isColorPickerVisible) {
+      const range = new Range(
+        target.range.startLineNumber,
+        target.range.startColumn + 1,
+        target.range.endLineNumber,
+        target.range.endColumn + 1
+      );
+      hoverController.showContentHover(
+        range,
+        HoverStartMode.Immediate,
+        HoverStartSource.Mouse,
+        false,
+        true
+      );
+    }
+  }
+}
+export {
+  HoverColorPickerContribution
+};
+//# sourceMappingURL=hoverColorPickerContribution.js.map

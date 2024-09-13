@@ -1,1 +1,118 @@
-import*as o from"../../../base/browser/dom.js";import{DomEmitter as c}from"../../../base/browser/event.js";import{StandardKeyboardEvent as h}from"../../../base/browser/keyboardEvent.js";import{Gesture as v,EventType as S}from"../../../base/browser/touch.js";import{renderLabelWithIcons as E}from"../../../base/browser/ui/iconLabel/iconLabels.js";import{Event as m}from"../../../base/common/event.js";import{IdGenerator as w}from"../../../base/common/idGenerator.js";import{KeyCode as u}from"../../../base/common/keyCodes.js";import{parseLinkedText as T}from"../../../base/common/linkedText.js";import"./media/quickInput.css";import{localize as x}from"../../../nls.js";const p={},$=new w("quick-input-button-icon-");function D(t){if(!t)return;let e;const n=t.dark.toString();return p[n]?e=p[n]:(e=$.nextId(),o.createCSSRule(`.${e}, .hc-light .${e}`,`background-image: ${o.asCSSUrl(t.light||t.dark)}`),o.createCSSRule(`.vs-dark .${e}, .hc-black .${e}`,`background-image: ${o.asCSSUrl(t.dark)}`),p[n]=e),e}function Q(t,e,n){let r=t.iconClass||D(t.iconPath);return t.alwaysVisible&&(r=r?`${r} always-visible`:"always-visible"),{id:e,label:"",tooltip:t.tooltip||"",class:r,enabled:!0,run:n}}function W(t,e,n){o.reset(e);const r=T(t);let f=0;for(const s of r.nodes)if(typeof s=="string")e.append(...E(s));else{let a=s.title;!a&&s.href.startsWith("command:")?a=x("executeCommand","Click to execute command '{0}'",s.href.substring(8)):a||(a=s.href);const i=o.$("a",{href:s.href,title:a,tabIndex:f++},s.label);i.style.textDecoration="underline";const b=l=>{o.isEventLike(l)&&o.EventHelper.stop(l,!0),n.callback(s.href)},k=n.disposables.add(new c(i,o.EventType.CLICK)).event,g=n.disposables.add(new c(i,o.EventType.KEY_DOWN)).event,y=m.chain(g,l=>l.filter(C=>{const d=new h(C);return d.equals(u.Space)||d.equals(u.Enter)}));n.disposables.add(v.addTarget(i));const I=n.disposables.add(new c(i,S.Tap)).event;m.any(k,I,y)(b,null,n.disposables),e.appendChild(i)}}export{Q as quickInputButtonToAction,W as renderQuickInputDescription};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../base/browser/dom.js";
+import { DomEmitter } from "../../../base/browser/event.js";
+import { StandardKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
+import {
+  Gesture,
+  EventType as GestureEventType
+} from "../../../base/browser/touch.js";
+import { renderLabelWithIcons } from "../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Event } from "../../../base/common/event.js";
+import { IdGenerator } from "../../../base/common/idGenerator.js";
+import { KeyCode } from "../../../base/common/keyCodes.js";
+import { parseLinkedText } from "../../../base/common/linkedText.js";
+import "./media/quickInput.css";
+import { localize } from "../../../nls.js";
+const iconPathToClass = {};
+const iconClassGenerator = new IdGenerator("quick-input-button-icon-");
+function getIconClass(iconPath) {
+  if (!iconPath) {
+    return void 0;
+  }
+  let iconClass;
+  const key = iconPath.dark.toString();
+  if (iconPathToClass[key]) {
+    iconClass = iconPathToClass[key];
+  } else {
+    iconClass = iconClassGenerator.nextId();
+    dom.createCSSRule(
+      `.${iconClass}, .hc-light .${iconClass}`,
+      `background-image: ${dom.asCSSUrl(iconPath.light || iconPath.dark)}`
+    );
+    dom.createCSSRule(
+      `.vs-dark .${iconClass}, .hc-black .${iconClass}`,
+      `background-image: ${dom.asCSSUrl(iconPath.dark)}`
+    );
+    iconPathToClass[key] = iconClass;
+  }
+  return iconClass;
+}
+__name(getIconClass, "getIconClass");
+function quickInputButtonToAction(button, id, run) {
+  let cssClasses = button.iconClass || getIconClass(button.iconPath);
+  if (button.alwaysVisible) {
+    cssClasses = cssClasses ? `${cssClasses} always-visible` : "always-visible";
+  }
+  return {
+    id,
+    label: "",
+    tooltip: button.tooltip || "",
+    class: cssClasses,
+    enabled: true,
+    run
+  };
+}
+__name(quickInputButtonToAction, "quickInputButtonToAction");
+function renderQuickInputDescription(description, container, actionHandler) {
+  dom.reset(container);
+  const parsed = parseLinkedText(description);
+  let tabIndex = 0;
+  for (const node of parsed.nodes) {
+    if (typeof node === "string") {
+      container.append(...renderLabelWithIcons(node));
+    } else {
+      let title = node.title;
+      if (!title && node.href.startsWith("command:")) {
+        title = localize(
+          "executeCommand",
+          "Click to execute command '{0}'",
+          node.href.substring("command:".length)
+        );
+      } else if (!title) {
+        title = node.href;
+      }
+      const anchor = dom.$(
+        "a",
+        { href: node.href, title, tabIndex: tabIndex++ },
+        node.label
+      );
+      anchor.style.textDecoration = "underline";
+      const handleOpen = /* @__PURE__ */ __name((e) => {
+        if (dom.isEventLike(e)) {
+          dom.EventHelper.stop(e, true);
+        }
+        actionHandler.callback(node.href);
+      }, "handleOpen");
+      const onClick = actionHandler.disposables.add(
+        new DomEmitter(anchor, dom.EventType.CLICK)
+      ).event;
+      const onKeydown = actionHandler.disposables.add(
+        new DomEmitter(anchor, dom.EventType.KEY_DOWN)
+      ).event;
+      const onSpaceOrEnter = Event.chain(
+        onKeydown,
+        ($) => $.filter((e) => {
+          const event = new StandardKeyboardEvent(e);
+          return event.equals(KeyCode.Space) || event.equals(KeyCode.Enter);
+        })
+      );
+      actionHandler.disposables.add(Gesture.addTarget(anchor));
+      const onTap = actionHandler.disposables.add(
+        new DomEmitter(anchor, GestureEventType.Tap)
+      ).event;
+      Event.any(onClick, onTap, onSpaceOrEnter)(
+        handleOpen,
+        null,
+        actionHandler.disposables
+      );
+      container.appendChild(anchor);
+    }
+  }
+}
+__name(renderQuickInputDescription, "renderQuickInputDescription");
+export {
+  quickInputButtonToAction,
+  renderQuickInputDescription
+};
+//# sourceMappingURL=quickInputUtils.js.map

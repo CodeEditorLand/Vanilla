@@ -1,1 +1,119 @@
-import{$ as t,append as n,show as H}from"../../../../base/browser/dom.js";import{IconLabel as C}from"../../../../base/browser/ui/iconLabel/iconLabel.js";import{Codicon as v}from"../../../../base/common/codicons.js";import{Emitter as F}from"../../../../base/common/event.js";import{createMatches as M}from"../../../../base/common/filters.js";import{DisposableStore as w}from"../../../../base/common/lifecycle.js";import{ThemeIcon as W}from"../../../../base/common/themables.js";function N(l){return`simple-suggest-aria-id:${l}`}class V{constructor(o){this._getFontInfo=o}_onDidToggleDetails=new F;onDidToggleDetails=this._onDidToggleDetails.event;templateId="suggestion";dispose(){this._onDidToggleDetails.dispose()}renderTemplate(o){const r=new w,e=o;e.classList.add("show-file-icons");const i=n(o,t(".icon")),p=n(i,t("span.colorspan")),d=n(o,t(".contents")),s=n(d,t(".main")),u=n(s,t(".icon-label.codicon")),a=n(s,t("span.left")),c=n(s,t("span.right")),g=new C(a,{supportHighlights:!0,supportIcons:!0});r.add(g);const b=n(a,t("span.signature-label")),f=n(a,t("span.qualifier-label")),L=n(c,t("span.details-label"));return(()=>{const y="",{fontFamily:S,fontSize:I,lineHeight:h,fontWeight:T,letterSpacing:x}=this._getFontInfo(),D=`${I}px`,m=`${h}px`,E=`${x}px`;e.style.fontSize=D,e.style.fontWeight=T,e.style.letterSpacing=E,s.style.fontFamily=S,s.style.fontFeatureSettings=y,s.style.lineHeight=m,i.style.height=m,i.style.width=m})(),{root:e,left:a,right:c,icon:i,colorspan:p,iconLabel:g,iconContainer:u,parametersLabel:b,qualifierLabel:f,detailsLabel:L,disposables:r}}renderElement(o,r,e){const{completion:i}=o;e.root.id=N(r),e.colorspan.style.backgroundColor="";const p={labelEscapeNewLines:!0,matches:M(o.score)};e.icon.className="icon hide",e.iconContainer.className="",e.iconContainer.classList.add("suggest-icon",...W.asClassNameArray(i.icon||v.symbolText)),e.iconLabel.setLabel(i.label,void 0,p),e.parametersLabel.textContent="",e.detailsLabel.textContent=_(i.detail||""),e.root.classList.add("string-label"),H(e.detailsLabel),e.right.classList.remove("can-expand-details")}disposeTemplate(o){o.disposables.dispose()}}function _(l){return l.replace(/\r\n|\r|\n/g,"")}export{V as SimpleSuggestWidgetItemRenderer,N as getAriaId};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { $, append, show } from "../../../../base/browser/dom.js";
+import {
+  IconLabel
+} from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { createMatches } from "../../../../base/common/filters.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+function getAriaId(index) {
+  return `simple-suggest-aria-id:${index}`;
+}
+__name(getAriaId, "getAriaId");
+class SimpleSuggestWidgetItemRenderer {
+  constructor(_getFontInfo) {
+    this._getFontInfo = _getFontInfo;
+  }
+  static {
+    __name(this, "SimpleSuggestWidgetItemRenderer");
+  }
+  _onDidToggleDetails = new Emitter();
+  onDidToggleDetails = this._onDidToggleDetails.event;
+  templateId = "suggestion";
+  dispose() {
+    this._onDidToggleDetails.dispose();
+  }
+  renderTemplate(container) {
+    const disposables = new DisposableStore();
+    const root = container;
+    root.classList.add("show-file-icons");
+    const icon = append(container, $(".icon"));
+    const colorspan = append(icon, $("span.colorspan"));
+    const text = append(container, $(".contents"));
+    const main = append(text, $(".main"));
+    const iconContainer = append(main, $(".icon-label.codicon"));
+    const left = append(main, $("span.left"));
+    const right = append(main, $("span.right"));
+    const iconLabel = new IconLabel(left, {
+      supportHighlights: true,
+      supportIcons: true
+    });
+    disposables.add(iconLabel);
+    const parametersLabel = append(left, $("span.signature-label"));
+    const qualifierLabel = append(left, $("span.qualifier-label"));
+    const detailsLabel = append(right, $("span.details-label"));
+    const configureFont = /* @__PURE__ */ __name(() => {
+      const fontFeatureSettings = "";
+      const {
+        fontFamily,
+        fontSize,
+        lineHeight,
+        fontWeight,
+        letterSpacing
+      } = this._getFontInfo();
+      const fontSizePx = `${fontSize}px`;
+      const lineHeightPx = `${lineHeight}px`;
+      const letterSpacingPx = `${letterSpacing}px`;
+      root.style.fontSize = fontSizePx;
+      root.style.fontWeight = fontWeight;
+      root.style.letterSpacing = letterSpacingPx;
+      main.style.fontFamily = fontFamily;
+      main.style.fontFeatureSettings = fontFeatureSettings;
+      main.style.lineHeight = lineHeightPx;
+      icon.style.height = lineHeightPx;
+      icon.style.width = lineHeightPx;
+    }, "configureFont");
+    configureFont();
+    return {
+      root,
+      left,
+      right,
+      icon,
+      colorspan,
+      iconLabel,
+      iconContainer,
+      parametersLabel,
+      qualifierLabel,
+      detailsLabel,
+      disposables
+    };
+  }
+  renderElement(element, index, data) {
+    const { completion } = element;
+    data.root.id = getAriaId(index);
+    data.colorspan.style.backgroundColor = "";
+    const labelOptions = {
+      labelEscapeNewLines: true,
+      matches: createMatches(element.score)
+    };
+    data.icon.className = "icon hide";
+    data.iconContainer.className = "";
+    data.iconContainer.classList.add(
+      "suggest-icon",
+      ...ThemeIcon.asClassNameArray(
+        completion.icon || Codicon.symbolText
+      )
+    );
+    data.iconLabel.setLabel(completion.label, void 0, labelOptions);
+    data.parametersLabel.textContent = "";
+    data.detailsLabel.textContent = stripNewLines(completion.detail || "");
+    data.root.classList.add("string-label");
+    show(data.detailsLabel);
+    data.right.classList.remove("can-expand-details");
+  }
+  disposeTemplate(templateData) {
+    templateData.disposables.dispose();
+  }
+}
+function stripNewLines(str) {
+  return str.replace(/\r\n|\r|\n/g, "");
+}
+__name(stripNewLines, "stripNewLines");
+export {
+  SimpleSuggestWidgetItemRenderer,
+  getAriaId
+};
+//# sourceMappingURL=simpleSuggestWidgetRenderer.js.map

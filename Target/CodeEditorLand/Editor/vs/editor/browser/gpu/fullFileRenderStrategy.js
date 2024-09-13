@@ -1,1 +1,229 @@
-import{getActiveWindow as V}from"../../../base/browser/dom.js";import{BugIndicatingError as z}from"../../../base/common/errors.js";import{Disposable as D}from"../../../base/common/lifecycle.js";import{EditorOption as w}from"../../common/config/editorOptions.js";import{fullFileRenderStrategyWgsl as N}from"./fullFileRenderStrategy.wgsl.js";import{BindingId as M}from"./gpu.js";import{GPULifecycle as S}from"./gpuDisposable.js";import{quadVertices as k}from"./gpuUtils.js";import{GlyphRasterizer as Y}from"./raster/glyphRasterizer.js";var X=(x=>(x[x.IndicesPerCell=6]="IndicesPerCell",x))(X||{}),W=(e=>(e[e.FloatsPerEntry=6]="FloatsPerEntry",e[e.BytesPerEntry=24]="BytesPerEntry",e[e.Offset_X=0]="Offset_X",e[e.Offset_Y=1]="Offset_Y",e[e.Offset_Unused1=2]="Offset_Unused1",e[e.Offset_Unused2=3]="Offset_Unused2",e[e.GlyphIndex=4]="GlyphIndex",e[e.TextureIndex=5]="TextureIndex",e))(W||{});class n extends D{constructor(i,p,u,t){super();this._context=i;this._device=p;this._canvas=u;this._atlas=t;const r=V(),m=this._context.configuration.options.get(w.fontFamily),e=Math.ceil(this._context.configuration.options.get(w.fontSize)*r.devicePixelRatio);this._glyphRasterizer=this._register(new Y(e,m));const o=n._lineCount*n._columnCount*6*Float32Array.BYTES_PER_ELEMENT;this._cellBindBuffer=this._register(S.createBuffer(this._device,{label:"Monaco full file cell buffer",size:o,usage:GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST})).object,this._cellValueBuffers=[new ArrayBuffer(o),new ArrayBuffer(o)];const s=2;this._scrollOffsetBindBuffer=this._register(S.createBuffer(this._device,{label:"Monaco scroll offset buffer",size:s*Float32Array.BYTES_PER_ELEMENT,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST})).object,this._scrollOffsetValueBuffers=[new Float32Array(s),new Float32Array(s)]}static _lineCount=3e3;static _columnCount=200;wgsl=N;_glyphRasterizer;_cellBindBuffer;_cellValueBuffers;_activeDoubleBufferIndex=0;_upToDateLines=[new Set,new Set];_visibleObjectCount=0;_scrollOffsetBindBuffer;_scrollOffsetValueBuffers;get bindGroupEntries(){return[{binding:M.Cells,resource:{buffer:this._cellBindBuffer}},{binding:M.ScrollOffset,resource:{buffer:this._scrollOffsetBindBuffer}}]}update(i,p){let u="",t=0,r=0,m=0,e=0,o=0,s=0,O=0,P=0,c=0,B,d=0,_=0,a=0,T=0,h,L="",A=0,C=0,y;const E=V(),R=this._context.viewLayout.getCurrentScrollTop()*E.devicePixelRatio,I=this._scrollOffsetValueBuffers[this._activeDoubleBufferIndex];I[1]=R,this._device.queue.writeBuffer(this._scrollOffsetBindBuffer,0,I);const l=new Float32Array(this._cellValueBuffers[this._activeDoubleBufferIndex]),v=n._columnCount*6,U=this._upToDateLines[this._activeDoubleBufferIndex];let f=Number.MAX_SAFE_INTEGER,b=0;for(t=i.startLineNumber;t<=i.endLineNumber;t++){f=Math.min(f,t),b=Math.max(b,t),h=i.getViewLineRenderingData(t),L=h.content,c=0,y=h.tokens,_=h.minColumn-1,a=0;for(let g=0,j=y.getCount();g<j;g++)if(a=y.getEndOffset(g),!(a<=_)){for(T=y.getMetadata(g),r=_;r<a&&!(r>n._columnCount);r++)if(u=L.charAt(r),u!==" "){if(u==="	"){c+=3;continue}B=this._atlas.getGlyph(this._glyphRasterizer,u,T),m=Math.round((r+c)*p.spaceWidth*E.devicePixelRatio),e=Math.ceil((i.relativeVerticalOffset[t-i.startLineNumber]+Math.floor((i.lineHeight-this._context.configuration.options.get(w.fontSize))/2))*E.devicePixelRatio),o=m/this._canvas.width,s=e/this._canvas.height,O=o*2-1,P=s*2-1,d=((t-1)*n._columnCount+(r+c))*6,l[d+0]=O,l[d+1]=-P,l[d+4]=B.glyphIndex,l[d+5]=B.pageIndex}_=a}A=((t-1)*n._columnCount+(a+c))*6,C=t*n._columnCount*6,l.fill(0,A,C),U.add(t)}const G=(i.endLineNumber-i.startLineNumber+1)*v;return f<=b&&this._device.queue.writeBuffer(this._cellBindBuffer,(f-1)*v*Float32Array.BYTES_PER_ELEMENT,l.buffer,(f-1)*v*Float32Array.BYTES_PER_ELEMENT,(b-f+1)*v*Float32Array.BYTES_PER_ELEMENT),this._activeDoubleBufferIndex=this._activeDoubleBufferIndex?0:1,this._visibleObjectCount=G,G}draw(i,p){if(this._visibleObjectCount<=0)throw new z("Attempt to draw 0 objects");i.draw(k.length/2,this._visibleObjectCount,void 0,(p.startLineNumber-1)*n._columnCount)}}export{n as FullFileRenderStrategy};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getActiveWindow } from "../../../base/browser/dom.js";
+import { BugIndicatingError } from "../../../base/common/errors.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { EditorOption } from "../../common/config/editorOptions.js";
+import { fullFileRenderStrategyWgsl } from "./fullFileRenderStrategy.wgsl.js";
+import { BindingId } from "./gpu.js";
+import { GPULifecycle } from "./gpuDisposable.js";
+import { quadVertices } from "./gpuUtils.js";
+import { GlyphRasterizer } from "./raster/glyphRasterizer.js";
+var Constants = /* @__PURE__ */ ((Constants2) => {
+  Constants2[Constants2["IndicesPerCell"] = 6] = "IndicesPerCell";
+  return Constants2;
+})(Constants || {});
+var CellBufferInfo = /* @__PURE__ */ ((CellBufferInfo2) => {
+  CellBufferInfo2[CellBufferInfo2["FloatsPerEntry"] = 6] = "FloatsPerEntry";
+  CellBufferInfo2[CellBufferInfo2["BytesPerEntry"] = 24] = "BytesPerEntry";
+  CellBufferInfo2[CellBufferInfo2["Offset_X"] = 0] = "Offset_X";
+  CellBufferInfo2[CellBufferInfo2["Offset_Y"] = 1] = "Offset_Y";
+  CellBufferInfo2[CellBufferInfo2["Offset_Unused1"] = 2] = "Offset_Unused1";
+  CellBufferInfo2[CellBufferInfo2["Offset_Unused2"] = 3] = "Offset_Unused2";
+  CellBufferInfo2[CellBufferInfo2["GlyphIndex"] = 4] = "GlyphIndex";
+  CellBufferInfo2[CellBufferInfo2["TextureIndex"] = 5] = "TextureIndex";
+  return CellBufferInfo2;
+})(CellBufferInfo || {});
+class FullFileRenderStrategy extends Disposable {
+  constructor(_context, _device, _canvas, _atlas) {
+    super();
+    this._context = _context;
+    this._device = _device;
+    this._canvas = _canvas;
+    this._atlas = _atlas;
+    const activeWindow = getActiveWindow();
+    const fontFamily = this._context.configuration.options.get(
+      EditorOption.fontFamily
+    );
+    const fontSize = Math.ceil(
+      this._context.configuration.options.get(EditorOption.fontSize) * activeWindow.devicePixelRatio
+    );
+    this._glyphRasterizer = this._register(
+      new GlyphRasterizer(fontSize, fontFamily)
+    );
+    const bufferSize = FullFileRenderStrategy._lineCount * FullFileRenderStrategy._columnCount * 6 /* IndicesPerCell */ * Float32Array.BYTES_PER_ELEMENT;
+    this._cellBindBuffer = this._register(
+      GPULifecycle.createBuffer(this._device, {
+        label: "Monaco full file cell buffer",
+        size: bufferSize,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+      })
+    ).object;
+    this._cellValueBuffers = [
+      new ArrayBuffer(bufferSize),
+      new ArrayBuffer(bufferSize)
+    ];
+    const scrollOffsetBufferSize = 2;
+    this._scrollOffsetBindBuffer = this._register(
+      GPULifecycle.createBuffer(this._device, {
+        label: "Monaco scroll offset buffer",
+        size: scrollOffsetBufferSize * Float32Array.BYTES_PER_ELEMENT,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+      })
+    ).object;
+    this._scrollOffsetValueBuffers = [
+      new Float32Array(scrollOffsetBufferSize),
+      new Float32Array(scrollOffsetBufferSize)
+    ];
+  }
+  static {
+    __name(this, "FullFileRenderStrategy");
+  }
+  static _lineCount = 3e3;
+  static _columnCount = 200;
+  wgsl = fullFileRenderStrategyWgsl;
+  _glyphRasterizer;
+  _cellBindBuffer;
+  /**
+   * The cell value buffers, these hold the cells and their glyphs. It's double buffers such that
+   * the thread doesn't block when one is being uploaded to the GPU.
+   */
+  _cellValueBuffers;
+  _activeDoubleBufferIndex = 0;
+  _upToDateLines = [
+    /* @__PURE__ */ new Set(),
+    /* @__PURE__ */ new Set()
+  ];
+  _visibleObjectCount = 0;
+  _scrollOffsetBindBuffer;
+  _scrollOffsetValueBuffers;
+  get bindGroupEntries() {
+    return [
+      {
+        binding: BindingId.Cells,
+        resource: { buffer: this._cellBindBuffer }
+      },
+      {
+        binding: BindingId.ScrollOffset,
+        resource: { buffer: this._scrollOffsetBindBuffer }
+      }
+    ];
+  }
+  update(viewportData, viewLineOptions) {
+    let chars = "";
+    let y = 0;
+    let x = 0;
+    let screenAbsoluteX = 0;
+    let screenAbsoluteY = 0;
+    let zeroToOneX = 0;
+    let zeroToOneY = 0;
+    let wgslX = 0;
+    let wgslY = 0;
+    let xOffset = 0;
+    let glyph;
+    let cellIndex = 0;
+    let tokenStartIndex = 0;
+    let tokenEndIndex = 0;
+    let tokenMetadata = 0;
+    let lineData;
+    let content = "";
+    let fillStartIndex = 0;
+    let fillEndIndex = 0;
+    let tokens;
+    const activeWindow = getActiveWindow();
+    const scrollTop = this._context.viewLayout.getCurrentScrollTop() * activeWindow.devicePixelRatio;
+    const scrollOffsetBuffer = this._scrollOffsetValueBuffers[this._activeDoubleBufferIndex];
+    scrollOffsetBuffer[1] = scrollTop;
+    this._device.queue.writeBuffer(
+      this._scrollOffsetBindBuffer,
+      0,
+      scrollOffsetBuffer
+    );
+    const cellBuffer = new Float32Array(
+      this._cellValueBuffers[this._activeDoubleBufferIndex]
+    );
+    const lineIndexCount = FullFileRenderStrategy._columnCount * 6 /* IndicesPerCell */;
+    const upToDateLines = this._upToDateLines[this._activeDoubleBufferIndex];
+    let dirtyLineStart = Number.MAX_SAFE_INTEGER;
+    let dirtyLineEnd = 0;
+    for (y = viewportData.startLineNumber; y <= viewportData.endLineNumber; y++) {
+      dirtyLineStart = Math.min(dirtyLineStart, y);
+      dirtyLineEnd = Math.max(dirtyLineEnd, y);
+      lineData = viewportData.getViewLineRenderingData(y);
+      content = lineData.content;
+      xOffset = 0;
+      tokens = lineData.tokens;
+      tokenStartIndex = lineData.minColumn - 1;
+      tokenEndIndex = 0;
+      for (let tokenIndex = 0, tokensLen = tokens.getCount(); tokenIndex < tokensLen; tokenIndex++) {
+        tokenEndIndex = tokens.getEndOffset(tokenIndex);
+        if (tokenEndIndex <= tokenStartIndex) {
+          continue;
+        }
+        tokenMetadata = tokens.getMetadata(tokenIndex);
+        for (x = tokenStartIndex; x < tokenEndIndex; x++) {
+          if (x > FullFileRenderStrategy._columnCount) {
+            break;
+          }
+          chars = content.charAt(x);
+          if (chars === " ") {
+            continue;
+          }
+          if (chars === "	") {
+            xOffset += 3;
+            continue;
+          }
+          glyph = this._atlas.getGlyph(
+            this._glyphRasterizer,
+            chars,
+            tokenMetadata
+          );
+          screenAbsoluteX = Math.round(
+            (x + xOffset) * viewLineOptions.spaceWidth * activeWindow.devicePixelRatio
+          );
+          screenAbsoluteY = Math.ceil(
+            // Top of line including line height
+            (viewportData.relativeVerticalOffset[y - viewportData.startLineNumber] + // Delta to top of line after line height
+            Math.floor(
+              (viewportData.lineHeight - this._context.configuration.options.get(
+                EditorOption.fontSize
+              )) / 2
+            )) * activeWindow.devicePixelRatio
+          );
+          zeroToOneX = screenAbsoluteX / this._canvas.width;
+          zeroToOneY = screenAbsoluteY / this._canvas.height;
+          wgslX = zeroToOneX * 2 - 1;
+          wgslY = zeroToOneY * 2 - 1;
+          cellIndex = ((y - 1) * FullFileRenderStrategy._columnCount + (x + xOffset)) * 6 /* IndicesPerCell */;
+          cellBuffer[cellIndex + 0 /* Offset_X */] = wgslX;
+          cellBuffer[cellIndex + 1 /* Offset_Y */] = -wgslY;
+          cellBuffer[cellIndex + 4 /* GlyphIndex */] = glyph.glyphIndex;
+          cellBuffer[cellIndex + 5 /* TextureIndex */] = glyph.pageIndex;
+        }
+        tokenStartIndex = tokenEndIndex;
+      }
+      fillStartIndex = ((y - 1) * FullFileRenderStrategy._columnCount + (tokenEndIndex + xOffset)) * 6 /* IndicesPerCell */;
+      fillEndIndex = y * FullFileRenderStrategy._columnCount * 6 /* IndicesPerCell */;
+      cellBuffer.fill(0, fillStartIndex, fillEndIndex);
+      upToDateLines.add(y);
+    }
+    const visibleObjectCount = (viewportData.endLineNumber - viewportData.startLineNumber + 1) * lineIndexCount;
+    if (dirtyLineStart <= dirtyLineEnd) {
+      this._device.queue.writeBuffer(
+        this._cellBindBuffer,
+        (dirtyLineStart - 1) * lineIndexCount * Float32Array.BYTES_PER_ELEMENT,
+        cellBuffer.buffer,
+        (dirtyLineStart - 1) * lineIndexCount * Float32Array.BYTES_PER_ELEMENT,
+        (dirtyLineEnd - dirtyLineStart + 1) * lineIndexCount * Float32Array.BYTES_PER_ELEMENT
+      );
+    }
+    this._activeDoubleBufferIndex = this._activeDoubleBufferIndex ? 0 : 1;
+    this._visibleObjectCount = visibleObjectCount;
+    return visibleObjectCount;
+  }
+  draw(pass, viewportData) {
+    if (this._visibleObjectCount <= 0) {
+      throw new BugIndicatingError("Attempt to draw 0 objects");
+    }
+    pass.draw(
+      quadVertices.length / 2,
+      this._visibleObjectCount,
+      void 0,
+      (viewportData.startLineNumber - 1) * FullFileRenderStrategy._columnCount
+    );
+  }
+}
+export {
+  FullFileRenderStrategy
+};
+//# sourceMappingURL=fullFileRenderStrategy.js.map

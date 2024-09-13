@@ -1,1 +1,140 @@
-var p=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var a=(n,r,e,o)=>{for(var i=o>1?void 0:o?h(r,e):r,t=n.length-1,s;t>=0;t--)(s=n[t])&&(i=(o?s(r,e,i):s(i))||i);return o&&i&&p(r,e,i),i},c=(n,r)=>(e,o)=>r(e,o,n);import{isResourceDiffEditorInput as v}from"../../../common/editor.js";import{DiffEditorInput as g}from"../../../common/editor/diffEditorInput.js";import{EditorModel as y}from"../../../common/editor/editorModel.js";import{IEditorService as I}from"../../../services/editor/common/editorService.js";import{NotebookEditorInput as f}from"./notebookEditorInput.js";class M extends y{constructor(e,o){super();this.original=e;this.modified=o}}let d=class extends g{constructor(e,o,i,t,s,l){super(e,o,i,t,void 0,l);this.original=i;this.modified=t;this.viewType=s}static create(e,o,i,t,s,l){const m=f.getOrCreate(e,s,void 0,l),u=f.getOrCreate(e,o,void 0,l);return e.createInstance(d,i,t,m,u,l)}static ID="workbench.input.diffNotebookInput";_modifiedTextModel=null;_originalTextModel=null;get resource(){return this.modified.resource}get editorId(){return this.viewType}_cachedModel=void 0;get typeId(){return d.ID}async resolve(){const[e,o]=await Promise.all([this.original.resolve(),this.modified.resolve()]);if(this._cachedModel?.dispose(),!o)throw new Error(`Fail to resolve modified editor model for resource ${this.modified.resource} with notebookType ${this.viewType}`);if(!e)throw new Error(`Fail to resolve original editor model for resource ${this.original.resource} with notebookType ${this.viewType}`);return this._originalTextModel=e,this._modifiedTextModel=o,this._cachedModel=new M(this._originalTextModel,this._modifiedTextModel),this._cachedModel}toUntyped(){const e={resource:this.original.resource},o={resource:this.resource};return{original:e,modified:o,primary:o,secondary:e,options:{override:this.viewType}}}matches(e){return this===e?!0:e instanceof d?this.modified.matches(e.modified)&&this.original.matches(e.original)&&this.viewType===e.viewType:v(e)?this.modified.matches(e.modified)&&this.original.matches(e.original)&&this.editorId!==void 0&&(this.editorId===e.options?.override||e.options?.override===void 0):!1}dispose(){super.dispose(),this._cachedModel?.dispose(),this._cachedModel=void 0,this.original.dispose(),this.modified.dispose(),this._originalTextModel=null,this._modifiedTextModel=null}};d=a([c(5,I)],d);export{d as NotebookDiffEditorInput};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  isResourceDiffEditorInput
+} from "../../../common/editor.js";
+import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
+import { EditorModel } from "../../../common/editor/editorModel.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { NotebookEditorInput } from "./notebookEditorInput.js";
+class NotebookDiffEditorModel extends EditorModel {
+  constructor(original, modified) {
+    super();
+    this.original = original;
+    this.modified = modified;
+  }
+  static {
+    __name(this, "NotebookDiffEditorModel");
+  }
+}
+let NotebookDiffEditorInput = class extends DiffEditorInput {
+  constructor(name, description, original, modified, viewType, editorService) {
+    super(name, description, original, modified, void 0, editorService);
+    this.original = original;
+    this.modified = modified;
+    this.viewType = viewType;
+  }
+  static {
+    __name(this, "NotebookDiffEditorInput");
+  }
+  static create(instantiationService, resource, name, description, originalResource, viewType) {
+    const original = NotebookEditorInput.getOrCreate(
+      instantiationService,
+      originalResource,
+      void 0,
+      viewType
+    );
+    const modified = NotebookEditorInput.getOrCreate(
+      instantiationService,
+      resource,
+      void 0,
+      viewType
+    );
+    return instantiationService.createInstance(
+      NotebookDiffEditorInput,
+      name,
+      description,
+      original,
+      modified,
+      viewType
+    );
+  }
+  static ID = "workbench.input.diffNotebookInput";
+  _modifiedTextModel = null;
+  _originalTextModel = null;
+  get resource() {
+    return this.modified.resource;
+  }
+  get editorId() {
+    return this.viewType;
+  }
+  _cachedModel = void 0;
+  get typeId() {
+    return NotebookDiffEditorInput.ID;
+  }
+  async resolve() {
+    const [originalEditorModel, modifiedEditorModel] = await Promise.all([
+      this.original.resolve(),
+      this.modified.resolve()
+    ]);
+    this._cachedModel?.dispose();
+    if (!modifiedEditorModel) {
+      throw new Error(
+        `Fail to resolve modified editor model for resource ${this.modified.resource} with notebookType ${this.viewType}`
+      );
+    }
+    if (!originalEditorModel) {
+      throw new Error(
+        `Fail to resolve original editor model for resource ${this.original.resource} with notebookType ${this.viewType}`
+      );
+    }
+    this._originalTextModel = originalEditorModel;
+    this._modifiedTextModel = modifiedEditorModel;
+    this._cachedModel = new NotebookDiffEditorModel(
+      this._originalTextModel,
+      this._modifiedTextModel
+    );
+    return this._cachedModel;
+  }
+  toUntyped() {
+    const original = { resource: this.original.resource };
+    const modified = { resource: this.resource };
+    return {
+      original,
+      modified,
+      primary: modified,
+      secondary: original,
+      options: {
+        override: this.viewType
+      }
+    };
+  }
+  matches(otherInput) {
+    if (this === otherInput) {
+      return true;
+    }
+    if (otherInput instanceof NotebookDiffEditorInput) {
+      return this.modified.matches(otherInput.modified) && this.original.matches(otherInput.original) && this.viewType === otherInput.viewType;
+    }
+    if (isResourceDiffEditorInput(otherInput)) {
+      return this.modified.matches(otherInput.modified) && this.original.matches(otherInput.original) && this.editorId !== void 0 && (this.editorId === otherInput.options?.override || otherInput.options?.override === void 0);
+    }
+    return false;
+  }
+  dispose() {
+    super.dispose();
+    this._cachedModel?.dispose();
+    this._cachedModel = void 0;
+    this.original.dispose();
+    this.modified.dispose();
+    this._originalTextModel = null;
+    this._modifiedTextModel = null;
+  }
+};
+NotebookDiffEditorInput = __decorateClass([
+  __decorateParam(5, IEditorService)
+], NotebookDiffEditorInput);
+export {
+  NotebookDiffEditorInput
+};
+//# sourceMappingURL=notebookDiffEditorInput.js.map

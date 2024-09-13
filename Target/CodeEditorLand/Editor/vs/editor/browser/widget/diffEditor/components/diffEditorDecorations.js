@@ -1,1 +1,180 @@
-import{Disposable as E}from"../../../../../base/common/lifecycle.js";import{derived as y}from"../../../../../base/common/observable.js";import{MovedBlocksLinesFeature as g}from"../features/movedBlocksLinesFeature.js";import{diffAddDecoration as m,diffAddDecorationEmpty as I,diffDeleteDecoration as u,diffDeleteDecorationEmpty as _,diffLineAddDecorationBackground as D,diffLineAddDecorationBackgroundWithIndicator as R,diffLineDeleteDecorationBackground as h,diffLineDeleteDecorationBackgroundWithIndicator as M,diffWholeLineAddDecoration as b,diffWholeLineDeleteDecoration as k}from"../registrations.contribution.js";import{applyObservableDecorations as v}from"../utils.js";import{allowsTrueInlineDiffRendering as x}from"./diffEditorViewZones/diffEditorViewZones.js";class A extends E{constructor(o,p,r,s){super();this._editors=o;this._diffModel=p;this._options=r;this._register(v(this._editors.original,this._decorations.map(n=>n?.originalDecorations||[]))),this._register(v(this._editors.modified,this._decorations.map(n=>n?.modifiedDecorations||[])))}_decorations=y(this,o=>{const p=this._diffModel.read(o),r=p?.diff.read(o);if(!r)return null;const s=this._diffModel.read(o).movedTextToCompare.read(o),n=this._options.renderIndicators.read(o),l=this._options.showEmptyDecorations.read(o),d=[],t=[];if(!s)for(const i of r.mappings)if(i.lineRangeMapping.original.isEmpty||d.push({range:i.lineRangeMapping.original.toInclusiveRange(),options:n?M:h}),i.lineRangeMapping.modified.isEmpty||t.push({range:i.lineRangeMapping.modified.toInclusiveRange(),options:n?R:D}),i.lineRangeMapping.modified.isEmpty||i.lineRangeMapping.original.isEmpty)i.lineRangeMapping.original.isEmpty||d.push({range:i.lineRangeMapping.original.toInclusiveRange(),options:k}),i.lineRangeMapping.modified.isEmpty||t.push({range:i.lineRangeMapping.modified.toInclusiveRange(),options:b});else{const a=this._options.useTrueInlineDiffRendering.read(o)&&x(i.lineRangeMapping);for(const e of i.lineRangeMapping.innerChanges||[])if(i.lineRangeMapping.original.contains(e.originalRange.startLineNumber)&&d.push({range:e.originalRange,options:e.originalRange.isEmpty()&&l?_:u}),i.lineRangeMapping.modified.contains(e.modifiedRange.startLineNumber)&&t.push({range:e.modifiedRange,options:e.modifiedRange.isEmpty()&&l&&!a?I:m}),a){const f=p.model.original.getValueInRange(e.originalRange);t.push({range:e.modifiedRange,options:{description:"deleted-text",before:{content:f,inlineClassName:"inline-deleted-text"},zIndex:1e5,showIfCollapsed:!0}})}}if(s)for(const i of s.changes){const a=i.original.toInclusiveRange();a&&d.push({range:a,options:n?M:h});const e=i.modified.toInclusiveRange();e&&t.push({range:e,options:n?R:D});for(const f of i.innerChanges||[])d.push({range:f.originalRange,options:u}),t.push({range:f.modifiedRange,options:m})}const c=this._diffModel.read(o).activeMovedText.read(o);for(const i of r.movedTexts)d.push({range:i.lineRangeMapping.original.toInclusiveRange(),options:{description:"moved",blockClassName:"movedOriginal"+(i===c?" currentMove":""),blockPadding:[g.movedCodeBlockPadding,0,g.movedCodeBlockPadding,g.movedCodeBlockPadding]}}),t.push({range:i.lineRangeMapping.modified.toInclusiveRange(),options:{description:"moved",blockClassName:"movedModified"+(i===c?" currentMove":""),blockPadding:[4,0,4,4]}});return{originalDecorations:d,modifiedDecorations:t}})}export{A as DiffEditorDecorations};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import {
+  derived
+} from "../../../../../base/common/observable.js";
+import { MovedBlocksLinesFeature } from "../features/movedBlocksLinesFeature.js";
+import {
+  diffAddDecoration,
+  diffAddDecorationEmpty,
+  diffDeleteDecoration,
+  diffDeleteDecorationEmpty,
+  diffLineAddDecorationBackground,
+  diffLineAddDecorationBackgroundWithIndicator,
+  diffLineDeleteDecorationBackground,
+  diffLineDeleteDecorationBackgroundWithIndicator,
+  diffWholeLineAddDecoration,
+  diffWholeLineDeleteDecoration
+} from "../registrations.contribution.js";
+import { applyObservableDecorations } from "../utils.js";
+import { allowsTrueInlineDiffRendering } from "./diffEditorViewZones/diffEditorViewZones.js";
+class DiffEditorDecorations extends Disposable {
+  constructor(_editors, _diffModel, _options, widget) {
+    super();
+    this._editors = _editors;
+    this._diffModel = _diffModel;
+    this._options = _options;
+    this._register(
+      applyObservableDecorations(
+        this._editors.original,
+        this._decorations.map((d) => d?.originalDecorations || [])
+      )
+    );
+    this._register(
+      applyObservableDecorations(
+        this._editors.modified,
+        this._decorations.map((d) => d?.modifiedDecorations || [])
+      )
+    );
+  }
+  static {
+    __name(this, "DiffEditorDecorations");
+  }
+  _decorations = derived(this, (reader) => {
+    const diffModel = this._diffModel.read(reader);
+    const diff = diffModel?.diff.read(reader);
+    if (!diff) {
+      return null;
+    }
+    const movedTextToCompare = this._diffModel.read(reader).movedTextToCompare.read(reader);
+    const renderIndicators = this._options.renderIndicators.read(reader);
+    const showEmptyDecorations = this._options.showEmptyDecorations.read(reader);
+    const originalDecorations = [];
+    const modifiedDecorations = [];
+    if (!movedTextToCompare) {
+      for (const m of diff.mappings) {
+        if (!m.lineRangeMapping.original.isEmpty) {
+          originalDecorations.push({
+            range: m.lineRangeMapping.original.toInclusiveRange(),
+            options: renderIndicators ? diffLineDeleteDecorationBackgroundWithIndicator : diffLineDeleteDecorationBackground
+          });
+        }
+        if (!m.lineRangeMapping.modified.isEmpty) {
+          modifiedDecorations.push({
+            range: m.lineRangeMapping.modified.toInclusiveRange(),
+            options: renderIndicators ? diffLineAddDecorationBackgroundWithIndicator : diffLineAddDecorationBackground
+          });
+        }
+        if (m.lineRangeMapping.modified.isEmpty || m.lineRangeMapping.original.isEmpty) {
+          if (!m.lineRangeMapping.original.isEmpty) {
+            originalDecorations.push({
+              range: m.lineRangeMapping.original.toInclusiveRange(),
+              options: diffWholeLineDeleteDecoration
+            });
+          }
+          if (!m.lineRangeMapping.modified.isEmpty) {
+            modifiedDecorations.push({
+              range: m.lineRangeMapping.modified.toInclusiveRange(),
+              options: diffWholeLineAddDecoration
+            });
+          }
+        } else {
+          const useInlineDiff = this._options.useTrueInlineDiffRendering.read(reader) && allowsTrueInlineDiffRendering(m.lineRangeMapping);
+          for (const i of m.lineRangeMapping.innerChanges || []) {
+            if (m.lineRangeMapping.original.contains(
+              i.originalRange.startLineNumber
+            )) {
+              originalDecorations.push({
+                range: i.originalRange,
+                options: i.originalRange.isEmpty() && showEmptyDecorations ? diffDeleteDecorationEmpty : diffDeleteDecoration
+              });
+            }
+            if (m.lineRangeMapping.modified.contains(
+              i.modifiedRange.startLineNumber
+            )) {
+              modifiedDecorations.push({
+                range: i.modifiedRange,
+                options: i.modifiedRange.isEmpty() && showEmptyDecorations && !useInlineDiff ? diffAddDecorationEmpty : diffAddDecoration
+              });
+            }
+            if (useInlineDiff) {
+              const deletedText = diffModel.model.original.getValueInRange(
+                i.originalRange
+              );
+              modifiedDecorations.push({
+                range: i.modifiedRange,
+                options: {
+                  description: "deleted-text",
+                  before: {
+                    content: deletedText,
+                    inlineClassName: "inline-deleted-text"
+                  },
+                  zIndex: 1e5,
+                  showIfCollapsed: true
+                }
+              });
+            }
+          }
+        }
+      }
+    }
+    if (movedTextToCompare) {
+      for (const m of movedTextToCompare.changes) {
+        const fullRangeOriginal = m.original.toInclusiveRange();
+        if (fullRangeOriginal) {
+          originalDecorations.push({
+            range: fullRangeOriginal,
+            options: renderIndicators ? diffLineDeleteDecorationBackgroundWithIndicator : diffLineDeleteDecorationBackground
+          });
+        }
+        const fullRangeModified = m.modified.toInclusiveRange();
+        if (fullRangeModified) {
+          modifiedDecorations.push({
+            range: fullRangeModified,
+            options: renderIndicators ? diffLineAddDecorationBackgroundWithIndicator : diffLineAddDecorationBackground
+          });
+        }
+        for (const i of m.innerChanges || []) {
+          originalDecorations.push({
+            range: i.originalRange,
+            options: diffDeleteDecoration
+          });
+          modifiedDecorations.push({
+            range: i.modifiedRange,
+            options: diffAddDecoration
+          });
+        }
+      }
+    }
+    const activeMovedText = this._diffModel.read(reader).activeMovedText.read(reader);
+    for (const m of diff.movedTexts) {
+      originalDecorations.push({
+        range: m.lineRangeMapping.original.toInclusiveRange(),
+        options: {
+          description: "moved",
+          blockClassName: "movedOriginal" + (m === activeMovedText ? " currentMove" : ""),
+          blockPadding: [
+            MovedBlocksLinesFeature.movedCodeBlockPadding,
+            0,
+            MovedBlocksLinesFeature.movedCodeBlockPadding,
+            MovedBlocksLinesFeature.movedCodeBlockPadding
+          ]
+        }
+      });
+      modifiedDecorations.push({
+        range: m.lineRangeMapping.modified.toInclusiveRange(),
+        options: {
+          description: "moved",
+          blockClassName: "movedModified" + (m === activeMovedText ? " currentMove" : ""),
+          blockPadding: [4, 0, 4, 4]
+        }
+      });
+    }
+    return { originalDecorations, modifiedDecorations };
+  });
+}
+export {
+  DiffEditorDecorations
+};
+//# sourceMappingURL=diffEditorDecorations.js.map

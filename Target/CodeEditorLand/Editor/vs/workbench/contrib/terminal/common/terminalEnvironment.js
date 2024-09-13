@@ -1,1 +1,335 @@
-import*as u from"../../../../base/common/path.js";import{OperatingSystem as d,isMacintosh as T,isWindows as p,language as _}from"../../../../base/common/platform.js";import{sanitizeProcessEnvironment as w}from"../../../../base/common/processes.js";import{isString as h}from"../../../../base/common/types.js";import{URI as L}from"../../../../base/common/uri.js";import{WindowsShellType as E}from"../../../../platform/terminal/common/terminal.js";import{escapeNonWindowsPath as g,sanitizeCwd as I}from"../../../../platform/terminal/common/terminalEnvironment.js";function v(n,e){if(e)if(p)for(const r in e){let i=r;for(const a in n)if(r.toLowerCase()===a.toLowerCase()){i=a;break}const s=e[r];s!==void 0&&P(n,i,s)}else Object.keys(e).forEach(r=>{const i=e[r];i!==void 0&&P(n,r,i)})}function P(n,e,r){typeof r=="string"?n[e]=r:delete n[e]}function N(n,e,r,i){n.TERM_PROGRAM="vscode",e&&(n.TERM_PROGRAM_VERSION=e),k(n,i)&&(n.LANG=C(r)),n.COLORTERM="truecolor"}function O(n,e){if(e)for(const r of Object.keys(e)){const i=e[r];i!=null&&(n[r]=i)}}async function S(n,e){return await Promise.all(Object.entries(e).map(async([r,i])=>{if(typeof i=="string")try{e[r]=await n(i)}catch{e[r]=i}})),e}function k(n,e){if(e==="on")return!0;if(e==="auto"){const r=n.LANG;return!r||r.search(/\.UTF-8$/)===-1&&r.search(/\.utf8$/)===-1&&r.search(/\.euc.+/)===-1}return!1}function C(n){const e=n?n.split("-"):[],r=e.length;if(r===0)return"en_US.UTF-8";if(r===1){const i={af:"ZA",am:"ET",be:"BY",bg:"BG",ca:"ES",cs:"CZ",da:"DK",de:"DE",el:"GR",en:"US",es:"ES",et:"EE",eu:"ES",fi:"FI",fr:"FR",he:"IL",hr:"HR",hu:"HU",hy:"AM",is:"IS",it:"IT",ja:"JP",kk:"KZ",ko:"KR",lt:"LT",nl:"NL",no:"NO",pl:"PL",pt:"BR",ro:"RO",ru:"RU",sk:"SK",sl:"SI",sr:"YU",sv:"SE",tr:"TR",uk:"UA",zh:"CN"};e[0]in i&&e.push(i[e[0]])}else e[1]=e[1].toUpperCase();return e.join("_")+".UTF-8"}async function A(n,e,r,i,s,a){if(n.cwd){const t=typeof n.cwd=="object"?n.cwd.fsPath:n.cwd,f=await y(t,r);return I(f||t)}let o;return!n.ignoreConfigurationCwd&&s&&(r&&(s=await y(s,r,a)),s&&(u.isAbsolute(s)?o=s:i&&(o=u.join(i.fsPath,s)))),o||(o=i?i.fsPath:e||""),I(o)}async function y(n,e,r){if(e)try{return await e(n)}catch(i){r?.error("Could not resolve terminal cwd",i);return}return n}function F(n,e,r){if(r)return i=>r.resolveWithEnvironment(e,n,i)}async function j(n,e,r,i,s,a){const o={};if(n.strictEnv)O(o,n.env);else{O(o,a);const t={...e};r&&(t&&await S(r,t),n.env&&await S(r,n.env)),T&&(o.VSCODE_NODE_OPTIONS&&(o.NODE_OPTIONS=o.VSCODE_NODE_OPTIONS,delete o.VSCODE_NODE_OPTIONS),o.VSCODE_NODE_REPL_EXTERNAL_MODULE&&(o.NODE_REPL_EXTERNAL_MODULE=o.VSCODE_NODE_REPL_EXTERNAL_MODULE,delete o.VSCODE_NODE_REPL_EXTERNAL_MODULE)),w(o,"VSCODE_IPC_HOOK_CLI"),v(o,t),v(o,n.env),N(o,i,_,s)}return o}async function M(n,e,r,i,s,a,o=p){let t;if(h(n)?t=n:(t=n.fsPath,o&&a!==d.Windows?t=t.replace(/\\/g,"/"):!o&&a===d.Windows&&(t=t.replace(/\//g,"\\"))),!e)return t;const f=t.includes(" "),R=t.includes("(")||t.includes(")"),l=u.basename(e,".exe"),m=l==="pwsh"||r==="pwsh"||l==="powershell"||r==="powershell";if(m&&(f||t.includes("'")))return`& '${t.replace(/'/g,"''")}'`;if(R&&m)return`& '${t}'`;if(a===d.Windows){if(i!==void 0)return i===E.GitBash?g(t.replace(/\\/g,"/")):i===E.Wsl?s?.getWslPath(t,"win-to-unix")||t:f?`"${t}"`:t;const c=e.toLowerCase();return c.includes("wsl")||c.includes("bash.exe")&&!c.toLowerCase().includes("git")?s?.getWslPath(t,"win-to-unix")||t:f?`"${t}"`:t}return g(t)}function K(n,e,r){const i=typeof n=="string"?L.parse(n):n;let s=i?e.getWorkspaceFolder(i)??void 0:void 0;if(!s){const a=r.getLastActiveWorkspaceRoot();s=a?e.getWorkspaceFolder(a)??void 0:void 0}return s}export{N as addTerminalEnvironmentKeys,j as createTerminalEnvironment,F as createVariableResolver,A as getCwd,C as getLangEnvVariable,K as getWorkspaceForTerminal,v as mergeEnvironments,M as preparePathForShell,k as shouldSetLangEnvVariable};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as path from "../../../../base/common/path.js";
+import {
+  OperatingSystem,
+  isMacintosh,
+  isWindows,
+  language
+} from "../../../../base/common/platform.js";
+import { sanitizeProcessEnvironment } from "../../../../base/common/processes.js";
+import { isString } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import {
+  WindowsShellType
+} from "../../../../platform/terminal/common/terminal.js";
+import {
+  escapeNonWindowsPath,
+  sanitizeCwd
+} from "../../../../platform/terminal/common/terminalEnvironment.js";
+function mergeEnvironments(parent, other) {
+  if (!other) {
+    return;
+  }
+  if (isWindows) {
+    for (const configKey in other) {
+      let actualKey = configKey;
+      for (const envKey in parent) {
+        if (configKey.toLowerCase() === envKey.toLowerCase()) {
+          actualKey = envKey;
+          break;
+        }
+      }
+      const value = other[configKey];
+      if (value !== void 0) {
+        _mergeEnvironmentValue(parent, actualKey, value);
+      }
+    }
+  } else {
+    Object.keys(other).forEach((key) => {
+      const value = other[key];
+      if (value !== void 0) {
+        _mergeEnvironmentValue(parent, key, value);
+      }
+    });
+  }
+}
+__name(mergeEnvironments, "mergeEnvironments");
+function _mergeEnvironmentValue(env, key, value) {
+  if (typeof value === "string") {
+    env[key] = value;
+  } else {
+    delete env[key];
+  }
+}
+__name(_mergeEnvironmentValue, "_mergeEnvironmentValue");
+function addTerminalEnvironmentKeys(env, version, locale, detectLocale) {
+  env["TERM_PROGRAM"] = "vscode";
+  if (version) {
+    env["TERM_PROGRAM_VERSION"] = version;
+  }
+  if (shouldSetLangEnvVariable(env, detectLocale)) {
+    env["LANG"] = getLangEnvVariable(locale);
+  }
+  env["COLORTERM"] = "truecolor";
+}
+__name(addTerminalEnvironmentKeys, "addTerminalEnvironmentKeys");
+function mergeNonNullKeys(env, other) {
+  if (!other) {
+    return;
+  }
+  for (const key of Object.keys(other)) {
+    const value = other[key];
+    if (value !== void 0 && value !== null) {
+      env[key] = value;
+    }
+  }
+}
+__name(mergeNonNullKeys, "mergeNonNullKeys");
+async function resolveConfigurationVariables(variableResolver, env) {
+  await Promise.all(
+    Object.entries(env).map(async ([key, value]) => {
+      if (typeof value === "string") {
+        try {
+          env[key] = await variableResolver(value);
+        } catch (e) {
+          env[key] = value;
+        }
+      }
+    })
+  );
+  return env;
+}
+__name(resolveConfigurationVariables, "resolveConfigurationVariables");
+function shouldSetLangEnvVariable(env, detectLocale) {
+  if (detectLocale === "on") {
+    return true;
+  }
+  if (detectLocale === "auto") {
+    const lang = env["LANG"];
+    return !lang || lang.search(/\.UTF-8$/) === -1 && lang.search(/\.utf8$/) === -1 && lang.search(/\.euc.+/) === -1;
+  }
+  return false;
+}
+__name(shouldSetLangEnvVariable, "shouldSetLangEnvVariable");
+function getLangEnvVariable(locale) {
+  const parts = locale ? locale.split("-") : [];
+  const n = parts.length;
+  if (n === 0) {
+    return "en_US.UTF-8";
+  }
+  if (n === 1) {
+    const languageVariants = {
+      af: "ZA",
+      am: "ET",
+      be: "BY",
+      bg: "BG",
+      ca: "ES",
+      cs: "CZ",
+      da: "DK",
+      // de: 'AT',
+      // de: 'CH',
+      de: "DE",
+      el: "GR",
+      // en: 'AU',
+      // en: 'CA',
+      // en: 'GB',
+      // en: 'IE',
+      // en: 'NZ',
+      en: "US",
+      es: "ES",
+      et: "EE",
+      eu: "ES",
+      fi: "FI",
+      // fr: 'BE',
+      // fr: 'CA',
+      // fr: 'CH',
+      fr: "FR",
+      he: "IL",
+      hr: "HR",
+      hu: "HU",
+      hy: "AM",
+      is: "IS",
+      // it: 'CH',
+      it: "IT",
+      ja: "JP",
+      kk: "KZ",
+      ko: "KR",
+      lt: "LT",
+      // nl: 'BE',
+      nl: "NL",
+      no: "NO",
+      pl: "PL",
+      pt: "BR",
+      // pt: 'PT',
+      ro: "RO",
+      ru: "RU",
+      sk: "SK",
+      sl: "SI",
+      sr: "YU",
+      sv: "SE",
+      tr: "TR",
+      uk: "UA",
+      zh: "CN"
+    };
+    if (parts[0] in languageVariants) {
+      parts.push(languageVariants[parts[0]]);
+    }
+  } else {
+    parts[1] = parts[1].toUpperCase();
+  }
+  return parts.join("_") + ".UTF-8";
+}
+__name(getLangEnvVariable, "getLangEnvVariable");
+async function getCwd(shell, userHome, variableResolver, root, customCwd, logService) {
+  if (shell.cwd) {
+    const unresolved = typeof shell.cwd === "object" ? shell.cwd.fsPath : shell.cwd;
+    const resolved = await _resolveCwd(unresolved, variableResolver);
+    return sanitizeCwd(resolved || unresolved);
+  }
+  let cwd;
+  if (!shell.ignoreConfigurationCwd && customCwd) {
+    if (variableResolver) {
+      customCwd = await _resolveCwd(
+        customCwd,
+        variableResolver,
+        logService
+      );
+    }
+    if (customCwd) {
+      if (path.isAbsolute(customCwd)) {
+        cwd = customCwd;
+      } else if (root) {
+        cwd = path.join(root.fsPath, customCwd);
+      }
+    }
+  }
+  if (!cwd) {
+    cwd = root ? root.fsPath : userHome || "";
+  }
+  return sanitizeCwd(cwd);
+}
+__name(getCwd, "getCwd");
+async function _resolveCwd(cwd, variableResolver, logService) {
+  if (variableResolver) {
+    try {
+      return await variableResolver(cwd);
+    } catch (e) {
+      logService?.error("Could not resolve terminal cwd", e);
+      return void 0;
+    }
+  }
+  return cwd;
+}
+__name(_resolveCwd, "_resolveCwd");
+function createVariableResolver(lastActiveWorkspace, env, configurationResolverService) {
+  if (!configurationResolverService) {
+    return void 0;
+  }
+  return (str) => configurationResolverService.resolveWithEnvironment(
+    env,
+    lastActiveWorkspace,
+    str
+  );
+}
+__name(createVariableResolver, "createVariableResolver");
+async function createTerminalEnvironment(shellLaunchConfig, envFromConfig, variableResolver, version, detectLocale, baseEnv) {
+  const env = {};
+  if (shellLaunchConfig.strictEnv) {
+    mergeNonNullKeys(env, shellLaunchConfig.env);
+  } else {
+    mergeNonNullKeys(env, baseEnv);
+    const allowedEnvFromConfig = { ...envFromConfig };
+    if (variableResolver) {
+      if (allowedEnvFromConfig) {
+        await resolveConfigurationVariables(
+          variableResolver,
+          allowedEnvFromConfig
+        );
+      }
+      if (shellLaunchConfig.env) {
+        await resolveConfigurationVariables(
+          variableResolver,
+          shellLaunchConfig.env
+        );
+      }
+    }
+    if (isMacintosh) {
+      if (env["VSCODE_NODE_OPTIONS"]) {
+        env["NODE_OPTIONS"] = env["VSCODE_NODE_OPTIONS"];
+        delete env["VSCODE_NODE_OPTIONS"];
+      }
+      if (env["VSCODE_NODE_REPL_EXTERNAL_MODULE"]) {
+        env["NODE_REPL_EXTERNAL_MODULE"] = env["VSCODE_NODE_REPL_EXTERNAL_MODULE"];
+        delete env["VSCODE_NODE_REPL_EXTERNAL_MODULE"];
+      }
+    }
+    sanitizeProcessEnvironment(env, "VSCODE_IPC_HOOK_CLI");
+    mergeEnvironments(env, allowedEnvFromConfig);
+    mergeEnvironments(env, shellLaunchConfig.env);
+    addTerminalEnvironmentKeys(env, version, language, detectLocale);
+  }
+  return env;
+}
+__name(createTerminalEnvironment, "createTerminalEnvironment");
+async function preparePathForShell(resource, executable, title, shellType, backend, os, isWindowsFrontend = isWindows) {
+  let originalPath;
+  if (isString(resource)) {
+    originalPath = resource;
+  } else {
+    originalPath = resource.fsPath;
+    if (isWindowsFrontend && os !== OperatingSystem.Windows) {
+      originalPath = originalPath.replace(/\\/g, "/");
+    } else if (!isWindowsFrontend && os === OperatingSystem.Windows) {
+      originalPath = originalPath.replace(/\//g, "\\");
+    }
+  }
+  if (!executable) {
+    return originalPath;
+  }
+  const hasSpace = originalPath.includes(" ");
+  const hasParens = originalPath.includes("(") || originalPath.includes(")");
+  const pathBasename = path.basename(executable, ".exe");
+  const isPowerShell = pathBasename === "pwsh" || title === "pwsh" || pathBasename === "powershell" || title === "powershell";
+  if (isPowerShell && (hasSpace || originalPath.includes("'"))) {
+    return `& '${originalPath.replace(/'/g, "''")}'`;
+  }
+  if (hasParens && isPowerShell) {
+    return `& '${originalPath}'`;
+  }
+  if (os === OperatingSystem.Windows) {
+    if (shellType !== void 0) {
+      if (shellType === WindowsShellType.GitBash) {
+        return escapeNonWindowsPath(originalPath.replace(/\\/g, "/"));
+      } else if (shellType === WindowsShellType.Wsl) {
+        return backend?.getWslPath(originalPath, "win-to-unix") || originalPath;
+      } else if (hasSpace) {
+        return `"${originalPath}"`;
+      }
+      return originalPath;
+    }
+    const lowerExecutable = executable.toLowerCase();
+    if (lowerExecutable.includes("wsl") || lowerExecutable.includes("bash.exe") && !lowerExecutable.toLowerCase().includes("git")) {
+      return backend?.getWslPath(originalPath, "win-to-unix") || originalPath;
+    } else if (hasSpace) {
+      return `"${originalPath}"`;
+    }
+    return originalPath;
+  }
+  return escapeNonWindowsPath(originalPath);
+}
+__name(preparePathForShell, "preparePathForShell");
+function getWorkspaceForTerminal(cwd, workspaceContextService, historyService) {
+  const cwdUri = typeof cwd === "string" ? URI.parse(cwd) : cwd;
+  let workspaceFolder = cwdUri ? workspaceContextService.getWorkspaceFolder(cwdUri) ?? void 0 : void 0;
+  if (!workspaceFolder) {
+    const activeWorkspaceRootUri = historyService.getLastActiveWorkspaceRoot();
+    workspaceFolder = activeWorkspaceRootUri ? workspaceContextService.getWorkspaceFolder(
+      activeWorkspaceRootUri
+    ) ?? void 0 : void 0;
+  }
+  return workspaceFolder;
+}
+__name(getWorkspaceForTerminal, "getWorkspaceForTerminal");
+export {
+  addTerminalEnvironmentKeys,
+  createTerminalEnvironment,
+  createVariableResolver,
+  getCwd,
+  getLangEnvVariable,
+  getWorkspaceForTerminal,
+  mergeEnvironments,
+  preparePathForShell,
+  shouldSetLangEnvVariable
+};
+//# sourceMappingURL=terminalEnvironment.js.map

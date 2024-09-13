@@ -1,1 +1,651 @@
-var R=Object.defineProperty;var k=Object.getOwnPropertyDescriptor;var h=(l,e,i,t)=>{for(var r=t>1?void 0:t?k(e,i):e,s=l.length-1,a;s>=0;s--)(a=l[s])&&(r=(t?a(e,i,r):a(r))||r);return t&&r&&R(e,i,r),r},n=(l,e)=>(i,t)=>e(i,t,l);import{Barrier as M,Promises as T}from"../../../../base/common/async.js";import{CancellationToken as A}from"../../../../base/common/cancellation.js";import{DisposableStore as G}from"../../../../base/common/lifecycle.js";import{isWeb as L}from"../../../../base/common/platform.js";import{isEqual as q}from"../../../../base/common/resources.js";import{IEnvironmentService as F}from"../../../../platform/environment/common/environment.js";import{IExtensionGalleryService as N,IExtensionManagementService as x,IGlobalExtensionEnablementService as O}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{areSameExtensions as g}from"../../../../platform/extensionManagement/common/extensionManagementUtil.js";import{IExtensionStorageService as w}from"../../../../platform/extensionManagement/common/extensionStorage.js";import{IFileService as z}from"../../../../platform/files/common/files.js";import{ILogService as $}from"../../../../platform/log/common/log.js";import{IProductService as _}from"../../../../platform/product/common/productService.js";import{IRequestService as B}from"../../../../platform/request/common/request.js";import{ISecretStorageService as K}from"../../../../platform/secrets/common/secrets.js";import{IStorageService as P,StorageScope as E}from"../../../../platform/storage/common/storage.js";import{IUriIdentityService as D}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{IUserDataProfilesService as b}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{AbstractExtensionsInitializer as W}from"../../../../platform/userDataSync/common/extensionsSync.js";import{GlobalStateInitializer as j,UserDataSyncStoreTypeSynchronizer as V}from"../../../../platform/userDataSync/common/globalStateSync.js";import{IIgnoredExtensionsManagementService as H}from"../../../../platform/userDataSync/common/ignoredExtensions.js";import{KeybindingsInitializer as J}from"../../../../platform/userDataSync/common/keybindingsSync.js";import{SettingsInitializer as Q}from"../../../../platform/userDataSync/common/settingsSync.js";import{SnippetsInitializer as X}from"../../../../platform/userDataSync/common/snippetsSync.js";import{TasksInitializer as Y}from"../../../../platform/userDataSync/common/tasksSync.js";import{IUserDataSyncLogService as y,IUserDataSyncStoreManagementService as Z,SyncResource as o}from"../../../../platform/userDataSync/common/userDataSync.js";import{UserDataSyncStoreClient as U}from"../../../../platform/userDataSync/common/userDataSyncStoreService.js";import{getCurrentAuthenticationSessionInfo as ee}from"../../authentication/browser/authenticationService.js";import{IBrowserWorkbenchEnvironmentService as ie}from"../../environment/browser/environmentService.js";import{IExtensionService as te,toExtensionDescription as re}from"../../extensions/common/extensions.js";import{getSyncAreaLabel as p}from"../common/userDataSync.js";let I=class{constructor(e,i,t,r,s,a,c,v,S,f){this.environmentService=e;this.secretStorageService=i;this.userDataSyncStoreManagementService=t;this.fileService=r;this.userDataProfilesService=s;this.storageService=a;this.productService=c;this.requestService=v;this.logService=S;this.uriIdentityService=f;this.createUserDataSyncStoreClient().then(C=>{C||this.initializationFinished.open()})}_serviceBrand;initialized=[];initializationFinished=new M;globalStateUserData=null;_userDataSyncStoreClientPromise;createUserDataSyncStoreClient(){return this._userDataSyncStoreClientPromise||(this._userDataSyncStoreClientPromise=(async()=>{try{if(!L){this.logService.trace("Skipping initializing user data in desktop");return}if(!this.storageService.isNew(E.APPLICATION)){this.logService.trace("Skipping initializing user data as application was opened before");return}if(!this.storageService.isNew(E.WORKSPACE)){this.logService.trace("Skipping initializing user data as workspace was opened before");return}if(this.environmentService.options?.settingsSyncOptions?.authenticationProvider&&!this.environmentService.options.settingsSyncOptions.enabled){this.logService.trace("Skipping initializing user data as settings sync is disabled");return}let e;try{e=await ee(this.secretStorageService,this.productService)}catch(s){this.logService.error(s)}if(!e){this.logService.trace("Skipping initializing user data as authentication session is not set");return}await this.initializeUserDataSyncStore(e);const i=this.userDataSyncStoreManagementService.userDataSyncStore;if(!i){this.logService.trace("Skipping initializing user data as sync service is not provided");return}const t=new U(i.url,this.productService,this.requestService,this.logService,this.environmentService,this.fileService,this.storageService);if(t.setAuthToken(e.accessToken,e.providerId),await t.manifest(null)===null){t.dispose(),this.logService.trace("Skipping initializing user data as there is no data");return}return this.logService.info(`Using settings sync service ${i.url.toString()} for initialization`),t}catch(e){this.logService.error(e);return}})()),this._userDataSyncStoreClientPromise}async initializeUserDataSyncStore(e){const i=this.userDataSyncStoreManagementService.userDataSyncStore;if(!i?.canSwitch)return;const t=new G;try{const r=t.add(new U(i.url,this.productService,this.requestService,this.logService,this.environmentService,this.fileService,this.storageService));if(r.setAuthToken(e.accessToken,e.providerId),this.globalStateUserData=await r.readResource(o.GlobalState,null),this.globalStateUserData){const s=new V(r,this.storageService,this.environmentService,this.fileService,this.logService).getSyncStoreType(this.globalStateUserData);s&&(await this.userDataSyncStoreManagementService.switch(s),q(i.url,this.userDataSyncStoreManagementService.userDataSyncStore?.url)||(this.logService.info("Switched settings sync store"),this.globalStateUserData=null))}}finally{t.dispose()}}async whenInitializationFinished(){await this.initializationFinished.wait()}async requiresInitialization(){return this.logService.trace("UserDataInitializationService#requiresInitialization"),!!await this.createUserDataSyncStoreClient()}async initializeRequiredResources(){return this.logService.trace("UserDataInitializationService#initializeRequiredResources"),this.initialize([o.Settings,o.GlobalState])}async initializeOtherResources(e){try{this.logService.trace("UserDataInitializationService#initializeOtherResources"),await Promise.allSettled([this.initialize([o.Keybindings,o.Snippets,o.Tasks]),this.initializeExtensions(e)])}finally{this.initializationFinished.open()}}async initializeExtensions(e){try{await Promise.all([this.initializeInstalledExtensions(e),this.initializeNewExtensions(e)])}finally{this.initialized.push(o.Extensions)}}initializeInstalledExtensionsPromise;async initializeInstalledExtensions(e){return this.initializeInstalledExtensionsPromise||(this.initializeInstalledExtensionsPromise=(async()=>{this.logService.trace("UserDataInitializationService#initializeInstalledExtensions");const i=await this.getExtensionsPreviewInitializer(e);i&&await e.createInstance(m,i).initialize()})()),this.initializeInstalledExtensionsPromise}initializeNewExtensionsPromise;async initializeNewExtensions(e){return this.initializeNewExtensionsPromise||(this.initializeNewExtensionsPromise=(async()=>{this.logService.trace("UserDataInitializationService#initializeNewExtensions");const i=await this.getExtensionsPreviewInitializer(e);i&&await e.createInstance(u,i).initialize()})()),this.initializeNewExtensionsPromise}extensionsPreviewInitializerPromise;getExtensionsPreviewInitializer(e){return this.extensionsPreviewInitializerPromise||(this.extensionsPreviewInitializerPromise=(async()=>{const i=await this.createUserDataSyncStoreClient();if(!i)return null;const t=await i.readResource(o.Extensions,null);return e.createInstance(d,t)})()),this.extensionsPreviewInitializerPromise}async initialize(e){const i=await this.createUserDataSyncStoreClient();i&&await T.settled(e.map(async t=>{try{if(this.initialized.includes(t)){this.logService.info(`${p(t)} initialized already.`);return}this.initialized.push(t),this.logService.trace(`Initializing ${p(t)}`);const r=this.createSyncResourceInitializer(t),s=await i.readResource(t,t===o.GlobalState?this.globalStateUserData:null);await r.initialize(s),this.logService.info(`Initialized ${p(t)}`)}catch(r){this.logService.info(`Error while initializing ${p(t)}`),this.logService.error(r)}}))}createSyncResourceInitializer(e){switch(e){case o.Settings:return new Q(this.fileService,this.userDataProfilesService,this.environmentService,this.logService,this.storageService,this.uriIdentityService);case o.Keybindings:return new J(this.fileService,this.userDataProfilesService,this.environmentService,this.logService,this.storageService,this.uriIdentityService);case o.Tasks:return new Y(this.fileService,this.userDataProfilesService,this.environmentService,this.logService,this.storageService,this.uriIdentityService);case o.Snippets:return new X(this.fileService,this.userDataProfilesService,this.environmentService,this.logService,this.storageService,this.uriIdentityService);case o.GlobalState:return new j(this.storageService,this.fileService,this.userDataProfilesService,this.environmentService,this.logService,this.uriIdentityService)}throw new Error(`Cannot create initializer for ${e}`)}};I=h([n(0,ie),n(1,K),n(2,Z),n(3,z),n(4,b),n(5,P),n(6,_),n(7,B),n(8,$),n(9,D)],I);let d=class extends W{constructor(i,t,r,s,a,c,v,S,f){super(t,r,s,a,c,v,S,f);this.extensionsData=i}previewPromise;preview=null;getPreview(){return this.previewPromise||(this.previewPromise=super.initialize(this.extensionsData).then(()=>this.preview)),this.previewPromise}initialize(){throw new Error("should not be called directly")}async doInitialize(i){const t=await this.parseExtensions(i);if(!t){this.logService.info("Skipping initializing extensions because remote extensions does not exist.");return}const r=await this.extensionManagementService.getInstalled();this.preview=this.generatePreview(t,r)}};d=h([n(1,x),n(2,H),n(3,z),n(4,b),n(5,F),n(6,y),n(7,P),n(8,D)],d);let m=class{constructor(e,i,t,r){this.extensionsPreviewInitializer=e;this.extensionEnablementService=i;this.extensionStorageService=t;this.logService=r}async initialize(){const e=await this.extensionsPreviewInitializer.getPreview();if(e){for(const i of e.installedExtensions){const t=e.remoteExtensions.find(({identifier:r})=>g(r,i.identifier));if(t?.state){const r=this.extensionStorageService.getExtensionState(i,!0)||{};Object.keys(t.state).forEach(s=>r[s]=t.state[s]),this.extensionStorageService.setExtensionState(i,r,!0)}}if(e.disabledExtensions.length)for(const i of e.disabledExtensions)this.logService.trace("Disabling extension...",i.id),await this.extensionEnablementService.disableExtension(i),this.logService.info("Disabling extension",i.id)}}};m=h([n(1,O),n(2,w),n(3,y)],m);let u=class{constructor(e,i,t,r,s,a){this.extensionsPreviewInitializer=e;this.extensionService=i;this.extensionStorageService=t;this.galleryService=r;this.extensionManagementService=s;this.logService=a}async initialize(){const e=await this.extensionsPreviewInitializer.getPreview();if(!e)return;const i=[],t=await this.extensionManagementService.getTargetPlatform(),r=await this.galleryService.getExtensions(e.newExtensions,{targetPlatform:t,compatible:!0},A.None);for(const a of r)try{const c=e.remoteExtensions.find(({identifier:S})=>g(S,a.identifier));if(!c)continue;c.state&&this.extensionStorageService.setExtensionState(a,c.state,!0),this.logService.trace("Installing extension...",a.identifier.id);const v=await this.extensionManagementService.installFromGallery(a,{isMachineScoped:!1,donotIncludePackAndDependencies:!0,installGivenVersion:!!c.version,installPreReleaseVersion:c.preRelease});e.disabledExtensions.some(S=>g(S,a.identifier))||i.push(v),this.logService.info("Installed extension.",a.identifier.id)}catch(c){this.logService.error(c)}const s=i.filter(a=>this.extensionService.canAddExtension(re(a)));await this.areExtensionsRunning(s)||await new Promise((a,c)=>{const v=this.extensionService.onDidChangeExtensions(async()=>{try{await this.areExtensionsRunning(s)&&(v.dispose(),a())}catch(S){c(S)}})})}async areExtensionsRunning(e){await this.extensionService.whenInstalledExtensionsRegistered();const i=this.extensionService.extensions;return e.every(t=>i.some(r=>g({id:r.identifier.value},t.identifier)))}};u=h([n(1,te),n(2,w),n(3,N),n(4,x),n(5,y)],u);export{I as UserDataSyncInitializer};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Barrier, Promises } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import {
+  IExtensionGalleryService,
+  IExtensionManagementService,
+  IGlobalExtensionEnablementService
+} from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import { IExtensionStorageService } from "../../../../platform/extensionManagement/common/extensionStorage.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IRequestService } from "../../../../platform/request/common/request.js";
+import { ISecretStorageService } from "../../../../platform/secrets/common/secrets.js";
+import {
+  IStorageService,
+  StorageScope
+} from "../../../../platform/storage/common/storage.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import {
+  AbstractExtensionsInitializer
+} from "../../../../platform/userDataSync/common/extensionsSync.js";
+import {
+  GlobalStateInitializer,
+  UserDataSyncStoreTypeSynchronizer
+} from "../../../../platform/userDataSync/common/globalStateSync.js";
+import { IIgnoredExtensionsManagementService } from "../../../../platform/userDataSync/common/ignoredExtensions.js";
+import { KeybindingsInitializer } from "../../../../platform/userDataSync/common/keybindingsSync.js";
+import { SettingsInitializer } from "../../../../platform/userDataSync/common/settingsSync.js";
+import { SnippetsInitializer } from "../../../../platform/userDataSync/common/snippetsSync.js";
+import { TasksInitializer } from "../../../../platform/userDataSync/common/tasksSync.js";
+import {
+  IUserDataSyncLogService,
+  IUserDataSyncStoreManagementService,
+  SyncResource
+} from "../../../../platform/userDataSync/common/userDataSync.js";
+import { UserDataSyncStoreClient } from "../../../../platform/userDataSync/common/userDataSyncStoreService.js";
+import {
+  getCurrentAuthenticationSessionInfo
+} from "../../authentication/browser/authenticationService.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
+import {
+  IExtensionService,
+  toExtensionDescription
+} from "../../extensions/common/extensions.js";
+import { getSyncAreaLabel } from "../common/userDataSync.js";
+let UserDataSyncInitializer = class {
+  constructor(environmentService, secretStorageService, userDataSyncStoreManagementService, fileService, userDataProfilesService, storageService, productService, requestService, logService, uriIdentityService) {
+    this.environmentService = environmentService;
+    this.secretStorageService = secretStorageService;
+    this.userDataSyncStoreManagementService = userDataSyncStoreManagementService;
+    this.fileService = fileService;
+    this.userDataProfilesService = userDataProfilesService;
+    this.storageService = storageService;
+    this.productService = productService;
+    this.requestService = requestService;
+    this.logService = logService;
+    this.uriIdentityService = uriIdentityService;
+    this.createUserDataSyncStoreClient().then((userDataSyncStoreClient) => {
+      if (!userDataSyncStoreClient) {
+        this.initializationFinished.open();
+      }
+    });
+  }
+  static {
+    __name(this, "UserDataSyncInitializer");
+  }
+  _serviceBrand;
+  initialized = [];
+  initializationFinished = new Barrier();
+  globalStateUserData = null;
+  _userDataSyncStoreClientPromise;
+  createUserDataSyncStoreClient() {
+    if (!this._userDataSyncStoreClientPromise) {
+      this._userDataSyncStoreClientPromise = (async () => {
+        try {
+          if (!isWeb) {
+            this.logService.trace(
+              `Skipping initializing user data in desktop`
+            );
+            return;
+          }
+          if (!this.storageService.isNew(StorageScope.APPLICATION)) {
+            this.logService.trace(
+              `Skipping initializing user data as application was opened before`
+            );
+            return;
+          }
+          if (!this.storageService.isNew(StorageScope.WORKSPACE)) {
+            this.logService.trace(
+              `Skipping initializing user data as workspace was opened before`
+            );
+            return;
+          }
+          if (this.environmentService.options?.settingsSyncOptions?.authenticationProvider && !this.environmentService.options.settingsSyncOptions.enabled) {
+            this.logService.trace(
+              `Skipping initializing user data as settings sync is disabled`
+            );
+            return;
+          }
+          let authenticationSession;
+          try {
+            authenticationSession = await getCurrentAuthenticationSessionInfo(
+              this.secretStorageService,
+              this.productService
+            );
+          } catch (error) {
+            this.logService.error(error);
+          }
+          if (!authenticationSession) {
+            this.logService.trace(
+              `Skipping initializing user data as authentication session is not set`
+            );
+            return;
+          }
+          await this.initializeUserDataSyncStore(
+            authenticationSession
+          );
+          const userDataSyncStore = this.userDataSyncStoreManagementService.userDataSyncStore;
+          if (!userDataSyncStore) {
+            this.logService.trace(
+              `Skipping initializing user data as sync service is not provided`
+            );
+            return;
+          }
+          const userDataSyncStoreClient = new UserDataSyncStoreClient(
+            userDataSyncStore.url,
+            this.productService,
+            this.requestService,
+            this.logService,
+            this.environmentService,
+            this.fileService,
+            this.storageService
+          );
+          userDataSyncStoreClient.setAuthToken(
+            authenticationSession.accessToken,
+            authenticationSession.providerId
+          );
+          const manifest = await userDataSyncStoreClient.manifest(null);
+          if (manifest === null) {
+            userDataSyncStoreClient.dispose();
+            this.logService.trace(
+              `Skipping initializing user data as there is no data`
+            );
+            return;
+          }
+          this.logService.info(
+            `Using settings sync service ${userDataSyncStore.url.toString()} for initialization`
+          );
+          return userDataSyncStoreClient;
+        } catch (error) {
+          this.logService.error(error);
+          return;
+        }
+      })();
+    }
+    return this._userDataSyncStoreClientPromise;
+  }
+  async initializeUserDataSyncStore(authenticationSession) {
+    const userDataSyncStore = this.userDataSyncStoreManagementService.userDataSyncStore;
+    if (!userDataSyncStore?.canSwitch) {
+      return;
+    }
+    const disposables = new DisposableStore();
+    try {
+      const userDataSyncStoreClient = disposables.add(
+        new UserDataSyncStoreClient(
+          userDataSyncStore.url,
+          this.productService,
+          this.requestService,
+          this.logService,
+          this.environmentService,
+          this.fileService,
+          this.storageService
+        )
+      );
+      userDataSyncStoreClient.setAuthToken(
+        authenticationSession.accessToken,
+        authenticationSession.providerId
+      );
+      this.globalStateUserData = await userDataSyncStoreClient.readResource(
+        SyncResource.GlobalState,
+        null
+      );
+      if (this.globalStateUserData) {
+        const userDataSyncStoreType = new UserDataSyncStoreTypeSynchronizer(
+          userDataSyncStoreClient,
+          this.storageService,
+          this.environmentService,
+          this.fileService,
+          this.logService
+        ).getSyncStoreType(this.globalStateUserData);
+        if (userDataSyncStoreType) {
+          await this.userDataSyncStoreManagementService.switch(
+            userDataSyncStoreType
+          );
+          if (!isEqual(
+            userDataSyncStore.url,
+            this.userDataSyncStoreManagementService.userDataSyncStore?.url
+          )) {
+            this.logService.info("Switched settings sync store");
+            this.globalStateUserData = null;
+          }
+        }
+      }
+    } finally {
+      disposables.dispose();
+    }
+  }
+  async whenInitializationFinished() {
+    await this.initializationFinished.wait();
+  }
+  async requiresInitialization() {
+    this.logService.trace(
+      `UserDataInitializationService#requiresInitialization`
+    );
+    const userDataSyncStoreClient = await this.createUserDataSyncStoreClient();
+    return !!userDataSyncStoreClient;
+  }
+  async initializeRequiredResources() {
+    this.logService.trace(
+      `UserDataInitializationService#initializeRequiredResources`
+    );
+    return this.initialize([
+      SyncResource.Settings,
+      SyncResource.GlobalState
+    ]);
+  }
+  async initializeOtherResources(instantiationService) {
+    try {
+      this.logService.trace(
+        `UserDataInitializationService#initializeOtherResources`
+      );
+      await Promise.allSettled([
+        this.initialize([
+          SyncResource.Keybindings,
+          SyncResource.Snippets,
+          SyncResource.Tasks
+        ]),
+        this.initializeExtensions(instantiationService)
+      ]);
+    } finally {
+      this.initializationFinished.open();
+    }
+  }
+  async initializeExtensions(instantiationService) {
+    try {
+      await Promise.all([
+        this.initializeInstalledExtensions(instantiationService),
+        this.initializeNewExtensions(instantiationService)
+      ]);
+    } finally {
+      this.initialized.push(SyncResource.Extensions);
+    }
+  }
+  initializeInstalledExtensionsPromise;
+  async initializeInstalledExtensions(instantiationService) {
+    if (!this.initializeInstalledExtensionsPromise) {
+      this.initializeInstalledExtensionsPromise = (async () => {
+        this.logService.trace(
+          `UserDataInitializationService#initializeInstalledExtensions`
+        );
+        const extensionsPreviewInitializer = await this.getExtensionsPreviewInitializer(
+          instantiationService
+        );
+        if (extensionsPreviewInitializer) {
+          await instantiationService.createInstance(
+            InstalledExtensionsInitializer,
+            extensionsPreviewInitializer
+          ).initialize();
+        }
+      })();
+    }
+    return this.initializeInstalledExtensionsPromise;
+  }
+  initializeNewExtensionsPromise;
+  async initializeNewExtensions(instantiationService) {
+    if (!this.initializeNewExtensionsPromise) {
+      this.initializeNewExtensionsPromise = (async () => {
+        this.logService.trace(
+          `UserDataInitializationService#initializeNewExtensions`
+        );
+        const extensionsPreviewInitializer = await this.getExtensionsPreviewInitializer(
+          instantiationService
+        );
+        if (extensionsPreviewInitializer) {
+          await instantiationService.createInstance(
+            NewExtensionsInitializer,
+            extensionsPreviewInitializer
+          ).initialize();
+        }
+      })();
+    }
+    return this.initializeNewExtensionsPromise;
+  }
+  extensionsPreviewInitializerPromise;
+  getExtensionsPreviewInitializer(instantiationService) {
+    if (!this.extensionsPreviewInitializerPromise) {
+      this.extensionsPreviewInitializerPromise = (async () => {
+        const userDataSyncStoreClient = await this.createUserDataSyncStoreClient();
+        if (!userDataSyncStoreClient) {
+          return null;
+        }
+        const userData = await userDataSyncStoreClient.readResource(
+          SyncResource.Extensions,
+          null
+        );
+        return instantiationService.createInstance(
+          ExtensionsPreviewInitializer,
+          userData
+        );
+      })();
+    }
+    return this.extensionsPreviewInitializerPromise;
+  }
+  async initialize(syncResources) {
+    const userDataSyncStoreClient = await this.createUserDataSyncStoreClient();
+    if (!userDataSyncStoreClient) {
+      return;
+    }
+    await Promises.settled(
+      syncResources.map(async (syncResource) => {
+        try {
+          if (this.initialized.includes(syncResource)) {
+            this.logService.info(
+              `${getSyncAreaLabel(syncResource)} initialized already.`
+            );
+            return;
+          }
+          this.initialized.push(syncResource);
+          this.logService.trace(
+            `Initializing ${getSyncAreaLabel(syncResource)}`
+          );
+          const initializer = this.createSyncResourceInitializer(syncResource);
+          const userData = await userDataSyncStoreClient.readResource(
+            syncResource,
+            syncResource === SyncResource.GlobalState ? this.globalStateUserData : null
+          );
+          await initializer.initialize(userData);
+          this.logService.info(
+            `Initialized ${getSyncAreaLabel(syncResource)}`
+          );
+        } catch (error) {
+          this.logService.info(
+            `Error while initializing ${getSyncAreaLabel(syncResource)}`
+          );
+          this.logService.error(error);
+        }
+      })
+    );
+  }
+  createSyncResourceInitializer(syncResource) {
+    switch (syncResource) {
+      case SyncResource.Settings:
+        return new SettingsInitializer(
+          this.fileService,
+          this.userDataProfilesService,
+          this.environmentService,
+          this.logService,
+          this.storageService,
+          this.uriIdentityService
+        );
+      case SyncResource.Keybindings:
+        return new KeybindingsInitializer(
+          this.fileService,
+          this.userDataProfilesService,
+          this.environmentService,
+          this.logService,
+          this.storageService,
+          this.uriIdentityService
+        );
+      case SyncResource.Tasks:
+        return new TasksInitializer(
+          this.fileService,
+          this.userDataProfilesService,
+          this.environmentService,
+          this.logService,
+          this.storageService,
+          this.uriIdentityService
+        );
+      case SyncResource.Snippets:
+        return new SnippetsInitializer(
+          this.fileService,
+          this.userDataProfilesService,
+          this.environmentService,
+          this.logService,
+          this.storageService,
+          this.uriIdentityService
+        );
+      case SyncResource.GlobalState:
+        return new GlobalStateInitializer(
+          this.storageService,
+          this.fileService,
+          this.userDataProfilesService,
+          this.environmentService,
+          this.logService,
+          this.uriIdentityService
+        );
+    }
+    throw new Error(`Cannot create initializer for ${syncResource}`);
+  }
+};
+UserDataSyncInitializer = __decorateClass([
+  __decorateParam(0, IBrowserWorkbenchEnvironmentService),
+  __decorateParam(1, ISecretStorageService),
+  __decorateParam(2, IUserDataSyncStoreManagementService),
+  __decorateParam(3, IFileService),
+  __decorateParam(4, IUserDataProfilesService),
+  __decorateParam(5, IStorageService),
+  __decorateParam(6, IProductService),
+  __decorateParam(7, IRequestService),
+  __decorateParam(8, ILogService),
+  __decorateParam(9, IUriIdentityService)
+], UserDataSyncInitializer);
+let ExtensionsPreviewInitializer = class extends AbstractExtensionsInitializer {
+  constructor(extensionsData, extensionManagementService, ignoredExtensionsManagementService, fileService, userDataProfilesService, environmentService, logService, storageService, uriIdentityService) {
+    super(
+      extensionManagementService,
+      ignoredExtensionsManagementService,
+      fileService,
+      userDataProfilesService,
+      environmentService,
+      logService,
+      storageService,
+      uriIdentityService
+    );
+    this.extensionsData = extensionsData;
+  }
+  static {
+    __name(this, "ExtensionsPreviewInitializer");
+  }
+  previewPromise;
+  preview = null;
+  getPreview() {
+    if (!this.previewPromise) {
+      this.previewPromise = super.initialize(this.extensionsData).then(() => this.preview);
+    }
+    return this.previewPromise;
+  }
+  initialize() {
+    throw new Error("should not be called directly");
+  }
+  async doInitialize(remoteUserData) {
+    const remoteExtensions = await this.parseExtensions(remoteUserData);
+    if (!remoteExtensions) {
+      this.logService.info(
+        "Skipping initializing extensions because remote extensions does not exist."
+      );
+      return;
+    }
+    const installedExtensions = await this.extensionManagementService.getInstalled();
+    this.preview = this.generatePreview(
+      remoteExtensions,
+      installedExtensions
+    );
+  }
+};
+ExtensionsPreviewInitializer = __decorateClass([
+  __decorateParam(1, IExtensionManagementService),
+  __decorateParam(2, IIgnoredExtensionsManagementService),
+  __decorateParam(3, IFileService),
+  __decorateParam(4, IUserDataProfilesService),
+  __decorateParam(5, IEnvironmentService),
+  __decorateParam(6, IUserDataSyncLogService),
+  __decorateParam(7, IStorageService),
+  __decorateParam(8, IUriIdentityService)
+], ExtensionsPreviewInitializer);
+let InstalledExtensionsInitializer = class {
+  constructor(extensionsPreviewInitializer, extensionEnablementService, extensionStorageService, logService) {
+    this.extensionsPreviewInitializer = extensionsPreviewInitializer;
+    this.extensionEnablementService = extensionEnablementService;
+    this.extensionStorageService = extensionStorageService;
+    this.logService = logService;
+  }
+  static {
+    __name(this, "InstalledExtensionsInitializer");
+  }
+  async initialize() {
+    const preview = await this.extensionsPreviewInitializer.getPreview();
+    if (!preview) {
+      return;
+    }
+    for (const installedExtension of preview.installedExtensions) {
+      const syncExtension = preview.remoteExtensions.find(
+        ({ identifier }) => areSameExtensions(
+          identifier,
+          installedExtension.identifier
+        )
+      );
+      if (syncExtension?.state) {
+        const extensionState = this.extensionStorageService.getExtensionState(
+          installedExtension,
+          true
+        ) || {};
+        Object.keys(syncExtension.state).forEach(
+          (key) => extensionState[key] = syncExtension.state[key]
+        );
+        this.extensionStorageService.setExtensionState(
+          installedExtension,
+          extensionState,
+          true
+        );
+      }
+    }
+    if (preview.disabledExtensions.length) {
+      for (const identifier of preview.disabledExtensions) {
+        this.logService.trace(`Disabling extension...`, identifier.id);
+        await this.extensionEnablementService.disableExtension(
+          identifier
+        );
+        this.logService.info(`Disabling extension`, identifier.id);
+      }
+    }
+  }
+};
+InstalledExtensionsInitializer = __decorateClass([
+  __decorateParam(1, IGlobalExtensionEnablementService),
+  __decorateParam(2, IExtensionStorageService),
+  __decorateParam(3, IUserDataSyncLogService)
+], InstalledExtensionsInitializer);
+let NewExtensionsInitializer = class {
+  constructor(extensionsPreviewInitializer, extensionService, extensionStorageService, galleryService, extensionManagementService, logService) {
+    this.extensionsPreviewInitializer = extensionsPreviewInitializer;
+    this.extensionService = extensionService;
+    this.extensionStorageService = extensionStorageService;
+    this.galleryService = galleryService;
+    this.extensionManagementService = extensionManagementService;
+    this.logService = logService;
+  }
+  static {
+    __name(this, "NewExtensionsInitializer");
+  }
+  async initialize() {
+    const preview = await this.extensionsPreviewInitializer.getPreview();
+    if (!preview) {
+      return;
+    }
+    const newlyEnabledExtensions = [];
+    const targetPlatform = await this.extensionManagementService.getTargetPlatform();
+    const galleryExtensions = await this.galleryService.getExtensions(
+      preview.newExtensions,
+      { targetPlatform, compatible: true },
+      CancellationToken.None
+    );
+    for (const galleryExtension of galleryExtensions) {
+      try {
+        const extensionToSync = preview.remoteExtensions.find(
+          ({ identifier }) => areSameExtensions(
+            identifier,
+            galleryExtension.identifier
+          )
+        );
+        if (!extensionToSync) {
+          continue;
+        }
+        if (extensionToSync.state) {
+          this.extensionStorageService.setExtensionState(
+            galleryExtension,
+            extensionToSync.state,
+            true
+          );
+        }
+        this.logService.trace(
+          `Installing extension...`,
+          galleryExtension.identifier.id
+        );
+        const local = await this.extensionManagementService.installFromGallery(
+          galleryExtension,
+          {
+            isMachineScoped: false,
+            donotIncludePackAndDependencies: true,
+            installGivenVersion: !!extensionToSync.version,
+            installPreReleaseVersion: extensionToSync.preRelease
+          }
+        );
+        if (!preview.disabledExtensions.some(
+          (identifier) => areSameExtensions(
+            identifier,
+            galleryExtension.identifier
+          )
+        )) {
+          newlyEnabledExtensions.push(local);
+        }
+        this.logService.info(
+          `Installed extension.`,
+          galleryExtension.identifier.id
+        );
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }
+    const canEnabledExtensions = newlyEnabledExtensions.filter(
+      (e) => this.extensionService.canAddExtension(toExtensionDescription(e))
+    );
+    if (!await this.areExtensionsRunning(canEnabledExtensions)) {
+      await new Promise((c, e) => {
+        const disposable = this.extensionService.onDidChangeExtensions(
+          async () => {
+            try {
+              if (await this.areExtensionsRunning(
+                canEnabledExtensions
+              )) {
+                disposable.dispose();
+                c();
+              }
+            } catch (error) {
+              e(error);
+            }
+          }
+        );
+      });
+    }
+  }
+  async areExtensionsRunning(extensions) {
+    await this.extensionService.whenInstalledExtensionsRegistered();
+    const runningExtensions = this.extensionService.extensions;
+    return extensions.every(
+      (e) => runningExtensions.some(
+        (r) => areSameExtensions({ id: r.identifier.value }, e.identifier)
+      )
+    );
+  }
+};
+NewExtensionsInitializer = __decorateClass([
+  __decorateParam(1, IExtensionService),
+  __decorateParam(2, IExtensionStorageService),
+  __decorateParam(3, IExtensionGalleryService),
+  __decorateParam(4, IExtensionManagementService),
+  __decorateParam(5, IUserDataSyncLogService)
+], NewExtensionsInitializer);
+export {
+  UserDataSyncInitializer
+};
+//# sourceMappingURL=userDataSyncInit.js.map

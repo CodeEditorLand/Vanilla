@@ -1,1 +1,254 @@
-var W=Object.defineProperty;var K=Object.getOwnPropertyDescriptor;var f=(c,s,r,n)=>{for(var e=n>1?void 0:n?K(s,r):s,o=c.length-1,a;o>=0;o--)(a=c[o])&&(e=(n?a(s,r,e):a(e))||e);return n&&e&&W(s,r,e),e},l=(c,s)=>(r,n)=>s(r,n,c);import{$ as h,append as d,clearNode as w,h as b}from"../../../../base/browser/dom.js";import{KeybindingLabel as L}from"../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";import{Disposable as D,DisposableStore as I}from"../../../../base/common/lifecycle.js";import{OS as O,isMacintosh as T,isWeb as M}from"../../../../base/common/platform.js";import{localize as i}from"../../../../nls.js";import{CommandsRegistry as R}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as U}from"../../../../platform/configuration/common/configuration.js";import{ContextKeyExpr as u,IContextKeyService as q}from"../../../../platform/contextkey/common/contextkey.js";import{IKeybindingService as N}from"../../../../platform/keybinding/common/keybinding.js";import{defaultKeybindingLabelStyles as _}from"../../../../platform/theme/browser/defaultStyles.js";import{editorForeground as m,registerColor as A,transparent as S}from"../../../../platform/theme/common/colorRegistry.js";import{IWorkspaceContextService as H,WorkbenchState as P}from"../../../../platform/workspace/common/workspace.js";A("editorWatermark.foreground",{dark:S(m,.6),light:S(m,.68),hcDark:m,hcLight:m},i("editorLineHighlight","Foreground color for the labels in the editor watermark."));const v={text:i("watermark.showCommands","Show All Commands"),id:"workbench.action.showCommands"},z={text:i("watermark.quickAccess","Go to File"),id:"workbench.action.quickOpen"},V={text:i("watermark.openFile","Open File"),id:"workbench.action.files.openFile",mac:!1},Y={text:i("watermark.openFolder","Open Folder"),id:"workbench.action.files.openFolder",mac:!1},$={text:i("watermark.openFileFolder","Open File or Folder"),id:"workbench.action.files.openFileFolder",mac:!0},j={text:i("watermark.openRecent","Open Recent"),id:"workbench.action.openRecent"},B={text:i("watermark.newUntitledFile","New Untitled Text File"),id:"workbench.action.files.newUntitledFile",mac:!0},J={text:i("watermark.findInFiles","Find in Files"),id:"workbench.action.findInFiles"},Q={text:i({key:"watermark.toggleTerminal",comment:["toggle is a verb here"]},"Toggle Terminal"),id:"workbench.action.terminal.toggleTerminal",when:u.equals("terminalProcessSupported",!0)},X={text:i("watermark.startDebugging","Start Debugging"),id:"workbench.action.debug.start",when:u.equals("terminalProcessSupported",!0)},Z={text:i({key:"watermark.toggleFullscreen",comment:["toggle is a verb here"]},"Toggle Full Screen"),id:"workbench.action.toggleFullScreen"},G={text:i("watermark.showSettings","Show Settings"),id:"workbench.action.openSettings"},x=[v,V,Y,$,j,B],F=[v,z,J,X,Q,Z,G];let g=class extends D{constructor(r,n,e,o,a){super();this.keybindingService=n;this.contextService=e;this.contextKeyService=o;this.configurationService=a;const t=b(".editor-group-watermark",[b(".letterpress"),b(".shortcuts@shortcuts")]);d(r,t.root),this.shortcuts=t.shortcuts,this.registerListeners(),this.workbenchState=e.getWorkbenchState(),this.render()}shortcuts;transientDisposables=this._register(new I);enabled=!1;workbenchState;keybindingLabels=new Set;registerListeners(){this._register(this.configurationService.onDidChangeConfiguration(e=>{e.affectsConfiguration("workbench.tips.enabled")&&this.render()})),this._register(this.contextService.onDidChangeWorkbenchState(e=>{this.workbenchState!==e&&(this.workbenchState=e,this.render())}));const r=[...x,...F].filter(e=>e.when!==void 0).map(e=>e.when),n=new Set;r.forEach(e=>e.keys().forEach(o=>n.add(o))),this._register(this.contextKeyService.onDidChangeContext(e=>{e.affectsSome(n)&&this.render()}))}render(){const r=this.configurationService.getValue("workbench.tips.enabled");if(r===this.enabled||(this.enabled=r,this.clear(),!r))return;const n=d(this.shortcuts,h(".watermark-box")),o=(this.workbenchState!==P.EMPTY?F:x).filter(t=>!("when"in t)||this.contextKeyService.contextMatchesRules(t.when)).filter(t=>!("mac"in t)||t.mac===(T&&!M)).filter(t=>!!R.getCommand(t.id)).filter(t=>!!this.keybindingService.lookupKeybinding(t.id)),a=()=>{w(n),this.keybindingLabels.forEach(t=>t.dispose()),this.keybindingLabels.clear();for(const t of o){const p=this.keybindingService.lookupKeybinding(t.id);if(!p)continue;const k=d(n,h("dl")),C=d(k,h("dt"));C.textContent=t.text;const E=d(k,h("dd")),y=new L(E,O,{renderUnboundKeybindings:!0,..._});y.set(p),this.keybindingLabels.add(y)}};a(),this.transientDisposables.add(this.keybindingService.onDidUpdateKeybindings(a))}clear(){w(this.shortcuts),this.transientDisposables.clear()}dispose(){super.dispose(),this.clear(),this.keybindingLabels.forEach(r=>r.dispose())}};g=f([l(1,N),l(2,H),l(3,q),l(4,U)],g);export{g as EditorGroupWatermark};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { $, append, clearNode, h } from "../../../../base/browser/dom.js";
+import { KeybindingLabel } from "../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
+import { OS, isMacintosh, isWeb } from "../../../../base/common/platform.js";
+import { localize } from "../../../../nls.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  ContextKeyExpr,
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { defaultKeybindingLabelStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import {
+  editorForeground,
+  registerColor,
+  transparent
+} from "../../../../platform/theme/common/colorRegistry.js";
+import {
+  IWorkspaceContextService,
+  WorkbenchState
+} from "../../../../platform/workspace/common/workspace.js";
+registerColor(
+  "editorWatermark.foreground",
+  {
+    dark: transparent(editorForeground, 0.6),
+    light: transparent(editorForeground, 0.68),
+    hcDark: editorForeground,
+    hcLight: editorForeground
+  },
+  localize(
+    "editorLineHighlight",
+    "Foreground color for the labels in the editor watermark."
+  )
+);
+const showCommands = {
+  text: localize("watermark.showCommands", "Show All Commands"),
+  id: "workbench.action.showCommands"
+};
+const quickAccess = {
+  text: localize("watermark.quickAccess", "Go to File"),
+  id: "workbench.action.quickOpen"
+};
+const openFileNonMacOnly = {
+  text: localize("watermark.openFile", "Open File"),
+  id: "workbench.action.files.openFile",
+  mac: false
+};
+const openFolderNonMacOnly = {
+  text: localize("watermark.openFolder", "Open Folder"),
+  id: "workbench.action.files.openFolder",
+  mac: false
+};
+const openFileOrFolderMacOnly = {
+  text: localize("watermark.openFileFolder", "Open File or Folder"),
+  id: "workbench.action.files.openFileFolder",
+  mac: true
+};
+const openRecent = {
+  text: localize("watermark.openRecent", "Open Recent"),
+  id: "workbench.action.openRecent"
+};
+const newUntitledFileMacOnly = {
+  text: localize("watermark.newUntitledFile", "New Untitled Text File"),
+  id: "workbench.action.files.newUntitledFile",
+  mac: true
+};
+const findInFiles = {
+  text: localize("watermark.findInFiles", "Find in Files"),
+  id: "workbench.action.findInFiles"
+};
+const toggleTerminal = {
+  text: localize(
+    { key: "watermark.toggleTerminal", comment: ["toggle is a verb here"] },
+    "Toggle Terminal"
+  ),
+  id: "workbench.action.terminal.toggleTerminal",
+  when: ContextKeyExpr.equals("terminalProcessSupported", true)
+};
+const startDebugging = {
+  text: localize("watermark.startDebugging", "Start Debugging"),
+  id: "workbench.action.debug.start",
+  when: ContextKeyExpr.equals("terminalProcessSupported", true)
+};
+const toggleFullscreen = {
+  text: localize(
+    {
+      key: "watermark.toggleFullscreen",
+      comment: ["toggle is a verb here"]
+    },
+    "Toggle Full Screen"
+  ),
+  id: "workbench.action.toggleFullScreen"
+};
+const showSettings = {
+  text: localize("watermark.showSettings", "Show Settings"),
+  id: "workbench.action.openSettings"
+};
+const noFolderEntries = [
+  showCommands,
+  openFileNonMacOnly,
+  openFolderNonMacOnly,
+  openFileOrFolderMacOnly,
+  openRecent,
+  newUntitledFileMacOnly
+];
+const folderEntries = [
+  showCommands,
+  quickAccess,
+  findInFiles,
+  startDebugging,
+  toggleTerminal,
+  toggleFullscreen,
+  showSettings
+];
+let EditorGroupWatermark = class extends Disposable {
+  constructor(container, keybindingService, contextService, contextKeyService, configurationService) {
+    super();
+    this.keybindingService = keybindingService;
+    this.contextService = contextService;
+    this.contextKeyService = contextKeyService;
+    this.configurationService = configurationService;
+    const elements = h(".editor-group-watermark", [
+      h(".letterpress"),
+      h(".shortcuts@shortcuts")
+    ]);
+    append(container, elements.root);
+    this.shortcuts = elements.shortcuts;
+    this.registerListeners();
+    this.workbenchState = contextService.getWorkbenchState();
+    this.render();
+  }
+  static {
+    __name(this, "EditorGroupWatermark");
+  }
+  shortcuts;
+  transientDisposables = this._register(
+    new DisposableStore()
+  );
+  enabled = false;
+  workbenchState;
+  keybindingLabels = /* @__PURE__ */ new Set();
+  registerListeners() {
+    this._register(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("workbench.tips.enabled")) {
+          this.render();
+        }
+      })
+    );
+    this._register(
+      this.contextService.onDidChangeWorkbenchState((workbenchState) => {
+        if (this.workbenchState === workbenchState) {
+          return;
+        }
+        this.workbenchState = workbenchState;
+        this.render();
+      })
+    );
+    const allEntriesWhenClauses = [...noFolderEntries, ...folderEntries].filter((entry) => entry.when !== void 0).map((entry) => entry.when);
+    const allKeys = /* @__PURE__ */ new Set();
+    allEntriesWhenClauses.forEach(
+      (when) => when.keys().forEach((key) => allKeys.add(key))
+    );
+    this._register(
+      this.contextKeyService.onDidChangeContext((e) => {
+        if (e.affectsSome(allKeys)) {
+          this.render();
+        }
+      })
+    );
+  }
+  render() {
+    const enabled = this.configurationService.getValue(
+      "workbench.tips.enabled"
+    );
+    if (enabled === this.enabled) {
+      return;
+    }
+    this.enabled = enabled;
+    this.clear();
+    if (!enabled) {
+      return;
+    }
+    const box = append(this.shortcuts, $(".watermark-box"));
+    const folder = this.workbenchState !== WorkbenchState.EMPTY;
+    const selected = (folder ? folderEntries : noFolderEntries).filter(
+      (entry) => !("when" in entry) || this.contextKeyService.contextMatchesRules(entry.when)
+    ).filter(
+      (entry) => !("mac" in entry) || entry.mac === (isMacintosh && !isWeb)
+    ).filter((entry) => !!CommandsRegistry.getCommand(entry.id)).filter(
+      (entry) => !!this.keybindingService.lookupKeybinding(entry.id)
+    );
+    const update = /* @__PURE__ */ __name(() => {
+      clearNode(box);
+      this.keybindingLabels.forEach((label) => label.dispose());
+      this.keybindingLabels.clear();
+      for (const entry of selected) {
+        const keys = this.keybindingService.lookupKeybinding(entry.id);
+        if (!keys) {
+          continue;
+        }
+        const dl = append(box, $("dl"));
+        const dt = append(dl, $("dt"));
+        dt.textContent = entry.text;
+        const dd = append(dl, $("dd"));
+        const label = new KeybindingLabel(dd, OS, {
+          renderUnboundKeybindings: true,
+          ...defaultKeybindingLabelStyles
+        });
+        label.set(keys);
+        this.keybindingLabels.add(label);
+      }
+    }, "update");
+    update();
+    this.transientDisposables.add(
+      this.keybindingService.onDidUpdateKeybindings(update)
+    );
+  }
+  clear() {
+    clearNode(this.shortcuts);
+    this.transientDisposables.clear();
+  }
+  dispose() {
+    super.dispose();
+    this.clear();
+    this.keybindingLabels.forEach((label) => label.dispose());
+  }
+};
+EditorGroupWatermark = __decorateClass([
+  __decorateParam(1, IKeybindingService),
+  __decorateParam(2, IWorkspaceContextService),
+  __decorateParam(3, IContextKeyService),
+  __decorateParam(4, IConfigurationService)
+], EditorGroupWatermark);
+export {
+  EditorGroupWatermark
+};
+//# sourceMappingURL=editorGroupWatermark.js.map

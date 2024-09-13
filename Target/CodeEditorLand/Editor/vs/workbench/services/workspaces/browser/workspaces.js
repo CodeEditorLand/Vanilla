@@ -1,1 +1,26 @@
-import{hash as o}from"../../../../base/common/hash.js";function i(e){return{id:r(e),configPath:e}}function n(e){return{id:r(e),uri:e}}function r(e){return o(e.toString()).toString(16)}export{n as getSingleFolderWorkspaceIdentifier,i as getWorkspaceIdentifier};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { hash } from "../../../../base/common/hash.js";
+function getWorkspaceIdentifier(workspaceUri) {
+  return {
+    id: getWorkspaceId(workspaceUri),
+    configPath: workspaceUri
+  };
+}
+__name(getWorkspaceIdentifier, "getWorkspaceIdentifier");
+function getSingleFolderWorkspaceIdentifier(folderUri) {
+  return {
+    id: getWorkspaceId(folderUri),
+    uri: folderUri
+  };
+}
+__name(getSingleFolderWorkspaceIdentifier, "getSingleFolderWorkspaceIdentifier");
+function getWorkspaceId(uri) {
+  return hash(uri.toString()).toString(16);
+}
+__name(getWorkspaceId, "getWorkspaceId");
+export {
+  getSingleFolderWorkspaceIdentifier,
+  getWorkspaceIdentifier
+};
+//# sourceMappingURL=workspaces.js.map

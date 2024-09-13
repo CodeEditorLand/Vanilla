@@ -1,1 +1,105 @@
-import{Codicon as a}from"../../../base/common/codicons.js";import{Emitter as s}from"../../../base/common/event.js";import{Disposable as c,toDisposable as l}from"../../../base/common/lifecycle.js";import{createDecorator as m}from"../../instantiation/common/instantiation.js";import*as h from"../../registry/common/platform.js";import{ColorScheme as o}from"./theme.js";const y=m("themeService");function b(e){return{id:e}}const v=a.file,P=a.folder;function B(e){switch(e){case o.DARK:return"vs-dark";case o.HIGH_CONTRAST_DARK:return"hc-black";case o.HIGH_CONTRAST_LIGHT:return"hc-light";default:return"vs"}}const g={ThemingContribution:"base.contributions.theming"};class u{themingParticipants=[];onThemingParticipantAddedEmitter;constructor(){this.themingParticipants=[],this.onThemingParticipantAddedEmitter=new s}onColorThemeChange(r){return this.themingParticipants.push(r),this.onThemingParticipantAddedEmitter.fire(r),l(()=>{const n=this.themingParticipants.indexOf(r);this.themingParticipants.splice(n,1)})}get onThemingParticipantAdded(){return this.onThemingParticipantAddedEmitter.event}getThemingParticipants(){return this.themingParticipants}}const d=new u;h.Registry.add(g.ThemingContribution,d);function S(e){return d.onColorThemeChange(e)}class x extends c{constructor(n){super();this.themeService=n;this.theme=n.getColorTheme(),this._register(this.themeService.onDidColorThemeChange(i=>this.onThemeChange(i)))}theme;onThemeChange(n){this.theme=n,this.updateStyles()}updateStyles(){}getColor(n,i){let t=this.theme.getColor(n);return t&&i&&(t=i(t,this.theme)),t?t.toString():null}}export{g as Extensions,v as FileThemeIcon,P as FolderThemeIcon,y as IThemeService,x as Themable,B as getThemeTypeSelector,S as registerThemingParticipant,b as themeColorFromId};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../base/common/codicons.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import * as platform from "../../registry/common/platform.js";
+import { ColorScheme } from "./theme.js";
+const IThemeService = createDecorator("themeService");
+function themeColorFromId(id) {
+  return { id };
+}
+__name(themeColorFromId, "themeColorFromId");
+const FileThemeIcon = Codicon.file;
+const FolderThemeIcon = Codicon.folder;
+function getThemeTypeSelector(type) {
+  switch (type) {
+    case ColorScheme.DARK:
+      return "vs-dark";
+    case ColorScheme.HIGH_CONTRAST_DARK:
+      return "hc-black";
+    case ColorScheme.HIGH_CONTRAST_LIGHT:
+      return "hc-light";
+    default:
+      return "vs";
+  }
+}
+__name(getThemeTypeSelector, "getThemeTypeSelector");
+const Extensions = {
+  ThemingContribution: "base.contributions.theming"
+};
+class ThemingRegistry {
+  static {
+    __name(this, "ThemingRegistry");
+  }
+  themingParticipants = [];
+  onThemingParticipantAddedEmitter;
+  constructor() {
+    this.themingParticipants = [];
+    this.onThemingParticipantAddedEmitter = new Emitter();
+  }
+  onColorThemeChange(participant) {
+    this.themingParticipants.push(participant);
+    this.onThemingParticipantAddedEmitter.fire(participant);
+    return toDisposable(() => {
+      const idx = this.themingParticipants.indexOf(participant);
+      this.themingParticipants.splice(idx, 1);
+    });
+  }
+  get onThemingParticipantAdded() {
+    return this.onThemingParticipantAddedEmitter.event;
+  }
+  getThemingParticipants() {
+    return this.themingParticipants;
+  }
+}
+const themingRegistry = new ThemingRegistry();
+platform.Registry.add(Extensions.ThemingContribution, themingRegistry);
+function registerThemingParticipant(participant) {
+  return themingRegistry.onColorThemeChange(participant);
+}
+__name(registerThemingParticipant, "registerThemingParticipant");
+class Themable extends Disposable {
+  constructor(themeService) {
+    super();
+    this.themeService = themeService;
+    this.theme = themeService.getColorTheme();
+    this._register(
+      this.themeService.onDidColorThemeChange(
+        (theme) => this.onThemeChange(theme)
+      )
+    );
+  }
+  static {
+    __name(this, "Themable");
+  }
+  theme;
+  onThemeChange(theme) {
+    this.theme = theme;
+    this.updateStyles();
+  }
+  updateStyles() {
+  }
+  getColor(id, modify) {
+    let color = this.theme.getColor(id);
+    if (color && modify) {
+      color = modify(color, this.theme);
+    }
+    return color ? color.toString() : null;
+  }
+}
+export {
+  Extensions,
+  FileThemeIcon,
+  FolderThemeIcon,
+  IThemeService,
+  Themable,
+  getThemeTypeSelector,
+  registerThemingParticipant,
+  themeColorFromId
+};
+//# sourceMappingURL=themeService.js.map

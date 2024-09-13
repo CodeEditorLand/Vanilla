@@ -1,1 +1,54 @@
-import{Event as n}from"../../../common/event.js";import{generateUuid as a}from"../../../common/uuid.js";import{Client as c}from"../common/ipc.mp.js";import{validatedIpcMain as m}from"./ipcMain.js";class g extends c{constructor(e,r){super({addEventListener:(t,s)=>e.addListener(t,s),removeEventListener:(t,s)=>e.removeListener(t,s),postMessage:t=>e.postMessage(t),start:()=>e.start(),close:()=>e.close()},r)}}async function f(o){if(o.isDestroyed()||o.webContents.isDestroyed())throw new Error("ipc.mp#connect: Cannot talk to window because it is closed or destroyed");const e=a();o.webContents.send("vscode:createMessageChannel",e);const r=n.fromNodeEventEmitter(m,"vscode:createMessageChannelResult",(s,i)=>({nonce:i,port:s.ports[0]})),{port:t}=await n.toPromise(n.once(n.filter(r,s=>s.nonce===e)));return t}export{g as Client,f as connect};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../../common/event.js";
+import { generateUuid } from "../../../common/uuid.js";
+import { Client as MessagePortClient } from "../common/ipc.mp.js";
+import { validatedIpcMain } from "./ipcMain.js";
+class Client extends MessagePortClient {
+  static {
+    __name(this, "Client");
+  }
+  /**
+   * @param clientId a way to uniquely identify this client among
+   * other clients. this is important for routing because every
+   * client can also be a server
+   */
+  constructor(port, clientId) {
+    super(
+      {
+        addEventListener: /* @__PURE__ */ __name((type, listener) => port.addListener(type, listener), "addEventListener"),
+        removeEventListener: /* @__PURE__ */ __name((type, listener) => port.removeListener(type, listener), "removeEventListener"),
+        postMessage: /* @__PURE__ */ __name((message) => port.postMessage(message), "postMessage"),
+        start: /* @__PURE__ */ __name(() => port.start(), "start"),
+        close: /* @__PURE__ */ __name(() => port.close(), "close")
+      },
+      clientId
+    );
+  }
+}
+async function connect(window) {
+  if (window.isDestroyed() || window.webContents.isDestroyed()) {
+    throw new Error(
+      "ipc.mp#connect: Cannot talk to window because it is closed or destroyed"
+    );
+  }
+  const nonce = generateUuid();
+  window.webContents.send("vscode:createMessageChannel", nonce);
+  const onMessageChannelResult = Event.fromNodeEventEmitter(
+    validatedIpcMain,
+    "vscode:createMessageChannelResult",
+    (e, nonce2) => ({ nonce: nonce2, port: e.ports[0] })
+  );
+  const { port } = await Event.toPromise(
+    Event.once(
+      Event.filter(onMessageChannelResult, (e) => e.nonce === nonce)
+    )
+  );
+  return port;
+}
+__name(connect, "connect");
+export {
+  Client,
+  connect
+};
+//# sourceMappingURL=ipc.mp.js.map

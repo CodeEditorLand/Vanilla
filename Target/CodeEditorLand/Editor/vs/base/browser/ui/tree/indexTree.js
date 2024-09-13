@@ -1,1 +1,49 @@
-import{Iterable as l}from"../../../common/iterator.js";import{AbstractTree as o}from"./abstractTree.js";import{IndexTreeModel as d}from"./indexTreeModel.js";import{TreeError as a}from"./tree.js";import"./media/tree.css";class b extends o{constructor(e,t,r,i,m,n={}){super(e,t,r,i,n);this.user=e;this.rootElement=m}splice(e,t,r=l.empty()){this.model.splice(e,t,r)}rerender(e){if(e===void 0){this.view.rerender();return}this.model.rerender(e)}updateElementHeight(e,t){if(e.length===0)throw new a(this.user,"Update element height failed: invalid location");const r=this.model.getListIndex(e);r!==-1&&this.view.updateElementHeight(r,t)}createModel(e,t){return new d(e,this.rootElement,t)}}export{b as IndexTree};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Iterable } from "../../../common/iterator.js";
+import { AbstractTree } from "./abstractTree.js";
+import { IndexTreeModel } from "./indexTreeModel.js";
+import {
+  TreeError
+} from "./tree.js";
+import "./media/tree.css";
+class IndexTree extends AbstractTree {
+  constructor(user, container, delegate, renderers, rootElement, options = {}) {
+    super(user, container, delegate, renderers, options);
+    this.user = user;
+    this.rootElement = rootElement;
+  }
+  static {
+    __name(this, "IndexTree");
+  }
+  splice(location, deleteCount, toInsert = Iterable.empty()) {
+    this.model.splice(location, deleteCount, toInsert);
+  }
+  rerender(location) {
+    if (location === void 0) {
+      this.view.rerender();
+      return;
+    }
+    this.model.rerender(location);
+  }
+  updateElementHeight(location, height) {
+    if (location.length === 0) {
+      throw new TreeError(
+        this.user,
+        `Update element height failed: invalid location`
+      );
+    }
+    const elementIndex = this.model.getListIndex(location);
+    if (elementIndex === -1) {
+      return;
+    }
+    this.view.updateElementHeight(elementIndex, height);
+  }
+  createModel(user, options) {
+    return new IndexTreeModel(user, this.rootElement, options);
+  }
+}
+export {
+  IndexTree
+};
+//# sourceMappingURL=indexTree.js.map

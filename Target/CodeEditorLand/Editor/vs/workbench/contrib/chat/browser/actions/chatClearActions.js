@@ -1,1 +1,130 @@
-import{Codicon as s}from"../../../../../base/common/codicons.js";import{KeyCode as l,KeyMod as m}from"../../../../../base/common/keyCodes.js";import{localize2 as C}from"../../../../../nls.js";import{AccessibilitySignal as y,IAccessibilitySignalService as d}from"../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{Action2 as p,MenuId as r,registerAction2 as w}from"../../../../../platform/actions/common/actions.js";import{ContextKeyExpr as A}from"../../../../../platform/contextkey/common/contextkey.js";import{KeybindingWeight as E}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{ActiveEditorContext as S}from"../../../../common/contextkeys.js";import{IViewsService as v}from"../../../../services/views/common/viewsService.js";import{CONTEXT_CHAT_ENABLED as h,CONTEXT_IN_CHAT_SESSION as I}from"../../common/chatContextKeys.js";import{CHAT_VIEW_ID as g,IChatWidgetService as T}from"../chat.js";import{ChatEditorInput as b}from"../chatEditorInput.js";import{CHAT_CATEGORY as V,isChatViewTitleActionContext as _}from"./chatActions.js";import{clearChatEditor as x}from"./chatClear.js";const N="workbench.action.chat.newChat";function Y(){w(class extends p{constructor(){super({id:"workbench.action.chatEditor.newChat",title:C("chat.newChat.label","New Chat"),icon:s.plus,f1:!1,precondition:h,menu:[{id:r.EditorTitle,group:"navigation",order:0,when:S.isEqualTo(b.EditorID)}]})}async run(e,...c){n(e.get(d)),await x(e)}}),w(class extends p{constructor(){super({id:N,title:C("chat.newChat.label","New Chat"),category:V,icon:s.plus,precondition:h,f1:!0,keybinding:{weight:E.WorkbenchContrib,primary:m.CtrlCmd|l.KeyL,mac:{primary:m.WinCtrl|l.KeyL},when:I},menu:[{id:r.ChatContext,group:"z_clear"},{id:r.ViewTitle,when:A.equals("view",g),group:"navigation",order:-1}]})}async run(e,...c){const o=c[0],a=e.get(d);if(_(o))n(a),o.chatView.widget.clear(),o.chatView.widget.focusInput();else{const u=e.get(T),f=e.get(v);let t=u.lastFocusedWidget;t||(t=(await f.openView(g)).widget),n(a),t.clear(),t.focusInput()}}})}function n(i){i.playSignal(y.clear)}export{N as ACTION_ID_NEW_CHAT,Y as registerNewChatActions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { localize2 } from "../../../../../nls.js";
+import {
+  AccessibilitySignal,
+  IAccessibilitySignalService
+} from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import {
+  Action2,
+  MenuId,
+  registerAction2
+} from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ActiveEditorContext } from "../../../../common/contextkeys.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import {
+  CONTEXT_CHAT_ENABLED,
+  CONTEXT_IN_CHAT_SESSION
+} from "../../common/chatContextKeys.js";
+import { CHAT_VIEW_ID, IChatWidgetService } from "../chat.js";
+import { ChatEditorInput } from "../chatEditorInput.js";
+import { CHAT_CATEGORY, isChatViewTitleActionContext } from "./chatActions.js";
+import { clearChatEditor } from "./chatClear.js";
+const ACTION_ID_NEW_CHAT = `workbench.action.chat.newChat`;
+function registerNewChatActions() {
+  registerAction2(
+    class NewChatEditorAction extends Action2 {
+      static {
+        __name(this, "NewChatEditorAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.action.chatEditor.newChat",
+          title: localize2("chat.newChat.label", "New Chat"),
+          icon: Codicon.plus,
+          f1: false,
+          precondition: CONTEXT_CHAT_ENABLED,
+          menu: [
+            {
+              id: MenuId.EditorTitle,
+              group: "navigation",
+              order: 0,
+              when: ActiveEditorContext.isEqualTo(
+                ChatEditorInput.EditorID
+              )
+            }
+          ]
+        });
+      }
+      async run(accessor, ...args) {
+        announceChatCleared(accessor.get(IAccessibilitySignalService));
+        await clearChatEditor(accessor);
+      }
+    }
+  );
+  registerAction2(
+    class GlobalClearChatAction extends Action2 {
+      static {
+        __name(this, "GlobalClearChatAction");
+      }
+      constructor() {
+        super({
+          id: ACTION_ID_NEW_CHAT,
+          title: localize2("chat.newChat.label", "New Chat"),
+          category: CHAT_CATEGORY,
+          icon: Codicon.plus,
+          precondition: CONTEXT_CHAT_ENABLED,
+          f1: true,
+          keybinding: {
+            weight: KeybindingWeight.WorkbenchContrib,
+            primary: KeyMod.CtrlCmd | KeyCode.KeyL,
+            mac: {
+              primary: KeyMod.WinCtrl | KeyCode.KeyL
+            },
+            when: CONTEXT_IN_CHAT_SESSION
+          },
+          menu: [
+            {
+              id: MenuId.ChatContext,
+              group: "z_clear"
+            },
+            {
+              id: MenuId.ViewTitle,
+              when: ContextKeyExpr.equals("view", CHAT_VIEW_ID),
+              group: "navigation",
+              order: -1
+            }
+          ]
+        });
+      }
+      async run(accessor, ...args) {
+        const context = args[0];
+        const accessibilitySignalService = accessor.get(
+          IAccessibilitySignalService
+        );
+        if (isChatViewTitleActionContext(context)) {
+          announceChatCleared(accessibilitySignalService);
+          context.chatView.widget.clear();
+          context.chatView.widget.focusInput();
+        } else {
+          const widgetService = accessor.get(IChatWidgetService);
+          const viewsService = accessor.get(IViewsService);
+          let widget = widgetService.lastFocusedWidget;
+          if (!widget) {
+            const chatView = await viewsService.openView(
+              CHAT_VIEW_ID
+            );
+            widget = chatView.widget;
+          }
+          announceChatCleared(accessibilitySignalService);
+          widget.clear();
+          widget.focusInput();
+        }
+      }
+    }
+  );
+}
+__name(registerNewChatActions, "registerNewChatActions");
+function announceChatCleared(accessibilitySignalService) {
+  accessibilitySignalService.playSignal(AccessibilitySignal.clear);
+}
+__name(announceChatCleared, "announceChatCleared");
+export {
+  ACTION_ID_NEW_CHAT,
+  registerNewChatActions
+};
+//# sourceMappingURL=chatClearActions.js.map

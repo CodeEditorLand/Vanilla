@@ -1,1 +1,45 @@
-import{AccessibleContentProvider as r,AccessibleViewProviderId as o,AccessibleViewType as t}from"../../../../../platform/accessibility/browser/accessibleView.js";import{AccessibilityVerbositySettingId as s}from"../../../accessibility/browser/accessibilityConfiguration.js";import{ITerminalService as l}from"../../../terminal/browser/terminal.js";import{TerminalChatContextKeys as c}from"../../../terminal/terminalContribExports.js";import{TerminalChatController as a}from"./terminalChatController.js";class I{priority=105;name="terminalInlineChat";type=t.View;when=c.focused;getProvider(i){const e=i.get(l).activeInstance?.getContribution(a.ID)??void 0;if(!e?.lastResponseContent)return;const n=e.lastResponseContent;return new r(o.TerminalChat,{type:t.View},()=>n,()=>{e.focus()},s.InlineChat)}}export{I as TerminalInlineChatAccessibleView};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  AccessibleContentProvider,
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../../platform/accessibility/browser/accessibleView.js";
+import { AccessibilityVerbositySettingId } from "../../../accessibility/browser/accessibilityConfiguration.js";
+import { ITerminalService } from "../../../terminal/browser/terminal.js";
+import { TerminalChatContextKeys } from "../../../terminal/terminalContribExports.js";
+import { TerminalChatController } from "./terminalChatController.js";
+class TerminalInlineChatAccessibleView {
+  static {
+    __name(this, "TerminalInlineChatAccessibleView");
+  }
+  priority = 105;
+  name = "terminalInlineChat";
+  type = AccessibleViewType.View;
+  when = TerminalChatContextKeys.focused;
+  getProvider(accessor) {
+    const terminalService = accessor.get(ITerminalService);
+    const controller = terminalService.activeInstance?.getContribution(
+      TerminalChatController.ID
+    ) ?? void 0;
+    if (!controller?.lastResponseContent) {
+      return;
+    }
+    const responseContent = controller.lastResponseContent;
+    return new AccessibleContentProvider(
+      AccessibleViewProviderId.TerminalChat,
+      { type: AccessibleViewType.View },
+      () => {
+        return responseContent;
+      },
+      () => {
+        controller.focus();
+      },
+      AccessibilityVerbositySettingId.InlineChat
+    );
+  }
+}
+export {
+  TerminalInlineChatAccessibleView
+};
+//# sourceMappingURL=terminalChatAccessibleView.js.map

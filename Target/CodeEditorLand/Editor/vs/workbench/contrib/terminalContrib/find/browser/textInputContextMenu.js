@@ -1,1 +1,90 @@
-import{getActiveWindow as t,isHTMLInputElement as f,isHTMLTextAreaElement as x}from"../../../../../base/browser/dom.js";import{StandardMouseEvent as C}from"../../../../../base/browser/mouseEvent.js";import{Action as o,Separator as a}from"../../../../../base/common/actions.js";import{isNative as w}from"../../../../../base/common/platform.js";import{localize as n}from"../../../../../nls.js";function g(s,c,u,p){const l=new C(s,c),i=[];i.push(new o("undo",n("undo","Undo"),void 0,!0,async()=>t().document.execCommand("undo")),new o("redo",n("redo","Redo"),void 0,!0,async()=>t().document.execCommand("redo")),new a,new o("editor.action.clipboardCutAction",n("cut","Cut"),void 0,!0,async()=>t().document.execCommand("cut")),new o("editor.action.clipboardCopyAction",n("copy","Copy"),void 0,!0,async()=>t().document.execCommand("copy")),new o("editor.action.clipboardPasteAction",n("paste","Paste"),void 0,!0,async e=>{if(w)t().document.execCommand("paste");else{const r=await u.readText();if(x(e)||f(e)){const d=e.selectionStart||0,m=e.selectionEnd||0;e.value=`${e.value.substring(0,d)}${r}${e.value.substring(m,e.value.length)}`,e.selectionStart=d+r.length,e.selectionEnd=e.selectionStart}}}),new a,new o("editor.action.selectAll",n("selectAll","Select All"),void 0,!0,async()=>t().document.execCommand("selectAll"))),p.showContextMenu({getAnchor:()=>l,getActions:()=>i,getActionsContext:()=>c.target})}export{g as openContextMenu};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  getActiveWindow,
+  isHTMLInputElement,
+  isHTMLTextAreaElement
+} from "../../../../../base/browser/dom.js";
+import { StandardMouseEvent } from "../../../../../base/browser/mouseEvent.js";
+import {
+  Action,
+  Separator
+} from "../../../../../base/common/actions.js";
+import { isNative } from "../../../../../base/common/platform.js";
+import { localize } from "../../../../../nls.js";
+function openContextMenu(targetWindow, event, clipboardService, contextMenuService) {
+  const standardEvent = new StandardMouseEvent(targetWindow, event);
+  const actions = [];
+  actions.push(
+    // Undo/Redo
+    new Action(
+      "undo",
+      localize("undo", "Undo"),
+      void 0,
+      true,
+      async () => getActiveWindow().document.execCommand("undo")
+    ),
+    new Action(
+      "redo",
+      localize("redo", "Redo"),
+      void 0,
+      true,
+      async () => getActiveWindow().document.execCommand("redo")
+    ),
+    new Separator(),
+    // Cut / Copy / Paste
+    new Action(
+      "editor.action.clipboardCutAction",
+      localize("cut", "Cut"),
+      void 0,
+      true,
+      async () => getActiveWindow().document.execCommand("cut")
+    ),
+    new Action(
+      "editor.action.clipboardCopyAction",
+      localize("copy", "Copy"),
+      void 0,
+      true,
+      async () => getActiveWindow().document.execCommand("copy")
+    ),
+    new Action(
+      "editor.action.clipboardPasteAction",
+      localize("paste", "Paste"),
+      void 0,
+      true,
+      async (element) => {
+        if (isNative) {
+          getActiveWindow().document.execCommand("paste");
+        } else {
+          const clipboardText = await clipboardService.readText();
+          if (isHTMLTextAreaElement(element) || isHTMLInputElement(element)) {
+            const selectionStart = element.selectionStart || 0;
+            const selectionEnd = element.selectionEnd || 0;
+            element.value = `${element.value.substring(0, selectionStart)}${clipboardText}${element.value.substring(selectionEnd, element.value.length)}`;
+            element.selectionStart = selectionStart + clipboardText.length;
+            element.selectionEnd = element.selectionStart;
+          }
+        }
+      }
+    ),
+    new Separator(),
+    // Select All
+    new Action(
+      "editor.action.selectAll",
+      localize("selectAll", "Select All"),
+      void 0,
+      true,
+      async () => getActiveWindow().document.execCommand("selectAll")
+    )
+  );
+  contextMenuService.showContextMenu({
+    getAnchor: /* @__PURE__ */ __name(() => standardEvent, "getAnchor"),
+    getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+    getActionsContext: /* @__PURE__ */ __name(() => event.target, "getActionsContext")
+  });
+}
+__name(openContextMenu, "openContextMenu");
+export {
+  openContextMenu
+};
+//# sourceMappingURL=textInputContextMenu.js.map

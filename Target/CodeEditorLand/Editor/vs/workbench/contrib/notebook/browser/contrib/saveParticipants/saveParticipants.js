@@ -1,1 +1,885 @@
-var z=Object.defineProperty;var X=Object.getOwnPropertyDescriptor;var C=(S,e,o,t)=>{for(var i=t>1?void 0:t?X(e,o):e,l=S.length-1,r;l>=0;l--)(r=S[l])&&(i=(t?r(e,o,i):r(i))||i);return t&&i&&z(e,o,i),i},g=(S,e)=>(o,t)=>e(o,t,S);import{HierarchicalKind as q}from"../../../../../../base/common/hierarchicalKind.js";import{Disposable as J,DisposableStore as b}from"../../../../../../base/common/lifecycle.js";import{isEqual as Q}from"../../../../../../base/common/resources.js";import{IBulkEditService as N,ResourceTextEdit as O}from"../../../../../../editor/browser/services/bulkEditService.js";import{trimTrailingWhitespace as Y}from"../../../../../../editor/common/commands/trimTrailingWhitespaceCommand.js";import{Position as Z}from"../../../../../../editor/common/core/position.js";import{Range as G}from"../../../../../../editor/common/core/range.js";import{CodeActionTriggerType as ee}from"../../../../../../editor/common/languages.js";import{IEditorWorkerService as te}from"../../../../../../editor/common/services/editorWorker.js";import{ILanguageFeaturesService as K}from"../../../../../../editor/common/services/languageFeatures.js";import{ITextModelService as _}from"../../../../../../editor/common/services/resolverService.js";import{ApplyCodeActionReason as U,applyCodeAction as $,getCodeActions as oe}from"../../../../../../editor/contrib/codeAction/browser/codeAction.js";import{CodeActionKind as x,CodeActionTriggerSource as ie}from"../../../../../../editor/contrib/codeAction/common/types.js";import{FormattingMode as re,getDocumentFormattingEditsWithSelectedProvider as ne}from"../../../../../../editor/contrib/format/browser/format.js";import{SnippetController2 as ae}from"../../../../../../editor/contrib/snippet/browser/snippetController2.js";import{localize as I}from"../../../../../../nls.js";import{IConfigurationService as F}from"../../../../../../platform/configuration/common/configuration.js";import{IInstantiationService as E}from"../../../../../../platform/instantiation/common/instantiation.js";import{ILogService as B}from"../../../../../../platform/log/common/log.js";import{Registry as se}from"../../../../../../platform/registry/common/platform.js";import{IWorkspaceTrustManagementService as ce}from"../../../../../../platform/workspace/common/workspaceTrust.js";import{Extensions as le}from"../../../../../common/contributions.js";import{SaveReason as A}from"../../../../../common/editor.js";import{IEditorService as V}from"../../../../../services/editor/common/editorService.js";import{LifecyclePhase as de}from"../../../../../services/lifecycle/common/lifecycle.js";import{IWorkingCopyFileService as pe}from"../../../../../services/workingCopy/common/workingCopyFileService.js";import{CellKind as D,NotebookSetting as j}from"../../../common/notebookCommon.js";import{NotebookFileWorkingCopyModel as M}from"../../../common/notebookEditorModel.js";import{getNotebookEditorFromEditorPane as ge}from"../../notebookBrowser.js";let P=class{constructor(e,o,t,i,l,r){this.editorWorkerService=e;this.languageFeaturesService=o;this.instantiationService=t;this.textModelService=i;this.bulkEditService=l;this.configurationService=r}async participate(e,o,t,i){if(!e.model||!(e.model instanceof M)||o.reason===A.AUTO||!this.configurationService.getValue(j.formatOnSave))return;t.report({message:I("notebookFormatSave.formatting","Formatting")});const r=e.model.notebookModel,m=await this.instantiationService.invokeFunction(h.checkAndRunFormatCodeAction,r,t,i),p=new b;try{if(!m){const u=await Promise.all(r.cells.map(async a=>{const s=await this.textModelService.createModelReference(a.uri);p.add(s);const n=s.object.textEditorModel,c=await ne(this.editorWorkerService,this.languageFeaturesService,n,re.Silent,i),f=[];return c?(f.push(...c.map(d=>new O(n.uri,d,n.getVersionId()))),f):[]}));await this.bulkEditService.apply(u.flat(),{label:I("formatNotebook","Format Notebook"),code:"undoredo.formatNotebook"})}}finally{t.report({increment:100}),p.dispose()}}};P=C([g(0,te),g(1,K),g(2,E),g(3,_),g(4,N),g(5,F)],P);let W=class{constructor(e,o,t,i){this.configurationService=e;this.editorService=o;this.textModelService=t;this.bulkEditService=i}async participate(e,o,t,i){const l=this.configurationService.getValue("files.trimTrailingWhitespace"),r=this.configurationService.getValue("files.trimTrailingWhitespaceInRegexAndStrings");l&&await this.doTrimTrailingWhitespace(e,o.reason===A.AUTO,r,t)}async doTrimTrailingWhitespace(e,o,t,i){if(!e.model||!(e.model instanceof M))return;const l=new b,r=e.model.notebookModel,m=H(this.editorService);let p=[],u=[];try{const s=(await Promise.all(r.cells.map(async n=>{if(n.cellKind!==D.Code)return[];const c=await this.textModelService.createModelReference(n.uri);l.add(c);const f=c.object.textEditorModel;if(m&&n.uri.toString()===m.getModel()?.uri.toString()&&(u=m.getSelections()??[],o)){p=u.map(k=>k.getPosition());const v=ae.get(m)?.getSessionEnclosingRange();if(v)for(let k=v.startLineNumber;k<=v.endLineNumber;k++)p.push(new Z(k,f.getLineMaxColumn(k)))}const y=Y(f,p,t);return y.length?y.map(v=>new O(f.uri,{...v,text:v.text||""},f.getVersionId())):[]}))).flat().filter(n=>n!==void 0);await this.bulkEditService.apply(s,{label:I("trimNotebookWhitespace","Notebook Trim Trailing Whitespace"),code:"undoredo.notebookTrimTrailingWhitespace"})}finally{i.report({increment:100}),l.dispose()}}};W=C([g(0,F),g(1,V),g(2,_),g(3,N)],W);let w=class{constructor(e,o,t){this.configurationService=e;this.editorService=o;this.bulkEditService=t}async participate(e,o,t,i){this.configurationService.getValue("files.trimFinalNewlines")&&await this.doTrimFinalNewLines(e,o.reason===A.AUTO,t)}findLastNonEmptyLine(e){for(let o=e.getLineCount();o>=1;o--)if(e.getLineLength(o))return o;return 0}async doTrimFinalNewLines(e,o,t){if(!e.model||!(e.model instanceof M))return;const i=new b,l=e.model.notebookModel,r=H(this.editorService);try{const p=(await Promise.all(l.cells.map(async u=>{if(u.cellKind!==D.Code)return;let a=0;const s=r&&u.uri.toString()===r.getModel()?.uri.toString();if(o&&s){const y=r.getSelections()??[];for(const v of y)a=Math.max(a,v.selectionStartLineNumber)}const n=u.textBuffer,c=this.findLastNonEmptyLine(n),f=Math.max(c+1,a+1);if(f>n.getLineCount())return;const d=new G(f,1,n.getLineCount(),n.getLineLastNonWhitespaceColumn(n.getLineCount()));if(!d.isEmpty())return new O(u.uri,{range:d,text:""},u.textModel?.getVersionId())}))).flat().filter(u=>u!==void 0);await this.bulkEditService.apply(p,{label:I("trimNotebookNewlines","Trim Final New Lines"),code:"undoredo.trimFinalNewLines"})}finally{t.report({increment:100}),i.dispose()}}};w=C([g(0,F),g(1,V),g(2,N)],w);let T=class{constructor(e,o,t){this.configurationService=e;this.bulkEditService=o;this.editorService=t}async participate(e,o,t,i){this.configurationService.getValue(j.insertFinalNewline)&&await this.doInsertFinalNewLine(e,o.reason===A.AUTO,t)}async doInsertFinalNewLine(e,o,t){if(!e.model||!(e.model instanceof M))return;const i=new b,l=e.model.notebookModel,r=H(this.editorService);let m;r&&(m=r.getSelections()??[]);try{const u=(await Promise.all(l.cells.map(async a=>{if(a.cellKind!==D.Code)return;const s=a.textBuffer.getLineCount(),n=a.textBuffer.getLineFirstNonWhitespaceColumn(s)===0;if(!(!s||n))return new O(a.uri,{range:new G(s+1,a.textBuffer.getLineLength(s),s+1,a.textBuffer.getLineLength(s)),text:a.textBuffer.getEOL()},a.textModel?.getVersionId())}))).filter(a=>a!==void 0);await this.bulkEditService.apply(u,{label:I("insertFinalNewLine","Insert Final New Line"),code:"undoredo.insertFinalNewLine"}),r&&m&&r.setSelections(m)}finally{t.report({increment:100}),i.dispose()}}};T=C([g(0,F),g(1,N),g(2,V)],T);let L=class{constructor(e,o,t,i,l){this.configurationService=e;this.logService=o;this.workspaceTrustManagementService=t;this.textModelService=i;this.instantiationService=l}async participate(e,o,t,i){if(!this.workspaceTrustManagementService.isWorkspaceTrusted()||!e.model||!(e.model instanceof M))return;let r="";if(o.reason===A.AUTO)return;if(o.reason===A.EXPLICIT)r="explicit";else return;const m=e.model.notebookModel,p=this.configurationService.getValue(j.codeActionsOnSave),u=Array.isArray(p)?p:Object.keys(p).filter(d=>p[d]),a=this.createCodeActionsOnSave(u),s=a.filter(d=>p[d.value]==="never"||p[d.value]===!1),n=a.filter(d=>p[d.value]===r||p[d.value]===!0),c=n.filter(d=>!x.Notebook.contains(d)),f=n.filter(d=>x.Notebook.contains(d));if(f.length){const d=new b;t.report({message:I("notebookSaveParticipants.notebookCodeActions","Running 'Notebook' code actions")});try{const y=m.cells[0],v=await this.textModelService.createModelReference(y.uri);d.add(v);const k=v.object.textEditorModel;await this.instantiationService.invokeFunction(h.applyOnSaveGenericCodeActions,k,f,s,t,i)}catch{this.logService.error("Failed to apply notebook code action on save")}finally{t.report({increment:100}),d.dispose()}}if(c.length){Array.isArray(p)||c.sort((y,v)=>x.SourceFixAll.contains(y)?x.SourceFixAll.contains(v)?0:-1:x.SourceFixAll.contains(v)?1:0);const d=new b;t.report({message:I("notebookSaveParticipants.cellCodeActions","Running 'Cell' code actions")});try{await Promise.all(m.cells.map(async y=>{const v=await this.textModelService.createModelReference(y.uri);d.add(v);const k=v.object.textEditorModel;await this.instantiationService.invokeFunction(h.applyOnSaveGenericCodeActions,k,c,s,t,i)}))}catch{this.logService.error("Failed to apply code action on save")}finally{t.report({increment:100}),d.dispose()}}}createCodeActionsOnSave(e){const o=e.map(t=>new q(t));return o.filter(t=>o.every(i=>i.equals(t)||!i.contains(t)))}};L=C([g(0,F),g(1,B),g(2,ce),g(3,_),g(4,E)],L);class h{static async checkAndRunFormatCodeAction(e,o,t,i){const l=e.get(E),r=e.get(_),m=e.get(B),p=e.get(F),u=new b;let a=!1;t.report({message:I("notebookSaveParticipants.formatCodeActions","Running 'Format' code actions")});try{const s=o.cells[0],n=await r.createModelReference(s.uri);u.add(n);const c=n.object.textEditorModel,f=p.getValue(j.defaultFormatter);a=await l.invokeFunction(h.applyOnSaveFormatCodeAction,c,new q("notebook.format"),[],f,t,i)}catch{m.error("Failed to apply notebook format action on save")}finally{t.report({increment:100}),u.dispose()}return a}static async applyOnSaveGenericCodeActions(e,o,t,i,l,r){const m=e.get(E),p=e.get(K),u=e.get(B),a=new class{_names=new Set;_report(){l.report({message:I({key:"codeaction.get2",comment:["[configure]({1}) is a link. Only translate `configure`. Do not change brackets and parentheses or {1}"]},"Getting code actions from '{0}' ([configure]({1})).",[...this._names].map(s=>`'${s}'`).join(", "),"command:workbench.action.openSettings?%5B%22notebook.codeActionsOnSave%22%5D")})}report(s){s.displayName&&!this._names.has(s.displayName)&&(this._names.add(s.displayName),this._report())}};for(const s of t){const n=await h.getActionsToRun(o,s,i,p,a,r);if(r.isCancellationRequested){n.dispose();return}try{for(const c of n.validActions){const f=c.action.edit?.edits;let d=!1;if(!c.action.kind?.startsWith("notebook"))for(const y of f??[]){const v=y;if(!(v.resource&&Q(v.resource,o.uri))){d=!0;break}}if(d){u.warn("Failed to apply code action on save, applied to multiple resources.");continue}if(l.report({message:I("codeAction.apply","Applying code action '{0}'.",c.action.title)}),await m.invokeFunction($,c,U.OnSave,{},r),r.isCancellationRequested)return}}catch{}finally{n.dispose()}}}static async applyOnSaveFormatCodeAction(e,o,t,i,l,r,m){const p=e.get(E),u=e.get(K),a=e.get(B),s=new class{_names=new Set;_report(){r.report({message:I({key:"codeaction.get2",comment:["[configure]({1}) is a link. Only translate `configure`. Do not change brackets and parentheses or {1}"]},"Getting code actions from '{0}' ([configure]({1})).",[...this._names].map(c=>`'${c}'`).join(", "),"command:workbench.action.openSettings?%5B%22notebook.defaultFormatter%22%5D")})}report(c){c.displayName&&!this._names.has(c.displayName)&&(this._names.add(c.displayName),this._report())}},n=await h.getActionsToRun(o,t,i,u,s,m);if(n.validActions.length>1&&!l&&a.warn("More than one format code action is provided, the 0th one will be used. A default can be specified via `notebook.defaultFormatter` in your settings."),m.isCancellationRequested)return n.dispose(),!1;try{const c=l?n.validActions.find(f=>f.provider?.extensionId===l):n.validActions[0];if(!c||(r.report({message:I("codeAction.apply","Applying code action '{0}'.",c.action.title)}),await p.invokeFunction($,c,U.OnSave,{},m),m.isCancellationRequested))return!1}catch{return a.error("Failed to apply notebook format code action on save"),!1}finally{n.dispose()}return!0}static getActionsToRun(e,o,t,i,l,r){return oe(i.codeActionProvider,e,e.getFullModelRange(),{type:ee.Invoke,triggerAction:ie.OnSave,filter:{include:o,excludes:t,includeSourceActions:!0}},l,r)}}function H(S){const e=S.activeEditorPane;return ge(e)?.activeCodeEditor}let R=class extends J{constructor(o,t){super();this.instantiationService=o;this.workingCopyFileService=t;this.registerSaveParticipants()}registerSaveParticipants(){this._register(this.workingCopyFileService.addSaveParticipant(this.instantiationService.createInstance(W))),this._register(this.workingCopyFileService.addSaveParticipant(this.instantiationService.createInstance(L))),this._register(this.workingCopyFileService.addSaveParticipant(this.instantiationService.createInstance(P))),this._register(this.workingCopyFileService.addSaveParticipant(this.instantiationService.createInstance(T))),this._register(this.workingCopyFileService.addSaveParticipant(this.instantiationService.createInstance(w)))}};R=C([g(0,E),g(1,pe)],R);const me=se.as(le.Workbench);me.registerWorkbenchContribution(R,de.Restored);export{h as CodeActionParticipantUtils,R as SaveParticipantsContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { HierarchicalKind } from "../../../../../../base/common/hierarchicalKind.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../../../base/common/lifecycle.js";
+import { isEqual } from "../../../../../../base/common/resources.js";
+import {
+  IBulkEditService,
+  ResourceTextEdit
+} from "../../../../../../editor/browser/services/bulkEditService.js";
+import { trimTrailingWhitespace } from "../../../../../../editor/common/commands/trimTrailingWhitespaceCommand.js";
+import { Position } from "../../../../../../editor/common/core/position.js";
+import { Range } from "../../../../../../editor/common/core/range.js";
+import {
+  CodeActionTriggerType
+} from "../../../../../../editor/common/languages.js";
+import { IEditorWorkerService } from "../../../../../../editor/common/services/editorWorker.js";
+import { ILanguageFeaturesService } from "../../../../../../editor/common/services/languageFeatures.js";
+import { ITextModelService } from "../../../../../../editor/common/services/resolverService.js";
+import {
+  ApplyCodeActionReason,
+  applyCodeAction,
+  getCodeActions
+} from "../../../../../../editor/contrib/codeAction/browser/codeAction.js";
+import {
+  CodeActionKind,
+  CodeActionTriggerSource
+} from "../../../../../../editor/contrib/codeAction/common/types.js";
+import {
+  FormattingMode,
+  getDocumentFormattingEditsWithSelectedProvider
+} from "../../../../../../editor/contrib/format/browser/format.js";
+import { SnippetController2 } from "../../../../../../editor/contrib/snippet/browser/snippetController2.js";
+import { localize } from "../../../../../../nls.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import {
+  IInstantiationService
+} from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../../platform/log/common/log.js";
+import { Registry } from "../../../../../../platform/registry/common/platform.js";
+import { IWorkspaceTrustManagementService } from "../../../../../../platform/workspace/common/workspaceTrust.js";
+import {
+  Extensions as WorkbenchContributionsExtensions
+} from "../../../../../common/contributions.js";
+import { SaveReason } from "../../../../../common/editor.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { LifecyclePhase } from "../../../../../services/lifecycle/common/lifecycle.js";
+import {
+  IWorkingCopyFileService
+} from "../../../../../services/workingCopy/common/workingCopyFileService.js";
+import { CellKind, NotebookSetting } from "../../../common/notebookCommon.js";
+import { NotebookFileWorkingCopyModel } from "../../../common/notebookEditorModel.js";
+import { getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
+let FormatOnSaveParticipant = class {
+  constructor(editorWorkerService, languageFeaturesService, instantiationService, textModelService, bulkEditService, configurationService) {
+    this.editorWorkerService = editorWorkerService;
+    this.languageFeaturesService = languageFeaturesService;
+    this.instantiationService = instantiationService;
+    this.textModelService = textModelService;
+    this.bulkEditService = bulkEditService;
+    this.configurationService = configurationService;
+  }
+  static {
+    __name(this, "FormatOnSaveParticipant");
+  }
+  async participate(workingCopy, context, progress, token) {
+    if (!workingCopy.model || !(workingCopy.model instanceof NotebookFileWorkingCopyModel)) {
+      return;
+    }
+    if (context.reason === SaveReason.AUTO) {
+      return void 0;
+    }
+    const enabled = this.configurationService.getValue(
+      NotebookSetting.formatOnSave
+    );
+    if (!enabled) {
+      return void 0;
+    }
+    progress.report({
+      message: localize("notebookFormatSave.formatting", "Formatting")
+    });
+    const notebook = workingCopy.model.notebookModel;
+    const formatApplied = await this.instantiationService.invokeFunction(
+      CodeActionParticipantUtils.checkAndRunFormatCodeAction,
+      notebook,
+      progress,
+      token
+    );
+    const disposable = new DisposableStore();
+    try {
+      if (!formatApplied) {
+        const allCellEdits = await Promise.all(
+          notebook.cells.map(async (cell) => {
+            const ref = await this.textModelService.createModelReference(
+              cell.uri
+            );
+            disposable.add(ref);
+            const model = ref.object.textEditorModel;
+            const formatEdits = await getDocumentFormattingEditsWithSelectedProvider(
+              this.editorWorkerService,
+              this.languageFeaturesService,
+              model,
+              FormattingMode.Silent,
+              token
+            );
+            const edits = [];
+            if (formatEdits) {
+              edits.push(
+                ...formatEdits.map(
+                  (edit) => new ResourceTextEdit(
+                    model.uri,
+                    edit,
+                    model.getVersionId()
+                  )
+                )
+              );
+              return edits;
+            }
+            return [];
+          })
+        );
+        await this.bulkEditService.apply(
+          /* edit */
+          allCellEdits.flat(),
+          {
+            label: localize("formatNotebook", "Format Notebook"),
+            code: "undoredo.formatNotebook"
+          }
+        );
+      }
+    } finally {
+      progress.report({ increment: 100 });
+      disposable.dispose();
+    }
+  }
+};
+FormatOnSaveParticipant = __decorateClass([
+  __decorateParam(0, IEditorWorkerService),
+  __decorateParam(1, ILanguageFeaturesService),
+  __decorateParam(2, IInstantiationService),
+  __decorateParam(3, ITextModelService),
+  __decorateParam(4, IBulkEditService),
+  __decorateParam(5, IConfigurationService)
+], FormatOnSaveParticipant);
+let TrimWhitespaceParticipant = class {
+  constructor(configurationService, editorService, textModelService, bulkEditService) {
+    this.configurationService = configurationService;
+    this.editorService = editorService;
+    this.textModelService = textModelService;
+    this.bulkEditService = bulkEditService;
+  }
+  static {
+    __name(this, "TrimWhitespaceParticipant");
+  }
+  async participate(workingCopy, context, progress, _token) {
+    const trimTrailingWhitespaceOption = this.configurationService.getValue(
+      "files.trimTrailingWhitespace"
+    );
+    const trimInRegexAndStrings = this.configurationService.getValue(
+      "files.trimTrailingWhitespaceInRegexAndStrings"
+    );
+    if (trimTrailingWhitespaceOption) {
+      await this.doTrimTrailingWhitespace(
+        workingCopy,
+        context.reason === SaveReason.AUTO,
+        trimInRegexAndStrings,
+        progress
+      );
+    }
+  }
+  async doTrimTrailingWhitespace(workingCopy, isAutoSaved, trimInRegexesAndStrings, progress) {
+    if (!workingCopy.model || !(workingCopy.model instanceof NotebookFileWorkingCopyModel)) {
+      return;
+    }
+    const disposable = new DisposableStore();
+    const notebook = workingCopy.model.notebookModel;
+    const activeCellEditor = getActiveCellCodeEditor(this.editorService);
+    let cursors = [];
+    let prevSelection = [];
+    try {
+      const allCellEdits = await Promise.all(
+        notebook.cells.map(async (cell) => {
+          if (cell.cellKind !== CellKind.Code) {
+            return [];
+          }
+          const ref = await this.textModelService.createModelReference(
+            cell.uri
+          );
+          disposable.add(ref);
+          const model = ref.object.textEditorModel;
+          const isActiveCell = activeCellEditor && cell.uri.toString() === activeCellEditor.getModel()?.uri.toString();
+          if (isActiveCell) {
+            prevSelection = activeCellEditor.getSelections() ?? [];
+            if (isAutoSaved) {
+              cursors = prevSelection.map((s) => s.getPosition());
+              const snippetsRange = SnippetController2.get(
+                activeCellEditor
+              )?.getSessionEnclosingRange();
+              if (snippetsRange) {
+                for (let lineNumber = snippetsRange.startLineNumber; lineNumber <= snippetsRange.endLineNumber; lineNumber++) {
+                  cursors.push(
+                    new Position(
+                      lineNumber,
+                      model.getLineMaxColumn(lineNumber)
+                    )
+                  );
+                }
+              }
+            }
+          }
+          const ops = trimTrailingWhitespace(
+            model,
+            cursors,
+            trimInRegexesAndStrings
+          );
+          if (!ops.length) {
+            return [];
+          }
+          return ops.map(
+            (op) => new ResourceTextEdit(
+              model.uri,
+              { ...op, text: op.text || "" },
+              model.getVersionId()
+            )
+          );
+        })
+      );
+      const filteredEdits = allCellEdits.flat().filter((edit) => edit !== void 0);
+      await this.bulkEditService.apply(filteredEdits, {
+        label: localize(
+          "trimNotebookWhitespace",
+          "Notebook Trim Trailing Whitespace"
+        ),
+        code: "undoredo.notebookTrimTrailingWhitespace"
+      });
+    } finally {
+      progress.report({ increment: 100 });
+      disposable.dispose();
+    }
+  }
+};
+TrimWhitespaceParticipant = __decorateClass([
+  __decorateParam(0, IConfigurationService),
+  __decorateParam(1, IEditorService),
+  __decorateParam(2, ITextModelService),
+  __decorateParam(3, IBulkEditService)
+], TrimWhitespaceParticipant);
+let TrimFinalNewLinesParticipant = class {
+  constructor(configurationService, editorService, bulkEditService) {
+    this.configurationService = configurationService;
+    this.editorService = editorService;
+    this.bulkEditService = bulkEditService;
+  }
+  static {
+    __name(this, "TrimFinalNewLinesParticipant");
+  }
+  async participate(workingCopy, context, progress, _token) {
+    if (this.configurationService.getValue(
+      "files.trimFinalNewlines"
+    )) {
+      await this.doTrimFinalNewLines(
+        workingCopy,
+        context.reason === SaveReason.AUTO,
+        progress
+      );
+    }
+  }
+  /**
+   * returns 0 if the entire file is empty
+   */
+  findLastNonEmptyLine(textBuffer) {
+    for (let lineNumber = textBuffer.getLineCount(); lineNumber >= 1; lineNumber--) {
+      const lineLength = textBuffer.getLineLength(lineNumber);
+      if (lineLength) {
+        return lineNumber;
+      }
+    }
+    return 0;
+  }
+  async doTrimFinalNewLines(workingCopy, isAutoSaved, progress) {
+    if (!workingCopy.model || !(workingCopy.model instanceof NotebookFileWorkingCopyModel)) {
+      return;
+    }
+    const disposable = new DisposableStore();
+    const notebook = workingCopy.model.notebookModel;
+    const activeCellEditor = getActiveCellCodeEditor(this.editorService);
+    try {
+      const allCellEdits = await Promise.all(
+        notebook.cells.map(async (cell) => {
+          if (cell.cellKind !== CellKind.Code) {
+            return;
+          }
+          let cannotTouchLineNumber = 0;
+          const isActiveCell = activeCellEditor && cell.uri.toString() === activeCellEditor.getModel()?.uri.toString();
+          if (isAutoSaved && isActiveCell) {
+            const selections = activeCellEditor.getSelections() ?? [];
+            for (const sel of selections) {
+              cannotTouchLineNumber = Math.max(
+                cannotTouchLineNumber,
+                sel.selectionStartLineNumber
+              );
+            }
+          }
+          const textBuffer = cell.textBuffer;
+          const lastNonEmptyLine = this.findLastNonEmptyLine(textBuffer);
+          const deleteFromLineNumber = Math.max(
+            lastNonEmptyLine + 1,
+            cannotTouchLineNumber + 1
+          );
+          if (deleteFromLineNumber > textBuffer.getLineCount()) {
+            return;
+          }
+          const deletionRange = new Range(
+            deleteFromLineNumber,
+            1,
+            textBuffer.getLineCount(),
+            textBuffer.getLineLastNonWhitespaceColumn(
+              textBuffer.getLineCount()
+            )
+          );
+          if (deletionRange.isEmpty()) {
+            return;
+          }
+          return new ResourceTextEdit(
+            cell.uri,
+            { range: deletionRange, text: "" },
+            cell.textModel?.getVersionId()
+          );
+        })
+      );
+      const filteredEdits = allCellEdits.flat().filter((edit) => edit !== void 0);
+      await this.bulkEditService.apply(filteredEdits, {
+        label: localize("trimNotebookNewlines", "Trim Final New Lines"),
+        code: "undoredo.trimFinalNewLines"
+      });
+    } finally {
+      progress.report({ increment: 100 });
+      disposable.dispose();
+    }
+  }
+};
+TrimFinalNewLinesParticipant = __decorateClass([
+  __decorateParam(0, IConfigurationService),
+  __decorateParam(1, IEditorService),
+  __decorateParam(2, IBulkEditService)
+], TrimFinalNewLinesParticipant);
+let InsertFinalNewLineParticipant = class {
+  constructor(configurationService, bulkEditService, editorService) {
+    this.configurationService = configurationService;
+    this.bulkEditService = bulkEditService;
+    this.editorService = editorService;
+  }
+  static {
+    __name(this, "InsertFinalNewLineParticipant");
+  }
+  async participate(workingCopy, context, progress, _token) {
+    if (this.configurationService.getValue(
+      NotebookSetting.insertFinalNewline
+    )) {
+      await this.doInsertFinalNewLine(
+        workingCopy,
+        context.reason === SaveReason.AUTO,
+        progress
+      );
+    }
+  }
+  async doInsertFinalNewLine(workingCopy, isAutoSaved, progress) {
+    if (!workingCopy.model || !(workingCopy.model instanceof NotebookFileWorkingCopyModel)) {
+      return;
+    }
+    const disposable = new DisposableStore();
+    const notebook = workingCopy.model.notebookModel;
+    const activeCellEditor = getActiveCellCodeEditor(this.editorService);
+    let selections;
+    if (activeCellEditor) {
+      selections = activeCellEditor.getSelections() ?? [];
+    }
+    try {
+      const allCellEdits = await Promise.all(
+        notebook.cells.map(async (cell) => {
+          if (cell.cellKind !== CellKind.Code) {
+            return;
+          }
+          const lineCount = cell.textBuffer.getLineCount();
+          const lastLineIsEmptyOrWhitespace = cell.textBuffer.getLineFirstNonWhitespaceColumn(
+            lineCount
+          ) === 0;
+          if (!lineCount || lastLineIsEmptyOrWhitespace) {
+            return;
+          }
+          return new ResourceTextEdit(
+            cell.uri,
+            {
+              range: new Range(
+                lineCount + 1,
+                cell.textBuffer.getLineLength(lineCount),
+                lineCount + 1,
+                cell.textBuffer.getLineLength(lineCount)
+              ),
+              text: cell.textBuffer.getEOL()
+            },
+            cell.textModel?.getVersionId()
+          );
+        })
+      );
+      const filteredEdits = allCellEdits.filter(
+        (edit) => edit !== void 0
+      );
+      await this.bulkEditService.apply(filteredEdits, {
+        label: localize("insertFinalNewLine", "Insert Final New Line"),
+        code: "undoredo.insertFinalNewLine"
+      });
+      if (activeCellEditor && selections) {
+        activeCellEditor.setSelections(selections);
+      }
+    } finally {
+      progress.report({ increment: 100 });
+      disposable.dispose();
+    }
+  }
+};
+InsertFinalNewLineParticipant = __decorateClass([
+  __decorateParam(0, IConfigurationService),
+  __decorateParam(1, IBulkEditService),
+  __decorateParam(2, IEditorService)
+], InsertFinalNewLineParticipant);
+let CodeActionOnSaveParticipant = class {
+  constructor(configurationService, logService, workspaceTrustManagementService, textModelService, instantiationService) {
+    this.configurationService = configurationService;
+    this.logService = logService;
+    this.workspaceTrustManagementService = workspaceTrustManagementService;
+    this.textModelService = textModelService;
+    this.instantiationService = instantiationService;
+  }
+  static {
+    __name(this, "CodeActionOnSaveParticipant");
+  }
+  async participate(workingCopy, context, progress, token) {
+    const isTrusted = this.workspaceTrustManagementService.isWorkspaceTrusted();
+    if (!isTrusted) {
+      return;
+    }
+    if (!workingCopy.model || !(workingCopy.model instanceof NotebookFileWorkingCopyModel)) {
+      return;
+    }
+    let saveTrigger = "";
+    if (context.reason === SaveReason.AUTO) {
+      return void 0;
+    } else if (context.reason === SaveReason.EXPLICIT) {
+      saveTrigger = "explicit";
+    } else {
+      return void 0;
+    }
+    const notebookModel = workingCopy.model.notebookModel;
+    const setting = this.configurationService.getValue(NotebookSetting.codeActionsOnSave);
+    const settingItems = Array.isArray(setting) ? setting : Object.keys(setting).filter((x) => setting[x]);
+    const allCodeActions = this.createCodeActionsOnSave(settingItems);
+    const excludedActions = allCodeActions.filter(
+      (x) => setting[x.value] === "never" || setting[x.value] === false
+    );
+    const includedActions = allCodeActions.filter(
+      (x) => setting[x.value] === saveTrigger || setting[x.value] === true
+    );
+    const editorCodeActionsOnSave = includedActions.filter(
+      (x) => !CodeActionKind.Notebook.contains(x)
+    );
+    const notebookCodeActionsOnSave = includedActions.filter(
+      (x) => CodeActionKind.Notebook.contains(x)
+    );
+    if (notebookCodeActionsOnSave.length) {
+      const nbDisposable = new DisposableStore();
+      progress.report({
+        message: localize(
+          "notebookSaveParticipants.notebookCodeActions",
+          "Running 'Notebook' code actions"
+        )
+      });
+      try {
+        const cell = notebookModel.cells[0];
+        const ref = await this.textModelService.createModelReference(
+          cell.uri
+        );
+        nbDisposable.add(ref);
+        const textEditorModel = ref.object.textEditorModel;
+        await this.instantiationService.invokeFunction(
+          CodeActionParticipantUtils.applyOnSaveGenericCodeActions,
+          textEditorModel,
+          notebookCodeActionsOnSave,
+          excludedActions,
+          progress,
+          token
+        );
+      } catch {
+        this.logService.error(
+          "Failed to apply notebook code action on save"
+        );
+      } finally {
+        progress.report({ increment: 100 });
+        nbDisposable.dispose();
+      }
+    }
+    if (editorCodeActionsOnSave.length) {
+      if (!Array.isArray(setting)) {
+        editorCodeActionsOnSave.sort((a, b) => {
+          if (CodeActionKind.SourceFixAll.contains(a)) {
+            if (CodeActionKind.SourceFixAll.contains(b)) {
+              return 0;
+            }
+            return -1;
+          }
+          if (CodeActionKind.SourceFixAll.contains(b)) {
+            return 1;
+          }
+          return 0;
+        });
+      }
+      const cellDisposable = new DisposableStore();
+      progress.report({
+        message: localize(
+          "notebookSaveParticipants.cellCodeActions",
+          "Running 'Cell' code actions"
+        )
+      });
+      try {
+        await Promise.all(
+          notebookModel.cells.map(async (cell) => {
+            const ref = await this.textModelService.createModelReference(
+              cell.uri
+            );
+            cellDisposable.add(ref);
+            const textEditorModel = ref.object.textEditorModel;
+            await this.instantiationService.invokeFunction(
+              CodeActionParticipantUtils.applyOnSaveGenericCodeActions,
+              textEditorModel,
+              editorCodeActionsOnSave,
+              excludedActions,
+              progress,
+              token
+            );
+          })
+        );
+      } catch {
+        this.logService.error("Failed to apply code action on save");
+      } finally {
+        progress.report({ increment: 100 });
+        cellDisposable.dispose();
+      }
+    }
+  }
+  createCodeActionsOnSave(settingItems) {
+    const kinds = settingItems.map((x) => new HierarchicalKind(x));
+    return kinds.filter((kind) => {
+      return kinds.every(
+        (otherKind) => otherKind.equals(kind) || !otherKind.contains(kind)
+      );
+    });
+  }
+};
+CodeActionOnSaveParticipant = __decorateClass([
+  __decorateParam(0, IConfigurationService),
+  __decorateParam(1, ILogService),
+  __decorateParam(2, IWorkspaceTrustManagementService),
+  __decorateParam(3, ITextModelService),
+  __decorateParam(4, IInstantiationService)
+], CodeActionOnSaveParticipant);
+class CodeActionParticipantUtils {
+  static {
+    __name(this, "CodeActionParticipantUtils");
+  }
+  static async checkAndRunFormatCodeAction(accessor, notebookModel, progress, token) {
+    const instantiationService = accessor.get(
+      IInstantiationService
+    );
+    const textModelService = accessor.get(ITextModelService);
+    const logService = accessor.get(ILogService);
+    const configurationService = accessor.get(
+      IConfigurationService
+    );
+    const formatDisposable = new DisposableStore();
+    let formatResult = false;
+    progress.report({
+      message: localize(
+        "notebookSaveParticipants.formatCodeActions",
+        "Running 'Format' code actions"
+      )
+    });
+    try {
+      const cell = notebookModel.cells[0];
+      const ref = await textModelService.createModelReference(cell.uri);
+      formatDisposable.add(ref);
+      const textEditorModel = ref.object.textEditorModel;
+      const defaultFormatterExtId = configurationService.getValue(NotebookSetting.defaultFormatter);
+      formatResult = await instantiationService.invokeFunction(
+        CodeActionParticipantUtils.applyOnSaveFormatCodeAction,
+        textEditorModel,
+        new HierarchicalKind("notebook.format"),
+        [],
+        defaultFormatterExtId,
+        progress,
+        token
+      );
+    } catch {
+      logService.error("Failed to apply notebook format action on save");
+    } finally {
+      progress.report({ increment: 100 });
+      formatDisposable.dispose();
+    }
+    return formatResult;
+  }
+  static async applyOnSaveGenericCodeActions(accessor, model, codeActionsOnSave, excludes, progress, token) {
+    const instantiationService = accessor.get(
+      IInstantiationService
+    );
+    const languageFeaturesService = accessor.get(
+      ILanguageFeaturesService
+    );
+    const logService = accessor.get(ILogService);
+    const getActionProgress = new class {
+      _names = /* @__PURE__ */ new Set();
+      _report() {
+        progress.report({
+          message: localize(
+            {
+              key: "codeaction.get2",
+              comment: [
+                "[configure]({1}) is a link. Only translate `configure`. Do not change brackets and parentheses or {1}"
+              ]
+            },
+            "Getting code actions from '{0}' ([configure]({1})).",
+            [...this._names].map((name) => `'${name}'`).join(", "),
+            "command:workbench.action.openSettings?%5B%22notebook.codeActionsOnSave%22%5D"
+          )
+        });
+      }
+      report(provider) {
+        if (provider.displayName && !this._names.has(provider.displayName)) {
+          this._names.add(provider.displayName);
+          this._report();
+        }
+      }
+    }();
+    for (const codeActionKind of codeActionsOnSave) {
+      const actionsToRun = await CodeActionParticipantUtils.getActionsToRun(
+        model,
+        codeActionKind,
+        excludes,
+        languageFeaturesService,
+        getActionProgress,
+        token
+      );
+      if (token.isCancellationRequested) {
+        actionsToRun.dispose();
+        return;
+      }
+      try {
+        for (const action of actionsToRun.validActions) {
+          const codeActionEdits = action.action.edit?.edits;
+          let breakFlag = false;
+          if (!action.action.kind?.startsWith("notebook")) {
+            for (const edit of codeActionEdits ?? []) {
+              const workspaceTextEdit = edit;
+              if (workspaceTextEdit.resource && isEqual(workspaceTextEdit.resource, model.uri)) {
+                continue;
+              } else {
+                breakFlag = true;
+                break;
+              }
+            }
+          }
+          if (breakFlag) {
+            logService.warn(
+              "Failed to apply code action on save, applied to multiple resources."
+            );
+            continue;
+          }
+          progress.report({
+            message: localize(
+              "codeAction.apply",
+              "Applying code action '{0}'.",
+              action.action.title
+            )
+          });
+          await instantiationService.invokeFunction(
+            applyCodeAction,
+            action,
+            ApplyCodeActionReason.OnSave,
+            {},
+            token
+          );
+          if (token.isCancellationRequested) {
+            return;
+          }
+        }
+      } catch {
+      } finally {
+        actionsToRun.dispose();
+      }
+    }
+  }
+  static async applyOnSaveFormatCodeAction(accessor, model, formatCodeActionOnSave, excludes, extensionId, progress, token) {
+    const instantiationService = accessor.get(
+      IInstantiationService
+    );
+    const languageFeaturesService = accessor.get(
+      ILanguageFeaturesService
+    );
+    const logService = accessor.get(ILogService);
+    const getActionProgress = new class {
+      _names = /* @__PURE__ */ new Set();
+      _report() {
+        progress.report({
+          message: localize(
+            {
+              key: "codeaction.get2",
+              comment: [
+                "[configure]({1}) is a link. Only translate `configure`. Do not change brackets and parentheses or {1}"
+              ]
+            },
+            "Getting code actions from '{0}' ([configure]({1})).",
+            [...this._names].map((name) => `'${name}'`).join(", "),
+            "command:workbench.action.openSettings?%5B%22notebook.defaultFormatter%22%5D"
+          )
+        });
+      }
+      report(provider) {
+        if (provider.displayName && !this._names.has(provider.displayName)) {
+          this._names.add(provider.displayName);
+          this._report();
+        }
+      }
+    }();
+    const providedActions = await CodeActionParticipantUtils.getActionsToRun(
+      model,
+      formatCodeActionOnSave,
+      excludes,
+      languageFeaturesService,
+      getActionProgress,
+      token
+    );
+    if (providedActions.validActions.length > 1 && !extensionId) {
+      logService.warn(
+        "More than one format code action is provided, the 0th one will be used. A default can be specified via `notebook.defaultFormatter` in your settings."
+      );
+    }
+    if (token.isCancellationRequested) {
+      providedActions.dispose();
+      return false;
+    }
+    try {
+      const action = extensionId ? providedActions.validActions.find(
+        (action2) => action2.provider?.extensionId === extensionId
+      ) : providedActions.validActions[0];
+      if (!action) {
+        return false;
+      }
+      progress.report({
+        message: localize(
+          "codeAction.apply",
+          "Applying code action '{0}'.",
+          action.action.title
+        )
+      });
+      await instantiationService.invokeFunction(
+        applyCodeAction,
+        action,
+        ApplyCodeActionReason.OnSave,
+        {},
+        token
+      );
+      if (token.isCancellationRequested) {
+        return false;
+      }
+    } catch {
+      logService.error(
+        "Failed to apply notebook format code action on save"
+      );
+      return false;
+    } finally {
+      providedActions.dispose();
+    }
+    return true;
+  }
+  // @Yoyokrazy this could likely be modified to leverage the extensionID, therefore not getting actions from providers unnecessarily -- future work
+  static getActionsToRun(model, codeActionKind, excludes, languageFeaturesService, progress, token) {
+    return getCodeActions(
+      languageFeaturesService.codeActionProvider,
+      model,
+      model.getFullModelRange(),
+      {
+        type: CodeActionTriggerType.Invoke,
+        triggerAction: CodeActionTriggerSource.OnSave,
+        filter: {
+          include: codeActionKind,
+          excludes,
+          includeSourceActions: true
+        }
+      },
+      progress,
+      token
+    );
+  }
+}
+function getActiveCellCodeEditor(editorService) {
+  const activePane = editorService.activeEditorPane;
+  const notebookEditor = getNotebookEditorFromEditorPane(activePane);
+  const activeCodeEditor = notebookEditor?.activeCodeEditor;
+  return activeCodeEditor;
+}
+__name(getActiveCellCodeEditor, "getActiveCellCodeEditor");
+let SaveParticipantsContribution = class extends Disposable {
+  constructor(instantiationService, workingCopyFileService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.workingCopyFileService = workingCopyFileService;
+    this.registerSaveParticipants();
+  }
+  static {
+    __name(this, "SaveParticipantsContribution");
+  }
+  registerSaveParticipants() {
+    this._register(
+      this.workingCopyFileService.addSaveParticipant(
+        this.instantiationService.createInstance(
+          TrimWhitespaceParticipant
+        )
+      )
+    );
+    this._register(
+      this.workingCopyFileService.addSaveParticipant(
+        this.instantiationService.createInstance(
+          CodeActionOnSaveParticipant
+        )
+      )
+    );
+    this._register(
+      this.workingCopyFileService.addSaveParticipant(
+        this.instantiationService.createInstance(
+          FormatOnSaveParticipant
+        )
+      )
+    );
+    this._register(
+      this.workingCopyFileService.addSaveParticipant(
+        this.instantiationService.createInstance(
+          InsertFinalNewLineParticipant
+        )
+      )
+    );
+    this._register(
+      this.workingCopyFileService.addSaveParticipant(
+        this.instantiationService.createInstance(
+          TrimFinalNewLinesParticipant
+        )
+      )
+    );
+  }
+};
+SaveParticipantsContribution = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, IWorkingCopyFileService)
+], SaveParticipantsContribution);
+const workbenchContributionsRegistry = Registry.as(
+  WorkbenchContributionsExtensions.Workbench
+);
+workbenchContributionsRegistry.registerWorkbenchContribution(
+  SaveParticipantsContribution,
+  LifecyclePhase.Restored
+);
+export {
+  CodeActionParticipantUtils,
+  SaveParticipantsContribution
+};
+//# sourceMappingURL=saveParticipants.js.map

@@ -1,1 +1,6 @@
-import{createDecorator as e}from"../../instantiation/common/instantiation.js";const i=e("clipboardService");export{i as IClipboardService};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IClipboardService = createDecorator("clipboardService");
+export {
+  IClipboardService
+};
+//# sourceMappingURL=clipboardService.js.map

@@ -1,1 +1,293 @@
-import{Platform as c}from"../../../base/common/platform.js";import{localize2 as d}from"../../../nls.js";import{TargetPlatform as e}from"../../extensions/common/extensions.js";import{createDecorator as I}from"../../instantiation/common/instantiation.js";const p="^([a-z0-9A-Z][a-z0-9-A-Z]*)\\.([a-z0-9A-Z][a-z0-9-A-Z]*)$",T=new RegExp(p),U="__web_extension",L="skipWalkthrough",_="extensionInstallSource",S="dependecyOrPackExtensionInstall",v="clientTargetPlatform";var x=(a=>(a.COMMAND="command",a.SETTINGS_SYNC="settingsSync",a))(x||{});function D(o){switch(o){case e.WIN32_X64:return"Windows 64 bit";case e.WIN32_ARM64:return"Windows ARM";case e.LINUX_X64:return"Linux 64 bit";case e.LINUX_ARM64:return"Linux ARM 64";case e.LINUX_ARMHF:return"Linux ARM";case e.ALPINE_X64:return"Alpine Linux 64 bit";case e.ALPINE_ARM64:return"Alpine ARM 64";case e.DARWIN_X64:return"Mac";case e.DARWIN_ARM64:return"Mac Silicon";case e.WEB:return"Web";case e.UNIVERSAL:return e.UNIVERSAL;case e.UNKNOWN:return e.UNKNOWN;case e.UNDEFINED:return e.UNDEFINED}}function G(o){switch(o){case e.WIN32_X64:return e.WIN32_X64;case e.WIN32_ARM64:return e.WIN32_ARM64;case e.LINUX_X64:return e.LINUX_X64;case e.LINUX_ARM64:return e.LINUX_ARM64;case e.LINUX_ARMHF:return e.LINUX_ARMHF;case e.ALPINE_X64:return e.ALPINE_X64;case e.ALPINE_ARM64:return e.ALPINE_ARM64;case e.DARWIN_X64:return e.DARWIN_X64;case e.DARWIN_ARM64:return e.DARWIN_ARM64;case e.WEB:return e.WEB;case e.UNIVERSAL:return e.UNIVERSAL;default:return e.UNKNOWN}}function W(o,i){switch(o){case c.Windows:return i==="x64"?e.WIN32_X64:i==="arm64"?e.WIN32_ARM64:e.UNKNOWN;case c.Linux:return i==="x64"?e.LINUX_X64:i==="arm64"?e.LINUX_ARM64:i==="arm"?e.LINUX_ARMHF:e.UNKNOWN;case"alpine":return i==="x64"?e.ALPINE_X64:i==="arm64"?e.ALPINE_ARM64:e.UNKNOWN;case c.Mac:return i==="x64"?e.DARWIN_X64:i==="arm64"?e.DARWIN_ARM64:e.UNKNOWN;case c.Web:return e.WEB}}function u(o,i){return i===e.WEB&&!o.includes(e.WEB)}function X(o,i,a){return u(i,a)?!1:o===e.UNDEFINED||o===e.UNIVERSAL?!0:o===e.UNKNOWN?!1:o===a}function k(o){return o&&typeof o=="object"&&typeof o.id=="string"&&(!o.uuid||typeof o.uuid=="string")}var f=(t=>(t[t.NoneOrRelevance=0]="NoneOrRelevance",t[t.LastUpdatedDate=1]="LastUpdatedDate",t[t.Title=2]="Title",t[t.PublisherName=3]="PublisherName",t[t.InstallCount=4]="InstallCount",t[t.PublishedDate=10]="PublishedDate",t[t.AverageRating=6]="AverageRating",t[t.WeightedRating=12]="WeightedRating",t))(f||{}),E=(r=>(r[r.Default=0]="Default",r[r.Ascending=1]="Ascending",r[r.Descending=2]="Descending",r))(E||{}),y=(a=>(a.Install="install",a.Uninstall="uninstall",a))(y||{}),m=(s=>(s[s.None=1]="None",s[s.Install=2]="Install",s[s.Update=3]="Update",s[s.Migrate=4]="Migrate",s))(m||{});const O=I("extensionGalleryService");var g=(l=>(l.Timeout="Timeout",l.Cancelled="Cancelled",l.Failed="Failed",l.DownloadFailedWriting="DownloadFailedWriting",l.Offline="Offline",l))(g||{});class V extends Error{constructor(a,r){super(a);this.code=r;this.name=r}}var P=(n=>(n.Unsupported="Unsupported",n.Deprecated="Deprecated",n.Malicious="Malicious",n.Incompatible="Incompatible",n.IncompatibleApi="IncompatibleApi",n.IncompatibleTargetPlatform="IncompatibleTargetPlatform",n.ReleaseVersionNotFound="ReleaseVersionNotFound",n.Invalid="Invalid",n.Download="Download",n.DownloadSignature="DownloadSignature",n.DownloadFailedWriting="DownloadFailedWriting",n.UpdateMetadata="UpdateMetadata",n.Extract="Extract",n.Scanning="Scanning",n.ScanningExtension="ScanningExtension",n.ReadUninstalled="ReadUninstalled",n.UnsetUninstalled="UnsetUninstalled",n.Delete="Delete",n.Rename="Rename",n.IntializeDefaultProfile="IntializeDefaultProfile",n.AddToProfile="AddToProfile",n.InstalledExtensionNotFound="InstalledExtensionNotFound",n.PostInstall="PostInstall",n.CorruptZip="CorruptZip",n.IncompleteZip="IncompleteZip",n.Signature="Signature",n.NotAllowed="NotAllowed",n.Gallery="Gallery",n.Cancelled="Cancelled",n.Unknown="Unknown",n.Internal="Internal",n))(P||{});class w extends Error{constructor(a,r){super(a);this.code=r;this.name=r}}const M=I("extensionManagementService"),h="extensionsIdentifiers/disabled",F="extensionsIdentifiers/enabled",z=I("IGlobalExtensionEnablementService"),C=I("IExtensionTipsService"),K=d("extensions","Extensions"),B=d("preferences","Preferences");export{h as DISABLED_EXTENSIONS_STORAGE_PATH,F as ENABLED_EXTENSIONS_STORAGE_PATH,p as EXTENSION_IDENTIFIER_PATTERN,T as EXTENSION_IDENTIFIER_REGEX,v as EXTENSION_INSTALL_CLIENT_TARGET_PLATFORM_CONTEXT,S as EXTENSION_INSTALL_DEP_PACK_CONTEXT,L as EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT,_ as EXTENSION_INSTALL_SOURCE_CONTEXT,V as ExtensionGalleryError,g as ExtensionGalleryErrorCode,x as ExtensionInstallSource,w as ExtensionManagementError,P as ExtensionManagementErrorCode,K as ExtensionsLocalizedLabel,O as IExtensionGalleryService,M as IExtensionManagementService,C as IExtensionTipsService,z as IGlobalExtensionEnablementService,m as InstallOperation,B as PreferencesLocalizedLabel,f as SortBy,E as SortOrder,y as StatisticType,D as TargetPlatformToString,U as WEB_EXTENSION_TAG,W as getTargetPlatform,k as isIExtensionIdentifier,u as isNotWebExtensionInWebTargetPlatform,X as isTargetPlatformCompatible,G as toTargetPlatform};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Platform } from "../../../base/common/platform.js";
+import { localize2 } from "../../../nls.js";
+import {
+  TargetPlatform
+} from "../../extensions/common/extensions.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const EXTENSION_IDENTIFIER_PATTERN = "^([a-z0-9A-Z][a-z0-9-A-Z]*)\\.([a-z0-9A-Z][a-z0-9-A-Z]*)$";
+const EXTENSION_IDENTIFIER_REGEX = new RegExp(
+  EXTENSION_IDENTIFIER_PATTERN
+);
+const WEB_EXTENSION_TAG = "__web_extension";
+const EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT = "skipWalkthrough";
+const EXTENSION_INSTALL_SOURCE_CONTEXT = "extensionInstallSource";
+const EXTENSION_INSTALL_DEP_PACK_CONTEXT = "dependecyOrPackExtensionInstall";
+const EXTENSION_INSTALL_CLIENT_TARGET_PLATFORM_CONTEXT = "clientTargetPlatform";
+var ExtensionInstallSource = /* @__PURE__ */ ((ExtensionInstallSource2) => {
+  ExtensionInstallSource2["COMMAND"] = "command";
+  ExtensionInstallSource2["SETTINGS_SYNC"] = "settingsSync";
+  return ExtensionInstallSource2;
+})(ExtensionInstallSource || {});
+function TargetPlatformToString(targetPlatform) {
+  switch (targetPlatform) {
+    case TargetPlatform.WIN32_X64:
+      return "Windows 64 bit";
+    case TargetPlatform.WIN32_ARM64:
+      return "Windows ARM";
+    case TargetPlatform.LINUX_X64:
+      return "Linux 64 bit";
+    case TargetPlatform.LINUX_ARM64:
+      return "Linux ARM 64";
+    case TargetPlatform.LINUX_ARMHF:
+      return "Linux ARM";
+    case TargetPlatform.ALPINE_X64:
+      return "Alpine Linux 64 bit";
+    case TargetPlatform.ALPINE_ARM64:
+      return "Alpine ARM 64";
+    case TargetPlatform.DARWIN_X64:
+      return "Mac";
+    case TargetPlatform.DARWIN_ARM64:
+      return "Mac Silicon";
+    case TargetPlatform.WEB:
+      return "Web";
+    case TargetPlatform.UNIVERSAL:
+      return TargetPlatform.UNIVERSAL;
+    case TargetPlatform.UNKNOWN:
+      return TargetPlatform.UNKNOWN;
+    case TargetPlatform.UNDEFINED:
+      return TargetPlatform.UNDEFINED;
+  }
+}
+__name(TargetPlatformToString, "TargetPlatformToString");
+function toTargetPlatform(targetPlatform) {
+  switch (targetPlatform) {
+    case TargetPlatform.WIN32_X64:
+      return TargetPlatform.WIN32_X64;
+    case TargetPlatform.WIN32_ARM64:
+      return TargetPlatform.WIN32_ARM64;
+    case TargetPlatform.LINUX_X64:
+      return TargetPlatform.LINUX_X64;
+    case TargetPlatform.LINUX_ARM64:
+      return TargetPlatform.LINUX_ARM64;
+    case TargetPlatform.LINUX_ARMHF:
+      return TargetPlatform.LINUX_ARMHF;
+    case TargetPlatform.ALPINE_X64:
+      return TargetPlatform.ALPINE_X64;
+    case TargetPlatform.ALPINE_ARM64:
+      return TargetPlatform.ALPINE_ARM64;
+    case TargetPlatform.DARWIN_X64:
+      return TargetPlatform.DARWIN_X64;
+    case TargetPlatform.DARWIN_ARM64:
+      return TargetPlatform.DARWIN_ARM64;
+    case TargetPlatform.WEB:
+      return TargetPlatform.WEB;
+    case TargetPlatform.UNIVERSAL:
+      return TargetPlatform.UNIVERSAL;
+    default:
+      return TargetPlatform.UNKNOWN;
+  }
+}
+__name(toTargetPlatform, "toTargetPlatform");
+function getTargetPlatform(platform, arch) {
+  switch (platform) {
+    case Platform.Windows:
+      if (arch === "x64") {
+        return TargetPlatform.WIN32_X64;
+      }
+      if (arch === "arm64") {
+        return TargetPlatform.WIN32_ARM64;
+      }
+      return TargetPlatform.UNKNOWN;
+    case Platform.Linux:
+      if (arch === "x64") {
+        return TargetPlatform.LINUX_X64;
+      }
+      if (arch === "arm64") {
+        return TargetPlatform.LINUX_ARM64;
+      }
+      if (arch === "arm") {
+        return TargetPlatform.LINUX_ARMHF;
+      }
+      return TargetPlatform.UNKNOWN;
+    case "alpine":
+      if (arch === "x64") {
+        return TargetPlatform.ALPINE_X64;
+      }
+      if (arch === "arm64") {
+        return TargetPlatform.ALPINE_ARM64;
+      }
+      return TargetPlatform.UNKNOWN;
+    case Platform.Mac:
+      if (arch === "x64") {
+        return TargetPlatform.DARWIN_X64;
+      }
+      if (arch === "arm64") {
+        return TargetPlatform.DARWIN_ARM64;
+      }
+      return TargetPlatform.UNKNOWN;
+    case Platform.Web:
+      return TargetPlatform.WEB;
+  }
+}
+__name(getTargetPlatform, "getTargetPlatform");
+function isNotWebExtensionInWebTargetPlatform(allTargetPlatforms, productTargetPlatform) {
+  return productTargetPlatform === TargetPlatform.WEB && !allTargetPlatforms.includes(TargetPlatform.WEB);
+}
+__name(isNotWebExtensionInWebTargetPlatform, "isNotWebExtensionInWebTargetPlatform");
+function isTargetPlatformCompatible(extensionTargetPlatform, allTargetPlatforms, productTargetPlatform) {
+  if (isNotWebExtensionInWebTargetPlatform(
+    allTargetPlatforms,
+    productTargetPlatform
+  )) {
+    return false;
+  }
+  if (extensionTargetPlatform === TargetPlatform.UNDEFINED) {
+    return true;
+  }
+  if (extensionTargetPlatform === TargetPlatform.UNIVERSAL) {
+    return true;
+  }
+  if (extensionTargetPlatform === TargetPlatform.UNKNOWN) {
+    return false;
+  }
+  if (extensionTargetPlatform === productTargetPlatform) {
+    return true;
+  }
+  return false;
+}
+__name(isTargetPlatformCompatible, "isTargetPlatformCompatible");
+function isIExtensionIdentifier(thing) {
+  return thing && typeof thing === "object" && typeof thing.id === "string" && (!thing.uuid || typeof thing.uuid === "string");
+}
+__name(isIExtensionIdentifier, "isIExtensionIdentifier");
+var SortBy = /* @__PURE__ */ ((SortBy2) => {
+  SortBy2[SortBy2["NoneOrRelevance"] = 0] = "NoneOrRelevance";
+  SortBy2[SortBy2["LastUpdatedDate"] = 1] = "LastUpdatedDate";
+  SortBy2[SortBy2["Title"] = 2] = "Title";
+  SortBy2[SortBy2["PublisherName"] = 3] = "PublisherName";
+  SortBy2[SortBy2["InstallCount"] = 4] = "InstallCount";
+  SortBy2[SortBy2["PublishedDate"] = 10] = "PublishedDate";
+  SortBy2[SortBy2["AverageRating"] = 6] = "AverageRating";
+  SortBy2[SortBy2["WeightedRating"] = 12] = "WeightedRating";
+  return SortBy2;
+})(SortBy || {});
+var SortOrder = /* @__PURE__ */ ((SortOrder2) => {
+  SortOrder2[SortOrder2["Default"] = 0] = "Default";
+  SortOrder2[SortOrder2["Ascending"] = 1] = "Ascending";
+  SortOrder2[SortOrder2["Descending"] = 2] = "Descending";
+  return SortOrder2;
+})(SortOrder || {});
+var StatisticType = /* @__PURE__ */ ((StatisticType2) => {
+  StatisticType2["Install"] = "install";
+  StatisticType2["Uninstall"] = "uninstall";
+  return StatisticType2;
+})(StatisticType || {});
+var InstallOperation = /* @__PURE__ */ ((InstallOperation2) => {
+  InstallOperation2[InstallOperation2["None"] = 1] = "None";
+  InstallOperation2[InstallOperation2["Install"] = 2] = "Install";
+  InstallOperation2[InstallOperation2["Update"] = 3] = "Update";
+  InstallOperation2[InstallOperation2["Migrate"] = 4] = "Migrate";
+  return InstallOperation2;
+})(InstallOperation || {});
+const IExtensionGalleryService = createDecorator("extensionGalleryService");
+var ExtensionGalleryErrorCode = /* @__PURE__ */ ((ExtensionGalleryErrorCode2) => {
+  ExtensionGalleryErrorCode2["Timeout"] = "Timeout";
+  ExtensionGalleryErrorCode2["Cancelled"] = "Cancelled";
+  ExtensionGalleryErrorCode2["Failed"] = "Failed";
+  ExtensionGalleryErrorCode2["DownloadFailedWriting"] = "DownloadFailedWriting";
+  ExtensionGalleryErrorCode2["Offline"] = "Offline";
+  return ExtensionGalleryErrorCode2;
+})(ExtensionGalleryErrorCode || {});
+class ExtensionGalleryError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+    this.name = code;
+  }
+  static {
+    __name(this, "ExtensionGalleryError");
+  }
+}
+var ExtensionManagementErrorCode = /* @__PURE__ */ ((ExtensionManagementErrorCode2) => {
+  ExtensionManagementErrorCode2["Unsupported"] = "Unsupported";
+  ExtensionManagementErrorCode2["Deprecated"] = "Deprecated";
+  ExtensionManagementErrorCode2["Malicious"] = "Malicious";
+  ExtensionManagementErrorCode2["Incompatible"] = "Incompatible";
+  ExtensionManagementErrorCode2["IncompatibleApi"] = "IncompatibleApi";
+  ExtensionManagementErrorCode2["IncompatibleTargetPlatform"] = "IncompatibleTargetPlatform";
+  ExtensionManagementErrorCode2["ReleaseVersionNotFound"] = "ReleaseVersionNotFound";
+  ExtensionManagementErrorCode2["Invalid"] = "Invalid";
+  ExtensionManagementErrorCode2["Download"] = "Download";
+  ExtensionManagementErrorCode2["DownloadSignature"] = "DownloadSignature";
+  ExtensionManagementErrorCode2["DownloadFailedWriting"] = "DownloadFailedWriting" /* DownloadFailedWriting */;
+  ExtensionManagementErrorCode2["UpdateMetadata"] = "UpdateMetadata";
+  ExtensionManagementErrorCode2["Extract"] = "Extract";
+  ExtensionManagementErrorCode2["Scanning"] = "Scanning";
+  ExtensionManagementErrorCode2["ScanningExtension"] = "ScanningExtension";
+  ExtensionManagementErrorCode2["ReadUninstalled"] = "ReadUninstalled";
+  ExtensionManagementErrorCode2["UnsetUninstalled"] = "UnsetUninstalled";
+  ExtensionManagementErrorCode2["Delete"] = "Delete";
+  ExtensionManagementErrorCode2["Rename"] = "Rename";
+  ExtensionManagementErrorCode2["IntializeDefaultProfile"] = "IntializeDefaultProfile";
+  ExtensionManagementErrorCode2["AddToProfile"] = "AddToProfile";
+  ExtensionManagementErrorCode2["InstalledExtensionNotFound"] = "InstalledExtensionNotFound";
+  ExtensionManagementErrorCode2["PostInstall"] = "PostInstall";
+  ExtensionManagementErrorCode2["CorruptZip"] = "CorruptZip";
+  ExtensionManagementErrorCode2["IncompleteZip"] = "IncompleteZip";
+  ExtensionManagementErrorCode2["Signature"] = "Signature";
+  ExtensionManagementErrorCode2["NotAllowed"] = "NotAllowed";
+  ExtensionManagementErrorCode2["Gallery"] = "Gallery";
+  ExtensionManagementErrorCode2["Cancelled"] = "Cancelled";
+  ExtensionManagementErrorCode2["Unknown"] = "Unknown";
+  ExtensionManagementErrorCode2["Internal"] = "Internal";
+  return ExtensionManagementErrorCode2;
+})(ExtensionManagementErrorCode || {});
+class ExtensionManagementError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+    this.name = code;
+  }
+  static {
+    __name(this, "ExtensionManagementError");
+  }
+}
+const IExtensionManagementService = createDecorator("extensionManagementService");
+const DISABLED_EXTENSIONS_STORAGE_PATH = "extensionsIdentifiers/disabled";
+const ENABLED_EXTENSIONS_STORAGE_PATH = "extensionsIdentifiers/enabled";
+const IGlobalExtensionEnablementService = createDecorator(
+  "IGlobalExtensionEnablementService"
+);
+const IExtensionTipsService = createDecorator(
+  "IExtensionTipsService"
+);
+const ExtensionsLocalizedLabel = localize2("extensions", "Extensions");
+const PreferencesLocalizedLabel = localize2(
+  "preferences",
+  "Preferences"
+);
+export {
+  DISABLED_EXTENSIONS_STORAGE_PATH,
+  ENABLED_EXTENSIONS_STORAGE_PATH,
+  EXTENSION_IDENTIFIER_PATTERN,
+  EXTENSION_IDENTIFIER_REGEX,
+  EXTENSION_INSTALL_CLIENT_TARGET_PLATFORM_CONTEXT,
+  EXTENSION_INSTALL_DEP_PACK_CONTEXT,
+  EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT,
+  EXTENSION_INSTALL_SOURCE_CONTEXT,
+  ExtensionGalleryError,
+  ExtensionGalleryErrorCode,
+  ExtensionInstallSource,
+  ExtensionManagementError,
+  ExtensionManagementErrorCode,
+  ExtensionsLocalizedLabel,
+  IExtensionGalleryService,
+  IExtensionManagementService,
+  IExtensionTipsService,
+  IGlobalExtensionEnablementService,
+  InstallOperation,
+  PreferencesLocalizedLabel,
+  SortBy,
+  SortOrder,
+  StatisticType,
+  TargetPlatformToString,
+  WEB_EXTENSION_TAG,
+  getTargetPlatform,
+  isIExtensionIdentifier,
+  isNotWebExtensionInWebTargetPlatform,
+  isTargetPlatformCompatible,
+  toTargetPlatform
+};
+//# sourceMappingURL=extensionManagement.js.map

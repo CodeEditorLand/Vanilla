@@ -1,1 +1,64 @@
-var a=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var p=(s,i,t,r)=>{for(var e=r>1?void 0:r?f(i,t):i,o=s.length-1,n;o>=0;o--)(n=s[o])&&(e=(r?n(i,t,e):n(e))||e);return r&&e&&a(i,t,e),e},c=(s,i)=>(t,r)=>i(t,r,s);import{DeferredPromise as d,timeout as v}from"../../../../base/common/async.js";import{CancellationToken as I}from"../../../../base/common/cancellation.js";import{localize as u}from"../../../../nls.js";import{ILogService as b}from"../../../../platform/log/common/log.js";import{IProgressService as y,ProgressLocation as S}from"../../../../platform/progress/common/progress.js";import{IExtensionService as h}from"../../../services/extensions/common/extensions.js";let m=class{_listener;constructor(i,t,r){const e={location:S.Window,title:u("activation","Activating Extensions...")};let o,n=0;this._listener=i.onWillActivateByEvent(l=>{r.trace("onWillActivateByEvent: ",l.event),o||(o=new d,t.withProgress(e,W=>o.p)),n++,Promise.race([l.activation,v(5e3,I.None)]).finally(()=>{--n===0&&(o.complete(void 0),o=void 0)})})}dispose(){this._listener.dispose()}};m=p([c(0,h),c(1,y),c(2,b)],m);export{m as ExtensionActivationProgress};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { DeferredPromise, timeout } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { localize } from "../../../../nls.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import {
+  IProgressService,
+  ProgressLocation
+} from "../../../../platform/progress/common/progress.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+let ExtensionActivationProgress = class {
+  static {
+    __name(this, "ExtensionActivationProgress");
+  }
+  _listener;
+  constructor(extensionService, progressService, logService) {
+    const options = {
+      location: ProgressLocation.Window,
+      title: localize("activation", "Activating Extensions...")
+    };
+    let deferred;
+    let count = 0;
+    this._listener = extensionService.onWillActivateByEvent((e) => {
+      logService.trace("onWillActivateByEvent: ", e.event);
+      if (!deferred) {
+        deferred = new DeferredPromise();
+        progressService.withProgress(options, (_) => deferred.p);
+      }
+      count++;
+      Promise.race([
+        e.activation,
+        timeout(5e3, CancellationToken.None)
+      ]).finally(() => {
+        if (--count === 0) {
+          deferred.complete(void 0);
+          deferred = void 0;
+        }
+      });
+    });
+  }
+  dispose() {
+    this._listener.dispose();
+  }
+};
+ExtensionActivationProgress = __decorateClass([
+  __decorateParam(0, IExtensionService),
+  __decorateParam(1, IProgressService),
+  __decorateParam(2, ILogService)
+], ExtensionActivationProgress);
+export {
+  ExtensionActivationProgress
+};
+//# sourceMappingURL=extensionsActivationProgress.js.map

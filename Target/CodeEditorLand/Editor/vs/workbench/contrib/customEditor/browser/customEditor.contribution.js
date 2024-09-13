@@ -1,1 +1,51 @@
-import{SyncDescriptor as m}from"../../../../platform/instantiation/common/descriptors.js";import{InstantiationType as n,registerSingleton as s}from"../../../../platform/instantiation/common/extensions.js";import{Registry as r}from"../../../../platform/registry/common/platform.js";import{EditorPaneDescriptor as p}from"../../../browser/editor.js";import{WorkbenchPhase as a,registerWorkbenchContribution2 as d}from"../../../common/contributions.js";import{EditorExtensions as t}from"../../../common/editor.js";import{WebviewEditor as o}from"../../webviewPanel/browser/webviewEditor.js";import{ICustomEditorService as E}from"../common/customEditor.js";import{CustomEditorInput as y}from"./customEditorInput.js";import{ComplexCustomWorkingCopyEditorHandler as i,CustomEditorInputSerializer as e}from"./customEditorInputFactory.js";import{CustomEditorService as c}from"./customEditors.js";s(E,c,n.Delayed),r.as(t.EditorPane).registerEditorPane(p.create(o,o.ID,"Webview Editor"),[new m(y)]),r.as(t.EditorFactory).registerEditorSerializer(e.ID,e),d(i.ID,i,a.BlockStartup);
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  EditorPaneDescriptor
+} from "../../../browser/editor.js";
+import {
+  WorkbenchPhase,
+  registerWorkbenchContribution2
+} from "../../../common/contributions.js";
+import {
+  EditorExtensions
+} from "../../../common/editor.js";
+import { WebviewEditor } from "../../webviewPanel/browser/webviewEditor.js";
+import { ICustomEditorService } from "../common/customEditor.js";
+import { CustomEditorInput } from "./customEditorInput.js";
+import {
+  ComplexCustomWorkingCopyEditorHandler,
+  CustomEditorInputSerializer
+} from "./customEditorInputFactory.js";
+import { CustomEditorService } from "./customEditors.js";
+registerSingleton(
+  ICustomEditorService,
+  CustomEditorService,
+  InstantiationType.Delayed
+);
+Registry.as(
+  EditorExtensions.EditorPane
+).registerEditorPane(
+  EditorPaneDescriptor.create(
+    WebviewEditor,
+    WebviewEditor.ID,
+    "Webview Editor"
+  ),
+  [new SyncDescriptor(CustomEditorInput)]
+);
+Registry.as(
+  EditorExtensions.EditorFactory
+).registerEditorSerializer(
+  CustomEditorInputSerializer.ID,
+  CustomEditorInputSerializer
+);
+registerWorkbenchContribution2(
+  ComplexCustomWorkingCopyEditorHandler.ID,
+  ComplexCustomWorkingCopyEditorHandler,
+  WorkbenchPhase.BlockStartup
+);
+//# sourceMappingURL=customEditor.contribution.js.map

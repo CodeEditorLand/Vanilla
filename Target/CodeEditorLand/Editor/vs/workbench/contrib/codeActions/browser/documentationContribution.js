@@ -1,1 +1,85 @@
-var g=Object.defineProperty;var u=Object.getOwnPropertyDescriptor;var d=(s,n,o,t)=>{for(var e=t>1?void 0:t?u(n,o):n,i=s.length-1,r;i>=0;i--)(r=s[i])&&(e=(t?r(n,o,e):r(e))||e);return t&&e&&g(n,o,e),e},m=(s,n)=>(o,t)=>n(o,t,s);import{HierarchicalKind as f}from"../../../../base/common/hierarchicalKind.js";import{Disposable as x}from"../../../../base/common/lifecycle.js";import{ILanguageFeaturesService as y}from"../../../../editor/common/services/languageFeatures.js";import{CodeActionKind as p}from"../../../../editor/contrib/codeAction/common/types.js";import{ContextKeyExpr as h,IContextKeyService as v}from"../../../../platform/contextkey/common/contextkey.js";let c=class extends x{constructor(o,t,e){super();this.contextKeyService=t;this._register(e.codeActionProvider.register("*",this)),o.setHandler(i=>{this.contributions=[];for(const r of i)if(r.value.refactoring)for(const a of r.value.refactoring){const l=h.deserialize(a.when);l&&this.contributions.push({title:a.title,when:l,command:a.command})}})}contributions=[];emptyCodeActionsList={actions:[],dispose:()=>{}};async provideCodeActions(o,t,e,i){return this.emptyCodeActionsList}_getAdditionalMenuItems(o,t){return o.only!==p.Refactor.value&&!t.some(e=>e.kind&&p.Refactor.contains(new f(e.kind)))?[]:this.contributions.filter(e=>this.contextKeyService.contextMatchesRules(e.when)).map(e=>({id:e.command,title:e.title}))}};c=d([m(1,v),m(2,y)],c);export{c as CodeActionDocumentationContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { CodeActionKind } from "../../../../editor/contrib/codeAction/common/types.js";
+import {
+  ContextKeyExpr,
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+let CodeActionDocumentationContribution = class extends Disposable {
+  constructor(extensionPoint, contextKeyService, languageFeaturesService) {
+    super();
+    this.contextKeyService = contextKeyService;
+    this._register(languageFeaturesService.codeActionProvider.register("*", this));
+    extensionPoint.setHandler((points) => {
+      this.contributions = [];
+      for (const documentation of points) {
+        if (!documentation.value.refactoring) {
+          continue;
+        }
+        for (const contribution of documentation.value.refactoring) {
+          const precondition = ContextKeyExpr.deserialize(contribution.when);
+          if (!precondition) {
+            continue;
+          }
+          this.contributions.push({
+            title: contribution.title,
+            when: precondition,
+            command: contribution.command
+          });
+        }
+      }
+    });
+  }
+  static {
+    __name(this, "CodeActionDocumentationContribution");
+  }
+  contributions = [];
+  emptyCodeActionsList = {
+    actions: [],
+    dispose: /* @__PURE__ */ __name(() => {
+    }, "dispose")
+  };
+  async provideCodeActions(_model, _range, context, _token) {
+    return this.emptyCodeActionsList;
+  }
+  _getAdditionalMenuItems(context, actions) {
+    if (context.only !== CodeActionKind.Refactor.value) {
+      if (!actions.some(
+        (action) => action.kind && CodeActionKind.Refactor.contains(
+          new HierarchicalKind(action.kind)
+        )
+      )) {
+        return [];
+      }
+    }
+    return this.contributions.filter(
+      (contribution) => this.contextKeyService.contextMatchesRules(contribution.when)
+    ).map((contribution) => {
+      return {
+        id: contribution.command,
+        title: contribution.title
+      };
+    });
+  }
+};
+CodeActionDocumentationContribution = __decorateClass([
+  __decorateParam(1, IContextKeyService),
+  __decorateParam(2, ILanguageFeaturesService)
+], CodeActionDocumentationContribution);
+export {
+  CodeActionDocumentationContribution
+};
+//# sourceMappingURL=documentationContribution.js.map

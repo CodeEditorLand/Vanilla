@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/services/localization/common/locale.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { createDecorator } from \"../../../../platform/instantiation/common/instantiation.js\";\nimport type { ILanguagePackItem } from \"../../../../platform/languagePacks/common/languagePacks.js\";\n\nexport const ILocaleService = createDecorator<ILocaleService>(\n\t\"localizationService\",\n);\n\nexport interface ILocaleService {\n\treadonly _serviceBrand: undefined;\n\tsetLocale(\n\t\tlanguagePackItem: ILanguagePackItem,\n\t\tskipDialog?: boolean,\n\t): Promise<void>;\n\tclearLocalePreference(): Promise<void>;\n}\n\nexport const IActiveLanguagePackService =\n\tcreateDecorator<IActiveLanguagePackService>(\"activeLanguageService\");\n\nexport interface IActiveLanguagePackService {\n\treadonly _serviceBrand: undefined;\n\tgetExtensionIdProvidingCurrentLocale(): Promise<string | undefined>;\n}\n"],
+  "mappings": "AAKA,SAAS,uBAAuB;AAGzB,MAAM,iBAAiB;AAAA,EAC7B;AACD;AAWO,MAAM,6BACZ,gBAA4C,uBAAuB;",
+  "names": []
+}

@@ -1,1 +1,409 @@
-import{KeyChord as H,KeyCode as h,KeyMod as T}from"../../../base/common/keyCodes.js";import{isLinux as V,isMacintosh as D,isWeb as y,language as w}from"../../../base/common/platform.js";import{URI as i}from"../../../base/common/uri.js";import{localize as p,localize2 as c}from"../../../nls.js";import{Categories as s}from"../../../platform/action/common/actionCommonCategories.js";import{Action2 as a,MenuId as l,registerAction2 as u}from"../../../platform/actions/common/actions.js";import{ICommandService as B}from"../../../platform/commands/common/commands.js";import{KeybindingWeight as E}from"../../../platform/keybinding/common/keybindingsRegistry.js";import{IOpenerService as d}from"../../../platform/opener/common/opener.js";import o from"../../../platform/product/common/product.js";import{IProductService as m}from"../../../platform/product/common/productService.js";import{ITelemetryService as x}from"../../../platform/telemetry/common/telemetry.js";class A extends a{static ID="workbench.action.keybindingsReference";static AVAILABLE=!!(V?o.keyboardShortcutsUrlLinux:D?o.keyboardShortcutsUrlMac:o.keyboardShortcutsUrlWin);constructor(){super({id:A.ID,title:{...c("keybindingsReference","Keyboard Shortcuts Reference"),mnemonicTitle:p({key:"miKeyboardShortcuts",comment:["&& denotes a mnemonic"]},"&&Keyboard Shortcuts Reference")},category:s.Help,f1:!0,keybinding:{weight:E.WorkbenchContrib,when:null,primary:H(T.CtrlCmd|h.KeyK,T.CtrlCmd|h.KeyR)},menu:{id:l.MenubarHelpMenu,group:"2_reference",order:1}})}run(e){const r=e.get(m),t=e.get(d),n=V?r.keyboardShortcutsUrlLinux:D?r.keyboardShortcutsUrlMac:r.keyboardShortcutsUrlWin;n&&t.open(i.parse(n))}}class S extends a{static ID="workbench.action.openVideoTutorialsUrl";static AVAILABLE=!!o.introductoryVideosUrl;constructor(){super({id:S.ID,title:{...c("openVideoTutorialsUrl","Video Tutorials"),mnemonicTitle:p({key:"miVideoTutorials",comment:["&& denotes a mnemonic"]},"&&Video Tutorials")},category:s.Help,f1:!0,menu:{id:l.MenubarHelpMenu,group:"2_reference",order:2}})}run(e){const r=e.get(m),t=e.get(d);r.introductoryVideosUrl&&t.open(i.parse(r.introductoryVideosUrl))}}class g extends a{static ID="workbench.action.openTipsAndTricksUrl";static AVAILABLE=!!o.tipsAndTricksUrl;constructor(){super({id:g.ID,title:{...c("openTipsAndTricksUrl","Tips and Tricks"),mnemonicTitle:p({key:"miTipsAndTricks",comment:["&& denotes a mnemonic"]},"Tips and Tri&&cks")},category:s.Help,f1:!0,menu:{id:l.MenubarHelpMenu,group:"2_reference",order:3}})}run(e){const r=e.get(m),t=e.get(d);r.tipsAndTricksUrl&&t.open(i.parse(r.tipsAndTricksUrl))}}class v extends a{static ID="workbench.action.openDocumentationUrl";static AVAILABLE=!!(y?o.serverDocumentationUrl:o.documentationUrl);constructor(){super({id:v.ID,title:{...c("openDocumentationUrl","Documentation"),mnemonicTitle:p({key:"miDocumentation",comment:["&& denotes a mnemonic"]},"&&Documentation")},category:s.Help,f1:!0,menu:{id:l.MenubarHelpMenu,group:"1_welcome",order:3}})}run(e){const r=e.get(m),t=e.get(d),n=y?r.serverDocumentationUrl:r.documentationUrl;n&&t.open(i.parse(n))}}class f extends a{static ID="workbench.action.openNewsletterSignupUrl";static AVAILABLE=!!o.newsletterSignupUrl;constructor(){super({id:f.ID,title:c("newsletterSignup","Signup for the VS Code Newsletter"),category:s.Help,f1:!0})}run(e){const r=e.get(m),t=e.get(d),n=e.get(x);t.open(i.parse(`${r.newsletterSignupUrl}?machineId=${encodeURIComponent(n.machineId)}`))}}class b extends a{static ID="workbench.action.openYouTubeUrl";static AVAILABLE=!!o.youTubeUrl;constructor(){super({id:b.ID,title:{...c("openYouTubeUrl","Join Us on YouTube"),mnemonicTitle:p({key:"miYouTube",comment:["&& denotes a mnemonic"]},"&&Join Us on YouTube")},category:s.Help,f1:!0,menu:{id:l.MenubarHelpMenu,group:"3_feedback",order:1}})}run(e){const r=e.get(m),t=e.get(d);r.youTubeUrl&&t.open(i.parse(r.youTubeUrl))}}class U extends a{static ID="workbench.action.openRequestFeatureUrl";static AVAILABLE=!!o.requestFeatureUrl;constructor(){super({id:U.ID,title:{...c("openUserVoiceUrl","Search Feature Requests"),mnemonicTitle:p({key:"miUserVoice",comment:["&& denotes a mnemonic"]},"&&Search Feature Requests")},category:s.Help,f1:!0,menu:{id:l.MenubarHelpMenu,group:"3_feedback",order:2}})}run(e){const r=e.get(m),t=e.get(d);r.requestFeatureUrl&&t.open(i.parse(r.requestFeatureUrl))}}class I extends a{static ID="workbench.action.openLicenseUrl";static AVAILABLE=!!(y?o.serverLicense:o.licenseUrl);constructor(){super({id:I.ID,title:{...c("openLicenseUrl","View License"),mnemonicTitle:p({key:"miLicense",comment:["&& denotes a mnemonic"]},"View &&License")},category:s.Help,f1:!0,menu:{id:l.MenubarHelpMenu,group:"4_legal",order:1}})}run(e){const r=e.get(m),t=e.get(d),n=y?r.serverLicenseUrl:r.licenseUrl;if(n)if(w){const M=n.indexOf("?")>0?"&":"?";t.open(i.parse(`${n}${M}lang=${w}`))}else t.open(i.parse(n))}}class L extends a{static ID="workbench.action.openPrivacyStatementUrl";static AVAILABE=!!o.privacyStatementUrl;constructor(){super({id:L.ID,title:{...c("openPrivacyStatement","Privacy Statement"),mnemonicTitle:p({key:"miPrivacyStatement",comment:["&& denotes a mnemonic"]},"Privac&&y Statement")},category:s.Help,f1:!0,menu:{id:l.MenubarHelpMenu,group:"4_legal",order:2}})}run(e){const r=e.get(m),t=e.get(d);r.privacyStatementUrl&&t.open(i.parse(r.privacyStatementUrl))}}class k extends a{static ID="workbench.action.getStartedWithAccessibilityFeatures";constructor(){super({id:k.ID,title:c("getStartedWithAccessibilityFeatures","Get Started with Accessibility Features"),category:s.Help,f1:!0,menu:{id:l.MenubarHelpMenu,group:"1_welcome",order:6}})}run(e){e.get(B).executeCommand("workbench.action.openWalkthrough","SetupAccessibility")}}A.AVAILABLE&&u(A),S.AVAILABLE&&u(S),g.AVAILABLE&&u(g),v.AVAILABLE&&u(v),f.AVAILABLE&&u(f),b.AVAILABLE&&u(b),U.AVAILABLE&&u(U),I.AVAILABLE&&u(I),L.AVAILABE&&u(L),u(k);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { KeyChord, KeyCode, KeyMod } from "../../../base/common/keyCodes.js";
+import {
+  isLinux,
+  isMacintosh,
+  isWeb,
+  language
+} from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
+import { localize, localize2 } from "../../../nls.js";
+import { Categories } from "../../../platform/action/common/actionCommonCategories.js";
+import {
+  Action2,
+  MenuId,
+  registerAction2
+} from "../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../platform/commands/common/commands.js";
+import { KeybindingWeight } from "../../../platform/keybinding/common/keybindingsRegistry.js";
+import { IOpenerService } from "../../../platform/opener/common/opener.js";
+import product from "../../../platform/product/common/product.js";
+import { IProductService } from "../../../platform/product/common/productService.js";
+import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
+class KeybindingsReferenceAction extends Action2 {
+  static {
+    __name(this, "KeybindingsReferenceAction");
+  }
+  static ID = "workbench.action.keybindingsReference";
+  static AVAILABLE = !!(isLinux ? product.keyboardShortcutsUrlLinux : isMacintosh ? product.keyboardShortcutsUrlMac : product.keyboardShortcutsUrlWin);
+  constructor() {
+    super({
+      id: KeybindingsReferenceAction.ID,
+      title: {
+        ...localize2(
+          "keybindingsReference",
+          "Keyboard Shortcuts Reference"
+        ),
+        mnemonicTitle: localize(
+          {
+            key: "miKeyboardShortcuts",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "&&Keyboard Shortcuts Reference"
+        )
+      },
+      category: Categories.Help,
+      f1: true,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: null,
+        primary: KeyChord(
+          KeyMod.CtrlCmd | KeyCode.KeyK,
+          KeyMod.CtrlCmd | KeyCode.KeyR
+        )
+      },
+      menu: {
+        id: MenuId.MenubarHelpMenu,
+        group: "2_reference",
+        order: 1
+      }
+    });
+  }
+  run(accessor) {
+    const productService = accessor.get(IProductService);
+    const openerService = accessor.get(IOpenerService);
+    const url = isLinux ? productService.keyboardShortcutsUrlLinux : isMacintosh ? productService.keyboardShortcutsUrlMac : productService.keyboardShortcutsUrlWin;
+    if (url) {
+      openerService.open(URI.parse(url));
+    }
+  }
+}
+class OpenIntroductoryVideosUrlAction extends Action2 {
+  static {
+    __name(this, "OpenIntroductoryVideosUrlAction");
+  }
+  static ID = "workbench.action.openVideoTutorialsUrl";
+  static AVAILABLE = !!product.introductoryVideosUrl;
+  constructor() {
+    super({
+      id: OpenIntroductoryVideosUrlAction.ID,
+      title: {
+        ...localize2("openVideoTutorialsUrl", "Video Tutorials"),
+        mnemonicTitle: localize(
+          {
+            key: "miVideoTutorials",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "&&Video Tutorials"
+        )
+      },
+      category: Categories.Help,
+      f1: true,
+      menu: {
+        id: MenuId.MenubarHelpMenu,
+        group: "2_reference",
+        order: 2
+      }
+    });
+  }
+  run(accessor) {
+    const productService = accessor.get(IProductService);
+    const openerService = accessor.get(IOpenerService);
+    if (productService.introductoryVideosUrl) {
+      openerService.open(URI.parse(productService.introductoryVideosUrl));
+    }
+  }
+}
+class OpenTipsAndTricksUrlAction extends Action2 {
+  static {
+    __name(this, "OpenTipsAndTricksUrlAction");
+  }
+  static ID = "workbench.action.openTipsAndTricksUrl";
+  static AVAILABLE = !!product.tipsAndTricksUrl;
+  constructor() {
+    super({
+      id: OpenTipsAndTricksUrlAction.ID,
+      title: {
+        ...localize2("openTipsAndTricksUrl", "Tips and Tricks"),
+        mnemonicTitle: localize(
+          {
+            key: "miTipsAndTricks",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "Tips and Tri&&cks"
+        )
+      },
+      category: Categories.Help,
+      f1: true,
+      menu: {
+        id: MenuId.MenubarHelpMenu,
+        group: "2_reference",
+        order: 3
+      }
+    });
+  }
+  run(accessor) {
+    const productService = accessor.get(IProductService);
+    const openerService = accessor.get(IOpenerService);
+    if (productService.tipsAndTricksUrl) {
+      openerService.open(URI.parse(productService.tipsAndTricksUrl));
+    }
+  }
+}
+class OpenDocumentationUrlAction extends Action2 {
+  static {
+    __name(this, "OpenDocumentationUrlAction");
+  }
+  static ID = "workbench.action.openDocumentationUrl";
+  static AVAILABLE = !!(isWeb ? product.serverDocumentationUrl : product.documentationUrl);
+  constructor() {
+    super({
+      id: OpenDocumentationUrlAction.ID,
+      title: {
+        ...localize2("openDocumentationUrl", "Documentation"),
+        mnemonicTitle: localize(
+          {
+            key: "miDocumentation",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "&&Documentation"
+        )
+      },
+      category: Categories.Help,
+      f1: true,
+      menu: {
+        id: MenuId.MenubarHelpMenu,
+        group: "1_welcome",
+        order: 3
+      }
+    });
+  }
+  run(accessor) {
+    const productService = accessor.get(IProductService);
+    const openerService = accessor.get(IOpenerService);
+    const url = isWeb ? productService.serverDocumentationUrl : productService.documentationUrl;
+    if (url) {
+      openerService.open(URI.parse(url));
+    }
+  }
+}
+class OpenNewsletterSignupUrlAction extends Action2 {
+  static {
+    __name(this, "OpenNewsletterSignupUrlAction");
+  }
+  static ID = "workbench.action.openNewsletterSignupUrl";
+  static AVAILABLE = !!product.newsletterSignupUrl;
+  constructor() {
+    super({
+      id: OpenNewsletterSignupUrlAction.ID,
+      title: localize2(
+        "newsletterSignup",
+        "Signup for the VS Code Newsletter"
+      ),
+      category: Categories.Help,
+      f1: true
+    });
+  }
+  run(accessor) {
+    const productService = accessor.get(IProductService);
+    const openerService = accessor.get(IOpenerService);
+    const telemetryService = accessor.get(ITelemetryService);
+    openerService.open(
+      URI.parse(
+        `${productService.newsletterSignupUrl}?machineId=${encodeURIComponent(telemetryService.machineId)}`
+      )
+    );
+  }
+}
+class OpenYouTubeUrlAction extends Action2 {
+  static {
+    __name(this, "OpenYouTubeUrlAction");
+  }
+  static ID = "workbench.action.openYouTubeUrl";
+  static AVAILABLE = !!product.youTubeUrl;
+  constructor() {
+    super({
+      id: OpenYouTubeUrlAction.ID,
+      title: {
+        ...localize2("openYouTubeUrl", "Join Us on YouTube"),
+        mnemonicTitle: localize(
+          { key: "miYouTube", comment: ["&& denotes a mnemonic"] },
+          "&&Join Us on YouTube"
+        )
+      },
+      category: Categories.Help,
+      f1: true,
+      menu: {
+        id: MenuId.MenubarHelpMenu,
+        group: "3_feedback",
+        order: 1
+      }
+    });
+  }
+  run(accessor) {
+    const productService = accessor.get(IProductService);
+    const openerService = accessor.get(IOpenerService);
+    if (productService.youTubeUrl) {
+      openerService.open(URI.parse(productService.youTubeUrl));
+    }
+  }
+}
+class OpenRequestFeatureUrlAction extends Action2 {
+  static {
+    __name(this, "OpenRequestFeatureUrlAction");
+  }
+  static ID = "workbench.action.openRequestFeatureUrl";
+  static AVAILABLE = !!product.requestFeatureUrl;
+  constructor() {
+    super({
+      id: OpenRequestFeatureUrlAction.ID,
+      title: {
+        ...localize2("openUserVoiceUrl", "Search Feature Requests"),
+        mnemonicTitle: localize(
+          { key: "miUserVoice", comment: ["&& denotes a mnemonic"] },
+          "&&Search Feature Requests"
+        )
+      },
+      category: Categories.Help,
+      f1: true,
+      menu: {
+        id: MenuId.MenubarHelpMenu,
+        group: "3_feedback",
+        order: 2
+      }
+    });
+  }
+  run(accessor) {
+    const productService = accessor.get(IProductService);
+    const openerService = accessor.get(IOpenerService);
+    if (productService.requestFeatureUrl) {
+      openerService.open(URI.parse(productService.requestFeatureUrl));
+    }
+  }
+}
+class OpenLicenseUrlAction extends Action2 {
+  static {
+    __name(this, "OpenLicenseUrlAction");
+  }
+  static ID = "workbench.action.openLicenseUrl";
+  static AVAILABLE = !!(isWeb ? product.serverLicense : product.licenseUrl);
+  constructor() {
+    super({
+      id: OpenLicenseUrlAction.ID,
+      title: {
+        ...localize2("openLicenseUrl", "View License"),
+        mnemonicTitle: localize(
+          { key: "miLicense", comment: ["&& denotes a mnemonic"] },
+          "View &&License"
+        )
+      },
+      category: Categories.Help,
+      f1: true,
+      menu: {
+        id: MenuId.MenubarHelpMenu,
+        group: "4_legal",
+        order: 1
+      }
+    });
+  }
+  run(accessor) {
+    const productService = accessor.get(IProductService);
+    const openerService = accessor.get(IOpenerService);
+    const url = isWeb ? productService.serverLicenseUrl : productService.licenseUrl;
+    if (url) {
+      if (language) {
+        const queryArgChar = url.indexOf("?") > 0 ? "&" : "?";
+        openerService.open(
+          URI.parse(`${url}${queryArgChar}lang=${language}`)
+        );
+      } else {
+        openerService.open(URI.parse(url));
+      }
+    }
+  }
+}
+class OpenPrivacyStatementUrlAction extends Action2 {
+  static {
+    __name(this, "OpenPrivacyStatementUrlAction");
+  }
+  static ID = "workbench.action.openPrivacyStatementUrl";
+  static AVAILABE = !!product.privacyStatementUrl;
+  constructor() {
+    super({
+      id: OpenPrivacyStatementUrlAction.ID,
+      title: {
+        ...localize2("openPrivacyStatement", "Privacy Statement"),
+        mnemonicTitle: localize(
+          {
+            key: "miPrivacyStatement",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "Privac&&y Statement"
+        )
+      },
+      category: Categories.Help,
+      f1: true,
+      menu: {
+        id: MenuId.MenubarHelpMenu,
+        group: "4_legal",
+        order: 2
+      }
+    });
+  }
+  run(accessor) {
+    const productService = accessor.get(IProductService);
+    const openerService = accessor.get(IOpenerService);
+    if (productService.privacyStatementUrl) {
+      openerService.open(URI.parse(productService.privacyStatementUrl));
+    }
+  }
+}
+class GetStartedWithAccessibilityFeatures extends Action2 {
+  static {
+    __name(this, "GetStartedWithAccessibilityFeatures");
+  }
+  static ID = "workbench.action.getStartedWithAccessibilityFeatures";
+  constructor() {
+    super({
+      id: GetStartedWithAccessibilityFeatures.ID,
+      title: localize2(
+        "getStartedWithAccessibilityFeatures",
+        "Get Started with Accessibility Features"
+      ),
+      category: Categories.Help,
+      f1: true,
+      menu: {
+        id: MenuId.MenubarHelpMenu,
+        group: "1_welcome",
+        order: 6
+      }
+    });
+  }
+  run(accessor) {
+    const commandService = accessor.get(ICommandService);
+    commandService.executeCommand(
+      "workbench.action.openWalkthrough",
+      "SetupAccessibility"
+    );
+  }
+}
+if (KeybindingsReferenceAction.AVAILABLE) {
+  registerAction2(KeybindingsReferenceAction);
+}
+if (OpenIntroductoryVideosUrlAction.AVAILABLE) {
+  registerAction2(OpenIntroductoryVideosUrlAction);
+}
+if (OpenTipsAndTricksUrlAction.AVAILABLE) {
+  registerAction2(OpenTipsAndTricksUrlAction);
+}
+if (OpenDocumentationUrlAction.AVAILABLE) {
+  registerAction2(OpenDocumentationUrlAction);
+}
+if (OpenNewsletterSignupUrlAction.AVAILABLE) {
+  registerAction2(OpenNewsletterSignupUrlAction);
+}
+if (OpenYouTubeUrlAction.AVAILABLE) {
+  registerAction2(OpenYouTubeUrlAction);
+}
+if (OpenRequestFeatureUrlAction.AVAILABLE) {
+  registerAction2(OpenRequestFeatureUrlAction);
+}
+if (OpenLicenseUrlAction.AVAILABLE) {
+  registerAction2(OpenLicenseUrlAction);
+}
+if (OpenPrivacyStatementUrlAction.AVAILABE) {
+  registerAction2(OpenPrivacyStatementUrlAction);
+}
+registerAction2(GetStartedWithAccessibilityFeatures);
+//# sourceMappingURL=helpActions.js.map

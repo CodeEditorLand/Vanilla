@@ -1,1 +1,242 @@
-var _=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var v=(s,i,e,t)=>{for(var o=t>1?void 0:t?p(i,e):i,d=s.length-1,h;d>=0;d--)(h=s[d])&&(o=(t?h(i,e,o):h(o))||o);return t&&o&&_(i,e,o),o},u=(s,i)=>(e,t)=>i(e,t,s);import{RunOnceScheduler as g}from"../../../../base/common/async.js";import{KeyCode as n}from"../../../../base/common/keyCodes.js";import{Disposable as c,DisposableStore as M}from"../../../../base/common/lifecycle.js";import{IInstantiationService as E}from"../../../../platform/instantiation/common/instantiation.js";import{EditorOption as l}from"../../../common/config/editorOptions.js";import{isMousePositionWithinElement as y}from"./hoverUtils.js";import"./hover.css";import{GlyphHoverWidget as S}from"./glyphHoverWidget.js";const a=!1;let r=class extends c{constructor(e,t){super();this._editor=e;this._instantiationService=t;this._reactToEditorMouseMoveRunner=this._register(new g(()=>this._reactToEditorMouseMove(this._mouseMoveEvent),0)),this._hookListeners(),this._register(this._editor.onDidChangeConfiguration(o=>{o.hasChanged(l.hover)&&(this._unhookListeners(),this._hookListeners())}))}static ID="editor.contrib.marginHover";shouldKeepOpenOnEditorMouseMoveOrLeave=!1;_listenersStore=new M;_glyphWidget;_mouseMoveEvent;_reactToEditorMouseMoveRunner;_hoverSettings;_hoverState={mouseDown:!1};static get(e){return e.getContribution(r.ID)}_hookListeners(){const e=this._editor.getOption(l.hover);this._hoverSettings={enabled:e.enabled,sticky:e.sticky,hidingDelay:e.hidingDelay},e.enabled?(this._listenersStore.add(this._editor.onMouseDown(t=>this._onEditorMouseDown(t))),this._listenersStore.add(this._editor.onMouseUp(()=>this._onEditorMouseUp())),this._listenersStore.add(this._editor.onMouseMove(t=>this._onEditorMouseMove(t))),this._listenersStore.add(this._editor.onKeyDown(t=>this._onKeyDown(t)))):(this._listenersStore.add(this._editor.onMouseMove(t=>this._onEditorMouseMove(t))),this._listenersStore.add(this._editor.onKeyDown(t=>this._onKeyDown(t)))),this._listenersStore.add(this._editor.onMouseLeave(t=>this._onEditorMouseLeave(t))),this._listenersStore.add(this._editor.onDidChangeModel(()=>{this._cancelScheduler(),this._hideWidgets()})),this._listenersStore.add(this._editor.onDidChangeModelContent(()=>this._cancelScheduler())),this._listenersStore.add(this._editor.onDidScrollChange(t=>this._onEditorScrollChanged(t)))}_unhookListeners(){this._listenersStore.clear()}_cancelScheduler(){this._mouseMoveEvent=void 0,this._reactToEditorMouseMoveRunner.cancel()}_onEditorScrollChanged(e){(e.scrollTopChanged||e.scrollLeftChanged)&&this._hideWidgets()}_onEditorMouseDown(e){this._hoverState.mouseDown=!0,!this._isMouseOnGlyphHoverWidget(e)&&this._hideWidgets()}_isMouseOnGlyphHoverWidget(e){const t=this._glyphWidget?.getDomNode();return t?y(t,e.event.posx,e.event.posy):!1}_onEditorMouseUp(){this._hoverState.mouseDown=!1}_onEditorMouseLeave(e){this.shouldKeepOpenOnEditorMouseMoveOrLeave||(this._cancelScheduler(),this._isMouseOnGlyphHoverWidget(e))||a||this._hideWidgets()}_shouldNotRecomputeCurrentHoverWidget(e){const t=this._hoverSettings.sticky,o=this._isMouseOnGlyphHoverWidget(e);return t&&o}_onEditorMouseMove(e){if(this.shouldKeepOpenOnEditorMouseMoveOrLeave)return;if(this._mouseMoveEvent=e,this._shouldNotRecomputeCurrentHoverWidget(e)){this._reactToEditorMouseMoveRunner.cancel();return}this._reactToEditorMouseMove(e)}_reactToEditorMouseMove(e){!e||this._tryShowHoverWidget(e)||a||this._hideWidgets()}_tryShowHoverWidget(e){return this._getOrCreateGlyphWidget().showsOrWillShow(e)}_onKeyDown(e){this._editor.hasModel()&&(e.keyCode===n.Ctrl||e.keyCode===n.Alt||e.keyCode===n.Meta||e.keyCode===n.Shift||this._hideWidgets())}_hideWidgets(){a||this._glyphWidget?.hide()}_getOrCreateGlyphWidget(){return this._glyphWidget||(this._glyphWidget=this._instantiationService.createInstance(S,this._editor)),this._glyphWidget}hideContentHover(){this._hideWidgets()}dispose(){super.dispose(),this._unhookListeners(),this._listenersStore.dispose(),this._glyphWidget?.dispose()}};r=v([u(1,E)],r);export{r as GlyphHoverController};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  EditorOption
+} from "../../../common/config/editorOptions.js";
+import { isMousePositionWithinElement } from "./hoverUtils.js";
+import "./hover.css";
+import { GlyphHoverWidget } from "./glyphHoverWidget.js";
+const _sticky = false;
+let GlyphHoverController = class extends Disposable {
+  constructor(_editor, _instantiationService) {
+    super();
+    this._editor = _editor;
+    this._instantiationService = _instantiationService;
+    this._reactToEditorMouseMoveRunner = this._register(
+      new RunOnceScheduler(
+        () => this._reactToEditorMouseMove(this._mouseMoveEvent),
+        0
+      )
+    );
+    this._hookListeners();
+    this._register(this._editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(EditorOption.hover)) {
+        this._unhookListeners();
+        this._hookListeners();
+      }
+    }));
+  }
+  static {
+    __name(this, "GlyphHoverController");
+  }
+  static ID = "editor.contrib.marginHover";
+  shouldKeepOpenOnEditorMouseMoveOrLeave = false;
+  _listenersStore = new DisposableStore();
+  _glyphWidget;
+  _mouseMoveEvent;
+  _reactToEditorMouseMoveRunner;
+  _hoverSettings;
+  _hoverState = {
+    mouseDown: false
+  };
+  static get(editor) {
+    return editor.getContribution(
+      GlyphHoverController.ID
+    );
+  }
+  _hookListeners() {
+    const hoverOpts = this._editor.getOption(EditorOption.hover);
+    this._hoverSettings = {
+      enabled: hoverOpts.enabled,
+      sticky: hoverOpts.sticky,
+      hidingDelay: hoverOpts.hidingDelay
+    };
+    if (hoverOpts.enabled) {
+      this._listenersStore.add(
+        this._editor.onMouseDown(
+          (e) => this._onEditorMouseDown(e)
+        )
+      );
+      this._listenersStore.add(
+        this._editor.onMouseUp(() => this._onEditorMouseUp())
+      );
+      this._listenersStore.add(
+        this._editor.onMouseMove(
+          (e) => this._onEditorMouseMove(e)
+        )
+      );
+      this._listenersStore.add(
+        this._editor.onKeyDown(
+          (e) => this._onKeyDown(e)
+        )
+      );
+    } else {
+      this._listenersStore.add(
+        this._editor.onMouseMove(
+          (e) => this._onEditorMouseMove(e)
+        )
+      );
+      this._listenersStore.add(
+        this._editor.onKeyDown(
+          (e) => this._onKeyDown(e)
+        )
+      );
+    }
+    this._listenersStore.add(
+      this._editor.onMouseLeave((e) => this._onEditorMouseLeave(e))
+    );
+    this._listenersStore.add(
+      this._editor.onDidChangeModel(() => {
+        this._cancelScheduler();
+        this._hideWidgets();
+      })
+    );
+    this._listenersStore.add(
+      this._editor.onDidChangeModelContent(() => this._cancelScheduler())
+    );
+    this._listenersStore.add(
+      this._editor.onDidScrollChange(
+        (e) => this._onEditorScrollChanged(e)
+      )
+    );
+  }
+  _unhookListeners() {
+    this._listenersStore.clear();
+  }
+  _cancelScheduler() {
+    this._mouseMoveEvent = void 0;
+    this._reactToEditorMouseMoveRunner.cancel();
+  }
+  _onEditorScrollChanged(e) {
+    if (e.scrollTopChanged || e.scrollLeftChanged) {
+      this._hideWidgets();
+    }
+  }
+  _onEditorMouseDown(mouseEvent) {
+    this._hoverState.mouseDown = true;
+    const shouldNotHideCurrentHoverWidget = this._isMouseOnGlyphHoverWidget(mouseEvent);
+    if (shouldNotHideCurrentHoverWidget) {
+      return;
+    }
+    this._hideWidgets();
+  }
+  _isMouseOnGlyphHoverWidget(mouseEvent) {
+    const glyphHoverWidgetNode = this._glyphWidget?.getDomNode();
+    if (glyphHoverWidgetNode) {
+      return isMousePositionWithinElement(
+        glyphHoverWidgetNode,
+        mouseEvent.event.posx,
+        mouseEvent.event.posy
+      );
+    }
+    return false;
+  }
+  _onEditorMouseUp() {
+    this._hoverState.mouseDown = false;
+  }
+  _onEditorMouseLeave(mouseEvent) {
+    if (this.shouldKeepOpenOnEditorMouseMoveOrLeave) {
+      return;
+    }
+    this._cancelScheduler();
+    const shouldNotHideCurrentHoverWidget = this._isMouseOnGlyphHoverWidget(mouseEvent);
+    if (shouldNotHideCurrentHoverWidget) {
+      return;
+    }
+    if (_sticky) {
+      return;
+    }
+    this._hideWidgets();
+  }
+  _shouldNotRecomputeCurrentHoverWidget(mouseEvent) {
+    const isHoverSticky = this._hoverSettings.sticky;
+    const isMouseOnGlyphHoverWidget = this._isMouseOnGlyphHoverWidget(mouseEvent);
+    return isHoverSticky && isMouseOnGlyphHoverWidget;
+  }
+  _onEditorMouseMove(mouseEvent) {
+    if (this.shouldKeepOpenOnEditorMouseMoveOrLeave) {
+      return;
+    }
+    this._mouseMoveEvent = mouseEvent;
+    const shouldNotRecomputeCurrentHoverWidget = this._shouldNotRecomputeCurrentHoverWidget(mouseEvent);
+    if (shouldNotRecomputeCurrentHoverWidget) {
+      this._reactToEditorMouseMoveRunner.cancel();
+      return;
+    }
+    this._reactToEditorMouseMove(mouseEvent);
+  }
+  _reactToEditorMouseMove(mouseEvent) {
+    if (!mouseEvent) {
+      return;
+    }
+    const glyphWidgetShowsOrWillShow = this._tryShowHoverWidget(mouseEvent);
+    if (glyphWidgetShowsOrWillShow) {
+      return;
+    }
+    if (_sticky) {
+      return;
+    }
+    this._hideWidgets();
+  }
+  _tryShowHoverWidget(mouseEvent) {
+    const glyphWidget = this._getOrCreateGlyphWidget();
+    return glyphWidget.showsOrWillShow(mouseEvent);
+  }
+  _onKeyDown(e) {
+    if (!this._editor.hasModel()) {
+      return;
+    }
+    if (e.keyCode === KeyCode.Ctrl || e.keyCode === KeyCode.Alt || e.keyCode === KeyCode.Meta || e.keyCode === KeyCode.Shift) {
+      return;
+    }
+    this._hideWidgets();
+  }
+  _hideWidgets() {
+    if (_sticky) {
+      return;
+    }
+    this._glyphWidget?.hide();
+  }
+  _getOrCreateGlyphWidget() {
+    if (!this._glyphWidget) {
+      this._glyphWidget = this._instantiationService.createInstance(
+        GlyphHoverWidget,
+        this._editor
+      );
+    }
+    return this._glyphWidget;
+  }
+  hideContentHover() {
+    this._hideWidgets();
+  }
+  dispose() {
+    super.dispose();
+    this._unhookListeners();
+    this._listenersStore.dispose();
+    this._glyphWidget?.dispose();
+  }
+};
+GlyphHoverController = __decorateClass([
+  __decorateParam(1, IInstantiationService)
+], GlyphHoverController);
+export {
+  GlyphHoverController
+};
+//# sourceMappingURL=glyphHoverController.js.map

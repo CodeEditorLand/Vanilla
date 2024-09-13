@@ -1,1 +1,135 @@
-import{Emitter as p}from"../../base/common/event.js";import{Disposable as a,toDisposable as r}from"../../base/common/lifecycle.js";import{ColorId as s}from"./encodedTokenAttributes.js";class _{_tokenizationSupports=new Map;_factories=new Map;_onDidChange=new p;onDidChange=this._onDidChange.event;_colorMap;constructor(){this._colorMap=null}handleChange(t){this._onDidChange.fire({changedLanguages:t,changedColorMap:!1})}register(t,e){return this._tokenizationSupports.set(t,e),this.handleChange([t]),r(()=>{this._tokenizationSupports.get(t)===e&&(this._tokenizationSupports.delete(t),this.handleChange([t]))})}get(t){return this._tokenizationSupports.get(t)||null}registerFactory(t,e){this._factories.get(t)?.dispose();const o=new l(this,t,e);return this._factories.set(t,o),r(()=>{const i=this._factories.get(t);!i||i!==o||(this._factories.delete(t),i.dispose())})}async getOrCreate(t){const e=this.get(t);if(e)return e;const o=this._factories.get(t);return!o||o.isResolved?null:(await o.resolve(),this.get(t))}isResolved(t){if(this.get(t))return!0;const o=this._factories.get(t);return!!(!o||o.isResolved)}setColorMap(t){this._colorMap=t,this._onDidChange.fire({changedLanguages:Array.from(this._tokenizationSupports.keys()),changedColorMap:!0})}getColorMap(){return this._colorMap}getDefaultBackground(){return this._colorMap&&this._colorMap.length>s.DefaultBackground?this._colorMap[s.DefaultBackground]:null}}class l extends a{constructor(e,o,i){super();this._registry=e;this._languageId=o;this._factory=i}_isDisposed=!1;_resolvePromise=null;_isResolved=!1;get isResolved(){return this._isResolved}dispose(){this._isDisposed=!0,super.dispose()}async resolve(){return this._resolvePromise||(this._resolvePromise=this._create()),this._resolvePromise}async _create(){const e=await this._factory.tokenizationSupport;this._isResolved=!0,e&&!this._isDisposed&&this._register(this._registry.register(this._languageId,e))}}export{_ as TokenizationRegistry};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../base/common/event.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../base/common/lifecycle.js";
+import { ColorId } from "./encodedTokenAttributes.js";
+class TokenizationRegistry {
+  static {
+    __name(this, "TokenizationRegistry");
+  }
+  _tokenizationSupports = /* @__PURE__ */ new Map();
+  _factories = /* @__PURE__ */ new Map();
+  _onDidChange = new Emitter();
+  onDidChange = this._onDidChange.event;
+  _colorMap;
+  constructor() {
+    this._colorMap = null;
+  }
+  handleChange(languageIds) {
+    this._onDidChange.fire({
+      changedLanguages: languageIds,
+      changedColorMap: false
+    });
+  }
+  register(languageId, support) {
+    this._tokenizationSupports.set(languageId, support);
+    this.handleChange([languageId]);
+    return toDisposable(() => {
+      if (this._tokenizationSupports.get(languageId) !== support) {
+        return;
+      }
+      this._tokenizationSupports.delete(languageId);
+      this.handleChange([languageId]);
+    });
+  }
+  get(languageId) {
+    return this._tokenizationSupports.get(languageId) || null;
+  }
+  registerFactory(languageId, factory) {
+    this._factories.get(languageId)?.dispose();
+    const myData = new TokenizationSupportFactoryData(
+      this,
+      languageId,
+      factory
+    );
+    this._factories.set(languageId, myData);
+    return toDisposable(() => {
+      const v = this._factories.get(languageId);
+      if (!v || v !== myData) {
+        return;
+      }
+      this._factories.delete(languageId);
+      v.dispose();
+    });
+  }
+  async getOrCreate(languageId) {
+    const tokenizationSupport = this.get(languageId);
+    if (tokenizationSupport) {
+      return tokenizationSupport;
+    }
+    const factory = this._factories.get(languageId);
+    if (!factory || factory.isResolved) {
+      return null;
+    }
+    await factory.resolve();
+    return this.get(languageId);
+  }
+  isResolved(languageId) {
+    const tokenizationSupport = this.get(languageId);
+    if (tokenizationSupport) {
+      return true;
+    }
+    const factory = this._factories.get(languageId);
+    if (!factory || factory.isResolved) {
+      return true;
+    }
+    return false;
+  }
+  setColorMap(colorMap) {
+    this._colorMap = colorMap;
+    this._onDidChange.fire({
+      changedLanguages: Array.from(this._tokenizationSupports.keys()),
+      changedColorMap: true
+    });
+  }
+  getColorMap() {
+    return this._colorMap;
+  }
+  getDefaultBackground() {
+    if (this._colorMap && this._colorMap.length > ColorId.DefaultBackground) {
+      return this._colorMap[ColorId.DefaultBackground];
+    }
+    return null;
+  }
+}
+class TokenizationSupportFactoryData extends Disposable {
+  constructor(_registry, _languageId, _factory) {
+    super();
+    this._registry = _registry;
+    this._languageId = _languageId;
+    this._factory = _factory;
+  }
+  static {
+    __name(this, "TokenizationSupportFactoryData");
+  }
+  _isDisposed = false;
+  _resolvePromise = null;
+  _isResolved = false;
+  get isResolved() {
+    return this._isResolved;
+  }
+  dispose() {
+    this._isDisposed = true;
+    super.dispose();
+  }
+  async resolve() {
+    if (!this._resolvePromise) {
+      this._resolvePromise = this._create();
+    }
+    return this._resolvePromise;
+  }
+  async _create() {
+    const value = await this._factory.tokenizationSupport;
+    this._isResolved = true;
+    if (value && !this._isDisposed) {
+      this._register(this._registry.register(this._languageId, value));
+    }
+  }
+}
+export {
+  TokenizationRegistry
+};
+//# sourceMappingURL=tokenizationRegistry.js.map

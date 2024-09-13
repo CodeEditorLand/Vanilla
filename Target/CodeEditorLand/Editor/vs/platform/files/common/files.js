@@ -1,1 +1,590 @@
-import{Lazy as I}from"../../../base/common/lazy.js";import{Schemas as y}from"../../../base/common/network.js";import{sep as f}from"../../../base/common/path.js";import{isWeb as v}from"../../../base/common/platform.js";import{startsWithIgnoreCase as R}from"../../../base/common/strings.js";import{TernarySearchTree as u}from"../../../base/common/ternarySearchTree.js";import{isNumber as O}from"../../../base/common/types.js";import{URI as b}from"../../../base/common/uri.js";import{localize as c}from"../../../nls.js";import{createDecorator as S}from"../../instantiation/common/instantiation.js";const H=S("fileService");function K(r){return r.create===!0}var h=(n=>(n[n.Unknown=0]="Unknown",n[n.File=1]="File",n[n.Directory=2]="Directory",n[n.SymbolicLink=64]="SymbolicLink",n))(h||{}),x=(o=>(o[o.Readonly=1]="Readonly",o[o.Locked=2]="Locked",o))(x||{}),C=(t=>(t[t.UPDATED=2]="UPDATED",t[t.ADDED=4]="ADDED",t[t.DELETED=8]="DELETED",t))(C||{});function Q(r){const e=r;return!!e&&typeof e.onDidChange=="function"}var P=(i=>(i[i.None=0]="None",i[i.FileReadWrite=2]="FileReadWrite",i[i.FileOpenReadWriteClose=4]="FileOpenReadWriteClose",i[i.FileReadStream=16]="FileReadStream",i[i.FileFolderCopy=8]="FileFolderCopy",i[i.PathCaseSensitive=1024]="PathCaseSensitive",i[i.Readonly=2048]="Readonly",i[i.Trash=4096]="Trash",i[i.FileWriteUnlock=8192]="FileWriteUnlock",i[i.FileAtomicRead=16384]="FileAtomicRead",i[i.FileAtomicWrite=32768]="FileAtomicWrite",i[i.FileAtomicDelete=65536]="FileAtomicDelete",i[i.FileClone=131072]="FileClone",i))(P||{});function E(r){return!!(r.capabilities&2)}function $(r){return!!(r.capabilities&8)}function q(r){return!!(r.capabilities&131072)}function J(r){return!!(r.capabilities&4)}function Z(r){return!!(r.capabilities&16)}function z(r){return E(r)?!!(r.capabilities&16384):!1}function ee(r){return E(r)?!!(r.capabilities&32768):!1}function re(r){return!!(r.capabilities&65536)}function te(r){return!!(r.capabilities&2048)}var g=(d=>(d.FileExists="EntryExists",d.FileNotFound="EntryNotFound",d.FileNotADirectory="EntryNotADirectory",d.FileIsADirectory="EntryIsADirectory",d.FileExceedsStorageQuota="EntryExceedsStorageQuota",d.FileTooLarge="EntryTooLarge",d.FileWriteLocked="EntryWriteLocked",d.NoPermissions="NoPermissions",d.Unavailable="Unavailable",d.Unknown="Unknown",d))(g||{});class p extends Error{constructor(o,t){super(o);this.code=t}static create(o,t){const n=new p(o.toString(),t);return D(n,t),n}}function U(r,e){return p.create(r,e)}function oe(r){return r||U(c("unknownError","Unknown Error"),"Unknown")}function D(r,e){return r.name=e?`${e} (FileSystemError)`:"FileSystemError",r}function W(r){if(!r)return"Unknown";if(r instanceof p)return r.code;const e=/^(.+) \(FileSystemError\)$/.exec(r.name);if(!e)return"Unknown";switch(e[1]){case"EntryExists":return"EntryExists";case"EntryIsADirectory":return"EntryIsADirectory";case"EntryNotADirectory":return"EntryNotADirectory";case"EntryNotFound":return"EntryNotFound";case"EntryTooLarge":return"EntryTooLarge";case"EntryWriteLocked":return"EntryWriteLocked";case"NoPermissions":return"NoPermissions";case"Unavailable":return"Unavailable"}return"Unknown"}function ie(r){if(r instanceof F)return r.fileOperationResult;switch(W(r)){case"EntryNotFound":return 1;case"EntryIsADirectory":return 0;case"EntryNotADirectory":return 9;case"EntryWriteLocked":return 5;case"NoPermissions":return 6;case"EntryExists":return 4;case"EntryTooLarge":return 7;default:return 10}}var A=(l=>(l[l.CREATE=0]="CREATE",l[l.DELETE=1]="DELETE",l[l.MOVE=2]="MOVE",l[l.COPY=3]="COPY",l[l.WRITE=4]="WRITE",l))(A||{});class ne{constructor(e,o,t){this.resource=e;this.operation=o;this.target=t}isOperation(e){return this.operation===e}}var L=(t=>(t[t.UPDATED=0]="UPDATED",t[t.ADDED=1]="ADDED",t[t.DELETED=2]="DELETED",t))(L||{});class m{constructor(e,o){this.ignorePathCasing=o;for(const t of e){switch(t.type){case 1:this.rawAdded.push(t.resource);break;case 0:this.rawUpdated.push(t.resource);break;case 2:this.rawDeleted.push(t.resource);break}this.correlationId!==m.MIXED_CORRELATION&&(typeof t.cId=="number"?this.correlationId===void 0?this.correlationId=t.cId:this.correlationId!==t.cId&&(this.correlationId=m.MIXED_CORRELATION):this.correlationId!==void 0&&(this.correlationId=m.MIXED_CORRELATION))}}static MIXED_CORRELATION=null;correlationId=void 0;added=new I(()=>{const e=u.forUris(()=>this.ignorePathCasing);return e.fill(this.rawAdded.map(o=>[o,!0])),e});updated=new I(()=>{const e=u.forUris(()=>this.ignorePathCasing);return e.fill(this.rawUpdated.map(o=>[o,!0])),e});deleted=new I(()=>{const e=u.forUris(()=>this.ignorePathCasing);return e.fill(this.rawDeleted.map(o=>[o,!0])),e});contains(e,...o){return this.doContains(e,{includeChildren:!1},...o)}affects(e,...o){return this.doContains(e,{includeChildren:!0},...o)}doContains(e,o,...t){if(!e)return!1;const n=t.length>0;return!!((!n||t.includes(1))&&(this.added.value.get(e)||o.includeChildren&&this.added.value.findSuperstr(e))||(!n||t.includes(0))&&(this.updated.value.get(e)||o.includeChildren&&this.updated.value.findSuperstr(e))||(!n||t.includes(2))&&(this.deleted.value.findSubstr(e)||o.includeChildren&&this.deleted.value.findSuperstr(e)))}gotAdded(){return this.rawAdded.length>0}gotDeleted(){return this.rawDeleted.length>0}gotUpdated(){return this.rawUpdated.length>0}correlates(e){return this.correlationId===e}hasCorrelation(){return typeof this.correlationId=="number"}rawAdded=[];rawUpdated=[];rawDeleted=[]}function ae(r,e,o){return!r||!e||r===e||e.length>r.length?!1:(e.charAt(e.length-1)!==f&&(e+=f),o?R(r,e):r.indexOf(e)===0)}class F extends Error{constructor(o,t,n){super(o);this.fileOperationResult=t;this.options=n}}class se extends F{constructor(o,t,n,l){super(o,t,l);this.fileOperationResult=t;this.size=n}}class le extends F{constructor(o,t,n){super(o,2,n);this.stat=t}}var T=(a=>(a[a.FILE_IS_DIRECTORY=0]="FILE_IS_DIRECTORY",a[a.FILE_NOT_FOUND=1]="FILE_NOT_FOUND",a[a.FILE_NOT_MODIFIED_SINCE=2]="FILE_NOT_MODIFIED_SINCE",a[a.FILE_MODIFIED_SINCE=3]="FILE_MODIFIED_SINCE",a[a.FILE_MOVE_CONFLICT=4]="FILE_MOVE_CONFLICT",a[a.FILE_WRITE_LOCKED=5]="FILE_WRITE_LOCKED",a[a.FILE_PERMISSION_DENIED=6]="FILE_PERMISSION_DENIED",a[a.FILE_TOO_LARGE=7]="FILE_TOO_LARGE",a[a.FILE_INVALID_PATH=8]="FILE_INVALID_PATH",a[a.FILE_NOT_DIRECTORY=9]="FILE_NOT_DIRECTORY",a[a.FILE_OTHER_ERROR=10]="FILE_OTHER_ERROR",a))(T||{});const de={OFF:"off",AFTER_DELAY:"afterDelay",ON_FOCUS_CHANGE:"onFocusChange",ON_WINDOW_CHANGE:"onWindowChange"},ce={OFF:"off",ON_EXIT:"onExit",ON_EXIT_AND_WINDOW_CLOSE:"onExitAndWindowClose"},me="files.associations",pe="files.exclude",Ie="files.readonlyInclude",ue="files.readonlyExclude",Fe="files.readonlyFromPermissions";var N=(t=>(t[t.FILE=0]="FILE",t[t.FOLDER=1]="FOLDER",t[t.ROOT_FOLDER=2]="ROOT_FOLDER",t))(N||{});const ye="";function fe(r){if(!(typeof r.size!="number"||typeof r.mtime!="number"))return r.mtime.toString(29)+r.size.toString(31)}async function Ee(r,e){if(!e.hasProvider(b.from({scheme:r.scheme})))return new Promise(o=>{const t=e.onDidChangeFileSystemProviderRegistrations(n=>{n.scheme===r.scheme&&n.added&&(t.dispose(),o())})})}class s{static KB=1024;static MB=s.KB*s.KB;static GB=s.MB*s.KB;static TB=s.GB*s.KB;static formatSize(e){return O(e)||(e=0),e<s.KB?c("sizeB","{0}B",e.toFixed(0)):e<s.MB?c("sizeKB","{0}KB",(e/s.KB).toFixed(2)):e<s.GB?c("sizeMB","{0}MB",(e/s.MB).toFixed(2)):e<s.TB?c("sizeGB","{0}GB",(e/s.GB).toFixed(2)):c("sizeTB","{0}TB",(e/s.TB).toFixed(2))}}function ve(r){const e=typeof r=="string"||r?.scheme===y.vscodeRemote;return typeof r!="string"&&r?.scheme===y.file?1024*s.MB:e?10*s.MB:v?50*s.MB:1024*s.MB}export{de as AutoSaveConfiguration,s as ByteSize,ye as ETAG_DISABLED,me as FILES_ASSOCIATIONS_CONFIG,pe as FILES_EXCLUDE_CONFIG,ue as FILES_READONLY_EXCLUDE_CONFIG,Fe as FILES_READONLY_FROM_PERMISSIONS_CONFIG,Ie as FILES_READONLY_INCLUDE_CONFIG,C as FileChangeFilter,L as FileChangeType,m as FileChangesEvent,N as FileKind,A as FileOperation,F as FileOperationError,ne as FileOperationEvent,T as FileOperationResult,x as FilePermission,P as FileSystemProviderCapabilities,p as FileSystemProviderError,g as FileSystemProviderErrorCode,h as FileType,ce as HotExitConfiguration,H as IFileService,le as NotModifiedSinceFileOperationError,se as TooLargeFileOperationError,U as createFileSystemProviderError,oe as ensureFileSystemProviderError,fe as etag,ve as getLargeFileConfirmationLimit,re as hasFileAtomicDeleteCapability,z as hasFileAtomicReadCapability,ee as hasFileAtomicWriteCapability,q as hasFileCloneCapability,$ as hasFileFolderCopyCapability,Z as hasFileReadStreamCapability,J as hasOpenReadWriteCloseCapability,E as hasReadWriteCapability,te as hasReadonlyCapability,K as isFileOpenForWriteOptions,Q as isFileSystemWatcher,ae as isParent,D as markAsFileSystemProviderError,ie as toFileOperationResult,W as toFileSystemProviderErrorCode,Ee as whenProviderRegistered};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Lazy } from "../../../base/common/lazy.js";
+import { Schemas } from "../../../base/common/network.js";
+import { sep } from "../../../base/common/path.js";
+import { isWeb } from "../../../base/common/platform.js";
+import { startsWithIgnoreCase } from "../../../base/common/strings.js";
+import { TernarySearchTree } from "../../../base/common/ternarySearchTree.js";
+import { isNumber } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { localize } from "../../../nls.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IFileService = createDecorator("fileService");
+function isFileOpenForWriteOptions(options) {
+  return options.create === true;
+}
+__name(isFileOpenForWriteOptions, "isFileOpenForWriteOptions");
+var FileType = /* @__PURE__ */ ((FileType2) => {
+  FileType2[FileType2["Unknown"] = 0] = "Unknown";
+  FileType2[FileType2["File"] = 1] = "File";
+  FileType2[FileType2["Directory"] = 2] = "Directory";
+  FileType2[FileType2["SymbolicLink"] = 64] = "SymbolicLink";
+  return FileType2;
+})(FileType || {});
+var FilePermission = /* @__PURE__ */ ((FilePermission2) => {
+  FilePermission2[FilePermission2["Readonly"] = 1] = "Readonly";
+  FilePermission2[FilePermission2["Locked"] = 2] = "Locked";
+  return FilePermission2;
+})(FilePermission || {});
+var FileChangeFilter = /* @__PURE__ */ ((FileChangeFilter2) => {
+  FileChangeFilter2[FileChangeFilter2["UPDATED"] = 2] = "UPDATED";
+  FileChangeFilter2[FileChangeFilter2["ADDED"] = 4] = "ADDED";
+  FileChangeFilter2[FileChangeFilter2["DELETED"] = 8] = "DELETED";
+  return FileChangeFilter2;
+})(FileChangeFilter || {});
+function isFileSystemWatcher(thing) {
+  const candidate = thing;
+  return !!candidate && typeof candidate.onDidChange === "function";
+}
+__name(isFileSystemWatcher, "isFileSystemWatcher");
+var FileSystemProviderCapabilities = /* @__PURE__ */ ((FileSystemProviderCapabilities2) => {
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["None"] = 0] = "None";
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["FileReadWrite"] = 2] = "FileReadWrite";
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["FileOpenReadWriteClose"] = 4] = "FileOpenReadWriteClose";
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["FileReadStream"] = 16] = "FileReadStream";
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["FileFolderCopy"] = 8] = "FileFolderCopy";
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["PathCaseSensitive"] = 1024] = "PathCaseSensitive";
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["Readonly"] = 2048] = "Readonly";
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["Trash"] = 4096] = "Trash";
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["FileWriteUnlock"] = 8192] = "FileWriteUnlock";
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["FileAtomicRead"] = 16384] = "FileAtomicRead";
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["FileAtomicWrite"] = 32768] = "FileAtomicWrite";
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["FileAtomicDelete"] = 65536] = "FileAtomicDelete";
+  FileSystemProviderCapabilities2[FileSystemProviderCapabilities2["FileClone"] = 131072] = "FileClone";
+  return FileSystemProviderCapabilities2;
+})(FileSystemProviderCapabilities || {});
+function hasReadWriteCapability(provider) {
+  return !!(provider.capabilities & 2 /* FileReadWrite */);
+}
+__name(hasReadWriteCapability, "hasReadWriteCapability");
+function hasFileFolderCopyCapability(provider) {
+  return !!(provider.capabilities & 8 /* FileFolderCopy */);
+}
+__name(hasFileFolderCopyCapability, "hasFileFolderCopyCapability");
+function hasFileCloneCapability(provider) {
+  return !!(provider.capabilities & 131072 /* FileClone */);
+}
+__name(hasFileCloneCapability, "hasFileCloneCapability");
+function hasOpenReadWriteCloseCapability(provider) {
+  return !!(provider.capabilities & 4 /* FileOpenReadWriteClose */);
+}
+__name(hasOpenReadWriteCloseCapability, "hasOpenReadWriteCloseCapability");
+function hasFileReadStreamCapability(provider) {
+  return !!(provider.capabilities & 16 /* FileReadStream */);
+}
+__name(hasFileReadStreamCapability, "hasFileReadStreamCapability");
+function hasFileAtomicReadCapability(provider) {
+  if (!hasReadWriteCapability(provider)) {
+    return false;
+  }
+  return !!(provider.capabilities & 16384 /* FileAtomicRead */);
+}
+__name(hasFileAtomicReadCapability, "hasFileAtomicReadCapability");
+function hasFileAtomicWriteCapability(provider) {
+  if (!hasReadWriteCapability(provider)) {
+    return false;
+  }
+  return !!(provider.capabilities & 32768 /* FileAtomicWrite */);
+}
+__name(hasFileAtomicWriteCapability, "hasFileAtomicWriteCapability");
+function hasFileAtomicDeleteCapability(provider) {
+  return !!(provider.capabilities & 65536 /* FileAtomicDelete */);
+}
+__name(hasFileAtomicDeleteCapability, "hasFileAtomicDeleteCapability");
+function hasReadonlyCapability(provider) {
+  return !!(provider.capabilities & 2048 /* Readonly */);
+}
+__name(hasReadonlyCapability, "hasReadonlyCapability");
+var FileSystemProviderErrorCode = /* @__PURE__ */ ((FileSystemProviderErrorCode2) => {
+  FileSystemProviderErrorCode2["FileExists"] = "EntryExists";
+  FileSystemProviderErrorCode2["FileNotFound"] = "EntryNotFound";
+  FileSystemProviderErrorCode2["FileNotADirectory"] = "EntryNotADirectory";
+  FileSystemProviderErrorCode2["FileIsADirectory"] = "EntryIsADirectory";
+  FileSystemProviderErrorCode2["FileExceedsStorageQuota"] = "EntryExceedsStorageQuota";
+  FileSystemProviderErrorCode2["FileTooLarge"] = "EntryTooLarge";
+  FileSystemProviderErrorCode2["FileWriteLocked"] = "EntryWriteLocked";
+  FileSystemProviderErrorCode2["NoPermissions"] = "NoPermissions";
+  FileSystemProviderErrorCode2["Unavailable"] = "Unavailable";
+  FileSystemProviderErrorCode2["Unknown"] = "Unknown";
+  return FileSystemProviderErrorCode2;
+})(FileSystemProviderErrorCode || {});
+class FileSystemProviderError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+  }
+  static {
+    __name(this, "FileSystemProviderError");
+  }
+  static create(error, code) {
+    const providerError = new FileSystemProviderError(
+      error.toString(),
+      code
+    );
+    markAsFileSystemProviderError(providerError, code);
+    return providerError;
+  }
+}
+function createFileSystemProviderError(error, code) {
+  return FileSystemProviderError.create(error, code);
+}
+__name(createFileSystemProviderError, "createFileSystemProviderError");
+function ensureFileSystemProviderError(error) {
+  if (!error) {
+    return createFileSystemProviderError(
+      localize("unknownError", "Unknown Error"),
+      "Unknown" /* Unknown */
+    );
+  }
+  return error;
+}
+__name(ensureFileSystemProviderError, "ensureFileSystemProviderError");
+function markAsFileSystemProviderError(error, code) {
+  error.name = code ? `${code} (FileSystemError)` : `FileSystemError`;
+  return error;
+}
+__name(markAsFileSystemProviderError, "markAsFileSystemProviderError");
+function toFileSystemProviderErrorCode(error) {
+  if (!error) {
+    return "Unknown" /* Unknown */;
+  }
+  if (error instanceof FileSystemProviderError) {
+    return error.code;
+  }
+  const match = /^(.+) \(FileSystemError\)$/.exec(error.name);
+  if (!match) {
+    return "Unknown" /* Unknown */;
+  }
+  switch (match[1]) {
+    case "EntryExists" /* FileExists */:
+      return "EntryExists" /* FileExists */;
+    case "EntryIsADirectory" /* FileIsADirectory */:
+      return "EntryIsADirectory" /* FileIsADirectory */;
+    case "EntryNotADirectory" /* FileNotADirectory */:
+      return "EntryNotADirectory" /* FileNotADirectory */;
+    case "EntryNotFound" /* FileNotFound */:
+      return "EntryNotFound" /* FileNotFound */;
+    case "EntryTooLarge" /* FileTooLarge */:
+      return "EntryTooLarge" /* FileTooLarge */;
+    case "EntryWriteLocked" /* FileWriteLocked */:
+      return "EntryWriteLocked" /* FileWriteLocked */;
+    case "NoPermissions" /* NoPermissions */:
+      return "NoPermissions" /* NoPermissions */;
+    case "Unavailable" /* Unavailable */:
+      return "Unavailable" /* Unavailable */;
+  }
+  return "Unknown" /* Unknown */;
+}
+__name(toFileSystemProviderErrorCode, "toFileSystemProviderErrorCode");
+function toFileOperationResult(error) {
+  if (error instanceof FileOperationError) {
+    return error.fileOperationResult;
+  }
+  switch (toFileSystemProviderErrorCode(error)) {
+    case "EntryNotFound" /* FileNotFound */:
+      return 1 /* FILE_NOT_FOUND */;
+    case "EntryIsADirectory" /* FileIsADirectory */:
+      return 0 /* FILE_IS_DIRECTORY */;
+    case "EntryNotADirectory" /* FileNotADirectory */:
+      return 9 /* FILE_NOT_DIRECTORY */;
+    case "EntryWriteLocked" /* FileWriteLocked */:
+      return 5 /* FILE_WRITE_LOCKED */;
+    case "NoPermissions" /* NoPermissions */:
+      return 6 /* FILE_PERMISSION_DENIED */;
+    case "EntryExists" /* FileExists */:
+      return 4 /* FILE_MOVE_CONFLICT */;
+    case "EntryTooLarge" /* FileTooLarge */:
+      return 7 /* FILE_TOO_LARGE */;
+    default:
+      return 10 /* FILE_OTHER_ERROR */;
+  }
+}
+__name(toFileOperationResult, "toFileOperationResult");
+var FileOperation = /* @__PURE__ */ ((FileOperation2) => {
+  FileOperation2[FileOperation2["CREATE"] = 0] = "CREATE";
+  FileOperation2[FileOperation2["DELETE"] = 1] = "DELETE";
+  FileOperation2[FileOperation2["MOVE"] = 2] = "MOVE";
+  FileOperation2[FileOperation2["COPY"] = 3] = "COPY";
+  FileOperation2[FileOperation2["WRITE"] = 4] = "WRITE";
+  return FileOperation2;
+})(FileOperation || {});
+class FileOperationEvent {
+  constructor(resource, operation, target) {
+    this.resource = resource;
+    this.operation = operation;
+    this.target = target;
+  }
+  static {
+    __name(this, "FileOperationEvent");
+  }
+  isOperation(operation) {
+    return this.operation === operation;
+  }
+}
+var FileChangeType = /* @__PURE__ */ ((FileChangeType2) => {
+  FileChangeType2[FileChangeType2["UPDATED"] = 0] = "UPDATED";
+  FileChangeType2[FileChangeType2["ADDED"] = 1] = "ADDED";
+  FileChangeType2[FileChangeType2["DELETED"] = 2] = "DELETED";
+  return FileChangeType2;
+})(FileChangeType || {});
+class FileChangesEvent {
+  constructor(changes, ignorePathCasing) {
+    this.ignorePathCasing = ignorePathCasing;
+    for (const change of changes) {
+      switch (change.type) {
+        case 1 /* ADDED */:
+          this.rawAdded.push(change.resource);
+          break;
+        case 0 /* UPDATED */:
+          this.rawUpdated.push(change.resource);
+          break;
+        case 2 /* DELETED */:
+          this.rawDeleted.push(change.resource);
+          break;
+      }
+      if (this.correlationId !== FileChangesEvent.MIXED_CORRELATION) {
+        if (typeof change.cId === "number") {
+          if (this.correlationId === void 0) {
+            this.correlationId = change.cId;
+          } else if (this.correlationId !== change.cId) {
+            this.correlationId = FileChangesEvent.MIXED_CORRELATION;
+          }
+        } else if (this.correlationId !== void 0) {
+          this.correlationId = FileChangesEvent.MIXED_CORRELATION;
+        }
+      }
+    }
+  }
+  static {
+    __name(this, "FileChangesEvent");
+  }
+  static MIXED_CORRELATION = null;
+  correlationId = void 0;
+  added = new Lazy(() => {
+    const added = TernarySearchTree.forUris(
+      () => this.ignorePathCasing
+    );
+    added.fill(this.rawAdded.map((resource) => [resource, true]));
+    return added;
+  });
+  updated = new Lazy(() => {
+    const updated = TernarySearchTree.forUris(
+      () => this.ignorePathCasing
+    );
+    updated.fill(this.rawUpdated.map((resource) => [resource, true]));
+    return updated;
+  });
+  deleted = new Lazy(() => {
+    const deleted = TernarySearchTree.forUris(
+      () => this.ignorePathCasing
+    );
+    deleted.fill(this.rawDeleted.map((resource) => [resource, true]));
+    return deleted;
+  });
+  /**
+   * Find out if the file change events match the provided resource.
+   *
+   * Note: when passing `FileChangeType.DELETED`, we consider a match
+   * also when the parent of the resource got deleted.
+   */
+  contains(resource, ...types) {
+    return this.doContains(resource, { includeChildren: false }, ...types);
+  }
+  /**
+   * Find out if the file change events either match the provided
+   * resource, or contain a child of this resource.
+   */
+  affects(resource, ...types) {
+    return this.doContains(resource, { includeChildren: true }, ...types);
+  }
+  doContains(resource, options, ...types) {
+    if (!resource) {
+      return false;
+    }
+    const hasTypesFilter = types.length > 0;
+    if (!hasTypesFilter || types.includes(1 /* ADDED */)) {
+      if (this.added.value.get(resource)) {
+        return true;
+      }
+      if (options.includeChildren && this.added.value.findSuperstr(resource)) {
+        return true;
+      }
+    }
+    if (!hasTypesFilter || types.includes(0 /* UPDATED */)) {
+      if (this.updated.value.get(resource)) {
+        return true;
+      }
+      if (options.includeChildren && this.updated.value.findSuperstr(resource)) {
+        return true;
+      }
+    }
+    if (!hasTypesFilter || types.includes(2 /* DELETED */)) {
+      if (this.deleted.value.findSubstr(
+        resource
+      )) {
+        return true;
+      }
+      if (options.includeChildren && this.deleted.value.findSuperstr(resource)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  /**
+   * Returns if this event contains added files.
+   */
+  gotAdded() {
+    return this.rawAdded.length > 0;
+  }
+  /**
+   * Returns if this event contains deleted files.
+   */
+  gotDeleted() {
+    return this.rawDeleted.length > 0;
+  }
+  /**
+   * Returns if this event contains updated files.
+   */
+  gotUpdated() {
+    return this.rawUpdated.length > 0;
+  }
+  /**
+   * Returns if this event contains changes that correlate to the
+   * provided `correlationId`.
+   *
+   * File change event correlation is an advanced watch feature that
+   * allows to  identify from which watch request the events originate
+   * from. This correlation allows to route events specifically
+   * only to the requestor and not emit them to all listeners.
+   */
+  correlates(correlationId) {
+    return this.correlationId === correlationId;
+  }
+  /**
+   * Figure out if the event contains changes that correlate to one
+   * correlation identifier.
+   *
+   * File change event correlation is an advanced watch feature that
+   * allows to  identify from which watch request the events originate
+   * from. This correlation allows to route events specifically
+   * only to the requestor and not emit them to all listeners.
+   */
+  hasCorrelation() {
+    return typeof this.correlationId === "number";
+  }
+  /**
+   * @deprecated use the `contains` or `affects` method to efficiently find
+   * out if the event relates to a given resource. these methods ensure:
+   * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
+   * - correctly handles `FileChangeType.DELETED` events
+   */
+  rawAdded = [];
+  /**
+   * @deprecated use the `contains` or `affects` method to efficiently find
+   * out if the event relates to a given resource. these methods ensure:
+   * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
+   * - correctly handles `FileChangeType.DELETED` events
+   */
+  rawUpdated = [];
+  /**
+   * @deprecated use the `contains` or `affects` method to efficiently find
+   * out if the event relates to a given resource. these methods ensure:
+   * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
+   * - correctly handles `FileChangeType.DELETED` events
+   */
+  rawDeleted = [];
+}
+function isParent(path, candidate, ignoreCase) {
+  if (!path || !candidate || path === candidate) {
+    return false;
+  }
+  if (candidate.length > path.length) {
+    return false;
+  }
+  if (candidate.charAt(candidate.length - 1) !== sep) {
+    candidate += sep;
+  }
+  if (ignoreCase) {
+    return startsWithIgnoreCase(path, candidate);
+  }
+  return path.indexOf(candidate) === 0;
+}
+__name(isParent, "isParent");
+class FileOperationError extends Error {
+  constructor(message, fileOperationResult, options) {
+    super(message);
+    this.fileOperationResult = fileOperationResult;
+    this.options = options;
+  }
+  static {
+    __name(this, "FileOperationError");
+  }
+}
+class TooLargeFileOperationError extends FileOperationError {
+  constructor(message, fileOperationResult, size, options) {
+    super(message, fileOperationResult, options);
+    this.fileOperationResult = fileOperationResult;
+    this.size = size;
+  }
+  static {
+    __name(this, "TooLargeFileOperationError");
+  }
+}
+class NotModifiedSinceFileOperationError extends FileOperationError {
+  constructor(message, stat, options) {
+    super(message, 2 /* FILE_NOT_MODIFIED_SINCE */, options);
+    this.stat = stat;
+  }
+  static {
+    __name(this, "NotModifiedSinceFileOperationError");
+  }
+}
+var FileOperationResult = /* @__PURE__ */ ((FileOperationResult2) => {
+  FileOperationResult2[FileOperationResult2["FILE_IS_DIRECTORY"] = 0] = "FILE_IS_DIRECTORY";
+  FileOperationResult2[FileOperationResult2["FILE_NOT_FOUND"] = 1] = "FILE_NOT_FOUND";
+  FileOperationResult2[FileOperationResult2["FILE_NOT_MODIFIED_SINCE"] = 2] = "FILE_NOT_MODIFIED_SINCE";
+  FileOperationResult2[FileOperationResult2["FILE_MODIFIED_SINCE"] = 3] = "FILE_MODIFIED_SINCE";
+  FileOperationResult2[FileOperationResult2["FILE_MOVE_CONFLICT"] = 4] = "FILE_MOVE_CONFLICT";
+  FileOperationResult2[FileOperationResult2["FILE_WRITE_LOCKED"] = 5] = "FILE_WRITE_LOCKED";
+  FileOperationResult2[FileOperationResult2["FILE_PERMISSION_DENIED"] = 6] = "FILE_PERMISSION_DENIED";
+  FileOperationResult2[FileOperationResult2["FILE_TOO_LARGE"] = 7] = "FILE_TOO_LARGE";
+  FileOperationResult2[FileOperationResult2["FILE_INVALID_PATH"] = 8] = "FILE_INVALID_PATH";
+  FileOperationResult2[FileOperationResult2["FILE_NOT_DIRECTORY"] = 9] = "FILE_NOT_DIRECTORY";
+  FileOperationResult2[FileOperationResult2["FILE_OTHER_ERROR"] = 10] = "FILE_OTHER_ERROR";
+  return FileOperationResult2;
+})(FileOperationResult || {});
+const AutoSaveConfiguration = {
+  OFF: "off",
+  AFTER_DELAY: "afterDelay",
+  ON_FOCUS_CHANGE: "onFocusChange",
+  ON_WINDOW_CHANGE: "onWindowChange"
+};
+const HotExitConfiguration = {
+  OFF: "off",
+  ON_EXIT: "onExit",
+  ON_EXIT_AND_WINDOW_CLOSE: "onExitAndWindowClose"
+};
+const FILES_ASSOCIATIONS_CONFIG = "files.associations";
+const FILES_EXCLUDE_CONFIG = "files.exclude";
+const FILES_READONLY_INCLUDE_CONFIG = "files.readonlyInclude";
+const FILES_READONLY_EXCLUDE_CONFIG = "files.readonlyExclude";
+const FILES_READONLY_FROM_PERMISSIONS_CONFIG = "files.readonlyFromPermissions";
+var FileKind = /* @__PURE__ */ ((FileKind2) => {
+  FileKind2[FileKind2["FILE"] = 0] = "FILE";
+  FileKind2[FileKind2["FOLDER"] = 1] = "FOLDER";
+  FileKind2[FileKind2["ROOT_FOLDER"] = 2] = "ROOT_FOLDER";
+  return FileKind2;
+})(FileKind || {});
+const ETAG_DISABLED = "";
+function etag(stat) {
+  if (typeof stat.size !== "number" || typeof stat.mtime !== "number") {
+    return void 0;
+  }
+  return stat.mtime.toString(29) + stat.size.toString(31);
+}
+__name(etag, "etag");
+async function whenProviderRegistered(file, fileService) {
+  if (fileService.hasProvider(URI.from({ scheme: file.scheme }))) {
+    return;
+  }
+  return new Promise((resolve) => {
+    const disposable = fileService.onDidChangeFileSystemProviderRegistrations((e) => {
+      if (e.scheme === file.scheme && e.added) {
+        disposable.dispose();
+        resolve();
+      }
+    });
+  });
+}
+__name(whenProviderRegistered, "whenProviderRegistered");
+class ByteSize {
+  static {
+    __name(this, "ByteSize");
+  }
+  static KB = 1024;
+  static MB = ByteSize.KB * ByteSize.KB;
+  static GB = ByteSize.MB * ByteSize.KB;
+  static TB = ByteSize.GB * ByteSize.KB;
+  static formatSize(size) {
+    if (!isNumber(size)) {
+      size = 0;
+    }
+    if (size < ByteSize.KB) {
+      return localize("sizeB", "{0}B", size.toFixed(0));
+    }
+    if (size < ByteSize.MB) {
+      return localize("sizeKB", "{0}KB", (size / ByteSize.KB).toFixed(2));
+    }
+    if (size < ByteSize.GB) {
+      return localize("sizeMB", "{0}MB", (size / ByteSize.MB).toFixed(2));
+    }
+    if (size < ByteSize.TB) {
+      return localize("sizeGB", "{0}GB", (size / ByteSize.GB).toFixed(2));
+    }
+    return localize("sizeTB", "{0}TB", (size / ByteSize.TB).toFixed(2));
+  }
+}
+function getLargeFileConfirmationLimit(arg) {
+  const isRemote = typeof arg === "string" || arg?.scheme === Schemas.vscodeRemote;
+  const isLocal = typeof arg !== "string" && arg?.scheme === Schemas.file;
+  if (isLocal) {
+    return 1024 * ByteSize.MB;
+  }
+  if (isRemote) {
+    return 10 * ByteSize.MB;
+  }
+  if (isWeb) {
+    return 50 * ByteSize.MB;
+  }
+  return 1024 * ByteSize.MB;
+}
+__name(getLargeFileConfirmationLimit, "getLargeFileConfirmationLimit");
+export {
+  AutoSaveConfiguration,
+  ByteSize,
+  ETAG_DISABLED,
+  FILES_ASSOCIATIONS_CONFIG,
+  FILES_EXCLUDE_CONFIG,
+  FILES_READONLY_EXCLUDE_CONFIG,
+  FILES_READONLY_FROM_PERMISSIONS_CONFIG,
+  FILES_READONLY_INCLUDE_CONFIG,
+  FileChangeFilter,
+  FileChangeType,
+  FileChangesEvent,
+  FileKind,
+  FileOperation,
+  FileOperationError,
+  FileOperationEvent,
+  FileOperationResult,
+  FilePermission,
+  FileSystemProviderCapabilities,
+  FileSystemProviderError,
+  FileSystemProviderErrorCode,
+  FileType,
+  HotExitConfiguration,
+  IFileService,
+  NotModifiedSinceFileOperationError,
+  TooLargeFileOperationError,
+  createFileSystemProviderError,
+  ensureFileSystemProviderError,
+  etag,
+  getLargeFileConfirmationLimit,
+  hasFileAtomicDeleteCapability,
+  hasFileAtomicReadCapability,
+  hasFileAtomicWriteCapability,
+  hasFileCloneCapability,
+  hasFileFolderCopyCapability,
+  hasFileReadStreamCapability,
+  hasOpenReadWriteCloseCapability,
+  hasReadWriteCapability,
+  hasReadonlyCapability,
+  isFileOpenForWriteOptions,
+  isFileSystemWatcher,
+  isParent,
+  markAsFileSystemProviderError,
+  toFileOperationResult,
+  toFileSystemProviderErrorCode,
+  whenProviderRegistered
+};
+//# sourceMappingURL=files.js.map

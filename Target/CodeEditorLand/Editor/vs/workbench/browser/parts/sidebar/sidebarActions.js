@@ -1,1 +1,51 @@
-import"./media/sidebarpart.css";import{KeyCode as r,KeyMod as n}from"../../../../base/common/keyCodes.js";import{localize2 as c}from"../../../../nls.js";import{Categories as s}from"../../../../platform/action/common/actionCommonCategories.js";import{Action2 as m,registerAction2 as a}from"../../../../platform/actions/common/actions.js";import{KeybindingWeight as p}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{ViewContainerLocation as f}from"../../../common/views.js";import{IWorkbenchLayoutService as d,Parts as o}from"../../../services/layout/browser/layoutService.js";import{IPaneCompositePartService as l}from"../../../services/panecomposite/browser/panecomposite.js";class S extends m{constructor(){super({id:"workbench.action.focusSideBar",title:c("focusSideBar","Focus into Primary Side Bar"),category:s.View,f1:!0,keybinding:{weight:p.WorkbenchContrib,when:null,primary:n.CtrlCmd|r.Digit0}})}async run(i){const e=i.get(d),t=i.get(l);e.isVisible(o.SIDEBAR_PART)||e.setPartHidden(!1,o.SIDEBAR_PART),t.getActivePaneComposite(f.Sidebar)?.focus()}}a(S);export{S as FocusSideBarAction};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/sidebarpart.css";
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ViewContainerLocation } from "../../../common/views.js";
+import {
+  IWorkbenchLayoutService,
+  Parts
+} from "../../../services/layout/browser/layoutService.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+class FocusSideBarAction extends Action2 {
+  static {
+    __name(this, "FocusSideBarAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.focusSideBar",
+      title: localize2("focusSideBar", "Focus into Primary Side Bar"),
+      category: Categories.View,
+      f1: true,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: null,
+        primary: KeyMod.CtrlCmd | KeyCode.Digit0
+      }
+    });
+  }
+  async run(accessor) {
+    const layoutService = accessor.get(IWorkbenchLayoutService);
+    const paneCompositeService = accessor.get(IPaneCompositePartService);
+    if (!layoutService.isVisible(Parts.SIDEBAR_PART)) {
+      layoutService.setPartHidden(false, Parts.SIDEBAR_PART);
+    }
+    const viewlet = paneCompositeService.getActivePaneComposite(
+      ViewContainerLocation.Sidebar
+    );
+    viewlet?.focus();
+  }
+}
+registerAction2(FocusSideBarAction);
+export {
+  FocusSideBarAction
+};
+//# sourceMappingURL=sidebarActions.js.map

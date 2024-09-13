@@ -1,1 +1,8 @@
-import{createDecorator as e}from"../../instantiation/common/instantiation.js";const n=e("auxiliaryWindowsMainService");export{n as IAuxiliaryWindowsMainService};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IAuxiliaryWindowsMainService = createDecorator(
+  "auxiliaryWindowsMainService"
+);
+export {
+  IAuxiliaryWindowsMainService
+};
+//# sourceMappingURL=auxiliaryWindows.js.map

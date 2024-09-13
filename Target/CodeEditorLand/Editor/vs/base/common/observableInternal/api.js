@@ -1,1 +1,25 @@
-import{ObservableValue as u}from"./base.js";import{strictEquals as r}from"./commonFacade/deps.js";import{DebugNameData as b}from"./debugName.js";import{LazyObservableValue as l}from"./lazyObservableValue.js";function y(e,a){return e.lazy?new l(new b(e.owner,e.debugName,void 0),a,e.equalsFn??r):new u(new b(e.owner,e.debugName,void 0),a,e.equalsFn??r)}export{y as observableValueOpts};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ObservableValue } from "./base.js";
+import { strictEquals } from "./commonFacade/deps.js";
+import { DebugNameData } from "./debugName.js";
+import { LazyObservableValue } from "./lazyObservableValue.js";
+function observableValueOpts(options, initialValue) {
+  if (options.lazy) {
+    return new LazyObservableValue(
+      new DebugNameData(options.owner, options.debugName, void 0),
+      initialValue,
+      options.equalsFn ?? strictEquals
+    );
+  }
+  return new ObservableValue(
+    new DebugNameData(options.owner, options.debugName, void 0),
+    initialValue,
+    options.equalsFn ?? strictEquals
+  );
+}
+__name(observableValueOpts, "observableValueOpts");
+export {
+  observableValueOpts
+};
+//# sourceMappingURL=api.js.map

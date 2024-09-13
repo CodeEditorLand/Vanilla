@@ -1,2 +1,1421 @@
-var ve=Object.defineProperty;var Te=Object.getOwnPropertyDescriptor;var N=(n,e,r,t)=>{for(var a=t>1?void 0:t?Te(e,r):e,s=n.length-1,i;s>=0;s--)(i=n[s])&&(a=(t?i(e,r,a):i(a))||a);return t&&a&&ve(e,r,a),a},d=(n,e)=>(r,t)=>e(r,t,n);import*as p from"../../../../base/browser/dom.js";import{ActionBar as q}from"../../../../base/browser/ui/actionbar/actionbar.js";import{HighlightedLabel as X}from"../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";import{getDefaultHoverDelegate as O}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{Action as De}from"../../../../base/common/actions.js";import{RunOnceScheduler as ye}from"../../../../base/common/async.js";import{Codicon as Ce}from"../../../../base/common/codicons.js";import{Event as Le}from"../../../../base/common/event.js";import{createMatches as R}from"../../../../base/common/filters.js";import{DisposableStore as k,dispose as Ee}from"../../../../base/common/lifecycle.js";import{posix as ke}from"../../../../base/common/path.js";import{commonSuffixLength as Ae}from"../../../../base/common/strings.js";import{ThemeIcon as ae}from"../../../../base/common/themables.js";import{localize as S}from"../../../../nls.js";import{MenuEntryActionViewItem as Me,SubmenuEntryActionViewItem as we,createAndFillInActionBarActions as se,createAndFillInContextMenuActions as xe}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{IMenuService as G,MenuId as H,MenuItemAction as ne,MenuRegistry as Fe,SubmenuItemAction as Ne,registerAction2 as _e}from"../../../../platform/actions/common/actions.js";import{IConfigurationService as Oe}from"../../../../platform/configuration/common/configuration.js";import{ContextKeyExpr as A,IContextKeyService as Y}from"../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as He}from"../../../../platform/contextview/browser/contextView.js";import{IHoverService as z}from"../../../../platform/hover/browser/hover.js";import{IInstantiationService as ie}from"../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as ze}from"../../../../platform/keybinding/common/keybinding.js";import{ILabelService as Be}from"../../../../platform/label/common/label.js";import{WorkbenchCompressibleAsyncDataTree as Pe}from"../../../../platform/list/browser/listService.js";import{INotificationService as Re}from"../../../../platform/notification/common/notification.js";import{IOpenerService as Ve}from"../../../../platform/opener/common/opener.js";import{ITelemetryService as Ke}from"../../../../platform/telemetry/common/telemetry.js";import{asCssVariable as oe,textLinkForeground as le}from"../../../../platform/theme/common/colorRegistry.js";import{IThemeService as Ue}from"../../../../platform/theme/common/themeService.js";import{ViewAction as je,ViewPane as $e}from"../../../browser/parts/views/viewPane.js";import{IViewDescriptorService as We}from"../../../common/views.js";import{CALLSTACK_VIEW_ID as ce,CONTEXT_CALLSTACK_ITEM_STOPPED as M,CONTEXT_CALLSTACK_ITEM_TYPE as v,CONTEXT_CALLSTACK_SESSION_HAS_ONE_THREAD as de,CONTEXT_CALLSTACK_SESSION_IS_ATTACH as J,CONTEXT_DEBUG_STATE as qe,CONTEXT_FOCUSED_SESSION_IS_NO_DEBUG as Xe,CONTEXT_STACK_FRAME_SUPPORTS_RESTART as Ge,IDebugService as Ye,State as V,getStateLabel as Je,isFrameDeemphasized as Q}from"../common/debug.js";import{StackFrame as b,Thread as T,ThreadAndSessionIds as B}from"../common/debugModel.js";import{isSessionAttach as Qe}from"../common/debugUtils.js";import{renderViewTree as Ze}from"./baseDebugView.js";import{CONTINUE_ID as et,CONTINUE_LABEL as tt,DISCONNECT_ID as pe,DISCONNECT_LABEL as rt,PAUSE_ID as at,PAUSE_LABEL as st,RESTART_LABEL as nt,RESTART_SESSION_ID as it,STEP_INTO_ID as ot,STEP_INTO_LABEL as lt,STEP_OUT_ID as ct,STEP_OUT_LABEL as dt,STEP_OVER_ID as pt,STEP_OVER_LABEL as ut,STOP_ID as ue,STOP_LABEL as mt}from"./debugCommands.js";import*as f from"./debugIcons.js";import{createDisconnectMenuItemAction as St}from"./debugToolBar.js";const m=p.$;function me(n,e){return e.sessionId=n.getId(),e}function Se(n,e){return e.threadId=n.getId(),me(n.session,e),e}function ht(n,e){return e.frameId=n.getId(),e.frameName=n.name,e.frameLocation={range:n.range,source:n.source.raw},Se(n.thread,e),e}function Z(n){return n instanceof b?ht(n,{}):n instanceof T?Se(n,{}):h(n)?me(n,{}):void 0}function ee(n){return n instanceof b?n.source.inMemory?n.source.raw.path||n.source.reference||n.source.name:n.source.uri.toString():n instanceof T?n.threadId:h(n)?n.getId():""}function he(n){let e=n.thread.getStaleCallStack();e=e.length>0?e:n.thread.getCallStack();const r=e.map(s=>s.source).filter(s=>s!==n.source);let t=0;if(r.forEach(s=>{s.name===n.source.name&&(t=Math.max(t,Ae(n.source.uri.path,s.uri.path)))}),t===0)return n.source.name;const a=Math.max(0,n.source.uri.path.lastIndexOf(ke.sep,n.source.uri.path.length-t-1));return(a>0?"...":"")+n.source.uri.path.substring(a)}async function te(n,e){n.parentSession&&await te(n.parentSession,e),await e.expand(n)}let K=class extends $e{constructor(r,t,a,s,i,o,l,u,c,g,x,$,Tt){super(r,s,t,l,u,o,i,c,g,x,$);this.options=r;this.debugService=a;this.menuService=Tt;this.onCallStackChangeScheduler=this._register(new ye(async()=>{const I=this.debugService.getModel().getSessions();I.length===0&&this.autoExpandedSessions.clear();const fe=I.length===1&&I[0].getAllThreads().length===1?I[0].getAllThreads()[0]:void 0,_=I.length===1?I[0].getStoppedDetails():void 0;_&&(fe||typeof _.threadId!="number")?(this.stateMessageLabel.textContent=U(_),this.stateMessageLabelHover.update(re(_)),this.stateMessageLabel.classList.toggle("exception",_.reason==="exception"),this.stateMessage.hidden=!1):I.length===1&&I[0].state===V.Running?(this.stateMessageLabel.textContent=S({key:"running",comment:["indicates state"]},"Running"),this.stateMessageLabelHover.update(I[0].getLabel()),this.stateMessageLabel.classList.remove("exception"),this.stateMessage.hidden=!1):this.stateMessage.hidden=!0,this.updateActions(),this.needsRefresh=!1,this.dataSource.deemphasizedStackFramesToShow=[],await this.tree.updateChildren();try{const W=new Set;I.forEach(F=>{F.parentSession&&!this.autoExpandedSessions.has(F.parentSession)&&W.add(F.parentSession)});for(const F of W)await te(F,this.tree),this.autoExpandedSessions.add(F)}catch{}this.selectionNeedsUpdate&&(this.selectionNeedsUpdate=!1,await this.updateTreeSelection())},50))}stateMessage;stateMessageLabel;stateMessageLabelHover;onCallStackChangeScheduler;needsRefresh=!1;ignoreSelectionChangedEvent=!1;ignoreFocusStackFrameEvent=!1;dataSource;tree;autoExpandedSessions=new Set;selectionNeedsUpdate=!1;renderHeaderTitle(r){super.renderHeaderTitle(r,this.options.title),this.stateMessage=p.append(r,m("span.call-stack-state-message")),this.stateMessage.hidden=!0,this.stateMessageLabel=p.append(this.stateMessage,m("span.label")),this.stateMessageLabelHover=this._register(this.hoverService.setupManagedHover(O("mouse"),this.stateMessage,""))}renderBody(r){super.renderBody(r),this.element.classList.add("debug-pane"),r.classList.add("debug-call-stack");const t=Ze(r);this.dataSource=new bt(this.debugService),this.tree=this.instantiationService.createInstance(Pe,"CallStackView",t,new It,new vt(this.debugService),[this.instantiationService.createInstance(y),this.instantiationService.createInstance(C),this.instantiationService.createInstance(L),this.instantiationService.createInstance(E),new w,new j],this.dataSource,{accessibilityProvider:new ft,compressionEnabled:!0,autoExpandSingleChildren:!0,identityProvider:{getId:s=>typeof s=="string"?s:s instanceof Array?`showMore ${s[0].getId()}`:s.getId()},keyboardNavigationLabelProvider:{getKeyboardNavigationLabel:s=>h(s)?s.getLabel():s instanceof T?`${s.name} ${s.stateLabel}`:s instanceof b||typeof s=="string"?s:s instanceof B?w.LABEL:S("showMoreStackFrames2","Show More Stack Frames"),getCompressedNodeKeyboardNavigationLabel:s=>{const i=s[0];return h(i)?i.getLabel():""}},expandOnlyOnTwistieClick:!0,overrideStyles:this.getLocationBasedColors().listOverrideStyles}),this.tree.setInput(this.debugService.getModel()),this._register(this.tree),this._register(this.tree.onDidOpen(async s=>{if(this.ignoreSelectionChangedEvent)return;const i=(l,u,c,g={})=>{this.ignoreFocusStackFrameEvent=!0;try{this.debugService.focusStackFrame(l,u,c,{...g,explicit:!0})}finally{this.ignoreFocusStackFrameEvent=!1}},o=s.element;if(o instanceof b){const l={preserveFocus:s.editorOptions.preserveFocus,sideBySide:s.sideBySide,pinned:s.editorOptions.pinned};i(o,o.thread,o.thread.session,l)}if(o instanceof T&&i(void 0,o,o.session),h(o)&&i(void 0,void 0,o),o instanceof B){const l=this.debugService.getModel().getSession(o.sessionId),u=l&&l.getThread(o.threadId);if(u){const c=u.stoppedDetails?.totalFrames,g=typeof c=="number"?c-u.getCallStack().length:void 0;await u.fetchCallStack(g),await this.tree.updateChildren()}}o instanceof Array&&(this.dataSource.deemphasizedStackFramesToShow.push(...o),this.tree.updateChildren())})),this._register(this.debugService.getModel().onDidChangeCallStack(()=>{if(!this.isBodyVisible()){this.needsRefresh=!0;return}this.onCallStackChangeScheduler.isScheduled()||this.onCallStackChangeScheduler.schedule()}));const a=Le.any(this.debugService.getViewModel().onDidFocusStackFrame,this.debugService.getViewModel().onDidFocusSession);this._register(a(async()=>{if(!this.ignoreFocusStackFrameEvent){if(!this.isBodyVisible()){this.needsRefresh=!0,this.selectionNeedsUpdate=!0;return}if(this.onCallStackChangeScheduler.isScheduled()){this.selectionNeedsUpdate=!0;return}await this.updateTreeSelection()}})),this._register(this.tree.onContextMenu(s=>this.onContextMenu(s))),this.debugService.state===V.Stopped&&this.onCallStackChangeScheduler.schedule(0),this._register(this.onDidChangeBodyVisibility(s=>{s&&this.needsRefresh&&this.onCallStackChangeScheduler.schedule()})),this._register(this.debugService.onDidNewSession(s=>{const i=[];i.push(s.onDidChangeName(()=>{this.tree.hasNode(s)&&this.tree.rerender(s)})),i.push(s.onDidEndAdapter(()=>Ee(i))),s.parentSession&&this.autoExpandedSessions.delete(s.parentSession)}))}layoutBody(r,t){super.layoutBody(r,t),this.tree.layout(r,t)}focus(){super.focus(),this.tree.domFocus()}collapseAll(){this.tree.collapseAll()}async updateTreeSelection(){if(!this.tree||!this.tree.getInput())return;const r=i=>{this.ignoreSelectionChangedEvent=!0;try{this.tree.setSelection([i]),this.tree.getRelativeTop(i)===null?this.tree.reveal(i,.5):this.tree.reveal(i)}catch{}finally{this.ignoreSelectionChangedEvent=!1}},t=this.debugService.getViewModel().focusedThread,a=this.debugService.getViewModel().focusedSession,s=this.debugService.getViewModel().focusedStackFrame;if(t){try{await te(t.session,this.tree)}catch{}try{await this.tree.expand(t)}catch{}const i=s||a;i&&r(i)}else a?r(a):this.tree.setSelection([])}onContextMenu(r){const t=r.element;let a=[];h(t)?a=ge(t):t instanceof T?a=Ie(t):t instanceof b&&(a=gt(t));const o={primary:[],secondary:[]},l=this.contextKeyService.createOverlay(a),u=this.menuService.getMenuActions(H.DebugCallStackContext,l,{arg:ee(t),shouldForwardArgs:!0});xe(u,o,"inline"),this.contextMenuService.showContextMenu({getAnchor:()=>r.anchor,getActions:()=>o.secondary,getActionsContext:()=>Z(t)})}};K=N([d(1,He),d(2,Ye),d(3,ze),d(4,ie),d(5,We),d(6,Oe),d(7,Y),d(8,Ve),d(9,Ue),d(10,Ke),d(11,z),d(12,G)],K);function ge(n){return[[v.key,"session"],[J.key,Qe(n)],[M.key,n.state===V.Stopped],[de.key,n.getAllThreads().length===1]]}let y=class{constructor(e,r,t,a){this.instantiationService=e;this.contextKeyService=r;this.hoverService=t;this.menuService=a}static ID="session";get templateId(){return y.ID}renderTemplate(e){const r=p.append(e,m(".session"));p.append(r,m(ae.asCSSSelector(f.callstackViewSession)));const t=p.append(r,m(".name")),a=p.append(r,m("span.state.label.monaco-count-badge.long")),s=new k,i=s.add(new X(t)),o=s.add(new k),l=s.add(new q(r,{actionViewItemProvider:(c,g)=>{if((c.id===ue||c.id===pe)&&c instanceof ne){o.clear();const x=this.instantiationService.invokeFunction($=>St(c,o,$,{...g,menuAsChild:!1}));if(x)return x}if(c instanceof ne)return this.instantiationService.createInstance(Me,c,{hoverDelegate:g.hoverDelegate});if(c instanceof Ne)return this.instantiationService.createInstance(we,c,{hoverDelegate:g.hoverDelegate})}})),u=s.add(new k);return{session:r,name:t,stateLabel:a,label:i,actionBar:l,elementDisposable:u,templateDisposable:s}}renderElement(e,r,t){this.doRenderElement(e.element,R(e.filterData),t)}renderCompressedElements(e,r,t){const a=e.element.elements[e.element.elements.length-1],s=R(e.filterData);this.doRenderElement(a,s,t)}doRenderElement(e,r,t){const a=t.elementDisposable.add(this.hoverService.setupManagedHover(O("mouse"),t.session,S({key:"session",comment:["Session is a noun"]},"Session")));t.label.set(e.getLabel(),r);const s=e.getStoppedDetails(),i=e.getAllThreads().find(c=>c.stopped),o=this.contextKeyService.createOverlay(ge(e)),l=t.elementDisposable.add(this.menuService.createMenu(H.DebugCallStackContext,o)),u=()=>{t.actionBar.clear();const c=[],x={primary:c,secondary:[]};se(l,{arg:ee(e),shouldForwardArgs:!0},x,"inline"),t.actionBar.push(c,{icon:!0,label:!1}),t.actionBar.context=Z(e)};t.elementDisposable.add(l.onDidChange(()=>u())),u(),t.stateLabel.style.display="",s?(t.stateLabel.textContent=U(s),a.update(`${e.getLabel()}: ${re(s)}`),t.stateLabel.classList.toggle("exception",s.reason==="exception")):i&&i.stoppedDetails?(t.stateLabel.textContent=U(i.stoppedDetails),a.update(`${e.getLabel()}: ${re(i.stoppedDetails)}`),t.stateLabel.classList.toggle("exception",i.stoppedDetails.reason==="exception")):(t.stateLabel.textContent=S({key:"running",comment:["indicates state"]},"Running"),t.stateLabel.classList.remove("exception"))}disposeTemplate(e){e.templateDisposable.dispose()}disposeElement(e,r,t){t.elementDisposable.clear()}disposeCompressedElements(e,r,t,a){t.elementDisposable.clear()}};y=N([d(0,ie),d(1,Y),d(2,z),d(3,G)],y);function Ie(n){return[[v.key,"thread"],[M.key,n.stopped]]}let C=class{constructor(e,r,t){this.contextKeyService=e;this.hoverService=r;this.menuService=t}static ID="thread";get templateId(){return C.ID}renderTemplate(e){const r=p.append(e,m(".thread")),t=p.append(r,m(".name")),a=p.append(r,m("span.state.label.monaco-count-badge.long")),s=new k,i=s.add(new X(t)),o=s.add(new q(r)),l=s.add(new k);return{thread:r,name:t,stateLabel:a,label:i,actionBar:o,elementDisposable:l,templateDisposable:s}}renderElement(e,r,t){const a=e.element;t.elementDisposable.add(this.hoverService.setupManagedHover(O("mouse"),t.thread,a.name)),t.label.set(a.name,R(e.filterData)),t.stateLabel.textContent=a.stateLabel,t.stateLabel.classList.toggle("exception",a.stoppedDetails?.reason==="exception");const s=this.contextKeyService.createOverlay(Ie(a)),i=t.elementDisposable.add(this.menuService.createMenu(H.DebugCallStackContext,s)),o=()=>{t.actionBar.clear();const l=[],c={primary:l,secondary:[]};se(i,{arg:ee(a),shouldForwardArgs:!0},c,"inline"),t.actionBar.push(l,{icon:!0,label:!1}),t.actionBar.context=Z(a)};t.elementDisposable.add(i.onDidChange(()=>o())),o()}renderCompressedElements(e,r,t,a){throw new Error("Method not implemented.")}disposeElement(e,r,t){t.elementDisposable.clear()}disposeTemplate(e){e.templateDisposable.dispose()}};C=N([d(0,Y),d(1,z),d(2,G)],C);function gt(n){return[[v.key,"stackFrame"],[Ge.key,n.canRestart]]}let L=class{constructor(e,r,t){this.hoverService=e;this.labelService=r;this.notificationService=t}static ID="stackFrame";get templateId(){return L.ID}renderTemplate(e){const r=p.append(e,m(".stack-frame")),t=p.append(r,m("span.label.expression")),a=p.append(r,m(".file")),s=p.append(a,m("span.file-name")),i=p.append(a,m("span.line-number-wrapper")),o=p.append(i,m("span.line-number.monaco-count-badge")),l=new k,u=l.add(new X(t)),c=l.add(new q(r));return{file:a,fileName:s,label:u,lineNumber:o,stackFrame:r,actionBar:c,templateDisposable:l}}renderElement(e,r,t){const a=e.element;t.stackFrame.classList.toggle("disabled",!a.source||!a.source.available||Q(a)),t.stackFrame.classList.toggle("label",a.presentationHint==="label");const s=!!a.thread.session.capabilities.supportsRestartFrame&&a.presentationHint!=="label"&&a.presentationHint!=="subtle"&&a.canRestart;t.stackFrame.classList.toggle("has-actions",s);let i=a.source.inMemory?a.source.uri.path:this.labelService.getUriLabel(a.source.uri);if(a.source.raw.origin&&(i+=`
-${a.source.raw.origin}`),t.templateDisposable.add(this.hoverService.setupManagedHover(O("mouse"),t.file,i)),t.label.set(a.name,R(e.filterData),a.name),t.fileName.textContent=he(a),a.range.startLineNumber!==void 0?(t.lineNumber.textContent=`${a.range.startLineNumber}`,a.range.startColumn&&(t.lineNumber.textContent+=`:${a.range.startColumn}`),t.lineNumber.classList.remove("unavailable")):t.lineNumber.classList.add("unavailable"),t.actionBar.clear(),s){const o=new De("debug.callStack.restartFrame",S("restartFrame","Restart Frame"),ae.asClassName(f.debugRestartFrame),!0,async()=>{try{await a.restart()}catch(l){this.notificationService.error(l)}});t.actionBar.push(o,{icon:!0,label:!1})}}renderCompressedElements(e,r,t,a){throw new Error("Method not implemented.")}disposeTemplate(e){e.actionBar.dispose()}};L=N([d(0,z),d(1,Be),d(2,Re)],L);let E=class{constructor(e){this.hoverService=e}static ID="error";get templateId(){return E.ID}renderTemplate(e){return{label:p.append(e,m(".error")),templateDisposable:new k}}renderElement(e,r,t){const a=e.element;t.label.textContent=a,t.templateDisposable.add(this.hoverService.setupManagedHover(O("mouse"),t.label,a))}renderCompressedElements(e,r,t,a){throw new Error("Method not implemented.")}disposeTemplate(e){}};E=N([d(0,z)],E);class w{static ID="loadMore";static LABEL=S("loadAllStackFrames","Load More Stack Frames");constructor(){}get templateId(){return w.ID}renderTemplate(e){const r=p.append(e,m(".load-all"));return r.style.color=oe(le),{label:r}}renderElement(e,r,t){t.label.textContent=w.LABEL}renderCompressedElements(e,r,t,a){throw new Error("Method not implemented.")}disposeTemplate(e){}}class j{static ID="showMore";constructor(){}get templateId(){return j.ID}renderTemplate(e){const r=p.append(e,m(".show-more"));return r.style.color=oe(le),{label:r}}renderElement(e,r,t){const a=e.element;a.every(s=>!!(s.source&&s.source.origin&&s.source.origin===a[0].source.origin))?t.label.textContent=S("showMoreAndOrigin","Show {0} More: {1}",a.length,a[0].source.origin):t.label.textContent=S("showMoreStackFrames","Show {0} More Stack Frames",a.length)}renderCompressedElements(e,r,t,a){throw new Error("Method not implemented.")}disposeTemplate(e){}}class It{getHeight(e){return e instanceof b&&e.presentationHint==="label"||e instanceof B||e instanceof Array?16:22}getTemplateId(e){return h(e)?y.ID:e instanceof T?C.ID:e instanceof b?L.ID:typeof e=="string"?E.ID:e instanceof B?w.ID:j.ID}}function re(n){return n.text??U(n)}function U(n){return n.description||(n.reason?S({key:"pausedOn",comment:["indicates reason for program being paused"]},"Paused on {0}",n.reason):S("paused","Paused"))}function be(n){return typeof n.getSessions=="function"}function h(n){return n&&typeof n.getAllThreads=="function"}class bt{constructor(e){this.debugService=e}deemphasizedStackFramesToShow=[];hasChildren(e){if(h(e)){const r=e.getAllThreads();return r.length>1||r.length===1&&r[0].stopped||!!this.debugService.getModel().getSessions().find(t=>t.parentSession===e)}return be(e)||e instanceof T&&e.stopped}async getChildren(e){if(be(e)){const r=e.getSessions();if(r.length===0)return Promise.resolve([]);if(r.length>1||this.debugService.getViewModel().isMultiSessionView())return Promise.resolve(r.filter(a=>!a.parentSession));const t=r[0].getAllThreads();return t.length===1?this.getThreadChildren(t[0]):Promise.resolve(t)}else if(h(e)){const r=this.debugService.getModel().getSessions().filter(a=>a.parentSession===e),t=e.getAllThreads();return t.length===1?(await this.getThreadChildren(t[0])).concat(r):Promise.resolve(t.concat(r))}else return this.getThreadChildren(e)}getThreadChildren(e){return this.getThreadCallstack(e).then(r=>{const t=[];return r.forEach((a,s)=>{if(a instanceof b&&a.source&&Q(a)&&this.deemphasizedStackFramesToShow.indexOf(a)===-1){if(t.length){const o=t[t.length-1];if(o instanceof Array){o.push(a);return}}const i=s<r.length-1?r[s+1]:void 0;if(i instanceof b&&i.source&&Q(i)){t.push([a]);return}}t.push(a)}),t})}async getThreadCallstack(e){let r=e.getCallStack();return(!r||!r.length)&&(await e.fetchCallStack(),r=e.getCallStack()),r.length===1&&e.session.capabilities.supportsDelayedStackTraceLoading&&e.stoppedDetails&&e.stoppedDetails.totalFrames&&e.stoppedDetails.totalFrames>1&&(r=r.concat(e.getStaleCallStack().slice(1))),e.stoppedDetails&&e.stoppedDetails.framesErrorMessage&&(r=r.concat([e.stoppedDetails.framesErrorMessage])),!e.reachedEndOfCallStack&&e.stoppedDetails&&(r=r.concat([new B(e.session.getId(),e.threadId)])),r}}class ft{getWidgetAriaLabel(){return S({comment:["Debug is a noun in this context, not a verb."],key:"callStackAriaLabel"},"Debug Call Stack")}getWidgetRole(){return"treegrid"}getRole(e){return"row"}getAriaLabel(e){if(e instanceof T)return S({key:"threadAriaLabel",comment:['Placeholders stand for the thread name and the thread state.For example "Thread 1" and "Stopped']},"Thread {0} {1}",e.name,e.stateLabel);if(e instanceof b)return S("stackFrameAriaLabel","Stack Frame {0}, line {1}, {2}",e.name,e.range.startLineNumber,he(e));if(h(e)){const r=e.getAllThreads().find(a=>a.stopped),t=r?r.stateLabel:S({key:"running",comment:["indicates state"]},"Running");return S({key:"sessionLabel",comment:['Placeholders stand for the session name and the session state. For example "Launch Program" and "Running"']},"Session {0} {1}",e.getLabel(),t)}return typeof e=="string"?e:e instanceof Array?S("showMoreStackFrames","Show {0} More Stack Frames",e.length):w.LABEL}}class vt{constructor(e){this.debugService=e}isIncompressible(e){return h(e)?!(e.compact||this.debugService.getModel().getSessions().some(t=>t.parentSession===e&&t.compact)):!0}}_e(class extends je{constructor(){super({id:"callStack.collapse",viewId:ce,title:S("collapse","Collapse All"),f1:!1,icon:Ce.collapseAll,precondition:qe.isEqualTo(Je(V.Stopped)),menu:{id:H.ViewTitle,order:10,group:"navigation",when:A.equals("view",ce)}})}runInView(e,r){r.collapseAll()}});function D(n,e,r,t,a,s){Fe.appendMenuItem(H.DebugCallStackContext,{group:"inline",order:a,when:t,command:{id:n,title:e,icon:r,precondition:s}})}const P=A.or(v.isEqualTo("thread"),A.and(v.isEqualTo("session"),de));D(at,st,f.debugPause,A.and(P,M.toNegated()),10,Xe.toNegated()),D(et,tt,f.debugContinue,A.and(P,M),10),D(pt,ut,f.debugStepOver,P,20,M),D(ot,lt,f.debugStepInto,P,30,M),D(ct,dt,f.debugStepOut,P,40,M),D(it,nt,f.debugRestart,v.isEqualTo("session"),50),D(ue,mt,f.debugStop,A.and(J.toNegated(),v.isEqualTo("session")),60),D(pe,rt,f.debugDisconnect,A.and(J,v.isEqualTo("session")),60);export{K as CallStackView,Z as getContext,ee as getContextForContributedActions,he as getSpecificSourceName};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../base/browser/dom.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { HighlightedLabel } from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { Action } from "../../../../base/common/actions.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Event } from "../../../../base/common/event.js";
+import {
+  createMatches
+} from "../../../../base/common/filters.js";
+import {
+  DisposableStore,
+  dispose
+} from "../../../../base/common/lifecycle.js";
+import { posix } from "../../../../base/common/path.js";
+import { commonSuffixLength } from "../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { localize } from "../../../../nls.js";
+import {
+  MenuEntryActionViewItem,
+  SubmenuEntryActionViewItem,
+  createAndFillInActionBarActions,
+  createAndFillInContextMenuActions
+} from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import {
+  IMenuService,
+  MenuId,
+  MenuItemAction,
+  MenuRegistry,
+  SubmenuItemAction,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  ContextKeyExpr,
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import {
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { WorkbenchCompressibleAsyncDataTree } from "../../../../platform/list/browser/listService.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import {
+  asCssVariable,
+  textLinkForeground
+} from "../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ViewAction, ViewPane } from "../../../browser/parts/views/viewPane.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import {
+  CALLSTACK_VIEW_ID,
+  CONTEXT_CALLSTACK_ITEM_STOPPED,
+  CONTEXT_CALLSTACK_ITEM_TYPE,
+  CONTEXT_CALLSTACK_SESSION_HAS_ONE_THREAD,
+  CONTEXT_CALLSTACK_SESSION_IS_ATTACH,
+  CONTEXT_DEBUG_STATE,
+  CONTEXT_FOCUSED_SESSION_IS_NO_DEBUG,
+  CONTEXT_STACK_FRAME_SUPPORTS_RESTART,
+  IDebugService,
+  State,
+  getStateLabel,
+  isFrameDeemphasized
+} from "../common/debug.js";
+import {
+  StackFrame,
+  Thread,
+  ThreadAndSessionIds
+} from "../common/debugModel.js";
+import { isSessionAttach } from "../common/debugUtils.js";
+import { renderViewTree } from "./baseDebugView.js";
+import {
+  CONTINUE_ID,
+  CONTINUE_LABEL,
+  DISCONNECT_ID,
+  DISCONNECT_LABEL,
+  PAUSE_ID,
+  PAUSE_LABEL,
+  RESTART_LABEL,
+  RESTART_SESSION_ID,
+  STEP_INTO_ID,
+  STEP_INTO_LABEL,
+  STEP_OUT_ID,
+  STEP_OUT_LABEL,
+  STEP_OVER_ID,
+  STEP_OVER_LABEL,
+  STOP_ID,
+  STOP_LABEL
+} from "./debugCommands.js";
+import * as icons from "./debugIcons.js";
+import { createDisconnectMenuItemAction } from "./debugToolBar.js";
+const $ = dom.$;
+function assignSessionContext(element, context) {
+  context.sessionId = element.getId();
+  return context;
+}
+__name(assignSessionContext, "assignSessionContext");
+function assignThreadContext(element, context) {
+  context.threadId = element.getId();
+  assignSessionContext(element.session, context);
+  return context;
+}
+__name(assignThreadContext, "assignThreadContext");
+function assignStackFrameContext(element, context) {
+  context.frameId = element.getId();
+  context.frameName = element.name;
+  context.frameLocation = {
+    range: element.range,
+    source: element.source.raw
+  };
+  assignThreadContext(element.thread, context);
+  return context;
+}
+__name(assignStackFrameContext, "assignStackFrameContext");
+function getContext(element) {
+  if (element instanceof StackFrame) {
+    return assignStackFrameContext(element, {});
+  } else if (element instanceof Thread) {
+    return assignThreadContext(element, {});
+  } else if (isDebugSession(element)) {
+    return assignSessionContext(element, {});
+  } else {
+    return void 0;
+  }
+}
+__name(getContext, "getContext");
+function getContextForContributedActions(element) {
+  if (element instanceof StackFrame) {
+    if (element.source.inMemory) {
+      return element.source.raw.path || element.source.reference || element.source.name;
+    }
+    return element.source.uri.toString();
+  }
+  if (element instanceof Thread) {
+    return element.threadId;
+  }
+  if (isDebugSession(element)) {
+    return element.getId();
+  }
+  return "";
+}
+__name(getContextForContributedActions, "getContextForContributedActions");
+function getSpecificSourceName(stackFrame) {
+  let callStack = stackFrame.thread.getStaleCallStack();
+  callStack = callStack.length > 0 ? callStack : stackFrame.thread.getCallStack();
+  const otherSources = callStack.map((sf) => sf.source).filter((s) => s !== stackFrame.source);
+  let suffixLength = 0;
+  otherSources.forEach((s) => {
+    if (s.name === stackFrame.source.name) {
+      suffixLength = Math.max(
+        suffixLength,
+        commonSuffixLength(stackFrame.source.uri.path, s.uri.path)
+      );
+    }
+  });
+  if (suffixLength === 0) {
+    return stackFrame.source.name;
+  }
+  const from = Math.max(
+    0,
+    stackFrame.source.uri.path.lastIndexOf(
+      posix.sep,
+      stackFrame.source.uri.path.length - suffixLength - 1
+    )
+  );
+  return (from > 0 ? "..." : "") + stackFrame.source.uri.path.substring(from);
+}
+__name(getSpecificSourceName, "getSpecificSourceName");
+async function expandTo(session, tree) {
+  if (session.parentSession) {
+    await expandTo(session.parentSession, tree);
+  }
+  await tree.expand(session);
+}
+__name(expandTo, "expandTo");
+let CallStackView = class extends ViewPane {
+  constructor(options, contextMenuService, debugService, keybindingService, instantiationService, viewDescriptorService, configurationService, contextKeyService, openerService, themeService, telemetryService, hoverService, menuService) {
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    this.options = options;
+    this.debugService = debugService;
+    this.menuService = menuService;
+    this.onCallStackChangeScheduler = this._register(new RunOnceScheduler(async () => {
+      const sessions = this.debugService.getModel().getSessions();
+      if (sessions.length === 0) {
+        this.autoExpandedSessions.clear();
+      }
+      const thread = sessions.length === 1 && sessions[0].getAllThreads().length === 1 ? sessions[0].getAllThreads()[0] : void 0;
+      const stoppedDetails = sessions.length === 1 ? sessions[0].getStoppedDetails() : void 0;
+      if (stoppedDetails && (thread || typeof stoppedDetails.threadId !== "number")) {
+        this.stateMessageLabel.textContent = stoppedDescription(stoppedDetails);
+        this.stateMessageLabelHover.update(stoppedText(stoppedDetails));
+        this.stateMessageLabel.classList.toggle("exception", stoppedDetails.reason === "exception");
+        this.stateMessage.hidden = false;
+      } else if (sessions.length === 1 && sessions[0].state === State.Running) {
+        this.stateMessageLabel.textContent = localize({ key: "running", comment: ["indicates state"] }, "Running");
+        this.stateMessageLabelHover.update(sessions[0].getLabel());
+        this.stateMessageLabel.classList.remove("exception");
+        this.stateMessage.hidden = false;
+      } else {
+        this.stateMessage.hidden = true;
+      }
+      this.updateActions();
+      this.needsRefresh = false;
+      this.dataSource.deemphasizedStackFramesToShow = [];
+      await this.tree.updateChildren();
+      try {
+        const toExpand = /* @__PURE__ */ new Set();
+        sessions.forEach((s) => {
+          if (s.parentSession && !this.autoExpandedSessions.has(s.parentSession)) {
+            toExpand.add(s.parentSession);
+          }
+        });
+        for (const session of toExpand) {
+          await expandTo(session, this.tree);
+          this.autoExpandedSessions.add(session);
+        }
+      } catch (e) {
+      }
+      if (this.selectionNeedsUpdate) {
+        this.selectionNeedsUpdate = false;
+        await this.updateTreeSelection();
+      }
+    }, 50));
+  }
+  static {
+    __name(this, "CallStackView");
+  }
+  stateMessage;
+  stateMessageLabel;
+  stateMessageLabelHover;
+  onCallStackChangeScheduler;
+  needsRefresh = false;
+  ignoreSelectionChangedEvent = false;
+  ignoreFocusStackFrameEvent = false;
+  dataSource;
+  tree;
+  autoExpandedSessions = /* @__PURE__ */ new Set();
+  selectionNeedsUpdate = false;
+  renderHeaderTitle(container) {
+    super.renderHeaderTitle(container, this.options.title);
+    this.stateMessage = dom.append(
+      container,
+      $("span.call-stack-state-message")
+    );
+    this.stateMessage.hidden = true;
+    this.stateMessageLabel = dom.append(this.stateMessage, $("span.label"));
+    this.stateMessageLabelHover = this._register(
+      this.hoverService.setupManagedHover(
+        getDefaultHoverDelegate("mouse"),
+        this.stateMessage,
+        ""
+      )
+    );
+  }
+  renderBody(container) {
+    super.renderBody(container);
+    this.element.classList.add("debug-pane");
+    container.classList.add("debug-call-stack");
+    const treeContainer = renderViewTree(container);
+    this.dataSource = new CallStackDataSource(this.debugService);
+    this.tree = this.instantiationService.createInstance(
+      WorkbenchCompressibleAsyncDataTree,
+      "CallStackView",
+      treeContainer,
+      new CallStackDelegate(),
+      new CallStackCompressionDelegate(this.debugService),
+      [
+        this.instantiationService.createInstance(SessionsRenderer),
+        this.instantiationService.createInstance(ThreadsRenderer),
+        this.instantiationService.createInstance(StackFramesRenderer),
+        this.instantiationService.createInstance(ErrorsRenderer),
+        new LoadMoreRenderer(),
+        new ShowMoreRenderer()
+      ],
+      this.dataSource,
+      {
+        accessibilityProvider: new CallStackAccessibilityProvider(),
+        compressionEnabled: true,
+        autoExpandSingleChildren: true,
+        identityProvider: {
+          getId: /* @__PURE__ */ __name((element) => {
+            if (typeof element === "string") {
+              return element;
+            }
+            if (element instanceof Array) {
+              return `showMore ${element[0].getId()}`;
+            }
+            return element.getId();
+          }, "getId")
+        },
+        keyboardNavigationLabelProvider: {
+          getKeyboardNavigationLabel: /* @__PURE__ */ __name((e) => {
+            if (isDebugSession(e)) {
+              return e.getLabel();
+            }
+            if (e instanceof Thread) {
+              return `${e.name} ${e.stateLabel}`;
+            }
+            if (e instanceof StackFrame || typeof e === "string") {
+              return e;
+            }
+            if (e instanceof ThreadAndSessionIds) {
+              return LoadMoreRenderer.LABEL;
+            }
+            return localize(
+              "showMoreStackFrames2",
+              "Show More Stack Frames"
+            );
+          }, "getKeyboardNavigationLabel"),
+          getCompressedNodeKeyboardNavigationLabel: /* @__PURE__ */ __name((e) => {
+            const firstItem = e[0];
+            if (isDebugSession(firstItem)) {
+              return firstItem.getLabel();
+            }
+            return "";
+          }, "getCompressedNodeKeyboardNavigationLabel")
+        },
+        expandOnlyOnTwistieClick: true,
+        overrideStyles: this.getLocationBasedColors().listOverrideStyles
+      }
+    );
+    this.tree.setInput(this.debugService.getModel());
+    this._register(this.tree);
+    this._register(
+      this.tree.onDidOpen(async (e) => {
+        if (this.ignoreSelectionChangedEvent) {
+          return;
+        }
+        const focusStackFrame = /* @__PURE__ */ __name((stackFrame, thread, session, options = {}) => {
+          this.ignoreFocusStackFrameEvent = true;
+          try {
+            this.debugService.focusStackFrame(
+              stackFrame,
+              thread,
+              session,
+              { ...options, ...{ explicit: true } }
+            );
+          } finally {
+            this.ignoreFocusStackFrameEvent = false;
+          }
+        }, "focusStackFrame");
+        const element = e.element;
+        if (element instanceof StackFrame) {
+          const opts = {
+            preserveFocus: e.editorOptions.preserveFocus,
+            sideBySide: e.sideBySide,
+            pinned: e.editorOptions.pinned
+          };
+          focusStackFrame(
+            element,
+            element.thread,
+            element.thread.session,
+            opts
+          );
+        }
+        if (element instanceof Thread) {
+          focusStackFrame(void 0, element, element.session);
+        }
+        if (isDebugSession(element)) {
+          focusStackFrame(void 0, void 0, element);
+        }
+        if (element instanceof ThreadAndSessionIds) {
+          const session = this.debugService.getModel().getSession(element.sessionId);
+          const thread = session && session.getThread(element.threadId);
+          if (thread) {
+            const totalFrames = thread.stoppedDetails?.totalFrames;
+            const remainingFramesCount = typeof totalFrames === "number" ? totalFrames - thread.getCallStack().length : void 0;
+            await thread.fetchCallStack(
+              remainingFramesCount
+            );
+            await this.tree.updateChildren();
+          }
+        }
+        if (element instanceof Array) {
+          this.dataSource.deemphasizedStackFramesToShow.push(
+            ...element
+          );
+          this.tree.updateChildren();
+        }
+      })
+    );
+    this._register(
+      this.debugService.getModel().onDidChangeCallStack(() => {
+        if (!this.isBodyVisible()) {
+          this.needsRefresh = true;
+          return;
+        }
+        if (!this.onCallStackChangeScheduler.isScheduled()) {
+          this.onCallStackChangeScheduler.schedule();
+        }
+      })
+    );
+    const onFocusChange = Event.any(
+      this.debugService.getViewModel().onDidFocusStackFrame,
+      this.debugService.getViewModel().onDidFocusSession
+    );
+    this._register(
+      onFocusChange(async () => {
+        if (this.ignoreFocusStackFrameEvent) {
+          return;
+        }
+        if (!this.isBodyVisible()) {
+          this.needsRefresh = true;
+          this.selectionNeedsUpdate = true;
+          return;
+        }
+        if (this.onCallStackChangeScheduler.isScheduled()) {
+          this.selectionNeedsUpdate = true;
+          return;
+        }
+        await this.updateTreeSelection();
+      })
+    );
+    this._register(this.tree.onContextMenu((e) => this.onContextMenu(e)));
+    if (this.debugService.state === State.Stopped) {
+      this.onCallStackChangeScheduler.schedule(0);
+    }
+    this._register(
+      this.onDidChangeBodyVisibility((visible) => {
+        if (visible && this.needsRefresh) {
+          this.onCallStackChangeScheduler.schedule();
+        }
+      })
+    );
+    this._register(
+      this.debugService.onDidNewSession((s) => {
+        const sessionListeners = [];
+        sessionListeners.push(
+          s.onDidChangeName(() => {
+            if (this.tree.hasNode(s)) {
+              this.tree.rerender(s);
+            }
+          })
+        );
+        sessionListeners.push(
+          s.onDidEndAdapter(() => dispose(sessionListeners))
+        );
+        if (s.parentSession) {
+          this.autoExpandedSessions.delete(s.parentSession);
+        }
+      })
+    );
+  }
+  layoutBody(height, width) {
+    super.layoutBody(height, width);
+    this.tree.layout(height, width);
+  }
+  focus() {
+    super.focus();
+    this.tree.domFocus();
+  }
+  collapseAll() {
+    this.tree.collapseAll();
+  }
+  async updateTreeSelection() {
+    if (!this.tree || !this.tree.getInput()) {
+      return;
+    }
+    const updateSelectionAndReveal = /* @__PURE__ */ __name((element) => {
+      this.ignoreSelectionChangedEvent = true;
+      try {
+        this.tree.setSelection([element]);
+        if (this.tree.getRelativeTop(element) === null) {
+          this.tree.reveal(element, 0.5);
+        } else {
+          this.tree.reveal(element);
+        }
+      } catch (e) {
+      } finally {
+        this.ignoreSelectionChangedEvent = false;
+      }
+    }, "updateSelectionAndReveal");
+    const thread = this.debugService.getViewModel().focusedThread;
+    const session = this.debugService.getViewModel().focusedSession;
+    const stackFrame = this.debugService.getViewModel().focusedStackFrame;
+    if (thread) {
+      try {
+        await expandTo(thread.session, this.tree);
+      } catch (e) {
+      }
+      try {
+        await this.tree.expand(thread);
+      } catch (e) {
+      }
+      const toReveal = stackFrame || session;
+      if (toReveal) {
+        updateSelectionAndReveal(toReveal);
+      }
+    } else if (session) {
+      updateSelectionAndReveal(session);
+    } else {
+      this.tree.setSelection([]);
+    }
+  }
+  onContextMenu(e) {
+    const element = e.element;
+    let overlay = [];
+    if (isDebugSession(element)) {
+      overlay = getSessionContextOverlay(element);
+    } else if (element instanceof Thread) {
+      overlay = getThreadContextOverlay(element);
+    } else if (element instanceof StackFrame) {
+      overlay = getStackFrameContextOverlay(element);
+    }
+    const primary = [];
+    const secondary = [];
+    const result = { primary, secondary };
+    const contextKeyService = this.contextKeyService.createOverlay(overlay);
+    const menu = this.menuService.getMenuActions(
+      MenuId.DebugCallStackContext,
+      contextKeyService,
+      {
+        arg: getContextForContributedActions(element),
+        shouldForwardArgs: true
+      }
+    );
+    createAndFillInContextMenuActions(menu, result, "inline");
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => result.secondary, "getActions"),
+      getActionsContext: /* @__PURE__ */ __name(() => getContext(element), "getActionsContext")
+    });
+  }
+};
+CallStackView = __decorateClass([
+  __decorateParam(1, IContextMenuService),
+  __decorateParam(2, IDebugService),
+  __decorateParam(3, IKeybindingService),
+  __decorateParam(4, IInstantiationService),
+  __decorateParam(5, IViewDescriptorService),
+  __decorateParam(6, IConfigurationService),
+  __decorateParam(7, IContextKeyService),
+  __decorateParam(8, IOpenerService),
+  __decorateParam(9, IThemeService),
+  __decorateParam(10, ITelemetryService),
+  __decorateParam(11, IHoverService),
+  __decorateParam(12, IMenuService)
+], CallStackView);
+function getSessionContextOverlay(session) {
+  return [
+    [CONTEXT_CALLSTACK_ITEM_TYPE.key, "session"],
+    [CONTEXT_CALLSTACK_SESSION_IS_ATTACH.key, isSessionAttach(session)],
+    [CONTEXT_CALLSTACK_ITEM_STOPPED.key, session.state === State.Stopped],
+    [
+      CONTEXT_CALLSTACK_SESSION_HAS_ONE_THREAD.key,
+      session.getAllThreads().length === 1
+    ]
+  ];
+}
+__name(getSessionContextOverlay, "getSessionContextOverlay");
+let SessionsRenderer = class {
+  constructor(instantiationService, contextKeyService, hoverService, menuService) {
+    this.instantiationService = instantiationService;
+    this.contextKeyService = contextKeyService;
+    this.hoverService = hoverService;
+    this.menuService = menuService;
+  }
+  static {
+    __name(this, "SessionsRenderer");
+  }
+  static ID = "session";
+  get templateId() {
+    return SessionsRenderer.ID;
+  }
+  renderTemplate(container) {
+    const session = dom.append(container, $(".session"));
+    dom.append(
+      session,
+      $(ThemeIcon.asCSSSelector(icons.callstackViewSession))
+    );
+    const name = dom.append(session, $(".name"));
+    const stateLabel = dom.append(
+      session,
+      $("span.state.label.monaco-count-badge.long")
+    );
+    const templateDisposable = new DisposableStore();
+    const label = templateDisposable.add(new HighlightedLabel(name));
+    const stopActionViewItemDisposables = templateDisposable.add(
+      new DisposableStore()
+    );
+    const actionBar = templateDisposable.add(
+      new ActionBar(session, {
+        actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+          if ((action.id === STOP_ID || action.id === DISCONNECT_ID) && action instanceof MenuItemAction) {
+            stopActionViewItemDisposables.clear();
+            const item = this.instantiationService.invokeFunction(
+              (accessor) => createDisconnectMenuItemAction(
+                action,
+                stopActionViewItemDisposables,
+                accessor,
+                { ...options, menuAsChild: false }
+              )
+            );
+            if (item) {
+              return item;
+            }
+          }
+          if (action instanceof MenuItemAction) {
+            return this.instantiationService.createInstance(
+              MenuEntryActionViewItem,
+              action,
+              { hoverDelegate: options.hoverDelegate }
+            );
+          } else if (action instanceof SubmenuItemAction) {
+            return this.instantiationService.createInstance(
+              SubmenuEntryActionViewItem,
+              action,
+              { hoverDelegate: options.hoverDelegate }
+            );
+          }
+          return void 0;
+        }, "actionViewItemProvider")
+      })
+    );
+    const elementDisposable = templateDisposable.add(new DisposableStore());
+    return {
+      session,
+      name,
+      stateLabel,
+      label,
+      actionBar,
+      elementDisposable,
+      templateDisposable
+    };
+  }
+  renderElement(element, _, data) {
+    this.doRenderElement(
+      element.element,
+      createMatches(element.filterData),
+      data
+    );
+  }
+  renderCompressedElements(node, _index, templateData) {
+    const lastElement = node.element.elements[node.element.elements.length - 1];
+    const matches = createMatches(node.filterData);
+    this.doRenderElement(lastElement, matches, templateData);
+  }
+  doRenderElement(session, matches, data) {
+    const sessionHover = data.elementDisposable.add(
+      this.hoverService.setupManagedHover(
+        getDefaultHoverDelegate("mouse"),
+        data.session,
+        localize(
+          { key: "session", comment: ["Session is a noun"] },
+          "Session"
+        )
+      )
+    );
+    data.label.set(session.getLabel(), matches);
+    const stoppedDetails = session.getStoppedDetails();
+    const thread = session.getAllThreads().find((t) => t.stopped);
+    const contextKeyService = this.contextKeyService.createOverlay(
+      getSessionContextOverlay(session)
+    );
+    const menu = data.elementDisposable.add(
+      this.menuService.createMenu(
+        MenuId.DebugCallStackContext,
+        contextKeyService
+      )
+    );
+    const setupActionBar = /* @__PURE__ */ __name(() => {
+      data.actionBar.clear();
+      const primary = [];
+      const secondary = [];
+      const result = { primary, secondary };
+      createAndFillInActionBarActions(
+        menu,
+        {
+          arg: getContextForContributedActions(session),
+          shouldForwardArgs: true
+        },
+        result,
+        "inline"
+      );
+      data.actionBar.push(primary, { icon: true, label: false });
+      data.actionBar.context = getContext(session);
+    }, "setupActionBar");
+    data.elementDisposable.add(menu.onDidChange(() => setupActionBar()));
+    setupActionBar();
+    data.stateLabel.style.display = "";
+    if (stoppedDetails) {
+      data.stateLabel.textContent = stoppedDescription(stoppedDetails);
+      sessionHover.update(
+        `${session.getLabel()}: ${stoppedText(stoppedDetails)}`
+      );
+      data.stateLabel.classList.toggle(
+        "exception",
+        stoppedDetails.reason === "exception"
+      );
+    } else if (thread && thread.stoppedDetails) {
+      data.stateLabel.textContent = stoppedDescription(
+        thread.stoppedDetails
+      );
+      sessionHover.update(
+        `${session.getLabel()}: ${stoppedText(thread.stoppedDetails)}`
+      );
+      data.stateLabel.classList.toggle(
+        "exception",
+        thread.stoppedDetails.reason === "exception"
+      );
+    } else {
+      data.stateLabel.textContent = localize(
+        { key: "running", comment: ["indicates state"] },
+        "Running"
+      );
+      data.stateLabel.classList.remove("exception");
+    }
+  }
+  disposeTemplate(templateData) {
+    templateData.templateDisposable.dispose();
+  }
+  disposeElement(_element, _, templateData) {
+    templateData.elementDisposable.clear();
+  }
+  disposeCompressedElements(node, index, templateData, height) {
+    templateData.elementDisposable.clear();
+  }
+};
+SessionsRenderer = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, IContextKeyService),
+  __decorateParam(2, IHoverService),
+  __decorateParam(3, IMenuService)
+], SessionsRenderer);
+function getThreadContextOverlay(thread) {
+  return [
+    [CONTEXT_CALLSTACK_ITEM_TYPE.key, "thread"],
+    [CONTEXT_CALLSTACK_ITEM_STOPPED.key, thread.stopped]
+  ];
+}
+__name(getThreadContextOverlay, "getThreadContextOverlay");
+let ThreadsRenderer = class {
+  constructor(contextKeyService, hoverService, menuService) {
+    this.contextKeyService = contextKeyService;
+    this.hoverService = hoverService;
+    this.menuService = menuService;
+  }
+  static {
+    __name(this, "ThreadsRenderer");
+  }
+  static ID = "thread";
+  get templateId() {
+    return ThreadsRenderer.ID;
+  }
+  renderTemplate(container) {
+    const thread = dom.append(container, $(".thread"));
+    const name = dom.append(thread, $(".name"));
+    const stateLabel = dom.append(
+      thread,
+      $("span.state.label.monaco-count-badge.long")
+    );
+    const templateDisposable = new DisposableStore();
+    const label = templateDisposable.add(new HighlightedLabel(name));
+    const actionBar = templateDisposable.add(new ActionBar(thread));
+    const elementDisposable = templateDisposable.add(new DisposableStore());
+    return {
+      thread,
+      name,
+      stateLabel,
+      label,
+      actionBar,
+      elementDisposable,
+      templateDisposable
+    };
+  }
+  renderElement(element, _index, data) {
+    const thread = element.element;
+    data.elementDisposable.add(
+      this.hoverService.setupManagedHover(
+        getDefaultHoverDelegate("mouse"),
+        data.thread,
+        thread.name
+      )
+    );
+    data.label.set(thread.name, createMatches(element.filterData));
+    data.stateLabel.textContent = thread.stateLabel;
+    data.stateLabel.classList.toggle(
+      "exception",
+      thread.stoppedDetails?.reason === "exception"
+    );
+    const contextKeyService = this.contextKeyService.createOverlay(
+      getThreadContextOverlay(thread)
+    );
+    const menu = data.elementDisposable.add(
+      this.menuService.createMenu(
+        MenuId.DebugCallStackContext,
+        contextKeyService
+      )
+    );
+    const setupActionBar = /* @__PURE__ */ __name(() => {
+      data.actionBar.clear();
+      const primary = [];
+      const secondary = [];
+      const result = { primary, secondary };
+      createAndFillInActionBarActions(
+        menu,
+        {
+          arg: getContextForContributedActions(thread),
+          shouldForwardArgs: true
+        },
+        result,
+        "inline"
+      );
+      data.actionBar.push(primary, { icon: true, label: false });
+      data.actionBar.context = getContext(thread);
+    }, "setupActionBar");
+    data.elementDisposable.add(menu.onDidChange(() => setupActionBar()));
+    setupActionBar();
+  }
+  renderCompressedElements(_node, _index, _templateData, _height) {
+    throw new Error("Method not implemented.");
+  }
+  disposeElement(_element, _index, templateData) {
+    templateData.elementDisposable.clear();
+  }
+  disposeTemplate(templateData) {
+    templateData.templateDisposable.dispose();
+  }
+};
+ThreadsRenderer = __decorateClass([
+  __decorateParam(0, IContextKeyService),
+  __decorateParam(1, IHoverService),
+  __decorateParam(2, IMenuService)
+], ThreadsRenderer);
+function getStackFrameContextOverlay(stackFrame) {
+  return [
+    [CONTEXT_CALLSTACK_ITEM_TYPE.key, "stackFrame"],
+    [CONTEXT_STACK_FRAME_SUPPORTS_RESTART.key, stackFrame.canRestart]
+  ];
+}
+__name(getStackFrameContextOverlay, "getStackFrameContextOverlay");
+let StackFramesRenderer = class {
+  constructor(hoverService, labelService, notificationService) {
+    this.hoverService = hoverService;
+    this.labelService = labelService;
+    this.notificationService = notificationService;
+  }
+  static {
+    __name(this, "StackFramesRenderer");
+  }
+  static ID = "stackFrame";
+  get templateId() {
+    return StackFramesRenderer.ID;
+  }
+  renderTemplate(container) {
+    const stackFrame = dom.append(container, $(".stack-frame"));
+    const labelDiv = dom.append(stackFrame, $("span.label.expression"));
+    const file = dom.append(stackFrame, $(".file"));
+    const fileName = dom.append(file, $("span.file-name"));
+    const wrapper = dom.append(file, $("span.line-number-wrapper"));
+    const lineNumber = dom.append(
+      wrapper,
+      $("span.line-number.monaco-count-badge")
+    );
+    const templateDisposable = new DisposableStore();
+    const label = templateDisposable.add(new HighlightedLabel(labelDiv));
+    const actionBar = templateDisposable.add(new ActionBar(stackFrame));
+    return {
+      file,
+      fileName,
+      label,
+      lineNumber,
+      stackFrame,
+      actionBar,
+      templateDisposable
+    };
+  }
+  renderElement(element, index, data) {
+    const stackFrame = element.element;
+    data.stackFrame.classList.toggle(
+      "disabled",
+      !stackFrame.source || !stackFrame.source.available || isFrameDeemphasized(stackFrame)
+    );
+    data.stackFrame.classList.toggle(
+      "label",
+      stackFrame.presentationHint === "label"
+    );
+    const hasActions = !!stackFrame.thread.session.capabilities.supportsRestartFrame && stackFrame.presentationHint !== "label" && stackFrame.presentationHint !== "subtle" && stackFrame.canRestart;
+    data.stackFrame.classList.toggle("has-actions", hasActions);
+    let title = stackFrame.source.inMemory ? stackFrame.source.uri.path : this.labelService.getUriLabel(stackFrame.source.uri);
+    if (stackFrame.source.raw.origin) {
+      title += `
+${stackFrame.source.raw.origin}`;
+    }
+    data.templateDisposable.add(
+      this.hoverService.setupManagedHover(
+        getDefaultHoverDelegate("mouse"),
+        data.file,
+        title
+      )
+    );
+    data.label.set(
+      stackFrame.name,
+      createMatches(element.filterData),
+      stackFrame.name
+    );
+    data.fileName.textContent = getSpecificSourceName(stackFrame);
+    if (stackFrame.range.startLineNumber !== void 0) {
+      data.lineNumber.textContent = `${stackFrame.range.startLineNumber}`;
+      if (stackFrame.range.startColumn) {
+        data.lineNumber.textContent += `:${stackFrame.range.startColumn}`;
+      }
+      data.lineNumber.classList.remove("unavailable");
+    } else {
+      data.lineNumber.classList.add("unavailable");
+    }
+    data.actionBar.clear();
+    if (hasActions) {
+      const action = new Action(
+        "debug.callStack.restartFrame",
+        localize("restartFrame", "Restart Frame"),
+        ThemeIcon.asClassName(icons.debugRestartFrame),
+        true,
+        async () => {
+          try {
+            await stackFrame.restart();
+          } catch (e) {
+            this.notificationService.error(e);
+          }
+        }
+      );
+      data.actionBar.push(action, { icon: true, label: false });
+    }
+  }
+  renderCompressedElements(node, index, templateData, height) {
+    throw new Error("Method not implemented.");
+  }
+  disposeTemplate(templateData) {
+    templateData.actionBar.dispose();
+  }
+};
+StackFramesRenderer = __decorateClass([
+  __decorateParam(0, IHoverService),
+  __decorateParam(1, ILabelService),
+  __decorateParam(2, INotificationService)
+], StackFramesRenderer);
+let ErrorsRenderer = class {
+  constructor(hoverService) {
+    this.hoverService = hoverService;
+  }
+  static {
+    __name(this, "ErrorsRenderer");
+  }
+  static ID = "error";
+  get templateId() {
+    return ErrorsRenderer.ID;
+  }
+  renderTemplate(container) {
+    const label = dom.append(container, $(".error"));
+    return { label, templateDisposable: new DisposableStore() };
+  }
+  renderElement(element, index, data) {
+    const error = element.element;
+    data.label.textContent = error;
+    data.templateDisposable.add(
+      this.hoverService.setupManagedHover(
+        getDefaultHoverDelegate("mouse"),
+        data.label,
+        error
+      )
+    );
+  }
+  renderCompressedElements(node, index, templateData, height) {
+    throw new Error("Method not implemented.");
+  }
+  disposeTemplate(templateData) {
+  }
+};
+ErrorsRenderer = __decorateClass([
+  __decorateParam(0, IHoverService)
+], ErrorsRenderer);
+class LoadMoreRenderer {
+  static {
+    __name(this, "LoadMoreRenderer");
+  }
+  static ID = "loadMore";
+  static LABEL = localize(
+    "loadAllStackFrames",
+    "Load More Stack Frames"
+  );
+  constructor() {
+  }
+  get templateId() {
+    return LoadMoreRenderer.ID;
+  }
+  renderTemplate(container) {
+    const label = dom.append(container, $(".load-all"));
+    label.style.color = asCssVariable(textLinkForeground);
+    return { label };
+  }
+  renderElement(element, index, data) {
+    data.label.textContent = LoadMoreRenderer.LABEL;
+  }
+  renderCompressedElements(node, index, templateData, height) {
+    throw new Error("Method not implemented.");
+  }
+  disposeTemplate(templateData) {
+  }
+}
+class ShowMoreRenderer {
+  static {
+    __name(this, "ShowMoreRenderer");
+  }
+  static ID = "showMore";
+  constructor() {
+  }
+  get templateId() {
+    return ShowMoreRenderer.ID;
+  }
+  renderTemplate(container) {
+    const label = dom.append(container, $(".show-more"));
+    label.style.color = asCssVariable(textLinkForeground);
+    return { label };
+  }
+  renderElement(element, index, data) {
+    const stackFrames = element.element;
+    if (stackFrames.every(
+      (sf) => !!(sf.source && sf.source.origin && sf.source.origin === stackFrames[0].source.origin)
+    )) {
+      data.label.textContent = localize(
+        "showMoreAndOrigin",
+        "Show {0} More: {1}",
+        stackFrames.length,
+        stackFrames[0].source.origin
+      );
+    } else {
+      data.label.textContent = localize(
+        "showMoreStackFrames",
+        "Show {0} More Stack Frames",
+        stackFrames.length
+      );
+    }
+  }
+  renderCompressedElements(node, index, templateData, height) {
+    throw new Error("Method not implemented.");
+  }
+  disposeTemplate(templateData) {
+  }
+}
+class CallStackDelegate {
+  static {
+    __name(this, "CallStackDelegate");
+  }
+  getHeight(element) {
+    if (element instanceof StackFrame && element.presentationHint === "label") {
+      return 16;
+    }
+    if (element instanceof ThreadAndSessionIds || element instanceof Array) {
+      return 16;
+    }
+    return 22;
+  }
+  getTemplateId(element) {
+    if (isDebugSession(element)) {
+      return SessionsRenderer.ID;
+    }
+    if (element instanceof Thread) {
+      return ThreadsRenderer.ID;
+    }
+    if (element instanceof StackFrame) {
+      return StackFramesRenderer.ID;
+    }
+    if (typeof element === "string") {
+      return ErrorsRenderer.ID;
+    }
+    if (element instanceof ThreadAndSessionIds) {
+      return LoadMoreRenderer.ID;
+    }
+    return ShowMoreRenderer.ID;
+  }
+}
+function stoppedText(stoppedDetails) {
+  return stoppedDetails.text ?? stoppedDescription(stoppedDetails);
+}
+__name(stoppedText, "stoppedText");
+function stoppedDescription(stoppedDetails) {
+  return stoppedDetails.description || (stoppedDetails.reason ? localize(
+    {
+      key: "pausedOn",
+      comment: ["indicates reason for program being paused"]
+    },
+    "Paused on {0}",
+    stoppedDetails.reason
+  ) : localize("paused", "Paused"));
+}
+__name(stoppedDescription, "stoppedDescription");
+function isDebugModel(obj) {
+  return typeof obj.getSessions === "function";
+}
+__name(isDebugModel, "isDebugModel");
+function isDebugSession(obj) {
+  return obj && typeof obj.getAllThreads === "function";
+}
+__name(isDebugSession, "isDebugSession");
+class CallStackDataSource {
+  constructor(debugService) {
+    this.debugService = debugService;
+  }
+  static {
+    __name(this, "CallStackDataSource");
+  }
+  deemphasizedStackFramesToShow = [];
+  hasChildren(element) {
+    if (isDebugSession(element)) {
+      const threads = element.getAllThreads();
+      return threads.length > 1 || threads.length === 1 && threads[0].stopped || !!this.debugService.getModel().getSessions().find((s) => s.parentSession === element);
+    }
+    return isDebugModel(element) || element instanceof Thread && element.stopped;
+  }
+  async getChildren(element) {
+    if (isDebugModel(element)) {
+      const sessions = element.getSessions();
+      if (sessions.length === 0) {
+        return Promise.resolve([]);
+      }
+      if (sessions.length > 1 || this.debugService.getViewModel().isMultiSessionView()) {
+        return Promise.resolve(
+          sessions.filter((s) => !s.parentSession)
+        );
+      }
+      const threads = sessions[0].getAllThreads();
+      return threads.length === 1 ? this.getThreadChildren(threads[0]) : Promise.resolve(threads);
+    } else if (isDebugSession(element)) {
+      const childSessions = this.debugService.getModel().getSessions().filter((s) => s.parentSession === element);
+      const threads = element.getAllThreads();
+      if (threads.length === 1) {
+        const children = await this.getThreadChildren(
+          threads[0]
+        );
+        return children.concat(childSessions);
+      }
+      return Promise.resolve(threads.concat(childSessions));
+    } else {
+      return this.getThreadChildren(element);
+    }
+  }
+  getThreadChildren(thread) {
+    return this.getThreadCallstack(thread).then((children) => {
+      const result = [];
+      children.forEach((child, index) => {
+        if (child instanceof StackFrame && child.source && isFrameDeemphasized(child)) {
+          if (this.deemphasizedStackFramesToShow.indexOf(child) === -1) {
+            if (result.length) {
+              const last = result[result.length - 1];
+              if (last instanceof Array) {
+                last.push(child);
+                return;
+              }
+            }
+            const nextChild = index < children.length - 1 ? children[index + 1] : void 0;
+            if (nextChild instanceof StackFrame && nextChild.source && isFrameDeemphasized(nextChild)) {
+              result.push([child]);
+              return;
+            }
+          }
+        }
+        result.push(child);
+      });
+      return result;
+    });
+  }
+  async getThreadCallstack(thread) {
+    let callStack = thread.getCallStack();
+    if (!callStack || !callStack.length) {
+      await thread.fetchCallStack();
+      callStack = thread.getCallStack();
+    }
+    if (callStack.length === 1 && thread.session.capabilities.supportsDelayedStackTraceLoading && thread.stoppedDetails && thread.stoppedDetails.totalFrames && thread.stoppedDetails.totalFrames > 1) {
+      callStack = callStack.concat(thread.getStaleCallStack().slice(1));
+    }
+    if (thread.stoppedDetails && thread.stoppedDetails.framesErrorMessage) {
+      callStack = callStack.concat([
+        thread.stoppedDetails.framesErrorMessage
+      ]);
+    }
+    if (!thread.reachedEndOfCallStack && thread.stoppedDetails) {
+      callStack = callStack.concat([
+        new ThreadAndSessionIds(
+          thread.session.getId(),
+          thread.threadId
+        )
+      ]);
+    }
+    return callStack;
+  }
+}
+class CallStackAccessibilityProvider {
+  static {
+    __name(this, "CallStackAccessibilityProvider");
+  }
+  getWidgetAriaLabel() {
+    return localize(
+      {
+        comment: ["Debug is a noun in this context, not a verb."],
+        key: "callStackAriaLabel"
+      },
+      "Debug Call Stack"
+    );
+  }
+  getWidgetRole() {
+    return "treegrid";
+  }
+  getRole(_element) {
+    return "row";
+  }
+  getAriaLabel(element) {
+    if (element instanceof Thread) {
+      return localize(
+        {
+          key: "threadAriaLabel",
+          comment: [
+            'Placeholders stand for the thread name and the thread state.For example "Thread 1" and "Stopped'
+          ]
+        },
+        "Thread {0} {1}",
+        element.name,
+        element.stateLabel
+      );
+    }
+    if (element instanceof StackFrame) {
+      return localize(
+        "stackFrameAriaLabel",
+        "Stack Frame {0}, line {1}, {2}",
+        element.name,
+        element.range.startLineNumber,
+        getSpecificSourceName(element)
+      );
+    }
+    if (isDebugSession(element)) {
+      const thread = element.getAllThreads().find((t) => t.stopped);
+      const state = thread ? thread.stateLabel : localize(
+        { key: "running", comment: ["indicates state"] },
+        "Running"
+      );
+      return localize(
+        {
+          key: "sessionLabel",
+          comment: [
+            'Placeholders stand for the session name and the session state. For example "Launch Program" and "Running"'
+          ]
+        },
+        "Session {0} {1}",
+        element.getLabel(),
+        state
+      );
+    }
+    if (typeof element === "string") {
+      return element;
+    }
+    if (element instanceof Array) {
+      return localize(
+        "showMoreStackFrames",
+        "Show {0} More Stack Frames",
+        element.length
+      );
+    }
+    return LoadMoreRenderer.LABEL;
+  }
+}
+class CallStackCompressionDelegate {
+  constructor(debugService) {
+    this.debugService = debugService;
+  }
+  static {
+    __name(this, "CallStackCompressionDelegate");
+  }
+  isIncompressible(stat) {
+    if (isDebugSession(stat)) {
+      if (stat.compact) {
+        return false;
+      }
+      const sessions = this.debugService.getModel().getSessions();
+      if (sessions.some((s) => s.parentSession === stat && s.compact)) {
+        return false;
+      }
+      return true;
+    }
+    return true;
+  }
+}
+registerAction2(
+  class Collapse extends ViewAction {
+    static {
+      __name(this, "Collapse");
+    }
+    constructor() {
+      super({
+        id: "callStack.collapse",
+        viewId: CALLSTACK_VIEW_ID,
+        title: localize("collapse", "Collapse All"),
+        f1: false,
+        icon: Codicon.collapseAll,
+        precondition: CONTEXT_DEBUG_STATE.isEqualTo(
+          getStateLabel(State.Stopped)
+        ),
+        menu: {
+          id: MenuId.ViewTitle,
+          order: 10,
+          group: "navigation",
+          when: ContextKeyExpr.equals("view", CALLSTACK_VIEW_ID)
+        }
+      });
+    }
+    runInView(_accessor, view) {
+      view.collapseAll();
+    }
+  }
+);
+function registerCallStackInlineMenuItem(id, title, icon, when, order, precondition) {
+  MenuRegistry.appendMenuItem(MenuId.DebugCallStackContext, {
+    group: "inline",
+    order,
+    when,
+    command: { id, title, icon, precondition }
+  });
+}
+__name(registerCallStackInlineMenuItem, "registerCallStackInlineMenuItem");
+const threadOrSessionWithOneThread = ContextKeyExpr.or(
+  CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("thread"),
+  ContextKeyExpr.and(
+    CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("session"),
+    CONTEXT_CALLSTACK_SESSION_HAS_ONE_THREAD
+  )
+);
+registerCallStackInlineMenuItem(
+  PAUSE_ID,
+  PAUSE_LABEL,
+  icons.debugPause,
+  ContextKeyExpr.and(
+    threadOrSessionWithOneThread,
+    CONTEXT_CALLSTACK_ITEM_STOPPED.toNegated()
+  ),
+  10,
+  CONTEXT_FOCUSED_SESSION_IS_NO_DEBUG.toNegated()
+);
+registerCallStackInlineMenuItem(
+  CONTINUE_ID,
+  CONTINUE_LABEL,
+  icons.debugContinue,
+  ContextKeyExpr.and(
+    threadOrSessionWithOneThread,
+    CONTEXT_CALLSTACK_ITEM_STOPPED
+  ),
+  10
+);
+registerCallStackInlineMenuItem(
+  STEP_OVER_ID,
+  STEP_OVER_LABEL,
+  icons.debugStepOver,
+  threadOrSessionWithOneThread,
+  20,
+  CONTEXT_CALLSTACK_ITEM_STOPPED
+);
+registerCallStackInlineMenuItem(
+  STEP_INTO_ID,
+  STEP_INTO_LABEL,
+  icons.debugStepInto,
+  threadOrSessionWithOneThread,
+  30,
+  CONTEXT_CALLSTACK_ITEM_STOPPED
+);
+registerCallStackInlineMenuItem(
+  STEP_OUT_ID,
+  STEP_OUT_LABEL,
+  icons.debugStepOut,
+  threadOrSessionWithOneThread,
+  40,
+  CONTEXT_CALLSTACK_ITEM_STOPPED
+);
+registerCallStackInlineMenuItem(
+  RESTART_SESSION_ID,
+  RESTART_LABEL,
+  icons.debugRestart,
+  CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("session"),
+  50
+);
+registerCallStackInlineMenuItem(
+  STOP_ID,
+  STOP_LABEL,
+  icons.debugStop,
+  ContextKeyExpr.and(
+    CONTEXT_CALLSTACK_SESSION_IS_ATTACH.toNegated(),
+    CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("session")
+  ),
+  60
+);
+registerCallStackInlineMenuItem(
+  DISCONNECT_ID,
+  DISCONNECT_LABEL,
+  icons.debugDisconnect,
+  ContextKeyExpr.and(
+    CONTEXT_CALLSTACK_SESSION_IS_ATTACH,
+    CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("session")
+  ),
+  60
+);
+export {
+  CallStackView,
+  getContext,
+  getContextForContributedActions,
+  getSpecificSourceName
+};
+//# sourceMappingURL=callStackView.js.map

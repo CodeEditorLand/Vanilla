@@ -1,1 +1,77 @@
-var y=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var s=(c,r,e,i)=>{for(var t=i>1?void 0:i?p(r,e):r,n=c.length-1,o;n>=0;n--)(o=c[n])&&(t=(i?o(r,e,t):o(t))||t);return i&&t&&y(r,e,t),t},l=(c,r)=>(e,i)=>r(e,i,c);import{Throttler as h}from"../../../base/common/async.js";import{MutableDisposable as d}from"../../../base/common/lifecycle.js";import{ILogService as m}from"../../log/common/log.js";import{AbstractPolicyService as v}from"../common/policy.js";let a=class extends v{constructor(e,i){super();this.logService=e;this.productName=i}throttler=new h;watcher=this._register(new d);async _updatePolicyDefinitions(e){this.logService.trace(`NativePolicyService#_updatePolicyDefinitions - Found ${Object.keys(e).length} policy definitions`);const{createWatcher:i}=await import("@vscode/policy-watcher");await this.throttler.queue(()=>new Promise((t,n)=>{try{this.watcher.value=i(this.productName,e,o=>{this._onDidPolicyChange(o),t()})}catch(o){this.logService.error("NativePolicyService#_updatePolicyDefinitions - Error creating watcher:",o),n(o)}}))}_onDidPolicyChange(e){this.logService.trace(`NativePolicyService#_onDidPolicyChange - Updated policy values: ${JSON.stringify(e)}`);for(const i in e){const t=e[i];t===void 0?this.policies.delete(i):this.policies.set(i,t)}this._onDidChange.fire(Object.keys(e))}};a=s([l(0,m)],a);export{a as NativePolicyService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Throttler } from "../../../base/common/async.js";
+import { MutableDisposable } from "../../../base/common/lifecycle.js";
+import { ILogService } from "../../log/common/log.js";
+import {
+  AbstractPolicyService
+} from "../common/policy.js";
+let NativePolicyService = class extends AbstractPolicyService {
+  constructor(logService, productName) {
+    super();
+    this.logService = logService;
+    this.productName = productName;
+  }
+  static {
+    __name(this, "NativePolicyService");
+  }
+  throttler = new Throttler();
+  watcher = this._register(new MutableDisposable());
+  async _updatePolicyDefinitions(policyDefinitions) {
+    this.logService.trace(
+      `NativePolicyService#_updatePolicyDefinitions - Found ${Object.keys(policyDefinitions).length} policy definitions`
+    );
+    const { createWatcher } = await import("@vscode/policy-watcher");
+    await this.throttler.queue(
+      () => new Promise((c, e) => {
+        try {
+          this.watcher.value = createWatcher(
+            this.productName,
+            policyDefinitions,
+            (update) => {
+              this._onDidPolicyChange(update);
+              c();
+            }
+          );
+        } catch (err) {
+          this.logService.error(
+            `NativePolicyService#_updatePolicyDefinitions - Error creating watcher:`,
+            err
+          );
+          e(err);
+        }
+      })
+    );
+  }
+  _onDidPolicyChange(update) {
+    this.logService.trace(
+      `NativePolicyService#_onDidPolicyChange - Updated policy values: ${JSON.stringify(update)}`
+    );
+    for (const key in update) {
+      const value = update[key];
+      if (value === void 0) {
+        this.policies.delete(key);
+      } else {
+        this.policies.set(key, value);
+      }
+    }
+    this._onDidChange.fire(Object.keys(update));
+  }
+};
+NativePolicyService = __decorateClass([
+  __decorateParam(0, ILogService)
+], NativePolicyService);
+export {
+  NativePolicyService
+};
+//# sourceMappingURL=nativePolicyService.js.map

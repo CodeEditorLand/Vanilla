@@ -1,3 +1,1766 @@
-var Oe=Object.defineProperty;var Le=Object.getOwnPropertyDescriptor;var Y=(L,C,i,t)=>{for(var n=t>1?void 0:t?Le(C,i):C,e=L.length-1,r;e>=0;e--)(r=L[e])&&(n=(t?r(C,i,n):r(n))||n);return t&&n&&Oe(C,i,n),n},y=(L,C)=>(i,t)=>C(i,t,L);import{hostname as Ee,release as xe}from"os";import{BrowserWindow as Te,app as R,protocol as z,session as U,systemPreferences as J}from"electron";import{Promises as ke,RunOnceScheduler as Ne,runWhenGlobalIdle as Ae}from"../../base/common/async.js";import{VSBuffer as Z}from"../../base/common/buffer.js";import{toErrorMessage as Fe}from"../../base/common/errorMessage.js";import{isSigPipeError as He,onUnexpectedError as Q,setUnexpectedErrorHandler as De}from"../../base/common/errors.js";import{Event as F}from"../../base/common/event.js";import{parse as _e}from"../../base/common/jsonc.js";import{getPathLabel as H}from"../../base/common/labels.js";import{Lazy as qe}from"../../base/common/lazy.js";import{Disposable as Be,DisposableStore as $e}from"../../base/common/lifecycle.js";import{Schemas as v,VSCODE_AUTHORITY as Ke}from"../../base/common/network.js";import{normalizeNFC as X}from"../../base/common/normalization.js";import{join as Ve,posix as je}from"../../base/common/path.js";import{OS as D,isLinux as Ge,isLinuxSnap as Ye,isMacintosh as E,isWindows as x}from"../../base/common/platform.js";import{assertType as ze}from"../../base/common/types.js";import{URI as w}from"../../base/common/uri.js";import{generateUuid as Je}from"../../base/common/uuid.js";import{addUNCHostToAllowlist as Ze,disableUNCAccessRestrictions as Qe}from"../../base/node/unc.js";import{registerContextMenuListener as Xe}from"../../base/parts/contextmenu/electron-main/contextmenu.js";import{ProxyChannel as h,StaticRouter as er,getDelayedChannel as ee}from"../../base/parts/ipc/common/ipc.js";import{Server as rr}from"../../base/parts/ipc/electron-main/ipc.electron.js";import{Client as ir}from"../../base/parts/ipc/electron-main/ipc.mp.js";import{validatedIpcMain as W}from"../../base/parts/ipc/electron-main/ipcMain.js";import{localize as M}from"../../nls.js";import{IAuxiliaryWindowsMainService as re}from"../../platform/auxiliaryWindow/electron-main/auxiliaryWindows.js";import{AuxiliaryWindowsMainService as tr}from"../../platform/auxiliaryWindow/electron-main/auxiliaryWindowsMainService.js";import{IBackupMainService as nr}from"../../platform/backup/electron-main/backup.js";import{BackupMainService as or}from"../../platform/backup/electron-main/backupMainService.js";import{IConfigurationService as sr}from"../../platform/configuration/common/configuration.js";import{CSSDevelopmentService as ar,ICSSDevelopmentService as cr}from"../../platform/cssDev/node/cssDevService.js";import{ElectronExtensionHostDebugBroadcastChannel as lr}from"../../platform/debug/electron-main/extensionHostDebugIpc.js";import{IDiagnosticsService as dr}from"../../platform/diagnostics/common/diagnostics.js";import{DiagnosticsMainService as pr,IDiagnosticsMainService as ie}from"../../platform/diagnostics/electron-main/diagnosticsMainService.js";import{DialogMainService as vr,IDialogMainService as te}from"../../platform/dialogs/electron-main/dialogMainService.js";import{IEncryptionMainService as ne}from"../../platform/encryption/common/encryptionService.js";import{EncryptionMainService as mr}from"../../platform/encryption/electron-main/encryptionMainService.js";import{IEnvironmentMainService as hr}from"../../platform/environment/electron-main/environmentMainService.js";import{isLaunchedFromCli as ur}from"../../platform/environment/node/argvHelper.js";import{IExtensionsProfileScannerService as fr}from"../../platform/extensionManagement/common/extensionsProfileScannerService.js";import{IExtensionsScannerService as Sr}from"../../platform/extensionManagement/common/extensionsScannerService.js";import{ExtensionsProfileScannerService as gr}from"../../platform/extensionManagement/node/extensionsProfileScannerService.js";import{ExtensionsScannerService as wr}from"../../platform/extensionManagement/node/extensionsScannerService.js";import{IExtensionHostStarter as oe,ipcExtensionHostStarterChannelName as yr}from"../../platform/extensions/common/extensionHostStarter.js";import{ExtensionHostStarter as Mr}from"../../platform/extensions/electron-main/extensionHostStarter.js";import{IExternalTerminalMainService as T}from"../../platform/externalTerminal/electron-main/externalTerminal.js";import{LinuxExternalTerminalService as Ir,MacExternalTerminalService as Cr,WindowsExternalTerminalService as Pr}from"../../platform/externalTerminal/node/externalTerminalService.js";import{LOCAL_FILE_SYSTEM_CHANNEL_NAME as se}from"../../platform/files/common/diskFileSystemProviderClient.js";import{IFileService as Rr}from"../../platform/files/common/files.js";import{DiskFileSystemProviderChannel as Ur}from"../../platform/files/electron-main/diskFileSystemProviderServer.js";import{DiskFileSystemProvider as br}from"../../platform/files/node/diskFileSystemProvider.js";import{SyncDescriptor as p}from"../../platform/instantiation/common/descriptors.js";import{IInstantiationService as Wr}from"../../platform/instantiation/common/instantiation.js";import{ServiceCollection as Or}from"../../platform/instantiation/common/serviceCollection.js";import{IIssueMainService as ae,IProcessMainService as ce}from"../../platform/issue/common/issue.js";import{IssueMainService as Lr}from"../../platform/issue/electron-main/issueMainService.js";import{ProcessMainService as Er}from"../../platform/issue/electron-main/processMainService.js";import{IKeyboardLayoutMainService as le,KeyboardLayoutMainService as xr}from"../../platform/keyboardLayout/electron-main/keyboardLayoutMainService.js";import{ILaunchMainService as de,LaunchMainService as Tr}from"../../platform/launch/electron-main/launchMainService.js";import{ILifecycleMainService as kr,LifecycleMainPhase as _,ShutdownReason as Nr}from"../../platform/lifecycle/electron-main/lifecycleMainService.js";import{ILogService as Ar,ILoggerService as Fr}from"../../platform/log/common/log.js";import{LoggerChannel as Hr}from"../../platform/log/electron-main/logIpc.js";import{ILoggerMainService as Dr}from"../../platform/log/electron-main/loggerService.js";import{IMenubarMainService as pe,MenubarMainService as _r}from"../../platform/menubar/electron-main/menubarMainService.js";import{IProxyAuthService as ve,ProxyAuthService as qr}from"../../platform/native/electron-main/auth.js";import{INativeHostMainService as q,NativeHostMainService as Br}from"../../platform/native/electron-main/nativeHostMainService.js";import{IPolicyService as $r}from"../../platform/policy/common/policy.js";import{PolicyChannel as Kr}from"../../platform/policy/common/policyIpc.js";import{IProductService as Vr}from"../../platform/product/common/productService.js";import{NODE_REMOTE_RESOURCE_CHANNEL_NAME as jr,NODE_REMOTE_RESOURCE_IPC_METHOD_NAME as Gr,NodeRemoteResourceRouter as Yr}from"../../platform/remote/common/electronRemoteResources.js";import{getRemoteAuthority as zr}from"../../platform/remote/common/remoteHosts.js";import{IRequestService as Jr}from"../../platform/request/common/request.js";import{RequestChannel as Zr}from"../../platform/request/common/requestIpc.js";import{SharedProcess as Qr}from"../../platform/sharedProcess/electron-main/sharedProcess.js";import{getResolvedShellEnv as Xr}from"../../platform/shell/node/shellEnv.js";import{ISignService as ei}from"../../platform/sign/common/sign.js";import{IStateService as ri}from"../../platform/state/node/state.js";import{StorageDatabaseChannel as ii}from"../../platform/storage/electron-main/storageIpc.js";import{ApplicationStorageMainService as ti,IApplicationStorageMainService as ni,IStorageMainService as B,StorageMainService as oi}from"../../platform/storage/electron-main/storageMainService.js";import{resolveCommonProperties as si}from"../../platform/telemetry/common/commonProperties.js";import{ITelemetryService as me,TelemetryLevel as ai}from"../../platform/telemetry/common/telemetry.js";import{TelemetryAppenderClient as ci}from"../../platform/telemetry/common/telemetryIpc.js";import{TelemetryService as li}from"../../platform/telemetry/common/telemetryService.js";import{NullTelemetryService as di,getPiiPathsFromEnvironment as pi,getTelemetryLevel as vi,isInternalTelemetry as mi,supportsTelemetry as hi}from"../../platform/telemetry/common/telemetryUtils.js";import{resolveMachineId as ui,resolveSqmId as fi,resolvedevDeviceId as Si}from"../../platform/telemetry/electron-main/telemetryUtils.js";import{ILocalPtyService as he,LocalReconnectConstants as ue,TerminalIpcChannels as gi,TerminalSettingId as wi}from"../../platform/terminal/common/terminal.js";import{ElectronPtyHostStarter as yi}from"../../platform/terminal/electron-main/electronPtyHostStarter.js";import{PtyHostService as Mi}from"../../platform/terminal/node/ptyHostService.js";import{IUpdateService as O}from"../../platform/update/common/update.js";import{UpdateChannel as Ii}from"../../platform/update/common/updateIpc.js";import{DarwinUpdateService as Ci}from"../../platform/update/electron-main/updateService.darwin.js";import{LinuxUpdateService as Pi}from"../../platform/update/electron-main/updateService.linux.js";import{SnapUpdateService as Ri}from"../../platform/update/electron-main/updateService.snap.js";import{Win32UpdateService as Ui}from"../../platform/update/electron-main/updateService.win32.js";import{IURLService as $}from"../../platform/url/common/url.js";import{URLHandlerChannelClient as bi,URLHandlerRouter as Wi}from"../../platform/url/common/urlIpc.js";import{NativeURLService as Oi}from"../../platform/url/common/urlService.js";import{ElectronURLListener as Li}from"../../platform/url/electron-main/electronUrlListener.js";import{IUserDataProfilesMainService as K}from"../../platform/userDataProfile/electron-main/userDataProfile.js";import{ProfileStorageChangesListenerChannel as Ei}from"../../platform/userDataProfile/electron-main/userDataProfileStorageIpc.js";import{UserDataProfilesHandler as xi}from"../../platform/userDataProfile/electron-main/userDataProfilesHandler.js";import{ipcUtilityProcessWorkerChannelName as Ti}from"../../platform/utilityProcess/common/utilityProcessWorkerService.js";import{IUtilityProcessWorkerMainService as fe,UtilityProcessWorkerMainService as ki}from"../../platform/utilityProcess/electron-main/utilityProcessWorkerMainService.js";import{IWebviewManagerService as Se}from"../../platform/webview/common/webviewManagerService.js";import{WebviewMainService as Ni}from"../../platform/webview/electron-main/webviewMainService.js";import{isFolderToOpen as Ai,isWorkspaceToOpen as Fi}from"../../platform/window/common/window.js";import{IWindowsMainService as k,OpenContext as I}from"../../platform/windows/electron-main/windows.js";import{WindowsMainService as Hi}from"../../platform/windows/electron-main/windowsMainService.js";import{ActiveWindowManager as Di}from"../../platform/windows/node/windowTracker.js";import{hasWorkspaceFileExtension as N}from"../../platform/workspace/common/workspace.js";import{IWorkspacesService as ge}from"../../platform/workspaces/common/workspaces.js";import{IWorkspacesHistoryMainService as _i,WorkspacesHistoryMainService as qi}from"../../platform/workspaces/electron-main/workspacesHistoryMainService.js";import{WorkspacesMainService as Bi}from"../../platform/workspaces/electron-main/workspacesMainService.js";import{IWorkspacesManagementMainService as $i,WorkspacesManagementMainService as Ki}from"../../platform/workspaces/electron-main/workspacesManagementMainService.js";let b=class extends Be{constructor(i,t,n,e,r,a,l,d,o,c,s,m){super();this.mainProcessNodeIpcServer=i;this.userEnv=t;this.mainInstantiationService=n;this.logService=e;this.loggerService=r;this.environmentMainService=a;this.lifecycleMainService=l;this.configurationService=d;this.stateService=o;this.fileService=c;this.productService=s;this.userDataProfilesMainService=m;this.configureSession(),this.registerListeners()}static SECURITY_PROTOCOL_HANDLING_CONFIRMATION_SETTING_KEY={[v.file]:"security.promptForLocalFileProtocolHandling",[v.vscodeRemote]:"security.promptForRemoteFileProtocolHandling"};windowsMainService;auxiliaryWindowsMainService;nativeHostMainService;configureSession(){const i=o=>o?.startsWith(`${v.vscodeWebview}://`),t=new Set(["clipboard-read","clipboard-sanitized-write"]);U.defaultSession.setPermissionRequestHandler((o,c,s,m)=>i(m.requestingUrl)?s(t.has(c)):s(!1)),U.defaultSession.setPermissionCheckHandler((o,c,s,m)=>i(m.requestingUrl)?t.has(c):!1);const n=new Set([v.file,v.vscodeFileResource,v.vscodeRemoteResource,v.vscodeManagedRemoteResource,"devtools"]),e=o=>{for(let c=o;c;c=c.parent)if(c.url.startsWith(`${v.vscodeWebview}://`))return!0;return!1},r=o=>o.resourceType==="xhr"||e(o.frame),a=o=>{const c=o.frame;if(!c||!this.windowsMainService)return!1;const s=Te.getAllWindows();for(const m of s)if(c.processId===m.webContents.mainFrame.processId)return!0;return!1},l=(o,c)=>{if(o.path!=="/index.html")return!0;const s=c.frame;if(!s||!this.windowsMainService)return!1;for(const m of this.windowsMainService.getWindows())if(m.win&&s.processId===m.win.webContents.mainFrame.processId)return!0;return!1};U.defaultSession.webRequest.onBeforeRequest((o,c)=>{const s=w.parse(o.url);return s.scheme===v.vscodeWebview&&!l(s,o)?(this.logService.error("Blocked vscode-webview request",o.url),c({cancel:!0})):s.scheme===v.vscodeFileResource&&!a(o)?(this.logService.error("Blocked vscode-file request",o.url),c({cancel:!0})):s.path.endsWith(".svg")&&!n.has(s.scheme)?c({cancel:!r(o)}):c({cancel:!1})}),U.defaultSession.webRequest.onHeadersReceived((o,c)=>{const s=o.responseHeaders,m=s["content-type"]||s["Content-Type"];if(m&&Array.isArray(m)){const u=w.parse(o.url);if(u.path.endsWith(".svg")&&n.has(u.scheme))return s["Content-Type"]=["image/svg+xml"],c({cancel:!1,responseHeaders:s});if(!u.path.endsWith(v.vscodeRemoteResource)&&m.some(g=>g.toLowerCase().includes("image/svg")))return c({cancel:!r(o)})}return c({cancel:!1})}),U.defaultSession.webRequest.onHeadersReceived((o,c)=>{if(o.url.startsWith("https://vscode.download.prss.microsoft.com/")){const s=o.responseHeaders??Object.create(null);if(s["Access-Control-Allow-Origin"]===void 0)return s["Access-Control-Allow-Origin"]=["*"],c({cancel:!1,responseHeaders:s})}return c({cancel:!1})});const d=U.defaultSession;typeof d.setCodeCachePath=="function"&&this.environmentMainService.codeCachePath&&d.setCodeCachePath(Ve(this.environmentMainService.codeCachePath,"chrome")),x&&(this.configurationService.getValue("security.restrictUNCAccess")===!1?Qe():Ze(this.configurationService.getValue("security.allowedUNCHosts")))}registerListeners(){De(n=>this.onUnexpectedError(n)),process.on("uncaughtException",n=>{He(n)||Q(n)}),process.on("unhandledRejection",n=>Q(n)),F.once(this.lifecycleMainService.onWillShutdown)(()=>this.dispose()),Xe(),R.on("accessibility-support-changed",(n,e)=>{this.windowsMainService?.sendToAll("vscode:accessibilitySupportChanged",e)}),R.on("activate",async(n,e)=>{this.logService.trace("app#activate"),e||await this.windowsMainService?.openEmptyWindow({context:I.DOCK})}),R.on("web-contents-created",(n,e)=>{e?.opener?.url.startsWith(`${v.vscodeFileResource}://${Ke}/`)&&(this.logService.trace('[aux window]  app.on("web-contents-created"): Registering auxiliary window'),this.auxiliaryWindowsMainService?.registerWindow(e)),e.on("will-navigate",r=>{this.logService.error("webContents#will-navigate: Prevented webcontent navigation"),r.preventDefault()}),e.setWindowOpenHandler(r=>r.url==="about:blank"?(this.logService.trace("[aux window] webContents#setWindowOpenHandler: Allowing auxiliary window to open on about:blank"),{action:"allow",overrideBrowserWindowOptions:this.auxiliaryWindowsMainService?.createWindow(r)}):(this.logService.trace(`webContents#setWindowOpenHandler: Prevented opening window with URL ${r.url}}`),this.nativeHostMainService?.openExternal(void 0,r.url),{action:"deny"}))});let i=[],t;R.on("open-file",(n,e)=>{e=X(e),this.logService.trace("app#open-file: ",e),n.preventDefault(),i.push(N(e)?{workspaceUri:w.file(e)}:{fileUri:w.file(e)}),t!==void 0&&(clearTimeout(t),t=void 0),t=setTimeout(async()=>{await this.windowsMainService?.open({context:I.DOCK,cli:this.environmentMainService.args,urisToOpen:i,gotoLineMode:!1,preferNewWindow:!0}),i=[],t=void 0},100)}),R.on("new-window-for-tab",async()=>{await this.windowsMainService?.openEmptyWindow({context:I.DESKTOP})}),W.handle("vscode:fetchShellEnv",n=>{const e=this.windowsMainService?.getWindowByWebContents(n.sender);let r,a;return e?.config?(r=e.config,a={...process.env,...e.config.userEnv}):(r=this.environmentMainService.args,a=process.env),this.resolveShellEnvironment(r,a,!1)}),W.on("vscode:toggleDevTools",n=>n.sender.toggleDevTools()),W.on("vscode:openDevTools",n=>n.sender.openDevTools()),W.on("vscode:reloadWindow",n=>n.sender.reload()),W.handle("vscode:notifyZoomLevel",async(n,e)=>{const r=this.windowsMainService?.getWindowByWebContents(n.sender);r&&r.notifyZoomLevel(e)})}onUnexpectedError(i){if(i){const t={message:`[uncaught exception in main]: ${i.message}`,stack:i.stack};this.windowsMainService?.sendToFocused("vscode:reportError",JSON.stringify(t))}this.logService.error(`[uncaught exception in main]: ${i}`),i.stack&&this.logService.error(i.stack)}async startup(){this.logService.debug("Starting VS Code"),this.logService.debug(`from: ${this.environmentMainService.appRoot}`),this.logService.debug("args:",this.environmentMainService.args);const i=this.productService.win32AppUserModelId;x&&i&&R.setAppUserModelId(i);try{E&&this.configurationService.getValue("window.nativeTabs")===!0&&!J.getUserDefault("NSUseImprovedLayoutPass","boolean")&&J.setUserDefault("NSUseImprovedLayoutPass","boolean",!0)}catch(s){this.logService.error(s)}const t=new rr;F.once(this.lifecycleMainService.onWillShutdown)(s=>{s.reason===Nr.KILL&&t.dispose()}),this.logService.trace("Resolving machine identifier...");const[n,e,r]=await Promise.all([ui(this.stateService,this.logService),fi(this.stateService,this.logService),Si(this.stateService,this.logService)]);this.logService.trace(`Resolved machine identifier: ${n}`);const{sharedProcessReady:a,sharedProcessClient:l}=this.setupSharedProcess(n,e,r),d=await this.initServices(n,e,r,a);d.invokeFunction(s=>s.get(ve)),this._register(d.createInstance(xi)),d.invokeFunction(s=>this.initChannels(s,t,l));const o=await d.invokeFunction(s=>this.setupProtocolUrlHandlers(s,t));this.setupManagedRemoteResourceUrlHandler(t),this.lifecycleMainService.phase=_.Ready,await d.invokeFunction(s=>this.openFirstWindow(s,o)),this.lifecycleMainService.phase=_.AfterWindowOpen,this.afterWindowOpen(),this._register(new Ne(()=>{this._register(Ae(()=>this.lifecycleMainService.phase=_.Eventually,2500))},2500)).schedule()}async setupProtocolUrlHandlers(i,t){const n=this.windowsMainService=i.get(k),e=i.get($),r=this.nativeHostMainService=i.get(q),a=i.get(te),l=this;e.registerHandler({async handleURL(u,g){return l.handleProtocolUrl(n,a,e,u,g)}});const d=this._register(new Di({onDidOpenMainWindow:r.onDidOpenMainWindow,onDidFocusMainWindow:r.onDidFocusMainWindow,getActiveWindowId:()=>r.getActiveWindowId(-1)})),o=new er(u=>d.getActiveClientId().then(g=>u===g)),c=new Wi(o,this.logService),s=t.getChannel("urlHandler",c);e.registerHandler(new bi(s));const m=await this.resolveInitialProtocolUrls(n,a);return this._register(new Li(m?.urls,e,n,this.environmentMainService,this.productService,this.logService)),m}setupManagedRemoteResourceUrlHandler(i){const t=()=>({statusCode:404,data:"Not found"}),n=new qe(()=>i.getChannel(jr,new Yr));z.registerBufferProtocol(v.vscodeManagedRemoteResource,(e,r)=>{const a=w.parse(e.url);if(!a.authority.startsWith("window:"))return r(t());n.value.call(Gr,[a]).then(l=>r({...l,data:Buffer.from(l.body,"base64")}),l=>{this.logService.warn("error dispatching remote resource call",l),r({statusCode:500,data:String(l)})})})}async resolveInitialProtocolUrls(i,t){const n=this.environmentMainService.args["open-url"]?this.environmentMainService.args._urls||[]:[];n.length>0&&this.logService.trace("app#resolveInitialProtocolUrls() protocol urls from command line:",n);const e=global.getOpenUrls()||[];if(e.length>0&&this.logService.trace("app#resolveInitialProtocolUrls() protocol urls from macOS 'open-url' event:",e),n.length+e.length===0)return;const r=[...n,...e].map(d=>{try{return{uri:w.parse(d),originalUrl:d}}catch{this.logService.trace("app#resolveInitialProtocolUrls() protocol url failed to parse:",d);return}}),a=[],l=[];for(const d of r){if(!d)continue;const o=this.getWindowOpenableFromProtocolUrl(d.uri);if(o)if(await this.shouldBlockOpenable(o,i,t)){this.logService.trace("app#resolveInitialProtocolUrls() protocol url was blocked:",d.uri.toString(!0));continue}else this.logService.trace("app#resolveInitialProtocolUrls() protocol url will be handled as window to open:",d.uri.toString(!0),o),a.push(o);else this.logService.trace("app#resolveInitialProtocolUrls() protocol url will be passed to active window for handling:",d.uri.toString(!0)),l.push(d)}return{urls:l,openables:a}}async shouldBlockOpenable(i,t,n){let e,r;if(Fi(i)?(e=i.workspaceUri,r=M("confirmOpenMessageWorkspace","An external application wants to open '{0}' in {1}. Do you want to open this workspace file?",e.scheme===v.file?H(e,{os:D,tildify:this.environmentMainService}):e.toString(!0),this.productService.nameShort)):Ai(i)?(e=i.folderUri,r=M("confirmOpenMessageFolder","An external application wants to open '{0}' in {1}. Do you want to open this folder?",e.scheme===v.file?H(e,{os:D,tildify:this.environmentMainService}):e.toString(!0),this.productService.nameShort)):(e=i.fileUri,r=M("confirmOpenMessageFileOrFolder","An external application wants to open '{0}' in {1}. Do you want to open this file or folder?",e.scheme===v.file?H(e,{os:D,tildify:this.environmentMainService}):e.toString(!0),this.productService.nameShort)),e.scheme!==v.file&&e.scheme!==v.vscodeRemote||this.configurationService.getValue(b.SECURITY_PROTOCOL_HANDLING_CONFIRMATION_SETTING_KEY[e.scheme])===!1)return!1;const{response:l,checkboxChecked:d}=await n.showMessageBox({type:"warning",buttons:[M({key:"open",comment:["&& denotes a mnemonic"]},"&&Yes"),M({key:"cancel",comment:["&& denotes a mnemonic"]},"&&No")],message:r,detail:M("confirmOpenDetail","If you did not initiate this request, it may represent an attempted attack on your system. Unless you took an explicit action to initiate this request, you should press 'No'"),checkboxLabel:e.scheme===v.file?M("doNotAskAgainLocal","Allow opening local paths without asking"):M("doNotAskAgainRemote","Allow opening remote paths without asking"),cancelId:1});if(l!==0)return!0;if(d){const o={channel:"vscode:disablePromptForProtocolHandling",args:e.scheme===v.file?"local":"remote"};t.sendToFocused(o.channel,o.args),t.sendToOpeningWindow(o.channel,o.args)}return!1}getWindowOpenableFromProtocolUrl(i){if(i.path){if(i.authority===v.file){const t=w.file(i.fsPath);return N(t)?{workspaceUri:t}:{fileUri:t}}else if(i.authority===v.vscodeRemote){const t=i.path.indexOf(je.sep,1);let n,e;t!==-1?(n=i.path.substring(1,t),e=i.path.substring(t)):(n=i.path.substring(1),e="/");let r=i.query;const a=new URLSearchParams(i.query);a.get("windowId")==="_blank"&&(a.delete("windowId"),r=a.toString());const l=w.from({scheme:v.vscodeRemote,authority:n,path:e,query:r,fragment:i.fragment});return N(e)?{workspaceUri:l}:/:[\d]+$/.test(e)?{fileUri:l}:{folderUri:l}}}}async handleProtocolUrl(i,t,n,e,r){this.logService.trace("app#handleProtocolUrl():",e.toString(!0),r),e.scheme===this.productService.urlProtocol&&e.path==="workspace"&&(e=e.with({authority:"file",path:w.parse(e.query).path,query:""}));let a=!1;const l=new URLSearchParams(e.query);l.get("windowId")==="_blank"?(this.logService.trace("app#handleProtocolUrl() found 'windowId=_blank' as parameter, setting shouldOpenInNewWindow=true:",e.toString(!0)),l.delete("windowId"),e=e.with({query:l.toString()}),a=!0):E&&i.getWindowCount()===0&&(this.logService.trace("app#handleProtocolUrl() running on macOS with no window open, setting shouldOpenInNewWindow=true:",e.toString(!0)),a=!0);const d=l.get("continueOn");d!==null&&(this.logService.trace("app#handleProtocolUrl() found 'continueOn' as parameter:",e.toString(!0)),l.delete("continueOn"),e=e.with({query:l.toString()}),this.environmentMainService.continueOn=d??void 0);const o=this.getWindowOpenableFromProtocolUrl(e);return o?await this.shouldBlockOpenable(o,i,t)?(this.logService.trace("app#handleProtocolUrl() protocol url was blocked:",e.toString(!0)),!0):(this.logService.trace("app#handleProtocolUrl() opening protocol url as window:",o,e.toString(!0)),(await i.open({context:I.LINK,cli:{...this.environmentMainService.args},urisToOpen:[o],forceNewWindow:a,gotoLineMode:!0})).at(0)?.focus(),!0):a?(this.logService.trace("app#handleProtocolUrl() opening empty window and passing in protocol url:",e.toString(!0)),await(await i.open({context:I.LINK,cli:{...this.environmentMainService.args},forceNewWindow:!0,forceEmpty:!0,gotoLineMode:!0,remoteAuthority:zr(e)})).at(0)?.ready(),n.open(e,r)):(this.logService.trace("app#handleProtocolUrl(): not handled",e.toString(!0),r),!1)}setupSharedProcess(i,t,n){const e=this._register(this.mainInstantiationService.createInstance(Qr,i,t,n));this._register(e.onDidCrash(()=>this.windowsMainService?.sendToFocused("vscode:reportSharedProcessCrash")));const r=(async()=>{this.logService.trace("Main->SharedProcess#connect");const l=await e.connect();return this.logService.trace("Main->SharedProcess#connect: connection established"),new ir(l,"main")})();return{sharedProcessReady:(async()=>(await e.whenReady(),r))(),sharedProcessClient:r}}async initServices(i,t,n,e){const r=new Or;switch(process.platform){case"win32":r.set(O,new p(Ui));break;case"linux":Ye?r.set(O,new p(Ri,[process.env.SNAP,process.env.SNAP_REVISION])):r.set(O,new p(Pi));break;case"darwin":r.set(O,new p(Ci));break}r.set(k,new p(Hi,[i,t,n,this.userEnv],!1)),r.set(re,new p(tr,void 0,!1));const a=new vr(this.logService,this.productService);r.set(te,a),r.set(de,new p(Tr,void 0,!1)),r.set(ie,new p(pr,void 0,!1)),r.set(dr,h.toService(ee(e.then(s=>s.getChannel("diagnostics"))))),r.set(ae,new p(Lr,[this.userEnv])),r.set(ce,new p(Er,[this.userEnv])),r.set(ne,new p(mr)),r.set(le,new p(xr)),r.set(q,new p(Br,void 0,!1)),r.set(Se,new p(Ni)),r.set(pe,new p(_r)),r.set(oe,new p(Mr)),r.set(B,new p(oi)),r.set(ni,new p(ti));const l=new yi({graceTime:ue.GraceTime,shortGraceTime:ue.ShortGraceTime,scrollback:this.configurationService.getValue(wi.PersistentSessionScrollback)??100},this.configurationService,this.environmentMainService,this.lifecycleMainService,this.logService),d=new Mi(l,this.configurationService,this.logService,this.loggerService);r.set(he,d),x?r.set(T,new p(Pr)):E?r.set(T,new p(Cr)):Ge&&r.set(T,new p(Ir));const o=new or(this.environmentMainService,this.configurationService,this.logService,this.stateService);r.set(nr,o);const c=new Ki(this.environmentMainService,this.logService,this.userDataProfilesMainService,o,a);if(r.set($i,c),r.set(ge,new p(Bi,void 0,!1)),r.set(_i,new p(qi,void 0,!1)),r.set($,new p(Oi,void 0,!1)),hi(this.productService,this.environmentMainService)){const s=mi(this.productService,this.configurationService),m=ee(e.then(A=>A.getChannel("telemetryAppender"))),u=new ci(m),g=si(xe(),Ee(),process.arch,this.productService.commit,this.productService.version,i,t,n,s),f=pi(this.environmentMainService),P={appenders:[u],commonProperties:g,piiPaths:f,sendErrorTelemetry:!0};r.set(me,new p(li,[P],!1))}else r.set(me,di);return r.set(fr,new p(gr,void 0,!0)),r.set(Sr,new p(wr,void 0,!0)),r.set(fe,new p(ki,void 0,!0)),r.set(ve,new p(qr)),r.set(cr,new p(ar,void 0,!0)),await ke.settled([o.initialize(),c.initialize()]),this.mainInstantiationService.createChild(r)}initChannels(i,t,n){const e=this._register(new $e),r=h.fromService(i.get(de),e,{disableMarshalling:!0});this.mainProcessNodeIpcServer.registerChannel("launch",r);const a=h.fromService(i.get(ie),e,{disableMarshalling:!0});this.mainProcessNodeIpcServer.registerChannel("diagnostics",a);const l=e.add(new Kr(i.get($r)));t.registerChannel("policy",l),n.then(S=>S.registerChannel("policy",l));const d=this.fileService.getProvider(v.file);ze(d instanceof br);const o=e.add(new Ur(d,this.logService,this.environmentMainService));t.registerChannel(se,o),n.then(S=>S.registerChannel(se,o));const c=h.fromService(i.get(K),e);t.registerChannel("userDataProfiles",c),n.then(S=>S.registerChannel("userDataProfiles",c));const s=new Zr(i.get(Jr));n.then(S=>S.registerChannel("request",s));const m=new Ii(i.get(O));t.registerChannel("update",m);const u=h.fromService(i.get(ae),e);t.registerChannel("issue",u);const g=h.fromService(i.get(ce),e);t.registerChannel("process",g);const f=h.fromService(i.get(ne),e);t.registerChannel("encryption",f);const P=h.fromService(i.get(ei),e);t.registerChannel("sign",P);const A=h.fromService(i.get(le),e);t.registerChannel("keyboardLayout",A),this.nativeHostMainService=i.get(q);const V=h.fromService(this.nativeHostMainService,e);t.registerChannel("nativeHost",V),n.then(S=>S.registerChannel("nativeHost",V));const we=h.fromService(i.get(ge),e);t.registerChannel("workspaces",we);const ye=h.fromService(i.get(pe),e);t.registerChannel("menubar",ye);const Me=h.fromService(i.get($),e);t.registerChannel("url",Me);const Ie=h.fromService(i.get(Se),e);t.registerChannel("webview",Ie);const j=e.add(new ii(this.logService,i.get(B)));t.registerChannel("storage",j),n.then(S=>S.registerChannel("storage",j));const Ce=e.add(new Ei(i.get(B),i.get(K),this.logService));n.then(S=>S.registerChannel("profileStorageListener",Ce));const Pe=h.fromService(i.get(he),e);t.registerChannel(gi.LocalPty,Pe);const Re=h.fromService(i.get(T),e);t.registerChannel("externalTerminal",Re);const G=new Hr(i.get(Dr));t.registerChannel("logger",G),n.then(S=>S.registerChannel("logger",G));const Ue=new lr(i.get(k));t.registerChannel("extensionhostdebugservice",Ue);const be=h.fromService(i.get(oe),e);t.registerChannel(yr,be);const We=h.fromService(i.get(fe),e);t.registerChannel(Ti,We)}async openFirstWindow(i,t){const n=this.windowsMainService=i.get(k);this.auxiliaryWindowsMainService=i.get(re);const e=ur(process.env)?I.CLI:I.DESKTOP,r=this.environmentMainService.args;if(t){if(t.openables.length>0)return n.open({context:e,cli:r,urisToOpen:t.openables,gotoLineMode:!0,initialStartup:!0});if(t.urls.length>0)for(const f of t.urls){const P=new URLSearchParams(f.uri.query);if(P.get("windowId")==="_blank")return P.delete("windowId"),f.originalUrl=f.uri.toString(!0),f.uri=f.uri.with({query:P.toString()}),n.open({context:e,cli:r,forceNewWindow:!0,forceEmpty:!0,gotoLineMode:!0,initialStartup:!0})}}const a=global.macOpenFiles,l=r._.length,d=!!r["folder-uri"],o=!!r["file-uri"],c=r["skip-add-to-recently-opened"]===!0,s=r.wait&&r.waitMarkerFilePath?w.file(r.waitMarkerFilePath):void 0,m=r.remote||void 0,u=r.profile,g=r["profile-temp"];if(!l&&!d&&!o){if(r["new-window"]||u||g)return n.open({context:e,cli:r,forceNewWindow:!0,forceEmpty:!0,noRecentEntry:c,waitMarkerFileURI:s,initialStartup:!0,remoteAuthority:m,forceProfile:u,forceTempProfile:g});if(a.length)return n.open({context:I.DOCK,cli:r,urisToOpen:a.map(f=>(f=X(f),N(f)?{workspaceUri:w.file(f)}:{fileUri:w.file(f)})),noRecentEntry:c,waitMarkerFileURI:s,initialStartup:!0})}return n.open({context:e,cli:r,forceNewWindow:r["new-window"],diffMode:r.diff,mergeMode:r.merge,noRecentEntry:c,waitMarkerFileURI:s,gotoLineMode:r.goto,initialStartup:!0,remoteAuthority:m,forceProfile:u,forceTempProfile:g})}afterWindowOpen(){this.installMutex(),z.registerHttpProtocol(v.vscodeRemoteResource,(i,t)=>{t({url:i.url.replace(/^vscode-remote-resource:/,"http:"),method:i.method})}),this.resolveShellEnvironment(this.environmentMainService.args,process.env,!0),this.updateCrashReporterEnablement(),E&&R.runningUnderARM64Translation&&this.windowsMainService?.sendToFocused("vscode:showTranslatedBuildWarning")}async installMutex(){const i=this.productService.win32MutexName;if(x&&i)try{const t=await import("@vscode/windows-mutex"),n=new t.Mutex(i);F.once(this.lifecycleMainService.onWillShutdown)(()=>n.release())}catch(t){this.logService.error(t)}}async resolveShellEnvironment(i,t,n){try{return await Xr(this.configurationService,this.logService,i,t)}catch(e){const r=Fe(e);n?this.windowsMainService?.sendToFocused("vscode:showResolveShellEnvError",r):this.logService.error(r)}return{}}async updateCrashReporterEnablement(){try{const t=(await this.fileService.readFile(this.environmentMainService.argvResource)).value.toString(),n=_e(t),r=vi(this.configurationService)>=ai.CRASH;if(n["enable-crash-reporter"]===void 0){const a=["","	// Allows to disable crash reporting.","	// Should restart the app if the value is changed.",`	"enable-crash-reporter": ${r},`,"","	// Unique id used for correlating crash reports sent from this instance.","	// Do not edit this value.",`	"crash-reporter-id": "${Je()}"`,"}"],l=t.substring(0,t.length-2).concat(`,
-`,a.join(`
-`));await this.fileService.writeFile(this.environmentMainService.argvResource,Z.fromString(l))}else{const a=t.replace(/"enable-crash-reporter": .*,/,`"enable-crash-reporter": ${r},`);a!==t&&await this.fileService.writeFile(this.environmentMainService.argvResource,Z.fromString(a))}}catch(i){this.logService.error(i),this.windowsMainService?.sendToFocused("vscode:showArgvParseWarning")}}};b=Y([y(2,Wr),y(3,Ar),y(4,Fr),y(5,hr),y(6,kr),y(7,sr),y(8,ri),y(9,Rr),y(10,Vr),y(11,K)],b);export{b as CodeApplication};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { hostname, release } from "os";
+import {
+  BrowserWindow,
+  app,
+  protocol,
+  session,
+  systemPreferences
+} from "electron";
+import {
+  Promises,
+  RunOnceScheduler,
+  runWhenGlobalIdle
+} from "../../base/common/async.js";
+import { VSBuffer } from "../../base/common/buffer.js";
+import { toErrorMessage } from "../../base/common/errorMessage.js";
+import {
+  isSigPipeError,
+  onUnexpectedError,
+  setUnexpectedErrorHandler
+} from "../../base/common/errors.js";
+import { Event } from "../../base/common/event.js";
+import { parse } from "../../base/common/jsonc.js";
+import { getPathLabel } from "../../base/common/labels.js";
+import { Lazy } from "../../base/common/lazy.js";
+import { Disposable, DisposableStore } from "../../base/common/lifecycle.js";
+import { Schemas, VSCODE_AUTHORITY } from "../../base/common/network.js";
+import { normalizeNFC } from "../../base/common/normalization.js";
+import { join, posix } from "../../base/common/path.js";
+import {
+  OS,
+  isLinux,
+  isLinuxSnap,
+  isMacintosh,
+  isWindows
+} from "../../base/common/platform.js";
+import { assertType } from "../../base/common/types.js";
+import { URI } from "../../base/common/uri.js";
+import { generateUuid } from "../../base/common/uuid.js";
+import {
+  addUNCHostToAllowlist,
+  disableUNCAccessRestrictions
+} from "../../base/node/unc.js";
+import { registerContextMenuListener } from "../../base/parts/contextmenu/electron-main/contextmenu.js";
+import {
+  ProxyChannel,
+  StaticRouter,
+  getDelayedChannel
+} from "../../base/parts/ipc/common/ipc.js";
+import { Server as ElectronIPCServer } from "../../base/parts/ipc/electron-main/ipc.electron.js";
+import { Client as MessagePortClient } from "../../base/parts/ipc/electron-main/ipc.mp.js";
+import { validatedIpcMain } from "../../base/parts/ipc/electron-main/ipcMain.js";
+import { localize } from "../../nls.js";
+import { IAuxiliaryWindowsMainService } from "../../platform/auxiliaryWindow/electron-main/auxiliaryWindows.js";
+import { AuxiliaryWindowsMainService } from "../../platform/auxiliaryWindow/electron-main/auxiliaryWindowsMainService.js";
+import { IBackupMainService } from "../../platform/backup/electron-main/backup.js";
+import { BackupMainService } from "../../platform/backup/electron-main/backupMainService.js";
+import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
+import {
+  CSSDevelopmentService,
+  ICSSDevelopmentService
+} from "../../platform/cssDev/node/cssDevService.js";
+import { ElectronExtensionHostDebugBroadcastChannel } from "../../platform/debug/electron-main/extensionHostDebugIpc.js";
+import { IDiagnosticsService } from "../../platform/diagnostics/common/diagnostics.js";
+import {
+  DiagnosticsMainService,
+  IDiagnosticsMainService
+} from "../../platform/diagnostics/electron-main/diagnosticsMainService.js";
+import {
+  DialogMainService,
+  IDialogMainService
+} from "../../platform/dialogs/electron-main/dialogMainService.js";
+import { IEncryptionMainService } from "../../platform/encryption/common/encryptionService.js";
+import { EncryptionMainService } from "../../platform/encryption/electron-main/encryptionMainService.js";
+import { IEnvironmentMainService } from "../../platform/environment/electron-main/environmentMainService.js";
+import { isLaunchedFromCli } from "../../platform/environment/node/argvHelper.js";
+import { IExtensionsProfileScannerService } from "../../platform/extensionManagement/common/extensionsProfileScannerService.js";
+import { IExtensionsScannerService } from "../../platform/extensionManagement/common/extensionsScannerService.js";
+import { ExtensionsProfileScannerService } from "../../platform/extensionManagement/node/extensionsProfileScannerService.js";
+import { ExtensionsScannerService } from "../../platform/extensionManagement/node/extensionsScannerService.js";
+import {
+  IExtensionHostStarter,
+  ipcExtensionHostStarterChannelName
+} from "../../platform/extensions/common/extensionHostStarter.js";
+import { ExtensionHostStarter } from "../../platform/extensions/electron-main/extensionHostStarter.js";
+import { IExternalTerminalMainService } from "../../platform/externalTerminal/electron-main/externalTerminal.js";
+import {
+  LinuxExternalTerminalService,
+  MacExternalTerminalService,
+  WindowsExternalTerminalService
+} from "../../platform/externalTerminal/node/externalTerminalService.js";
+import { LOCAL_FILE_SYSTEM_CHANNEL_NAME } from "../../platform/files/common/diskFileSystemProviderClient.js";
+import { IFileService } from "../../platform/files/common/files.js";
+import { DiskFileSystemProviderChannel } from "../../platform/files/electron-main/diskFileSystemProviderServer.js";
+import { DiskFileSystemProvider } from "../../platform/files/node/diskFileSystemProvider.js";
+import { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
+import {
+  IInstantiationService
+} from "../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../platform/instantiation/common/serviceCollection.js";
+import {
+  IIssueMainService,
+  IProcessMainService
+} from "../../platform/issue/common/issue.js";
+import { IssueMainService } from "../../platform/issue/electron-main/issueMainService.js";
+import { ProcessMainService } from "../../platform/issue/electron-main/processMainService.js";
+import {
+  IKeyboardLayoutMainService,
+  KeyboardLayoutMainService
+} from "../../platform/keyboardLayout/electron-main/keyboardLayoutMainService.js";
+import {
+  ILaunchMainService,
+  LaunchMainService
+} from "../../platform/launch/electron-main/launchMainService.js";
+import {
+  ILifecycleMainService,
+  LifecycleMainPhase,
+  ShutdownReason
+} from "../../platform/lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService, ILoggerService } from "../../platform/log/common/log.js";
+import { LoggerChannel } from "../../platform/log/electron-main/logIpc.js";
+import { ILoggerMainService } from "../../platform/log/electron-main/loggerService.js";
+import {
+  IMenubarMainService,
+  MenubarMainService
+} from "../../platform/menubar/electron-main/menubarMainService.js";
+import {
+  IProxyAuthService,
+  ProxyAuthService
+} from "../../platform/native/electron-main/auth.js";
+import {
+  INativeHostMainService,
+  NativeHostMainService
+} from "../../platform/native/electron-main/nativeHostMainService.js";
+import { IPolicyService } from "../../platform/policy/common/policy.js";
+import { PolicyChannel } from "../../platform/policy/common/policyIpc.js";
+import { IProductService } from "../../platform/product/common/productService.js";
+import {
+  NODE_REMOTE_RESOURCE_CHANNEL_NAME,
+  NODE_REMOTE_RESOURCE_IPC_METHOD_NAME,
+  NodeRemoteResourceRouter
+} from "../../platform/remote/common/electronRemoteResources.js";
+import { getRemoteAuthority } from "../../platform/remote/common/remoteHosts.js";
+import { IRequestService } from "../../platform/request/common/request.js";
+import { RequestChannel } from "../../platform/request/common/requestIpc.js";
+import { SharedProcess } from "../../platform/sharedProcess/electron-main/sharedProcess.js";
+import { getResolvedShellEnv } from "../../platform/shell/node/shellEnv.js";
+import { ISignService } from "../../platform/sign/common/sign.js";
+import { IStateService } from "../../platform/state/node/state.js";
+import { StorageDatabaseChannel } from "../../platform/storage/electron-main/storageIpc.js";
+import {
+  ApplicationStorageMainService,
+  IApplicationStorageMainService,
+  IStorageMainService,
+  StorageMainService
+} from "../../platform/storage/electron-main/storageMainService.js";
+import { resolveCommonProperties } from "../../platform/telemetry/common/commonProperties.js";
+import {
+  ITelemetryService,
+  TelemetryLevel
+} from "../../platform/telemetry/common/telemetry.js";
+import { TelemetryAppenderClient } from "../../platform/telemetry/common/telemetryIpc.js";
+import {
+  TelemetryService
+} from "../../platform/telemetry/common/telemetryService.js";
+import {
+  NullTelemetryService,
+  getPiiPathsFromEnvironment,
+  getTelemetryLevel,
+  isInternalTelemetry,
+  supportsTelemetry
+} from "../../platform/telemetry/common/telemetryUtils.js";
+import {
+  resolveMachineId,
+  resolveSqmId,
+  resolvedevDeviceId
+} from "../../platform/telemetry/electron-main/telemetryUtils.js";
+import {
+  ILocalPtyService,
+  LocalReconnectConstants,
+  TerminalIpcChannels,
+  TerminalSettingId
+} from "../../platform/terminal/common/terminal.js";
+import { ElectronPtyHostStarter } from "../../platform/terminal/electron-main/electronPtyHostStarter.js";
+import { PtyHostService } from "../../platform/terminal/node/ptyHostService.js";
+import { IUpdateService } from "../../platform/update/common/update.js";
+import { UpdateChannel } from "../../platform/update/common/updateIpc.js";
+import { DarwinUpdateService } from "../../platform/update/electron-main/updateService.darwin.js";
+import { LinuxUpdateService } from "../../platform/update/electron-main/updateService.linux.js";
+import { SnapUpdateService } from "../../platform/update/electron-main/updateService.snap.js";
+import { Win32UpdateService } from "../../platform/update/electron-main/updateService.win32.js";
+import {
+  IURLService
+} from "../../platform/url/common/url.js";
+import {
+  URLHandlerChannelClient,
+  URLHandlerRouter
+} from "../../platform/url/common/urlIpc.js";
+import { NativeURLService } from "../../platform/url/common/urlService.js";
+import { ElectronURLListener } from "../../platform/url/electron-main/electronUrlListener.js";
+import { IUserDataProfilesMainService } from "../../platform/userDataProfile/electron-main/userDataProfile.js";
+import { ProfileStorageChangesListenerChannel } from "../../platform/userDataProfile/electron-main/userDataProfileStorageIpc.js";
+import { UserDataProfilesHandler } from "../../platform/userDataProfile/electron-main/userDataProfilesHandler.js";
+import { ipcUtilityProcessWorkerChannelName } from "../../platform/utilityProcess/common/utilityProcessWorkerService.js";
+import {
+  IUtilityProcessWorkerMainService,
+  UtilityProcessWorkerMainService
+} from "../../platform/utilityProcess/electron-main/utilityProcessWorkerMainService.js";
+import { IWebviewManagerService } from "../../platform/webview/common/webviewManagerService.js";
+import { WebviewMainService } from "../../platform/webview/electron-main/webviewMainService.js";
+import {
+  isFolderToOpen,
+  isWorkspaceToOpen
+} from "../../platform/window/common/window.js";
+import {
+  IWindowsMainService,
+  OpenContext
+} from "../../platform/windows/electron-main/windows.js";
+import { WindowsMainService } from "../../platform/windows/electron-main/windowsMainService.js";
+import { ActiveWindowManager } from "../../platform/windows/node/windowTracker.js";
+import { hasWorkspaceFileExtension } from "../../platform/workspace/common/workspace.js";
+import { IWorkspacesService } from "../../platform/workspaces/common/workspaces.js";
+import {
+  IWorkspacesHistoryMainService,
+  WorkspacesHistoryMainService
+} from "../../platform/workspaces/electron-main/workspacesHistoryMainService.js";
+import { WorkspacesMainService } from "../../platform/workspaces/electron-main/workspacesMainService.js";
+import {
+  IWorkspacesManagementMainService,
+  WorkspacesManagementMainService
+} from "../../platform/workspaces/electron-main/workspacesManagementMainService.js";
+let CodeApplication = class extends Disposable {
+  constructor(mainProcessNodeIpcServer, userEnv, mainInstantiationService, logService, loggerService, environmentMainService, lifecycleMainService, configurationService, stateService, fileService, productService, userDataProfilesMainService) {
+    super();
+    this.mainProcessNodeIpcServer = mainProcessNodeIpcServer;
+    this.userEnv = userEnv;
+    this.mainInstantiationService = mainInstantiationService;
+    this.logService = logService;
+    this.loggerService = loggerService;
+    this.environmentMainService = environmentMainService;
+    this.lifecycleMainService = lifecycleMainService;
+    this.configurationService = configurationService;
+    this.stateService = stateService;
+    this.fileService = fileService;
+    this.productService = productService;
+    this.userDataProfilesMainService = userDataProfilesMainService;
+    this.configureSession();
+    this.registerListeners();
+  }
+  static {
+    __name(this, "CodeApplication");
+  }
+  static SECURITY_PROTOCOL_HANDLING_CONFIRMATION_SETTING_KEY = {
+    [Schemas.file]: "security.promptForLocalFileProtocolHandling",
+    [Schemas.vscodeRemote]: "security.promptForRemoteFileProtocolHandling"
+  };
+  windowsMainService;
+  auxiliaryWindowsMainService;
+  nativeHostMainService;
+  configureSession() {
+    const isUrlFromWebview = /* @__PURE__ */ __name((requestingUrl) => requestingUrl?.startsWith(`${Schemas.vscodeWebview}://`), "isUrlFromWebview");
+    const allowedPermissionsInWebview = /* @__PURE__ */ new Set([
+      "clipboard-read",
+      "clipboard-sanitized-write"
+    ]);
+    session.defaultSession.setPermissionRequestHandler(
+      (_webContents, permission, callback, details) => {
+        if (isUrlFromWebview(details.requestingUrl)) {
+          return callback(
+            allowedPermissionsInWebview.has(permission)
+          );
+        }
+        return callback(false);
+      }
+    );
+    session.defaultSession.setPermissionCheckHandler(
+      (_webContents, permission, _origin, details) => {
+        if (isUrlFromWebview(details.requestingUrl)) {
+          return allowedPermissionsInWebview.has(permission);
+        }
+        return false;
+      }
+    );
+    const supportedSvgSchemes = /* @__PURE__ */ new Set([
+      Schemas.file,
+      Schemas.vscodeFileResource,
+      Schemas.vscodeRemoteResource,
+      Schemas.vscodeManagedRemoteResource,
+      "devtools"
+    ]);
+    const isSafeFrame = /* @__PURE__ */ __name((requestFrame) => {
+      for (let frame = requestFrame; frame; frame = frame.parent) {
+        if (frame.url.startsWith(`${Schemas.vscodeWebview}://`)) {
+          return true;
+        }
+      }
+      return false;
+    }, "isSafeFrame");
+    const isSvgRequestFromSafeContext = /* @__PURE__ */ __name((details) => {
+      return details.resourceType === "xhr" || isSafeFrame(details.frame);
+    }, "isSvgRequestFromSafeContext");
+    const isAllowedVsCodeFileRequest = /* @__PURE__ */ __name((details) => {
+      const frame = details.frame;
+      if (!frame || !this.windowsMainService) {
+        return false;
+      }
+      const windows = BrowserWindow.getAllWindows();
+      for (const window of windows) {
+        if (frame.processId === window.webContents.mainFrame.processId) {
+          return true;
+        }
+      }
+      return false;
+    }, "isAllowedVsCodeFileRequest");
+    const isAllowedWebviewRequest = /* @__PURE__ */ __name((uri, details) => {
+      if (uri.path !== "/index.html") {
+        return true;
+      }
+      const frame = details.frame;
+      if (!frame || !this.windowsMainService) {
+        return false;
+      }
+      for (const window of this.windowsMainService.getWindows()) {
+        if (window.win) {
+          if (frame.processId === window.win.webContents.mainFrame.processId) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }, "isAllowedWebviewRequest");
+    session.defaultSession.webRequest.onBeforeRequest(
+      (details, callback) => {
+        const uri = URI.parse(details.url);
+        if (uri.scheme === Schemas.vscodeWebview) {
+          if (!isAllowedWebviewRequest(uri, details)) {
+            this.logService.error(
+              "Blocked vscode-webview request",
+              details.url
+            );
+            return callback({ cancel: true });
+          }
+        }
+        if (uri.scheme === Schemas.vscodeFileResource) {
+          if (!isAllowedVsCodeFileRequest(details)) {
+            this.logService.error(
+              "Blocked vscode-file request",
+              details.url
+            );
+            return callback({ cancel: true });
+          }
+        }
+        if (uri.path.endsWith(".svg")) {
+          const isSafeResourceUrl = supportedSvgSchemes.has(
+            uri.scheme
+          );
+          if (!isSafeResourceUrl) {
+            return callback({
+              cancel: !isSvgRequestFromSafeContext(details)
+            });
+          }
+        }
+        return callback({ cancel: false });
+      }
+    );
+    session.defaultSession.webRequest.onHeadersReceived(
+      (details, callback) => {
+        const responseHeaders = details.responseHeaders;
+        const contentTypes = responseHeaders["content-type"] || responseHeaders["Content-Type"];
+        if (contentTypes && Array.isArray(contentTypes)) {
+          const uri = URI.parse(details.url);
+          if (uri.path.endsWith(".svg")) {
+            if (supportedSvgSchemes.has(uri.scheme)) {
+              responseHeaders["Content-Type"] = ["image/svg+xml"];
+              return callback({ cancel: false, responseHeaders });
+            }
+          }
+          if (!uri.path.endsWith(Schemas.vscodeRemoteResource) && contentTypes.some(
+            (contentType) => contentType.toLowerCase().includes("image/svg")
+          )) {
+            return callback({
+              cancel: !isSvgRequestFromSafeContext(details)
+            });
+          }
+        }
+        return callback({ cancel: false });
+      }
+    );
+    session.defaultSession.webRequest.onHeadersReceived(
+      (details, callback) => {
+        if (details.url.startsWith(
+          "https://vscode.download.prss.microsoft.com/"
+        )) {
+          const responseHeaders = details.responseHeaders ?? /* @__PURE__ */ Object.create(null);
+          if (responseHeaders["Access-Control-Allow-Origin"] === void 0) {
+            responseHeaders["Access-Control-Allow-Origin"] = ["*"];
+            return callback({ cancel: false, responseHeaders });
+          }
+        }
+        return callback({ cancel: false });
+      }
+    );
+    const defaultSession = session.defaultSession;
+    if (typeof defaultSession.setCodeCachePath === "function" && this.environmentMainService.codeCachePath) {
+      defaultSession.setCodeCachePath(
+        join(this.environmentMainService.codeCachePath, "chrome")
+      );
+    }
+    if (isWindows) {
+      if (this.configurationService.getValue(
+        "security.restrictUNCAccess"
+      ) === false) {
+        disableUNCAccessRestrictions();
+      } else {
+        addUNCHostToAllowlist(
+          this.configurationService.getValue(
+            "security.allowedUNCHosts"
+          )
+        );
+      }
+    }
+  }
+  registerListeners() {
+    setUnexpectedErrorHandler((error) => this.onUnexpectedError(error));
+    process.on("uncaughtException", (error) => {
+      if (!isSigPipeError(error)) {
+        onUnexpectedError(error);
+      }
+    });
+    process.on(
+      "unhandledRejection",
+      (reason) => onUnexpectedError(reason)
+    );
+    Event.once(this.lifecycleMainService.onWillShutdown)(
+      () => this.dispose()
+    );
+    registerContextMenuListener();
+    app.on(
+      "accessibility-support-changed",
+      (event, accessibilitySupportEnabled) => {
+        this.windowsMainService?.sendToAll(
+          "vscode:accessibilitySupportChanged",
+          accessibilitySupportEnabled
+        );
+      }
+    );
+    app.on("activate", async (event, hasVisibleWindows) => {
+      this.logService.trace("app#activate");
+      if (!hasVisibleWindows) {
+        await this.windowsMainService?.openEmptyWindow({
+          context: OpenContext.DOCK
+        });
+      }
+    });
+    app.on("web-contents-created", (event, contents) => {
+      if (contents?.opener?.url.startsWith(
+        `${Schemas.vscodeFileResource}://${VSCODE_AUTHORITY}/`
+      )) {
+        this.logService.trace(
+          '[aux window]  app.on("web-contents-created"): Registering auxiliary window'
+        );
+        this.auxiliaryWindowsMainService?.registerWindow(contents);
+      }
+      contents.on("will-navigate", (event2) => {
+        this.logService.error(
+          "webContents#will-navigate: Prevented webcontent navigation"
+        );
+        event2.preventDefault();
+      });
+      contents.setWindowOpenHandler((details) => {
+        if (details.url === "about:blank") {
+          this.logService.trace(
+            "[aux window] webContents#setWindowOpenHandler: Allowing auxiliary window to open on about:blank"
+          );
+          return {
+            action: "allow",
+            overrideBrowserWindowOptions: this.auxiliaryWindowsMainService?.createWindow(
+              details
+            )
+          };
+        } else {
+          this.logService.trace(
+            `webContents#setWindowOpenHandler: Prevented opening window with URL ${details.url}}`
+          );
+          this.nativeHostMainService?.openExternal(
+            void 0,
+            details.url
+          );
+          return { action: "deny" };
+        }
+      });
+    });
+    let macOpenFileURIs = [];
+    let runningTimeout;
+    app.on("open-file", (event, path) => {
+      path = normalizeNFC(path);
+      this.logService.trace("app#open-file: ", path);
+      event.preventDefault();
+      macOpenFileURIs.push(
+        hasWorkspaceFileExtension(path) ? { workspaceUri: URI.file(path) } : { fileUri: URI.file(path) }
+      );
+      if (runningTimeout !== void 0) {
+        clearTimeout(runningTimeout);
+        runningTimeout = void 0;
+      }
+      runningTimeout = setTimeout(async () => {
+        await this.windowsMainService?.open({
+          context: OpenContext.DOCK,
+          cli: this.environmentMainService.args,
+          urisToOpen: macOpenFileURIs,
+          gotoLineMode: false,
+          preferNewWindow: true
+        });
+        macOpenFileURIs = [];
+        runningTimeout = void 0;
+      }, 100);
+    });
+    app.on("new-window-for-tab", async () => {
+      await this.windowsMainService?.openEmptyWindow({
+        context: OpenContext.DESKTOP
+      });
+    });
+    validatedIpcMain.handle("vscode:fetchShellEnv", (event) => {
+      const window = this.windowsMainService?.getWindowByWebContents(
+        event.sender
+      );
+      let args;
+      let env;
+      if (window?.config) {
+        args = window.config;
+        env = { ...process.env, ...window.config.userEnv };
+      } else {
+        args = this.environmentMainService.args;
+        env = process.env;
+      }
+      return this.resolveShellEnvironment(args, env, false);
+    });
+    validatedIpcMain.on(
+      "vscode:toggleDevTools",
+      (event) => event.sender.toggleDevTools()
+    );
+    validatedIpcMain.on(
+      "vscode:openDevTools",
+      (event) => event.sender.openDevTools()
+    );
+    validatedIpcMain.on(
+      "vscode:reloadWindow",
+      (event) => event.sender.reload()
+    );
+    validatedIpcMain.handle(
+      "vscode:notifyZoomLevel",
+      async (event, zoomLevel) => {
+        const window = this.windowsMainService?.getWindowByWebContents(
+          event.sender
+        );
+        if (window) {
+          window.notifyZoomLevel(zoomLevel);
+        }
+      }
+    );
+  }
+  onUnexpectedError(error) {
+    if (error) {
+      const friendlyError = {
+        message: `[uncaught exception in main]: ${error.message}`,
+        stack: error.stack
+      };
+      this.windowsMainService?.sendToFocused(
+        "vscode:reportError",
+        JSON.stringify(friendlyError)
+      );
+    }
+    this.logService.error(`[uncaught exception in main]: ${error}`);
+    if (error.stack) {
+      this.logService.error(error.stack);
+    }
+  }
+  async startup() {
+    this.logService.debug("Starting VS Code");
+    this.logService.debug(`from: ${this.environmentMainService.appRoot}`);
+    this.logService.debug("args:", this.environmentMainService.args);
+    const win32AppUserModelId = this.productService.win32AppUserModelId;
+    if (isWindows && win32AppUserModelId) {
+      app.setAppUserModelId(win32AppUserModelId);
+    }
+    try {
+      if (isMacintosh && this.configurationService.getValue("window.nativeTabs") === true && !systemPreferences.getUserDefault(
+        "NSUseImprovedLayoutPass",
+        "boolean"
+      )) {
+        systemPreferences.setUserDefault(
+          "NSUseImprovedLayoutPass",
+          "boolean",
+          true
+        );
+      }
+    } catch (error) {
+      this.logService.error(error);
+    }
+    const mainProcessElectronServer = new ElectronIPCServer();
+    Event.once(this.lifecycleMainService.onWillShutdown)((e) => {
+      if (e.reason === ShutdownReason.KILL) {
+        mainProcessElectronServer.dispose();
+      }
+    });
+    this.logService.trace("Resolving machine identifier...");
+    const [machineId, sqmId, devDeviceId] = await Promise.all([
+      resolveMachineId(this.stateService, this.logService),
+      resolveSqmId(this.stateService, this.logService),
+      resolvedevDeviceId(this.stateService, this.logService)
+    ]);
+    this.logService.trace(`Resolved machine identifier: ${machineId}`);
+    const { sharedProcessReady, sharedProcessClient } = this.setupSharedProcess(machineId, sqmId, devDeviceId);
+    const appInstantiationService = await this.initServices(
+      machineId,
+      sqmId,
+      devDeviceId,
+      sharedProcessReady
+    );
+    appInstantiationService.invokeFunction(
+      (accessor) => accessor.get(IProxyAuthService)
+    );
+    this._register(
+      appInstantiationService.createInstance(UserDataProfilesHandler)
+    );
+    appInstantiationService.invokeFunction(
+      (accessor) => this.initChannels(
+        accessor,
+        mainProcessElectronServer,
+        sharedProcessClient
+      )
+    );
+    const initialProtocolUrls = await appInstantiationService.invokeFunction(
+      (accessor) => this.setupProtocolUrlHandlers(
+        accessor,
+        mainProcessElectronServer
+      )
+    );
+    this.setupManagedRemoteResourceUrlHandler(mainProcessElectronServer);
+    this.lifecycleMainService.phase = LifecycleMainPhase.Ready;
+    await appInstantiationService.invokeFunction(
+      (accessor) => this.openFirstWindow(accessor, initialProtocolUrls)
+    );
+    this.lifecycleMainService.phase = LifecycleMainPhase.AfterWindowOpen;
+    this.afterWindowOpen();
+    const eventuallyPhaseScheduler = this._register(
+      new RunOnceScheduler(() => {
+        this._register(
+          runWhenGlobalIdle(
+            () => this.lifecycleMainService.phase = LifecycleMainPhase.Eventually,
+            2500
+          )
+        );
+      }, 2500)
+    );
+    eventuallyPhaseScheduler.schedule();
+  }
+  async setupProtocolUrlHandlers(accessor, mainProcessElectronServer) {
+    const windowsMainService = this.windowsMainService = accessor.get(IWindowsMainService);
+    const urlService = accessor.get(IURLService);
+    const nativeHostMainService = this.nativeHostMainService = accessor.get(INativeHostMainService);
+    const dialogMainService = accessor.get(IDialogMainService);
+    const app2 = this;
+    urlService.registerHandler({
+      async handleURL(uri, options) {
+        return app2.handleProtocolUrl(
+          windowsMainService,
+          dialogMainService,
+          urlService,
+          uri,
+          options
+        );
+      }
+    });
+    const activeWindowManager = this._register(
+      new ActiveWindowManager({
+        onDidOpenMainWindow: nativeHostMainService.onDidOpenMainWindow,
+        onDidFocusMainWindow: nativeHostMainService.onDidFocusMainWindow,
+        getActiveWindowId: /* @__PURE__ */ __name(() => nativeHostMainService.getActiveWindowId(-1), "getActiveWindowId")
+      })
+    );
+    const activeWindowRouter = new StaticRouter(
+      (ctx) => activeWindowManager.getActiveClientId().then((id) => ctx === id)
+    );
+    const urlHandlerRouter = new URLHandlerRouter(
+      activeWindowRouter,
+      this.logService
+    );
+    const urlHandlerChannel = mainProcessElectronServer.getChannel(
+      "urlHandler",
+      urlHandlerRouter
+    );
+    urlService.registerHandler(
+      new URLHandlerChannelClient(urlHandlerChannel)
+    );
+    const initialProtocolUrls = await this.resolveInitialProtocolUrls(
+      windowsMainService,
+      dialogMainService
+    );
+    this._register(
+      new ElectronURLListener(
+        initialProtocolUrls?.urls,
+        urlService,
+        windowsMainService,
+        this.environmentMainService,
+        this.productService,
+        this.logService
+      )
+    );
+    return initialProtocolUrls;
+  }
+  setupManagedRemoteResourceUrlHandler(mainProcessElectronServer) {
+    const notFound = /* @__PURE__ */ __name(() => ({
+      statusCode: 404,
+      data: "Not found"
+    }), "notFound");
+    const remoteResourceChannel = new Lazy(
+      () => mainProcessElectronServer.getChannel(
+        NODE_REMOTE_RESOURCE_CHANNEL_NAME,
+        new NodeRemoteResourceRouter()
+      )
+    );
+    protocol.registerBufferProtocol(
+      Schemas.vscodeManagedRemoteResource,
+      (request, callback) => {
+        const url = URI.parse(request.url);
+        if (!url.authority.startsWith("window:")) {
+          return callback(notFound());
+        }
+        remoteResourceChannel.value.call(
+          NODE_REMOTE_RESOURCE_IPC_METHOD_NAME,
+          [url]
+        ).then(
+          (r) => callback({
+            ...r,
+            data: Buffer.from(r.body, "base64")
+          }),
+          (err) => {
+            this.logService.warn(
+              "error dispatching remote resource call",
+              err
+            );
+            callback({ statusCode: 500, data: String(err) });
+          }
+        );
+      }
+    );
+  }
+  async resolveInitialProtocolUrls(windowsMainService, dialogMainService) {
+    const protocolUrlsFromCommandLine = this.environmentMainService.args["open-url"] ? this.environmentMainService.args._urls || [] : [];
+    if (protocolUrlsFromCommandLine.length > 0) {
+      this.logService.trace(
+        "app#resolveInitialProtocolUrls() protocol urls from command line:",
+        protocolUrlsFromCommandLine
+      );
+    }
+    const protocolUrlsFromEvent = global.getOpenUrls() || [];
+    if (protocolUrlsFromEvent.length > 0) {
+      this.logService.trace(
+        `app#resolveInitialProtocolUrls() protocol urls from macOS 'open-url' event:`,
+        protocolUrlsFromEvent
+      );
+    }
+    if (protocolUrlsFromCommandLine.length + protocolUrlsFromEvent.length === 0) {
+      return void 0;
+    }
+    const protocolUrls = [
+      ...protocolUrlsFromCommandLine,
+      ...protocolUrlsFromEvent
+    ].map((url) => {
+      try {
+        return { uri: URI.parse(url), originalUrl: url };
+      } catch {
+        this.logService.trace(
+          "app#resolveInitialProtocolUrls() protocol url failed to parse:",
+          url
+        );
+        return void 0;
+      }
+    });
+    const openables = [];
+    const urls = [];
+    for (const protocolUrl of protocolUrls) {
+      if (!protocolUrl) {
+        continue;
+      }
+      const windowOpenable = this.getWindowOpenableFromProtocolUrl(
+        protocolUrl.uri
+      );
+      if (windowOpenable) {
+        if (await this.shouldBlockOpenable(
+          windowOpenable,
+          windowsMainService,
+          dialogMainService
+        )) {
+          this.logService.trace(
+            "app#resolveInitialProtocolUrls() protocol url was blocked:",
+            protocolUrl.uri.toString(true)
+          );
+          continue;
+        } else {
+          this.logService.trace(
+            "app#resolveInitialProtocolUrls() protocol url will be handled as window to open:",
+            protocolUrl.uri.toString(true),
+            windowOpenable
+          );
+          openables.push(windowOpenable);
+        }
+      } else {
+        this.logService.trace(
+          "app#resolveInitialProtocolUrls() protocol url will be passed to active window for handling:",
+          protocolUrl.uri.toString(true)
+        );
+        urls.push(protocolUrl);
+      }
+    }
+    return { urls, openables };
+  }
+  async shouldBlockOpenable(openable, windowsMainService, dialogMainService) {
+    let openableUri;
+    let message;
+    if (isWorkspaceToOpen(openable)) {
+      openableUri = openable.workspaceUri;
+      message = localize(
+        "confirmOpenMessageWorkspace",
+        "An external application wants to open '{0}' in {1}. Do you want to open this workspace file?",
+        openableUri.scheme === Schemas.file ? getPathLabel(openableUri, {
+          os: OS,
+          tildify: this.environmentMainService
+        }) : openableUri.toString(true),
+        this.productService.nameShort
+      );
+    } else if (isFolderToOpen(openable)) {
+      openableUri = openable.folderUri;
+      message = localize(
+        "confirmOpenMessageFolder",
+        "An external application wants to open '{0}' in {1}. Do you want to open this folder?",
+        openableUri.scheme === Schemas.file ? getPathLabel(openableUri, {
+          os: OS,
+          tildify: this.environmentMainService
+        }) : openableUri.toString(true),
+        this.productService.nameShort
+      );
+    } else {
+      openableUri = openable.fileUri;
+      message = localize(
+        "confirmOpenMessageFileOrFolder",
+        "An external application wants to open '{0}' in {1}. Do you want to open this file or folder?",
+        openableUri.scheme === Schemas.file ? getPathLabel(openableUri, {
+          os: OS,
+          tildify: this.environmentMainService
+        }) : openableUri.toString(true),
+        this.productService.nameShort
+      );
+    }
+    if (openableUri.scheme !== Schemas.file && openableUri.scheme !== Schemas.vscodeRemote) {
+      return false;
+    }
+    const askForConfirmation = this.configurationService.getValue(
+      CodeApplication.SECURITY_PROTOCOL_HANDLING_CONFIRMATION_SETTING_KEY[openableUri.scheme]
+    );
+    if (askForConfirmation === false) {
+      return false;
+    }
+    const { response, checkboxChecked } = await dialogMainService.showMessageBox({
+      type: "warning",
+      buttons: [
+        localize(
+          { key: "open", comment: ["&& denotes a mnemonic"] },
+          "&&Yes"
+        ),
+        localize(
+          { key: "cancel", comment: ["&& denotes a mnemonic"] },
+          "&&No"
+        )
+      ],
+      message,
+      detail: localize(
+        "confirmOpenDetail",
+        "If you did not initiate this request, it may represent an attempted attack on your system. Unless you took an explicit action to initiate this request, you should press 'No'"
+      ),
+      checkboxLabel: openableUri.scheme === Schemas.file ? localize(
+        "doNotAskAgainLocal",
+        "Allow opening local paths without asking"
+      ) : localize(
+        "doNotAskAgainRemote",
+        "Allow opening remote paths without asking"
+      ),
+      cancelId: 1
+    });
+    if (response !== 0) {
+      return true;
+    }
+    if (checkboxChecked) {
+      const request = {
+        channel: "vscode:disablePromptForProtocolHandling",
+        args: openableUri.scheme === Schemas.file ? "local" : "remote"
+      };
+      windowsMainService.sendToFocused(request.channel, request.args);
+      windowsMainService.sendToOpeningWindow(
+        request.channel,
+        request.args
+      );
+    }
+    return false;
+  }
+  getWindowOpenableFromProtocolUrl(uri) {
+    if (!uri.path) {
+      return void 0;
+    }
+    if (uri.authority === Schemas.file) {
+      const fileUri = URI.file(uri.fsPath);
+      if (hasWorkspaceFileExtension(fileUri)) {
+        return { workspaceUri: fileUri };
+      }
+      return { fileUri };
+    } else if (uri.authority === Schemas.vscodeRemote) {
+      const secondSlash = uri.path.indexOf(
+        posix.sep,
+        1
+      );
+      let authority;
+      let path;
+      if (secondSlash !== -1) {
+        authority = uri.path.substring(1, secondSlash);
+        path = uri.path.substring(secondSlash);
+      } else {
+        authority = uri.path.substring(1);
+        path = "/";
+      }
+      let query = uri.query;
+      const params = new URLSearchParams(uri.query);
+      if (params.get("windowId") === "_blank") {
+        params.delete("windowId");
+        query = params.toString();
+      }
+      const remoteUri = URI.from({
+        scheme: Schemas.vscodeRemote,
+        authority,
+        path,
+        query,
+        fragment: uri.fragment
+      });
+      if (hasWorkspaceFileExtension(path)) {
+        return { workspaceUri: remoteUri };
+      }
+      if (/:[\d]+$/.test(path)) {
+        return { fileUri: remoteUri };
+      }
+      return { folderUri: remoteUri };
+    }
+    return void 0;
+  }
+  async handleProtocolUrl(windowsMainService, dialogMainService, urlService, uri, options) {
+    this.logService.trace(
+      "app#handleProtocolUrl():",
+      uri.toString(true),
+      options
+    );
+    if (uri.scheme === this.productService.urlProtocol && uri.path === "workspace") {
+      uri = uri.with({
+        authority: "file",
+        path: URI.parse(uri.query).path,
+        query: ""
+      });
+    }
+    let shouldOpenInNewWindow = false;
+    const params = new URLSearchParams(uri.query);
+    if (params.get("windowId") === "_blank") {
+      this.logService.trace(
+        `app#handleProtocolUrl() found 'windowId=_blank' as parameter, setting shouldOpenInNewWindow=true:`,
+        uri.toString(true)
+      );
+      params.delete("windowId");
+      uri = uri.with({ query: params.toString() });
+      shouldOpenInNewWindow = true;
+    } else if (isMacintosh && windowsMainService.getWindowCount() === 0) {
+      this.logService.trace(
+        `app#handleProtocolUrl() running on macOS with no window open, setting shouldOpenInNewWindow=true:`,
+        uri.toString(true)
+      );
+      shouldOpenInNewWindow = true;
+    }
+    const continueOn = params.get("continueOn");
+    if (continueOn !== null) {
+      this.logService.trace(
+        `app#handleProtocolUrl() found 'continueOn' as parameter:`,
+        uri.toString(true)
+      );
+      params.delete("continueOn");
+      uri = uri.with({ query: params.toString() });
+      this.environmentMainService.continueOn = continueOn ?? void 0;
+    }
+    const windowOpenableFromProtocolUrl = this.getWindowOpenableFromProtocolUrl(uri);
+    if (windowOpenableFromProtocolUrl) {
+      if (await this.shouldBlockOpenable(
+        windowOpenableFromProtocolUrl,
+        windowsMainService,
+        dialogMainService
+      )) {
+        this.logService.trace(
+          "app#handleProtocolUrl() protocol url was blocked:",
+          uri.toString(true)
+        );
+        return true;
+      } else {
+        this.logService.trace(
+          "app#handleProtocolUrl() opening protocol url as window:",
+          windowOpenableFromProtocolUrl,
+          uri.toString(true)
+        );
+        const window = (await windowsMainService.open({
+          context: OpenContext.LINK,
+          cli: { ...this.environmentMainService.args },
+          urisToOpen: [windowOpenableFromProtocolUrl],
+          forceNewWindow: shouldOpenInNewWindow,
+          gotoLineMode: true
+          // remoteAuthority: will be determined based on windowOpenableFromProtocolUrl
+        })).at(0);
+        window?.focus();
+        return true;
+      }
+    }
+    if (shouldOpenInNewWindow) {
+      this.logService.trace(
+        "app#handleProtocolUrl() opening empty window and passing in protocol url:",
+        uri.toString(true)
+      );
+      const window = (await windowsMainService.open({
+        context: OpenContext.LINK,
+        cli: { ...this.environmentMainService.args },
+        forceNewWindow: true,
+        forceEmpty: true,
+        gotoLineMode: true,
+        remoteAuthority: getRemoteAuthority(uri)
+      })).at(0);
+      await window?.ready();
+      return urlService.open(uri, options);
+    }
+    this.logService.trace(
+      "app#handleProtocolUrl(): not handled",
+      uri.toString(true),
+      options
+    );
+    return false;
+  }
+  setupSharedProcess(machineId, sqmId, devDeviceId) {
+    const sharedProcess = this._register(
+      this.mainInstantiationService.createInstance(
+        SharedProcess,
+        machineId,
+        sqmId,
+        devDeviceId
+      )
+    );
+    this._register(
+      sharedProcess.onDidCrash(
+        () => this.windowsMainService?.sendToFocused(
+          "vscode:reportSharedProcessCrash"
+        )
+      )
+    );
+    const sharedProcessClient = (async () => {
+      this.logService.trace("Main->SharedProcess#connect");
+      const port = await sharedProcess.connect();
+      this.logService.trace(
+        "Main->SharedProcess#connect: connection established"
+      );
+      return new MessagePortClient(port, "main");
+    })();
+    const sharedProcessReady = (async () => {
+      await sharedProcess.whenReady();
+      return sharedProcessClient;
+    })();
+    return { sharedProcessReady, sharedProcessClient };
+  }
+  async initServices(machineId, sqmId, devDeviceId, sharedProcessReady) {
+    const services = new ServiceCollection();
+    switch (process.platform) {
+      case "win32":
+        services.set(
+          IUpdateService,
+          new SyncDescriptor(Win32UpdateService)
+        );
+        break;
+      case "linux":
+        if (isLinuxSnap) {
+          services.set(
+            IUpdateService,
+            new SyncDescriptor(SnapUpdateService, [
+              process.env["SNAP"],
+              process.env["SNAP_REVISION"]
+            ])
+          );
+        } else {
+          services.set(
+            IUpdateService,
+            new SyncDescriptor(LinuxUpdateService)
+          );
+        }
+        break;
+      case "darwin":
+        services.set(
+          IUpdateService,
+          new SyncDescriptor(DarwinUpdateService)
+        );
+        break;
+    }
+    services.set(
+      IWindowsMainService,
+      new SyncDescriptor(
+        WindowsMainService,
+        [machineId, sqmId, devDeviceId, this.userEnv],
+        false
+      )
+    );
+    services.set(
+      IAuxiliaryWindowsMainService,
+      new SyncDescriptor(AuxiliaryWindowsMainService, void 0, false)
+    );
+    const dialogMainService = new DialogMainService(
+      this.logService,
+      this.productService
+    );
+    services.set(IDialogMainService, dialogMainService);
+    services.set(
+      ILaunchMainService,
+      new SyncDescriptor(
+        LaunchMainService,
+        void 0,
+        false
+      )
+    );
+    services.set(
+      IDiagnosticsMainService,
+      new SyncDescriptor(
+        DiagnosticsMainService,
+        void 0,
+        false
+      )
+    );
+    services.set(
+      IDiagnosticsService,
+      ProxyChannel.toService(
+        getDelayedChannel(
+          sharedProcessReady.then(
+            (client) => client.getChannel("diagnostics")
+          )
+        )
+      )
+    );
+    services.set(
+      IIssueMainService,
+      new SyncDescriptor(IssueMainService, [this.userEnv])
+    );
+    services.set(
+      IProcessMainService,
+      new SyncDescriptor(ProcessMainService, [this.userEnv])
+    );
+    services.set(
+      IEncryptionMainService,
+      new SyncDescriptor(EncryptionMainService)
+    );
+    services.set(
+      IKeyboardLayoutMainService,
+      new SyncDescriptor(KeyboardLayoutMainService)
+    );
+    services.set(
+      INativeHostMainService,
+      new SyncDescriptor(
+        NativeHostMainService,
+        void 0,
+        false
+      )
+    );
+    services.set(
+      IWebviewManagerService,
+      new SyncDescriptor(WebviewMainService)
+    );
+    services.set(
+      IMenubarMainService,
+      new SyncDescriptor(MenubarMainService)
+    );
+    services.set(
+      IExtensionHostStarter,
+      new SyncDescriptor(ExtensionHostStarter)
+    );
+    services.set(
+      IStorageMainService,
+      new SyncDescriptor(StorageMainService)
+    );
+    services.set(
+      IApplicationStorageMainService,
+      new SyncDescriptor(ApplicationStorageMainService)
+    );
+    const ptyHostStarter = new ElectronPtyHostStarter(
+      {
+        graceTime: LocalReconnectConstants.GraceTime,
+        shortGraceTime: LocalReconnectConstants.ShortGraceTime,
+        scrollback: this.configurationService.getValue(
+          TerminalSettingId.PersistentSessionScrollback
+        ) ?? 100
+      },
+      this.configurationService,
+      this.environmentMainService,
+      this.lifecycleMainService,
+      this.logService
+    );
+    const ptyHostService = new PtyHostService(
+      ptyHostStarter,
+      this.configurationService,
+      this.logService,
+      this.loggerService
+    );
+    services.set(ILocalPtyService, ptyHostService);
+    if (isWindows) {
+      services.set(
+        IExternalTerminalMainService,
+        new SyncDescriptor(WindowsExternalTerminalService)
+      );
+    } else if (isMacintosh) {
+      services.set(
+        IExternalTerminalMainService,
+        new SyncDescriptor(MacExternalTerminalService)
+      );
+    } else if (isLinux) {
+      services.set(
+        IExternalTerminalMainService,
+        new SyncDescriptor(LinuxExternalTerminalService)
+      );
+    }
+    const backupMainService = new BackupMainService(
+      this.environmentMainService,
+      this.configurationService,
+      this.logService,
+      this.stateService
+    );
+    services.set(IBackupMainService, backupMainService);
+    const workspacesManagementMainService = new WorkspacesManagementMainService(
+      this.environmentMainService,
+      this.logService,
+      this.userDataProfilesMainService,
+      backupMainService,
+      dialogMainService
+    );
+    services.set(
+      IWorkspacesManagementMainService,
+      workspacesManagementMainService
+    );
+    services.set(
+      IWorkspacesService,
+      new SyncDescriptor(
+        WorkspacesMainService,
+        void 0,
+        false
+      )
+    );
+    services.set(
+      IWorkspacesHistoryMainService,
+      new SyncDescriptor(WorkspacesHistoryMainService, void 0, false)
+    );
+    services.set(
+      IURLService,
+      new SyncDescriptor(
+        NativeURLService,
+        void 0,
+        false
+      )
+    );
+    if (supportsTelemetry(this.productService, this.environmentMainService)) {
+      const isInternal = isInternalTelemetry(
+        this.productService,
+        this.configurationService
+      );
+      const channel = getDelayedChannel(
+        sharedProcessReady.then(
+          (client) => client.getChannel("telemetryAppender")
+        )
+      );
+      const appender = new TelemetryAppenderClient(channel);
+      const commonProperties = resolveCommonProperties(
+        release(),
+        hostname(),
+        process.arch,
+        this.productService.commit,
+        this.productService.version,
+        machineId,
+        sqmId,
+        devDeviceId,
+        isInternal
+      );
+      const piiPaths = getPiiPathsFromEnvironment(
+        this.environmentMainService
+      );
+      const config = {
+        appenders: [appender],
+        commonProperties,
+        piiPaths,
+        sendErrorTelemetry: true
+      };
+      services.set(
+        ITelemetryService,
+        new SyncDescriptor(TelemetryService, [config], false)
+      );
+    } else {
+      services.set(ITelemetryService, NullTelemetryService);
+    }
+    services.set(
+      IExtensionsProfileScannerService,
+      new SyncDescriptor(
+        ExtensionsProfileScannerService,
+        void 0,
+        true
+      )
+    );
+    services.set(
+      IExtensionsScannerService,
+      new SyncDescriptor(ExtensionsScannerService, void 0, true)
+    );
+    services.set(
+      IUtilityProcessWorkerMainService,
+      new SyncDescriptor(
+        UtilityProcessWorkerMainService,
+        void 0,
+        true
+      )
+    );
+    services.set(IProxyAuthService, new SyncDescriptor(ProxyAuthService));
+    services.set(
+      ICSSDevelopmentService,
+      new SyncDescriptor(CSSDevelopmentService, void 0, true)
+    );
+    await Promises.settled([
+      backupMainService.initialize(),
+      workspacesManagementMainService.initialize()
+    ]);
+    return this.mainInstantiationService.createChild(services);
+  }
+  initChannels(accessor, mainProcessElectronServer, sharedProcessClient) {
+    const disposables = this._register(new DisposableStore());
+    const launchChannel = ProxyChannel.fromService(
+      accessor.get(ILaunchMainService),
+      disposables,
+      { disableMarshalling: true }
+    );
+    this.mainProcessNodeIpcServer.registerChannel("launch", launchChannel);
+    const diagnosticsChannel = ProxyChannel.fromService(
+      accessor.get(IDiagnosticsMainService),
+      disposables,
+      { disableMarshalling: true }
+    );
+    this.mainProcessNodeIpcServer.registerChannel(
+      "diagnostics",
+      diagnosticsChannel
+    );
+    const policyChannel = disposables.add(
+      new PolicyChannel(accessor.get(IPolicyService))
+    );
+    mainProcessElectronServer.registerChannel("policy", policyChannel);
+    sharedProcessClient.then(
+      (client) => client.registerChannel("policy", policyChannel)
+    );
+    const diskFileSystemProvider = this.fileService.getProvider(
+      Schemas.file
+    );
+    assertType(diskFileSystemProvider instanceof DiskFileSystemProvider);
+    const fileSystemProviderChannel = disposables.add(
+      new DiskFileSystemProviderChannel(
+        diskFileSystemProvider,
+        this.logService,
+        this.environmentMainService
+      )
+    );
+    mainProcessElectronServer.registerChannel(
+      LOCAL_FILE_SYSTEM_CHANNEL_NAME,
+      fileSystemProviderChannel
+    );
+    sharedProcessClient.then(
+      (client) => client.registerChannel(
+        LOCAL_FILE_SYSTEM_CHANNEL_NAME,
+        fileSystemProviderChannel
+      )
+    );
+    const userDataProfilesService = ProxyChannel.fromService(
+      accessor.get(IUserDataProfilesMainService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel(
+      "userDataProfiles",
+      userDataProfilesService
+    );
+    sharedProcessClient.then(
+      (client) => client.registerChannel("userDataProfiles", userDataProfilesService)
+    );
+    const requestService = new RequestChannel(
+      accessor.get(IRequestService)
+    );
+    sharedProcessClient.then(
+      (client) => client.registerChannel("request", requestService)
+    );
+    const updateChannel = new UpdateChannel(accessor.get(IUpdateService));
+    mainProcessElectronServer.registerChannel("update", updateChannel);
+    const issueChannel = ProxyChannel.fromService(
+      accessor.get(IIssueMainService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel("issue", issueChannel);
+    const processChannel = ProxyChannel.fromService(
+      accessor.get(IProcessMainService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel("process", processChannel);
+    const encryptionChannel = ProxyChannel.fromService(
+      accessor.get(IEncryptionMainService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel(
+      "encryption",
+      encryptionChannel
+    );
+    const signChannel = ProxyChannel.fromService(
+      accessor.get(ISignService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel("sign", signChannel);
+    const keyboardLayoutChannel = ProxyChannel.fromService(
+      accessor.get(IKeyboardLayoutMainService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel(
+      "keyboardLayout",
+      keyboardLayoutChannel
+    );
+    this.nativeHostMainService = accessor.get(INativeHostMainService);
+    const nativeHostChannel = ProxyChannel.fromService(
+      this.nativeHostMainService,
+      disposables
+    );
+    mainProcessElectronServer.registerChannel(
+      "nativeHost",
+      nativeHostChannel
+    );
+    sharedProcessClient.then(
+      (client) => client.registerChannel("nativeHost", nativeHostChannel)
+    );
+    const workspacesChannel = ProxyChannel.fromService(
+      accessor.get(IWorkspacesService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel(
+      "workspaces",
+      workspacesChannel
+    );
+    const menubarChannel = ProxyChannel.fromService(
+      accessor.get(IMenubarMainService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel("menubar", menubarChannel);
+    const urlChannel = ProxyChannel.fromService(
+      accessor.get(IURLService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel("url", urlChannel);
+    const webviewChannel = ProxyChannel.fromService(
+      accessor.get(IWebviewManagerService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel("webview", webviewChannel);
+    const storageChannel = disposables.add(
+      new StorageDatabaseChannel(
+        this.logService,
+        accessor.get(IStorageMainService)
+      )
+    );
+    mainProcessElectronServer.registerChannel("storage", storageChannel);
+    sharedProcessClient.then(
+      (client) => client.registerChannel("storage", storageChannel)
+    );
+    const profileStorageListener = disposables.add(
+      new ProfileStorageChangesListenerChannel(
+        accessor.get(IStorageMainService),
+        accessor.get(IUserDataProfilesMainService),
+        this.logService
+      )
+    );
+    sharedProcessClient.then(
+      (client) => client.registerChannel(
+        "profileStorageListener",
+        profileStorageListener
+      )
+    );
+    const ptyHostChannel = ProxyChannel.fromService(
+      accessor.get(ILocalPtyService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel(
+      TerminalIpcChannels.LocalPty,
+      ptyHostChannel
+    );
+    const externalTerminalChannel = ProxyChannel.fromService(
+      accessor.get(IExternalTerminalMainService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel(
+      "externalTerminal",
+      externalTerminalChannel
+    );
+    const loggerChannel = new LoggerChannel(
+      accessor.get(ILoggerMainService)
+    );
+    mainProcessElectronServer.registerChannel("logger", loggerChannel);
+    sharedProcessClient.then(
+      (client) => client.registerChannel("logger", loggerChannel)
+    );
+    const electronExtensionHostDebugBroadcastChannel = new ElectronExtensionHostDebugBroadcastChannel(
+      accessor.get(IWindowsMainService)
+    );
+    mainProcessElectronServer.registerChannel(
+      "extensionhostdebugservice",
+      electronExtensionHostDebugBroadcastChannel
+    );
+    const extensionHostStarterChannel = ProxyChannel.fromService(
+      accessor.get(IExtensionHostStarter),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel(
+      ipcExtensionHostStarterChannelName,
+      extensionHostStarterChannel
+    );
+    const utilityProcessWorkerChannel = ProxyChannel.fromService(
+      accessor.get(IUtilityProcessWorkerMainService),
+      disposables
+    );
+    mainProcessElectronServer.registerChannel(
+      ipcUtilityProcessWorkerChannelName,
+      utilityProcessWorkerChannel
+    );
+  }
+  async openFirstWindow(accessor, initialProtocolUrls) {
+    const windowsMainService = this.windowsMainService = accessor.get(IWindowsMainService);
+    this.auxiliaryWindowsMainService = accessor.get(
+      IAuxiliaryWindowsMainService
+    );
+    const context = isLaunchedFromCli(process.env) ? OpenContext.CLI : OpenContext.DESKTOP;
+    const args = this.environmentMainService.args;
+    if (initialProtocolUrls) {
+      if (initialProtocolUrls.openables.length > 0) {
+        return windowsMainService.open({
+          context,
+          cli: args,
+          urisToOpen: initialProtocolUrls.openables,
+          gotoLineMode: true,
+          initialStartup: true
+          // remoteAuthority: will be determined based on openables
+        });
+      }
+      if (initialProtocolUrls.urls.length > 0) {
+        for (const protocolUrl of initialProtocolUrls.urls) {
+          const params = new URLSearchParams(protocolUrl.uri.query);
+          if (params.get("windowId") === "_blank") {
+            params.delete("windowId");
+            protocolUrl.originalUrl = protocolUrl.uri.toString(true);
+            protocolUrl.uri = protocolUrl.uri.with({
+              query: params.toString()
+            });
+            return windowsMainService.open({
+              context,
+              cli: args,
+              forceNewWindow: true,
+              forceEmpty: true,
+              gotoLineMode: true,
+              initialStartup: true
+              // remoteAuthority: will be determined based on openables
+            });
+          }
+        }
+      }
+    }
+    const macOpenFiles = global.macOpenFiles;
+    const hasCliArgs = args._.length;
+    const hasFolderURIs = !!args["folder-uri"];
+    const hasFileURIs = !!args["file-uri"];
+    const noRecentEntry = args["skip-add-to-recently-opened"] === true;
+    const waitMarkerFileURI = args.wait && args.waitMarkerFilePath ? URI.file(args.waitMarkerFilePath) : void 0;
+    const remoteAuthority = args.remote || void 0;
+    const forceProfile = args.profile;
+    const forceTempProfile = args["profile-temp"];
+    if (!hasCliArgs && !hasFolderURIs && !hasFileURIs) {
+      if (args["new-window"] || forceProfile || forceTempProfile) {
+        return windowsMainService.open({
+          context,
+          cli: args,
+          forceNewWindow: true,
+          forceEmpty: true,
+          noRecentEntry,
+          waitMarkerFileURI,
+          initialStartup: true,
+          remoteAuthority,
+          forceProfile,
+          forceTempProfile
+        });
+      }
+      if (macOpenFiles.length) {
+        return windowsMainService.open({
+          context: OpenContext.DOCK,
+          cli: args,
+          urisToOpen: macOpenFiles.map((path) => {
+            path = normalizeNFC(path);
+            return hasWorkspaceFileExtension(path) ? { workspaceUri: URI.file(path) } : { fileUri: URI.file(path) };
+          }),
+          noRecentEntry,
+          waitMarkerFileURI,
+          initialStartup: true
+          // remoteAuthority: will be determined based on macOpenFiles
+        });
+      }
+    }
+    return windowsMainService.open({
+      context,
+      cli: args,
+      forceNewWindow: args["new-window"],
+      diffMode: args.diff,
+      mergeMode: args.merge,
+      noRecentEntry,
+      waitMarkerFileURI,
+      gotoLineMode: args.goto,
+      initialStartup: true,
+      remoteAuthority,
+      forceProfile,
+      forceTempProfile
+    });
+  }
+  afterWindowOpen() {
+    this.installMutex();
+    protocol.registerHttpProtocol(
+      Schemas.vscodeRemoteResource,
+      (request, callback) => {
+        callback({
+          url: request.url.replace(
+            /^vscode-remote-resource:/,
+            "http:"
+          ),
+          method: request.method
+        });
+      }
+    );
+    this.resolveShellEnvironment(
+      this.environmentMainService.args,
+      process.env,
+      true
+    );
+    this.updateCrashReporterEnablement();
+    if (isMacintosh && app.runningUnderARM64Translation) {
+      this.windowsMainService?.sendToFocused(
+        "vscode:showTranslatedBuildWarning"
+      );
+    }
+  }
+  async installMutex() {
+    const win32MutexName = this.productService.win32MutexName;
+    if (isWindows && win32MutexName) {
+      try {
+        const WindowsMutex = await import("@vscode/windows-mutex");
+        const mutex = new WindowsMutex.Mutex(win32MutexName);
+        Event.once(this.lifecycleMainService.onWillShutdown)(
+          () => mutex.release()
+        );
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }
+  }
+  async resolveShellEnvironment(args, env, notifyOnError) {
+    try {
+      return await getResolvedShellEnv(
+        this.configurationService,
+        this.logService,
+        args,
+        env
+      );
+    } catch (error) {
+      const errorMessage = toErrorMessage(error);
+      if (notifyOnError) {
+        this.windowsMainService?.sendToFocused(
+          "vscode:showResolveShellEnvError",
+          errorMessage
+        );
+      } else {
+        this.logService.error(errorMessage);
+      }
+    }
+    return {};
+  }
+  async updateCrashReporterEnablement() {
+    try {
+      const argvContent = await this.fileService.readFile(
+        this.environmentMainService.argvResource
+      );
+      const argvString = argvContent.value.toString();
+      const argvJSON = parse(argvString);
+      const telemetryLevel = getTelemetryLevel(this.configurationService);
+      const enableCrashReporter = telemetryLevel >= TelemetryLevel.CRASH;
+      if (argvJSON["enable-crash-reporter"] === void 0) {
+        const additionalArgvContent = [
+          "",
+          "	// Allows to disable crash reporting.",
+          "	// Should restart the app if the value is changed.",
+          `	"enable-crash-reporter": ${enableCrashReporter},`,
+          "",
+          "	// Unique id used for correlating crash reports sent from this instance.",
+          "	// Do not edit this value.",
+          `	"crash-reporter-id": "${generateUuid()}"`,
+          "}"
+        ];
+        const newArgvString = argvString.substring(0, argvString.length - 2).concat(",\n", additionalArgvContent.join("\n"));
+        await this.fileService.writeFile(
+          this.environmentMainService.argvResource,
+          VSBuffer.fromString(newArgvString)
+        );
+      } else {
+        const newArgvString = argvString.replace(
+          /"enable-crash-reporter": .*,/,
+          `"enable-crash-reporter": ${enableCrashReporter},`
+        );
+        if (newArgvString !== argvString) {
+          await this.fileService.writeFile(
+            this.environmentMainService.argvResource,
+            VSBuffer.fromString(newArgvString)
+          );
+        }
+      }
+    } catch (error) {
+      this.logService.error(error);
+      this.windowsMainService?.sendToFocused(
+        "vscode:showArgvParseWarning"
+      );
+    }
+  }
+};
+CodeApplication = __decorateClass([
+  __decorateParam(2, IInstantiationService),
+  __decorateParam(3, ILogService),
+  __decorateParam(4, ILoggerService),
+  __decorateParam(5, IEnvironmentMainService),
+  __decorateParam(6, ILifecycleMainService),
+  __decorateParam(7, IConfigurationService),
+  __decorateParam(8, IStateService),
+  __decorateParam(9, IFileService),
+  __decorateParam(10, IProductService),
+  __decorateParam(11, IUserDataProfilesMainService)
+], CodeApplication);
+export {
+  CodeApplication
+};
+//# sourceMappingURL=app.js.map

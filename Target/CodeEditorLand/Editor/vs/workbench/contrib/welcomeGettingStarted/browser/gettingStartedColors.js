@@ -1,1 +1,91 @@
-import{localize as e}from"../../../../nls.js";import{contrastBorder as g,darken as l,editorWidgetBackground as r,inputBackground as c,lighten as t,registerColor as o,textLinkForeground as a}from"../../../../platform/theme/common/colorRegistry.js";const h=o("welcomePage.background",null,e("welcomePage.background","Background color for the Welcome page.")),u=o("welcomePage.tileBackground",{dark:r,light:r,hcDark:"#000",hcLight:r},e("welcomePage.tileBackground","Background color for the tiles on the Welcome page.")),i=o("welcomePage.tileHoverBackground",{dark:t(r,.2),light:l(r,.1),hcDark:null,hcLight:null},e("welcomePage.tileHoverBackground","Hover background color for the tiles on the Welcome.")),s=o("welcomePage.tileBorder",{dark:"#ffffff1a",light:"#0000001a",hcDark:g,hcLight:g},e("welcomePage.tileBorder","Border color for the tiles on the Welcome page.")),k=o("welcomePage.progress.background",c,e("welcomePage.progress.background","Foreground color for the Welcome page progress bars.")),m=o("welcomePage.progress.foreground",a,e("welcomePage.progress.foreground","Background color for the Welcome page progress bars.")),f=o("walkthrough.stepTitle.foreground",{light:"#000000",dark:"#ffffff",hcDark:null,hcLight:null},e("walkthrough.stepTitle.foreground","Foreground color of the heading of each walkthrough step"));export{f as walkthroughStepTitleForeground,h as welcomePageBackground,k as welcomePageProgressBackground,m as welcomePageProgressForeground,u as welcomePageTileBackground,s as welcomePageTileBorder,i as welcomePageTileHoverBackground};
+import { localize } from "../../../../nls.js";
+import {
+  contrastBorder,
+  darken,
+  editorWidgetBackground,
+  inputBackground,
+  lighten,
+  registerColor,
+  textLinkForeground
+} from "../../../../platform/theme/common/colorRegistry.js";
+const welcomePageBackground = registerColor(
+  "welcomePage.background",
+  null,
+  localize(
+    "welcomePage.background",
+    "Background color for the Welcome page."
+  )
+);
+const welcomePageTileBackground = registerColor(
+  "welcomePage.tileBackground",
+  {
+    dark: editorWidgetBackground,
+    light: editorWidgetBackground,
+    hcDark: "#000",
+    hcLight: editorWidgetBackground
+  },
+  localize(
+    "welcomePage.tileBackground",
+    "Background color for the tiles on the Welcome page."
+  )
+);
+const welcomePageTileHoverBackground = registerColor(
+  "welcomePage.tileHoverBackground",
+  {
+    dark: lighten(editorWidgetBackground, 0.2),
+    light: darken(editorWidgetBackground, 0.1),
+    hcDark: null,
+    hcLight: null
+  },
+  localize(
+    "welcomePage.tileHoverBackground",
+    "Hover background color for the tiles on the Welcome."
+  )
+);
+const welcomePageTileBorder = registerColor(
+  "welcomePage.tileBorder",
+  {
+    dark: "#ffffff1a",
+    light: "#0000001a",
+    hcDark: contrastBorder,
+    hcLight: contrastBorder
+  },
+  localize(
+    "welcomePage.tileBorder",
+    "Border color for the tiles on the Welcome page."
+  )
+);
+const welcomePageProgressBackground = registerColor(
+  "welcomePage.progress.background",
+  inputBackground,
+  localize(
+    "welcomePage.progress.background",
+    "Foreground color for the Welcome page progress bars."
+  )
+);
+const welcomePageProgressForeground = registerColor(
+  "welcomePage.progress.foreground",
+  textLinkForeground,
+  localize(
+    "welcomePage.progress.foreground",
+    "Background color for the Welcome page progress bars."
+  )
+);
+const walkthroughStepTitleForeground = registerColor(
+  "walkthrough.stepTitle.foreground",
+  { light: "#000000", dark: "#ffffff", hcDark: null, hcLight: null },
+  localize(
+    "walkthrough.stepTitle.foreground",
+    "Foreground color of the heading of each walkthrough step"
+  )
+);
+export {
+  walkthroughStepTitleForeground,
+  welcomePageBackground,
+  welcomePageProgressBackground,
+  welcomePageProgressForeground,
+  welcomePageTileBackground,
+  welcomePageTileBorder,
+  welcomePageTileHoverBackground
+};
+//# sourceMappingURL=gettingStartedColors.js.map

@@ -1,1 +1,83 @@
-import{FileAccess as s,Schemas as u}from"../../../../../base/common/network.js";import{localize as l,localize2 as e}from"../../../../../nls.js";import{Categories as d}from"../../../../../platform/action/common/actionCommonCategories.js";import{Action2 as p}from"../../../../../platform/actions/common/actions.js";import{IInstantiationService as h}from"../../../../../platform/instantiation/common/instantiation.js";import{IEditorService as m}from"../../../../services/editor/common/editorService.js";import{WalkThroughInput as o}from"../walkThroughInput.js";const i="workbench.editors.walkThroughInput",n={typeId:i,name:l("editorWalkThrough.title","Editor Playground"),resource:s.asBrowserUri("vs/workbench/contrib/welcomeWalkthrough/browser/editor/vs_code_editor_walkthrough.md").with({scheme:u.walkThrough,query:JSON.stringify({moduleId:"../browser/editor/vs_code_editor_walkthrough.js"})}),telemetryFrom:"walkThrough"};class t extends p{static ID="workbench.action.showInteractivePlayground";static LABEL=e("editorWalkThrough","Interactive Editor Playground");constructor(){super({id:t.ID,title:t.LABEL,category:d.Help,f1:!0,metadata:{description:e("editorWalkThroughMetadata","Opens an interactive playground for learning about the editor.")}})}run(r){const a=r.get(m),c=r.get(h).createInstance(o,n);return a.openEditor(c,{pinned:!0}).then(()=>{})}}class E{static ID=i;canSerialize(r){return!0}serialize(r){return""}deserialize(r){return r.createInstance(o,n)}}export{t as EditorWalkThroughAction,E as EditorWalkThroughInputSerializer};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { FileAccess, Schemas } from "../../../../../base/common/network.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Categories } from "../../../../../platform/action/common/actionCommonCategories.js";
+import { Action2 } from "../../../../../platform/actions/common/actions.js";
+import {
+  IInstantiationService
+} from "../../../../../platform/instantiation/common/instantiation.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import {
+  WalkThroughInput
+} from "../walkThroughInput.js";
+const typeId = "workbench.editors.walkThroughInput";
+const inputOptions = {
+  typeId,
+  name: localize("editorWalkThrough.title", "Editor Playground"),
+  resource: FileAccess.asBrowserUri(
+    "vs/workbench/contrib/welcomeWalkthrough/browser/editor/vs_code_editor_walkthrough.md"
+  ).with({
+    scheme: Schemas.walkThrough,
+    query: JSON.stringify({
+      moduleId: "../browser/editor/vs_code_editor_walkthrough.js"
+    })
+  }),
+  telemetryFrom: "walkThrough"
+};
+class EditorWalkThroughAction extends Action2 {
+  static {
+    __name(this, "EditorWalkThroughAction");
+  }
+  static ID = "workbench.action.showInteractivePlayground";
+  static LABEL = localize2(
+    "editorWalkThrough",
+    "Interactive Editor Playground"
+  );
+  constructor() {
+    super({
+      id: EditorWalkThroughAction.ID,
+      title: EditorWalkThroughAction.LABEL,
+      category: Categories.Help,
+      f1: true,
+      metadata: {
+        description: localize2(
+          "editorWalkThroughMetadata",
+          "Opens an interactive playground for learning about the editor."
+        )
+      }
+    });
+  }
+  run(serviceAccessor) {
+    const editorService = serviceAccessor.get(IEditorService);
+    const instantiationService = serviceAccessor.get(IInstantiationService);
+    const input = instantiationService.createInstance(
+      WalkThroughInput,
+      inputOptions
+    );
+    return editorService.openEditor(input, { pinned: true }).then(() => void 0);
+  }
+}
+class EditorWalkThroughInputSerializer {
+  static {
+    __name(this, "EditorWalkThroughInputSerializer");
+  }
+  static ID = typeId;
+  canSerialize(editorInput) {
+    return true;
+  }
+  serialize(editorInput) {
+    return "";
+  }
+  deserialize(instantiationService) {
+    return instantiationService.createInstance(
+      WalkThroughInput,
+      inputOptions
+    );
+  }
+}
+export {
+  EditorWalkThroughAction,
+  EditorWalkThroughInputSerializer
+};
+//# sourceMappingURL=editorWalkThrough.js.map

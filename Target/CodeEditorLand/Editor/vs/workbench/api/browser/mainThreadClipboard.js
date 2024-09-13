@@ -1,1 +1,39 @@
-var m=Object.defineProperty;var n=Object.getOwnPropertyDescriptor;var c=(o,e,t,i)=>{for(var r=i>1?void 0:i?n(e,t):e,p=o.length-1,s;p>=0;p--)(s=o[p])&&(r=(i?s(e,t,r):s(r))||r);return i&&r&&m(e,t,r),r},d=(o,e)=>(t,i)=>e(t,i,o);import{IClipboardService as l}from"../../../platform/clipboard/common/clipboardService.js";import{extHostNamedCustomer as v}from"../../services/extensions/common/extHostCustomers.js";import{MainContext as x}from"../common/extHost.protocol.js";let a=class{constructor(e,t){this._clipboardService=t}dispose(){}$readText(){return this._clipboardService.readText()}$writeText(e){return this._clipboardService.writeText(e)}};a=c([v(x.MainThreadClipboard),d(1,l)],a);export{a as MainThreadClipboard};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import {
+  MainContext
+} from "../common/extHost.protocol.js";
+let MainThreadClipboard = class {
+  constructor(_context, _clipboardService) {
+    this._clipboardService = _clipboardService;
+  }
+  dispose() {
+  }
+  $readText() {
+    return this._clipboardService.readText();
+  }
+  $writeText(value) {
+    return this._clipboardService.writeText(value);
+  }
+};
+__name(MainThreadClipboard, "MainThreadClipboard");
+MainThreadClipboard = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadClipboard),
+  __decorateParam(1, IClipboardService)
+], MainThreadClipboard);
+export {
+  MainThreadClipboard
+};
+//# sourceMappingURL=mainThreadClipboard.js.map

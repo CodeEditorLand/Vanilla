@@ -1,1 +1,143 @@
-var S=Object.defineProperty;var b=Object.getOwnPropertyDescriptor;var p=(s,o,r,t)=>{for(var i=t>1?void 0:t?b(o,r):o,n=s.length-1,c;n>=0;n--)(c=s[n])&&(i=(t?c(o,r,i):c(i))||i);return t&&i&&S(o,r,i),i},e=(s,o)=>(r,t)=>o(r,t,s);import{RunOnceScheduler as w}from"../../../../base/common/async.js";import{Disposable as y}from"../../../../base/common/lifecycle.js";import{ICodeEditorService as E}from"../../../../editor/browser/services/codeEditorService.js";import{localize as x}from"../../../../nls.js";import{ICommandService as R}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as k}from"../../../../platform/configuration/common/configuration.js";import{Extensions as W,ConfigurationScope as A}from"../../../../platform/configuration/common/configurationRegistry.js";import{ContextKeyExpr as l,IContextKeyService as T}from"../../../../platform/contextkey/common/contextkey.js";import{IInstantiationService as O}from"../../../../platform/instantiation/common/instantiation.js";import{IOpenerService as P}from"../../../../platform/opener/common/opener.js";import{Registry as g}from"../../../../platform/registry/common/platform.js";import{IStorageService as K,StorageScope as M}from"../../../../platform/storage/common/storage.js";import{ITelemetryService as N}from"../../../../platform/telemetry/common/telemetry.js";import{applicationConfigurationNodeBase as z}from"../../../common/configuration.js";import{Extensions as B}from"../../../common/contributions.js";import{IEditorService as L}from"../../../services/editor/common/editorService.js";import{IBrowserWorkbenchEnvironmentService as V}from"../../../services/environment/browser/environmentService.js";import{LifecyclePhase as D}from"../../../services/lifecycle/common/lifecycle.js";import{WelcomeWidget as _}from"./welcomeWidget.js";const j="workbench.welcome.experimental.dialog";let m=class extends y{isRendered=!1;constructor(o,r,t,i,n,c,I,u,h,C){if(super(),!o.isNew(M.APPLICATION)||!t.inspect(j).value)return;const a=r.options?.welcomeDialog;a&&this._register(C.onDidActiveEditorChange(()=>{if(!this.isRendered){const d=n.getActiveCodeEditor();if(d?.hasModel()){const v=new w(()=>{const f=i.contextMatchesRules(l.deserialize("notificationCenterVisible"))||i.contextMatchesRules(l.deserialize("notificationToastsVisible"));d===n.getActiveCodeEditor()&&!f&&(this.isRendered=!0,new _(d,c,I,u,h).render(a.title,a.message,a.buttonText,a.buttonCommand))},3e3);this._register(d.onDidChangeModelContent(f=>{this.isRendered||v.schedule()}))}}}))}};m=p([e(0,K),e(1,V),e(2,k),e(3,T),e(4,E),e(5,O),e(6,R),e(7,N),e(8,P),e(9,L)],m),g.as(B.Workbench).registerWorkbenchContribution(m,D.Eventually);const q=g.as(W.Configuration);q.registerConfiguration({...z,properties:{"workbench.welcome.experimental.dialog":{scope:A.APPLICATION,type:"boolean",default:!1,tags:["experimental"],description:x("workbench.welcome.dialog","When enabled, a welcome widget is shown in the editor")}}});
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { localize } from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  Extensions as ConfigurationExtensions,
+  ConfigurationScope
+} from "../../../../platform/configuration/common/configurationRegistry.js";
+import {
+  ContextKeyExpr,
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  IStorageService,
+  StorageScope
+} from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { applicationConfigurationNodeBase } from "../../../common/configuration.js";
+import {
+  Extensions as WorkbenchExtensions
+} from "../../../common/contributions.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { WelcomeWidget } from "./welcomeWidget.js";
+const configurationKey = "workbench.welcome.experimental.dialog";
+let WelcomeDialogContribution = class extends Disposable {
+  static {
+    __name(this, "WelcomeDialogContribution");
+  }
+  isRendered = false;
+  constructor(storageService, environmentService, configurationService, contextService, codeEditorService, instantiationService, commandService, telemetryService, openerService, editorService) {
+    super();
+    if (!storageService.isNew(StorageScope.APPLICATION)) {
+      return;
+    }
+    const setting = configurationService.inspect(configurationKey);
+    if (!setting.value) {
+      return;
+    }
+    const welcomeDialog = environmentService.options?.welcomeDialog;
+    if (!welcomeDialog) {
+      return;
+    }
+    this._register(
+      editorService.onDidActiveEditorChange(() => {
+        if (!this.isRendered) {
+          const codeEditor = codeEditorService.getActiveCodeEditor();
+          if (codeEditor?.hasModel()) {
+            const scheduler = new RunOnceScheduler(() => {
+              const notificationsVisible = contextService.contextMatchesRules(
+                ContextKeyExpr.deserialize(
+                  "notificationCenterVisible"
+                )
+              ) || contextService.contextMatchesRules(
+                ContextKeyExpr.deserialize(
+                  "notificationToastsVisible"
+                )
+              );
+              if (codeEditor === codeEditorService.getActiveCodeEditor() && !notificationsVisible) {
+                this.isRendered = true;
+                const welcomeWidget = new WelcomeWidget(
+                  codeEditor,
+                  instantiationService,
+                  commandService,
+                  telemetryService,
+                  openerService
+                );
+                welcomeWidget.render(
+                  welcomeDialog.title,
+                  welcomeDialog.message,
+                  welcomeDialog.buttonText,
+                  welcomeDialog.buttonCommand
+                );
+              }
+            }, 3e3);
+            this._register(
+              codeEditor.onDidChangeModelContent((e) => {
+                if (!this.isRendered) {
+                  scheduler.schedule();
+                }
+              })
+            );
+          }
+        }
+      })
+    );
+  }
+};
+WelcomeDialogContribution = __decorateClass([
+  __decorateParam(0, IStorageService),
+  __decorateParam(1, IBrowserWorkbenchEnvironmentService),
+  __decorateParam(2, IConfigurationService),
+  __decorateParam(3, IContextKeyService),
+  __decorateParam(4, ICodeEditorService),
+  __decorateParam(5, IInstantiationService),
+  __decorateParam(6, ICommandService),
+  __decorateParam(7, ITelemetryService),
+  __decorateParam(8, IOpenerService),
+  __decorateParam(9, IEditorService)
+], WelcomeDialogContribution);
+Registry.as(
+  WorkbenchExtensions.Workbench
+).registerWorkbenchContribution(
+  WelcomeDialogContribution,
+  LifecyclePhase.Eventually
+);
+const configurationRegistry = Registry.as(
+  ConfigurationExtensions.Configuration
+);
+configurationRegistry.registerConfiguration({
+  ...applicationConfigurationNodeBase,
+  properties: {
+    "workbench.welcome.experimental.dialog": {
+      scope: ConfigurationScope.APPLICATION,
+      type: "boolean",
+      default: false,
+      tags: ["experimental"],
+      description: localize(
+        "workbench.welcome.dialog",
+        "When enabled, a welcome widget is shown in the editor"
+      )
+    }
+  }
+});
+//# sourceMappingURL=welcomeDialog.contribution.js.map

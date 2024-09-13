@@ -1,1 +1,434 @@
-var A=Object.defineProperty;var G=Object.getOwnPropertyDescriptor;var x=(s,e,i,t)=>{for(var o=t>1?void 0:t?G(e,i):e,a=s.length-1,u;a>=0;a--)(u=s[a])&&(o=(t?u(e,i,o):u(o))||o);return t&&o&&A(e,i,o),o},p=(s,e)=>(i,t)=>e(i,t,s);import{CancellationTokenSource as T}from"../../../../../base/common/cancellation.js";import{Codicon as g}from"../../../../../base/common/codicons.js";import{KeyCode as C,KeyMod as D}from"../../../../../base/common/keyCodes.js";import F from"../../../../../base/common/severity.js";import{IBulkEditService as K}from"../../../../../editor/browser/services/bulkEditService.js";import{localize as S,localize2 as c}from"../../../../../nls.js";import{Action2 as w,MenuId as y,registerAction2 as m}from"../../../../../platform/actions/common/actions.js";import{ContextKeyExpr as d,IContextKeyService as H,RawContextKey as W}from"../../../../../platform/contextkey/common/contextkey.js";import{IDialogService as M}from"../../../../../platform/dialogs/common/dialogs.js";import{SyncDescriptor as P}from"../../../../../platform/instantiation/common/descriptors.js";import{KeybindingWeight as E}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{WorkbenchListFocusContextKey as j}from"../../../../../platform/list/browser/listService.js";import{Registry as I}from"../../../../../platform/registry/common/platform.js";import{registerIcon as z}from"../../../../../platform/theme/common/iconRegistry.js";import{ViewPaneContainer as L}from"../../../../browser/parts/views/viewPaneContainer.js";import{FocusedViewContext as q}from"../../../../common/contextkeys.js";import{WorkbenchPhase as Y,registerWorkbenchContribution2 as J}from"../../../../common/contributions.js";import{EditorResourceAccessor as N,SideBySideEditor as O}from"../../../../common/editor.js";import{Extensions as b,ViewContainerLocation as h}from"../../../../common/views.js";import{IEditorGroupsService as _}from"../../../../services/editor/common/editorGroupsService.js";import{IPaneCompositePartService as B}from"../../../../services/panecomposite/browser/panecomposite.js";import{IViewsService as l}from"../../../../services/views/common/viewsService.js";import{BulkEditPane as r}from"./bulkEditPane.js";async function v(s){const e=await s.openView(r.ID,!0);if(e instanceof r)return e}let f=class{constructor(e,i){this._paneCompositeService=e;this._editorGroupsService=i;this._activePanel=e.getActivePaneComposite(h.Panel)?.getId()}_activePanel;async restore(e,i){if(e&&(typeof this._activePanel=="string"?await this._paneCompositeService.openPaneComposite(this._activePanel,h.Panel):this._paneCompositeService.hideActivePaneComposite(h.Panel)),i)for(const t of this._editorGroupsService.groups){const o=[];for(const a of t.editors)N.getCanonicalUri(a,{supportSideBySide:O.PRIMARY})?.scheme===r.Schema&&o.push(a);o.length&&t.closeEditors(o,{preserveFocus:!0})}}};f=x([p(0,B),p(1,_)],f);class R{constructor(e,i=new T){this.uxState=e;this.cts=i}}let n=class{constructor(e,i,t,o,a,u){this._paneCompositeService=e;this._viewsService=i;this._editorGroupsService=t;this._dialogService=o;a.setPreviewHandler(V=>this._previewEdit(V)),this._ctxEnabled=n.ctxEnabled.bindTo(u)}static ID="workbench.contrib.bulkEditPreview";static ctxEnabled=new W("refactorPreview.enabled",!1);_ctxEnabled;_activeSession;async _previewEdit(e){this._ctxEnabled.set(!0);const i=this._activeSession?.uxState??new f(this._paneCompositeService,this._editorGroupsService),t=await v(this._viewsService);if(!t)return this._ctxEnabled.set(!1),e;if(t.hasInput()){const{confirmed:a}=await this._dialogService.confirm({type:F.Info,message:S("overlap","Another refactoring is being previewed."),detail:S("detail","Press 'Continue' to discard the previous refactoring and continue with the current refactoring."),primaryButton:S({key:"continue",comment:["&& denotes a mnemonic"]},"&&Continue")});if(!a)return[]}let o;this._activeSession?(await this._activeSession.uxState.restore(!1,!0),this._activeSession.cts.dispose(!0),o=new R(i)):o=new R(i),this._activeSession=o;try{return await t.setInput(e,o.cts.token)??[]}finally{this._activeSession===o&&(await this._activeSession.uxState.restore(!0,!0),this._activeSession.cts.dispose(),this._ctxEnabled.set(!1),this._activeSession=void 0)}}};n=x([p(0,B),p(1,l),p(2,_),p(3,M),p(4,K),p(5,H)],n),m(class extends w{constructor(){super({id:"refactorPreview.apply",title:c("apply","Apply Refactoring"),category:c("cat","Refactor Preview"),icon:g.check,precondition:d.and(n.ctxEnabled,r.ctxHasCheckedChanges),menu:[{id:y.BulkEditContext,order:1}],keybinding:{weight:E.EditorContrib-10,when:d.and(n.ctxEnabled,q.isEqualTo(r.ID)),primary:D.CtrlCmd+C.Enter}})}async run(e){const i=e.get(l);(await v(i))?.accept()}}),m(class extends w{constructor(){super({id:"refactorPreview.discard",title:c("Discard","Discard Refactoring"),category:c("cat","Refactor Preview"),icon:g.clearAll,precondition:n.ctxEnabled,menu:[{id:y.BulkEditContext,order:2}]})}async run(e){const i=e.get(l);(await v(i))?.discard()}}),m(class extends w{constructor(){super({id:"refactorPreview.toggleCheckedState",title:c("toogleSelection","Toggle Change"),category:c("cat","Refactor Preview"),precondition:n.ctxEnabled,keybinding:{weight:E.WorkbenchContrib,when:j,primary:C.Space},menu:{id:y.BulkEditContext,group:"navigation"}})}async run(e){const i=e.get(l);(await v(i))?.toggleChecked()}}),m(class extends w{constructor(){super({id:"refactorPreview.groupByFile",title:c("groupByFile","Group Changes By File"),category:c("cat","Refactor Preview"),icon:g.ungroupByRefType,precondition:d.and(r.ctxHasCategories,r.ctxGroupByFile.negate(),n.ctxEnabled),menu:[{id:y.BulkEditTitle,when:d.and(r.ctxHasCategories,r.ctxGroupByFile.negate()),group:"navigation",order:3}]})}async run(e){const i=e.get(l);(await v(i))?.groupByFile()}}),m(class extends w{constructor(){super({id:"refactorPreview.groupByType",title:c("groupByType","Group Changes By Type"),category:c("cat","Refactor Preview"),icon:g.groupByRefType,precondition:d.and(r.ctxHasCategories,r.ctxGroupByFile,n.ctxEnabled),menu:[{id:y.BulkEditTitle,when:d.and(r.ctxHasCategories,r.ctxGroupByFile),group:"navigation",order:3}]})}async run(e){const i=e.get(l);(await v(i))?.groupByType()}}),m(class extends w{constructor(){super({id:"refactorPreview.toggleGrouping",title:c("groupByType","Group Changes By Type"),category:c("cat","Refactor Preview"),icon:g.listTree,toggled:r.ctxGroupByFile.negate(),precondition:d.and(r.ctxHasCategories,n.ctxEnabled),menu:[{id:y.BulkEditContext,order:3}]})}async run(e){const i=e.get(l);(await v(i))?.toggleGrouping()}}),J(n.ID,n,Y.BlockRestore);const k=z("refactor-preview-view-icon",g.lightbulb,S("refactorPreviewViewIcon","View icon of the refactor preview view.")),Q=I.as(b.ViewContainersRegistry).registerViewContainer({id:r.ID,title:c("panel","Refactor Preview"),hideIfEmpty:!0,ctorDescriptor:new P(L,[r.ID,{mergeViewWithContainerWhenSingleView:!0}]),icon:k,storageId:r.ID},h.Panel);I.as(b.ViewsRegistry).registerViews([{id:r.ID,name:c("panel","Refactor Preview"),when:n.ctxEnabled,ctorDescriptor:new P(r),containerIcon:k}],Q);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import Severity from "../../../../../base/common/severity.js";
+import {
+  IBulkEditService
+} from "../../../../../editor/browser/services/bulkEditService.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import {
+  Action2,
+  MenuId,
+  registerAction2
+} from "../../../../../platform/actions/common/actions.js";
+import {
+  ContextKeyExpr,
+  IContextKeyService,
+  RawContextKey
+} from "../../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { SyncDescriptor } from "../../../../../platform/instantiation/common/descriptors.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { WorkbenchListFocusContextKey } from "../../../../../platform/list/browser/listService.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+import { registerIcon } from "../../../../../platform/theme/common/iconRegistry.js";
+import { ViewPaneContainer } from "../../../../browser/parts/views/viewPaneContainer.js";
+import { FocusedViewContext } from "../../../../common/contextkeys.js";
+import {
+  WorkbenchPhase,
+  registerWorkbenchContribution2
+} from "../../../../common/contributions.js";
+import {
+  EditorResourceAccessor,
+  SideBySideEditor
+} from "../../../../common/editor.js";
+import {
+  Extensions as ViewContainerExtensions,
+  ViewContainerLocation
+} from "../../../../common/views.js";
+import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import { IPaneCompositePartService } from "../../../../services/panecomposite/browser/panecomposite.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { BulkEditPane } from "./bulkEditPane.js";
+async function getBulkEditPane(viewsService) {
+  const view = await viewsService.openView(BulkEditPane.ID, true);
+  if (view instanceof BulkEditPane) {
+    return view;
+  }
+  return void 0;
+}
+__name(getBulkEditPane, "getBulkEditPane");
+let UXState = class {
+  constructor(_paneCompositeService, _editorGroupsService) {
+    this._paneCompositeService = _paneCompositeService;
+    this._editorGroupsService = _editorGroupsService;
+    this._activePanel = _paneCompositeService.getActivePaneComposite(ViewContainerLocation.Panel)?.getId();
+  }
+  static {
+    __name(this, "UXState");
+  }
+  _activePanel;
+  async restore(panels, editors) {
+    if (panels) {
+      if (typeof this._activePanel === "string") {
+        await this._paneCompositeService.openPaneComposite(
+          this._activePanel,
+          ViewContainerLocation.Panel
+        );
+      } else {
+        this._paneCompositeService.hideActivePaneComposite(
+          ViewContainerLocation.Panel
+        );
+      }
+    }
+    if (editors) {
+      for (const group of this._editorGroupsService.groups) {
+        const previewEditors = [];
+        for (const input of group.editors) {
+          const resource = EditorResourceAccessor.getCanonicalUri(
+            input,
+            { supportSideBySide: SideBySideEditor.PRIMARY }
+          );
+          if (resource?.scheme === BulkEditPane.Schema) {
+            previewEditors.push(input);
+          }
+        }
+        if (previewEditors.length) {
+          group.closeEditors(previewEditors, { preserveFocus: true });
+        }
+      }
+    }
+  }
+};
+UXState = __decorateClass([
+  __decorateParam(0, IPaneCompositePartService),
+  __decorateParam(1, IEditorGroupsService)
+], UXState);
+class PreviewSession {
+  constructor(uxState, cts = new CancellationTokenSource()) {
+    this.uxState = uxState;
+    this.cts = cts;
+  }
+  static {
+    __name(this, "PreviewSession");
+  }
+}
+let BulkEditPreviewContribution = class {
+  constructor(_paneCompositeService, _viewsService, _editorGroupsService, _dialogService, bulkEditService, contextKeyService) {
+    this._paneCompositeService = _paneCompositeService;
+    this._viewsService = _viewsService;
+    this._editorGroupsService = _editorGroupsService;
+    this._dialogService = _dialogService;
+    bulkEditService.setPreviewHandler((edits) => this._previewEdit(edits));
+    this._ctxEnabled = BulkEditPreviewContribution.ctxEnabled.bindTo(contextKeyService);
+  }
+  static {
+    __name(this, "BulkEditPreviewContribution");
+  }
+  static ID = "workbench.contrib.bulkEditPreview";
+  static ctxEnabled = new RawContextKey(
+    "refactorPreview.enabled",
+    false
+  );
+  _ctxEnabled;
+  _activeSession;
+  async _previewEdit(edits) {
+    this._ctxEnabled.set(true);
+    const uxState = this._activeSession?.uxState ?? new UXState(this._paneCompositeService, this._editorGroupsService);
+    const view = await getBulkEditPane(this._viewsService);
+    if (!view) {
+      this._ctxEnabled.set(false);
+      return edits;
+    }
+    if (view.hasInput()) {
+      const { confirmed } = await this._dialogService.confirm({
+        type: Severity.Info,
+        message: localize(
+          "overlap",
+          "Another refactoring is being previewed."
+        ),
+        detail: localize(
+          "detail",
+          "Press 'Continue' to discard the previous refactoring and continue with the current refactoring."
+        ),
+        primaryButton: localize(
+          { key: "continue", comment: ["&& denotes a mnemonic"] },
+          "&&Continue"
+        )
+      });
+      if (!confirmed) {
+        return [];
+      }
+    }
+    let session;
+    if (this._activeSession) {
+      await this._activeSession.uxState.restore(false, true);
+      this._activeSession.cts.dispose(true);
+      session = new PreviewSession(uxState);
+    } else {
+      session = new PreviewSession(uxState);
+    }
+    this._activeSession = session;
+    try {
+      return await view.setInput(edits, session.cts.token) ?? [];
+    } finally {
+      if (this._activeSession === session) {
+        await this._activeSession.uxState.restore(true, true);
+        this._activeSession.cts.dispose();
+        this._ctxEnabled.set(false);
+        this._activeSession = void 0;
+      }
+    }
+  }
+};
+BulkEditPreviewContribution = __decorateClass([
+  __decorateParam(0, IPaneCompositePartService),
+  __decorateParam(1, IViewsService),
+  __decorateParam(2, IEditorGroupsService),
+  __decorateParam(3, IDialogService),
+  __decorateParam(4, IBulkEditService),
+  __decorateParam(5, IContextKeyService)
+], BulkEditPreviewContribution);
+registerAction2(
+  class ApplyAction extends Action2 {
+    static {
+      __name(this, "ApplyAction");
+    }
+    constructor() {
+      super({
+        id: "refactorPreview.apply",
+        title: localize2("apply", "Apply Refactoring"),
+        category: localize2("cat", "Refactor Preview"),
+        icon: Codicon.check,
+        precondition: ContextKeyExpr.and(
+          BulkEditPreviewContribution.ctxEnabled,
+          BulkEditPane.ctxHasCheckedChanges
+        ),
+        menu: [
+          {
+            id: MenuId.BulkEditContext,
+            order: 1
+          }
+        ],
+        keybinding: {
+          weight: KeybindingWeight.EditorContrib - 10,
+          when: ContextKeyExpr.and(
+            BulkEditPreviewContribution.ctxEnabled,
+            FocusedViewContext.isEqualTo(BulkEditPane.ID)
+          ),
+          primary: KeyMod.CtrlCmd + KeyCode.Enter
+        }
+      });
+    }
+    async run(accessor) {
+      const viewsService = accessor.get(IViewsService);
+      const view = await getBulkEditPane(viewsService);
+      view?.accept();
+    }
+  }
+);
+registerAction2(
+  class DiscardAction extends Action2 {
+    static {
+      __name(this, "DiscardAction");
+    }
+    constructor() {
+      super({
+        id: "refactorPreview.discard",
+        title: localize2("Discard", "Discard Refactoring"),
+        category: localize2("cat", "Refactor Preview"),
+        icon: Codicon.clearAll,
+        precondition: BulkEditPreviewContribution.ctxEnabled,
+        menu: [
+          {
+            id: MenuId.BulkEditContext,
+            order: 2
+          }
+        ]
+      });
+    }
+    async run(accessor) {
+      const viewsService = accessor.get(IViewsService);
+      const view = await getBulkEditPane(viewsService);
+      view?.discard();
+    }
+  }
+);
+registerAction2(
+  class ToggleAction extends Action2 {
+    static {
+      __name(this, "ToggleAction");
+    }
+    constructor() {
+      super({
+        id: "refactorPreview.toggleCheckedState",
+        title: localize2("toogleSelection", "Toggle Change"),
+        category: localize2("cat", "Refactor Preview"),
+        precondition: BulkEditPreviewContribution.ctxEnabled,
+        keybinding: {
+          weight: KeybindingWeight.WorkbenchContrib,
+          when: WorkbenchListFocusContextKey,
+          primary: KeyCode.Space
+        },
+        menu: {
+          id: MenuId.BulkEditContext,
+          group: "navigation"
+        }
+      });
+    }
+    async run(accessor) {
+      const viewsService = accessor.get(IViewsService);
+      const view = await getBulkEditPane(viewsService);
+      view?.toggleChecked();
+    }
+  }
+);
+registerAction2(
+  class GroupByFile extends Action2 {
+    static {
+      __name(this, "GroupByFile");
+    }
+    constructor() {
+      super({
+        id: "refactorPreview.groupByFile",
+        title: localize2("groupByFile", "Group Changes By File"),
+        category: localize2("cat", "Refactor Preview"),
+        icon: Codicon.ungroupByRefType,
+        precondition: ContextKeyExpr.and(
+          BulkEditPane.ctxHasCategories,
+          BulkEditPane.ctxGroupByFile.negate(),
+          BulkEditPreviewContribution.ctxEnabled
+        ),
+        menu: [
+          {
+            id: MenuId.BulkEditTitle,
+            when: ContextKeyExpr.and(
+              BulkEditPane.ctxHasCategories,
+              BulkEditPane.ctxGroupByFile.negate()
+            ),
+            group: "navigation",
+            order: 3
+          }
+        ]
+      });
+    }
+    async run(accessor) {
+      const viewsService = accessor.get(IViewsService);
+      const view = await getBulkEditPane(viewsService);
+      view?.groupByFile();
+    }
+  }
+);
+registerAction2(
+  class GroupByType extends Action2 {
+    static {
+      __name(this, "GroupByType");
+    }
+    constructor() {
+      super({
+        id: "refactorPreview.groupByType",
+        title: localize2("groupByType", "Group Changes By Type"),
+        category: localize2("cat", "Refactor Preview"),
+        icon: Codicon.groupByRefType,
+        precondition: ContextKeyExpr.and(
+          BulkEditPane.ctxHasCategories,
+          BulkEditPane.ctxGroupByFile,
+          BulkEditPreviewContribution.ctxEnabled
+        ),
+        menu: [
+          {
+            id: MenuId.BulkEditTitle,
+            when: ContextKeyExpr.and(
+              BulkEditPane.ctxHasCategories,
+              BulkEditPane.ctxGroupByFile
+            ),
+            group: "navigation",
+            order: 3
+          }
+        ]
+      });
+    }
+    async run(accessor) {
+      const viewsService = accessor.get(IViewsService);
+      const view = await getBulkEditPane(viewsService);
+      view?.groupByType();
+    }
+  }
+);
+registerAction2(
+  class ToggleGrouping extends Action2 {
+    static {
+      __name(this, "ToggleGrouping");
+    }
+    constructor() {
+      super({
+        id: "refactorPreview.toggleGrouping",
+        title: localize2("groupByType", "Group Changes By Type"),
+        category: localize2("cat", "Refactor Preview"),
+        icon: Codicon.listTree,
+        toggled: BulkEditPane.ctxGroupByFile.negate(),
+        precondition: ContextKeyExpr.and(
+          BulkEditPane.ctxHasCategories,
+          BulkEditPreviewContribution.ctxEnabled
+        ),
+        menu: [
+          {
+            id: MenuId.BulkEditContext,
+            order: 3
+          }
+        ]
+      });
+    }
+    async run(accessor) {
+      const viewsService = accessor.get(IViewsService);
+      const view = await getBulkEditPane(viewsService);
+      view?.toggleGrouping();
+    }
+  }
+);
+registerWorkbenchContribution2(
+  BulkEditPreviewContribution.ID,
+  BulkEditPreviewContribution,
+  WorkbenchPhase.BlockRestore
+);
+const refactorPreviewViewIcon = registerIcon(
+  "refactor-preview-view-icon",
+  Codicon.lightbulb,
+  localize(
+    "refactorPreviewViewIcon",
+    "View icon of the refactor preview view."
+  )
+);
+const container = Registry.as(
+  ViewContainerExtensions.ViewContainersRegistry
+).registerViewContainer(
+  {
+    id: BulkEditPane.ID,
+    title: localize2("panel", "Refactor Preview"),
+    hideIfEmpty: true,
+    ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [
+      BulkEditPane.ID,
+      { mergeViewWithContainerWhenSingleView: true }
+    ]),
+    icon: refactorPreviewViewIcon,
+    storageId: BulkEditPane.ID
+  },
+  ViewContainerLocation.Panel
+);
+Registry.as(
+  ViewContainerExtensions.ViewsRegistry
+).registerViews(
+  [
+    {
+      id: BulkEditPane.ID,
+      name: localize2("panel", "Refactor Preview"),
+      when: BulkEditPreviewContribution.ctxEnabled,
+      ctorDescriptor: new SyncDescriptor(BulkEditPane),
+      containerIcon: refactorPreviewViewIcon
+    }
+  ],
+  container
+);
+//# sourceMappingURL=bulkEdit.contribution.js.map

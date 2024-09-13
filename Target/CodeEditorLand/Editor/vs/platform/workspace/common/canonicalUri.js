@@ -1,1 +1,8 @@
-import{createDecorator as e}from"../../instantiation/common/instantiation.js";const i=e("canonicalUriIdentityService");export{i as ICanonicalUriService};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const ICanonicalUriService = createDecorator(
+  "canonicalUriIdentityService"
+);
+export {
+  ICanonicalUriService
+};
+//# sourceMappingURL=canonicalUri.js.map

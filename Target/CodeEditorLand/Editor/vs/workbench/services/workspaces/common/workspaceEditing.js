@@ -1,1 +1,6 @@
-import{createDecorator as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("workspaceEditingService");export{r as IWorkspaceEditingService};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IWorkspaceEditingService = createDecorator("workspaceEditingService");
+export {
+  IWorkspaceEditingService
+};
+//# sourceMappingURL=workspaceEditing.js.map

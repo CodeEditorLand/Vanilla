@@ -1,1 +1,69 @@
-var s=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var f=(a,e,i,t)=>{for(var r=t>1?void 0:t?v(e,i):e,l=a.length-1,m;l>=0;l--)(m=a[l])&&(r=(t?m(e,i,r):m(r))||r);return t&&r&&s(e,i,r),r},n=(a,e)=>(i,t)=>e(i,t,a);import{randomPath as S}from"../../../../base/common/extpath.js";import{Schemas as c}from"../../../../base/common/network.js";import{URI as d}from"../../../../base/common/uri.js";import{IFileService as p}from"../../../../platform/files/common/files.js";import{InstantiationType as I,registerSingleton as u}from"../../../../platform/instantiation/common/extensions.js";import{INativeHostService as h}from"../../../../platform/native/common/native.js";import{INativeWorkbenchEnvironmentService as y}from"../../environment/electron-sandbox/environmentService.js";import{IElevatedFileService as b}from"../common/elevatedFileService.js";let o=class{constructor(e,i,t){this.nativeHostService=e;this.fileService=i;this.environmentService=t}_serviceBrand;isSupported(e){return e.scheme===c.file}async writeFileElevated(e,i,t){const r=d.file(S(this.environmentService.userDataPath,"code-elevated"));try{await this.fileService.writeFile(r,i,t),await this.nativeHostService.writeElevated(r,e,t)}finally{await this.fileService.del(r)}return this.fileService.resolve(e,{resolveMetadata:!0})}};o=f([n(0,h),n(1,p),n(2,y)],o),u(b,o,I.Delayed);export{o as NativeElevatedFileService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { randomPath } from "../../../../base/common/extpath.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { URI } from "../../../../base/common/uri.js";
+import {
+  IFileService
+} from "../../../../platform/files/common/files.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { IElevatedFileService } from "../common/elevatedFileService.js";
+let NativeElevatedFileService = class {
+  constructor(nativeHostService, fileService, environmentService) {
+    this.nativeHostService = nativeHostService;
+    this.fileService = fileService;
+    this.environmentService = environmentService;
+  }
+  static {
+    __name(this, "NativeElevatedFileService");
+  }
+  _serviceBrand;
+  isSupported(resource) {
+    return resource.scheme === Schemas.file;
+  }
+  async writeFileElevated(resource, value, options) {
+    const source = URI.file(
+      randomPath(this.environmentService.userDataPath, "code-elevated")
+    );
+    try {
+      await this.fileService.writeFile(source, value, options);
+      await this.nativeHostService.writeElevated(
+        source,
+        resource,
+        options
+      );
+    } finally {
+      await this.fileService.del(source);
+    }
+    return this.fileService.resolve(resource, { resolveMetadata: true });
+  }
+};
+NativeElevatedFileService = __decorateClass([
+  __decorateParam(0, INativeHostService),
+  __decorateParam(1, IFileService),
+  __decorateParam(2, INativeWorkbenchEnvironmentService)
+], NativeElevatedFileService);
+registerSingleton(
+  IElevatedFileService,
+  NativeElevatedFileService,
+  InstantiationType.Delayed
+);
+export {
+  NativeElevatedFileService
+};
+//# sourceMappingURL=elevatedFileService.js.map

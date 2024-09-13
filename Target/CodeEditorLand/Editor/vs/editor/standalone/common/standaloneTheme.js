@@ -1,1 +1,6 @@
-import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";const t=e("themeService");export{t as IStandaloneThemeService};
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+const IStandaloneThemeService = createDecorator("themeService");
+export {
+  IStandaloneThemeService
+};
+//# sourceMappingURL=standaloneTheme.js.map

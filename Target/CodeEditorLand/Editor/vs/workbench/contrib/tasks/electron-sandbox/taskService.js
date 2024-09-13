@@ -1,1 +1,274 @@
-var G=Object.defineProperty;var K=Object.getOwnPropertyDescriptor;var f=(m,r,i,t)=>{for(var o=t>1?void 0:t?K(r,i):r,n=m.length-1,s;n>=0;n--)(s=m[n])&&(o=(t?s(r,i,o):s(o))||o);return t&&o&&G(r,i,o),o},e=(m,r)=>(i,t)=>r(i,t,m);import{TerminateResponseCode as Q}from"../../../../base/common/processes.js";import*as v from"../../../../base/common/semver/semver.js";import{IModelService as H}from"../../../../editor/common/services/model.js";import{ITextModelService as J}from"../../../../editor/common/services/resolverService.js";import*as c from"../../../../nls.js";import{IAccessibilitySignalService as U}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{ICommandService as X}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as Y}from"../../../../platform/configuration/common/configuration.js";import{IContextKeyService as Z}from"../../../../platform/contextkey/common/contextkey.js";import{IDialogService as $}from"../../../../platform/dialogs/common/dialogs.js";import{IFileService as ee}from"../../../../platform/files/common/files.js";import{InstantiationType as re,registerSingleton as ie}from"../../../../platform/instantiation/common/extensions.js";import{IInstantiationService as te}from"../../../../platform/instantiation/common/instantiation.js";import{ILogService as oe}from"../../../../platform/log/common/log.js";import{IMarkerService as se}from"../../../../platform/markers/common/markers.js";import{INotificationService as ne}from"../../../../platform/notification/common/notification.js";import{IOpenerService as me}from"../../../../platform/opener/common/opener.js";import{IProgressService as ae}from"../../../../platform/progress/common/progress.js";import{IQuickInputService as ce}from"../../../../platform/quickinput/common/quickInput.js";import{IStorageService as Se}from"../../../../platform/storage/common/storage.js";import{ITelemetryService as fe}from"../../../../platform/telemetry/common/telemetry.js";import{IThemeService as ve}from"../../../../platform/theme/common/themeService.js";import{IWorkspaceContextService as pe}from"../../../../platform/workspace/common/workspace.js";import{IWorkspaceTrustManagementService as Ie,IWorkspaceTrustRequestService as ue}from"../../../../platform/workspace/common/workspaceTrust.js";import{IViewDescriptorService as le}from"../../../common/views.js";import{IConfigurationResolverService as de}from"../../../services/configurationResolver/common/configurationResolver.js";import{IEditorService as ke}from"../../../services/editor/common/editorService.js";import{IWorkbenchEnvironmentService as ge}from"../../../services/environment/common/environmentService.js";import{IExtensionService as ye}from"../../../services/extensions/common/extensions.js";import{ILifecycleService as he}from"../../../services/lifecycle/common/lifecycle.js";import{IOutputService as Te}from"../../../services/output/common/output.js";import{IPaneCompositePartService as Ce}from"../../../services/panecomposite/browser/panecomposite.js";import{IPathService as Pe}from"../../../services/path/common/pathService.js";import{IPreferencesService as _e}from"../../../services/preferences/common/preferences.js";import{IRemoteAgentService as xe}from"../../../services/remote/common/remoteAgentService.js";import{ITextFileService as be}from"../../../services/textfile/common/textfiles.js";import{IViewsService as Ee}from"../../../services/views/common/viewsService.js";import{ITerminalGroupService as Re,ITerminalService as we}from"../../terminal/browser/terminal.js";import{ITerminalProfileResolverService as We}from"../../terminal/common/terminal.js";import{AbstractTaskService as Ae}from"../browser/abstractTaskService.js";import{TerminalTaskSystem as Fe}from"../browser/terminalTaskSystem.js";import{ITaskService as De}from"../common/taskService.js";import{ExecutionEngine as p}from"../common/tasks.js";let a=class extends Ae{constructor(r,i,t,o,n,s,I,u,l,d,k,S,g,y,h,T,C,P,_,x,b,E,R,w,W,A,F,D,M,L,V,z,O,B,N,j,Me){super(r,i,t,o,n,s,I,u,l,d,k,g,y,h,T,C,P,_,x,b,E,R,w,W,A,F,D,M,L,V,z,O,B,S,j,N),this._register(S.onBeforeShutdown(q=>q.veto(this.beforeShutdown(),"veto.tasks")))}_getTaskSystem(){if(this._taskSystem)return this._taskSystem;const r=this._createTerminalTaskSystem();return this._taskSystem=r,this._taskSystemListeners=[this._taskSystem.onDidStateChange(i=>{this._taskRunningState.set(this._taskSystem.isActiveSync()),this._onDidStateChange.fire(i)})],this._taskSystem}_computeLegacyConfiguration(r){const{config:i,hasParseErrors:t}=this._getConfiguration(r);return t?Promise.resolve({workspaceFolder:r,hasErrors:!0,config:void 0}):i?Promise.resolve({workspaceFolder:r,config:i,hasErrors:!1}):Promise.resolve({workspaceFolder:r,hasErrors:!0,config:void 0})}_versionAndEngineCompatible(r){const i=r&&r.version?r.version:void 0,t=this.executionEngine;return i===void 0||v.satisfies("0.1.0",i)&&t===p.Process||v.satisfies("2.0.0",i)&&t===p.Terminal}beforeShutdown(){if(!this._taskSystem||!this._taskSystem.isActiveSync()||this._taskSystem instanceof Fe)return!1;let r;return this._taskSystem.canAutoTerminate()?r=Promise.resolve({confirmed:!0}):r=this._dialogService.confirm({message:c.localize("TaskSystem.runningTask","There is a task running. Do you want to terminate it?"),primaryButton:c.localize({key:"TaskSystem.terminateTask",comment:["&& denotes a mnemonic"]},"&&Terminate Task")}),r.then(i=>i.confirmed?this._taskSystem.terminateAll().then(t=>{let o=!0,n;for(const s of t)o=o&&s.success,n===void 0&&s.code!==void 0&&(n=s.code);return o?(this._taskSystem=void 0,this._disposeTaskSystemListeners(),!1):n&&n===Q.ProcessNotFound?this._dialogService.confirm({message:c.localize("TaskSystem.noProcess","The launched task doesn't exist anymore. If the task spawned background processes exiting VS Code might result in orphaned processes. To avoid this start the last background process with a wait flag."),primaryButton:c.localize({key:"TaskSystem.exitAnyways",comment:["&& denotes a mnemonic"]},"&&Exit Anyways"),type:"info"}).then(s=>!s.confirmed):!0},t=>!0):!0)}};a=f([e(0,Y),e(1,se),e(2,Te),e(3,Ce),e(4,Ee),e(5,X),e(6,ke),e(7,ee),e(8,pe),e(9,fe),e(10,be),e(11,he),e(12,H),e(13,ye),e(14,ce),e(15,de),e(16,we),e(17,Re),e(18,Se),e(19,ae),e(20,me),e(21,$),e(22,ne),e(23,Z),e(24,ge),e(25,We),e(26,Pe),e(27,J),e(28,_e),e(29,le),e(30,ue),e(31,Ie),e(32,oe),e(33,ve),e(34,te),e(35,xe),e(36,U)],a),ie(De,a,re.Delayed);export{a as TaskService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { TerminateResponseCode } from "../../../../base/common/processes.js";
+import * as semver from "../../../../base/common/semver/semver.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import * as nls from "../../../../nls.js";
+import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  IDialogService
+} from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IMarkerService } from "../../../../platform/markers/common/markers.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import {
+  IWorkspaceContextService
+} from "../../../../platform/workspace/common/workspace.js";
+import {
+  IWorkspaceTrustManagementService,
+  IWorkspaceTrustRequestService
+} from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IOutputService } from "../../../services/output/common/output.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import {
+  ITerminalGroupService,
+  ITerminalService
+} from "../../terminal/browser/terminal.js";
+import { ITerminalProfileResolverService } from "../../terminal/common/terminal.js";
+import { AbstractTaskService } from "../browser/abstractTaskService.js";
+import { TerminalTaskSystem } from "../browser/terminalTaskSystem.js";
+import { ITaskService } from "../common/taskService.js";
+import { ExecutionEngine } from "../common/tasks.js";
+let TaskService = class extends AbstractTaskService {
+  static {
+    __name(this, "TaskService");
+  }
+  constructor(configurationService, markerService, outputService, paneCompositeService, viewsService, commandService, editorService, fileService, contextService, telemetryService, textFileService, lifecycleService, modelService, extensionService, quickInputService, configurationResolverService, terminalService, terminalGroupService, storageService, progressService, openerService, dialogService, notificationService, contextKeyService, environmentService, terminalProfileResolverService, pathService, textModelResolverService, preferencesService, viewDescriptorService, workspaceTrustRequestService, workspaceTrustManagementService, logService, themeService, instantiationService, remoteAgentService, accessibilitySignalService) {
+    super(
+      configurationService,
+      markerService,
+      outputService,
+      paneCompositeService,
+      viewsService,
+      commandService,
+      editorService,
+      fileService,
+      contextService,
+      telemetryService,
+      textFileService,
+      modelService,
+      extensionService,
+      quickInputService,
+      configurationResolverService,
+      terminalService,
+      terminalGroupService,
+      storageService,
+      progressService,
+      openerService,
+      dialogService,
+      notificationService,
+      contextKeyService,
+      environmentService,
+      terminalProfileResolverService,
+      pathService,
+      textModelResolverService,
+      preferencesService,
+      viewDescriptorService,
+      workspaceTrustRequestService,
+      workspaceTrustManagementService,
+      logService,
+      themeService,
+      lifecycleService,
+      remoteAgentService,
+      instantiationService
+    );
+    this._register(
+      lifecycleService.onBeforeShutdown(
+        (event) => event.veto(this.beforeShutdown(), "veto.tasks")
+      )
+    );
+  }
+  _getTaskSystem() {
+    if (this._taskSystem) {
+      return this._taskSystem;
+    }
+    const taskSystem = this._createTerminalTaskSystem();
+    this._taskSystem = taskSystem;
+    this._taskSystemListeners = [
+      this._taskSystem.onDidStateChange((event) => {
+        this._taskRunningState.set(this._taskSystem.isActiveSync());
+        this._onDidStateChange.fire(event);
+      })
+    ];
+    return this._taskSystem;
+  }
+  _computeLegacyConfiguration(workspaceFolder) {
+    const { config, hasParseErrors } = this._getConfiguration(workspaceFolder);
+    if (hasParseErrors) {
+      return Promise.resolve({
+        workspaceFolder,
+        hasErrors: true,
+        config: void 0
+      });
+    }
+    if (config) {
+      return Promise.resolve({
+        workspaceFolder,
+        config,
+        hasErrors: false
+      });
+    } else {
+      return Promise.resolve({
+        workspaceFolder,
+        hasErrors: true,
+        config: void 0
+      });
+    }
+  }
+  _versionAndEngineCompatible(filter) {
+    const range = filter && filter.version ? filter.version : void 0;
+    const engine = this.executionEngine;
+    return range === void 0 || semver.satisfies("0.1.0", range) && engine === ExecutionEngine.Process || semver.satisfies("2.0.0", range) && engine === ExecutionEngine.Terminal;
+  }
+  beforeShutdown() {
+    if (!this._taskSystem) {
+      return false;
+    }
+    if (!this._taskSystem.isActiveSync()) {
+      return false;
+    }
+    if (this._taskSystem instanceof TerminalTaskSystem) {
+      return false;
+    }
+    let terminatePromise;
+    if (this._taskSystem.canAutoTerminate()) {
+      terminatePromise = Promise.resolve({ confirmed: true });
+    } else {
+      terminatePromise = this._dialogService.confirm({
+        message: nls.localize(
+          "TaskSystem.runningTask",
+          "There is a task running. Do you want to terminate it?"
+        ),
+        primaryButton: nls.localize(
+          {
+            key: "TaskSystem.terminateTask",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "&&Terminate Task"
+        )
+      });
+    }
+    return terminatePromise.then((res) => {
+      if (res.confirmed) {
+        return this._taskSystem.terminateAll().then(
+          (responses) => {
+            let success = true;
+            let code;
+            for (const response of responses) {
+              success = success && response.success;
+              if (code === void 0 && response.code !== void 0) {
+                code = response.code;
+              }
+            }
+            if (success) {
+              this._taskSystem = void 0;
+              this._disposeTaskSystemListeners();
+              return false;
+            } else if (code && code === TerminateResponseCode.ProcessNotFound) {
+              return this._dialogService.confirm({
+                message: nls.localize(
+                  "TaskSystem.noProcess",
+                  "The launched task doesn't exist anymore. If the task spawned background processes exiting VS Code might result in orphaned processes. To avoid this start the last background process with a wait flag."
+                ),
+                primaryButton: nls.localize(
+                  {
+                    key: "TaskSystem.exitAnyways",
+                    comment: ["&& denotes a mnemonic"]
+                  },
+                  "&&Exit Anyways"
+                ),
+                type: "info"
+              }).then((res2) => !res2.confirmed);
+            }
+            return true;
+          },
+          (err) => {
+            return true;
+          }
+        );
+      }
+      return true;
+    });
+  }
+};
+TaskService = __decorateClass([
+  __decorateParam(0, IConfigurationService),
+  __decorateParam(1, IMarkerService),
+  __decorateParam(2, IOutputService),
+  __decorateParam(3, IPaneCompositePartService),
+  __decorateParam(4, IViewsService),
+  __decorateParam(5, ICommandService),
+  __decorateParam(6, IEditorService),
+  __decorateParam(7, IFileService),
+  __decorateParam(8, IWorkspaceContextService),
+  __decorateParam(9, ITelemetryService),
+  __decorateParam(10, ITextFileService),
+  __decorateParam(11, ILifecycleService),
+  __decorateParam(12, IModelService),
+  __decorateParam(13, IExtensionService),
+  __decorateParam(14, IQuickInputService),
+  __decorateParam(15, IConfigurationResolverService),
+  __decorateParam(16, ITerminalService),
+  __decorateParam(17, ITerminalGroupService),
+  __decorateParam(18, IStorageService),
+  __decorateParam(19, IProgressService),
+  __decorateParam(20, IOpenerService),
+  __decorateParam(21, IDialogService),
+  __decorateParam(22, INotificationService),
+  __decorateParam(23, IContextKeyService),
+  __decorateParam(24, IWorkbenchEnvironmentService),
+  __decorateParam(25, ITerminalProfileResolverService),
+  __decorateParam(26, IPathService),
+  __decorateParam(27, ITextModelService),
+  __decorateParam(28, IPreferencesService),
+  __decorateParam(29, IViewDescriptorService),
+  __decorateParam(30, IWorkspaceTrustRequestService),
+  __decorateParam(31, IWorkspaceTrustManagementService),
+  __decorateParam(32, ILogService),
+  __decorateParam(33, IThemeService),
+  __decorateParam(34, IInstantiationService),
+  __decorateParam(35, IRemoteAgentService),
+  __decorateParam(36, IAccessibilitySignalService)
+], TaskService);
+registerSingleton(ITaskService, TaskService, InstantiationType.Delayed);
+export {
+  TaskService
+};
+//# sourceMappingURL=taskService.js.map

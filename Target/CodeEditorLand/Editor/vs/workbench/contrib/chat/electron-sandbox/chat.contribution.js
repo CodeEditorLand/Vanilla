@@ -1,1 +1,38 @@
-import{registerAction2 as t}from"../../../../platform/actions/common/actions.js";import{WorkbenchPhase as i,registerWorkbenchContribution2 as e}from"../../../common/contributions.js";import{HoldToVoiceChatInChatViewAction as n,InlineVoiceChatAction as r,InstallSpeechProviderForSynthesizeChatAction as c,InstallSpeechProviderForVoiceChatAction as a,KeywordActivationContribution as o,QuickVoiceChatAction as h,ReadChatResponseAloud as A,StartVoiceChatAction as C,StopListeningAction as d,StopListeningAndSubmitAction as s,StopReadAloud as p,StopReadChatItemAloud as l,VoiceChatInChatViewAction as S}from"./actions/voiceChatActions.js";t(C),t(a),t(S),t(n),t(h),t(r),t(d),t(s),t(A),t(l),t(p),t(c),e(o.ID,o,i.AfterRestored);
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import {
+  WorkbenchPhase,
+  registerWorkbenchContribution2
+} from "../../../common/contributions.js";
+import {
+  HoldToVoiceChatInChatViewAction,
+  InlineVoiceChatAction,
+  InstallSpeechProviderForSynthesizeChatAction,
+  InstallSpeechProviderForVoiceChatAction,
+  KeywordActivationContribution,
+  QuickVoiceChatAction,
+  ReadChatResponseAloud,
+  StartVoiceChatAction,
+  StopListeningAction,
+  StopListeningAndSubmitAction,
+  StopReadAloud,
+  StopReadChatItemAloud,
+  VoiceChatInChatViewAction
+} from "./actions/voiceChatActions.js";
+registerAction2(StartVoiceChatAction);
+registerAction2(InstallSpeechProviderForVoiceChatAction);
+registerAction2(VoiceChatInChatViewAction);
+registerAction2(HoldToVoiceChatInChatViewAction);
+registerAction2(QuickVoiceChatAction);
+registerAction2(InlineVoiceChatAction);
+registerAction2(StopListeningAction);
+registerAction2(StopListeningAndSubmitAction);
+registerAction2(ReadChatResponseAloud);
+registerAction2(StopReadChatItemAloud);
+registerAction2(StopReadAloud);
+registerAction2(InstallSpeechProviderForSynthesizeChatAction);
+registerWorkbenchContribution2(
+  KeywordActivationContribution.ID,
+  KeywordActivationContribution,
+  WorkbenchPhase.AfterRestored
+);
+//# sourceMappingURL=chat.contribution.js.map

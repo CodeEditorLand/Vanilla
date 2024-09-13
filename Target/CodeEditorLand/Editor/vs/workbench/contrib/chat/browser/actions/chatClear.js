@@ -1,1 +1,33 @@
-import{IEditorService as s}from"../../../../services/editor/common/editorService.js";import{ChatEditorInput as e}from"../chatEditorInput.js";async function a(r,i){const o=r.get(s);if(!i){const t=o.activeEditor;i=t instanceof e?t:void 0}if(i instanceof e){const t=o.findEditors(i.resource)[0];await o.replaceEditors([{editor:i,replacement:{resource:e.getNewEditorUri(),options:{pinned:!0}}}],t.groupId)}}export{a as clearChatEditor};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { ChatEditorInput } from "../chatEditorInput.js";
+async function clearChatEditor(accessor, chatEditorInput) {
+  const editorService = accessor.get(IEditorService);
+  if (!chatEditorInput) {
+    const editorInput = editorService.activeEditor;
+    chatEditorInput = editorInput instanceof ChatEditorInput ? editorInput : void 0;
+  }
+  if (chatEditorInput instanceof ChatEditorInput) {
+    const identifier = editorService.findEditors(
+      chatEditorInput.resource
+    )[0];
+    await editorService.replaceEditors(
+      [
+        {
+          editor: chatEditorInput,
+          replacement: {
+            resource: ChatEditorInput.getNewEditorUri(),
+            options: { pinned: true }
+          }
+        }
+      ],
+      identifier.groupId
+    );
+  }
+}
+__name(clearChatEditor, "clearChatEditor");
+export {
+  clearChatEditor
+};
+//# sourceMappingURL=chatClear.js.map

@@ -1,1 +1,242 @@
-var v=Object.defineProperty;var S=Object.getOwnPropertyDescriptor;var d=(c,a,e,t)=>{for(var r=t>1?void 0:t?S(a,e):a,s=c.length-1,o;s>=0;s--)(o=c[s])&&(r=(t?o(a,e,r):o(r))||r);return t&&r&&v(a,e,r),r},n=(c,a)=>(e,t)=>a(e,t,c);import{GlobalIdleValue as y,Limiter as h}from"../../../../base/common/async.js";import{CancellationTokenSource as m}from"../../../../base/common/cancellation.js";import{Disposable as g}from"../../../../base/common/lifecycle.js";import{ResourceMap as p}from"../../../../base/common/map.js";import{Schemas as l}from"../../../../base/common/network.js";import{localize as C}from"../../../../nls.js";import{IConfigurationService as f}from"../../../../platform/configuration/common/configuration.js";import{FileOperation as E,IFileService as I}from"../../../../platform/files/common/files.js";import{IUndoRedoService as k}from"../../../../platform/undoRedo/common/undoRedo.js";import{IUriIdentityService as w}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{IWorkspaceContextService as F}from"../../../../platform/workspace/common/workspace.js";import{SaveSourceRegistry as R}from"../../../common/editor.js";import{ResourceGlobMatcher as O}from"../../../common/resources.js";import{IPathService as V}from"../../path/common/pathService.js";import{isStoredFileWorkingCopySaveEvent as U}from"./storedFileWorkingCopy.js";import{IWorkingCopyHistoryService as D,MAX_PARALLEL_HISTORY_IO_OPS as b}from"./workingCopyHistory.js";import{IWorkingCopyService as M}from"./workingCopyService.js";let i=class extends g{constructor(e,t,r,s,o,u,W,x){super();this.workingCopyService=e;this.workingCopyHistoryService=t;this.uriIdentityService=r;this.pathService=s;this.configurationService=o;this.undoRedoService=u;this.contextService=W;this.fileService=x;this.registerListeners()}static SETTINGS={ENABLED:"workbench.localHistory.enabled",SIZE_LIMIT:"workbench.localHistory.maxFileSize",EXCLUDES:"workbench.localHistory.exclude"};static UNDO_REDO_SAVE_SOURCE=R.registerSource("undoRedo.source",C("undoRedo.source","Undo / Redo"));limiter=this._register(new h(b));resourceExcludeMatcher=this._register(new y(()=>this._register(new O(t=>this.configurationService.getValue(i.SETTINGS.EXCLUDES,{resource:t}),t=>t.affectsConfiguration(i.SETTINGS.EXCLUDES),this.contextService,this.configurationService))));pendingAddHistoryEntryOperations=new p(e=>this.uriIdentityService.extUri.getComparisonKey(e));workingCopyContentVersion=new p(e=>this.uriIdentityService.extUri.getComparisonKey(e));historyEntryContentVersion=new p(e=>this.uriIdentityService.extUri.getComparisonKey(e));registerListeners(){this._register(this.fileService.onDidRunOperation(e=>this.onDidRunFileOperation(e))),this._register(this.workingCopyService.onDidChangeContent(e=>this.onDidChangeContent(e))),this._register(this.workingCopyService.onDidSave(e=>this.onDidSave(e)))}async onDidRunFileOperation(e){if(!this.shouldTrackHistoryFromFileOperationEvent(e))return;const t=e.resource,r=e.target.resource,s=await this.workingCopyHistoryService.moveEntries(t,r);for(const o of s){const u=this.getContentVersion(o);this.historyEntryContentVersion.set(o,u)}}onDidChangeContent(e){const t=this.getContentVersion(e.resource);this.workingCopyContentVersion.set(e.resource,t+1)}getContentVersion(e){return this.workingCopyContentVersion.get(e)||0}onDidSave(e){if(!this.shouldTrackHistoryFromSaveEvent(e))return;const t=this.getContentVersion(e.workingCopy.resource);if(this.historyEntryContentVersion.get(e.workingCopy.resource)===t)return;this.pendingAddHistoryEntryOperations.get(e.workingCopy.resource)?.dispose(!0);const r=new m;this.pendingAddHistoryEntryOperations.set(e.workingCopy.resource,r),this.limiter.queue(async()=>{if(r.token.isCancellationRequested)return;const s=this.getContentVersion(e.workingCopy.resource);let o=e.source;e.source||(o=this.resolveSourceFromUndoRedo(e)),await this.workingCopyHistoryService.addEntry({resource:e.workingCopy.resource,source:o,timestamp:e.stat.mtime},r.token),this.historyEntryContentVersion.set(e.workingCopy.resource,s),!r.token.isCancellationRequested&&this.pendingAddHistoryEntryOperations.delete(e.workingCopy.resource)})}resolveSourceFromUndoRedo(e){const t=this.undoRedoService.getLastElement(e.workingCopy.resource);if(t)return t.code==="undoredo.textBufferEdit"?void 0:t.label;const r=this.undoRedoService.getElements(e.workingCopy.resource);if(r.future.length>0||r.past.length>0)return i.UNDO_REDO_SAVE_SOURCE}shouldTrackHistoryFromSaveEvent(e){return U(e)?this.shouldTrackHistory(e.workingCopy.resource,e.stat):!1}shouldTrackHistoryFromFileOperationEvent(e){return e.isOperation(E.MOVE)?this.shouldTrackHistory(e.target.resource,e.target):!1}shouldTrackHistory(e,t){if(e.scheme!==this.pathService.defaultUriScheme&&e.scheme!==l.vscodeUserData&&e.scheme!==l.inMemory)return!1;const r=1024*this.configurationService.getValue(i.SETTINGS.SIZE_LIMIT,{resource:e});return t.size>r||this.configurationService.getValue(i.SETTINGS.ENABLED,{resource:e})===!1?!1:!this.resourceExcludeMatcher.value.matches(e)}};i=d([n(0,M),n(1,D),n(2,w),n(3,V),n(4,f),n(5,k),n(6,F),n(7,I)],i);export{i as WorkingCopyHistoryTracker};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { GlobalIdleValue, Limiter } from "../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  FileOperation,
+  IFileService
+} from "../../../../platform/files/common/files.js";
+import { IUndoRedoService } from "../../../../platform/undoRedo/common/undoRedo.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { SaveSourceRegistry } from "../../../common/editor.js";
+import { ResourceGlobMatcher } from "../../../common/resources.js";
+import { IPathService } from "../../path/common/pathService.js";
+import {
+  isStoredFileWorkingCopySaveEvent
+} from "./storedFileWorkingCopy.js";
+import {
+  IWorkingCopyHistoryService,
+  MAX_PARALLEL_HISTORY_IO_OPS
+} from "./workingCopyHistory.js";
+import {
+  IWorkingCopyService
+} from "./workingCopyService.js";
+let WorkingCopyHistoryTracker = class extends Disposable {
+  constructor(workingCopyService, workingCopyHistoryService, uriIdentityService, pathService, configurationService, undoRedoService, contextService, fileService) {
+    super();
+    this.workingCopyService = workingCopyService;
+    this.workingCopyHistoryService = workingCopyHistoryService;
+    this.uriIdentityService = uriIdentityService;
+    this.pathService = pathService;
+    this.configurationService = configurationService;
+    this.undoRedoService = undoRedoService;
+    this.contextService = contextService;
+    this.fileService = fileService;
+    this.registerListeners();
+  }
+  static {
+    __name(this, "WorkingCopyHistoryTracker");
+  }
+  static SETTINGS = {
+    ENABLED: "workbench.localHistory.enabled",
+    SIZE_LIMIT: "workbench.localHistory.maxFileSize",
+    EXCLUDES: "workbench.localHistory.exclude"
+  };
+  static UNDO_REDO_SAVE_SOURCE = SaveSourceRegistry.registerSource(
+    "undoRedo.source",
+    localize("undoRedo.source", "Undo / Redo")
+  );
+  limiter = this._register(
+    new Limiter(MAX_PARALLEL_HISTORY_IO_OPS)
+  );
+  resourceExcludeMatcher = this._register(
+    new GlobalIdleValue(() => {
+      const matcher = this._register(
+        new ResourceGlobMatcher(
+          (root) => this.configurationService.getValue(
+            WorkingCopyHistoryTracker.SETTINGS.EXCLUDES,
+            { resource: root }
+          ),
+          (event) => event.affectsConfiguration(
+            WorkingCopyHistoryTracker.SETTINGS.EXCLUDES
+          ),
+          this.contextService,
+          this.configurationService
+        )
+      );
+      return matcher;
+    })
+  );
+  pendingAddHistoryEntryOperations = new ResourceMap(
+    (resource) => this.uriIdentityService.extUri.getComparisonKey(resource)
+  );
+  workingCopyContentVersion = new ResourceMap(
+    (resource) => this.uriIdentityService.extUri.getComparisonKey(resource)
+  );
+  historyEntryContentVersion = new ResourceMap(
+    (resource) => this.uriIdentityService.extUri.getComparisonKey(resource)
+  );
+  registerListeners() {
+    this._register(
+      this.fileService.onDidRunOperation(
+        (e) => this.onDidRunFileOperation(e)
+      )
+    );
+    this._register(
+      this.workingCopyService.onDidChangeContent(
+        (workingCopy) => this.onDidChangeContent(workingCopy)
+      )
+    );
+    this._register(
+      this.workingCopyService.onDidSave((e) => this.onDidSave(e))
+    );
+  }
+  async onDidRunFileOperation(e) {
+    if (!this.shouldTrackHistoryFromFileOperationEvent(e)) {
+      return;
+    }
+    const source = e.resource;
+    const target = e.target.resource;
+    const resources = await this.workingCopyHistoryService.moveEntries(
+      source,
+      target
+    );
+    for (const resource of resources) {
+      const contentVersion = this.getContentVersion(resource);
+      this.historyEntryContentVersion.set(resource, contentVersion);
+    }
+  }
+  onDidChangeContent(workingCopy) {
+    const contentVersionId = this.getContentVersion(workingCopy.resource);
+    this.workingCopyContentVersion.set(
+      workingCopy.resource,
+      contentVersionId + 1
+    );
+  }
+  getContentVersion(resource) {
+    return this.workingCopyContentVersion.get(resource) || 0;
+  }
+  onDidSave(e) {
+    if (!this.shouldTrackHistoryFromSaveEvent(e)) {
+      return;
+    }
+    const contentVersion = this.getContentVersion(e.workingCopy.resource);
+    if (this.historyEntryContentVersion.get(e.workingCopy.resource) === contentVersion) {
+      return;
+    }
+    this.pendingAddHistoryEntryOperations.get(e.workingCopy.resource)?.dispose(true);
+    const cts = new CancellationTokenSource();
+    this.pendingAddHistoryEntryOperations.set(e.workingCopy.resource, cts);
+    this.limiter.queue(async () => {
+      if (cts.token.isCancellationRequested) {
+        return;
+      }
+      const contentVersion2 = this.getContentVersion(
+        e.workingCopy.resource
+      );
+      let source = e.source;
+      if (!e.source) {
+        source = this.resolveSourceFromUndoRedo(e);
+      }
+      await this.workingCopyHistoryService.addEntry(
+        {
+          resource: e.workingCopy.resource,
+          source,
+          timestamp: e.stat.mtime
+        },
+        cts.token
+      );
+      this.historyEntryContentVersion.set(
+        e.workingCopy.resource,
+        contentVersion2
+      );
+      if (cts.token.isCancellationRequested) {
+        return;
+      }
+      this.pendingAddHistoryEntryOperations.delete(
+        e.workingCopy.resource
+      );
+    });
+  }
+  resolveSourceFromUndoRedo(e) {
+    const lastStackElement = this.undoRedoService.getLastElement(
+      e.workingCopy.resource
+    );
+    if (lastStackElement) {
+      if (lastStackElement.code === "undoredo.textBufferEdit") {
+        return void 0;
+      }
+      return lastStackElement.label;
+    }
+    const allStackElements = this.undoRedoService.getElements(
+      e.workingCopy.resource
+    );
+    if (allStackElements.future.length > 0 || allStackElements.past.length > 0) {
+      return WorkingCopyHistoryTracker.UNDO_REDO_SAVE_SOURCE;
+    }
+    return void 0;
+  }
+  shouldTrackHistoryFromSaveEvent(e) {
+    if (!isStoredFileWorkingCopySaveEvent(e)) {
+      return false;
+    }
+    return this.shouldTrackHistory(e.workingCopy.resource, e.stat);
+  }
+  shouldTrackHistoryFromFileOperationEvent(e) {
+    if (!e.isOperation(FileOperation.MOVE)) {
+      return false;
+    }
+    return this.shouldTrackHistory(e.target.resource, e.target);
+  }
+  shouldTrackHistory(resource, stat) {
+    if (resource.scheme !== this.pathService.defaultUriScheme && // track history for all workspace resources
+    resource.scheme !== Schemas.vscodeUserData && // track history for all settings
+    resource.scheme !== Schemas.inMemory) {
+      return false;
+    }
+    const configuredMaxFileSizeInBytes = 1024 * this.configurationService.getValue(
+      WorkingCopyHistoryTracker.SETTINGS.SIZE_LIMIT,
+      { resource }
+    );
+    if (stat.size > configuredMaxFileSizeInBytes) {
+      return false;
+    }
+    if (this.configurationService.getValue(
+      WorkingCopyHistoryTracker.SETTINGS.ENABLED,
+      { resource }
+    ) === false) {
+      return false;
+    }
+    return !this.resourceExcludeMatcher.value.matches(resource);
+  }
+};
+WorkingCopyHistoryTracker = __decorateClass([
+  __decorateParam(0, IWorkingCopyService),
+  __decorateParam(1, IWorkingCopyHistoryService),
+  __decorateParam(2, IUriIdentityService),
+  __decorateParam(3, IPathService),
+  __decorateParam(4, IConfigurationService),
+  __decorateParam(5, IUndoRedoService),
+  __decorateParam(6, IWorkspaceContextService),
+  __decorateParam(7, IFileService)
+], WorkingCopyHistoryTracker);
+export {
+  WorkingCopyHistoryTracker
+};
+//# sourceMappingURL=workingCopyHistoryTracker.js.map

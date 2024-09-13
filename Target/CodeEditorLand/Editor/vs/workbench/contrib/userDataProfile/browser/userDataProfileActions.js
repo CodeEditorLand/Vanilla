@@ -1,1 +1,82 @@
-import{localize2 as o}from"../../../../nls.js";import{Categories as i}from"../../../../platform/action/common/actionCommonCategories.js";import{Action2 as t,registerAction2 as s}from"../../../../platform/actions/common/actions.js";import{IUserDataProfilesService as a}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{IUserDataProfileManagementService as p,PROFILES_CATEGORY as l,PROFILES_ENABLEMENT_CONTEXT as c}from"../../../services/userDataProfile/common/userDataProfile.js";class r extends t{static ID="workbench.profiles.actions.createTemporaryProfile";static TITLE=o("create temporary profile","Create a Temporary Profile");constructor(){super({id:r.ID,title:r.TITLE,category:l,f1:!0,precondition:c})}async run(e){return e.get(p).createAndEnterTransientProfile()}}s(r),s(class extends t{constructor(){super({id:"workbench.profiles.actions.cleanupProfiles",title:o("cleanup profile","Cleanup Profiles"),category:i.Developer,f1:!0,precondition:c})}async run(e){return e.get(a).cleanUp()}}),s(class extends t{constructor(){super({id:"workbench.profiles.actions.resetWorkspaces",title:o("reset workspaces","Reset Workspace Profiles Associations"),category:i.Developer,f1:!0,precondition:c})}async run(e){return e.get(a).resetWorkspaces()}});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import {
+  IUserDataProfileManagementService,
+  PROFILES_CATEGORY,
+  PROFILES_ENABLEMENT_CONTEXT
+} from "../../../services/userDataProfile/common/userDataProfile.js";
+class CreateTransientProfileAction extends Action2 {
+  static {
+    __name(this, "CreateTransientProfileAction");
+  }
+  static ID = "workbench.profiles.actions.createTemporaryProfile";
+  static TITLE = localize2(
+    "create temporary profile",
+    "Create a Temporary Profile"
+  );
+  constructor() {
+    super({
+      id: CreateTransientProfileAction.ID,
+      title: CreateTransientProfileAction.TITLE,
+      category: PROFILES_CATEGORY,
+      f1: true,
+      precondition: PROFILES_ENABLEMENT_CONTEXT
+    });
+  }
+  async run(accessor) {
+    return accessor.get(IUserDataProfileManagementService).createAndEnterTransientProfile();
+  }
+}
+registerAction2(CreateTransientProfileAction);
+registerAction2(
+  class CleanupProfilesAction extends Action2 {
+    static {
+      __name(this, "CleanupProfilesAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.profiles.actions.cleanupProfiles",
+        title: localize2("cleanup profile", "Cleanup Profiles"),
+        category: Categories.Developer,
+        f1: true,
+        precondition: PROFILES_ENABLEMENT_CONTEXT
+      });
+    }
+    async run(accessor) {
+      return accessor.get(IUserDataProfilesService).cleanUp();
+    }
+  }
+);
+registerAction2(
+  class ResetWorkspacesAction extends Action2 {
+    static {
+      __name(this, "ResetWorkspacesAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.profiles.actions.resetWorkspaces",
+        title: localize2(
+          "reset workspaces",
+          "Reset Workspace Profiles Associations"
+        ),
+        category: Categories.Developer,
+        f1: true,
+        precondition: PROFILES_ENABLEMENT_CONTEXT
+      });
+    }
+    async run(accessor) {
+      const userDataProfilesService = accessor.get(
+        IUserDataProfilesService
+      );
+      return userDataProfilesService.resetWorkspaces();
+    }
+  }
+);
+//# sourceMappingURL=userDataProfileActions.js.map

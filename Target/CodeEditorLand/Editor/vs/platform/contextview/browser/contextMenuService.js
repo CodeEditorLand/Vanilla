@@ -1,1 +1,129 @@
-var l=Object.defineProperty;var I=Object.getOwnPropertyDescriptor;var x=(o,i,t,e)=>{for(var n=e>1?void 0:e?I(i,t):i,u=o.length-1,r;u>=0;u--)(r=o[u])&&(n=(e?r(i,t,n):r(n))||n);return e&&n&&l(i,t,n),n},c=(o,i)=>(t,e)=>i(t,e,o);import{ModifierKeyEmitter as f}from"../../../base/browser/dom.js";import{Separator as y}from"../../../base/common/actions.js";import{Emitter as M}from"../../../base/common/event.js";import{Disposable as S}from"../../../base/common/lifecycle.js";import{createAndFillInContextMenuActions as C}from"../../actions/browser/menuEntryActionViewItem.js";import{IMenuService as h,MenuId as D}from"../../actions/common/actions.js";import{IContextKeyService as H}from"../../contextkey/common/contextkey.js";import{IKeybindingService as g}from"../../keybinding/common/keybinding.js";import{INotificationService as w}from"../../notification/common/notification.js";import{ITelemetryService as _}from"../../telemetry/common/telemetry.js";import{ContextMenuHandler as K}from"./contextMenuHandler.js";import{IContextViewService as A}from"./contextView.js";let a=class extends S{constructor(t,e,n,u,r,s){super();this.telemetryService=t;this.notificationService=e;this.contextViewService=n;this.keybindingService=u;this.menuService=r;this.contextKeyService=s}_contextMenuHandler=void 0;get contextMenuHandler(){return this._contextMenuHandler||(this._contextMenuHandler=new K(this.contextViewService,this.telemetryService,this.notificationService,this.keybindingService)),this._contextMenuHandler}_onDidShowContextMenu=this._store.add(new M);onDidShowContextMenu=this._onDidShowContextMenu.event;_onDidHideContextMenu=this._store.add(new M);onDidHideContextMenu=this._onDidHideContextMenu.event;configure(t){this.contextMenuHandler.configure(t)}showContextMenu(t){t=m.transform(t,this.menuService,this.contextKeyService),this.contextMenuHandler.showContextMenu({...t,onHide:e=>{t.onHide?.(e),this._onDidHideContextMenu.fire()}}),f.getInstance().resetKeyStatus(),this._onDidShowContextMenu.fire()}};a=x([c(0,_),c(1,w),c(2,A),c(3,g),c(4,h),c(5,H)],a);var m;(t=>{function o(e){return e&&e.menuId instanceof D}function i(e,n,u){if(!o(e))return e;const{menuId:r,menuActionOptions:s,contextKeyService:v}=e;return{...e,getActions:()=>{const d=[];if(r){const p=n.getMenuActions(r,v??u,s);C(p,d)}return e.getActions?y.join(e.getActions(),d):d}}}t.transform=i})(m||={});export{m as ContextMenuMenuDelegate,a as ContextMenuService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { ModifierKeyEmitter } from "../../../base/browser/dom.js";
+import { Separator } from "../../../base/common/actions.js";
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { createAndFillInContextMenuActions } from "../../actions/browser/menuEntryActionViewItem.js";
+import { IMenuService, MenuId } from "../../actions/common/actions.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+import { INotificationService } from "../../notification/common/notification.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import {
+  ContextMenuHandler
+} from "./contextMenuHandler.js";
+import {
+  IContextViewService
+} from "./contextView.js";
+let ContextMenuService = class extends Disposable {
+  constructor(telemetryService, notificationService, contextViewService, keybindingService, menuService, contextKeyService) {
+    super();
+    this.telemetryService = telemetryService;
+    this.notificationService = notificationService;
+    this.contextViewService = contextViewService;
+    this.keybindingService = keybindingService;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+  }
+  static {
+    __name(this, "ContextMenuService");
+  }
+  _contextMenuHandler = void 0;
+  get contextMenuHandler() {
+    if (!this._contextMenuHandler) {
+      this._contextMenuHandler = new ContextMenuHandler(
+        this.contextViewService,
+        this.telemetryService,
+        this.notificationService,
+        this.keybindingService
+      );
+    }
+    return this._contextMenuHandler;
+  }
+  _onDidShowContextMenu = this._store.add(
+    new Emitter()
+  );
+  onDidShowContextMenu = this._onDidShowContextMenu.event;
+  _onDidHideContextMenu = this._store.add(
+    new Emitter()
+  );
+  onDidHideContextMenu = this._onDidHideContextMenu.event;
+  configure(options) {
+    this.contextMenuHandler.configure(options);
+  }
+  // ContextMenu
+  showContextMenu(delegate) {
+    delegate = ContextMenuMenuDelegate.transform(
+      delegate,
+      this.menuService,
+      this.contextKeyService
+    );
+    this.contextMenuHandler.showContextMenu({
+      ...delegate,
+      onHide: /* @__PURE__ */ __name((didCancel) => {
+        delegate.onHide?.(didCancel);
+        this._onDidHideContextMenu.fire();
+      }, "onHide")
+    });
+    ModifierKeyEmitter.getInstance().resetKeyStatus();
+    this._onDidShowContextMenu.fire();
+  }
+};
+ContextMenuService = __decorateClass([
+  __decorateParam(0, ITelemetryService),
+  __decorateParam(1, INotificationService),
+  __decorateParam(2, IContextViewService),
+  __decorateParam(3, IKeybindingService),
+  __decorateParam(4, IMenuService),
+  __decorateParam(5, IContextKeyService)
+], ContextMenuService);
+var ContextMenuMenuDelegate;
+((ContextMenuMenuDelegate2) => {
+  function is(thing) {
+    return thing && thing.menuId instanceof MenuId;
+  }
+  __name(is, "is");
+  function transform(delegate, menuService, globalContextKeyService) {
+    if (!is(delegate)) {
+      return delegate;
+    }
+    const { menuId, menuActionOptions, contextKeyService } = delegate;
+    return {
+      ...delegate,
+      getActions: /* @__PURE__ */ __name(() => {
+        const target = [];
+        if (menuId) {
+          const menu = menuService.getMenuActions(
+            menuId,
+            contextKeyService ?? globalContextKeyService,
+            menuActionOptions
+          );
+          createAndFillInContextMenuActions(menu, target);
+        }
+        if (delegate.getActions) {
+          return Separator.join(delegate.getActions(), target);
+        } else {
+          return target;
+        }
+      }, "getActions")
+    };
+  }
+  ContextMenuMenuDelegate2.transform = transform;
+  __name(transform, "transform");
+})(ContextMenuMenuDelegate || (ContextMenuMenuDelegate = {}));
+export {
+  ContextMenuMenuDelegate,
+  ContextMenuService
+};
+//# sourceMappingURL=contextMenuService.js.map

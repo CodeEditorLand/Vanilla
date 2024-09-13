@@ -1,1 +1,263 @@
-import{timeout as S}from"../../../base/common/async.js";import{CancellationTokenSource as D}from"../../../base/common/cancellation.js";import{Disposable as w,DisposableStore as R,MutableDisposable as E}from"../../../base/common/lifecycle.js";import{isFunction as O}from"../../../base/common/types.js";var F=(s=>(s[s.NO_ACTION=0]="NO_ACTION",s[s.CLOSE_PICKER=1]="CLOSE_PICKER",s[s.REFRESH_PICKER=2]="REFRESH_PICKER",s[s.REMOVE_ITEM=3]="REMOVE_ITEM",s))(F||{});function g(f){const P=f;return Array.isArray(P.items)}function x(f){const P=f;return!!P.picks&&P.additionalPicks instanceof Promise}class K extends w{constructor(e,I){super();this.prefix=e;this.options=I}provide(e,I,s){const l=new R;e.canAcceptInBackground=!!this.options?.canAcceptInBackground,e.matchOnLabel=e.matchOnDescription=e.matchOnDetail=e.sortByLabel=!1;let y;const C=l.add(new E),T=async()=>{const n=C.value=new R;y?.dispose(!0),e.busy=!1,y=new D(I);const t=y.token;let r=e.value.substring(this.prefix.length);this.options?.shouldSkipTrimPickFilter||(r=r.trim());const o=this._getPicks(r,n,t,s),d=(i,u)=>{let c,a;if(g(i)?(c=i.items,a=i.active):c=i,c.length===0){if(u)return!1;(r.length>0||e.hideInput)&&this.options?.noResultsPick&&(O(this.options.noResultsPick)?c=[this.options.noResultsPick(r)]:c=[this.options.noResultsPick])}return e.items=c,a&&(e.activeItems=[a]),!0},p=async i=>{let u=!1,c=!1;await Promise.all([(async()=>{typeof i.mergeDelay=="number"&&(await S(i.mergeDelay),t.isCancellationRequested)||c||(u=d(i.picks,!0))})(),(async()=>{e.busy=!0;try{const a=await i.additionalPicks;if(t.isCancellationRequested)return;let k,b;g(i.picks)?(k=i.picks.items,b=i.picks.active):k=i.picks;let m,v;if(g(a)?(m=a.items,v=a.active):m=a,m.length>0||!u){let Q;if(!b&&!v){const A=e.activeItems[0];A&&k.indexOf(A)!==-1&&(Q=A)}d({items:[...k,...m],active:b||v||Q})}}finally{t.isCancellationRequested||(e.busy=!1),c=!0}})()])};if(o!==null)if(x(o))await p(o);else if(o instanceof Promise){e.busy=!0;try{const i=await o;if(t.isCancellationRequested)return;x(i)?await p(i):d(i)}finally{t.isCancellationRequested||(e.busy=!1)}}else d(o)};l.add(e.onDidChangeValue(()=>T())),T(),l.add(e.onDidAccept(n=>{if(s?.handleAccept){n.inBackground||e.hide(),s.handleAccept?.(e.activeItems[0]);return}const[t]=e.selectedItems;typeof t?.accept=="function"&&(n.inBackground||e.hide(),t.accept(e.keyMods,n))}));const h=async(n,t)=>{if(typeof t.trigger!="function")return;const r=t.buttons?.indexOf(n)??-1;if(r>=0){const o=t.trigger(r,e.keyMods),d=typeof o=="number"?o:await o;if(I.isCancellationRequested)return;switch(d){case 0:break;case 1:e.hide();break;case 2:T();break;case 3:{const p=e.items.indexOf(t);if(p!==-1){const i=e.items.slice(),u=i.splice(p,1),c=e.activeItems.filter(k=>k!==u[0]),a=e.keepScrollPosition;e.keepScrollPosition=!0,e.items=i,c&&(e.activeItems=c),e.keepScrollPosition=a}break}}}};return l.add(e.onDidTriggerItemButton(({button:n,item:t})=>h(n,t))),l.add(e.onDidTriggerSeparatorButton(({button:n,separator:t})=>h(n,t))),l}}export{K as PickerQuickAccessProvider,F as TriggerAction};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { timeout } from "../../../base/common/async.js";
+import {
+  CancellationTokenSource
+} from "../../../base/common/cancellation.js";
+import {
+  Disposable,
+  DisposableStore,
+  MutableDisposable
+} from "../../../base/common/lifecycle.js";
+import { isFunction } from "../../../base/common/types.js";
+var TriggerAction = /* @__PURE__ */ ((TriggerAction2) => {
+  TriggerAction2[TriggerAction2["NO_ACTION"] = 0] = "NO_ACTION";
+  TriggerAction2[TriggerAction2["CLOSE_PICKER"] = 1] = "CLOSE_PICKER";
+  TriggerAction2[TriggerAction2["REFRESH_PICKER"] = 2] = "REFRESH_PICKER";
+  TriggerAction2[TriggerAction2["REMOVE_ITEM"] = 3] = "REMOVE_ITEM";
+  return TriggerAction2;
+})(TriggerAction || {});
+function isPicksWithActive(obj) {
+  const candidate = obj;
+  return Array.isArray(candidate.items);
+}
+__name(isPicksWithActive, "isPicksWithActive");
+function isFastAndSlowPicks(obj) {
+  const candidate = obj;
+  return !!candidate.picks && candidate.additionalPicks instanceof Promise;
+}
+__name(isFastAndSlowPicks, "isFastAndSlowPicks");
+class PickerQuickAccessProvider extends Disposable {
+  constructor(prefix, options) {
+    super();
+    this.prefix = prefix;
+    this.options = options;
+  }
+  static {
+    __name(this, "PickerQuickAccessProvider");
+  }
+  provide(picker, token, runOptions) {
+    const disposables = new DisposableStore();
+    picker.canAcceptInBackground = !!this.options?.canAcceptInBackground;
+    picker.matchOnLabel = picker.matchOnDescription = picker.matchOnDetail = picker.sortByLabel = false;
+    let picksCts;
+    const picksDisposable = disposables.add(new MutableDisposable());
+    const updatePickerItems = /* @__PURE__ */ __name(async () => {
+      const picksDisposables = picksDisposable.value = new DisposableStore();
+      picksCts?.dispose(true);
+      picker.busy = false;
+      picksCts = new CancellationTokenSource(token);
+      const picksToken = picksCts.token;
+      let picksFilter = picker.value.substring(this.prefix.length);
+      if (!this.options?.shouldSkipTrimPickFilter) {
+        picksFilter = picksFilter.trim();
+      }
+      const providedPicks = this._getPicks(
+        picksFilter,
+        picksDisposables,
+        picksToken,
+        runOptions
+      );
+      const applyPicks = /* @__PURE__ */ __name((picks, skipEmpty) => {
+        let items;
+        let activeItem;
+        if (isPicksWithActive(picks)) {
+          items = picks.items;
+          activeItem = picks.active;
+        } else {
+          items = picks;
+        }
+        if (items.length === 0) {
+          if (skipEmpty) {
+            return false;
+          }
+          if ((picksFilter.length > 0 || picker.hideInput) && this.options?.noResultsPick) {
+            if (isFunction(this.options.noResultsPick)) {
+              items = [this.options.noResultsPick(picksFilter)];
+            } else {
+              items = [this.options.noResultsPick];
+            }
+          }
+        }
+        picker.items = items;
+        if (activeItem) {
+          picker.activeItems = [activeItem];
+        }
+        return true;
+      }, "applyPicks");
+      const applyFastAndSlowPicks = /* @__PURE__ */ __name(async (fastAndSlowPicks) => {
+        let fastPicksApplied = false;
+        let slowPicksApplied = false;
+        await Promise.all([
+          // Fast Picks: if `mergeDelay` is configured, in order to reduce
+          // amount of flicker, we race against the slow picks over some delay
+          // and then set the fast picks.
+          // If the slow picks are faster, we reduce the flicker by only
+          // setting the items once.
+          (async () => {
+            if (typeof fastAndSlowPicks.mergeDelay === "number") {
+              await timeout(fastAndSlowPicks.mergeDelay);
+              if (picksToken.isCancellationRequested) {
+                return;
+              }
+            }
+            if (!slowPicksApplied) {
+              fastPicksApplied = applyPicks(
+                fastAndSlowPicks.picks,
+                true
+              );
+            }
+          })(),
+          // Slow Picks: we await the slow picks and then set them at
+          // once together with the fast picks, but only if we actually
+          // have additional results.
+          (async () => {
+            picker.busy = true;
+            try {
+              const awaitedAdditionalPicks = await fastAndSlowPicks.additionalPicks;
+              if (picksToken.isCancellationRequested) {
+                return;
+              }
+              let picks;
+              let activePick;
+              if (isPicksWithActive(fastAndSlowPicks.picks)) {
+                picks = fastAndSlowPicks.picks.items;
+                activePick = fastAndSlowPicks.picks.active;
+              } else {
+                picks = fastAndSlowPicks.picks;
+              }
+              let additionalPicks;
+              let additionalActivePick;
+              if (isPicksWithActive(awaitedAdditionalPicks)) {
+                additionalPicks = awaitedAdditionalPicks.items;
+                additionalActivePick = awaitedAdditionalPicks.active;
+              } else {
+                additionalPicks = awaitedAdditionalPicks;
+              }
+              if (additionalPicks.length > 0 || !fastPicksApplied) {
+                let fallbackActivePick;
+                if (!activePick && !additionalActivePick) {
+                  const fallbackActivePickCandidate = picker.activeItems[0];
+                  if (fallbackActivePickCandidate && picks.indexOf(
+                    fallbackActivePickCandidate
+                  ) !== -1) {
+                    fallbackActivePick = fallbackActivePickCandidate;
+                  }
+                }
+                applyPicks({
+                  items: [...picks, ...additionalPicks],
+                  active: activePick || additionalActivePick || fallbackActivePick
+                });
+              }
+            } finally {
+              if (!picksToken.isCancellationRequested) {
+                picker.busy = false;
+              }
+              slowPicksApplied = true;
+            }
+          })()
+        ]);
+      }, "applyFastAndSlowPicks");
+      if (providedPicks === null) {
+      } else if (isFastAndSlowPicks(providedPicks)) {
+        await applyFastAndSlowPicks(providedPicks);
+      } else if (providedPicks instanceof Promise) {
+        picker.busy = true;
+        try {
+          const awaitedPicks = await providedPicks;
+          if (picksToken.isCancellationRequested) {
+            return;
+          }
+          if (isFastAndSlowPicks(awaitedPicks)) {
+            await applyFastAndSlowPicks(awaitedPicks);
+          } else {
+            applyPicks(awaitedPicks);
+          }
+        } finally {
+          if (!picksToken.isCancellationRequested) {
+            picker.busy = false;
+          }
+        }
+      } else {
+        applyPicks(providedPicks);
+      }
+    }, "updatePickerItems");
+    disposables.add(picker.onDidChangeValue(() => updatePickerItems()));
+    updatePickerItems();
+    disposables.add(
+      picker.onDidAccept((event) => {
+        if (runOptions?.handleAccept) {
+          if (!event.inBackground) {
+            picker.hide();
+          }
+          runOptions.handleAccept?.(picker.activeItems[0]);
+          return;
+        }
+        const [item] = picker.selectedItems;
+        if (typeof item?.accept === "function") {
+          if (!event.inBackground) {
+            picker.hide();
+          }
+          item.accept(picker.keyMods, event);
+        }
+      })
+    );
+    const buttonTrigger = /* @__PURE__ */ __name(async (button, item) => {
+      if (typeof item.trigger !== "function") {
+        return;
+      }
+      const buttonIndex = item.buttons?.indexOf(button) ?? -1;
+      if (buttonIndex >= 0) {
+        const result = item.trigger(buttonIndex, picker.keyMods);
+        const action = typeof result === "number" ? result : await result;
+        if (token.isCancellationRequested) {
+          return;
+        }
+        switch (action) {
+          case 0 /* NO_ACTION */:
+            break;
+          case 1 /* CLOSE_PICKER */:
+            picker.hide();
+            break;
+          case 2 /* REFRESH_PICKER */:
+            updatePickerItems();
+            break;
+          case 3 /* REMOVE_ITEM */: {
+            const index = picker.items.indexOf(item);
+            if (index !== -1) {
+              const items = picker.items.slice();
+              const removed = items.splice(index, 1);
+              const activeItems = picker.activeItems.filter(
+                (activeItem) => activeItem !== removed[0]
+              );
+              const keepScrollPositionBefore = picker.keepScrollPosition;
+              picker.keepScrollPosition = true;
+              picker.items = items;
+              if (activeItems) {
+                picker.activeItems = activeItems;
+              }
+              picker.keepScrollPosition = keepScrollPositionBefore;
+            }
+            break;
+          }
+        }
+      }
+    }, "buttonTrigger");
+    disposables.add(
+      picker.onDidTriggerItemButton(
+        ({ button, item }) => buttonTrigger(button, item)
+      )
+    );
+    disposables.add(
+      picker.onDidTriggerSeparatorButton(
+        ({ button, separator }) => buttonTrigger(button, separator)
+      )
+    );
+    return disposables;
+  }
+}
+export {
+  PickerQuickAccessProvider,
+  TriggerAction
+};
+//# sourceMappingURL=pickerQuickAccess.js.map

@@ -1,1 +1,27 @@
-import{localize2 as t}from"../../../nls.js";import{Categories as i}from"../../action/common/actionCommonCategories.js";import{ILogService as o}from"../../log/common/log.js";import{Action2 as r,IMenuService as s}from"./actions.js";class l extends r{constructor(){super({id:"menu.resetHiddenStates",title:t("title","Reset All Menus"),category:i.View,f1:!0})}run(e){e.get(s).resetHiddenStates(),e.get(o).info("did RESET all menu hidden states")}}export{l as MenuHiddenStatesReset};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize2 } from "../../../nls.js";
+import { Categories } from "../../action/common/actionCommonCategories.js";
+import { ILogService } from "../../log/common/log.js";
+import { Action2, IMenuService } from "./actions.js";
+class MenuHiddenStatesReset extends Action2 {
+  static {
+    __name(this, "MenuHiddenStatesReset");
+  }
+  constructor() {
+    super({
+      id: "menu.resetHiddenStates",
+      title: localize2("title", "Reset All Menus"),
+      category: Categories.View,
+      f1: true
+    });
+  }
+  run(accessor) {
+    accessor.get(IMenuService).resetHiddenStates();
+    accessor.get(ILogService).info("did RESET all menu hidden states");
+  }
+}
+export {
+  MenuHiddenStatesReset
+};
+//# sourceMappingURL=menuResetAction.js.map

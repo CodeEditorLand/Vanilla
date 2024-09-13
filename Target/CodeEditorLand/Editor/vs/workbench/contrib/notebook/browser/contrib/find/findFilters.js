@@ -1,1 +1,96 @@
-import{Emitter as p}from"../../../../../../base/common/event.js";import{Disposable as r}from"../../../../../../base/common/lifecycle.js";import{NotebookFindScopeType as u}from"../../../common/notebookCommon.js";class _ extends r{_onDidChange=this._register(new p);onDidChange=this._onDidChange.event;_markupInput=!0;get markupInput(){return this._markupInput}set markupInput(e){this._markupInput!==e&&(this._markupInput=e,this._onDidChange.fire({markupInput:e}))}_markupPreview=!0;get markupPreview(){return this._markupPreview}set markupPreview(e){this._markupPreview!==e&&(this._markupPreview=e,this._onDidChange.fire({markupPreview:e}))}_codeInput=!0;get codeInput(){return this._codeInput}set codeInput(e){this._codeInput!==e&&(this._codeInput=e,this._onDidChange.fire({codeInput:e}))}_codeOutput=!0;get codeOutput(){return this._codeOutput}set codeOutput(e){this._codeOutput!==e&&(this._codeOutput=e,this._onDidChange.fire({codeOutput:e}))}_findScope={findScopeType:u.None};get findScope(){return this._findScope}set findScope(e){this._findScope!==e&&(this._findScope=e,this._onDidChange.fire({findScope:!0}))}_initialMarkupInput;_initialMarkupPreview;_initialCodeInput;_initialCodeOutput;constructor(e,t,i,o,n){super(),this._markupInput=e,this._markupPreview=t,this._codeInput=i,this._codeOutput=o,this._findScope=n,this._initialMarkupInput=e,this._initialMarkupPreview=t,this._initialCodeInput=i,this._initialCodeOutput=o}isModified(){return this._markupInput!==this._initialMarkupInput||this._markupPreview!==this._initialMarkupPreview||this._codeInput!==this._initialCodeInput||this._codeOutput!==this._initialCodeOutput}update(e){this._markupInput=e.markupInput,this._markupPreview=e.markupPreview,this._codeInput=e.codeInput,this._codeOutput=e.codeOutput,this._findScope=e.findScope}}export{_ as NotebookFindFilters};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../../../base/common/event.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import {
+  NotebookFindScopeType
+} from "../../../common/notebookCommon.js";
+class NotebookFindFilters extends Disposable {
+  static {
+    __name(this, "NotebookFindFilters");
+  }
+  _onDidChange = this._register(new Emitter());
+  onDidChange = this._onDidChange.event;
+  _markupInput = true;
+  get markupInput() {
+    return this._markupInput;
+  }
+  set markupInput(value) {
+    if (this._markupInput !== value) {
+      this._markupInput = value;
+      this._onDidChange.fire({ markupInput: value });
+    }
+  }
+  _markupPreview = true;
+  get markupPreview() {
+    return this._markupPreview;
+  }
+  set markupPreview(value) {
+    if (this._markupPreview !== value) {
+      this._markupPreview = value;
+      this._onDidChange.fire({ markupPreview: value });
+    }
+  }
+  _codeInput = true;
+  get codeInput() {
+    return this._codeInput;
+  }
+  set codeInput(value) {
+    if (this._codeInput !== value) {
+      this._codeInput = value;
+      this._onDidChange.fire({ codeInput: value });
+    }
+  }
+  _codeOutput = true;
+  get codeOutput() {
+    return this._codeOutput;
+  }
+  set codeOutput(value) {
+    if (this._codeOutput !== value) {
+      this._codeOutput = value;
+      this._onDidChange.fire({ codeOutput: value });
+    }
+  }
+  _findScope = {
+    findScopeType: NotebookFindScopeType.None
+  };
+  get findScope() {
+    return this._findScope;
+  }
+  set findScope(value) {
+    if (this._findScope !== value) {
+      this._findScope = value;
+      this._onDidChange.fire({ findScope: true });
+    }
+  }
+  _initialMarkupInput;
+  _initialMarkupPreview;
+  _initialCodeInput;
+  _initialCodeOutput;
+  constructor(markupInput, markupPreview, codeInput, codeOutput, findScope) {
+    super();
+    this._markupInput = markupInput;
+    this._markupPreview = markupPreview;
+    this._codeInput = codeInput;
+    this._codeOutput = codeOutput;
+    this._findScope = findScope;
+    this._initialMarkupInput = markupInput;
+    this._initialMarkupPreview = markupPreview;
+    this._initialCodeInput = codeInput;
+    this._initialCodeOutput = codeOutput;
+  }
+  isModified() {
+    return this._markupInput !== this._initialMarkupInput || this._markupPreview !== this._initialMarkupPreview || this._codeInput !== this._initialCodeInput || this._codeOutput !== this._initialCodeOutput;
+  }
+  update(v) {
+    this._markupInput = v.markupInput;
+    this._markupPreview = v.markupPreview;
+    this._codeInput = v.codeInput;
+    this._codeOutput = v.codeOutput;
+    this._findScope = v.findScope;
+  }
+}
+export {
+  NotebookFindFilters
+};
+//# sourceMappingURL=findFilters.js.map

@@ -1,1 +1,1716 @@
-var F=Object.defineProperty;var w=Object.getOwnPropertyDescriptor;var S=(y,c,e,t)=>{for(var i=t>1?void 0:t?w(c,e):c,r=y.length-1,o;r>=0;r--)(o=y[r])&&(i=(t?o(c,e,i):o(i))||i);return t&&i&&F(c,e,i),i},f=(y,c)=>(e,t)=>c(e,t,y);import{VSDataTransfer as H,createStringDataTransferItem as W}from"../../../base/common/dataTransfer.js";import{CancellationError as O}from"../../../base/common/errors.js";import{Emitter as v}from"../../../base/common/event.js";import{HierarchicalKind as D}from"../../../base/common/hierarchicalKind.js";import{Disposable as A,DisposableMap as M,combinedDisposable as k,toDisposable as T}from"../../../base/common/lifecycle.js";import{ResourceMap as N}from"../../../base/common/map.js";import{revive as $}from"../../../base/common/marshalling.js";import{mixin as V}from"../../../base/common/objects.js";import{URI as h}from"../../../base/common/uri.js";import*as j from"../../../editor/common/languages.js";import{ILanguageService as K}from"../../../editor/common/languages/language.js";import{ILanguageConfigurationService as q}from"../../../editor/common/languages/languageConfigurationRegistry.js";import{ILanguageFeaturesService as U}from"../../../editor/common/services/languageFeatures.js";import{decodeSemanticTokensDto as L}from"../../../editor/common/services/semanticTokensDto.js";import{IUriIdentityService as C}from"../../../platform/uriIdentity/common/uriIdentity.js";import*as B from"../../contrib/callHierarchy/common/callHierarchy.js";import*as z from"../../contrib/search/common/search.js";import*as G from"../../contrib/typeHierarchy/common/typeHierarchy.js";import{extHostNamedCustomer as J}from"../../services/extensions/common/extHostCustomers.js";import{ExtHostContext as Q,ISuggestDataDtoField as m,ISuggestResultDtoField as x,MainContext as X}from"../common/extHost.protocol.js";import*as b from"../common/extHostTypeConverters.js";import{DataTransferFileCache as R}from"../common/shared/dataTransferCache.js";import{reviveWorkspaceEditDto as I}from"./mainThreadBulkEdits.js";let l=class extends A{constructor(e,t,i,r,o){super();this._languageService=t;this._languageConfigurationService=i;this._languageFeaturesService=r;this._uriIdentService=o;if(this._proxy=e.getProxy(Q.ExtHostLanguageFeatures),this._languageService){const s=()=>{const n=[];for(const a of t.getRegisteredLanguageIds()){const d=this._languageConfigurationService.getLanguageConfiguration(a).getWordDefinition();n.push({languageId:a,regexSource:d.source,regexFlags:d.flags})}this._proxy.$setWordDefinitions(n)};this._register(this._languageConfigurationService.onDidChange(n=>{if(n.languageId){const a=this._languageConfigurationService.getLanguageConfiguration(n.languageId).getWordDefinition();this._proxy.$setWordDefinitions([{languageId:n.languageId,regexSource:a.source,regexFlags:a.flags}])}else s()})),s()}}_proxy;_registrations=this._register(new M);$unregister(e){this._registrations.deleteAndDispose(e)}static _reviveLocationDto(e){return e&&(Array.isArray(e)?(e.forEach(t=>l._reviveLocationDto(t)),e):(e.uri=h.revive(e.uri),e))}static _reviveLocationLinkDto(e){return e&&(Array.isArray(e)?(e.forEach(t=>l._reviveLocationLinkDto(t)),e):(e.uri=h.revive(e.uri),e))}static _reviveWorkspaceSymbolDto(e){return e&&(Array.isArray(e)?(e.forEach(l._reviveWorkspaceSymbolDto),e):(e.location=l._reviveLocationDto(e.location),e))}static _reviveCodeActionDto(e,t){return e?.forEach(i=>I(i.edit,t)),e}static _reviveLinkDTO(e){return e.url&&typeof e.url!="string"&&(e.url=h.revive(e.url)),e}static _reviveCallHierarchyItemDto(e){return e&&(e.uri=h.revive(e.uri)),e}static _reviveTypeHierarchyItemDto(e){return e&&(e.uri=h.revive(e.uri)),e}$registerDocumentSymbolProvider(e,t,i){this._registrations.set(e,this._languageFeaturesService.documentSymbolProvider.register(t,{displayName:i,provideDocumentSymbols:(r,o)=>this._proxy.$provideDocumentSymbols(e,r.uri,o)}))}$registerCodeLensSupport(e,t,i){const r={provideCodeLenses:async(o,s)=>{const n=await this._proxy.$provideCodeLenses(e,o.uri,s);if(n)return{lenses:n.lenses,dispose:()=>n.cacheId&&this._proxy.$releaseCodeLenses(e,n.cacheId)}},resolveCodeLens:async(o,s,n)=>{const a=await this._proxy.$resolveCodeLens(e,s,n);if(a)return{...a,range:o.validateRange(a.range)}}};if(typeof i=="number"){const o=new v;this._registrations.set(i,o),r.onDidChange=o.event}this._registrations.set(e,this._languageFeaturesService.codeLensProvider.register(t,r))}$emitCodeLensEvent(e,t){const i=this._registrations.get(e);i instanceof v&&i.fire(t)}$registerDefinitionSupport(e,t){this._registrations.set(e,this._languageFeaturesService.definitionProvider.register(t,{provideDefinition:(i,r,o)=>this._proxy.$provideDefinition(e,i.uri,r,o).then(l._reviveLocationLinkDto)}))}$registerDeclarationSupport(e,t){this._registrations.set(e,this._languageFeaturesService.declarationProvider.register(t,{provideDeclaration:(i,r,o)=>this._proxy.$provideDeclaration(e,i.uri,r,o).then(l._reviveLocationLinkDto)}))}$registerImplementationSupport(e,t){this._registrations.set(e,this._languageFeaturesService.implementationProvider.register(t,{provideImplementation:(i,r,o)=>this._proxy.$provideImplementation(e,i.uri,r,o).then(l._reviveLocationLinkDto)}))}$registerTypeDefinitionSupport(e,t){this._registrations.set(e,this._languageFeaturesService.typeDefinitionProvider.register(t,{provideTypeDefinition:(i,r,o)=>this._proxy.$provideTypeDefinition(e,i.uri,r,o).then(l._reviveLocationLinkDto)}))}$registerHoverProvider(e,t){this._registrations.set(e,this._languageFeaturesService.hoverProvider.register(t,{provideHover:async(i,r,o,s)=>{const n={verbosityRequest:s?.verbosityRequest?{verbosityDelta:s.verbosityRequest.verbosityDelta,previousHover:{id:s.verbosityRequest.previousHover.id}}:void 0};return await this._proxy.$provideHover(e,i.uri,r,n,o)}}))}$registerEvaluatableExpressionProvider(e,t){this._registrations.set(e,this._languageFeaturesService.evaluatableExpressionProvider.register(t,{provideEvaluatableExpression:(i,r,o)=>this._proxy.$provideEvaluatableExpression(e,i.uri,r,o)}))}$registerInlineValuesProvider(e,t,i){const r={provideInlineValues:(o,s,n,a)=>this._proxy.$provideInlineValues(e,o.uri,s,n,a)};if(typeof i=="number"){const o=new v;this._registrations.set(i,o),r.onDidChangeInlineValues=o.event}this._registrations.set(e,this._languageFeaturesService.inlineValuesProvider.register(t,r))}$emitInlineValuesEvent(e,t){const i=this._registrations.get(e);i instanceof v&&i.fire(t)}$registerDocumentHighlightProvider(e,t){this._registrations.set(e,this._languageFeaturesService.documentHighlightProvider.register(t,{provideDocumentHighlights:(i,r,o)=>this._proxy.$provideDocumentHighlights(e,i.uri,r,o)}))}$registerMultiDocumentHighlightProvider(e,t){this._registrations.set(e,this._languageFeaturesService.multiDocumentHighlightProvider.register(t,{selector:t,provideMultiDocumentHighlights:(i,r,o,s)=>this._proxy.$provideMultiDocumentHighlights(e,i.uri,r,o.map(n=>n.uri),s).then(n=>{if(n==null)return;const a=new N;return n?.forEach(d=>{const u=h.revive(d.uri);a.has(u)?a.get(u).push(...d.highlights):a.set(u,d.highlights)}),a})}))}$registerLinkedEditingRangeProvider(e,t){this._registrations.set(e,this._languageFeaturesService.linkedEditingRangeProvider.register(t,{provideLinkedEditingRanges:async(i,r,o)=>{const s=await this._proxy.$provideLinkedEditingRanges(e,i.uri,r,o);if(s)return{ranges:s.ranges,wordPattern:s.wordPattern?l._reviveRegExp(s.wordPattern):void 0}}}))}$registerReferenceSupport(e,t){this._registrations.set(e,this._languageFeaturesService.referenceProvider.register(t,{provideReferences:(i,r,o,s)=>this._proxy.$provideReferences(e,i.uri,r,o,s).then(l._reviveLocationDto)}))}$registerCodeActionSupport(e,t,i,r,o,s){const n={provideCodeActions:async(a,d,u,p)=>{const g=await this._proxy.$provideCodeActions(e,a.uri,d,u,p);if(g)return{actions:l._reviveCodeActionDto(g.actions,this._uriIdentService),dispose:()=>{typeof g.cacheId=="number"&&this._proxy.$releaseCodeActions(e,g.cacheId)}}},providedCodeActionKinds:i.providedKinds,documentation:i.documentation,displayName:r,extensionId:o};s&&(n.resolveCodeAction=async(a,d)=>{const u=await this._proxy.$resolveCodeAction(e,a.cacheId,d);return u.edit&&(a.edit=I(u.edit,this._uriIdentService)),u.command&&(a.command=u.command),a}),this._registrations.set(e,this._languageFeaturesService.codeActionProvider.register(t,n))}_pasteEditProviders=new Map;$registerPasteEditProvider(e,t,i){const r=new _(e,this._proxy,i,this._uriIdentService);this._pasteEditProviders.set(e,r),this._registrations.set(e,k(this._languageFeaturesService.documentPasteEditProvider.register(t,r),T(()=>this._pasteEditProviders.delete(e))))}$resolvePasteFileData(e,t,i){const r=this._pasteEditProviders.get(e);if(!r)throw new Error("Could not find provider");return r.resolveFileData(t,i)}$registerDocumentFormattingSupport(e,t,i,r){this._registrations.set(e,this._languageFeaturesService.documentFormattingEditProvider.register(t,{extensionId:i,displayName:r,provideDocumentFormattingEdits:(o,s,n)=>this._proxy.$provideDocumentFormattingEdits(e,o.uri,s,n)}))}$registerRangeFormattingSupport(e,t,i,r,o){this._registrations.set(e,this._languageFeaturesService.documentRangeFormattingEditProvider.register(t,{extensionId:i,displayName:r,provideDocumentRangeFormattingEdits:(s,n,a,d)=>this._proxy.$provideDocumentRangeFormattingEdits(e,s.uri,n,a,d),provideDocumentRangesFormattingEdits:o?(s,n,a,d)=>this._proxy.$provideDocumentRangesFormattingEdits(e,s.uri,n,a,d):void 0}))}$registerOnTypeFormattingSupport(e,t,i,r){this._registrations.set(e,this._languageFeaturesService.onTypeFormattingEditProvider.register(t,{extensionId:r,autoFormatTriggerCharacters:i,provideOnTypeFormattingEdits:(o,s,n,a,d)=>this._proxy.$provideOnTypeFormattingEdits(e,o.uri,s,n,a,d)}))}$registerNavigateTypeSupport(e,t){let i;const r={provideWorkspaceSymbols:async(o,s)=>{const n=await this._proxy.$provideWorkspaceSymbols(e,o,s);return i!==void 0&&this._proxy.$releaseWorkspaceSymbols(e,i),i=n.cacheId,l._reviveWorkspaceSymbolDto(n.symbols)}};t&&(r.resolveWorkspaceSymbol=async(o,s)=>{const n=await this._proxy.$resolveWorkspaceSymbol(e,o,s);return n&&l._reviveWorkspaceSymbolDto(n)}),this._registrations.set(e,z.WorkspaceSymbolProviderRegistry.register(r))}$registerRenameSupport(e,t,i){this._registrations.set(e,this._languageFeaturesService.renameProvider.register(t,{provideRenameEdits:(r,o,s,n)=>this._proxy.$provideRenameEdits(e,r.uri,o,s,n).then(a=>I(a,this._uriIdentService)),resolveRenameLocation:i?(r,o,s)=>this._proxy.$resolveRenameLocation(e,r.uri,o,s):void 0}))}$registerNewSymbolNamesProvider(e,t){this._registrations.set(e,this._languageFeaturesService.newSymbolNamesProvider.register(t,{supportsAutomaticNewSymbolNamesTriggerKind:this._proxy.$supportsAutomaticNewSymbolNamesTriggerKind(e),provideNewSymbolNames:(i,r,o,s)=>this._proxy.$provideNewSymbolNames(e,i.uri,r,o,s)}))}$registerDocumentSemanticTokensProvider(e,t,i,r){let o;if(typeof r=="number"){const s=new v;this._registrations.set(r,s),o=s.event}this._registrations.set(e,this._languageFeaturesService.documentSemanticTokensProvider.register(t,new Y(this._proxy,e,i,o)))}$emitDocumentSemanticTokensEvent(e){const t=this._registrations.get(e);t instanceof v&&t.fire(void 0)}$registerDocumentRangeSemanticTokensProvider(e,t,i){this._registrations.set(e,this._languageFeaturesService.documentRangeSemanticTokensProvider.register(t,new Z(this._proxy,e,i)))}static _inflateSuggestDto(e,t,i){const r=t[m.label],o=t[m.commandId],s=t[m.commandIdent],n=t[m.commitCharacters];return{label:r,extensionId:i,kind:t[m.kind]??j.CompletionItemKind.Property,tags:t[m.kindModifier],detail:t[m.detail],documentation:t[m.documentation],sortText:t[m.sortText],filterText:t[m.filterText],preselect:t[m.preselect],insertText:t[m.insertText]??(typeof r=="string"?r:r.label),range:t[m.range]??e,insertTextRules:t[m.insertTextRules],commitCharacters:n?Array.from(n):void 0,additionalTextEdits:t[m.additionalTextEdits],command:o?{$ident:s,id:o,title:"",arguments:s?[s]:t[m.commandArguments]}:void 0,_id:t.x}}$registerCompletionsProvider(e,t,i,r,o){const s={triggerCharacters:i,_debugDisplayName:`${o.value}(${i.join("")})`,provideCompletionItems:async(n,a,d,u)=>{const p=await this._proxy.$provideCompletionItems(e,n.uri,a,d,u);return p&&{suggestions:p[x.completions].map(g=>l._inflateSuggestDto(p[x.defaultRanges],g,o)),incomplete:p[x.isIncomplete]||!1,duration:p[x.duration],dispose:()=>{typeof p.x=="number"&&this._proxy.$releaseCompletionItems(e,p.x)}}}};r&&(s.resolveCompletionItem=(n,a)=>this._proxy.$resolveCompletionItem(e,n._id,a).then(d=>{if(!d)return n;const u=l._inflateSuggestDto(n.range,d,o);return V(n,u,!0)})),this._registrations.set(e,this._languageFeaturesService.completionProvider.register(t,s))}$registerInlineCompletionsSupport(e,t,i,r,o){const s={provideInlineCompletions:async(n,a,d,u)=>this._proxy.$provideInlineCompletions(e,n.uri,a,d,u),provideInlineEdits:async(n,a,d,u)=>this._proxy.$provideInlineEdits(e,n.uri,a,d,u),handleItemDidShow:async(n,a,d)=>{i&&await this._proxy.$handleInlineCompletionDidShow(e,n.pid,a.idx,d)},handlePartialAccept:async(n,a,d,u)=>{i&&await this._proxy.$handleInlineCompletionPartialAccept(e,n.pid,a.idx,d,u)},freeInlineCompletions:n=>{this._proxy.$freeInlineCompletionsList(e,n.pid)},groupId:r,yieldsToGroupIds:o,toString(){return`InlineCompletionsProvider(${r})`}};this._registrations.set(e,this._languageFeaturesService.inlineCompletionsProvider.register(t,s))}$registerInlineEditProvider(e,t,i){const r={provideInlineEdit:async(o,s,n)=>this._proxy.$provideInlineEdit(e,o.uri,s,n),freeInlineEdit:o=>{this._proxy.$freeInlineEdit(e,o.pid)}};this._registrations.set(e,this._languageFeaturesService.inlineEditProvider.register(t,r))}$registerSignatureHelpProvider(e,t,i){this._registrations.set(e,this._languageFeaturesService.signatureHelpProvider.register(t,{signatureHelpTriggerCharacters:i.triggerCharacters,signatureHelpRetriggerCharacters:i.retriggerCharacters,provideSignatureHelp:async(r,o,s,n)=>{const a=await this._proxy.$provideSignatureHelp(e,r.uri,o,n,s);if(a)return{value:a,dispose:()=>{this._proxy.$releaseSignatureHelp(e,a.id)}}}}))}$registerInlayHintsProvider(e,t,i,r,o){const s={displayName:o,provideInlayHints:async(n,a,d)=>{const u=await this._proxy.$provideInlayHints(e,n.uri,a,d);if(u)return{hints:$(u.hints),dispose:()=>{u.cacheId&&this._proxy.$releaseInlayHints(e,u.cacheId)}}}};if(i&&(s.resolveInlayHint=async(n,a)=>{const d=n;if(!d.cacheId)return n;const u=await this._proxy.$resolveInlayHint(e,d.cacheId,a);if(a.isCancellationRequested)throw new O;return u?{...n,tooltip:u.tooltip,label:$(u.label),textEdits:u.textEdits}:n}),typeof r=="number"){const n=new v;this._registrations.set(r,n),s.onDidChangeInlayHints=n.event}this._registrations.set(e,this._languageFeaturesService.inlayHintsProvider.register(t,s))}$emitInlayHintsEvent(e){const t=this._registrations.get(e);t instanceof v&&t.fire(void 0)}$registerDocumentLinkProvider(e,t,i){const r={provideLinks:(o,s)=>this._proxy.$provideDocumentLinks(e,o.uri,s).then(n=>{if(n)return{links:n.links.map(l._reviveLinkDTO),dispose:()=>{typeof n.cacheId=="number"&&this._proxy.$releaseDocumentLinks(e,n.cacheId)}}})};i&&(r.resolveLink=(o,s)=>{const n=o;return n.cacheId?this._proxy.$resolveDocumentLink(e,n.cacheId,s).then(a=>a&&l._reviveLinkDTO(a)):o}),this._registrations.set(e,this._languageFeaturesService.linkProvider.register(t,r))}$registerDocumentColorProvider(e,t){const i=this._proxy;this._registrations.set(e,this._languageFeaturesService.colorProvider.register(t,{provideDocumentColors:(r,o)=>i.$provideDocumentColors(e,r.uri,o).then(s=>s.map(n=>{const[a,d,u,p]=n.color;return{color:{red:a,green:d,blue:u,alpha:p},range:n.range}})),provideColorPresentations:(r,o,s)=>i.$provideColorPresentations(e,r.uri,{color:[o.color.red,o.color.green,o.color.blue,o.color.alpha],range:o.range},s)}))}$registerFoldingRangeProvider(e,t,i,r){const o={id:i.value,provideFoldingRanges:(s,n,a)=>this._proxy.$provideFoldingRanges(e,s.uri,n,a)};if(typeof r=="number"){const s=new v;this._registrations.set(r,s),o.onDidChange=s.event}this._registrations.set(e,this._languageFeaturesService.foldingRangeProvider.register(t,o))}$emitFoldingRangeEvent(e,t){const i=this._registrations.get(e);i instanceof v&&i.fire(t)}$registerSelectionRangeProvider(e,t){this._registrations.set(e,this._languageFeaturesService.selectionRangeProvider.register(t,{provideSelectionRanges:(i,r,o)=>this._proxy.$provideSelectionRanges(e,i.uri,r,o)}))}$registerCallHierarchyProvider(e,t){this._registrations.set(e,B.CallHierarchyProviderRegistry.register(t,{prepareCallHierarchy:async(i,r,o)=>{const s=await this._proxy.$prepareCallHierarchy(e,i.uri,r,o);if(!(!s||s.length===0))return{dispose:()=>{for(const n of s)this._proxy.$releaseCallHierarchy(e,n._sessionId)},roots:s.map(l._reviveCallHierarchyItemDto)}},provideOutgoingCalls:async(i,r)=>{const o=await this._proxy.$provideCallHierarchyOutgoingCalls(e,i._sessionId,i._itemId,r);return o&&(o.forEach(s=>{s.to=l._reviveCallHierarchyItemDto(s.to)}),o)},provideIncomingCalls:async(i,r)=>{const o=await this._proxy.$provideCallHierarchyIncomingCalls(e,i._sessionId,i._itemId,r);return o&&(o.forEach(s=>{s.from=l._reviveCallHierarchyItemDto(s.from)}),o)}}))}static _reviveRegExp(e){return new RegExp(e.pattern,e.flags)}static _reviveIndentationRule(e){return{decreaseIndentPattern:l._reviveRegExp(e.decreaseIndentPattern),increaseIndentPattern:l._reviveRegExp(e.increaseIndentPattern),indentNextLinePattern:e.indentNextLinePattern?l._reviveRegExp(e.indentNextLinePattern):void 0,unIndentedLinePattern:e.unIndentedLinePattern?l._reviveRegExp(e.unIndentedLinePattern):void 0}}static _reviveOnEnterRule(e){return{beforeText:l._reviveRegExp(e.beforeText),afterText:e.afterText?l._reviveRegExp(e.afterText):void 0,previousLineText:e.previousLineText?l._reviveRegExp(e.previousLineText):void 0,action:e.action}}static _reviveOnEnterRules(e){return e.map(l._reviveOnEnterRule)}$setLanguageConfiguration(e,t,i){const r={comments:i.comments,brackets:i.brackets,wordPattern:i.wordPattern?l._reviveRegExp(i.wordPattern):void 0,indentationRules:i.indentationRules?l._reviveIndentationRule(i.indentationRules):void 0,onEnterRules:i.onEnterRules?l._reviveOnEnterRules(i.onEnterRules):void 0,autoClosingPairs:void 0,surroundingPairs:void 0,__electricCharacterSupport:void 0};i.autoClosingPairs?r.autoClosingPairs=i.autoClosingPairs:i.__characterPairSupport&&(r.autoClosingPairs=i.__characterPairSupport.autoClosingPairs),i.__electricCharacterSupport&&i.__electricCharacterSupport.docComment&&(r.__electricCharacterSupport={docComment:{open:i.__electricCharacterSupport.docComment.open,close:i.__electricCharacterSupport.docComment.close}}),this._languageService.isRegisteredLanguageId(t)&&this._registrations.set(e,this._languageConfigurationService.register(t,r,100))}$registerTypeHierarchyProvider(e,t){this._registrations.set(e,G.TypeHierarchyProviderRegistry.register(t,{prepareTypeHierarchy:async(i,r,o)=>{const s=await this._proxy.$prepareTypeHierarchy(e,i.uri,r,o);if(s)return{dispose:()=>{for(const n of s)this._proxy.$releaseTypeHierarchy(e,n._sessionId)},roots:s.map(l._reviveTypeHierarchyItemDto)}},provideSupertypes:async(i,r)=>{const o=await this._proxy.$provideTypeHierarchySupertypes(e,i._sessionId,i._itemId,r);return o&&o.map(l._reviveTypeHierarchyItemDto)},provideSubtypes:async(i,r)=>{const o=await this._proxy.$provideTypeHierarchySubtypes(e,i._sessionId,i._itemId,r);return o&&o.map(l._reviveTypeHierarchyItemDto)}}))}_documentOnDropEditProviders=new Map;$registerDocumentOnDropEditProvider(e,t,i){const r=new P(e,this._proxy,i,this._uriIdentService);this._documentOnDropEditProviders.set(e,r),this._registrations.set(e,k(this._languageFeaturesService.documentDropEditProvider.register(t,r),T(()=>this._documentOnDropEditProviders.delete(e))))}async $resolveDocumentOnDropFileData(e,t,i){const r=this._documentOnDropEditProviders.get(e);if(!r)throw new Error("Could not find provider");return r.resolveDocumentOnDropFileData(t,i)}$registerMappedEditsProvider(e,t,i){const r=new ee(i,e,this._proxy,this._uriIdentService);this._registrations.set(e,this._languageFeaturesService.mappedEditsProvider.register(t,r))}};l=S([J(X.MainThreadLanguageFeatures),f(1,K),f(2,q),f(3,U),f(4,C)],l);let _=class{constructor(c,e,t,i){this._handle=c;this._proxy=e;this._uriIdentService=i;this.copyMimeTypes=t.copyMimeTypes,this.pasteMimeTypes=t.pasteMimeTypes,this.providedPasteEditKinds=t.providedPasteEditKinds?.map(r=>new D(r)),t.supportsCopy&&(this.prepareDocumentPaste=async(r,o,s,n)=>{const a=await b.DataTransfer.from(s);if(n.isCancellationRequested)return;const d=await this._proxy.$prepareDocumentPaste(c,r.uri,o,a,n);if(!d)return;const u=new H;for(const[p,g]of d.items)u.replace(p,W(g.asString));return u}),t.supportsPaste&&(this.provideDocumentPasteEdits=async(r,o,s,n,a)=>{const d=this.dataTransfers.add(s);try{const u=await b.DataTransfer.from(s);if(a.isCancellationRequested)return;const p=await this._proxy.$providePasteEdits(this._handle,d.id,r.uri,o,u,{only:n.only?.value,triggerKind:n.triggerKind},a);return p?{edits:p.map(g=>({...g,kind:g.kind?new D(g.kind.value):new D(""),yieldTo:g.yieldTo?.map(E=>({kind:new D(E)})),additionalEdit:g.additionalEdit?I(g.additionalEdit,this._uriIdentService,E=>this.resolveFileData(d.id,E)):void 0})),dispose:()=>{this._proxy.$releasePasteEdits(this._handle,d.id)}}:void 0}finally{d.dispose()}}),t.supportsResolve&&(this.resolveDocumentPasteEdit=async(r,o)=>{const s=await this._proxy.$resolvePasteEdit(this._handle,r._cacheId,o);return s.additionalEdit&&(r.additionalEdit=I(s.additionalEdit,this._uriIdentService)),r})}dataTransfers=new R;copyMimeTypes;pasteMimeTypes;providedPasteEditKinds;prepareDocumentPaste;provideDocumentPasteEdits;resolveDocumentPasteEdit;resolveFileData(c,e){return this.dataTransfers.resolveFileData(c,e)}};_=S([f(3,C)],_);let P=class{constructor(c,e,t,i){this._handle=c;this._proxy=e;this._uriIdentService=i;this.dropMimeTypes=t?.dropMimeTypes??["*/*"],t?.supportsResolve&&(this.resolveDocumentDropEdit=async(r,o)=>{const s=await this._proxy.$resolvePasteEdit(this._handle,r._cacheId,o);return s.additionalEdit&&(r.additionalEdit=I(s.additionalEdit,this._uriIdentService)),r})}dataTransfers=new R;dropMimeTypes;resolveDocumentDropEdit;async provideDocumentDropEdits(c,e,t,i){const r=this.dataTransfers.add(t);try{const o=await b.DataTransfer.from(t);if(i.isCancellationRequested)return;const s=await this._proxy.$provideDocumentOnDropEdits(this._handle,r.id,c.uri,e,o,i);return s?{edits:s.map(n=>({...n,yieldTo:n.yieldTo?.map(a=>({kind:new D(a)})),kind:n.kind?new D(n.kind):void 0,additionalEdit:I(n.additionalEdit,this._uriIdentService,a=>this.resolveDocumentOnDropFileData(r.id,a))})),dispose:()=>{this._proxy.$releaseDocumentOnDropEdits(this._handle,r.id)}}:void 0}finally{r.dispose()}}resolveDocumentOnDropFileData(c,e){return this.dataTransfers.resolveFileData(c,e)}};P=S([f(3,C)],P);class Y{constructor(c,e,t,i){this._proxy=c;this._handle=e;this._legend=t;this.onDidChange=i}releaseDocumentSemanticTokens(c){c&&this._proxy.$releaseDocumentSemanticTokens(this._handle,Number.parseInt(c,10))}getLegend(){return this._legend}async provideDocumentSemanticTokens(c,e,t){const i=e?Number.parseInt(e,10):0,r=await this._proxy.$provideDocumentSemanticTokens(this._handle,c.uri,i,t);if(!r||t.isCancellationRequested)return null;const o=L(r);return o.type==="full"?{resultId:String(o.id),data:o.data}:{resultId:String(o.id),edits:o.deltas}}}class Z{constructor(c,e,t){this._proxy=c;this._handle=e;this._legend=t}getLegend(){return this._legend}async provideDocumentRangeSemanticTokens(c,e,t){const i=await this._proxy.$provideDocumentRangeSemanticTokens(this._handle,c.uri,e,t);if(!i||t.isCancellationRequested)return null;const r=L(i);if(r.type==="full")return{resultId:String(r.id),data:r.data};throw new Error("Unexpected")}}class ee{constructor(c,e,t,i){this.displayName=c;this._handle=e;this._proxy=t;this._uriService=i}async provideMappedEdits(c,e,t,i){const r=await this._proxy.$provideMappedEdits(this._handle,c.uri,e,t,i);return r?I(r,this._uriService):null}}export{Z as MainThreadDocumentRangeSemanticTokensProvider,Y as MainThreadDocumentSemanticTokensProvider,l as MainThreadLanguageFeatures,ee as MainThreadMappedEditsProvider};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  VSDataTransfer,
+  createStringDataTransferItem
+} from "../../../base/common/dataTransfer.js";
+import { CancellationError } from "../../../base/common/errors.js";
+import { Emitter } from "../../../base/common/event.js";
+import { HierarchicalKind } from "../../../base/common/hierarchicalKind.js";
+import {
+  Disposable,
+  DisposableMap,
+  combinedDisposable,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../base/common/map.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { mixin } from "../../../base/common/objects.js";
+import { URI } from "../../../base/common/uri.js";
+import * as languages from "../../../editor/common/languages.js";
+import { ILanguageService } from "../../../editor/common/languages/language.js";
+import { ILanguageConfigurationService } from "../../../editor/common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../editor/common/services/languageFeatures.js";
+import { decodeSemanticTokensDto } from "../../../editor/common/services/semanticTokensDto.js";
+import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
+import * as callh from "../../contrib/callHierarchy/common/callHierarchy.js";
+import * as search from "../../contrib/search/common/search.js";
+import * as typeh from "../../contrib/typeHierarchy/common/typeHierarchy.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  ISuggestDataDtoField,
+  ISuggestResultDtoField,
+  MainContext
+} from "../common/extHost.protocol.js";
+import * as typeConvert from "../common/extHostTypeConverters.js";
+import { DataTransferFileCache } from "../common/shared/dataTransferCache.js";
+import { reviveWorkspaceEditDto } from "./mainThreadBulkEdits.js";
+let MainThreadLanguageFeatures = class extends Disposable {
+  constructor(extHostContext, _languageService, _languageConfigurationService, _languageFeaturesService, _uriIdentService) {
+    super();
+    this._languageService = _languageService;
+    this._languageConfigurationService = _languageConfigurationService;
+    this._languageFeaturesService = _languageFeaturesService;
+    this._uriIdentService = _uriIdentService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostLanguageFeatures);
+    if (this._languageService) {
+      const updateAllWordDefinitions = /* @__PURE__ */ __name(() => {
+        const wordDefinitionDtos = [];
+        for (const languageId of _languageService.getRegisteredLanguageIds()) {
+          const wordDefinition = this._languageConfigurationService.getLanguageConfiguration(languageId).getWordDefinition();
+          wordDefinitionDtos.push({
+            languageId,
+            regexSource: wordDefinition.source,
+            regexFlags: wordDefinition.flags
+          });
+        }
+        this._proxy.$setWordDefinitions(wordDefinitionDtos);
+      }, "updateAllWordDefinitions");
+      this._register(this._languageConfigurationService.onDidChange((e) => {
+        if (e.languageId) {
+          const wordDefinition = this._languageConfigurationService.getLanguageConfiguration(e.languageId).getWordDefinition();
+          this._proxy.$setWordDefinitions([{
+            languageId: e.languageId,
+            regexSource: wordDefinition.source,
+            regexFlags: wordDefinition.flags
+          }]);
+        } else {
+          updateAllWordDefinitions();
+        }
+      }));
+      updateAllWordDefinitions();
+    }
+  }
+  _proxy;
+  _registrations = this._register(
+    new DisposableMap()
+  );
+  $unregister(handle) {
+    this._registrations.deleteAndDispose(handle);
+  }
+  static _reviveLocationDto(data) {
+    if (!data) {
+      return data;
+    } else if (Array.isArray(data)) {
+      data.forEach(
+        (l) => MainThreadLanguageFeatures._reviveLocationDto(l)
+      );
+      return data;
+    } else {
+      data.uri = URI.revive(data.uri);
+      return data;
+    }
+  }
+  static _reviveLocationLinkDto(data) {
+    if (!data) {
+      return data;
+    } else if (Array.isArray(data)) {
+      data.forEach(
+        (l) => MainThreadLanguageFeatures._reviveLocationLinkDto(l)
+      );
+      return data;
+    } else {
+      data.uri = URI.revive(data.uri);
+      return data;
+    }
+  }
+  static _reviveWorkspaceSymbolDto(data) {
+    if (!data) {
+      return data;
+    } else if (Array.isArray(data)) {
+      data.forEach(MainThreadLanguageFeatures._reviveWorkspaceSymbolDto);
+      return data;
+    } else {
+      data.location = MainThreadLanguageFeatures._reviveLocationDto(
+        data.location
+      );
+      return data;
+    }
+  }
+  static _reviveCodeActionDto(data, uriIdentService) {
+    data?.forEach(
+      (code) => reviveWorkspaceEditDto(code.edit, uriIdentService)
+    );
+    return data;
+  }
+  static _reviveLinkDTO(data) {
+    if (data.url && typeof data.url !== "string") {
+      data.url = URI.revive(data.url);
+    }
+    return data;
+  }
+  static _reviveCallHierarchyItemDto(data) {
+    if (data) {
+      data.uri = URI.revive(data.uri);
+    }
+    return data;
+  }
+  static _reviveTypeHierarchyItemDto(data) {
+    if (data) {
+      data.uri = URI.revive(data.uri);
+    }
+    return data;
+  }
+  //#endregion
+  // --- outline
+  $registerDocumentSymbolProvider(handle, selector, displayName) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.documentSymbolProvider.register(
+        selector,
+        {
+          displayName,
+          provideDocumentSymbols: /* @__PURE__ */ __name((model, token) => {
+            return this._proxy.$provideDocumentSymbols(
+              handle,
+              model.uri,
+              token
+            );
+          }, "provideDocumentSymbols")
+        }
+      )
+    );
+  }
+  // --- code lens
+  $registerCodeLensSupport(handle, selector, eventHandle) {
+    const provider = {
+      provideCodeLenses: /* @__PURE__ */ __name(async (model, token) => {
+        const listDto = await this._proxy.$provideCodeLenses(
+          handle,
+          model.uri,
+          token
+        );
+        if (!listDto) {
+          return void 0;
+        }
+        return {
+          lenses: listDto.lenses,
+          dispose: /* @__PURE__ */ __name(() => listDto.cacheId && this._proxy.$releaseCodeLenses(handle, listDto.cacheId), "dispose")
+        };
+      }, "provideCodeLenses"),
+      resolveCodeLens: /* @__PURE__ */ __name(async (model, codeLens, token) => {
+        const result = await this._proxy.$resolveCodeLens(
+          handle,
+          codeLens,
+          token
+        );
+        if (!result) {
+          return void 0;
+        }
+        return {
+          ...result,
+          range: model.validateRange(result.range)
+        };
+      }, "resolveCodeLens")
+    };
+    if (typeof eventHandle === "number") {
+      const emitter = new Emitter();
+      this._registrations.set(eventHandle, emitter);
+      provider.onDidChange = emitter.event;
+    }
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.codeLensProvider.register(
+        selector,
+        provider
+      )
+    );
+  }
+  $emitCodeLensEvent(eventHandle, event) {
+    const obj = this._registrations.get(eventHandle);
+    if (obj instanceof Emitter) {
+      obj.fire(event);
+    }
+  }
+  // --- declaration
+  $registerDefinitionSupport(handle, selector) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.definitionProvider.register(
+        selector,
+        {
+          provideDefinition: /* @__PURE__ */ __name((model, position, token) => {
+            return this._proxy.$provideDefinition(
+              handle,
+              model.uri,
+              position,
+              token
+            ).then(
+              MainThreadLanguageFeatures._reviveLocationLinkDto
+            );
+          }, "provideDefinition")
+        }
+      )
+    );
+  }
+  $registerDeclarationSupport(handle, selector) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.declarationProvider.register(
+        selector,
+        {
+          provideDeclaration: /* @__PURE__ */ __name((model, position, token) => {
+            return this._proxy.$provideDeclaration(
+              handle,
+              model.uri,
+              position,
+              token
+            ).then(
+              MainThreadLanguageFeatures._reviveLocationLinkDto
+            );
+          }, "provideDeclaration")
+        }
+      )
+    );
+  }
+  $registerImplementationSupport(handle, selector) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.implementationProvider.register(
+        selector,
+        {
+          provideImplementation: /* @__PURE__ */ __name((model, position, token) => {
+            return this._proxy.$provideImplementation(
+              handle,
+              model.uri,
+              position,
+              token
+            ).then(
+              MainThreadLanguageFeatures._reviveLocationLinkDto
+            );
+          }, "provideImplementation")
+        }
+      )
+    );
+  }
+  $registerTypeDefinitionSupport(handle, selector) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.typeDefinitionProvider.register(
+        selector,
+        {
+          provideTypeDefinition: /* @__PURE__ */ __name((model, position, token) => {
+            return this._proxy.$provideTypeDefinition(
+              handle,
+              model.uri,
+              position,
+              token
+            ).then(
+              MainThreadLanguageFeatures._reviveLocationLinkDto
+            );
+          }, "provideTypeDefinition")
+        }
+      )
+    );
+  }
+  // --- extra info
+  $registerHoverProvider(handle, selector) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.hoverProvider.register(selector, {
+        provideHover: /* @__PURE__ */ __name(async (model, position, token, context) => {
+          const serializedContext = {
+            verbosityRequest: context?.verbosityRequest ? {
+              verbosityDelta: context.verbosityRequest.verbosityDelta,
+              previousHover: {
+                id: context.verbosityRequest.previousHover.id
+              }
+            } : void 0
+          };
+          const hover = await this._proxy.$provideHover(
+            handle,
+            model.uri,
+            position,
+            serializedContext,
+            token
+          );
+          return hover;
+        }, "provideHover")
+      })
+    );
+  }
+  // --- debug hover
+  $registerEvaluatableExpressionProvider(handle, selector) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.evaluatableExpressionProvider.register(
+        selector,
+        {
+          provideEvaluatableExpression: /* @__PURE__ */ __name((model, position, token) => {
+            return this._proxy.$provideEvaluatableExpression(
+              handle,
+              model.uri,
+              position,
+              token
+            );
+          }, "provideEvaluatableExpression")
+        }
+      )
+    );
+  }
+  // --- inline values
+  $registerInlineValuesProvider(handle, selector, eventHandle) {
+    const provider = {
+      provideInlineValues: /* @__PURE__ */ __name((model, viewPort, context, token) => {
+        return this._proxy.$provideInlineValues(
+          handle,
+          model.uri,
+          viewPort,
+          context,
+          token
+        );
+      }, "provideInlineValues")
+    };
+    if (typeof eventHandle === "number") {
+      const emitter = new Emitter();
+      this._registrations.set(eventHandle, emitter);
+      provider.onDidChangeInlineValues = emitter.event;
+    }
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.inlineValuesProvider.register(
+        selector,
+        provider
+      )
+    );
+  }
+  $emitInlineValuesEvent(eventHandle, event) {
+    const obj = this._registrations.get(eventHandle);
+    if (obj instanceof Emitter) {
+      obj.fire(event);
+    }
+  }
+  // --- occurrences
+  $registerDocumentHighlightProvider(handle, selector) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.documentHighlightProvider.register(
+        selector,
+        {
+          provideDocumentHighlights: /* @__PURE__ */ __name((model, position, token) => {
+            return this._proxy.$provideDocumentHighlights(
+              handle,
+              model.uri,
+              position,
+              token
+            );
+          }, "provideDocumentHighlights")
+        }
+      )
+    );
+  }
+  $registerMultiDocumentHighlightProvider(handle, selector) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.multiDocumentHighlightProvider.register(
+        selector,
+        {
+          selector,
+          provideMultiDocumentHighlights: /* @__PURE__ */ __name((model, position, otherModels, token) => {
+            return this._proxy.$provideMultiDocumentHighlights(
+              handle,
+              model.uri,
+              position,
+              otherModels.map((model2) => model2.uri),
+              token
+            ).then((dto) => {
+              if (dto === void 0 || dto === null) {
+                return void 0;
+              }
+              const result = new ResourceMap();
+              dto?.forEach((value) => {
+                const uri = URI.revive(value.uri);
+                if (result.has(uri)) {
+                  result.get(uri).push(...value.highlights);
+                } else {
+                  result.set(uri, value.highlights);
+                }
+              });
+              return result;
+            });
+          }, "provideMultiDocumentHighlights")
+        }
+      )
+    );
+  }
+  // --- linked editing
+  $registerLinkedEditingRangeProvider(handle, selector) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.linkedEditingRangeProvider.register(
+        selector,
+        {
+          provideLinkedEditingRanges: /* @__PURE__ */ __name(async (model, position, token) => {
+            const res = await this._proxy.$provideLinkedEditingRanges(
+              handle,
+              model.uri,
+              position,
+              token
+            );
+            if (res) {
+              return {
+                ranges: res.ranges,
+                wordPattern: res.wordPattern ? MainThreadLanguageFeatures._reviveRegExp(
+                  res.wordPattern
+                ) : void 0
+              };
+            }
+            return void 0;
+          }, "provideLinkedEditingRanges")
+        }
+      )
+    );
+  }
+  // --- references
+  $registerReferenceSupport(handle, selector) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.referenceProvider.register(selector, {
+        provideReferences: /* @__PURE__ */ __name((model, position, context, token) => {
+          return this._proxy.$provideReferences(
+            handle,
+            model.uri,
+            position,
+            context,
+            token
+          ).then(MainThreadLanguageFeatures._reviveLocationDto);
+        }, "provideReferences")
+      })
+    );
+  }
+  // --- code actions
+  $registerCodeActionSupport(handle, selector, metadata, displayName, extensionId, supportsResolve) {
+    const provider = {
+      provideCodeActions: /* @__PURE__ */ __name(async (model, rangeOrSelection, context, token) => {
+        const listDto = await this._proxy.$provideCodeActions(
+          handle,
+          model.uri,
+          rangeOrSelection,
+          context,
+          token
+        );
+        if (!listDto) {
+          return void 0;
+        }
+        return {
+          actions: MainThreadLanguageFeatures._reviveCodeActionDto(
+            listDto.actions,
+            this._uriIdentService
+          ),
+          dispose: /* @__PURE__ */ __name(() => {
+            if (typeof listDto.cacheId === "number") {
+              this._proxy.$releaseCodeActions(
+                handle,
+                listDto.cacheId
+              );
+            }
+          }, "dispose")
+        };
+      }, "provideCodeActions"),
+      providedCodeActionKinds: metadata.providedKinds,
+      documentation: metadata.documentation,
+      displayName,
+      extensionId
+    };
+    if (supportsResolve) {
+      provider.resolveCodeAction = async (codeAction, token) => {
+        const resolved = await this._proxy.$resolveCodeAction(
+          handle,
+          codeAction.cacheId,
+          token
+        );
+        if (resolved.edit) {
+          codeAction.edit = reviveWorkspaceEditDto(
+            resolved.edit,
+            this._uriIdentService
+          );
+        }
+        if (resolved.command) {
+          codeAction.command = resolved.command;
+        }
+        return codeAction;
+      };
+    }
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.codeActionProvider.register(
+        selector,
+        provider
+      )
+    );
+  }
+  // --- copy paste action provider
+  _pasteEditProviders = /* @__PURE__ */ new Map();
+  $registerPasteEditProvider(handle, selector, metadata) {
+    const provider = new MainThreadPasteEditProvider(
+      handle,
+      this._proxy,
+      metadata,
+      this._uriIdentService
+    );
+    this._pasteEditProviders.set(handle, provider);
+    this._registrations.set(
+      handle,
+      combinedDisposable(
+        this._languageFeaturesService.documentPasteEditProvider.register(
+          selector,
+          provider
+        ),
+        toDisposable(() => this._pasteEditProviders.delete(handle))
+      )
+    );
+  }
+  $resolvePasteFileData(handle, requestId, dataId) {
+    const provider = this._pasteEditProviders.get(handle);
+    if (!provider) {
+      throw new Error("Could not find provider");
+    }
+    return provider.resolveFileData(requestId, dataId);
+  }
+  // --- formatting
+  $registerDocumentFormattingSupport(handle, selector, extensionId, displayName) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.documentFormattingEditProvider.register(
+        selector,
+        {
+          extensionId,
+          displayName,
+          provideDocumentFormattingEdits: /* @__PURE__ */ __name((model, options, token) => {
+            return this._proxy.$provideDocumentFormattingEdits(
+              handle,
+              model.uri,
+              options,
+              token
+            );
+          }, "provideDocumentFormattingEdits")
+        }
+      )
+    );
+  }
+  $registerRangeFormattingSupport(handle, selector, extensionId, displayName, supportsRanges) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.documentRangeFormattingEditProvider.register(
+        selector,
+        {
+          extensionId,
+          displayName,
+          provideDocumentRangeFormattingEdits: /* @__PURE__ */ __name((model, range, options, token) => {
+            return this._proxy.$provideDocumentRangeFormattingEdits(
+              handle,
+              model.uri,
+              range,
+              options,
+              token
+            );
+          }, "provideDocumentRangeFormattingEdits"),
+          provideDocumentRangesFormattingEdits: supportsRanges ? (model, ranges, options, token) => {
+            return this._proxy.$provideDocumentRangesFormattingEdits(
+              handle,
+              model.uri,
+              ranges,
+              options,
+              token
+            );
+          } : void 0
+        }
+      )
+    );
+  }
+  $registerOnTypeFormattingSupport(handle, selector, autoFormatTriggerCharacters, extensionId) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.onTypeFormattingEditProvider.register(
+        selector,
+        {
+          extensionId,
+          autoFormatTriggerCharacters,
+          provideOnTypeFormattingEdits: /* @__PURE__ */ __name((model, position, ch, options, token) => {
+            return this._proxy.$provideOnTypeFormattingEdits(
+              handle,
+              model.uri,
+              position,
+              ch,
+              options,
+              token
+            );
+          }, "provideOnTypeFormattingEdits")
+        }
+      )
+    );
+  }
+  // --- navigate type
+  $registerNavigateTypeSupport(handle, supportsResolve) {
+    let lastResultId;
+    const provider = {
+      provideWorkspaceSymbols: /* @__PURE__ */ __name(async (search2, token) => {
+        const result = await this._proxy.$provideWorkspaceSymbols(
+          handle,
+          search2,
+          token
+        );
+        if (lastResultId !== void 0) {
+          this._proxy.$releaseWorkspaceSymbols(handle, lastResultId);
+        }
+        lastResultId = result.cacheId;
+        return MainThreadLanguageFeatures._reviveWorkspaceSymbolDto(
+          result.symbols
+        );
+      }, "provideWorkspaceSymbols")
+    };
+    if (supportsResolve) {
+      provider.resolveWorkspaceSymbol = async (item, token) => {
+        const resolvedItem = await this._proxy.$resolveWorkspaceSymbol(
+          handle,
+          item,
+          token
+        );
+        return resolvedItem && MainThreadLanguageFeatures._reviveWorkspaceSymbolDto(
+          resolvedItem
+        );
+      };
+    }
+    this._registrations.set(
+      handle,
+      search.WorkspaceSymbolProviderRegistry.register(provider)
+    );
+  }
+  // --- rename
+  $registerRenameSupport(handle, selector, supportResolveLocation) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.renameProvider.register(selector, {
+        provideRenameEdits: /* @__PURE__ */ __name((model, position, newName, token) => {
+          return this._proxy.$provideRenameEdits(
+            handle,
+            model.uri,
+            position,
+            newName,
+            token
+          ).then(
+            (data) => reviveWorkspaceEditDto(data, this._uriIdentService)
+          );
+        }, "provideRenameEdits"),
+        resolveRenameLocation: supportResolveLocation ? (model, position, token) => this._proxy.$resolveRenameLocation(
+          handle,
+          model.uri,
+          position,
+          token
+        ) : void 0
+      })
+    );
+  }
+  $registerNewSymbolNamesProvider(handle, selector) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.newSymbolNamesProvider.register(
+        selector,
+        {
+          supportsAutomaticNewSymbolNamesTriggerKind: this._proxy.$supportsAutomaticNewSymbolNamesTriggerKind(
+            handle
+          ),
+          provideNewSymbolNames: /* @__PURE__ */ __name((model, range, triggerKind, token) => {
+            return this._proxy.$provideNewSymbolNames(
+              handle,
+              model.uri,
+              range,
+              triggerKind,
+              token
+            );
+          }, "provideNewSymbolNames")
+        }
+      )
+    );
+  }
+  // --- semantic tokens
+  $registerDocumentSemanticTokensProvider(handle, selector, legend, eventHandle) {
+    let event;
+    if (typeof eventHandle === "number") {
+      const emitter = new Emitter();
+      this._registrations.set(eventHandle, emitter);
+      event = emitter.event;
+    }
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.documentSemanticTokensProvider.register(
+        selector,
+        new MainThreadDocumentSemanticTokensProvider(
+          this._proxy,
+          handle,
+          legend,
+          event
+        )
+      )
+    );
+  }
+  $emitDocumentSemanticTokensEvent(eventHandle) {
+    const obj = this._registrations.get(eventHandle);
+    if (obj instanceof Emitter) {
+      obj.fire(void 0);
+    }
+  }
+  $registerDocumentRangeSemanticTokensProvider(handle, selector, legend) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.documentRangeSemanticTokensProvider.register(
+        selector,
+        new MainThreadDocumentRangeSemanticTokensProvider(
+          this._proxy,
+          handle,
+          legend
+        )
+      )
+    );
+  }
+  // --- suggest
+  static _inflateSuggestDto(defaultRange, data, extensionId) {
+    const label = data[ISuggestDataDtoField.label];
+    const commandId = data[ISuggestDataDtoField.commandId];
+    const commandIdent = data[ISuggestDataDtoField.commandIdent];
+    const commitChars = data[ISuggestDataDtoField.commitCharacters];
+    return {
+      label,
+      extensionId,
+      kind: data[ISuggestDataDtoField.kind] ?? languages.CompletionItemKind.Property,
+      tags: data[ISuggestDataDtoField.kindModifier],
+      detail: data[ISuggestDataDtoField.detail],
+      documentation: data[ISuggestDataDtoField.documentation],
+      sortText: data[ISuggestDataDtoField.sortText],
+      filterText: data[ISuggestDataDtoField.filterText],
+      preselect: data[ISuggestDataDtoField.preselect],
+      insertText: data[ISuggestDataDtoField.insertText] ?? (typeof label === "string" ? label : label.label),
+      range: data[ISuggestDataDtoField.range] ?? defaultRange,
+      insertTextRules: data[ISuggestDataDtoField.insertTextRules],
+      commitCharacters: commitChars ? Array.from(commitChars) : void 0,
+      additionalTextEdits: data[ISuggestDataDtoField.additionalTextEdits],
+      command: commandId ? {
+        $ident: commandIdent,
+        id: commandId,
+        title: "",
+        arguments: commandIdent ? [commandIdent] : data[ISuggestDataDtoField.commandArguments]
+        // Automatically fill in ident as first argument
+      } : void 0,
+      // not-standard
+      _id: data.x
+    };
+  }
+  $registerCompletionsProvider(handle, selector, triggerCharacters, supportsResolveDetails, extensionId) {
+    const provider = {
+      triggerCharacters,
+      _debugDisplayName: `${extensionId.value}(${triggerCharacters.join("")})`,
+      provideCompletionItems: /* @__PURE__ */ __name(async (model, position, context, token) => {
+        const result = await this._proxy.$provideCompletionItems(
+          handle,
+          model.uri,
+          position,
+          context,
+          token
+        );
+        if (!result) {
+          return result;
+        }
+        return {
+          suggestions: result[ISuggestResultDtoField.completions].map(
+            (d) => MainThreadLanguageFeatures._inflateSuggestDto(
+              result[ISuggestResultDtoField.defaultRanges],
+              d,
+              extensionId
+            )
+          ),
+          incomplete: result[ISuggestResultDtoField.isIncomplete] || false,
+          duration: result[ISuggestResultDtoField.duration],
+          dispose: /* @__PURE__ */ __name(() => {
+            if (typeof result.x === "number") {
+              this._proxy.$releaseCompletionItems(
+                handle,
+                result.x
+              );
+            }
+          }, "dispose")
+        };
+      }, "provideCompletionItems")
+    };
+    if (supportsResolveDetails) {
+      provider.resolveCompletionItem = (suggestion, token) => {
+        return this._proxy.$resolveCompletionItem(handle, suggestion._id, token).then((result) => {
+          if (!result) {
+            return suggestion;
+          }
+          const newSuggestion = MainThreadLanguageFeatures._inflateSuggestDto(
+            suggestion.range,
+            result,
+            extensionId
+          );
+          return mixin(suggestion, newSuggestion, true);
+        });
+      };
+    }
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.completionProvider.register(
+        selector,
+        provider
+      )
+    );
+  }
+  $registerInlineCompletionsSupport(handle, selector, supportsHandleEvents, extensionId, yieldsToExtensionIds) {
+    const provider = {
+      provideInlineCompletions: /* @__PURE__ */ __name(async (model, position, context, token) => {
+        return this._proxy.$provideInlineCompletions(
+          handle,
+          model.uri,
+          position,
+          context,
+          token
+        );
+      }, "provideInlineCompletions"),
+      provideInlineEdits: /* @__PURE__ */ __name(async (model, range, context, token) => {
+        return this._proxy.$provideInlineEdits(
+          handle,
+          model.uri,
+          range,
+          context,
+          token
+        );
+      }, "provideInlineEdits"),
+      handleItemDidShow: /* @__PURE__ */ __name(async (completions, item, updatedInsertText) => {
+        if (supportsHandleEvents) {
+          await this._proxy.$handleInlineCompletionDidShow(
+            handle,
+            completions.pid,
+            item.idx,
+            updatedInsertText
+          );
+        }
+      }, "handleItemDidShow"),
+      handlePartialAccept: /* @__PURE__ */ __name(async (completions, item, acceptedCharacters, info) => {
+        if (supportsHandleEvents) {
+          await this._proxy.$handleInlineCompletionPartialAccept(
+            handle,
+            completions.pid,
+            item.idx,
+            acceptedCharacters,
+            info
+          );
+        }
+      }, "handlePartialAccept"),
+      freeInlineCompletions: /* @__PURE__ */ __name((completions) => {
+        this._proxy.$freeInlineCompletionsList(
+          handle,
+          completions.pid
+        );
+      }, "freeInlineCompletions"),
+      groupId: extensionId,
+      yieldsToGroupIds: yieldsToExtensionIds,
+      toString() {
+        return `InlineCompletionsProvider(${extensionId})`;
+      }
+    };
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.inlineCompletionsProvider.register(
+        selector,
+        provider
+      )
+    );
+  }
+  $registerInlineEditProvider(handle, selector, extensionId) {
+    const provider = {
+      provideInlineEdit: /* @__PURE__ */ __name(async (model, context, token) => {
+        return this._proxy.$provideInlineEdit(
+          handle,
+          model.uri,
+          context,
+          token
+        );
+      }, "provideInlineEdit"),
+      freeInlineEdit: /* @__PURE__ */ __name((edit) => {
+        this._proxy.$freeInlineEdit(handle, edit.pid);
+      }, "freeInlineEdit")
+    };
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.inlineEditProvider.register(
+        selector,
+        provider
+      )
+    );
+  }
+  // --- parameter hints
+  $registerSignatureHelpProvider(handle, selector, metadata) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.signatureHelpProvider.register(
+        selector,
+        {
+          signatureHelpTriggerCharacters: metadata.triggerCharacters,
+          signatureHelpRetriggerCharacters: metadata.retriggerCharacters,
+          provideSignatureHelp: /* @__PURE__ */ __name(async (model, position, token, context) => {
+            const result = await this._proxy.$provideSignatureHelp(
+              handle,
+              model.uri,
+              position,
+              context,
+              token
+            );
+            if (!result) {
+              return void 0;
+            }
+            return {
+              value: result,
+              dispose: /* @__PURE__ */ __name(() => {
+                this._proxy.$releaseSignatureHelp(
+                  handle,
+                  result.id
+                );
+              }, "dispose")
+            };
+          }, "provideSignatureHelp")
+        }
+      )
+    );
+  }
+  // --- inline hints
+  $registerInlayHintsProvider(handle, selector, supportsResolve, eventHandle, displayName) {
+    const provider = {
+      displayName,
+      provideInlayHints: /* @__PURE__ */ __name(async (model, range, token) => {
+        const result = await this._proxy.$provideInlayHints(
+          handle,
+          model.uri,
+          range,
+          token
+        );
+        if (!result) {
+          return;
+        }
+        return {
+          hints: revive(result.hints),
+          dispose: /* @__PURE__ */ __name(() => {
+            if (result.cacheId) {
+              this._proxy.$releaseInlayHints(
+                handle,
+                result.cacheId
+              );
+            }
+          }, "dispose")
+        };
+      }, "provideInlayHints")
+    };
+    if (supportsResolve) {
+      provider.resolveInlayHint = async (hint, token) => {
+        const dto = hint;
+        if (!dto.cacheId) {
+          return hint;
+        }
+        const result = await this._proxy.$resolveInlayHint(
+          handle,
+          dto.cacheId,
+          token
+        );
+        if (token.isCancellationRequested) {
+          throw new CancellationError();
+        }
+        if (!result) {
+          return hint;
+        }
+        return {
+          ...hint,
+          tooltip: result.tooltip,
+          label: revive(
+            result.label
+          ),
+          textEdits: result.textEdits
+        };
+      };
+    }
+    if (typeof eventHandle === "number") {
+      const emitter = new Emitter();
+      this._registrations.set(eventHandle, emitter);
+      provider.onDidChangeInlayHints = emitter.event;
+    }
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.inlayHintsProvider.register(
+        selector,
+        provider
+      )
+    );
+  }
+  $emitInlayHintsEvent(eventHandle) {
+    const obj = this._registrations.get(eventHandle);
+    if (obj instanceof Emitter) {
+      obj.fire(void 0);
+    }
+  }
+  // --- links
+  $registerDocumentLinkProvider(handle, selector, supportsResolve) {
+    const provider = {
+      provideLinks: /* @__PURE__ */ __name((model, token) => {
+        return this._proxy.$provideDocumentLinks(handle, model.uri, token).then((dto) => {
+          if (!dto) {
+            return void 0;
+          }
+          return {
+            links: dto.links.map(
+              MainThreadLanguageFeatures._reviveLinkDTO
+            ),
+            dispose: /* @__PURE__ */ __name(() => {
+              if (typeof dto.cacheId === "number") {
+                this._proxy.$releaseDocumentLinks(
+                  handle,
+                  dto.cacheId
+                );
+              }
+            }, "dispose")
+          };
+        });
+      }, "provideLinks")
+    };
+    if (supportsResolve) {
+      provider.resolveLink = (link, token) => {
+        const dto = link;
+        if (!dto.cacheId) {
+          return link;
+        }
+        return this._proxy.$resolveDocumentLink(handle, dto.cacheId, token).then((obj) => {
+          return obj && MainThreadLanguageFeatures._reviveLinkDTO(obj);
+        });
+      };
+    }
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.linkProvider.register(
+        selector,
+        provider
+      )
+    );
+  }
+  // --- colors
+  $registerDocumentColorProvider(handle, selector) {
+    const proxy = this._proxy;
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.colorProvider.register(selector, {
+        provideDocumentColors: /* @__PURE__ */ __name((model, token) => {
+          return proxy.$provideDocumentColors(handle, model.uri, token).then((documentColors) => {
+            return documentColors.map((documentColor) => {
+              const [red, green, blue, alpha] = documentColor.color;
+              const color = {
+                red,
+                green,
+                blue,
+                alpha
+              };
+              return {
+                color,
+                range: documentColor.range
+              };
+            });
+          });
+        }, "provideDocumentColors"),
+        provideColorPresentations: /* @__PURE__ */ __name((model, colorInfo, token) => {
+          return proxy.$provideColorPresentations(
+            handle,
+            model.uri,
+            {
+              color: [
+                colorInfo.color.red,
+                colorInfo.color.green,
+                colorInfo.color.blue,
+                colorInfo.color.alpha
+              ],
+              range: colorInfo.range
+            },
+            token
+          );
+        }, "provideColorPresentations")
+      })
+    );
+  }
+  // --- folding
+  $registerFoldingRangeProvider(handle, selector, extensionId, eventHandle) {
+    const provider = {
+      id: extensionId.value,
+      provideFoldingRanges: /* @__PURE__ */ __name((model, context, token) => {
+        return this._proxy.$provideFoldingRanges(
+          handle,
+          model.uri,
+          context,
+          token
+        );
+      }, "provideFoldingRanges")
+    };
+    if (typeof eventHandle === "number") {
+      const emitter = new Emitter();
+      this._registrations.set(eventHandle, emitter);
+      provider.onDidChange = emitter.event;
+    }
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.foldingRangeProvider.register(
+        selector,
+        provider
+      )
+    );
+  }
+  $emitFoldingRangeEvent(eventHandle, event) {
+    const obj = this._registrations.get(eventHandle);
+    if (obj instanceof Emitter) {
+      obj.fire(event);
+    }
+  }
+  // -- smart select
+  $registerSelectionRangeProvider(handle, selector) {
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.selectionRangeProvider.register(
+        selector,
+        {
+          provideSelectionRanges: /* @__PURE__ */ __name((model, positions, token) => {
+            return this._proxy.$provideSelectionRanges(
+              handle,
+              model.uri,
+              positions,
+              token
+            );
+          }, "provideSelectionRanges")
+        }
+      )
+    );
+  }
+  // --- call hierarchy
+  $registerCallHierarchyProvider(handle, selector) {
+    this._registrations.set(
+      handle,
+      callh.CallHierarchyProviderRegistry.register(selector, {
+        prepareCallHierarchy: /* @__PURE__ */ __name(async (document, position, token) => {
+          const items = await this._proxy.$prepareCallHierarchy(
+            handle,
+            document.uri,
+            position,
+            token
+          );
+          if (!items || items.length === 0) {
+            return void 0;
+          }
+          return {
+            dispose: /* @__PURE__ */ __name(() => {
+              for (const item of items) {
+                this._proxy.$releaseCallHierarchy(
+                  handle,
+                  item._sessionId
+                );
+              }
+            }, "dispose"),
+            roots: items.map(
+              MainThreadLanguageFeatures._reviveCallHierarchyItemDto
+            )
+          };
+        }, "prepareCallHierarchy"),
+        provideOutgoingCalls: /* @__PURE__ */ __name(async (item, token) => {
+          const outgoing = await this._proxy.$provideCallHierarchyOutgoingCalls(
+            handle,
+            item._sessionId,
+            item._itemId,
+            token
+          );
+          if (!outgoing) {
+            return outgoing;
+          }
+          outgoing.forEach((value) => {
+            value.to = MainThreadLanguageFeatures._reviveCallHierarchyItemDto(
+              value.to
+            );
+          });
+          return outgoing;
+        }, "provideOutgoingCalls"),
+        provideIncomingCalls: /* @__PURE__ */ __name(async (item, token) => {
+          const incoming = await this._proxy.$provideCallHierarchyIncomingCalls(
+            handle,
+            item._sessionId,
+            item._itemId,
+            token
+          );
+          if (!incoming) {
+            return incoming;
+          }
+          incoming.forEach((value) => {
+            value.from = MainThreadLanguageFeatures._reviveCallHierarchyItemDto(
+              value.from
+            );
+          });
+          return incoming;
+        }, "provideIncomingCalls")
+      })
+    );
+  }
+  // --- configuration
+  static _reviveRegExp(regExp) {
+    return new RegExp(regExp.pattern, regExp.flags);
+  }
+  static _reviveIndentationRule(indentationRule) {
+    return {
+      decreaseIndentPattern: MainThreadLanguageFeatures._reviveRegExp(
+        indentationRule.decreaseIndentPattern
+      ),
+      increaseIndentPattern: MainThreadLanguageFeatures._reviveRegExp(
+        indentationRule.increaseIndentPattern
+      ),
+      indentNextLinePattern: indentationRule.indentNextLinePattern ? MainThreadLanguageFeatures._reviveRegExp(
+        indentationRule.indentNextLinePattern
+      ) : void 0,
+      unIndentedLinePattern: indentationRule.unIndentedLinePattern ? MainThreadLanguageFeatures._reviveRegExp(
+        indentationRule.unIndentedLinePattern
+      ) : void 0
+    };
+  }
+  static _reviveOnEnterRule(onEnterRule) {
+    return {
+      beforeText: MainThreadLanguageFeatures._reviveRegExp(
+        onEnterRule.beforeText
+      ),
+      afterText: onEnterRule.afterText ? MainThreadLanguageFeatures._reviveRegExp(
+        onEnterRule.afterText
+      ) : void 0,
+      previousLineText: onEnterRule.previousLineText ? MainThreadLanguageFeatures._reviveRegExp(
+        onEnterRule.previousLineText
+      ) : void 0,
+      action: onEnterRule.action
+    };
+  }
+  static _reviveOnEnterRules(onEnterRules) {
+    return onEnterRules.map(MainThreadLanguageFeatures._reviveOnEnterRule);
+  }
+  $setLanguageConfiguration(handle, languageId, _configuration) {
+    const configuration = {
+      comments: _configuration.comments,
+      brackets: _configuration.brackets,
+      wordPattern: _configuration.wordPattern ? MainThreadLanguageFeatures._reviveRegExp(
+        _configuration.wordPattern
+      ) : void 0,
+      indentationRules: _configuration.indentationRules ? MainThreadLanguageFeatures._reviveIndentationRule(
+        _configuration.indentationRules
+      ) : void 0,
+      onEnterRules: _configuration.onEnterRules ? MainThreadLanguageFeatures._reviveOnEnterRules(
+        _configuration.onEnterRules
+      ) : void 0,
+      autoClosingPairs: void 0,
+      surroundingPairs: void 0,
+      __electricCharacterSupport: void 0
+    };
+    if (_configuration.autoClosingPairs) {
+      configuration.autoClosingPairs = _configuration.autoClosingPairs;
+    } else if (_configuration.__characterPairSupport) {
+      configuration.autoClosingPairs = _configuration.__characterPairSupport.autoClosingPairs;
+    }
+    if (_configuration.__electricCharacterSupport && _configuration.__electricCharacterSupport.docComment) {
+      configuration.__electricCharacterSupport = {
+        docComment: {
+          open: _configuration.__electricCharacterSupport.docComment.open,
+          close: _configuration.__electricCharacterSupport.docComment.close
+        }
+      };
+    }
+    if (this._languageService.isRegisteredLanguageId(languageId)) {
+      this._registrations.set(
+        handle,
+        this._languageConfigurationService.register(
+          languageId,
+          configuration,
+          100
+        )
+      );
+    }
+  }
+  // --- type hierarchy
+  $registerTypeHierarchyProvider(handle, selector) {
+    this._registrations.set(
+      handle,
+      typeh.TypeHierarchyProviderRegistry.register(selector, {
+        prepareTypeHierarchy: /* @__PURE__ */ __name(async (document, position, token) => {
+          const items = await this._proxy.$prepareTypeHierarchy(
+            handle,
+            document.uri,
+            position,
+            token
+          );
+          if (!items) {
+            return void 0;
+          }
+          return {
+            dispose: /* @__PURE__ */ __name(() => {
+              for (const item of items) {
+                this._proxy.$releaseTypeHierarchy(
+                  handle,
+                  item._sessionId
+                );
+              }
+            }, "dispose"),
+            roots: items.map(
+              MainThreadLanguageFeatures._reviveTypeHierarchyItemDto
+            )
+          };
+        }, "prepareTypeHierarchy"),
+        provideSupertypes: /* @__PURE__ */ __name(async (item, token) => {
+          const supertypes = await this._proxy.$provideTypeHierarchySupertypes(
+            handle,
+            item._sessionId,
+            item._itemId,
+            token
+          );
+          if (!supertypes) {
+            return supertypes;
+          }
+          return supertypes.map(
+            MainThreadLanguageFeatures._reviveTypeHierarchyItemDto
+          );
+        }, "provideSupertypes"),
+        provideSubtypes: /* @__PURE__ */ __name(async (item, token) => {
+          const subtypes = await this._proxy.$provideTypeHierarchySubtypes(
+            handle,
+            item._sessionId,
+            item._itemId,
+            token
+          );
+          if (!subtypes) {
+            return subtypes;
+          }
+          return subtypes.map(
+            MainThreadLanguageFeatures._reviveTypeHierarchyItemDto
+          );
+        }, "provideSubtypes")
+      })
+    );
+  }
+  // --- document drop Edits
+  _documentOnDropEditProviders = /* @__PURE__ */ new Map();
+  $registerDocumentOnDropEditProvider(handle, selector, metadata) {
+    const provider = new MainThreadDocumentOnDropEditProvider(
+      handle,
+      this._proxy,
+      metadata,
+      this._uriIdentService
+    );
+    this._documentOnDropEditProviders.set(handle, provider);
+    this._registrations.set(
+      handle,
+      combinedDisposable(
+        this._languageFeaturesService.documentDropEditProvider.register(
+          selector,
+          provider
+        ),
+        toDisposable(
+          () => this._documentOnDropEditProviders.delete(handle)
+        )
+      )
+    );
+  }
+  async $resolveDocumentOnDropFileData(handle, requestId, dataId) {
+    const provider = this._documentOnDropEditProviders.get(handle);
+    if (!provider) {
+      throw new Error("Could not find provider");
+    }
+    return provider.resolveDocumentOnDropFileData(requestId, dataId);
+  }
+  // --- mapped edits
+  $registerMappedEditsProvider(handle, selector, displayName) {
+    const provider = new MainThreadMappedEditsProvider(
+      displayName,
+      handle,
+      this._proxy,
+      this._uriIdentService
+    );
+    this._registrations.set(
+      handle,
+      this._languageFeaturesService.mappedEditsProvider.register(
+        selector,
+        provider
+      )
+    );
+  }
+};
+__name(MainThreadLanguageFeatures, "MainThreadLanguageFeatures");
+MainThreadLanguageFeatures = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadLanguageFeatures),
+  __decorateParam(1, ILanguageService),
+  __decorateParam(2, ILanguageConfigurationService),
+  __decorateParam(3, ILanguageFeaturesService),
+  __decorateParam(4, IUriIdentityService)
+], MainThreadLanguageFeatures);
+let MainThreadPasteEditProvider = class {
+  constructor(_handle, _proxy, metadata, _uriIdentService) {
+    this._handle = _handle;
+    this._proxy = _proxy;
+    this._uriIdentService = _uriIdentService;
+    this.copyMimeTypes = metadata.copyMimeTypes;
+    this.pasteMimeTypes = metadata.pasteMimeTypes;
+    this.providedPasteEditKinds = metadata.providedPasteEditKinds?.map((kind) => new HierarchicalKind(kind));
+    if (metadata.supportsCopy) {
+      this.prepareDocumentPaste = async (model, selections, dataTransfer, token) => {
+        const dataTransferDto = await typeConvert.DataTransfer.from(dataTransfer);
+        if (token.isCancellationRequested) {
+          return void 0;
+        }
+        const newDataTransfer = await this._proxy.$prepareDocumentPaste(_handle, model.uri, selections, dataTransferDto, token);
+        if (!newDataTransfer) {
+          return void 0;
+        }
+        const dataTransferOut = new VSDataTransfer();
+        for (const [type, item] of newDataTransfer.items) {
+          dataTransferOut.replace(type, createStringDataTransferItem(item.asString));
+        }
+        return dataTransferOut;
+      };
+    }
+    if (metadata.supportsPaste) {
+      this.provideDocumentPasteEdits = async (model, selections, dataTransfer, context, token) => {
+        const request = this.dataTransfers.add(dataTransfer);
+        try {
+          const dataTransferDto = await typeConvert.DataTransfer.from(dataTransfer);
+          if (token.isCancellationRequested) {
+            return;
+          }
+          const edits = await this._proxy.$providePasteEdits(this._handle, request.id, model.uri, selections, dataTransferDto, {
+            only: context.only?.value,
+            triggerKind: context.triggerKind
+          }, token);
+          if (!edits) {
+            return;
+          }
+          return {
+            edits: edits.map((edit) => {
+              return {
+                ...edit,
+                kind: edit.kind ? new HierarchicalKind(edit.kind.value) : new HierarchicalKind(""),
+                yieldTo: edit.yieldTo?.map((x) => ({ kind: new HierarchicalKind(x) })),
+                additionalEdit: edit.additionalEdit ? reviveWorkspaceEditDto(edit.additionalEdit, this._uriIdentService, (dataId) => this.resolveFileData(request.id, dataId)) : void 0
+              };
+            }),
+            dispose: /* @__PURE__ */ __name(() => {
+              this._proxy.$releasePasteEdits(this._handle, request.id);
+            }, "dispose")
+          };
+        } finally {
+          request.dispose();
+        }
+      };
+    }
+    if (metadata.supportsResolve) {
+      this.resolveDocumentPasteEdit = async (edit, token) => {
+        const resolved = await this._proxy.$resolvePasteEdit(this._handle, edit._cacheId, token);
+        if (resolved.additionalEdit) {
+          edit.additionalEdit = reviveWorkspaceEditDto(resolved.additionalEdit, this._uriIdentService);
+        }
+        return edit;
+      };
+    }
+  }
+  static {
+    __name(this, "MainThreadPasteEditProvider");
+  }
+  dataTransfers = new DataTransferFileCache();
+  copyMimeTypes;
+  pasteMimeTypes;
+  providedPasteEditKinds;
+  prepareDocumentPaste;
+  provideDocumentPasteEdits;
+  resolveDocumentPasteEdit;
+  resolveFileData(requestId, dataId) {
+    return this.dataTransfers.resolveFileData(requestId, dataId);
+  }
+};
+MainThreadPasteEditProvider = __decorateClass([
+  __decorateParam(3, IUriIdentityService)
+], MainThreadPasteEditProvider);
+let MainThreadDocumentOnDropEditProvider = class {
+  constructor(_handle, _proxy, metadata, _uriIdentService) {
+    this._handle = _handle;
+    this._proxy = _proxy;
+    this._uriIdentService = _uriIdentService;
+    this.dropMimeTypes = metadata?.dropMimeTypes ?? ["*/*"];
+    if (metadata?.supportsResolve) {
+      this.resolveDocumentDropEdit = async (edit, token) => {
+        const resolved = await this._proxy.$resolvePasteEdit(this._handle, edit._cacheId, token);
+        if (resolved.additionalEdit) {
+          edit.additionalEdit = reviveWorkspaceEditDto(resolved.additionalEdit, this._uriIdentService);
+        }
+        return edit;
+      };
+    }
+  }
+  static {
+    __name(this, "MainThreadDocumentOnDropEditProvider");
+  }
+  dataTransfers = new DataTransferFileCache();
+  dropMimeTypes;
+  resolveDocumentDropEdit;
+  async provideDocumentDropEdits(model, position, dataTransfer, token) {
+    const request = this.dataTransfers.add(dataTransfer);
+    try {
+      const dataTransferDto = await typeConvert.DataTransfer.from(dataTransfer);
+      if (token.isCancellationRequested) {
+        return;
+      }
+      const edits = await this._proxy.$provideDocumentOnDropEdits(
+        this._handle,
+        request.id,
+        model.uri,
+        position,
+        dataTransferDto,
+        token
+      );
+      if (!edits) {
+        return;
+      }
+      return {
+        edits: edits.map((edit) => {
+          return {
+            ...edit,
+            yieldTo: edit.yieldTo?.map((x) => ({
+              kind: new HierarchicalKind(x)
+            })),
+            kind: edit.kind ? new HierarchicalKind(edit.kind) : void 0,
+            additionalEdit: reviveWorkspaceEditDto(
+              edit.additionalEdit,
+              this._uriIdentService,
+              (dataId) => this.resolveDocumentOnDropFileData(
+                request.id,
+                dataId
+              )
+            )
+          };
+        }),
+        dispose: /* @__PURE__ */ __name(() => {
+          this._proxy.$releaseDocumentOnDropEdits(
+            this._handle,
+            request.id
+          );
+        }, "dispose")
+      };
+    } finally {
+      request.dispose();
+    }
+  }
+  resolveDocumentOnDropFileData(requestId, dataId) {
+    return this.dataTransfers.resolveFileData(requestId, dataId);
+  }
+};
+MainThreadDocumentOnDropEditProvider = __decorateClass([
+  __decorateParam(3, IUriIdentityService)
+], MainThreadDocumentOnDropEditProvider);
+class MainThreadDocumentSemanticTokensProvider {
+  constructor(_proxy, _handle, _legend, onDidChange) {
+    this._proxy = _proxy;
+    this._handle = _handle;
+    this._legend = _legend;
+    this.onDidChange = onDidChange;
+  }
+  static {
+    __name(this, "MainThreadDocumentSemanticTokensProvider");
+  }
+  releaseDocumentSemanticTokens(resultId) {
+    if (resultId) {
+      this._proxy.$releaseDocumentSemanticTokens(
+        this._handle,
+        Number.parseInt(resultId, 10)
+      );
+    }
+  }
+  getLegend() {
+    return this._legend;
+  }
+  async provideDocumentSemanticTokens(model, lastResultId, token) {
+    const nLastResultId = lastResultId ? Number.parseInt(lastResultId, 10) : 0;
+    const encodedDto = await this._proxy.$provideDocumentSemanticTokens(
+      this._handle,
+      model.uri,
+      nLastResultId,
+      token
+    );
+    if (!encodedDto) {
+      return null;
+    }
+    if (token.isCancellationRequested) {
+      return null;
+    }
+    const dto = decodeSemanticTokensDto(encodedDto);
+    if (dto.type === "full") {
+      return {
+        resultId: String(dto.id),
+        data: dto.data
+      };
+    }
+    return {
+      resultId: String(dto.id),
+      edits: dto.deltas
+    };
+  }
+}
+class MainThreadDocumentRangeSemanticTokensProvider {
+  constructor(_proxy, _handle, _legend) {
+    this._proxy = _proxy;
+    this._handle = _handle;
+    this._legend = _legend;
+  }
+  static {
+    __name(this, "MainThreadDocumentRangeSemanticTokensProvider");
+  }
+  getLegend() {
+    return this._legend;
+  }
+  async provideDocumentRangeSemanticTokens(model, range, token) {
+    const encodedDto = await this._proxy.$provideDocumentRangeSemanticTokens(
+      this._handle,
+      model.uri,
+      range,
+      token
+    );
+    if (!encodedDto) {
+      return null;
+    }
+    if (token.isCancellationRequested) {
+      return null;
+    }
+    const dto = decodeSemanticTokensDto(encodedDto);
+    if (dto.type === "full") {
+      return {
+        resultId: String(dto.id),
+        data: dto.data
+      };
+    }
+    throw new Error(`Unexpected`);
+  }
+}
+class MainThreadMappedEditsProvider {
+  constructor(displayName, _handle, _proxy, _uriService) {
+    this.displayName = displayName;
+    this._handle = _handle;
+    this._proxy = _proxy;
+    this._uriService = _uriService;
+  }
+  static {
+    __name(this, "MainThreadMappedEditsProvider");
+  }
+  async provideMappedEdits(document, codeBlocks, context, token) {
+    const res = await this._proxy.$provideMappedEdits(
+      this._handle,
+      document.uri,
+      codeBlocks,
+      context,
+      token
+    );
+    return res ? reviveWorkspaceEditDto(res, this._uriService) : null;
+  }
+}
+export {
+  MainThreadDocumentRangeSemanticTokensProvider,
+  MainThreadDocumentSemanticTokensProvider,
+  MainThreadLanguageFeatures,
+  MainThreadMappedEditsProvider
+};
+//# sourceMappingURL=mainThreadLanguageFeatures.js.map

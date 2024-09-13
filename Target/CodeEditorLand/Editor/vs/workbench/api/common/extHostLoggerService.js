@@ -1,1 +1,90 @@
-var l=Object.defineProperty;var n=Object.getOwnPropertyDescriptor;var a=(i,o,e,t)=>{for(var r=t>1?void 0:t?n(o,e):o,s=i.length-1,p;s>=0;s--)(p=i[s])&&(r=(t?p(o,e,r):p(r))||r);return t&&r&&l(o,e,r),r},L=(i,o)=>(e,t)=>o(e,t,i);import{revive as v}from"../../../base/common/marshalling.js";import{URI as h}from"../../../base/common/uri.js";import{AbstractLoggerService as d,AbstractMessageLogger as y}from"../../../platform/log/common/log.js";import{MainContext as c}from"./extHost.protocol.js";import{IExtHostInitDataService as f}from"./extHostInitDataService.js";import{IExtHostRpcService as m}from"./extHostRpcService.js";let g=class extends d{_proxy;constructor(o,e){super(e.logLevel,e.logsLocation,e.loggers.map(t=>v(t))),this._proxy=o.getProxy(c.MainThreadLogger)}$setLogLevel(o,e){e?this.setLogLevel(h.revive(e),o):this.setLogLevel(o)}setVisibility(o,e){super.setVisibility(o,e),this._proxy.$setVisibility(o,e)}doCreateLogger(o,e,t){return new x(this._proxy,o,e,t)}};g=a([L(0,m),L(1,f)],g);class x extends y{constructor(e,t,r,s){super(s?.logLevel==="always");this.proxy=e;this.file=t;this.setLevel(r),this.proxy.$createLogger(t,s).then(()=>{this.doLog(this.buffer),this.isLoggerCreated=!0})}isLoggerCreated=!1;buffer=[];log(e,t){const r=[[e,t]];this.isLoggerCreated?this.doLog(r):this.buffer.push(...r)}doLog(e){this.proxy.$log(this.file,e)}flush(){this.proxy.$flush(this.file)}}export{g as ExtHostLoggerService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { revive } from "../../../base/common/marshalling.js";
+import { URI } from "../../../base/common/uri.js";
+import {
+  AbstractLoggerService,
+  AbstractMessageLogger
+} from "../../../platform/log/common/log.js";
+import {
+  MainContext
+} from "./extHost.protocol.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+let ExtHostLoggerService = class extends AbstractLoggerService {
+  static {
+    __name(this, "ExtHostLoggerService");
+  }
+  _proxy;
+  constructor(rpc, initData) {
+    super(
+      initData.logLevel,
+      initData.logsLocation,
+      initData.loggers.map((logger) => revive(logger))
+    );
+    this._proxy = rpc.getProxy(MainContext.MainThreadLogger);
+  }
+  $setLogLevel(logLevel, resource) {
+    if (resource) {
+      this.setLogLevel(URI.revive(resource), logLevel);
+    } else {
+      this.setLogLevel(logLevel);
+    }
+  }
+  setVisibility(resource, visibility) {
+    super.setVisibility(resource, visibility);
+    this._proxy.$setVisibility(resource, visibility);
+  }
+  doCreateLogger(resource, logLevel, options) {
+    return new Logger(this._proxy, resource, logLevel, options);
+  }
+};
+ExtHostLoggerService = __decorateClass([
+  __decorateParam(0, IExtHostRpcService),
+  __decorateParam(1, IExtHostInitDataService)
+], ExtHostLoggerService);
+class Logger extends AbstractMessageLogger {
+  constructor(proxy, file, logLevel, loggerOptions) {
+    super(loggerOptions?.logLevel === "always");
+    this.proxy = proxy;
+    this.file = file;
+    this.setLevel(logLevel);
+    this.proxy.$createLogger(file, loggerOptions).then(() => {
+      this.doLog(this.buffer);
+      this.isLoggerCreated = true;
+    });
+  }
+  static {
+    __name(this, "Logger");
+  }
+  isLoggerCreated = false;
+  buffer = [];
+  log(level, message) {
+    const messages = [[level, message]];
+    if (this.isLoggerCreated) {
+      this.doLog(messages);
+    } else {
+      this.buffer.push(...messages);
+    }
+  }
+  doLog(messages) {
+    this.proxy.$log(this.file, messages);
+  }
+  flush() {
+    this.proxy.$flush(this.file);
+  }
+}
+export {
+  ExtHostLoggerService
+};
+//# sourceMappingURL=extHostLoggerService.js.map

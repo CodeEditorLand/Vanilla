@@ -1,1 +1,4 @@
-import{registerSharedProcessRemoteService as e}from"../../ipc/electron-sandbox/services.js";import{IDiagnosticsService as r}from"../common/diagnostics.js";e(r,"diagnostics");
+import { registerSharedProcessRemoteService } from "../../ipc/electron-sandbox/services.js";
+import { IDiagnosticsService } from "../common/diagnostics.js";
+registerSharedProcessRemoteService(IDiagnosticsService, "diagnostics");
+//# sourceMappingURL=diagnosticsService.js.map

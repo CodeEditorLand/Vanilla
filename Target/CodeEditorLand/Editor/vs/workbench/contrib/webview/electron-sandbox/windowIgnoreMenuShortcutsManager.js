@@ -1,1 +1,40 @@
-import{isMacintosh as t}from"../../../../base/common/platform.js";import{ProxyChannel as r}from"../../../../base/parts/ipc/common/ipc.js";import{hasNativeTitlebar as o}from"../../../../platform/window/common/window.js";class m{constructor(e,i,a){this._nativeHostService=a;this._isUsingNativeTitleBars=o(e),this._webviewMainService=r.toService(i.getChannel("webview"))}_isUsingNativeTitleBars;_webviewMainService;didFocus(){this.setIgnoreMenuShortcuts(!0)}didBlur(){this.setIgnoreMenuShortcuts(!1)}get _shouldToggleMenuShortcutsEnablement(){return t||this._isUsingNativeTitleBars}setIgnoreMenuShortcuts(e){this._shouldToggleMenuShortcutsEnablement&&this._webviewMainService.setIgnoreMenuShortcuts({windowId:this._nativeHostService.windowId},e)}}export{m as WindowIgnoreMenuShortcutsManager};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isMacintosh } from "../../../../base/common/platform.js";
+import { ProxyChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { hasNativeTitlebar } from "../../../../platform/window/common/window.js";
+class WindowIgnoreMenuShortcutsManager {
+  constructor(configurationService, mainProcessService, _nativeHostService) {
+    this._nativeHostService = _nativeHostService;
+    this._isUsingNativeTitleBars = hasNativeTitlebar(configurationService);
+    this._webviewMainService = ProxyChannel.toService(
+      mainProcessService.getChannel("webview")
+    );
+  }
+  static {
+    __name(this, "WindowIgnoreMenuShortcutsManager");
+  }
+  _isUsingNativeTitleBars;
+  _webviewMainService;
+  didFocus() {
+    this.setIgnoreMenuShortcuts(true);
+  }
+  didBlur() {
+    this.setIgnoreMenuShortcuts(false);
+  }
+  get _shouldToggleMenuShortcutsEnablement() {
+    return isMacintosh || this._isUsingNativeTitleBars;
+  }
+  setIgnoreMenuShortcuts(value) {
+    if (this._shouldToggleMenuShortcutsEnablement) {
+      this._webviewMainService.setIgnoreMenuShortcuts(
+        { windowId: this._nativeHostService.windowId },
+        value
+      );
+    }
+  }
+}
+export {
+  WindowIgnoreMenuShortcutsManager
+};
+//# sourceMappingURL=windowIgnoreMenuShortcutsManager.js.map

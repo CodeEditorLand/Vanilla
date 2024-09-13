@@ -1,1 +1,110 @@
-var c=Object.defineProperty;var a=Object.getOwnPropertyDescriptor;var l=(i,e,o,t)=>{for(var r=t>1?void 0:t?a(e,o):e,g=i.length-1,v;g>=0;g--)(v=i[g])&&(r=(t?v(e,o,r):v(r))||r);return t&&r&&c(e,o,r),r},m=(i,e)=>(o,t)=>e(o,t,i);import{DisposableStore as d}from"../../../base/common/lifecycle.js";import{URI as s}from"../../../base/common/uri.js";import{CommandsRegistry as L}from"../../../platform/commands/common/commands.js";import{IEnvironmentService as f}from"../../../platform/environment/common/environment.js";import{ILogService as h,ILoggerService as p,LogLevelToString as y,isLogLevel as S,log as C,parseLogLevel as x}from"../../../platform/log/common/log.js";import{extHostNamedCustomer as I}from"../../services/extensions/common/extHostCustomers.js";import{ExtHostContext as u,MainContext as U}from"../common/extHost.protocol.js";let n=class{constructor(e,o){this.loggerService=o;const t=e.getProxy(u.ExtHostLogLevelServiceShape);this.disposables.add(o.onDidChangeLogLevel(r=>{S(r)?t.$setLogLevel(r):t.$setLogLevel(r[1],r[0])}))}disposables=new d;$log(e,o){const t=this.loggerService.getLogger(s.revive(e));if(!t)throw new Error("Create the logger before logging");for(const[r,g]of o)C(t,r,g)}async $createLogger(e,o){this.loggerService.createLogger(s.revive(e),o)}async $registerLogger(e){this.loggerService.registerLogger({...e,resource:s.revive(e.resource)})}async $deregisterLogger(e){this.loggerService.deregisterLogger(s.revive(e))}async $setVisibility(e,o){this.loggerService.setVisibility(s.revive(e),o)}$flush(e){const o=this.loggerService.getLogger(s.revive(e));if(!o)throw new Error("Create the logger before flushing");o.flush()}dispose(){this.disposables.dispose()}};n=l([I(U.MainThreadLogger),m(1,p)],n),L.registerCommand("_extensionTests.setLogLevel",(i,e)=>{const o=i.get(p),t=i.get(f);if(t.isExtensionDevelopment&&t.extensionTestsLocationURI){const r=x(e);r!==void 0&&o.setLogLevel(r)}}),L.registerCommand("_extensionTests.getLogLevel",i=>{const e=i.get(h);return y(e.getLevel())});export{n as MainThreadLoggerService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import {
+  URI
+} from "../../../base/common/uri.js";
+import { CommandsRegistry } from "../../../platform/commands/common/commands.js";
+import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
+import {
+  ILogService,
+  ILoggerService,
+  LogLevelToString,
+  isLogLevel,
+  log,
+  parseLogLevel
+} from "../../../platform/log/common/log.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
+let MainThreadLoggerService = class {
+  constructor(extHostContext, loggerService) {
+    this.loggerService = loggerService;
+    const proxy = extHostContext.getProxy(ExtHostContext.ExtHostLogLevelServiceShape);
+    this.disposables.add(loggerService.onDidChangeLogLevel((arg) => {
+      if (isLogLevel(arg)) {
+        proxy.$setLogLevel(arg);
+      } else {
+        proxy.$setLogLevel(arg[1], arg[0]);
+      }
+    }));
+  }
+  disposables = new DisposableStore();
+  $log(file, messages) {
+    const logger = this.loggerService.getLogger(URI.revive(file));
+    if (!logger) {
+      throw new Error("Create the logger before logging");
+    }
+    for (const [level, message] of messages) {
+      log(logger, level, message);
+    }
+  }
+  async $createLogger(file, options) {
+    this.loggerService.createLogger(URI.revive(file), options);
+  }
+  async $registerLogger(logResource) {
+    this.loggerService.registerLogger({
+      ...logResource,
+      resource: URI.revive(logResource.resource)
+    });
+  }
+  async $deregisterLogger(resource) {
+    this.loggerService.deregisterLogger(URI.revive(resource));
+  }
+  async $setVisibility(resource, visible) {
+    this.loggerService.setVisibility(URI.revive(resource), visible);
+  }
+  $flush(file) {
+    const logger = this.loggerService.getLogger(URI.revive(file));
+    if (!logger) {
+      throw new Error("Create the logger before flushing");
+    }
+    logger.flush();
+  }
+  dispose() {
+    this.disposables.dispose();
+  }
+};
+__name(MainThreadLoggerService, "MainThreadLoggerService");
+MainThreadLoggerService = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadLogger),
+  __decorateParam(1, ILoggerService)
+], MainThreadLoggerService);
+CommandsRegistry.registerCommand(
+  "_extensionTests.setLogLevel",
+  (accessor, level) => {
+    const loggerService = accessor.get(ILoggerService);
+    const environmentService = accessor.get(IEnvironmentService);
+    if (environmentService.isExtensionDevelopment && !!environmentService.extensionTestsLocationURI) {
+      const logLevel = parseLogLevel(level);
+      if (logLevel !== void 0) {
+        loggerService.setLogLevel(logLevel);
+      }
+    }
+  }
+);
+CommandsRegistry.registerCommand(
+  "_extensionTests.getLogLevel",
+  (accessor) => {
+    const logService = accessor.get(ILogService);
+    return LogLevelToString(logService.getLevel());
+  }
+);
+export {
+  MainThreadLoggerService
+};
+//# sourceMappingURL=mainThreadLogService.js.map

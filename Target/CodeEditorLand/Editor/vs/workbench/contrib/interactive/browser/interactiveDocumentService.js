@@ -1,1 +1,40 @@
-import{Emitter as n}from"../../../../base/common/event.js";import{Disposable as r}from"../../../../base/common/lifecycle.js";import{createDecorator as o}from"../../../../platform/instantiation/common/instantiation.js";const m=o("IInteractiveDocumentService");class l extends r{_onWillAddInteractiveDocument=this._register(new n);onWillAddInteractiveDocument=this._onWillAddInteractiveDocument.event;_onWillRemoveInteractiveDocument=this._register(new n);onWillRemoveInteractiveDocument=this._onWillRemoveInteractiveDocument.event;constructor(){super()}willCreateInteractiveDocument(e,t,i){this._onWillAddInteractiveDocument.fire({notebookUri:e,inputUri:t,languageId:i})}willRemoveInteractiveDocument(e,t){this._onWillRemoveInteractiveDocument.fire({notebookUri:e,inputUri:t})}}export{m as IInteractiveDocumentService,l as InteractiveDocumentService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IInteractiveDocumentService = createDecorator("IInteractiveDocumentService");
+class InteractiveDocumentService extends Disposable {
+  static {
+    __name(this, "InteractiveDocumentService");
+  }
+  _onWillAddInteractiveDocument = this._register(
+    new Emitter()
+  );
+  onWillAddInteractiveDocument = this._onWillAddInteractiveDocument.event;
+  _onWillRemoveInteractiveDocument = this._register(
+    new Emitter()
+  );
+  onWillRemoveInteractiveDocument = this._onWillRemoveInteractiveDocument.event;
+  constructor() {
+    super();
+  }
+  willCreateInteractiveDocument(notebookUri, inputUri, languageId) {
+    this._onWillAddInteractiveDocument.fire({
+      notebookUri,
+      inputUri,
+      languageId
+    });
+  }
+  willRemoveInteractiveDocument(notebookUri, inputUri) {
+    this._onWillRemoveInteractiveDocument.fire({
+      notebookUri,
+      inputUri
+    });
+  }
+}
+export {
+  IInteractiveDocumentService,
+  InteractiveDocumentService
+};
+//# sourceMappingURL=interactiveDocumentService.js.map

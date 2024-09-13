@@ -1,1 +1,8 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const t=e("elevatedFileService");export{t as IElevatedFileService};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IElevatedFileService = createDecorator(
+  "elevatedFileService"
+);
+export {
+  IElevatedFileService
+};
+//# sourceMappingURL=elevatedFileService.js.map

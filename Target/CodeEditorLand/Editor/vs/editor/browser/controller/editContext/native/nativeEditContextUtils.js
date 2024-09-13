@@ -1,1 +1,58 @@
-import{addDisposableListener as n}from"../../../../../base/browser/dom.js";import{Disposable as i}from"../../../../../base/common/lifecycle.js";class d extends i{constructor(e,o){super();this._domNode=e;this._onFocusChange=o;this._register(n(this._domNode,"focus",()=>this._handleFocusedChanged(!0))),this._register(n(this._domNode,"blur",()=>this._handleFocusedChanged(!1)))}_isFocused=!1;_handleFocusedChanged(e){this._isFocused!==e&&(this._isFocused=e,this._onFocusChange(this._isFocused))}focus(){this._domNode.focus()}get isFocused(){return this._isFocused}}function l(s,t,e,o){return s.addEventListener(t,e,o),{dispose(){s.removeEventListener(t,e)}}}export{d as FocusTracker,l as editContextAddDisposableListener};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { addDisposableListener } from "../../../../../base/browser/dom.js";
+import {
+  Disposable
+} from "../../../../../base/common/lifecycle.js";
+class FocusTracker extends Disposable {
+  constructor(_domNode, _onFocusChange) {
+    super();
+    this._domNode = _domNode;
+    this._onFocusChange = _onFocusChange;
+    this._register(
+      addDisposableListener(
+        this._domNode,
+        "focus",
+        () => this._handleFocusedChanged(true)
+      )
+    );
+    this._register(
+      addDisposableListener(
+        this._domNode,
+        "blur",
+        () => this._handleFocusedChanged(false)
+      )
+    );
+  }
+  static {
+    __name(this, "FocusTracker");
+  }
+  _isFocused = false;
+  _handleFocusedChanged(focused) {
+    if (this._isFocused === focused) {
+      return;
+    }
+    this._isFocused = focused;
+    this._onFocusChange(this._isFocused);
+  }
+  focus() {
+    this._domNode.focus();
+  }
+  get isFocused() {
+    return this._isFocused;
+  }
+}
+function editContextAddDisposableListener(target, type, listener, options) {
+  target.addEventListener(type, listener, options);
+  return {
+    dispose() {
+      target.removeEventListener(type, listener);
+    }
+  };
+}
+__name(editContextAddDisposableListener, "editContextAddDisposableListener");
+export {
+  FocusTracker,
+  editContextAddDisposableListener
+};
+//# sourceMappingURL=nativeEditContextUtils.js.map

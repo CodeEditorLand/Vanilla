@@ -1,1 +1,120 @@
-import{VSBuffer as i}from"../../../../base/common/buffer.js";import{areFunctions as d,isUndefinedOrNull as s}from"../../../../base/common/types.js";import{FileOperationError as l,FileOperationResult as p}from"../../../../platform/files/common/files.js";import{createDecorator as I}from"../../../../platform/instantiation/common/instantiation.js";const T=I("textFileService");var c=(e=>(e[e.FILE_IS_BINARY=0]="FILE_IS_BINARY",e))(c||{});class y extends l{constructor(o,n,a){super(o,p.FILE_OTHER_ERROR);this.textFileOperationResult=n;this.options=a}static isTextFileOperationError(o){return o instanceof Error&&!s(o.textFileOperationResult)}options}var x=(t=>(t[t.SAVED=0]="SAVED",t[t.DIRTY=1]="DIRTY",t[t.PENDING_SAVE=2]="PENDING_SAVE",t[t.CONFLICT=3]="CONFLICT",t[t.ORPHAN=4]="ORPHAN",t[t.ERROR=5]="ERROR",t))(x||{}),f=(n=>(n[n.EDITOR=1]="EDITOR",n[n.REFERENCE=2]="REFERENCE",n[n.OTHER=3]="OTHER",n))(f||{}),u=(o=>(o[o.Encode=0]="Encode",o[o.Decode=1]="Decode",o))(u||{});function R(r){const e=r;return d(e.setEncoding,e.getEncoding,e.save,e.revert,e.isDirty,e.getLanguageId)}function F(r){const e=[];let o;for(;typeof(o=r.read())=="string";)e.push(o);return e.join("")}function S(r){let e=!1;return{read(){return e?null:(e=!0,r)}}}function O(r){if(!(typeof r>"u"))return typeof r=="string"?i.fromString(r):{read:()=>{const e=r.read();return typeof e=="string"?i.fromString(e):null}}}export{u as EncodingMode,T as ITextFileService,x as TextFileEditorModelState,y as TextFileOperationError,c as TextFileOperationResult,f as TextFileResolveReason,R as isTextFileEditorModel,F as snapshotToString,S as stringToSnapshot,O as toBufferOrReadable};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  VSBuffer
+} from "../../../../base/common/buffer.js";
+import {
+  areFunctions,
+  isUndefinedOrNull
+} from "../../../../base/common/types.js";
+import {
+  FileOperationError,
+  FileOperationResult
+} from "../../../../platform/files/common/files.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const ITextFileService = createDecorator("textFileService");
+var TextFileOperationResult = /* @__PURE__ */ ((TextFileOperationResult2) => {
+  TextFileOperationResult2[TextFileOperationResult2["FILE_IS_BINARY"] = 0] = "FILE_IS_BINARY";
+  return TextFileOperationResult2;
+})(TextFileOperationResult || {});
+class TextFileOperationError extends FileOperationError {
+  constructor(message, textFileOperationResult, options) {
+    super(message, FileOperationResult.FILE_OTHER_ERROR);
+    this.textFileOperationResult = textFileOperationResult;
+    this.options = options;
+  }
+  static {
+    __name(this, "TextFileOperationError");
+  }
+  static isTextFileOperationError(obj) {
+    return obj instanceof Error && !isUndefinedOrNull(
+      obj.textFileOperationResult
+    );
+  }
+  options;
+}
+var TextFileEditorModelState = /* @__PURE__ */ ((TextFileEditorModelState2) => {
+  TextFileEditorModelState2[TextFileEditorModelState2["SAVED"] = 0] = "SAVED";
+  TextFileEditorModelState2[TextFileEditorModelState2["DIRTY"] = 1] = "DIRTY";
+  TextFileEditorModelState2[TextFileEditorModelState2["PENDING_SAVE"] = 2] = "PENDING_SAVE";
+  TextFileEditorModelState2[TextFileEditorModelState2["CONFLICT"] = 3] = "CONFLICT";
+  TextFileEditorModelState2[TextFileEditorModelState2["ORPHAN"] = 4] = "ORPHAN";
+  TextFileEditorModelState2[TextFileEditorModelState2["ERROR"] = 5] = "ERROR";
+  return TextFileEditorModelState2;
+})(TextFileEditorModelState || {});
+var TextFileResolveReason = /* @__PURE__ */ ((TextFileResolveReason2) => {
+  TextFileResolveReason2[TextFileResolveReason2["EDITOR"] = 1] = "EDITOR";
+  TextFileResolveReason2[TextFileResolveReason2["REFERENCE"] = 2] = "REFERENCE";
+  TextFileResolveReason2[TextFileResolveReason2["OTHER"] = 3] = "OTHER";
+  return TextFileResolveReason2;
+})(TextFileResolveReason || {});
+var EncodingMode = /* @__PURE__ */ ((EncodingMode2) => {
+  EncodingMode2[EncodingMode2["Encode"] = 0] = "Encode";
+  EncodingMode2[EncodingMode2["Decode"] = 1] = "Decode";
+  return EncodingMode2;
+})(EncodingMode || {});
+function isTextFileEditorModel(model) {
+  const candidate = model;
+  return areFunctions(
+    candidate.setEncoding,
+    candidate.getEncoding,
+    candidate.save,
+    candidate.revert,
+    candidate.isDirty,
+    candidate.getLanguageId
+  );
+}
+__name(isTextFileEditorModel, "isTextFileEditorModel");
+function snapshotToString(snapshot) {
+  const chunks = [];
+  let chunk;
+  while (typeof (chunk = snapshot.read()) === "string") {
+    chunks.push(chunk);
+  }
+  return chunks.join("");
+}
+__name(snapshotToString, "snapshotToString");
+function stringToSnapshot(value) {
+  let done = false;
+  return {
+    read() {
+      if (!done) {
+        done = true;
+        return value;
+      }
+      return null;
+    }
+  };
+}
+__name(stringToSnapshot, "stringToSnapshot");
+function toBufferOrReadable(value) {
+  if (typeof value === "undefined") {
+    return void 0;
+  }
+  if (typeof value === "string") {
+    return VSBuffer.fromString(value);
+  }
+  return {
+    read: /* @__PURE__ */ __name(() => {
+      const chunk = value.read();
+      if (typeof chunk === "string") {
+        return VSBuffer.fromString(chunk);
+      }
+      return null;
+    }, "read")
+  };
+}
+__name(toBufferOrReadable, "toBufferOrReadable");
+export {
+  EncodingMode,
+  ITextFileService,
+  TextFileEditorModelState,
+  TextFileOperationError,
+  TextFileOperationResult,
+  TextFileResolveReason,
+  isTextFileEditorModel,
+  snapshotToString,
+  stringToSnapshot,
+  toBufferOrReadable
+};
+//# sourceMappingURL=textfiles.js.map

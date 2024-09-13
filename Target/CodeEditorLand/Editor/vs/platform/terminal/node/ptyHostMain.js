@@ -1,1 +1,109 @@
-import{timeout as f}from"../../../base/common/async.js";import{DisposableStore as g}from"../../../base/common/lifecycle.js";import{DefaultURITransformer as _}from"../../../base/common/uriIpc.js";import{ProxyChannel as v}from"../../../base/parts/ipc/common/ipc.js";import{Server as y}from"../../../base/parts/ipc/node/ipc.cp.js";import{Server as d}from"../../../base/parts/ipc/node/ipc.mp.js";import{isUtilityProcess as T}from"../../../base/parts/sandbox/node/electronTypes.js";import{localize as O}from"../../../nls.js";import{OPTIONS as N,parseArgs as P}from"../../environment/node/argv.js";import{NativeEnvironmentService as u}from"../../environment/node/environmentService.js";import{getLogLevel as R}from"../../log/common/log.js";import{LoggerChannel as I}from"../../log/common/logIpc.js";import{LogService as L}from"../../log/common/logService.js";import{LoggerService as h}from"../../log/node/loggerService.js";import D from"../../product/common/product.js";import{TerminalIpcChannels as t}from"../common/terminal.js";import{HeartbeatService as w}from"./heartbeatService.js";import{PtyService as A}from"./ptyService.js";H();async function H(){const o=Number.parseInt(process.env.VSCODE_STARTUP_DELAY??"0"),s=Number.parseInt(process.env.VSCODE_LATENCY??"0"),l={graceTime:Number.parseInt(process.env.VSCODE_RECONNECT_GRACE_TIME||"0"),shortGraceTime:Number.parseInt(process.env.VSCODE_RECONNECT_SHORT_GRACE_TIME||"0"),scrollback:Number.parseInt(process.env.VSCODE_RECONNECT_SCROLLBACK||"100")};delete process.env.VSCODE_RECONNECT_GRACE_TIME,delete process.env.VSCODE_RECONNECT_SHORT_GRACE_TIME,delete process.env.VSCODE_RECONNECT_SCROLLBACK,delete process.env.VSCODE_LATENCY,delete process.env.VSCODE_STARTUP_DELAY,o&&await f(o);const n=T(process);let e;n?e=new d:e=new y(t.PtyHost);const i={_serviceBrand:void 0,...D},c=new u(P(process.argv,N),i),m=new h(R(c),c.logsHome);e.registerChannel(t.Logger,new I(m,()=>_));const E=m.createLogger("ptyhost",{name:O("ptyHost","Pty Host")}),r=new L(E);o&&r.warn(`Pty Host startup is delayed ${o}ms`),s&&r.warn(`Pty host is simulating ${s}ms latency`);const p=new g,a=new w;e.registerChannel(t.Heartbeat,v.fromService(a,p));const C=new A(r,i,l,s),S=v.fromService(C,p);e.registerChannel(t.PtyHost,S),n&&e.registerChannel(t.PtyHostWindow,S),process.once("exit",()=>{r.trace("Pty host exiting"),r.dispose(),a.dispose(),C.dispose()})}
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { timeout } from "../../../base/common/async.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { DefaultURITransformer } from "../../../base/common/uriIpc.js";
+import { ProxyChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { Server as ChildProcessServer } from "../../../base/parts/ipc/node/ipc.cp.js";
+import { Server as UtilityProcessServer } from "../../../base/parts/ipc/node/ipc.mp.js";
+import { isUtilityProcess } from "../../../base/parts/sandbox/node/electronTypes.js";
+import { localize } from "../../../nls.js";
+import { OPTIONS, parseArgs } from "../../environment/node/argv.js";
+import { NativeEnvironmentService } from "../../environment/node/environmentService.js";
+import { getLogLevel } from "../../log/common/log.js";
+import { LoggerChannel } from "../../log/common/logIpc.js";
+import { LogService } from "../../log/common/logService.js";
+import { LoggerService } from "../../log/node/loggerService.js";
+import product from "../../product/common/product.js";
+import {
+  TerminalIpcChannels
+} from "../common/terminal.js";
+import { HeartbeatService } from "./heartbeatService.js";
+import { PtyService } from "./ptyService.js";
+startPtyHost();
+async function startPtyHost() {
+  const startupDelay = Number.parseInt(
+    process.env.VSCODE_STARTUP_DELAY ?? "0"
+  );
+  const simulatedLatency = Number.parseInt(process.env.VSCODE_LATENCY ?? "0");
+  const reconnectConstants = {
+    graceTime: Number.parseInt(
+      process.env.VSCODE_RECONNECT_GRACE_TIME || "0"
+    ),
+    shortGraceTime: Number.parseInt(
+      process.env.VSCODE_RECONNECT_SHORT_GRACE_TIME || "0"
+    ),
+    scrollback: Number.parseInt(
+      process.env.VSCODE_RECONNECT_SCROLLBACK || "100"
+    )
+  };
+  delete process.env.VSCODE_RECONNECT_GRACE_TIME;
+  delete process.env.VSCODE_RECONNECT_SHORT_GRACE_TIME;
+  delete process.env.VSCODE_RECONNECT_SCROLLBACK;
+  delete process.env.VSCODE_LATENCY;
+  delete process.env.VSCODE_STARTUP_DELAY;
+  if (startupDelay) {
+    await timeout(startupDelay);
+  }
+  const _isUtilityProcess = isUtilityProcess(process);
+  let server;
+  if (_isUtilityProcess) {
+    server = new UtilityProcessServer();
+  } else {
+    server = new ChildProcessServer(TerminalIpcChannels.PtyHost);
+  }
+  const productService = {
+    _serviceBrand: void 0,
+    ...product
+  };
+  const environmentService = new NativeEnvironmentService(
+    parseArgs(process.argv, OPTIONS),
+    productService
+  );
+  const loggerService = new LoggerService(
+    getLogLevel(environmentService),
+    environmentService.logsHome
+  );
+  server.registerChannel(
+    TerminalIpcChannels.Logger,
+    new LoggerChannel(loggerService, () => DefaultURITransformer)
+  );
+  const logger = loggerService.createLogger("ptyhost", {
+    name: localize("ptyHost", "Pty Host")
+  });
+  const logService = new LogService(logger);
+  if (startupDelay) {
+    logService.warn(`Pty Host startup is delayed ${startupDelay}ms`);
+  }
+  if (simulatedLatency) {
+    logService.warn(`Pty host is simulating ${simulatedLatency}ms latency`);
+  }
+  const disposables = new DisposableStore();
+  const heartbeatService = new HeartbeatService();
+  server.registerChannel(
+    TerminalIpcChannels.Heartbeat,
+    ProxyChannel.fromService(heartbeatService, disposables)
+  );
+  const ptyService = new PtyService(
+    logService,
+    productService,
+    reconnectConstants,
+    simulatedLatency
+  );
+  const ptyServiceChannel = ProxyChannel.fromService(ptyService, disposables);
+  server.registerChannel(TerminalIpcChannels.PtyHost, ptyServiceChannel);
+  if (_isUtilityProcess) {
+    server.registerChannel(
+      TerminalIpcChannels.PtyHostWindow,
+      ptyServiceChannel
+    );
+  }
+  process.once("exit", () => {
+    logService.trace("Pty host exiting");
+    logService.dispose();
+    heartbeatService.dispose();
+    ptyService.dispose();
+  });
+}
+__name(startPtyHost, "startPtyHost");
+//# sourceMappingURL=ptyHostMain.js.map

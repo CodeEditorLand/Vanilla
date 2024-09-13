@@ -1,1 +1,65 @@
-import{addMatchMediaChangeListener as r}from"../../../../base/browser/browser.js";import{mainWindow as e}from"../../../../base/browser/window.js";import{Emitter as t}from"../../../../base/common/event.js";import{Disposable as o}from"../../../../base/common/lifecycle.js";import{InstantiationType as i,registerSingleton as n}from"../../../../platform/instantiation/common/extensions.js";import{IHostColorSchemeService as s}from"../common/hostColorSchemeService.js";class a extends o{_onDidSchemeChangeEvent=this._register(new t);constructor(){super(),this.registerListeners()}registerListeners(){r(e,"(prefers-color-scheme: dark)",()=>{this._onDidSchemeChangeEvent.fire()}),r(e,"(forced-colors: active)",()=>{this._onDidSchemeChangeEvent.fire()})}get onDidChangeColorScheme(){return this._onDidSchemeChangeEvent.event}get dark(){return e.matchMedia("(prefers-color-scheme: light)").matches?!1:!!e.matchMedia("(prefers-color-scheme: dark)").matches}get highContrast(){return!!e.matchMedia("(forced-colors: active)").matches}}n(s,a,i.Delayed);export{a as BrowserHostColorSchemeService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { addMatchMediaChangeListener } from "../../../../base/browser/browser.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { IHostColorSchemeService } from "../common/hostColorSchemeService.js";
+class BrowserHostColorSchemeService extends Disposable {
+  static {
+    __name(this, "BrowserHostColorSchemeService");
+  }
+  _onDidSchemeChangeEvent = this._register(
+    new Emitter()
+  );
+  constructor() {
+    super();
+    this.registerListeners();
+  }
+  registerListeners() {
+    addMatchMediaChangeListener(
+      mainWindow,
+      "(prefers-color-scheme: dark)",
+      () => {
+        this._onDidSchemeChangeEvent.fire();
+      }
+    );
+    addMatchMediaChangeListener(
+      mainWindow,
+      "(forced-colors: active)",
+      () => {
+        this._onDidSchemeChangeEvent.fire();
+      }
+    );
+  }
+  get onDidChangeColorScheme() {
+    return this._onDidSchemeChangeEvent.event;
+  }
+  get dark() {
+    if (mainWindow.matchMedia(`(prefers-color-scheme: light)`).matches) {
+      return false;
+    } else if (mainWindow.matchMedia(`(prefers-color-scheme: dark)`).matches) {
+      return true;
+    }
+    return false;
+  }
+  get highContrast() {
+    if (mainWindow.matchMedia(`(forced-colors: active)`).matches) {
+      return true;
+    }
+    return false;
+  }
+}
+registerSingleton(
+  IHostColorSchemeService,
+  BrowserHostColorSchemeService,
+  InstantiationType.Delayed
+);
+export {
+  BrowserHostColorSchemeService
+};
+//# sourceMappingURL=browserHostColorSchemeService.js.map

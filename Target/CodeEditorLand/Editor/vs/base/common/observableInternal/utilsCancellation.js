@@ -1,1 +1,91 @@
-import{autorun as p}from"./autorun.js";import{CancellationError as c,CancellationTokenSource as k}from"./commonFacade/cancellation.js";import{strictEquals as m}from"./commonFacade/deps.js";import{DebugNameData as C}from"./debugName.js";import{Derived as w}from"./derived.js";function O(r,a,o,t){return a||(a=e=>e!=null),new Promise((e,i)=>{let d=!0,T=!1;const f=r.map(n=>({isFinished:a(n),error:o?o(n):!1,state:n})),l=p(n=>{const{isFinished:b,error:s,state:u}=f.read(n);(b||s)&&(d?T=!0:l.dispose(),s?i(s===!0?u:s):e(u))});if(t){const n=t.onCancellationRequested(()=>{l.dispose(),n.dispose(),i(new c)});if(t.isCancellationRequested){l.dispose(),n.dispose(),i(new c);return}}d=!1,T&&l.dispose()})}function F(r,a){let o,t;a===void 0?(o=r,t=void 0):(t=r,o=a);let e;return new w(new C(t,void 0,o),i=>(e&&e.dispose(!0),e=new k,o(i,e.token)),void 0,void 0,()=>e?.dispose(),m)}export{F as derivedWithCancellationToken,O as waitForState};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { autorun } from "./autorun.js";
+import {
+  CancellationError,
+  CancellationTokenSource
+} from "./commonFacade/cancellation.js";
+import { strictEquals } from "./commonFacade/deps.js";
+import { DebugNameData } from "./debugName.js";
+import { Derived } from "./derived.js";
+function waitForState(observable, predicate, isError, cancellationToken) {
+  if (!predicate) {
+    predicate = /* @__PURE__ */ __name((state) => state !== null && state !== void 0, "predicate");
+  }
+  return new Promise((resolve, reject) => {
+    let isImmediateRun = true;
+    let shouldDispose = false;
+    const stateObs = observable.map((state) => {
+      return {
+        isFinished: predicate(state),
+        error: isError ? isError(state) : false,
+        state
+      };
+    });
+    const d = autorun((reader) => {
+      const { isFinished, error, state } = stateObs.read(reader);
+      if (isFinished || error) {
+        if (isImmediateRun) {
+          shouldDispose = true;
+        } else {
+          d.dispose();
+        }
+        if (error) {
+          reject(error === true ? state : error);
+        } else {
+          resolve(state);
+        }
+      }
+    });
+    if (cancellationToken) {
+      const dc = cancellationToken.onCancellationRequested(() => {
+        d.dispose();
+        dc.dispose();
+        reject(new CancellationError());
+      });
+      if (cancellationToken.isCancellationRequested) {
+        d.dispose();
+        dc.dispose();
+        reject(new CancellationError());
+        return;
+      }
+    }
+    isImmediateRun = false;
+    if (shouldDispose) {
+      d.dispose();
+    }
+  });
+}
+__name(waitForState, "waitForState");
+function derivedWithCancellationToken(computeFnOrOwner, computeFnOrUndefined) {
+  let computeFn;
+  let owner;
+  if (computeFnOrUndefined === void 0) {
+    computeFn = computeFnOrOwner;
+    owner = void 0;
+  } else {
+    owner = computeFnOrOwner;
+    computeFn = computeFnOrUndefined;
+  }
+  let cancellationTokenSource;
+  return new Derived(
+    new DebugNameData(owner, void 0, computeFn),
+    (r) => {
+      if (cancellationTokenSource) {
+        cancellationTokenSource.dispose(true);
+      }
+      cancellationTokenSource = new CancellationTokenSource();
+      return computeFn(r, cancellationTokenSource.token);
+    },
+    void 0,
+    void 0,
+    () => cancellationTokenSource?.dispose(),
+    strictEquals
+  );
+}
+__name(derivedWithCancellationToken, "derivedWithCancellationToken");
+export {
+  derivedWithCancellationToken,
+  waitForState
+};
+//# sourceMappingURL=utilsCancellation.js.map

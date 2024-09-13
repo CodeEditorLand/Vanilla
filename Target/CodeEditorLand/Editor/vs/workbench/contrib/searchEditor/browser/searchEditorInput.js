@@ -1,2 +1,454 @@
-var P=Object.defineProperty;var L=Object.getOwnPropertyDescriptor;var S=(c,r,e,i)=>{for(var t=i>1?void 0:i?L(r,e):r,o=c.length-1,s;o>=0;o--)(s=c[o])&&(t=(i?s(r,e,t):s(t))||t);return i&&t&&P(r,e,t),t},l=(c,r)=>(e,i)=>r(e,i,c);import"./media/searchEditor.css";import{VSBuffer as W,bufferToReadable as _}from"../../../../base/common/buffer.js";import{Codicon as N}from"../../../../base/common/codicons.js";import{Emitter as I}from"../../../../base/common/event.js";import{basename as A}from"../../../../base/common/path.js";import{extname as z,isEqual as C,joinPath as q}from"../../../../base/common/resources.js";import{URI as j}from"../../../../base/common/uri.js";import{TrackedRangeStickiness as G}from"../../../../editor/common/model.js";import{IModelService as V}from"../../../../editor/common/services/model.js";import{localize as f}from"../../../../nls.js";import{IConfigurationService as B}from"../../../../platform/configuration/common/configuration.js";import{IFileDialogService as H}from"../../../../platform/dialogs/common/dialogs.js";import{IInstantiationService as b}from"../../../../platform/instantiation/common/instantiation.js";import{IStorageService as M,StorageScope as k,StorageTarget as D}from"../../../../platform/storage/common/storage.js";import{ITelemetryService as K}from"../../../../platform/telemetry/common/telemetry.js";import{registerIcon as Q}from"../../../../platform/theme/common/iconRegistry.js";import{EditorInputCapabilities as m,EditorResourceAccessor as $}from"../../../common/editor.js";import{EditorInput as X}from"../../../common/editor/editorInput.js";import{Memento as U}from"../../../common/memento.js";import{IPathService as J}from"../../../services/path/common/pathService.js";import{ITextFileService as Y}from"../../../services/textfile/common/textfiles.js";import{WorkingCopyCapabilities as E}from"../../../services/workingCopy/common/workingCopy.js";import{IWorkingCopyService as Z}from"../../../services/workingCopy/common/workingCopyService.js";import{SearchEditorFindMatchClass as w,SearchEditorInputTypeId as ee,SearchEditorScheme as F,SearchEditorWorkingCopyTypeId as ie}from"./constants.js";import{SearchEditorModel as te,searchEditorModelFactory as g}from"./searchEditorModel.js";import{defaultSearchConfig as re,parseSavedSearchEditor as oe,serializeSearchConfiguration as ne}from"./searchEditorSerialization.js";const v=".code-search",se=Q("search-editor-label-icon",N.search,f("searchEditorLabelIcon","Icon of the search editor label."));let a=class extends X{constructor(e,i,t,o,s,u,p,y,T,d){super();this.modelUri=e;this.backingUri=i;this.modelService=t;this.textFileService=o;this.fileDialogService=s;this.instantiationService=u;this.workingCopyService=p;this.telemetryService=y;this.pathService=T;if(this.model=u.createInstance(te,e),this.modelUri.scheme!==F)throw Error("SearchEditorInput must be invoked with a SearchEditorScheme uri");this.memento=new U(a.ID,d),this._register(d.onWillSaveState(()=>this.memento.saveMemento()));const n=this,x=new class{typeId=ie;resource=n.modelUri;get name(){return n.getName()}capabilities=n.hasCapability(m.Untitled)?E.Untitled:E.None;onDidChangeDirty=n.onDidChangeDirty;onDidChangeContent=n.onDidChangeContent;onDidSave=n.onDidSave;isDirty(){return n.isDirty()}isModified(){return n.isDirty()}backup(h){return n.backup(h)}save(h){return n.save(0,h).then(O=>!!O)}revert(h){return n.revert(0,h)}};this._register(this.workingCopyService.registerWorkingCopy(x))}static ID=ee;get typeId(){return a.ID}get editorId(){return this.typeId}getIcon(){return se}get capabilities(){let e=m.Singleton;return this.backingUri||(e|=m.Untitled),e}memento;dirty=!1;lastLabel;_onDidChangeContent=this._register(new I);onDidChangeContent=this._onDidChangeContent.event;_onDidSave=this._register(new I);onDidSave=this._onDidSave.event;oldDecorationsIDs=[];get resource(){return this.backingUri||this.modelUri}ongoingSearchOperation;model;_cachedResultsModel;_cachedConfigurationModel;async save(e,i){if(!(await this.resolveModels()).resultsModel.isDisposed())return this.backingUri?(await this.textFileService.write(this.backingUri,await this.serializeForDisk(),i),this.setDirty(!1),this._onDidSave.fire({reason:i?.reason,source:i?.source}),this):this.saveAs(e,i)}tryReadConfigSync(){return this._cachedConfigurationModel?.config}async serializeForDisk(){const{configurationModel:e,resultsModel:i}=await this.resolveModels();return ne(e.config)+`
-`+i.getValue()}configChangeListenerDisposable;registerConfigChangeListeners(e){this.configChangeListenerDisposable?.dispose(),this.isDisposed()||(this.configChangeListenerDisposable=e.onConfigDidUpdate(()=>{this.lastLabel!==this.getName()&&(this._onDidChangeLabel.fire(),this.lastLabel=this.getName()),this.memento.getMemento(k.WORKSPACE,D.MACHINE).searchConfig=e.config}),this._register(this.configChangeListenerDisposable))}async resolveModels(){return this.model.resolve().then(e=>(this._cachedResultsModel=e.resultsModel,this._cachedConfigurationModel=e.configurationModel,this.lastLabel!==this.getName()&&(this._onDidChangeLabel.fire(),this.lastLabel=this.getName()),this.registerConfigChangeListeners(e.configurationModel),e))}async saveAs(e,i){const t=await this.fileDialogService.pickFileToSave(await this.suggestFileName(),i?.availableFileSystems);if(t){this.telemetryService.publicLog2("searchEditor/saveSearchResults");const o=await this.serializeForDisk();if(await this.textFileService.create([{resource:t,value:o,options:{overwrite:!0}}])){if(this.setDirty(!1),!C(t,this.modelUri)){const s=this.instantiationService.invokeFunction(R,{fileUri:t,from:"existingFile"});return s.setMatchRanges(this.getMatchRanges()),s}return this}}}getName(e=12){const i=o=>o.length<e?o:`${o.slice(0,e-3)}...`;if(this.backingUri){const o=$.getOriginalUri(this);return f("searchTitle.withQuery","Search: {0}",A((o??this.backingUri).path,v))}const t=this._cachedConfigurationModel?.config?.query?.trim();return t?f("searchTitle.withQuery","Search: {0}",i(t)):f("searchTitle","Search")}setDirty(e){const i=this.dirty;this.dirty=e,i!==e&&this._onDidChangeDirty.fire()}isDirty(){return this.dirty}async rename(e,i){if(z(i)===v)return{editor:this.instantiationService.invokeFunction(R,{from:"existingFile",fileUri:i})}}dispose(){this.modelService.destroyModel(this.modelUri),super.dispose()}matches(e){return super.matches(e)?!0:e instanceof a?!!(e.modelUri.fragment&&e.modelUri.fragment===this.modelUri.fragment)||!!(e.backingUri&&C(e.backingUri,this.backingUri)):!1}getMatchRanges(){return(this._cachedResultsModel?.getAllDecorations()??[]).filter(e=>e.options.className===w).filter(({range:e})=>!(e.startColumn===1&&e.endColumn===1)).map(({range:e})=>e)}async setMatchRanges(e){this.oldDecorationsIDs=(await this.resolveModels()).resultsModel.deltaDecorations(this.oldDecorationsIDs,e.map(i=>({range:i,options:{description:"search-editor-find-match",className:w,stickiness:G.NeverGrowsWhenTypingAtEdges}})))}async revert(e,i){if(i?.soft){this.setDirty(!1);return}if(this.backingUri){const{config:t,text:o}=await this.instantiationService.invokeFunction(oe,this.backingUri),{resultsModel:s,configurationModel:u}=await this.resolveModels();s.setValue(o),u.updateConfig(t)}else(await this.resolveModels()).resultsModel.setValue("");super.revert(e,i),this.setDirty(!1)}async backup(e){const i=await this.serializeForDisk();return e.isCancellationRequested?{}:{content:_(W.fromString(i))}}async suggestFileName(){const i=((await this.resolveModels()).configurationModel.config.query.replace(/[^\w \-_]+/g,"_")||"Search")+v;return q(await this.fileDialogService.defaultFilePath(this.pathService.defaultUriScheme),i)}toUntyped(){if(!this.hasCapability(m.Untitled))return{resource:this.resource,options:{override:a.ID}}}};a=S([l(2,V),l(3,Y),l(4,H),l(5,b),l(6,Z),l(7,K),l(8,J),l(9,M)],a);const R=(c,r)=>{const e=c.get(M),i=c.get(B),t=c.get(b),o=r.from==="model"?r.modelUri:j.from({scheme:F,fragment:`${Math.random()}`});if(!g.models.has(o))if(r.from==="existingFile")t.invokeFunction(s=>g.initializeModelFromExistingFile(s,o,r.fileUri));else{const s=i.getValue("search").searchEditor,u=s.reusePriorSearchConfiguration,p=s.defaultNumberOfContextLines,y=u?new U(a.ID,e).getMemento(k.WORKSPACE,D.MACHINE).searchConfig:{},d={...re(),...y,...r.config};p!=null&&(d.contextLines=r?.config?.contextLines??p),r.from==="rawData"?(r.resultsContents&&(d.contextLines=0),t.invokeFunction(n=>g.initializeModelFromRawData(n,o,d,r.resultsContents))):t.invokeFunction(n=>g.initializeModelFromExistingModel(n,o,d))}return t.createInstance(a,o,r.from==="existingFile"?r.fileUri:r.from==="model"?r.backupOf:void 0)};export{v as SEARCH_EDITOR_EXT,a as SearchEditorInput,R as getOrMakeSearchEditorInput};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import "./media/searchEditor.css";
+import { VSBuffer, bufferToReadable } from "../../../../base/common/buffer.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { basename } from "../../../../base/common/path.js";
+import {
+  extname,
+  isEqual,
+  joinPath
+} from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import {
+  TrackedRangeStickiness
+} from "../../../../editor/common/model.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import {
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import {
+  EditorInputCapabilities,
+  EditorResourceAccessor
+} from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { Memento } from "../../../common/memento.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
+import {
+  ITextFileService
+} from "../../../services/textfile/common/textfiles.js";
+import {
+  WorkingCopyCapabilities
+} from "../../../services/workingCopy/common/workingCopy.js";
+import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
+import {
+  SearchEditorFindMatchClass,
+  SearchEditorInputTypeId,
+  SearchEditorScheme,
+  SearchEditorWorkingCopyTypeId
+} from "./constants.js";
+import {
+  SearchEditorModel,
+  searchEditorModelFactory
+} from "./searchEditorModel.js";
+import {
+  defaultSearchConfig,
+  parseSavedSearchEditor,
+  serializeSearchConfiguration
+} from "./searchEditorSerialization.js";
+const SEARCH_EDITOR_EXT = ".code-search";
+const SearchEditorIcon = registerIcon(
+  "search-editor-label-icon",
+  Codicon.search,
+  localize("searchEditorLabelIcon", "Icon of the search editor label.")
+);
+let SearchEditorInput = class extends EditorInput {
+  constructor(modelUri, backingUri, modelService, textFileService, fileDialogService, instantiationService, workingCopyService, telemetryService, pathService, storageService) {
+    super();
+    this.modelUri = modelUri;
+    this.backingUri = backingUri;
+    this.modelService = modelService;
+    this.textFileService = textFileService;
+    this.fileDialogService = fileDialogService;
+    this.instantiationService = instantiationService;
+    this.workingCopyService = workingCopyService;
+    this.telemetryService = telemetryService;
+    this.pathService = pathService;
+    this.model = instantiationService.createInstance(SearchEditorModel, modelUri);
+    if (this.modelUri.scheme !== SearchEditorScheme) {
+      throw Error("SearchEditorInput must be invoked with a SearchEditorScheme uri");
+    }
+    this.memento = new Memento(SearchEditorInput.ID, storageService);
+    this._register(storageService.onWillSaveState(() => this.memento.saveMemento()));
+    const input = this;
+    const workingCopyAdapter = new class {
+      typeId = SearchEditorWorkingCopyTypeId;
+      resource = input.modelUri;
+      get name() {
+        return input.getName();
+      }
+      capabilities = input.hasCapability(EditorInputCapabilities.Untitled) ? WorkingCopyCapabilities.Untitled : WorkingCopyCapabilities.None;
+      onDidChangeDirty = input.onDidChangeDirty;
+      onDidChangeContent = input.onDidChangeContent;
+      onDidSave = input.onDidSave;
+      isDirty() {
+        return input.isDirty();
+      }
+      isModified() {
+        return input.isDirty();
+      }
+      backup(token) {
+        return input.backup(token);
+      }
+      save(options) {
+        return input.save(0, options).then((editor) => !!editor);
+      }
+      revert(options) {
+        return input.revert(0, options);
+      }
+    }();
+    this._register(this.workingCopyService.registerWorkingCopy(workingCopyAdapter));
+  }
+  static {
+    __name(this, "SearchEditorInput");
+  }
+  static ID = SearchEditorInputTypeId;
+  get typeId() {
+    return SearchEditorInput.ID;
+  }
+  get editorId() {
+    return this.typeId;
+  }
+  getIcon() {
+    return SearchEditorIcon;
+  }
+  get capabilities() {
+    let capabilities = EditorInputCapabilities.Singleton;
+    if (!this.backingUri) {
+      capabilities |= EditorInputCapabilities.Untitled;
+    }
+    return capabilities;
+  }
+  memento;
+  dirty = false;
+  lastLabel;
+  _onDidChangeContent = this._register(new Emitter());
+  onDidChangeContent = this._onDidChangeContent.event;
+  _onDidSave = this._register(
+    new Emitter()
+  );
+  onDidSave = this._onDidSave.event;
+  oldDecorationsIDs = [];
+  get resource() {
+    return this.backingUri || this.modelUri;
+  }
+  ongoingSearchOperation;
+  model;
+  _cachedResultsModel;
+  _cachedConfigurationModel;
+  async save(group, options) {
+    if ((await this.resolveModels()).resultsModel.isDisposed()) {
+      return;
+    }
+    if (this.backingUri) {
+      await this.textFileService.write(
+        this.backingUri,
+        await this.serializeForDisk(),
+        options
+      );
+      this.setDirty(false);
+      this._onDidSave.fire({
+        reason: options?.reason,
+        source: options?.source
+      });
+      return this;
+    } else {
+      return this.saveAs(group, options);
+    }
+  }
+  tryReadConfigSync() {
+    return this._cachedConfigurationModel?.config;
+  }
+  async serializeForDisk() {
+    const { configurationModel, resultsModel } = await this.resolveModels();
+    return serializeSearchConfiguration(configurationModel.config) + "\n" + resultsModel.getValue();
+  }
+  configChangeListenerDisposable;
+  registerConfigChangeListeners(model) {
+    this.configChangeListenerDisposable?.dispose();
+    if (!this.isDisposed()) {
+      this.configChangeListenerDisposable = model.onConfigDidUpdate(
+        () => {
+          if (this.lastLabel !== this.getName()) {
+            this._onDidChangeLabel.fire();
+            this.lastLabel = this.getName();
+          }
+          this.memento.getMemento(
+            StorageScope.WORKSPACE,
+            StorageTarget.MACHINE
+          ).searchConfig = model.config;
+        }
+      );
+      this._register(this.configChangeListenerDisposable);
+    }
+  }
+  async resolveModels() {
+    return this.model.resolve().then((data) => {
+      this._cachedResultsModel = data.resultsModel;
+      this._cachedConfigurationModel = data.configurationModel;
+      if (this.lastLabel !== this.getName()) {
+        this._onDidChangeLabel.fire();
+        this.lastLabel = this.getName();
+      }
+      this.registerConfigChangeListeners(data.configurationModel);
+      return data;
+    });
+  }
+  async saveAs(group, options) {
+    const path = await this.fileDialogService.pickFileToSave(
+      await this.suggestFileName(),
+      options?.availableFileSystems
+    );
+    if (path) {
+      this.telemetryService.publicLog2("searchEditor/saveSearchResults");
+      const toWrite = await this.serializeForDisk();
+      if (await this.textFileService.create([
+        {
+          resource: path,
+          value: toWrite,
+          options: { overwrite: true }
+        }
+      ])) {
+        this.setDirty(false);
+        if (!isEqual(path, this.modelUri)) {
+          const input = this.instantiationService.invokeFunction(
+            getOrMakeSearchEditorInput,
+            { fileUri: path, from: "existingFile" }
+          );
+          input.setMatchRanges(this.getMatchRanges());
+          return input;
+        }
+        return this;
+      }
+    }
+    return void 0;
+  }
+  getName(maxLength = 12) {
+    const trimToMax = /* @__PURE__ */ __name((label) => label.length < maxLength ? label : `${label.slice(0, maxLength - 3)}...`, "trimToMax");
+    if (this.backingUri) {
+      const originalURI = EditorResourceAccessor.getOriginalUri(this);
+      return localize(
+        "searchTitle.withQuery",
+        "Search: {0}",
+        basename(
+          (originalURI ?? this.backingUri).path,
+          SEARCH_EDITOR_EXT
+        )
+      );
+    }
+    const query = this._cachedConfigurationModel?.config?.query?.trim();
+    if (query) {
+      return localize(
+        "searchTitle.withQuery",
+        "Search: {0}",
+        trimToMax(query)
+      );
+    }
+    return localize("searchTitle", "Search");
+  }
+  setDirty(dirty) {
+    const wasDirty = this.dirty;
+    this.dirty = dirty;
+    if (wasDirty !== dirty) {
+      this._onDidChangeDirty.fire();
+    }
+  }
+  isDirty() {
+    return this.dirty;
+  }
+  async rename(group, target) {
+    if (extname(target) === SEARCH_EDITOR_EXT) {
+      return {
+        editor: this.instantiationService.invokeFunction(
+          getOrMakeSearchEditorInput,
+          { from: "existingFile", fileUri: target }
+        )
+      };
+    }
+    return void 0;
+  }
+  dispose() {
+    this.modelService.destroyModel(this.modelUri);
+    super.dispose();
+  }
+  matches(other) {
+    if (super.matches(other)) {
+      return true;
+    }
+    if (other instanceof SearchEditorInput) {
+      return !!(other.modelUri.fragment && other.modelUri.fragment === this.modelUri.fragment) || !!(other.backingUri && isEqual(other.backingUri, this.backingUri));
+    }
+    return false;
+  }
+  getMatchRanges() {
+    return (this._cachedResultsModel?.getAllDecorations() ?? []).filter(
+      (decoration) => decoration.options.className === SearchEditorFindMatchClass
+    ).filter(
+      ({ range }) => !(range.startColumn === 1 && range.endColumn === 1)
+    ).map(({ range }) => range);
+  }
+  async setMatchRanges(ranges) {
+    this.oldDecorationsIDs = (await this.resolveModels()).resultsModel.deltaDecorations(
+      this.oldDecorationsIDs,
+      ranges.map((range) => ({
+        range,
+        options: {
+          description: "search-editor-find-match",
+          className: SearchEditorFindMatchClass,
+          stickiness: TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+        }
+      }))
+    );
+  }
+  async revert(group, options) {
+    if (options?.soft) {
+      this.setDirty(false);
+      return;
+    }
+    if (this.backingUri) {
+      const { config, text } = await this.instantiationService.invokeFunction(
+        parseSavedSearchEditor,
+        this.backingUri
+      );
+      const { resultsModel, configurationModel } = await this.resolveModels();
+      resultsModel.setValue(text);
+      configurationModel.updateConfig(config);
+    } else {
+      (await this.resolveModels()).resultsModel.setValue("");
+    }
+    super.revert(group, options);
+    this.setDirty(false);
+  }
+  async backup(token) {
+    const contents = await this.serializeForDisk();
+    if (token.isCancellationRequested) {
+      return {};
+    }
+    return {
+      content: bufferToReadable(VSBuffer.fromString(contents))
+    };
+  }
+  async suggestFileName() {
+    const query = (await this.resolveModels()).configurationModel.config.query;
+    const searchFileName = (query.replace(/[^\w \-_]+/g, "_") || "Search") + SEARCH_EDITOR_EXT;
+    return joinPath(
+      await this.fileDialogService.defaultFilePath(
+        this.pathService.defaultUriScheme
+      ),
+      searchFileName
+    );
+  }
+  toUntyped() {
+    if (this.hasCapability(EditorInputCapabilities.Untitled)) {
+      return void 0;
+    }
+    return {
+      resource: this.resource,
+      options: {
+        override: SearchEditorInput.ID
+      }
+    };
+  }
+};
+SearchEditorInput = __decorateClass([
+  __decorateParam(2, IModelService),
+  __decorateParam(3, ITextFileService),
+  __decorateParam(4, IFileDialogService),
+  __decorateParam(5, IInstantiationService),
+  __decorateParam(6, IWorkingCopyService),
+  __decorateParam(7, ITelemetryService),
+  __decorateParam(8, IPathService),
+  __decorateParam(9, IStorageService)
+], SearchEditorInput);
+const getOrMakeSearchEditorInput = /* @__PURE__ */ __name((accessor, existingData) => {
+  const storageService = accessor.get(IStorageService);
+  const configurationService = accessor.get(IConfigurationService);
+  const instantiationService = accessor.get(IInstantiationService);
+  const modelUri = existingData.from === "model" ? existingData.modelUri : URI.from({
+    scheme: SearchEditorScheme,
+    fragment: `${Math.random()}`
+  });
+  if (!searchEditorModelFactory.models.has(modelUri)) {
+    if (existingData.from === "existingFile") {
+      instantiationService.invokeFunction(
+        (accessor2) => searchEditorModelFactory.initializeModelFromExistingFile(
+          accessor2,
+          modelUri,
+          existingData.fileUri
+        )
+      );
+    } else {
+      const searchEditorSettings = configurationService.getValue(
+        "search"
+      ).searchEditor;
+      const reuseOldSettings = searchEditorSettings.reusePriorSearchConfiguration;
+      const defaultNumberOfContextLines = searchEditorSettings.defaultNumberOfContextLines;
+      const priorConfig = reuseOldSettings ? new Memento(SearchEditorInput.ID, storageService).getMemento(
+        StorageScope.WORKSPACE,
+        StorageTarget.MACHINE
+      ).searchConfig : {};
+      const defaultConfig = defaultSearchConfig();
+      const config = {
+        ...defaultConfig,
+        ...priorConfig,
+        ...existingData.config
+      };
+      if (defaultNumberOfContextLines !== null && defaultNumberOfContextLines !== void 0) {
+        config.contextLines = existingData?.config?.contextLines ?? defaultNumberOfContextLines;
+      }
+      if (existingData.from === "rawData") {
+        if (existingData.resultsContents) {
+          config.contextLines = 0;
+        }
+        instantiationService.invokeFunction(
+          (accessor2) => searchEditorModelFactory.initializeModelFromRawData(
+            accessor2,
+            modelUri,
+            config,
+            existingData.resultsContents
+          )
+        );
+      } else {
+        instantiationService.invokeFunction(
+          (accessor2) => searchEditorModelFactory.initializeModelFromExistingModel(
+            accessor2,
+            modelUri,
+            config
+          )
+        );
+      }
+    }
+  }
+  return instantiationService.createInstance(
+    SearchEditorInput,
+    modelUri,
+    existingData.from === "existingFile" ? existingData.fileUri : existingData.from === "model" ? existingData.backupOf : void 0
+  );
+}, "getOrMakeSearchEditorInput");
+export {
+  SEARCH_EDITOR_EXT,
+  SearchEditorInput,
+  getOrMakeSearchEditorInput
+};
+//# sourceMappingURL=searchEditorInput.js.map

@@ -1,1 +1,36 @@
-import*as e from"../../../../nls.js";import{Categories as i}from"../../../../platform/action/common/actionCommonCategories.js";import{Action2 as t,registerAction2 as n}from"../../../../platform/actions/common/actions.js";import{ICommandService as r}from"../../../../platform/commands/common/commands.js";import{IKeybindingService as g}from"../../../../platform/keybinding/common/keybinding.js";import{showWindowLogActionId as c}from"../../../services/log/common/logConstants.js";class m extends t{constructor(){super({id:"workbench.action.toggleKeybindingsLog",title:e.localize2("toggleKeybindingsLog","Toggle Keyboard Shortcuts Troubleshooting"),category:i.Developer,f1:!0})}run(o){o.get(g).toggleLogging()&&o.get(r).executeCommand(c)}}n(m);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { showWindowLogActionId } from "../../../services/log/common/logConstants.js";
+class ToggleKeybindingsLogAction extends Action2 {
+  static {
+    __name(this, "ToggleKeybindingsLogAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.toggleKeybindingsLog",
+      title: nls.localize2(
+        "toggleKeybindingsLog",
+        "Toggle Keyboard Shortcuts Troubleshooting"
+      ),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  run(accessor) {
+    const logging = accessor.get(IKeybindingService).toggleLogging();
+    if (logging) {
+      const commandService = accessor.get(ICommandService);
+      commandService.executeCommand(showWindowLogActionId);
+    }
+  }
+}
+registerAction2(ToggleKeybindingsLogAction);
+//# sourceMappingURL=keybindings.contribution.js.map

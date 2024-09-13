@@ -1,1 +1,1339 @@
-var M=Object.defineProperty;var Q=Object.getOwnPropertyDescriptor;var n=(p,l,e,t)=>{for(var r=t>1?void 0:t?Q(l,e):l,s=p.length-1,i;s>=0;s--)(i=p[s])&&(r=(t?i(l,e,r):i(r))||r);return t&&r&&M(l,e,r),r};import{exec as U,execFile as C}from"child_process";import{join as V}from"path";import q from"@xterm/headless";import{AutoOpenBarrier as F,ProcessTimeRunOnceScheduler as z,Promises as H,Queue as W,timeout as j}from"../../../base/common/async.js";import{memoize as G}from"../../../base/common/decorators.js";import{ErrorNoTelemetry as X}from"../../../base/common/errors.js";import{Emitter as h}from"../../../base/common/event.js";import{Disposable as $,toDisposable as B}from"../../../base/common/lifecycle.js";import*as P from"../../../base/common/performance.js";import{OS as J,isWindows as b}from"../../../base/common/platform.js";import{getSystemShell as K}from"../../../base/node/shell.js";import{localize as Y}from"../../../nls.js";import{LogLevel as S}from"../../log/common/log.js";import{RequestStore as Z}from"../common/requestStore.js";import{ProcessPropertyType as D,TitleEventSource as I}from"../common/terminal.js";import{TerminalAutoResponder as ee}from"../common/terminalAutoResponder.js";import{TerminalDataBufferer as te}from"../common/terminalDataBuffering.js";import{escapeNonWindowsPath as re}from"../common/terminalEnvironment.js";import{formatMessageForTerminal as se}from"../common/terminalStrings.js";import{ShellIntegrationAddon as ie}from"../common/xterm/shellIntegrationAddon.js";import{ignoreProcessNames as O}from"./childProcessMonitor.js";import{getWindowsBuildNumber as x}from"./terminalEnvironment.js";import{TerminalProcess as ne}from"./terminalProcess.js";const{Terminal:oe}=q;function a(p,l,e){if(typeof e.value!="function")throw new Error("not supported");const t="value",r=e.value;e[t]=async function(...s){this.traceRpcArgs.logService.getLevel()===S.Trace&&this.traceRpcArgs.logService.trace(`[RPC Request] PtyService#${r.name}(${s.map(c=>JSON.stringify(c)).join(", ")})`),this.traceRpcArgs.simulatedLatency&&await j(this.traceRpcArgs.simulatedLatency);let i;try{i=await r.apply(this,s)}catch(c){throw this.traceRpcArgs.logService.error(`[RPC Response] PtyService#${r.name}`,c),c}return this.traceRpcArgs.logService.getLevel()===S.Trace&&this.traceRpcArgs.logService.trace(`[RPC Response] PtyService#${r.name}`,i),i}}let E,L;class o extends ${constructor(e,t,r,s){super();this._logService=e;this._productService=t;this._reconnectConstants=r;this._simulatedLatency=s;this._register(B(()=>{for(const i of this._ptys.values())i.shutdown(!0);this._ptys.clear()})),this._detachInstanceRequestStore=this._register(new Z(void 0,this._logService)),this._detachInstanceRequestStore.onCreateRequest(this._onDidRequestDetach.fire,this._onDidRequestDetach)}_ptys=new Map;_workspaceLayoutInfos=new Map;_detachInstanceRequestStore;_revivedPtyIdMap=new Map;_autoReplies=new Map;_lastPtyId=0;_onHeartbeat=this._register(new h);onHeartbeat=this._traceEvent("_onHeartbeat",this._onHeartbeat.event);_onProcessData=this._register(new h);onProcessData=this._traceEvent("_onProcessData",this._onProcessData.event);_onProcessReplay=this._register(new h);onProcessReplay=this._traceEvent("_onProcessReplay",this._onProcessReplay.event);_onProcessReady=this._register(new h);onProcessReady=this._traceEvent("_onProcessReady",this._onProcessReady.event);_onProcessExit=this._register(new h);onProcessExit=this._traceEvent("_onProcessExit",this._onProcessExit.event);_onProcessOrphanQuestion=this._register(new h);onProcessOrphanQuestion=this._traceEvent("_onProcessOrphanQuestion",this._onProcessOrphanQuestion.event);_onDidRequestDetach=this._register(new h);onDidRequestDetach=this._traceEvent("_onDidRequestDetach",this._onDidRequestDetach.event);_onDidChangeProperty=this._register(new h);onDidChangeProperty=this._traceEvent("_onDidChangeProperty",this._onDidChangeProperty.event);_traceEvent(e,t){return t(r=>{this._logService.getLevel()===S.Trace&&this._logService.trace(`[RPC Event] PtyService#${e}.fire(${JSON.stringify(r)})`)}),t}get traceRpcArgs(){return{logService:this._logService,simulatedLatency:this._simulatedLatency}}async refreshIgnoreProcessNames(e){O.length=0,O.push(...e)}async requestDetachInstance(e,t){return this._detachInstanceRequestStore.createRequest({workspaceId:e,instanceId:t})}async acceptDetachInstanceReply(e,t){let r;const s=this._ptys.get(t);s&&(r=await this._buildProcessDetails(t,s)),this._detachInstanceRequestStore.acceptReply(e,r)}async freePortKillProcess(e){const r=(await new Promise((s,i)=>{U(b?`netstat -ano | findstr "${e}"`:`lsof -nP -iTCP -sTCP:LISTEN | grep ${e}`,{},(c,u)=>{if(c)return i("Problem occurred when listing active processes");s(u)})})).split(/\r?\n/).filter(s=>!!s.trim());if(r.length>=1){const s=/\s+(\d+)(?:\s+|$)/,i=r[0].match(s)?.[1];if(i)try{process.kill(Number.parseInt(i))}catch{}else throw new Error(`Processes for port ${e} were not found`);return{port:e,processId:i}}throw new Error(`Could not kill process with port ${e}`)}async serializeTerminalState(e){const t=[];for(const[s,i]of this._ptys.entries())i.hasWrittenData&&e.indexOf(s)!==-1&&t.push(H.withAsyncBody(async c=>{c({id:s,shellLaunchConfig:i.shellLaunchConfig,processDetails:await this._buildProcessDetails(s,i),processLaunchConfig:i.processLaunchOptions,unicodeVersion:i.unicodeVersion,replayEvent:await i.serializeNormalBuffer(),timestamp:Date.now()})}));const r={version:1,state:await Promise.all(t)};return JSON.stringify(r)}async reviveTerminalProcesses(e,t,r){const s=[];for(const i of t)s.push(this._reviveTerminalProcess(e,i));await Promise.all(s)}async _reviveTerminalProcess(e,t){const r=Y("terminal-history-restored","History restored"),s=await this.createProcess({...t.shellLaunchConfig,cwd:t.processDetails.cwd,color:t.processDetails.color,icon:t.processDetails.icon,name:t.processDetails.titleSource===I.Api?t.processDetails.title:void 0,initialText:t.replayEvent.events[0].data+se(r,{loudFormatting:!0})},t.processDetails.cwd,t.replayEvent.events[0].cols,t.replayEvent.events[0].rows,t.unicodeVersion,t.processLaunchConfig.env,t.processLaunchConfig.executableEnv,t.processLaunchConfig.options,!0,t.processDetails.workspaceId,t.processDetails.workspaceName,!0,t.replayEvent.events[0].data),i=this._getRevivingProcessId(e,t.id);this._revivedPtyIdMap.set(i,{newId:s,state:t}),this._logService.info(`Revived process, old id ${i} -> new id ${s}`)}async shutdownAll(){this.dispose()}async createProcess(e,t,r,s,i,c,u,_,w,f,A,g,R){if(e.attachPersistentProcess)throw new Error("Attempt to create a process when attach object was provided");const m=++this._lastPtyId,T=new ne(e,t,r,s,c,u,_,this._logService,this._productService),v={env:c,executableEnv:u,options:_},y=new ce(m,T,f,A,w,r,s,v,i,this._reconnectConstants,this._logService,g&&typeof e.initialText=="string"?e.initialText:void 0,R,e.icon,e.color,e.name,e.fixedDimensions);return T.onProcessExit(d=>{y.dispose(),this._ptys.delete(m),this._onProcessExit.fire({id:m,event:d})}),y.onProcessData(d=>this._onProcessData.fire({id:m,event:d})),y.onProcessReplay(d=>this._onProcessReplay.fire({id:m,event:d})),y.onProcessReady(d=>this._onProcessReady.fire({id:m,event:d})),y.onProcessOrphanQuestion(()=>this._onProcessOrphanQuestion.fire({id:m})),y.onDidChangeProperty(d=>this._onDidChangeProperty.fire({id:m,property:d})),y.onPersistentProcessReady(()=>{for(const d of this._autoReplies.entries())y.installAutoReply(d[0],d[1])}),this._ptys.set(m,y),m}async attachToProcess(e){try{await this._throwIfNoPty(e).attach(),this._logService.info(`Persistent process reconnection "${e}"`)}catch(t){throw this._logService.warn(`Persistent process reconnection "${e}" failed`,t.message),t}}async updateTitle(e,t,r){this._throwIfNoPty(e).setTitle(t,r)}async updateIcon(e,t,r,s){this._throwIfNoPty(e).setIcon(t,r,s)}async clearBuffer(e){this._throwIfNoPty(e).clearBuffer()}async refreshProperty(e,t){return this._throwIfNoPty(e).refreshProperty(t)}async updateProperty(e,t,r){return this._throwIfNoPty(e).updateProperty(t,r)}async detachFromProcess(e,t){return this._throwIfNoPty(e).detach(t)}async reduceConnectionGraceTime(){for(const e of this._ptys.values())e.reduceGraceTime()}async listProcesses(){const e=Array.from(this._ptys.entries()).filter(([s,i])=>i.shouldPersistTerminal);this._logService.info(`Listing ${e.length} persistent terminals, ${this._ptys.size} total terminals`);const t=e.map(async([s,i])=>this._buildProcessDetails(s,i));return(await Promise.all(t)).filter(s=>s.isOrphan)}async getPerformanceMarks(){return P.getMarks()}async start(e){const t=this._ptys.get(e);return t?t.start():{message:`Could not find pty with id "${e}"`}}async shutdown(e,t){return this._ptys.get(e)?.shutdown(t)}async input(e,t){return this._throwIfNoPty(e).input(t)}async processBinary(e,t){return this._throwIfNoPty(e).writeBinary(t)}async resize(e,t,r){return this._throwIfNoPty(e).resize(t,r)}async getInitialCwd(e){return this._throwIfNoPty(e).getInitialCwd()}async getCwd(e){return this._throwIfNoPty(e).getCwd()}async acknowledgeDataEvent(e,t){return this._throwIfNoPty(e).acknowledgeDataEvent(t)}async setUnicodeVersion(e,t){return this._throwIfNoPty(e).setUnicodeVersion(t)}async getLatency(){return[]}async orphanQuestionReply(e){return this._throwIfNoPty(e).orphanQuestionReply()}async installAutoReply(e,t){this._autoReplies.set(e,t);for(const r of this._ptys.values())r.installAutoReply(e,t)}async uninstallAllAutoReplies(){for(const e of this._autoReplies.keys())for(const t of this._ptys.values())t.uninstallAutoReply(e)}async uninstallAutoReply(e){for(const t of this._ptys.values())t.uninstallAutoReply(e)}async getDefaultSystemShell(e=J){return K(e,process.env)}async getEnvironment(){return{...process.env}}async getWslPath(e,t){if(t==="win-to-unix"){if(!b)return e;if(x()<17063)return e.replace(/\\/g,"/");const r=this._getWSLExecutablePath();return r?new Promise(s=>{C(r,["-e","wslpath",e],{},(c,u,_)=>{s(c?e:re(u.trim()))}).stdin.end()}):e}if(t==="unix-to-win"&&b){if(x()<17063)return e;const r=this._getWSLExecutablePath();return r?new Promise(s=>{C(r,["-e","wslpath","-w",e],{},(c,u,_)=>{s(c?e:u.trim())}).stdin.end()}):e}return e}_getWSLExecutablePath(){const e=x()>=16299,t=process.env.hasOwnProperty("PROCESSOR_ARCHITEW6432"),r=process.env.SystemRoot;if(r)return V(r,t?"Sysnative":"System32",e?"wsl.exe":"bash.exe")}async getRevivedPtyNewId(e,t){try{return this._revivedPtyIdMap.get(this._getRevivingProcessId(e,t))?.newId}catch(r){this._logService.warn(`Couldn't find terminal ID ${e}-${t}`,r.message)}}async setTerminalLayoutInfo(e){this._workspaceLayoutInfos.set(e.workspaceId,e)}async getTerminalLayoutInfo(e){P.mark("code/willGetTerminalLayoutInfo");const t=this._workspaceLayoutInfos.get(e.workspaceId);if(t){const r=new Set,i=(await Promise.all(t.tabs.map(async c=>this._expandTerminalTab(e.workspaceId,c,r)))).filter(c=>c.terminals.length>0);return P.mark("code/didGetTerminalLayoutInfo"),{tabs:i}}P.mark("code/didGetTerminalLayoutInfo")}async _expandTerminalTab(e,t,r){const i=(await Promise.all(t.terminals.map(c=>this._expandTerminalInstance(e,c,r)))).filter(c=>c.terminal!==null);return{isActive:t.isActive,activePersistentProcessId:t.activePersistentProcessId,terminals:i}}async _expandTerminalInstance(e,t,r){try{const s=this._getRevivingProcessId(e,t.terminal),i=this._revivedPtyIdMap.get(s)?.newId;this._logService.info(`Expanding terminal instance, old id ${s} -> new id ${i}`),this._revivedPtyIdMap.delete(s);const c=i??t.terminal;if(r.has(c))throw new Error(`Terminal ${c} has already been expanded`);r.add(c);const u=this._throwIfNoPty(c);return{terminal:{...u&&await this._buildProcessDetails(t.terminal,u,i!==void 0),id:c},relativeSize:t.relativeSize}}catch(s){return this._logService.warn("Couldn't get layout info, a terminal was probably disconnected",s.message),this._logService.debug("Reattach to wrong terminal debug info - layout info by id",t),this._logService.debug("Reattach to wrong terminal debug info - _revivePtyIdMap",Array.from(this._revivedPtyIdMap.values())),this._logService.debug("Reattach to wrong terminal debug info - _ptys ids",Array.from(this._ptys.keys())),{terminal:null,relativeSize:t.relativeSize}}}_getRevivingProcessId(e,t){return`${e}-${t}`}async _buildProcessDetails(e,t,r=!1){P.mark(`code/willBuildProcessDetails/${e}`);const[s,i]=await Promise.all([t.getCwd(),r?!0:t.isOrphaned()]),c={id:e,title:t.title,titleSource:t.titleSource,pid:t.pid,workspaceId:t.workspaceId,workspaceName:t.workspaceName,cwd:s,isOrphan:i,icon:t.icon,color:t.color,fixedDimensions:t.fixedDimensions,environmentVariableCollections:t.processLaunchOptions.options.environmentVariableCollections,reconnectionProperties:t.shellLaunchConfig.reconnectionProperties,waitOnExit:t.shellLaunchConfig.waitOnExit,hideFromUser:t.shellLaunchConfig.hideFromUser,isFeatureTerminal:t.shellLaunchConfig.isFeatureTerminal,type:t.shellLaunchConfig.type,hasChildProcesses:t.hasChildProcesses,shellIntegrationNonce:t.processLaunchOptions.options.shellIntegration.nonce};return P.mark(`code/didBuildProcessDetails/${e}`),c}_throwIfNoPty(e){const t=this._ptys.get(e);if(!t)throw new X(`Could not find pty ${e} on pty host`);return t}}n([G],o.prototype,"traceRpcArgs",1),n([a],o.prototype,"refreshIgnoreProcessNames",1),n([a],o.prototype,"requestDetachInstance",1),n([a],o.prototype,"acceptDetachInstanceReply",1),n([a],o.prototype,"freePortKillProcess",1),n([a],o.prototype,"serializeTerminalState",1),n([a],o.prototype,"reviveTerminalProcesses",1),n([a],o.prototype,"shutdownAll",1),n([a],o.prototype,"createProcess",1),n([a],o.prototype,"attachToProcess",1),n([a],o.prototype,"updateTitle",1),n([a],o.prototype,"updateIcon",1),n([a],o.prototype,"clearBuffer",1),n([a],o.prototype,"refreshProperty",1),n([a],o.prototype,"updateProperty",1),n([a],o.prototype,"detachFromProcess",1),n([a],o.prototype,"reduceConnectionGraceTime",1),n([a],o.prototype,"listProcesses",1),n([a],o.prototype,"getPerformanceMarks",1),n([a],o.prototype,"start",1),n([a],o.prototype,"shutdown",1),n([a],o.prototype,"input",1),n([a],o.prototype,"processBinary",1),n([a],o.prototype,"resize",1),n([a],o.prototype,"getInitialCwd",1),n([a],o.prototype,"getCwd",1),n([a],o.prototype,"acknowledgeDataEvent",1),n([a],o.prototype,"setUnicodeVersion",1),n([a],o.prototype,"getLatency",1),n([a],o.prototype,"orphanQuestionReply",1),n([a],o.prototype,"installAutoReply",1),n([a],o.prototype,"uninstallAllAutoReplies",1),n([a],o.prototype,"uninstallAutoReply",1),n([a],o.prototype,"getDefaultSystemShell",1),n([a],o.prototype,"getEnvironment",1),n([a],o.prototype,"getWslPath",1),n([a],o.prototype,"getRevivedPtyNewId",1),n([a],o.prototype,"setTerminalLayoutInfo",1),n([a],o.prototype,"getTerminalLayoutInfo",1);var ae=(t=>(t.None="None",t.ReplayOnly="ReplayOnly",t.Session="Session",t))(ae||{});class ce extends ${constructor(e,t,r,s,i,c,u,_,w,f,A,g,R,m,T,v,y){super();this._persistentProcessId=e;this._terminalProcess=t;this.workspaceId=r;this.workspaceName=s;this.shouldPersistTerminal=i;this.processLaunchOptions=_;this.unicodeVersion=w;this._logService=A;this._icon=m;this._color=T;this._interactionState=new le(`Persistent process "${this._persistentProcessId}" interaction state`,"None",this._logService),this._wasRevived=g!==void 0,this._serializer=new de(c,u,f.scrollback,w,g,_.options.shellIntegration.nonce,i?R:void 0,this._logService),v&&this.setTitle(v,I.Api),this._fixedDimensions=y,this._orphanQuestionBarrier=null,this._orphanQuestionReplyTime=0,this._disconnectRunner1=this._register(new z(()=>{this._logService.info(`Persistent process "${this._persistentProcessId}": The reconnection grace time of ${k(f.graceTime)} has expired, shutting down pid "${this._pid}"`),this.shutdown(!0)},f.graceTime)),this._disconnectRunner2=this._register(new z(()=>{this._logService.info(`Persistent process "${this._persistentProcessId}": The short reconnection grace time of ${k(f.shortGraceTime)} has expired, shutting down pid ${this._pid}`),this.shutdown(!0)},f.shortGraceTime)),this._register(this._terminalProcess.onProcessExit(()=>this._bufferer.stopBuffering(this._persistentProcessId))),this._register(this._terminalProcess.onProcessReady(d=>{this._pid=d.pid,this._cwd=d.cwd,this._onProcessReady.fire(d)})),this._register(this._terminalProcess.onDidChangeProperty(d=>{this._onDidChangeProperty.fire(d)})),this._bufferer=new te((d,N)=>this._onProcessData.fire(N)),this._register(this._bufferer.startBuffering(this._persistentProcessId,this._terminalProcess.onProcessData)),this._register(this.onProcessData(d=>this._serializer.handleData(d))),this._register(B(()=>{for(const d of this._autoReplies.values())d.dispose();this._autoReplies.clear()}))}_bufferer;_autoReplies=new Map;_pendingCommands=new Map;_isStarted=!1;_interactionState;_orphanQuestionBarrier;_orphanQuestionReplyTime;_orphanRequestQueue=new W;_disconnectRunner1;_disconnectRunner2;_onProcessReplay=this._register(new h);onProcessReplay=this._onProcessReplay.event;_onProcessReady=this._register(new h);onProcessReady=this._onProcessReady.event;_onPersistentProcessReady=this._register(new h);onPersistentProcessReady=this._onPersistentProcessReady.event;_onProcessData=this._register(new h);onProcessData=this._onProcessData.event;_onProcessOrphanQuestion=this._register(new h);onProcessOrphanQuestion=this._onProcessOrphanQuestion.event;_onDidChangeProperty=this._register(new h);onDidChangeProperty=this._onDidChangeProperty.event;_inReplay=!1;_pid=-1;_cwd="";_title;_titleSource=I.Process;_serializer;_wasRevived;_fixedDimensions;get pid(){return this._pid}get shellLaunchConfig(){return this._terminalProcess.shellLaunchConfig}get hasWrittenData(){return this._interactionState.value!=="None"}get title(){return this._title||this._terminalProcess.currentTitle}get titleSource(){return this._titleSource}get icon(){return this._icon}get color(){return this._color}get fixedDimensions(){return this._fixedDimensions}get hasChildProcesses(){return this._terminalProcess.hasChildProcesses}setTitle(e,t){t===I.Api&&(this._interactionState.setValue("Session","setTitle"),this._serializer.freeRawReviveBuffer()),this._title=e,this._titleSource=t}setIcon(e,t,r){(!this._icon||"id"in t&&"id"in this._icon&&t.id!==this._icon.id||!this.color||r!==this._color)&&(this._serializer.freeRawReviveBuffer(),e&&this._interactionState.setValue("Session","setIcon")),this._icon=t,this._color=r}_setFixedDimensions(e){this._fixedDimensions=e}async attach(){!this._disconnectRunner1.isScheduled()&&!this._disconnectRunner2.isScheduled()&&this._logService.warn(`Persistent process "${this._persistentProcessId}": Process had no disconnect runners but was an orphan`),this._disconnectRunner1.cancel(),this._disconnectRunner2.cancel()}async detach(e){this.shouldPersistTerminal&&(this._interactionState.value!=="None"||e)?this._disconnectRunner1.schedule():this.shutdown(!0)}serializeNormalBuffer(){return this._serializer.generateReplayEvent(!0,this._interactionState.value!=="Session")}async refreshProperty(e){return this._terminalProcess.refreshProperty(e)}async updateProperty(e,t){if(e===D.FixedDimensions)return this._setFixedDimensions(t)}async start(){if(!this._isStarted){const e=await this._terminalProcess.start();return e&&"message"in e||(this._isStarted=!0,this._wasRevived?this.triggerReplay():this._onPersistentProcessReady.fire()),e}this._onProcessReady.fire({pid:this._pid,cwd:this._cwd,windowsPty:this._terminalProcess.getWindowsPty()}),this._onDidChangeProperty.fire({type:D.Title,value:this._terminalProcess.currentTitle}),this._onDidChangeProperty.fire({type:D.ShellType,value:this._terminalProcess.shellType}),this.triggerReplay()}shutdown(e){return this._terminalProcess.shutdown(e)}input(e){if(this._interactionState.setValue("Session","input"),this._serializer.freeRawReviveBuffer(),!this._inReplay){for(const t of this._autoReplies.values())t.handleInput();return this._terminalProcess.input(e)}}writeBinary(e){return this._terminalProcess.processBinary(e)}resize(e,t){if(!this._inReplay){this._serializer.handleResize(e,t),this._bufferer.flushBuffer(this._persistentProcessId);for(const r of this._autoReplies.values())r.handleResize();return this._terminalProcess.resize(e,t)}}async clearBuffer(){this._serializer.clearBuffer(),this._terminalProcess.clearBuffer()}setUnicodeVersion(e){this.unicodeVersion=e,this._serializer.setUnicodeVersion?.(e)}acknowledgeDataEvent(e){if(!this._inReplay)return this._terminalProcess.acknowledgeDataEvent(e)}getInitialCwd(){return this._terminalProcess.getInitialCwd()}getCwd(){return this._terminalProcess.getCwd()}async triggerReplay(){this._interactionState.value==="None"&&this._interactionState.setValue("ReplayOnly","triggerReplay");const e=await this._serializer.generateReplayEvent();let t=0;for(const r of e.events)t+=r.data.length;this._logService.info(`Persistent process "${this._persistentProcessId}": Replaying ${t} chars and ${e.events.length} size events`),this._onProcessReplay.fire(e),this._terminalProcess.clearUnacknowledgedChars(),this._onPersistentProcessReady.fire()}installAutoReply(e,t){this._autoReplies.get(e)?.dispose(),this._autoReplies.set(e,new ee(this._terminalProcess,e,t,this._logService))}uninstallAutoReply(e){this._autoReplies.get(e)?.dispose(),this._autoReplies.delete(e)}sendCommandResult(e,t,r){this._pendingCommands.get(e)&&this._pendingCommands.delete(e)}orphanQuestionReply(){if(this._orphanQuestionReplyTime=Date.now(),this._orphanQuestionBarrier){const e=this._orphanQuestionBarrier;this._orphanQuestionBarrier=null,e.open()}}reduceGraceTime(){this._disconnectRunner2.isScheduled()||this._disconnectRunner1.isScheduled()&&this._disconnectRunner2.schedule()}async isOrphaned(){return await this._orphanRequestQueue.queue(async()=>this._isOrphaned())}async _isOrphaned(){return this._disconnectRunner1.isScheduled()||this._disconnectRunner2.isScheduled()?!0:(this._orphanQuestionBarrier||(this._orphanQuestionBarrier=new F(4e3),this._orphanQuestionReplyTime=0,this._onProcessOrphanQuestion.fire()),await this._orphanQuestionBarrier.wait(),Date.now()-this._orphanQuestionReplyTime>500)}}class le{constructor(l,e,t){this._name=l;this._value=e;this._logService=t;this._log("initialized")}get value(){return this._value}setValue(l,e){this._value!==l&&(this._value=l,this._log(e))}_log(l){this._logService.debug(`MutationLogger "${this._name}" set to "${this._value}", reason: ${l}`)}}class de{constructor(l,e,t,r,s,i,c,u){this._rawReviveBuffer=c;this._xterm=new oe({cols:l,rows:e,scrollback:t,allowProposedApi:!0}),s&&this._xterm.writeln(s),this.setUnicodeVersion(r),this._shellIntegrationAddon=new ie(i,!0,void 0,u),this._xterm.loadAddon(this._shellIntegrationAddon)}_xterm;_shellIntegrationAddon;_unicodeAddon;freeRawReviveBuffer(){this._rawReviveBuffer=void 0}handleData(l){this._xterm.write(l)}handleResize(l,e){this._xterm.resize(l,e)}clearBuffer(){this._xterm.clear()}async generateReplayEvent(l,e){const t=new(await this._getSerializeConstructor());this._xterm.loadAddon(t);const r={scrollback:this._xterm.options.scrollback};l&&(r.excludeAltBuffer=!0,r.excludeModes=!0);let s;return e&&this._rawReviveBuffer?s=this._rawReviveBuffer:s=t.serialize(r),{events:[{cols:this._xterm.cols,rows:this._xterm.rows,data:s}],commands:this._shellIntegrationAddon.serialize()}}async setUnicodeVersion(l){this._xterm.unicode.activeVersion!==l&&(l==="11"?(this._unicodeAddon=new(await this._getUnicode11Constructor()),this._xterm.loadAddon(this._unicodeAddon)):(this._unicodeAddon?.dispose(),this._unicodeAddon=void 0),this._xterm.unicode.activeVersion=l)}async _getUnicode11Constructor(){return L||(L=(await import("@xterm/addon-unicode11")).Unicode11Addon),L}async _getSerializeConstructor(){return E||(E=(await import("@xterm/addon-serialize")).SerializeAddon),E}}function k(p){let l=0,e=0,t=0;p>=1e3&&(t=Math.floor(p/1e3),p-=t*1e3),t>=60&&(e=Math.floor(t/60),t-=e*60),e>=60&&(l=Math.floor(e/60),e-=l*60);const r=l?`${l}h`:"",s=e?`${e}m`:"",i=t?`${t}s`:"",c=p?`${p}ms`:"";return`${r}${s}${i}${c}`}export{o as PtyService,a as traceRpc};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+import { exec, execFile } from "child_process";
+import { join } from "path";
+import pkg from "@xterm/headless";
+import {
+  AutoOpenBarrier,
+  ProcessTimeRunOnceScheduler,
+  Promises,
+  Queue,
+  timeout
+} from "../../../base/common/async.js";
+import { memoize } from "../../../base/common/decorators.js";
+import { ErrorNoTelemetry } from "../../../base/common/errors.js";
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable, toDisposable } from "../../../base/common/lifecycle.js";
+import * as performance from "../../../base/common/performance.js";
+import {
+  OS,
+  isWindows
+} from "../../../base/common/platform.js";
+import { getSystemShell } from "../../../base/node/shell.js";
+import { localize } from "../../../nls.js";
+import { LogLevel } from "../../log/common/log.js";
+import { RequestStore } from "../common/requestStore.js";
+import {
+  ProcessPropertyType,
+  TitleEventSource
+} from "../common/terminal.js";
+import { TerminalAutoResponder } from "../common/terminalAutoResponder.js";
+import { TerminalDataBufferer } from "../common/terminalDataBuffering.js";
+import { escapeNonWindowsPath } from "../common/terminalEnvironment.js";
+import { formatMessageForTerminal } from "../common/terminalStrings.js";
+import { ShellIntegrationAddon } from "../common/xterm/shellIntegrationAddon.js";
+import { ignoreProcessNames } from "./childProcessMonitor.js";
+import { getWindowsBuildNumber } from "./terminalEnvironment.js";
+import { TerminalProcess } from "./terminalProcess.js";
+const { Terminal: XtermTerminal } = pkg;
+function traceRpc(_target, key, descriptor) {
+  if (typeof descriptor.value !== "function") {
+    throw new Error("not supported");
+  }
+  const fnKey = "value";
+  const fn = descriptor.value;
+  descriptor[fnKey] = async function(...args) {
+    if (this.traceRpcArgs.logService.getLevel() === LogLevel.Trace) {
+      this.traceRpcArgs.logService.trace(
+        `[RPC Request] PtyService#${fn.name}(${args.map((e) => JSON.stringify(e)).join(", ")})`
+      );
+    }
+    if (this.traceRpcArgs.simulatedLatency) {
+      await timeout(this.traceRpcArgs.simulatedLatency);
+    }
+    let result;
+    try {
+      result = await fn.apply(this, args);
+    } catch (e) {
+      this.traceRpcArgs.logService.error(
+        `[RPC Response] PtyService#${fn.name}`,
+        e
+      );
+      throw e;
+    }
+    if (this.traceRpcArgs.logService.getLevel() === LogLevel.Trace) {
+      this.traceRpcArgs.logService.trace(
+        `[RPC Response] PtyService#${fn.name}`,
+        result
+      );
+    }
+    return result;
+  };
+}
+__name(traceRpc, "traceRpc");
+let SerializeAddon;
+let Unicode11Addon;
+class PtyService extends Disposable {
+  constructor(_logService, _productService, _reconnectConstants, _simulatedLatency) {
+    super();
+    this._logService = _logService;
+    this._productService = _productService;
+    this._reconnectConstants = _reconnectConstants;
+    this._simulatedLatency = _simulatedLatency;
+    this._register(
+      toDisposable(() => {
+        for (const pty of this._ptys.values()) {
+          pty.shutdown(true);
+        }
+        this._ptys.clear();
+      })
+    );
+    this._detachInstanceRequestStore = this._register(
+      new RequestStore(void 0, this._logService)
+    );
+    this._detachInstanceRequestStore.onCreateRequest(
+      this._onDidRequestDetach.fire,
+      this._onDidRequestDetach
+    );
+  }
+  static {
+    __name(this, "PtyService");
+  }
+  _ptys = /* @__PURE__ */ new Map();
+  _workspaceLayoutInfos = /* @__PURE__ */ new Map();
+  _detachInstanceRequestStore;
+  _revivedPtyIdMap = /* @__PURE__ */ new Map();
+  _autoReplies = /* @__PURE__ */ new Map();
+  _lastPtyId = 0;
+  _onHeartbeat = this._register(new Emitter());
+  onHeartbeat = this._traceEvent(
+    "_onHeartbeat",
+    this._onHeartbeat.event
+  );
+  _onProcessData = this._register(
+    new Emitter()
+  );
+  onProcessData = this._traceEvent(
+    "_onProcessData",
+    this._onProcessData.event
+  );
+  _onProcessReplay = this._register(
+    new Emitter()
+  );
+  onProcessReplay = this._traceEvent(
+    "_onProcessReplay",
+    this._onProcessReplay.event
+  );
+  _onProcessReady = this._register(
+    new Emitter()
+  );
+  onProcessReady = this._traceEvent(
+    "_onProcessReady",
+    this._onProcessReady.event
+  );
+  _onProcessExit = this._register(
+    new Emitter()
+  );
+  onProcessExit = this._traceEvent(
+    "_onProcessExit",
+    this._onProcessExit.event
+  );
+  _onProcessOrphanQuestion = this._register(
+    new Emitter()
+  );
+  onProcessOrphanQuestion = this._traceEvent(
+    "_onProcessOrphanQuestion",
+    this._onProcessOrphanQuestion.event
+  );
+  _onDidRequestDetach = this._register(
+    new Emitter()
+  );
+  onDidRequestDetach = this._traceEvent(
+    "_onDidRequestDetach",
+    this._onDidRequestDetach.event
+  );
+  _onDidChangeProperty = this._register(
+    new Emitter()
+  );
+  onDidChangeProperty = this._traceEvent(
+    "_onDidChangeProperty",
+    this._onDidChangeProperty.event
+  );
+  _traceEvent(name, event) {
+    event((e) => {
+      if (this._logService.getLevel() === LogLevel.Trace) {
+        this._logService.trace(
+          `[RPC Event] PtyService#${name}.fire(${JSON.stringify(e)})`
+        );
+      }
+    });
+    return event;
+  }
+  get traceRpcArgs() {
+    return {
+      logService: this._logService,
+      simulatedLatency: this._simulatedLatency
+    };
+  }
+  async refreshIgnoreProcessNames(names) {
+    ignoreProcessNames.length = 0;
+    ignoreProcessNames.push(...names);
+  }
+  async requestDetachInstance(workspaceId, instanceId) {
+    return this._detachInstanceRequestStore.createRequest({
+      workspaceId,
+      instanceId
+    });
+  }
+  async acceptDetachInstanceReply(requestId, persistentProcessId) {
+    let processDetails;
+    const pty = this._ptys.get(persistentProcessId);
+    if (pty) {
+      processDetails = await this._buildProcessDetails(
+        persistentProcessId,
+        pty
+      );
+    }
+    this._detachInstanceRequestStore.acceptReply(requestId, processDetails);
+  }
+  async freePortKillProcess(port) {
+    const stdout = await new Promise((resolve, reject) => {
+      exec(
+        isWindows ? `netstat -ano | findstr "${port}"` : `lsof -nP -iTCP -sTCP:LISTEN | grep ${port}`,
+        {},
+        (err, stdout2) => {
+          if (err) {
+            return reject(
+              "Problem occurred when listing active processes"
+            );
+          }
+          resolve(stdout2);
+        }
+      );
+    });
+    const processesForPort = stdout.split(/\r?\n/).filter((s) => !!s.trim());
+    if (processesForPort.length >= 1) {
+      const capturePid = /\s+(\d+)(?:\s+|$)/;
+      const processId = processesForPort[0].match(capturePid)?.[1];
+      if (processId) {
+        try {
+          process.kill(Number.parseInt(processId));
+        } catch {
+        }
+      } else {
+        throw new Error(`Processes for port ${port} were not found`);
+      }
+      return { port, processId };
+    }
+    throw new Error(`Could not kill process with port ${port}`);
+  }
+  async serializeTerminalState(ids) {
+    const promises = [];
+    for (const [
+      persistentProcessId,
+      persistentProcess
+    ] of this._ptys.entries()) {
+      if (persistentProcess.hasWrittenData && ids.indexOf(persistentProcessId) !== -1) {
+        promises.push(
+          Promises.withAsyncBody(
+            async (r) => {
+              r({
+                id: persistentProcessId,
+                shellLaunchConfig: persistentProcess.shellLaunchConfig,
+                processDetails: await this._buildProcessDetails(
+                  persistentProcessId,
+                  persistentProcess
+                ),
+                processLaunchConfig: persistentProcess.processLaunchOptions,
+                unicodeVersion: persistentProcess.unicodeVersion,
+                replayEvent: await persistentProcess.serializeNormalBuffer(),
+                timestamp: Date.now()
+              });
+            }
+          )
+        );
+      }
+    }
+    const serialized = {
+      version: 1,
+      state: await Promise.all(promises)
+    };
+    return JSON.stringify(serialized);
+  }
+  async reviveTerminalProcesses(workspaceId, state, dateTimeFormatLocale) {
+    const promises = [];
+    for (const terminal of state) {
+      promises.push(this._reviveTerminalProcess(workspaceId, terminal));
+    }
+    await Promise.all(promises);
+  }
+  async _reviveTerminalProcess(workspaceId, terminal) {
+    const restoreMessage = localize(
+      "terminal-history-restored",
+      "History restored"
+    );
+    const newId = await this.createProcess(
+      {
+        ...terminal.shellLaunchConfig,
+        cwd: terminal.processDetails.cwd,
+        color: terminal.processDetails.color,
+        icon: terminal.processDetails.icon,
+        name: terminal.processDetails.titleSource === TitleEventSource.Api ? terminal.processDetails.title : void 0,
+        initialText: terminal.replayEvent.events[0].data + formatMessageForTerminal(restoreMessage, {
+          loudFormatting: true
+        })
+      },
+      terminal.processDetails.cwd,
+      terminal.replayEvent.events[0].cols,
+      terminal.replayEvent.events[0].rows,
+      terminal.unicodeVersion,
+      terminal.processLaunchConfig.env,
+      terminal.processLaunchConfig.executableEnv,
+      terminal.processLaunchConfig.options,
+      true,
+      terminal.processDetails.workspaceId,
+      terminal.processDetails.workspaceName,
+      true,
+      terminal.replayEvent.events[0].data
+    );
+    const oldId = this._getRevivingProcessId(workspaceId, terminal.id);
+    this._revivedPtyIdMap.set(oldId, { newId, state: terminal });
+    this._logService.info(
+      `Revived process, old id ${oldId} -> new id ${newId}`
+    );
+  }
+  async shutdownAll() {
+    this.dispose();
+  }
+  async createProcess(shellLaunchConfig, cwd, cols, rows, unicodeVersion, env, executableEnv, options, shouldPersist, workspaceId, workspaceName, isReviving, rawReviveBuffer) {
+    if (shellLaunchConfig.attachPersistentProcess) {
+      throw new Error(
+        "Attempt to create a process when attach object was provided"
+      );
+    }
+    const id = ++this._lastPtyId;
+    const process2 = new TerminalProcess(
+      shellLaunchConfig,
+      cwd,
+      cols,
+      rows,
+      env,
+      executableEnv,
+      options,
+      this._logService,
+      this._productService
+    );
+    const processLaunchOptions = {
+      env,
+      executableEnv,
+      options
+    };
+    const persistentProcess = new PersistentTerminalProcess(
+      id,
+      process2,
+      workspaceId,
+      workspaceName,
+      shouldPersist,
+      cols,
+      rows,
+      processLaunchOptions,
+      unicodeVersion,
+      this._reconnectConstants,
+      this._logService,
+      isReviving && typeof shellLaunchConfig.initialText === "string" ? shellLaunchConfig.initialText : void 0,
+      rawReviveBuffer,
+      shellLaunchConfig.icon,
+      shellLaunchConfig.color,
+      shellLaunchConfig.name,
+      shellLaunchConfig.fixedDimensions
+    );
+    process2.onProcessExit((event) => {
+      persistentProcess.dispose();
+      this._ptys.delete(id);
+      this._onProcessExit.fire({ id, event });
+    });
+    persistentProcess.onProcessData(
+      (event) => this._onProcessData.fire({ id, event })
+    );
+    persistentProcess.onProcessReplay(
+      (event) => this._onProcessReplay.fire({ id, event })
+    );
+    persistentProcess.onProcessReady(
+      (event) => this._onProcessReady.fire({ id, event })
+    );
+    persistentProcess.onProcessOrphanQuestion(
+      () => this._onProcessOrphanQuestion.fire({ id })
+    );
+    persistentProcess.onDidChangeProperty(
+      (property) => this._onDidChangeProperty.fire({ id, property })
+    );
+    persistentProcess.onPersistentProcessReady(() => {
+      for (const e of this._autoReplies.entries()) {
+        persistentProcess.installAutoReply(e[0], e[1]);
+      }
+    });
+    this._ptys.set(id, persistentProcess);
+    return id;
+  }
+  async attachToProcess(id) {
+    try {
+      await this._throwIfNoPty(id).attach();
+      this._logService.info(`Persistent process reconnection "${id}"`);
+    } catch (e) {
+      this._logService.warn(
+        `Persistent process reconnection "${id}" failed`,
+        e.message
+      );
+      throw e;
+    }
+  }
+  async updateTitle(id, title, titleSource) {
+    this._throwIfNoPty(id).setTitle(title, titleSource);
+  }
+  async updateIcon(id, userInitiated, icon, color) {
+    this._throwIfNoPty(id).setIcon(userInitiated, icon, color);
+  }
+  async clearBuffer(id) {
+    this._throwIfNoPty(id).clearBuffer();
+  }
+  async refreshProperty(id, type) {
+    return this._throwIfNoPty(id).refreshProperty(type);
+  }
+  async updateProperty(id, type, value) {
+    return this._throwIfNoPty(id).updateProperty(type, value);
+  }
+  async detachFromProcess(id, forcePersist) {
+    return this._throwIfNoPty(id).detach(forcePersist);
+  }
+  async reduceConnectionGraceTime() {
+    for (const pty of this._ptys.values()) {
+      pty.reduceGraceTime();
+    }
+  }
+  async listProcesses() {
+    const persistentProcesses = Array.from(this._ptys.entries()).filter(
+      ([_, pty]) => pty.shouldPersistTerminal
+    );
+    this._logService.info(
+      `Listing ${persistentProcesses.length} persistent terminals, ${this._ptys.size} total terminals`
+    );
+    const promises = persistentProcesses.map(
+      async ([id, terminalProcessData]) => this._buildProcessDetails(id, terminalProcessData)
+    );
+    const allTerminals = await Promise.all(promises);
+    return allTerminals.filter((entry) => entry.isOrphan);
+  }
+  async getPerformanceMarks() {
+    return performance.getMarks();
+  }
+  async start(id) {
+    const pty = this._ptys.get(id);
+    return pty ? pty.start() : { message: `Could not find pty with id "${id}"` };
+  }
+  async shutdown(id, immediate) {
+    return this._ptys.get(id)?.shutdown(immediate);
+  }
+  async input(id, data) {
+    return this._throwIfNoPty(id).input(data);
+  }
+  async processBinary(id, data) {
+    return this._throwIfNoPty(id).writeBinary(data);
+  }
+  async resize(id, cols, rows) {
+    return this._throwIfNoPty(id).resize(cols, rows);
+  }
+  async getInitialCwd(id) {
+    return this._throwIfNoPty(id).getInitialCwd();
+  }
+  async getCwd(id) {
+    return this._throwIfNoPty(id).getCwd();
+  }
+  async acknowledgeDataEvent(id, charCount) {
+    return this._throwIfNoPty(id).acknowledgeDataEvent(charCount);
+  }
+  async setUnicodeVersion(id, version) {
+    return this._throwIfNoPty(id).setUnicodeVersion(version);
+  }
+  async getLatency() {
+    return [];
+  }
+  async orphanQuestionReply(id) {
+    return this._throwIfNoPty(id).orphanQuestionReply();
+  }
+  async installAutoReply(match, reply) {
+    this._autoReplies.set(match, reply);
+    for (const p of this._ptys.values()) {
+      p.installAutoReply(match, reply);
+    }
+  }
+  async uninstallAllAutoReplies() {
+    for (const match of this._autoReplies.keys()) {
+      for (const p of this._ptys.values()) {
+        p.uninstallAutoReply(match);
+      }
+    }
+  }
+  async uninstallAutoReply(match) {
+    for (const p of this._ptys.values()) {
+      p.uninstallAutoReply(match);
+    }
+  }
+  async getDefaultSystemShell(osOverride = OS) {
+    return getSystemShell(osOverride, process.env);
+  }
+  async getEnvironment() {
+    return { ...process.env };
+  }
+  async getWslPath(original, direction) {
+    if (direction === "win-to-unix") {
+      if (!isWindows) {
+        return original;
+      }
+      if (getWindowsBuildNumber() < 17063) {
+        return original.replace(/\\/g, "/");
+      }
+      const wslExecutable = this._getWSLExecutablePath();
+      if (!wslExecutable) {
+        return original;
+      }
+      return new Promise((c) => {
+        const proc = execFile(
+          wslExecutable,
+          ["-e", "wslpath", original],
+          {},
+          (error, stdout, stderr) => {
+            c(
+              error ? original : escapeNonWindowsPath(stdout.trim())
+            );
+          }
+        );
+        proc.stdin.end();
+      });
+    }
+    if (direction === "unix-to-win") {
+      if (isWindows) {
+        if (getWindowsBuildNumber() < 17063) {
+          return original;
+        }
+        const wslExecutable = this._getWSLExecutablePath();
+        if (!wslExecutable) {
+          return original;
+        }
+        return new Promise((c) => {
+          const proc = execFile(
+            wslExecutable,
+            ["-e", "wslpath", "-w", original],
+            {},
+            (error, stdout, stderr) => {
+              c(error ? original : stdout.trim());
+            }
+          );
+          proc.stdin.end();
+        });
+      }
+    }
+    return original;
+  }
+  _getWSLExecutablePath() {
+    const useWSLexe = getWindowsBuildNumber() >= 16299;
+    const is32ProcessOn64Windows = process.env.hasOwnProperty(
+      "PROCESSOR_ARCHITEW6432"
+    );
+    const systemRoot = process.env["SystemRoot"];
+    if (systemRoot) {
+      return join(
+        systemRoot,
+        is32ProcessOn64Windows ? "Sysnative" : "System32",
+        useWSLexe ? "wsl.exe" : "bash.exe"
+      );
+    }
+    return void 0;
+  }
+  async getRevivedPtyNewId(workspaceId, id) {
+    try {
+      return this._revivedPtyIdMap.get(
+        this._getRevivingProcessId(workspaceId, id)
+      )?.newId;
+    } catch (e) {
+      this._logService.warn(
+        `Couldn't find terminal ID ${workspaceId}-${id}`,
+        e.message
+      );
+    }
+    return void 0;
+  }
+  async setTerminalLayoutInfo(args) {
+    this._workspaceLayoutInfos.set(args.workspaceId, args);
+  }
+  async getTerminalLayoutInfo(args) {
+    performance.mark("code/willGetTerminalLayoutInfo");
+    const layout = this._workspaceLayoutInfos.get(args.workspaceId);
+    if (layout) {
+      const doneSet = /* @__PURE__ */ new Set();
+      const expandedTabs = await Promise.all(
+        layout.tabs.map(
+          async (tab) => this._expandTerminalTab(args.workspaceId, tab, doneSet)
+        )
+      );
+      const tabs = expandedTabs.filter((t) => t.terminals.length > 0);
+      performance.mark("code/didGetTerminalLayoutInfo");
+      return { tabs };
+    }
+    performance.mark("code/didGetTerminalLayoutInfo");
+    return void 0;
+  }
+  async _expandTerminalTab(workspaceId, tab, doneSet) {
+    const expandedTerminals = await Promise.all(
+      tab.terminals.map(
+        (t) => this._expandTerminalInstance(workspaceId, t, doneSet)
+      )
+    );
+    const filtered = expandedTerminals.filter(
+      (term) => term.terminal !== null
+    );
+    return {
+      isActive: tab.isActive,
+      activePersistentProcessId: tab.activePersistentProcessId,
+      terminals: filtered
+    };
+  }
+  async _expandTerminalInstance(workspaceId, t, doneSet) {
+    try {
+      const oldId = this._getRevivingProcessId(workspaceId, t.terminal);
+      const revivedPtyId = this._revivedPtyIdMap.get(oldId)?.newId;
+      this._logService.info(
+        `Expanding terminal instance, old id ${oldId} -> new id ${revivedPtyId}`
+      );
+      this._revivedPtyIdMap.delete(oldId);
+      const persistentProcessId = revivedPtyId ?? t.terminal;
+      if (doneSet.has(persistentProcessId)) {
+        throw new Error(
+          `Terminal ${persistentProcessId} has already been expanded`
+        );
+      }
+      doneSet.add(persistentProcessId);
+      const persistentProcess = this._throwIfNoPty(persistentProcessId);
+      const processDetails = persistentProcess && await this._buildProcessDetails(
+        t.terminal,
+        persistentProcess,
+        revivedPtyId !== void 0
+      );
+      return {
+        terminal: { ...processDetails, id: persistentProcessId },
+        relativeSize: t.relativeSize
+      };
+    } catch (e) {
+      this._logService.warn(
+        `Couldn't get layout info, a terminal was probably disconnected`,
+        e.message
+      );
+      this._logService.debug(
+        "Reattach to wrong terminal debug info - layout info by id",
+        t
+      );
+      this._logService.debug(
+        "Reattach to wrong terminal debug info - _revivePtyIdMap",
+        Array.from(this._revivedPtyIdMap.values())
+      );
+      this._logService.debug(
+        "Reattach to wrong terminal debug info - _ptys ids",
+        Array.from(this._ptys.keys())
+      );
+      return {
+        terminal: null,
+        relativeSize: t.relativeSize
+      };
+    }
+  }
+  _getRevivingProcessId(workspaceId, ptyId) {
+    return `${workspaceId}-${ptyId}`;
+  }
+  async _buildProcessDetails(id, persistentProcess, wasRevived = false) {
+    performance.mark(`code/willBuildProcessDetails/${id}`);
+    const [cwd, isOrphan] = await Promise.all([
+      persistentProcess.getCwd(),
+      wasRevived ? true : persistentProcess.isOrphaned()
+    ]);
+    const result = {
+      id,
+      title: persistentProcess.title,
+      titleSource: persistentProcess.titleSource,
+      pid: persistentProcess.pid,
+      workspaceId: persistentProcess.workspaceId,
+      workspaceName: persistentProcess.workspaceName,
+      cwd,
+      isOrphan,
+      icon: persistentProcess.icon,
+      color: persistentProcess.color,
+      fixedDimensions: persistentProcess.fixedDimensions,
+      environmentVariableCollections: persistentProcess.processLaunchOptions.options.environmentVariableCollections,
+      reconnectionProperties: persistentProcess.shellLaunchConfig.reconnectionProperties,
+      waitOnExit: persistentProcess.shellLaunchConfig.waitOnExit,
+      hideFromUser: persistentProcess.shellLaunchConfig.hideFromUser,
+      isFeatureTerminal: persistentProcess.shellLaunchConfig.isFeatureTerminal,
+      type: persistentProcess.shellLaunchConfig.type,
+      hasChildProcesses: persistentProcess.hasChildProcesses,
+      shellIntegrationNonce: persistentProcess.processLaunchOptions.options.shellIntegration.nonce
+    };
+    performance.mark(`code/didBuildProcessDetails/${id}`);
+    return result;
+  }
+  _throwIfNoPty(id) {
+    const pty = this._ptys.get(id);
+    if (!pty) {
+      throw new ErrorNoTelemetry(`Could not find pty ${id} on pty host`);
+    }
+    return pty;
+  }
+}
+__decorateClass([
+  memoize
+], PtyService.prototype, "traceRpcArgs", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "refreshIgnoreProcessNames", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "requestDetachInstance", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "acceptDetachInstanceReply", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "freePortKillProcess", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "serializeTerminalState", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "reviveTerminalProcesses", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "shutdownAll", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "createProcess", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "attachToProcess", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "updateTitle", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "updateIcon", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "clearBuffer", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "refreshProperty", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "updateProperty", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "detachFromProcess", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "reduceConnectionGraceTime", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "listProcesses", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "getPerformanceMarks", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "start", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "shutdown", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "input", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "processBinary", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "resize", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "getInitialCwd", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "getCwd", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "acknowledgeDataEvent", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "setUnicodeVersion", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "getLatency", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "orphanQuestionReply", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "installAutoReply", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "uninstallAllAutoReplies", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "uninstallAutoReply", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "getDefaultSystemShell", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "getEnvironment", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "getWslPath", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "getRevivedPtyNewId", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "setTerminalLayoutInfo", 1);
+__decorateClass([
+  traceRpc
+], PtyService.prototype, "getTerminalLayoutInfo", 1);
+var InteractionState = /* @__PURE__ */ ((InteractionState2) => {
+  InteractionState2["None"] = "None";
+  InteractionState2["ReplayOnly"] = "ReplayOnly";
+  InteractionState2["Session"] = "Session";
+  return InteractionState2;
+})(InteractionState || {});
+class PersistentTerminalProcess extends Disposable {
+  constructor(_persistentProcessId, _terminalProcess, workspaceId, workspaceName, shouldPersistTerminal, cols, rows, processLaunchOptions, unicodeVersion, reconnectConstants, _logService, reviveBuffer, rawReviveBuffer, _icon, _color, name, fixedDimensions) {
+    super();
+    this._persistentProcessId = _persistentProcessId;
+    this._terminalProcess = _terminalProcess;
+    this.workspaceId = workspaceId;
+    this.workspaceName = workspaceName;
+    this.shouldPersistTerminal = shouldPersistTerminal;
+    this.processLaunchOptions = processLaunchOptions;
+    this.unicodeVersion = unicodeVersion;
+    this._logService = _logService;
+    this._icon = _icon;
+    this._color = _color;
+    this._interactionState = new MutationLogger(
+      `Persistent process "${this._persistentProcessId}" interaction state`,
+      "None" /* None */,
+      this._logService
+    );
+    this._wasRevived = reviveBuffer !== void 0;
+    this._serializer = new XtermSerializer(
+      cols,
+      rows,
+      reconnectConstants.scrollback,
+      unicodeVersion,
+      reviveBuffer,
+      processLaunchOptions.options.shellIntegration.nonce,
+      shouldPersistTerminal ? rawReviveBuffer : void 0,
+      this._logService
+    );
+    if (name) {
+      this.setTitle(name, TitleEventSource.Api);
+    }
+    this._fixedDimensions = fixedDimensions;
+    this._orphanQuestionBarrier = null;
+    this._orphanQuestionReplyTime = 0;
+    this._disconnectRunner1 = this._register(
+      new ProcessTimeRunOnceScheduler(() => {
+        this._logService.info(
+          `Persistent process "${this._persistentProcessId}": The reconnection grace time of ${printTime(reconnectConstants.graceTime)} has expired, shutting down pid "${this._pid}"`
+        );
+        this.shutdown(true);
+      }, reconnectConstants.graceTime)
+    );
+    this._disconnectRunner2 = this._register(
+      new ProcessTimeRunOnceScheduler(() => {
+        this._logService.info(
+          `Persistent process "${this._persistentProcessId}": The short reconnection grace time of ${printTime(reconnectConstants.shortGraceTime)} has expired, shutting down pid ${this._pid}`
+        );
+        this.shutdown(true);
+      }, reconnectConstants.shortGraceTime)
+    );
+    this._register(
+      this._terminalProcess.onProcessExit(
+        () => this._bufferer.stopBuffering(this._persistentProcessId)
+      )
+    );
+    this._register(
+      this._terminalProcess.onProcessReady((e) => {
+        this._pid = e.pid;
+        this._cwd = e.cwd;
+        this._onProcessReady.fire(e);
+      })
+    );
+    this._register(
+      this._terminalProcess.onDidChangeProperty((e) => {
+        this._onDidChangeProperty.fire(e);
+      })
+    );
+    this._bufferer = new TerminalDataBufferer(
+      (_, data) => this._onProcessData.fire(data)
+    );
+    this._register(
+      this._bufferer.startBuffering(
+        this._persistentProcessId,
+        this._terminalProcess.onProcessData
+      )
+    );
+    this._register(
+      this.onProcessData((e) => this._serializer.handleData(e))
+    );
+    this._register(
+      toDisposable(() => {
+        for (const e of this._autoReplies.values()) {
+          e.dispose();
+        }
+        this._autoReplies.clear();
+      })
+    );
+  }
+  static {
+    __name(this, "PersistentTerminalProcess");
+  }
+  _bufferer;
+  _autoReplies = /* @__PURE__ */ new Map();
+  _pendingCommands = /* @__PURE__ */ new Map();
+  _isStarted = false;
+  _interactionState;
+  _orphanQuestionBarrier;
+  _orphanQuestionReplyTime;
+  _orphanRequestQueue = new Queue();
+  _disconnectRunner1;
+  _disconnectRunner2;
+  _onProcessReplay = this._register(
+    new Emitter()
+  );
+  onProcessReplay = this._onProcessReplay.event;
+  _onProcessReady = this._register(
+    new Emitter()
+  );
+  onProcessReady = this._onProcessReady.event;
+  _onPersistentProcessReady = this._register(
+    new Emitter()
+  );
+  /** Fired when the persistent process has a ready process and has finished its replay. */
+  onPersistentProcessReady = this._onPersistentProcessReady.event;
+  _onProcessData = this._register(new Emitter());
+  onProcessData = this._onProcessData.event;
+  _onProcessOrphanQuestion = this._register(
+    new Emitter()
+  );
+  onProcessOrphanQuestion = this._onProcessOrphanQuestion.event;
+  _onDidChangeProperty = this._register(
+    new Emitter()
+  );
+  onDidChangeProperty = this._onDidChangeProperty.event;
+  _inReplay = false;
+  _pid = -1;
+  _cwd = "";
+  _title;
+  _titleSource = TitleEventSource.Process;
+  _serializer;
+  _wasRevived;
+  _fixedDimensions;
+  get pid() {
+    return this._pid;
+  }
+  get shellLaunchConfig() {
+    return this._terminalProcess.shellLaunchConfig;
+  }
+  get hasWrittenData() {
+    return this._interactionState.value !== "None" /* None */;
+  }
+  get title() {
+    return this._title || this._terminalProcess.currentTitle;
+  }
+  get titleSource() {
+    return this._titleSource;
+  }
+  get icon() {
+    return this._icon;
+  }
+  get color() {
+    return this._color;
+  }
+  get fixedDimensions() {
+    return this._fixedDimensions;
+  }
+  get hasChildProcesses() {
+    return this._terminalProcess.hasChildProcesses;
+  }
+  setTitle(title, titleSource) {
+    if (titleSource === TitleEventSource.Api) {
+      this._interactionState.setValue(
+        "Session" /* Session */,
+        "setTitle"
+      );
+      this._serializer.freeRawReviveBuffer();
+    }
+    this._title = title;
+    this._titleSource = titleSource;
+  }
+  setIcon(userInitiated, icon, color) {
+    if (!this._icon || "id" in icon && "id" in this._icon && icon.id !== this._icon.id || !this.color || color !== this._color) {
+      this._serializer.freeRawReviveBuffer();
+      if (userInitiated) {
+        this._interactionState.setValue(
+          "Session" /* Session */,
+          "setIcon"
+        );
+      }
+    }
+    this._icon = icon;
+    this._color = color;
+  }
+  _setFixedDimensions(fixedDimensions) {
+    this._fixedDimensions = fixedDimensions;
+  }
+  async attach() {
+    if (!this._disconnectRunner1.isScheduled() && !this._disconnectRunner2.isScheduled()) {
+      this._logService.warn(
+        `Persistent process "${this._persistentProcessId}": Process had no disconnect runners but was an orphan`
+      );
+    }
+    this._disconnectRunner1.cancel();
+    this._disconnectRunner2.cancel();
+  }
+  async detach(forcePersist) {
+    if (this.shouldPersistTerminal && (this._interactionState.value !== "None" /* None */ || forcePersist)) {
+      this._disconnectRunner1.schedule();
+    } else {
+      this.shutdown(true);
+    }
+  }
+  serializeNormalBuffer() {
+    return this._serializer.generateReplayEvent(
+      true,
+      this._interactionState.value !== "Session" /* Session */
+    );
+  }
+  async refreshProperty(type) {
+    return this._terminalProcess.refreshProperty(type);
+  }
+  async updateProperty(type, value) {
+    if (type === ProcessPropertyType.FixedDimensions) {
+      return this._setFixedDimensions(
+        value
+      );
+    }
+  }
+  async start() {
+    if (!this._isStarted) {
+      const result = await this._terminalProcess.start();
+      if (result && "message" in result) {
+        return result;
+      }
+      this._isStarted = true;
+      if (this._wasRevived) {
+        this.triggerReplay();
+      } else {
+        this._onPersistentProcessReady.fire();
+      }
+      return result;
+    }
+    this._onProcessReady.fire({
+      pid: this._pid,
+      cwd: this._cwd,
+      windowsPty: this._terminalProcess.getWindowsPty()
+    });
+    this._onDidChangeProperty.fire({
+      type: ProcessPropertyType.Title,
+      value: this._terminalProcess.currentTitle
+    });
+    this._onDidChangeProperty.fire({
+      type: ProcessPropertyType.ShellType,
+      value: this._terminalProcess.shellType
+    });
+    this.triggerReplay();
+    return void 0;
+  }
+  shutdown(immediate) {
+    return this._terminalProcess.shutdown(immediate);
+  }
+  input(data) {
+    this._interactionState.setValue("Session" /* Session */, "input");
+    this._serializer.freeRawReviveBuffer();
+    if (this._inReplay) {
+      return;
+    }
+    for (const listener of this._autoReplies.values()) {
+      listener.handleInput();
+    }
+    return this._terminalProcess.input(data);
+  }
+  writeBinary(data) {
+    return this._terminalProcess.processBinary(data);
+  }
+  resize(cols, rows) {
+    if (this._inReplay) {
+      return;
+    }
+    this._serializer.handleResize(cols, rows);
+    this._bufferer.flushBuffer(this._persistentProcessId);
+    for (const listener of this._autoReplies.values()) {
+      listener.handleResize();
+    }
+    return this._terminalProcess.resize(cols, rows);
+  }
+  async clearBuffer() {
+    this._serializer.clearBuffer();
+    this._terminalProcess.clearBuffer();
+  }
+  setUnicodeVersion(version) {
+    this.unicodeVersion = version;
+    this._serializer.setUnicodeVersion?.(version);
+  }
+  acknowledgeDataEvent(charCount) {
+    if (this._inReplay) {
+      return;
+    }
+    return this._terminalProcess.acknowledgeDataEvent(charCount);
+  }
+  getInitialCwd() {
+    return this._terminalProcess.getInitialCwd();
+  }
+  getCwd() {
+    return this._terminalProcess.getCwd();
+  }
+  async triggerReplay() {
+    if (this._interactionState.value === "None" /* None */) {
+      this._interactionState.setValue(
+        "ReplayOnly" /* ReplayOnly */,
+        "triggerReplay"
+      );
+    }
+    const ev = await this._serializer.generateReplayEvent();
+    let dataLength = 0;
+    for (const e of ev.events) {
+      dataLength += e.data.length;
+    }
+    this._logService.info(
+      `Persistent process "${this._persistentProcessId}": Replaying ${dataLength} chars and ${ev.events.length} size events`
+    );
+    this._onProcessReplay.fire(ev);
+    this._terminalProcess.clearUnacknowledgedChars();
+    this._onPersistentProcessReady.fire();
+  }
+  installAutoReply(match, reply) {
+    this._autoReplies.get(match)?.dispose();
+    this._autoReplies.set(
+      match,
+      new TerminalAutoResponder(
+        this._terminalProcess,
+        match,
+        reply,
+        this._logService
+      )
+    );
+  }
+  uninstallAutoReply(match) {
+    const autoReply = this._autoReplies.get(match);
+    autoReply?.dispose();
+    this._autoReplies.delete(match);
+  }
+  sendCommandResult(reqId, isError, serializedPayload) {
+    const data = this._pendingCommands.get(reqId);
+    if (!data) {
+      return;
+    }
+    this._pendingCommands.delete(reqId);
+  }
+  orphanQuestionReply() {
+    this._orphanQuestionReplyTime = Date.now();
+    if (this._orphanQuestionBarrier) {
+      const barrier = this._orphanQuestionBarrier;
+      this._orphanQuestionBarrier = null;
+      barrier.open();
+    }
+  }
+  reduceGraceTime() {
+    if (this._disconnectRunner2.isScheduled()) {
+      return;
+    }
+    if (this._disconnectRunner1.isScheduled()) {
+      this._disconnectRunner2.schedule();
+    }
+  }
+  async isOrphaned() {
+    return await this._orphanRequestQueue.queue(
+      async () => this._isOrphaned()
+    );
+  }
+  async _isOrphaned() {
+    if (this._disconnectRunner1.isScheduled() || this._disconnectRunner2.isScheduled()) {
+      return true;
+    }
+    if (!this._orphanQuestionBarrier) {
+      this._orphanQuestionBarrier = new AutoOpenBarrier(4e3);
+      this._orphanQuestionReplyTime = 0;
+      this._onProcessOrphanQuestion.fire();
+    }
+    await this._orphanQuestionBarrier.wait();
+    return Date.now() - this._orphanQuestionReplyTime > 500;
+  }
+}
+class MutationLogger {
+  constructor(_name, _value, _logService) {
+    this._name = _name;
+    this._value = _value;
+    this._logService = _logService;
+    this._log("initialized");
+  }
+  static {
+    __name(this, "MutationLogger");
+  }
+  get value() {
+    return this._value;
+  }
+  setValue(value, reason) {
+    if (this._value !== value) {
+      this._value = value;
+      this._log(reason);
+    }
+  }
+  _log(reason) {
+    this._logService.debug(
+      `MutationLogger "${this._name}" set to "${this._value}", reason: ${reason}`
+    );
+  }
+}
+class XtermSerializer {
+  constructor(cols, rows, scrollback, unicodeVersion, reviveBufferWithRestoreMessage, shellIntegrationNonce, _rawReviveBuffer, logService) {
+    this._rawReviveBuffer = _rawReviveBuffer;
+    this._xterm = new XtermTerminal({
+      cols,
+      rows,
+      scrollback,
+      allowProposedApi: true
+    });
+    if (reviveBufferWithRestoreMessage) {
+      this._xterm.writeln(reviveBufferWithRestoreMessage);
+    }
+    this.setUnicodeVersion(unicodeVersion);
+    this._shellIntegrationAddon = new ShellIntegrationAddon(
+      shellIntegrationNonce,
+      true,
+      void 0,
+      logService
+    );
+    this._xterm.loadAddon(this._shellIntegrationAddon);
+  }
+  static {
+    __name(this, "XtermSerializer");
+  }
+  _xterm;
+  _shellIntegrationAddon;
+  _unicodeAddon;
+  freeRawReviveBuffer() {
+    this._rawReviveBuffer = void 0;
+  }
+  handleData(data) {
+    this._xterm.write(data);
+  }
+  handleResize(cols, rows) {
+    this._xterm.resize(cols, rows);
+  }
+  clearBuffer() {
+    this._xterm.clear();
+  }
+  async generateReplayEvent(normalBufferOnly, restoreToLastReviveBuffer) {
+    const serialize = new (await this._getSerializeConstructor())();
+    this._xterm.loadAddon(serialize);
+    const options = {
+      scrollback: this._xterm.options.scrollback
+    };
+    if (normalBufferOnly) {
+      options.excludeAltBuffer = true;
+      options.excludeModes = true;
+    }
+    let serialized;
+    if (restoreToLastReviveBuffer && this._rawReviveBuffer) {
+      serialized = this._rawReviveBuffer;
+    } else {
+      serialized = serialize.serialize(options);
+    }
+    return {
+      events: [
+        {
+          cols: this._xterm.cols,
+          rows: this._xterm.rows,
+          data: serialized
+        }
+      ],
+      commands: this._shellIntegrationAddon.serialize()
+    };
+  }
+  async setUnicodeVersion(version) {
+    if (this._xterm.unicode.activeVersion === version) {
+      return;
+    }
+    if (version === "11") {
+      this._unicodeAddon = new (await this._getUnicode11Constructor())();
+      this._xterm.loadAddon(this._unicodeAddon);
+    } else {
+      this._unicodeAddon?.dispose();
+      this._unicodeAddon = void 0;
+    }
+    this._xterm.unicode.activeVersion = version;
+  }
+  async _getUnicode11Constructor() {
+    if (!Unicode11Addon) {
+      Unicode11Addon = (await import("@xterm/addon-unicode11")).Unicode11Addon;
+    }
+    return Unicode11Addon;
+  }
+  async _getSerializeConstructor() {
+    if (!SerializeAddon) {
+      SerializeAddon = (await import("@xterm/addon-serialize")).SerializeAddon;
+    }
+    return SerializeAddon;
+  }
+}
+function printTime(ms) {
+  let h = 0;
+  let m = 0;
+  let s = 0;
+  if (ms >= 1e3) {
+    s = Math.floor(ms / 1e3);
+    ms -= s * 1e3;
+  }
+  if (s >= 60) {
+    m = Math.floor(s / 60);
+    s -= m * 60;
+  }
+  if (m >= 60) {
+    h = Math.floor(m / 60);
+    m -= h * 60;
+  }
+  const _h = h ? `${h}h` : ``;
+  const _m = m ? `${m}m` : ``;
+  const _s = s ? `${s}s` : ``;
+  const _ms = ms ? `${ms}ms` : ``;
+  return `${_h}${_m}${_s}${_ms}`;
+}
+__name(printTime, "printTime");
+export {
+  PtyService,
+  traceRpc
+};
+//# sourceMappingURL=ptyService.js.map

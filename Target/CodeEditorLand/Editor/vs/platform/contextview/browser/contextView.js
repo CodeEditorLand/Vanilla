@@ -1,1 +1,8 @@
-import{createDecorator as e}from"../../instantiation/common/instantiation.js";const n=e("contextViewService"),o=e("contextMenuService");export{o as IContextMenuService,n as IContextViewService};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IContextViewService = createDecorator("contextViewService");
+const IContextMenuService = createDecorator("contextMenuService");
+export {
+  IContextMenuService,
+  IContextViewService
+};
+//# sourceMappingURL=contextView.js.map

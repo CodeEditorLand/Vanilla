@@ -1,1 +1,59 @@
-import{MarkdownString as e}from"../../../../base/common/htmlContent.js";import{Disposable as n}from"../../../../base/common/lifecycle.js";import*as i from"../../../../nls.js";import{EditorContributionInstantiation as s,registerEditorContribution as d}from"../../../browser/editorExtensions.js";import{EditorOption as a}from"../../../common/config/editorOptions.js";import{MessageController as l}from"../../message/browser/messageController.js";class r extends n{constructor(o){super();this.editor=o;this._register(this.editor.onDidAttemptReadOnlyEdit(()=>this._onDidAttemptReadOnlyEdit()))}static ID="editor.contrib.readOnlyMessageController";_onDidAttemptReadOnlyEdit(){const o=l.get(this.editor);if(o&&this.editor.hasModel()){let t=this.editor.getOptions().get(a.readOnlyMessage);t||(this.editor.isSimpleWidget?t=new e(i.localize("editor.simple.readonly","Cannot edit in read-only input")):t=new e(i.localize("editor.readonly","Cannot edit in read-only editor"))),o.showMessage(t,this.editor.getPosition())}}}d(r.ID,r,s.BeforeFirstInteraction);export{r as ReadOnlyMessageController};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import * as nls from "../../../../nls.js";
+import {
+  EditorContributionInstantiation,
+  registerEditorContribution
+} from "../../../browser/editorExtensions.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
+import { MessageController } from "../../message/browser/messageController.js";
+class ReadOnlyMessageController extends Disposable {
+  constructor(editor) {
+    super();
+    this.editor = editor;
+    this._register(
+      this.editor.onDidAttemptReadOnlyEdit(
+        () => this._onDidAttemptReadOnlyEdit()
+      )
+    );
+  }
+  static {
+    __name(this, "ReadOnlyMessageController");
+  }
+  static ID = "editor.contrib.readOnlyMessageController";
+  _onDidAttemptReadOnlyEdit() {
+    const messageController = MessageController.get(this.editor);
+    if (messageController && this.editor.hasModel()) {
+      let message = this.editor.getOptions().get(EditorOption.readOnlyMessage);
+      if (!message) {
+        if (this.editor.isSimpleWidget) {
+          message = new MarkdownString(
+            nls.localize(
+              "editor.simple.readonly",
+              "Cannot edit in read-only input"
+            )
+          );
+        } else {
+          message = new MarkdownString(
+            nls.localize(
+              "editor.readonly",
+              "Cannot edit in read-only editor"
+            )
+          );
+        }
+      }
+      messageController.showMessage(message, this.editor.getPosition());
+    }
+  }
+}
+registerEditorContribution(
+  ReadOnlyMessageController.ID,
+  ReadOnlyMessageController,
+  EditorContributionInstantiation.BeforeFirstInteraction
+);
+export {
+  ReadOnlyMessageController
+};
+//# sourceMappingURL=contribution.js.map

@@ -1,1 +1,130 @@
-var m=Object.defineProperty;var A=Object.getOwnPropertyDescriptor;var d=(r,o,t,n)=>{for(var e=n>1?void 0:n?A(o,t):o,i=r.length-1,s;i>=0;i--)(s=r[i])&&(e=(n?s(o,t,e):s(e))||e);return n&&e&&m(o,t,e),e},c=(r,o)=>(t,n)=>o(t,n,r);import{Emitter as u}from"../../base/common/event.js";import{Disposable as p,DisposableStore as h}from"../../base/common/lifecycle.js";import{createAndFillInActionBarActions as y}from"../../platform/actions/browser/menuEntryActionViewItem.js";import{IMenuService as v,SubmenuItemAction as I}from"../../platform/actions/common/actions.js";import{IContextKeyService as l}from"../../platform/contextkey/common/contextkey.js";class g extends p{constructor(t,n,e,i){super();this.options=n;this.menuService=e;this.contextKeyService=i;this.menu=this._register(e.createMenu(t,i)),this._register(this.menu.onDidChange(()=>this.updateActions())),this.updateActions()}menu;_primaryActions=[];get primaryActions(){return this._primaryActions}_secondaryActions=[];get secondaryActions(){return this._secondaryActions}_onDidChange=this._register(new u);onDidChange=this._onDidChange.event;disposables=this._register(new h);updateActions(){this.disposables.clear(),this._primaryActions=[],this._secondaryActions=[],y(this.menu,this.options,{primary:this._primaryActions,secondary:this._secondaryActions}),this.disposables.add(this.updateSubmenus([...this._primaryActions,...this._secondaryActions],{})),this._onDidChange.fire()}updateSubmenus(t,n){const e=new h;for(const i of t)if(i instanceof I&&!n[i.item.submenu.id]){const s=n[i.item.submenu.id]=e.add(this.menuService.createMenu(i.item.submenu,this.contextKeyService));e.add(s.onDidChange(()=>this.updateActions())),e.add(this.updateSubmenus(i.actions,n))}return e}}let a=class extends p{constructor(t,n,e,i,s){super();this.menuId=t;this.contextMenuId=n;this.options=e;this.contextKeyService=i;this.menuService=s;this.menuActions=this._register(new g(t,this.options,s,i)),this._register(this.menuActions.onDidChange(()=>this._onDidChange.fire()))}menuActions;_onDidChange=this._register(new u);onDidChange=this._onDidChange.event;getPrimaryActions(){return this.menuActions.primaryActions}getSecondaryActions(){return this.menuActions.secondaryActions}getContextMenuActions(){const t=[];if(this.contextMenuId){const n=this.menuService.getMenuActions(this.contextMenuId,this.contextKeyService,this.options);y(n,{primary:[],secondary:t})}return t}};a=d([c(3,l),c(4,v)],a);export{a as CompositeMenuActions};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../base/common/lifecycle.js";
+import { createAndFillInActionBarActions } from "../../platform/actions/browser/menuEntryActionViewItem.js";
+import {
+  IMenuService,
+  SubmenuItemAction
+} from "../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
+class MenuActions extends Disposable {
+  constructor(menuId, options, menuService, contextKeyService) {
+    super();
+    this.options = options;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+    this.menu = this._register(
+      menuService.createMenu(menuId, contextKeyService)
+    );
+    this._register(this.menu.onDidChange(() => this.updateActions()));
+    this.updateActions();
+  }
+  static {
+    __name(this, "MenuActions");
+  }
+  menu;
+  _primaryActions = [];
+  get primaryActions() {
+    return this._primaryActions;
+  }
+  _secondaryActions = [];
+  get secondaryActions() {
+    return this._secondaryActions;
+  }
+  _onDidChange = this._register(new Emitter());
+  onDidChange = this._onDidChange.event;
+  disposables = this._register(new DisposableStore());
+  updateActions() {
+    this.disposables.clear();
+    this._primaryActions = [];
+    this._secondaryActions = [];
+    createAndFillInActionBarActions(this.menu, this.options, {
+      primary: this._primaryActions,
+      secondary: this._secondaryActions
+    });
+    this.disposables.add(
+      this.updateSubmenus(
+        [...this._primaryActions, ...this._secondaryActions],
+        {}
+      )
+    );
+    this._onDidChange.fire();
+  }
+  updateSubmenus(actions, submenus) {
+    const disposables = new DisposableStore();
+    for (const action of actions) {
+      if (action instanceof SubmenuItemAction && !submenus[action.item.submenu.id]) {
+        const menu = submenus[action.item.submenu.id] = disposables.add(
+          this.menuService.createMenu(
+            action.item.submenu,
+            this.contextKeyService
+          )
+        );
+        disposables.add(menu.onDidChange(() => this.updateActions()));
+        disposables.add(this.updateSubmenus(action.actions, submenus));
+      }
+    }
+    return disposables;
+  }
+}
+let CompositeMenuActions = class extends Disposable {
+  constructor(menuId, contextMenuId, options, contextKeyService, menuService) {
+    super();
+    this.menuId = menuId;
+    this.contextMenuId = contextMenuId;
+    this.options = options;
+    this.contextKeyService = contextKeyService;
+    this.menuService = menuService;
+    this.menuActions = this._register(new MenuActions(menuId, this.options, menuService, contextKeyService));
+    this._register(this.menuActions.onDidChange(() => this._onDidChange.fire()));
+  }
+  static {
+    __name(this, "CompositeMenuActions");
+  }
+  menuActions;
+  _onDidChange = this._register(new Emitter());
+  onDidChange = this._onDidChange.event;
+  getPrimaryActions() {
+    return this.menuActions.primaryActions;
+  }
+  getSecondaryActions() {
+    return this.menuActions.secondaryActions;
+  }
+  getContextMenuActions() {
+    const actions = [];
+    if (this.contextMenuId) {
+      const menu = this.menuService.getMenuActions(
+        this.contextMenuId,
+        this.contextKeyService,
+        this.options
+      );
+      createAndFillInActionBarActions(menu, {
+        primary: [],
+        secondary: actions
+      });
+    }
+    return actions;
+  }
+};
+CompositeMenuActions = __decorateClass([
+  __decorateParam(3, IContextKeyService),
+  __decorateParam(4, IMenuService)
+], CompositeMenuActions);
+export {
+  CompositeMenuActions
+};
+//# sourceMappingURL=actions.js.map

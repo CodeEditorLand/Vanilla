@@ -1,1 +1,140 @@
-var g=Object.defineProperty;var x=Object.getOwnPropertyDescriptor;var m=(s,n,i,o)=>{for(var t=o>1?void 0:o?x(n,i):n,e=s.length-1,a;e>=0;e--)(a=s[e])&&(t=(o?a(n,i,t):a(t))||t);return o&&t&&g(n,i,t),t},r=(s,n)=>(i,o)=>n(i,o,s);import{distinct as E}from"../../../../base/common/arrays.js";import{Disposable as b}from"../../../../base/common/lifecycle.js";import{localize as f}from"../../../../nls.js";import{IExtensionManagementService as I}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{areSameExtensions as u}from"../../../../platform/extensionManagement/common/extensionManagementUtil.js";import{INotificationService as N,Severity as y}from"../../../../platform/notification/common/notification.js";import{IStorageService as D,StorageScope as c,StorageTarget as S}from"../../../../platform/storage/common/storage.js";import{IWorkbenchExtensionEnablementService as w}from"../../../services/extensionManagement/common/extensionManagement.js";import{IExtensionsWorkbenchService as W}from"../common/extensions.js";let d=class extends b{constructor(i,o,t,e,a){super();this.extensionsWorkbenchService=i;this.extensionEnablementService=t;this.storageService=e;this.notificationService=a;this.checkForDeprecatedExtensions(),this._register(o.onDidInstallExtensions(v=>{const p=[];for(const{local:l}of v)l&&i.local.find(h=>u(h.identifier,l.identifier))?.deprecationInfo&&p.push(l.identifier.id.toLowerCase());p.length&&this.setNotifiedDeprecatedExtensions(p)}))}async checkForDeprecatedExtensions(){if(this.storageService.getBoolean("extensionsAssistant/doNotCheckDeprecated",c.PROFILE,!1))return;const i=await this.extensionsWorkbenchService.queryLocal(),o=this.getNotifiedDeprecatedExtensions(),t=i.filter(e=>!!e.deprecationInfo&&e.local&&this.extensionEnablementService.isEnabled(e.local)).filter(e=>!o.includes(e.identifier.id.toLowerCase()));t.length&&this.notificationService.prompt(y.Warning,f("deprecated extensions","You have deprecated extensions installed. We recommend to review them and migrate to alternatives."),[{label:f("showDeprecated","Show Deprecated Extensions"),run:async()=>{this.setNotifiedDeprecatedExtensions(t.map(e=>e.identifier.id.toLowerCase())),await this.extensionsWorkbenchService.openSearch(t.map(e=>`@id:${e.identifier.id}`).join(" "))}},{label:f("neverShowAgain","Don't Show Again"),isSecondary:!0,run:()=>this.storageService.store("extensionsAssistant/doNotCheckDeprecated",!0,c.PROFILE,S.USER)}])}getNotifiedDeprecatedExtensions(){return JSON.parse(this.storageService.get("extensionsAssistant/deprecated",c.PROFILE,"[]"))}setNotifiedDeprecatedExtensions(i){this.storageService.store("extensionsAssistant/deprecated",JSON.stringify(E([...this.getNotifiedDeprecatedExtensions(),...i])),c.PROFILE,S.USER)}};d=m([r(0,W),r(1,I),r(2,w),r(3,D),r(4,N)],d);export{d as DeprecatedExtensionsChecker};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { distinct } from "../../../../base/common/arrays.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import {
+  INotificationService,
+  Severity
+} from "../../../../platform/notification/common/notification.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IExtensionsWorkbenchService } from "../common/extensions.js";
+let DeprecatedExtensionsChecker = class extends Disposable {
+  constructor(extensionsWorkbenchService, extensionManagementService, extensionEnablementService, storageService, notificationService) {
+    super();
+    this.extensionsWorkbenchService = extensionsWorkbenchService;
+    this.extensionEnablementService = extensionEnablementService;
+    this.storageService = storageService;
+    this.notificationService = notificationService;
+    this.checkForDeprecatedExtensions();
+    this._register(extensionManagementService.onDidInstallExtensions((e) => {
+      const ids = [];
+      for (const { local } of e) {
+        if (local && extensionsWorkbenchService.local.find((extension) => areSameExtensions(extension.identifier, local.identifier))?.deprecationInfo) {
+          ids.push(local.identifier.id.toLowerCase());
+        }
+      }
+      if (ids.length) {
+        this.setNotifiedDeprecatedExtensions(ids);
+      }
+    }));
+  }
+  static {
+    __name(this, "DeprecatedExtensionsChecker");
+  }
+  async checkForDeprecatedExtensions() {
+    if (this.storageService.getBoolean(
+      "extensionsAssistant/doNotCheckDeprecated",
+      StorageScope.PROFILE,
+      false
+    )) {
+      return;
+    }
+    const local = await this.extensionsWorkbenchService.queryLocal();
+    const previouslyNotified = this.getNotifiedDeprecatedExtensions();
+    const toNotify = local.filter(
+      (e) => !!e.deprecationInfo && e.local && this.extensionEnablementService.isEnabled(e.local)
+    ).filter(
+      (e) => !previouslyNotified.includes(e.identifier.id.toLowerCase())
+    );
+    if (toNotify.length) {
+      this.notificationService.prompt(
+        Severity.Warning,
+        localize(
+          "deprecated extensions",
+          "You have deprecated extensions installed. We recommend to review them and migrate to alternatives."
+        ),
+        [
+          {
+            label: localize(
+              "showDeprecated",
+              "Show Deprecated Extensions"
+            ),
+            run: /* @__PURE__ */ __name(async () => {
+              this.setNotifiedDeprecatedExtensions(
+                toNotify.map(
+                  (e) => e.identifier.id.toLowerCase()
+                )
+              );
+              await this.extensionsWorkbenchService.openSearch(
+                toNotify.map(
+                  (extension) => `@id:${extension.identifier.id}`
+                ).join(" ")
+              );
+            }, "run")
+          },
+          {
+            label: localize("neverShowAgain", "Don't Show Again"),
+            isSecondary: true,
+            run: /* @__PURE__ */ __name(() => this.storageService.store(
+              "extensionsAssistant/doNotCheckDeprecated",
+              true,
+              StorageScope.PROFILE,
+              StorageTarget.USER
+            ), "run")
+          }
+        ]
+      );
+    }
+  }
+  getNotifiedDeprecatedExtensions() {
+    return JSON.parse(
+      this.storageService.get(
+        "extensionsAssistant/deprecated",
+        StorageScope.PROFILE,
+        "[]"
+      )
+    );
+  }
+  setNotifiedDeprecatedExtensions(notified) {
+    this.storageService.store(
+      "extensionsAssistant/deprecated",
+      JSON.stringify(
+        distinct([
+          ...this.getNotifiedDeprecatedExtensions(),
+          ...notified
+        ])
+      ),
+      StorageScope.PROFILE,
+      StorageTarget.USER
+    );
+  }
+};
+DeprecatedExtensionsChecker = __decorateClass([
+  __decorateParam(0, IExtensionsWorkbenchService),
+  __decorateParam(1, IExtensionManagementService),
+  __decorateParam(2, IWorkbenchExtensionEnablementService),
+  __decorateParam(3, IStorageService),
+  __decorateParam(4, INotificationService)
+], DeprecatedExtensionsChecker);
+export {
+  DeprecatedExtensionsChecker
+};
+//# sourceMappingURL=deprecatedExtensionsChecker.js.map

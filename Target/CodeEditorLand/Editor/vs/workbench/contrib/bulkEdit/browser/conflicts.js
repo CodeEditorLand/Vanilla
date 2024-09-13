@@ -1,1 +1,98 @@
-var u=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var a=(c,t,r,o)=>{for(var s=o>1?void 0:o?m(t,r):t,i=c.length-1,d;i>=0;i--)(d=c[i])&&(s=(o?d(t,r,s):d(s))||s);return o&&s&&u(t,r,s),s},l=(c,t)=>(r,o)=>t(r,o,c);import{Emitter as h}from"../../../../base/common/event.js";import{DisposableStore as _}from"../../../../base/common/lifecycle.js";import{ResourceMap as p}from"../../../../base/common/map.js";import{ResourceFileEdit as v,ResourceTextEdit as I}from"../../../../editor/browser/services/bulkEditService.js";import{IModelService as R}from"../../../../editor/common/services/model.js";import{IFileService as b}from"../../../../platform/files/common/files.js";import{ILogService as y}from"../../../../platform/log/common/log.js";import{ResourceNotebookCellEdit as C}from"./bulkCellEdits.js";let f=class{_conflicts=new p;_disposables=new _;_onDidConflict=new h;onDidConflict=this._onDidConflict.event;constructor(t,r,o,s){const i=new p;for(const e of t)if(e instanceof I){if(i.set(e.resource,!0),typeof e.versionId=="number"){const n=o.getModel(e.resource);n&&n.getVersionId()!==e.versionId&&(this._conflicts.set(e.resource,!0),this._onDidConflict.fire(this))}}else e instanceof v?e.newResource?i.set(e.newResource,!0):e.oldResource&&i.set(e.oldResource,!0):e instanceof C?i.set(e.resource,!0):s.warn("UNKNOWN edit type",e);this._disposables.add(r.onDidFilesChange(e=>{for(const n of i.keys())if(!o.getModel(n)&&e.contains(n)){this._conflicts.set(n,!0),this._onDidConflict.fire(this);break}}));const d=e=>{i.has(e.uri)&&(this._conflicts.set(e.uri,!0),this._onDidConflict.fire(this))};for(const e of o.getModels())this._disposables.add(e.onDidChangeContent(()=>d(e)))}dispose(){this._disposables.dispose(),this._onDidConflict.dispose()}list(){return[...this._conflicts.keys()]}hasConflicts(){return this._conflicts.size>0}};f=a([l(1,b),l(2,R),l(3,y)],f);export{f as ConflictDetector};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../../base/common/event.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import {
+  ResourceFileEdit,
+  ResourceTextEdit
+} from "../../../../editor/browser/services/bulkEditService.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ResourceNotebookCellEdit } from "./bulkCellEdits.js";
+let ConflictDetector = class {
+  static {
+    __name(this, "ConflictDetector");
+  }
+  _conflicts = new ResourceMap();
+  _disposables = new DisposableStore();
+  _onDidConflict = new Emitter();
+  onDidConflict = this._onDidConflict.event;
+  constructor(edits, fileService, modelService, logService) {
+    const _workspaceEditResources = new ResourceMap();
+    for (const edit of edits) {
+      if (edit instanceof ResourceTextEdit) {
+        _workspaceEditResources.set(edit.resource, true);
+        if (typeof edit.versionId === "number") {
+          const model = modelService.getModel(edit.resource);
+          if (model && model.getVersionId() !== edit.versionId) {
+            this._conflicts.set(edit.resource, true);
+            this._onDidConflict.fire(this);
+          }
+        }
+      } else if (edit instanceof ResourceFileEdit) {
+        if (edit.newResource) {
+          _workspaceEditResources.set(edit.newResource, true);
+        } else if (edit.oldResource) {
+          _workspaceEditResources.set(edit.oldResource, true);
+        }
+      } else if (edit instanceof ResourceNotebookCellEdit) {
+        _workspaceEditResources.set(edit.resource, true);
+      } else {
+        logService.warn("UNKNOWN edit type", edit);
+      }
+    }
+    this._disposables.add(
+      fileService.onDidFilesChange((e) => {
+        for (const uri of _workspaceEditResources.keys()) {
+          if (!modelService.getModel(uri) && e.contains(uri)) {
+            this._conflicts.set(uri, true);
+            this._onDidConflict.fire(this);
+            break;
+          }
+        }
+      })
+    );
+    const onDidChangeModel = /* @__PURE__ */ __name((model) => {
+      if (_workspaceEditResources.has(model.uri)) {
+        this._conflicts.set(model.uri, true);
+        this._onDidConflict.fire(this);
+      }
+    }, "onDidChangeModel");
+    for (const model of modelService.getModels()) {
+      this._disposables.add(
+        model.onDidChangeContent(() => onDidChangeModel(model))
+      );
+    }
+  }
+  dispose() {
+    this._disposables.dispose();
+    this._onDidConflict.dispose();
+  }
+  list() {
+    return [...this._conflicts.keys()];
+  }
+  hasConflicts() {
+    return this._conflicts.size > 0;
+  }
+};
+ConflictDetector = __decorateClass([
+  __decorateParam(1, IFileService),
+  __decorateParam(2, IModelService),
+  __decorateParam(3, ILogService)
+], ConflictDetector);
+export {
+  ConflictDetector
+};
+//# sourceMappingURL=conflicts.js.map

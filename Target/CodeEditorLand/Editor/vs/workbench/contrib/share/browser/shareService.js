@@ -1,1 +1,114 @@
-var m=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var p=(c,e,i,t)=>{for(var r=t>1?void 0:t?h(e,i):e,a=c.length-1,o;a>=0;a--)(o=c[a])&&(r=(t?o(e,i,r):o(r))||r);return t&&r&&m(e,i,r),r},s=(c,e)=>(i,t)=>e(i,t,c);import{ICodeEditorService as u}from"../../../../editor/browser/services/codeEditorService.js";import{score as I}from"../../../../editor/common/languageSelector.js";import{localize as v}from"../../../../nls.js";import{IContextKeyService as S,RawContextKey as y}from"../../../../platform/contextkey/common/contextkey.js";import{ILabelService as f}from"../../../../platform/label/common/label.js";import{IQuickInputService as b}from"../../../../platform/quickinput/common/quickInput.js";import{ITelemetryService as C}from"../../../../platform/telemetry/common/telemetry.js";const g=new y("shareProviderCount",0,v("shareProviderCount","The number of available share providers"));let d=class{constructor(e,i,t,r,a){this.contextKeyService=e;this.labelService=i;this.quickInputService=t;this.codeEditorService=r;this.telemetryService=a;this.providerCount=g.bindTo(this.contextKeyService)}_serviceBrand;providerCount;_providers=new Set;registerShareProvider(e){return this._providers.add(e),this.providerCount.set(this._providers.size),{dispose:()=>{this._providers.delete(e),this.providerCount.set(this._providers.size)}}}getShareActions(){return[]}async provideShare(e,i){const t=this.codeEditorService.getActiveCodeEditor()?.getModel()?.getLanguageId()??"",r=[...this._providers.values()].filter(n=>I(n.selector,e.resourceUri,t,!0,void 0,void 0)>0).sort((n,l)=>n.priority-l.priority);if(r.length===0)return;if(r.length===1)return this.telemetryService.publicLog2("shareService.share",{providerId:r[0].id}),r[0].provideShare(e,i);const a=r.map(n=>({label:n.label,provider:n})),o=await this.quickInputService.pick(a,{canPickMany:!1,placeHolder:v("type to filter","Choose how to share {0}",this.labelService.getUriLabel(e.resourceUri))},i);if(o!==void 0)return this.telemetryService.publicLog2("shareService.share",{providerId:o.provider.id}),o.provider.provideShare(e,i)}};d=p([s(0,S),s(1,f),s(2,b),s(3,u),s(4,C)],d);export{g as ShareProviderCountContext,d as ShareService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { score } from "../../../../editor/common/languageSelector.js";
+import { localize } from "../../../../nls.js";
+import {
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import {
+  IQuickInputService
+} from "../../../../platform/quickinput/common/quickInput.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+const ShareProviderCountContext = new RawContextKey(
+  "shareProviderCount",
+  0,
+  localize("shareProviderCount", "The number of available share providers")
+);
+let ShareService = class {
+  constructor(contextKeyService, labelService, quickInputService, codeEditorService, telemetryService) {
+    this.contextKeyService = contextKeyService;
+    this.labelService = labelService;
+    this.quickInputService = quickInputService;
+    this.codeEditorService = codeEditorService;
+    this.telemetryService = telemetryService;
+    this.providerCount = ShareProviderCountContext.bindTo(this.contextKeyService);
+  }
+  static {
+    __name(this, "ShareService");
+  }
+  _serviceBrand;
+  providerCount;
+  _providers = /* @__PURE__ */ new Set();
+  registerShareProvider(provider) {
+    this._providers.add(provider);
+    this.providerCount.set(this._providers.size);
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        this._providers.delete(provider);
+        this.providerCount.set(this._providers.size);
+      }, "dispose")
+    };
+  }
+  getShareActions() {
+    return [];
+  }
+  async provideShare(item, token) {
+    const language = this.codeEditorService.getActiveCodeEditor()?.getModel()?.getLanguageId() ?? "";
+    const providers = [...this._providers.values()].filter(
+      (p) => score(
+        p.selector,
+        item.resourceUri,
+        language,
+        true,
+        void 0,
+        void 0
+      ) > 0
+    ).sort((a, b) => a.priority - b.priority);
+    if (providers.length === 0) {
+      return void 0;
+    }
+    if (providers.length === 1) {
+      this.telemetryService.publicLog2(
+        "shareService.share",
+        { providerId: providers[0].id }
+      );
+      return providers[0].provideShare(item, token);
+    }
+    const items = providers.map((p) => ({ label: p.label, provider: p }));
+    const selected = await this.quickInputService.pick(
+      items,
+      {
+        canPickMany: false,
+        placeHolder: localize(
+          "type to filter",
+          "Choose how to share {0}",
+          this.labelService.getUriLabel(item.resourceUri)
+        )
+      },
+      token
+    );
+    if (selected !== void 0) {
+      this.telemetryService.publicLog2(
+        "shareService.share",
+        { providerId: selected.provider.id }
+      );
+      return selected.provider.provideShare(item, token);
+    }
+    return;
+  }
+};
+ShareService = __decorateClass([
+  __decorateParam(0, IContextKeyService),
+  __decorateParam(1, ILabelService),
+  __decorateParam(2, IQuickInputService),
+  __decorateParam(3, ICodeEditorService),
+  __decorateParam(4, ITelemetryService)
+], ShareService);
+export {
+  ShareProviderCountContext,
+  ShareService
+};
+//# sourceMappingURL=shareService.js.map

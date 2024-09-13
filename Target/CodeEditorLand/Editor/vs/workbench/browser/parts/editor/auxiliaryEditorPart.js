@@ -1,1 +1,390 @@
-var U=Object.defineProperty;var _=Object.getOwnPropertyDescriptor;var b=(I,l,t,i)=>{for(var r=i>1?void 0:i?_(l,t):l,s=I.length-1,e;s>=0;s--)(e=I[s])&&(r=(i?e(l,t,r):e(r))||r);return i&&r&&U(l,t,r),r},n=(I,l)=>(t,i)=>l(t,i,I);import{onDidChangeFullscreen as D}from"../../../../base/browser/browser.js";import{hide as C,show as P}from"../../../../base/browser/dom.js";import{Emitter as k,Event as w}from"../../../../base/common/event.js";import{DisposableStore as H}from"../../../../base/common/lifecycle.js";import{isNative as M}from"../../../../base/common/platform.js";import{IConfigurationService as V}from"../../../../platform/configuration/common/configuration.js";import{IContextKeyService as N}from"../../../../platform/contextkey/common/contextkey.js";import{IInstantiationService as E}from"../../../../platform/instantiation/common/instantiation.js";import{ServiceCollection as Y}from"../../../../platform/instantiation/common/serviceCollection.js";import{IStorageService as j}from"../../../../platform/storage/common/storage.js";import{IThemeService as F}from"../../../../platform/theme/common/themeService.js";import{hasCustomTitlebar as K}from"../../../../platform/window/common/window.js";import{IAuxiliaryWindowService as $}from"../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";import{GroupDirection as G,GroupsOrder as A}from"../../../services/editor/common/editorGroupsService.js";import{IEditorService as W}from"../../../services/editor/common/editorService.js";import{IHostService as q}from"../../../services/host/browser/host.js";import{IWorkbenchLayoutService as x,shouldShowCustomTitleBar as L}from"../../../services/layout/browser/layoutService.js";import{ILifecycleService as z}from"../../../services/lifecycle/common/lifecycle.js";import{IStatusbarService as O}from"../../../services/statusbar/browser/statusbar.js";import{ITitleService as J}from"../../../services/title/browser/titleService.js";import{WindowTitle as Q}from"../titlebar/windowTitle.js";import{EditorPart as X}from"./editorPart.js";let S=class{constructor(l,t,i,r,s,e,a,v,d){this.editorPartsView=l;this.instantiationService=t;this.auxiliaryWindowService=i;this.lifecycleService=r;this.configurationService=s;this.statusbarService=e;this.titleService=a;this.editorService=v;this.layoutService=d}static STATUS_BAR_VISIBILITY="workbench.statusBar.visible";async create(l,t){function i(){let o=0;return y&&(o+=p.height),c&&f&&(o+=c.height),o}function r(o){y?P(p.container):C(p.container),o&&a.layout()}function s(o){c&&(f?P(c.container):C(c.container),o&&a.layout())}const e=new H,a=e.add(await this.auxiliaryWindowService.open(t)),v=document.createElement("div");v.classList.add("part","editor"),v.setAttribute("role","main"),v.style.position="relative",a.container.appendChild(v);const d=e.add(this.instantiationService.createInstance(h,a.window.vscodeWindowId,this.editorPartsView,t?.state,l));e.add(this.editorPartsView.registerPart(d)),d.create(v);let c,f=!1;if(M&&K(this.configurationService)){c=e.add(this.titleService.createAuxiliaryTitlebarPart(a.container,d)),f=L(this.configurationService,a.window,void 0,!1);const o=()=>{const u=f;f=L(this.configurationService,a.window,void 0,!1),u!==f&&s(!0)};e.add(c.onDidChange(()=>a.layout())),e.add(this.layoutService.onDidChangePartVisibility(()=>o())),e.add(D(u=>{u===a.window.vscodeWindowId&&o()})),s(!1)}else e.add(this.instantiationService.createInstance(Q,a.window,d));const p=e.add(this.statusbarService.createAuxiliaryStatusbarPart(a.container));let y=this.configurationService.getValue(S.STATUS_BAR_VISIBILITY)!==!1;e.add(this.configurationService.onDidChangeConfiguration(o=>{o.affectsConfiguration(S.STATUS_BAR_VISIBILITY)&&(y=this.configurationService.getValue(S.STATUS_BAR_VISIBILITY)!==!1,r(!0))})),r(!1);const R=e.add(w.once(d.onWillClose)(()=>a.window.close()));e.add(w.once(a.onUnload)(()=>{e.isDisposed||(R.dispose(),d.close(),e.dispose())})),e.add(w.once(this.lifecycleService.onDidShutdown)(()=>e.dispose())),e.add(a.onBeforeUnload(o=>{for(const u of d.groups)for(const m of u.editors){const T=m.canMove(u.id,this.editorPartsView.mainPart.activeGroup.id);if(typeof T=="string"){u.openEditor(m),o.veto(T);break}}})),e.add(a.onWillLayout(o=>{const u=c?.height??0;c?.layout(o.width,u,0,0);const m=o.height-i();d.layout(o.width,m,u,0),p.layout(o.width,p.height,o.height-p.height,0)})),a.layout();const B=e.add(this.instantiationService.createChild(new Y([O,this.statusbarService.createScoped(p,e)],[W,this.editorService.createScoped(d,e)])));return{part:d,instantiationService:B,disposables:e}}};S=b([n(1,E),n(2,$),n(3,z),n(4,V),n(5,O),n(6,J),n(7,W),n(8,x)],S);let h=class extends X{constructor(t,i,r,s,e,a,v,d,c,f,g){const p=h.COUNTER++;super(i,`workbench.parts.auxiliaryEditor.${p}`,s,t,e,a,v,d,c,f,g);this.state=r}static COUNTER=1;_onWillClose=this._register(new k);onWillClose=this._onWillClose.event;removeGroup(t,i){const r=this.assertGroupView(t);this.count===1&&this.activeGroup===r?this.doRemoveLastGroup(i):super.removeGroup(t,i)}doRemoveLastGroup(t){const i=!t&&this.shouldRestoreFocus(this.container),s=this.editorPartsView.getGroups(A.MOST_RECENTLY_ACTIVE)[1];s&&(s.groupsView.activateGroup(s),i&&s.focus()),this.doClose(!1)}loadState(){return this.state}saveState(){}close(){return this.doClose(!0)}doClose(t){let i=!0;return t&&(i=this.mergeGroupsToMainPart()),this._onWillClose.fire(),i}mergeGroupsToMainPart(){if(!this.groups.some(r=>r.count>0))return!0;let t;for(const r of this.editorPartsView.mainPart.getGroups(A.MOST_RECENTLY_ACTIVE))if(!r.isLocked){t=r;break}t||(t=this.editorPartsView.mainPart.addGroup(this.editorPartsView.mainPart.activeGroup,this.partOptions.openSideBySideDirection==="right"?G.RIGHT:G.DOWN));const i=this.mergeAllGroups(t);return t.focus(),i}};h=b([n(4,E),n(5,F),n(6,V),n(7,j),n(8,x),n(9,q),n(10,N)],h);export{S as AuxiliaryEditorPart};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { onDidChangeFullscreen } from "../../../../base/browser/browser.js";
+import { hide, show } from "../../../../base/browser/dom.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { isNative } from "../../../../base/common/platform.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { hasCustomTitlebar } from "../../../../platform/window/common/window.js";
+import {
+  IAuxiliaryWindowService
+} from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
+import {
+  GroupDirection,
+  GroupsOrder
+} from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import {
+  IWorkbenchLayoutService,
+  shouldShowCustomTitleBar
+} from "../../../services/layout/browser/layoutService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { ITitleService } from "../../../services/title/browser/titleService.js";
+import { WindowTitle } from "../titlebar/windowTitle.js";
+import { EditorPart } from "./editorPart.js";
+let AuxiliaryEditorPart = class {
+  constructor(editorPartsView, instantiationService, auxiliaryWindowService, lifecycleService, configurationService, statusbarService, titleService, editorService, layoutService) {
+    this.editorPartsView = editorPartsView;
+    this.instantiationService = instantiationService;
+    this.auxiliaryWindowService = auxiliaryWindowService;
+    this.lifecycleService = lifecycleService;
+    this.configurationService = configurationService;
+    this.statusbarService = statusbarService;
+    this.titleService = titleService;
+    this.editorService = editorService;
+    this.layoutService = layoutService;
+  }
+  static {
+    __name(this, "AuxiliaryEditorPart");
+  }
+  static STATUS_BAR_VISIBILITY = "workbench.statusBar.visible";
+  async create(label, options) {
+    function computeEditorPartHeightOffset() {
+      let editorPartHeightOffset = 0;
+      if (statusbarVisible) {
+        editorPartHeightOffset += statusbarPart.height;
+      }
+      if (titlebarPart && titlebarVisible) {
+        editorPartHeightOffset += titlebarPart.height;
+      }
+      return editorPartHeightOffset;
+    }
+    __name(computeEditorPartHeightOffset, "computeEditorPartHeightOffset");
+    function updateStatusbarVisibility(fromEvent) {
+      if (statusbarVisible) {
+        show(statusbarPart.container);
+      } else {
+        hide(statusbarPart.container);
+      }
+      if (fromEvent) {
+        auxiliaryWindow.layout();
+      }
+    }
+    __name(updateStatusbarVisibility, "updateStatusbarVisibility");
+    function updateTitlebarVisibility(fromEvent) {
+      if (!titlebarPart) {
+        return;
+      }
+      if (titlebarVisible) {
+        show(titlebarPart.container);
+      } else {
+        hide(titlebarPart.container);
+      }
+      if (fromEvent) {
+        auxiliaryWindow.layout();
+      }
+    }
+    __name(updateTitlebarVisibility, "updateTitlebarVisibility");
+    const disposables = new DisposableStore();
+    const auxiliaryWindow = disposables.add(
+      await this.auxiliaryWindowService.open(options)
+    );
+    const editorPartContainer = document.createElement("div");
+    editorPartContainer.classList.add("part", "editor");
+    editorPartContainer.setAttribute("role", "main");
+    editorPartContainer.style.position = "relative";
+    auxiliaryWindow.container.appendChild(editorPartContainer);
+    const editorPart = disposables.add(
+      this.instantiationService.createInstance(
+        AuxiliaryEditorPartImpl,
+        auxiliaryWindow.window.vscodeWindowId,
+        this.editorPartsView,
+        options?.state,
+        label
+      )
+    );
+    disposables.add(this.editorPartsView.registerPart(editorPart));
+    editorPart.create(editorPartContainer);
+    let titlebarPart;
+    let titlebarVisible = false;
+    const useCustomTitle = isNative && hasCustomTitlebar(this.configurationService);
+    if (useCustomTitle) {
+      titlebarPart = disposables.add(
+        this.titleService.createAuxiliaryTitlebarPart(
+          auxiliaryWindow.container,
+          editorPart
+        )
+      );
+      titlebarVisible = shouldShowCustomTitleBar(
+        this.configurationService,
+        auxiliaryWindow.window,
+        void 0,
+        false
+      );
+      const handleTitleBarVisibilityEvent = /* @__PURE__ */ __name(() => {
+        const oldTitlebarPartVisible = titlebarVisible;
+        titlebarVisible = shouldShowCustomTitleBar(
+          this.configurationService,
+          auxiliaryWindow.window,
+          void 0,
+          false
+        );
+        if (oldTitlebarPartVisible !== titlebarVisible) {
+          updateTitlebarVisibility(true);
+        }
+      }, "handleTitleBarVisibilityEvent");
+      disposables.add(
+        titlebarPart.onDidChange(() => auxiliaryWindow.layout())
+      );
+      disposables.add(
+        this.layoutService.onDidChangePartVisibility(
+          () => handleTitleBarVisibilityEvent()
+        )
+      );
+      disposables.add(
+        onDidChangeFullscreen((windowId) => {
+          if (windowId !== auxiliaryWindow.window.vscodeWindowId) {
+            return;
+          }
+          handleTitleBarVisibilityEvent();
+        })
+      );
+      updateTitlebarVisibility(false);
+    } else {
+      disposables.add(
+        this.instantiationService.createInstance(
+          WindowTitle,
+          auxiliaryWindow.window,
+          editorPart
+        )
+      );
+    }
+    const statusbarPart = disposables.add(
+      this.statusbarService.createAuxiliaryStatusbarPart(
+        auxiliaryWindow.container
+      )
+    );
+    let statusbarVisible = this.configurationService.getValue(
+      AuxiliaryEditorPart.STATUS_BAR_VISIBILITY
+    ) !== false;
+    disposables.add(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          AuxiliaryEditorPart.STATUS_BAR_VISIBILITY
+        )) {
+          statusbarVisible = this.configurationService.getValue(
+            AuxiliaryEditorPart.STATUS_BAR_VISIBILITY
+          ) !== false;
+          updateStatusbarVisibility(true);
+        }
+      })
+    );
+    updateStatusbarVisibility(false);
+    const editorCloseListener = disposables.add(
+      Event.once(editorPart.onWillClose)(
+        () => auxiliaryWindow.window.close()
+      )
+    );
+    disposables.add(
+      Event.once(auxiliaryWindow.onUnload)(() => {
+        if (disposables.isDisposed) {
+          return;
+        }
+        editorCloseListener.dispose();
+        editorPart.close();
+        disposables.dispose();
+      })
+    );
+    disposables.add(
+      Event.once(this.lifecycleService.onDidShutdown)(
+        () => disposables.dispose()
+      )
+    );
+    disposables.add(
+      auxiliaryWindow.onBeforeUnload((event) => {
+        for (const group of editorPart.groups) {
+          for (const editor of group.editors) {
+            const canMoveVeto = editor.canMove(
+              group.id,
+              this.editorPartsView.mainPart.activeGroup.id
+            );
+            if (typeof canMoveVeto === "string") {
+              group.openEditor(editor);
+              event.veto(canMoveVeto);
+              break;
+            }
+          }
+        }
+      })
+    );
+    disposables.add(
+      auxiliaryWindow.onWillLayout((dimension) => {
+        const titlebarPartHeight = titlebarPart?.height ?? 0;
+        titlebarPart?.layout(dimension.width, titlebarPartHeight, 0, 0);
+        const editorPartHeight = dimension.height - computeEditorPartHeightOffset();
+        editorPart.layout(
+          dimension.width,
+          editorPartHeight,
+          titlebarPartHeight,
+          0
+        );
+        statusbarPart.layout(
+          dimension.width,
+          statusbarPart.height,
+          dimension.height - statusbarPart.height,
+          0
+        );
+      })
+    );
+    auxiliaryWindow.layout();
+    const instantiationService = disposables.add(
+      this.instantiationService.createChild(
+        new ServiceCollection(
+          [
+            IStatusbarService,
+            this.statusbarService.createScoped(
+              statusbarPart,
+              disposables
+            )
+          ],
+          [
+            IEditorService,
+            this.editorService.createScoped(
+              editorPart,
+              disposables
+            )
+          ]
+        )
+      )
+    );
+    return {
+      part: editorPart,
+      instantiationService,
+      disposables
+    };
+  }
+};
+AuxiliaryEditorPart = __decorateClass([
+  __decorateParam(1, IInstantiationService),
+  __decorateParam(2, IAuxiliaryWindowService),
+  __decorateParam(3, ILifecycleService),
+  __decorateParam(4, IConfigurationService),
+  __decorateParam(5, IStatusbarService),
+  __decorateParam(6, ITitleService),
+  __decorateParam(7, IEditorService),
+  __decorateParam(8, IWorkbenchLayoutService)
+], AuxiliaryEditorPart);
+let AuxiliaryEditorPartImpl = class extends EditorPart {
+  constructor(windowId, editorPartsView, state, groupsLabel, instantiationService, themeService, configurationService, storageService, layoutService, hostService, contextKeyService) {
+    const id = AuxiliaryEditorPartImpl.COUNTER++;
+    super(
+      editorPartsView,
+      `workbench.parts.auxiliaryEditor.${id}`,
+      groupsLabel,
+      windowId,
+      instantiationService,
+      themeService,
+      configurationService,
+      storageService,
+      layoutService,
+      hostService,
+      contextKeyService
+    );
+    this.state = state;
+  }
+  static {
+    __name(this, "AuxiliaryEditorPartImpl");
+  }
+  static COUNTER = 1;
+  _onWillClose = this._register(new Emitter());
+  onWillClose = this._onWillClose.event;
+  removeGroup(group, preserveFocus) {
+    const groupView = this.assertGroupView(group);
+    if (this.count === 1 && this.activeGroup === groupView) {
+      this.doRemoveLastGroup(preserveFocus);
+    } else {
+      super.removeGroup(group, preserveFocus);
+    }
+  }
+  doRemoveLastGroup(preserveFocus) {
+    const restoreFocus = !preserveFocus && this.shouldRestoreFocus(this.container);
+    const mostRecentlyActiveGroups = this.editorPartsView.getGroups(
+      GroupsOrder.MOST_RECENTLY_ACTIVE
+    );
+    const nextActiveGroup = mostRecentlyActiveGroups[1];
+    if (nextActiveGroup) {
+      nextActiveGroup.groupsView.activateGroup(nextActiveGroup);
+      if (restoreFocus) {
+        nextActiveGroup.focus();
+      }
+    }
+    this.doClose(
+      false
+      /* do not merge any groups to main part */
+    );
+  }
+  loadState() {
+    return this.state;
+  }
+  saveState() {
+    return;
+  }
+  close() {
+    return this.doClose(
+      true
+      /* merge all groups to main part */
+    );
+  }
+  doClose(mergeGroupsToMainPart) {
+    let result = true;
+    if (mergeGroupsToMainPart) {
+      result = this.mergeGroupsToMainPart();
+    }
+    this._onWillClose.fire();
+    return result;
+  }
+  mergeGroupsToMainPart() {
+    if (!this.groups.some((group) => group.count > 0)) {
+      return true;
+    }
+    let targetGroup;
+    for (const group of this.editorPartsView.mainPart.getGroups(
+      GroupsOrder.MOST_RECENTLY_ACTIVE
+    )) {
+      if (!group.isLocked) {
+        targetGroup = group;
+        break;
+      }
+    }
+    if (!targetGroup) {
+      targetGroup = this.editorPartsView.mainPart.addGroup(
+        this.editorPartsView.mainPart.activeGroup,
+        this.partOptions.openSideBySideDirection === "right" ? GroupDirection.RIGHT : GroupDirection.DOWN
+      );
+    }
+    const result = this.mergeAllGroups(targetGroup);
+    targetGroup.focus();
+    return result;
+  }
+};
+AuxiliaryEditorPartImpl = __decorateClass([
+  __decorateParam(4, IInstantiationService),
+  __decorateParam(5, IThemeService),
+  __decorateParam(6, IConfigurationService),
+  __decorateParam(7, IStorageService),
+  __decorateParam(8, IWorkbenchLayoutService),
+  __decorateParam(9, IHostService),
+  __decorateParam(10, IContextKeyService)
+], AuxiliaryEditorPartImpl);
+export {
+  AuxiliaryEditorPart
+};
+//# sourceMappingURL=auxiliaryEditorPart.js.map

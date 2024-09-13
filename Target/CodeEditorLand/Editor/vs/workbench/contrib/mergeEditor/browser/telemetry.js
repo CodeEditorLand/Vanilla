@@ -1,1 +1,95 @@
-var r=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var s=(a,e,t,n)=>{for(var o=n>1?void 0:n?m(e,t):e,l=a.length-1,c;l>=0;l--)(c=a[l])&&(o=(n?c(e,t,o):c(o))||o);return n&&o&&r(e,t,o),o},u=(a,e)=>(t,n)=>e(t,n,a);import{ITelemetryService as h}from"../../../../platform/telemetry/common/telemetry.js";let i=class{constructor(e){this.telemetryService=e}reportMergeEditorOpened(e){this.telemetryService.publicLog2("mergeEditor.opened",{conflictCount:e.conflictCount,combinableConflictCount:e.combinableConflictCount,baseVisible:e.baseVisible,isColumnView:e.isColumnView,baseTop:e.baseTop})}reportLayoutChange(e){this.telemetryService.publicLog2("mergeEditor.layoutChanged",{baseVisible:e.baseVisible,isColumnView:e.isColumnView,baseTop:e.baseTop})}reportMergeEditorClosed(e){this.telemetryService.publicLog2("mergeEditor.closed",{conflictCount:e.conflictCount,combinableConflictCount:e.combinableConflictCount,durationOpenedSecs:e.durationOpenedSecs,remainingConflictCount:e.remainingConflictCount,accepted:e.accepted,conflictsResolvedWithBase:e.conflictsResolvedWithBase,conflictsResolvedWithInput1:e.conflictsResolvedWithInput1,conflictsResolvedWithInput2:e.conflictsResolvedWithInput2,conflictsResolvedWithSmartCombination:e.conflictsResolvedWithSmartCombination,manuallySolvedConflictCountThatEqualNone:e.manuallySolvedConflictCountThatEqualNone,manuallySolvedConflictCountThatEqualSmartCombine:e.manuallySolvedConflictCountThatEqualSmartCombine,manuallySolvedConflictCountThatEqualInput1:e.manuallySolvedConflictCountThatEqualInput1,manuallySolvedConflictCountThatEqualInput2:e.manuallySolvedConflictCountThatEqualInput2,manuallySolvedConflictCountThatEqualNoneAndStartedWithBase:e.manuallySolvedConflictCountThatEqualNoneAndStartedWithBase,manuallySolvedConflictCountThatEqualNoneAndStartedWithInput1:e.manuallySolvedConflictCountThatEqualNoneAndStartedWithInput1,manuallySolvedConflictCountThatEqualNoneAndStartedWithInput2:e.manuallySolvedConflictCountThatEqualNoneAndStartedWithInput2,manuallySolvedConflictCountThatEqualNoneAndStartedWithBothNonSmart:e.manuallySolvedConflictCountThatEqualNoneAndStartedWithBothNonSmart,manuallySolvedConflictCountThatEqualNoneAndStartedWithBothSmart:e.manuallySolvedConflictCountThatEqualNoneAndStartedWithBothSmart})}reportAcceptInvoked(e,t){this.telemetryService.publicLog2("mergeEditor.action.accept",{otherAccepted:t,isInput1:e===1})}reportSmartCombinationInvoked(e){this.telemetryService.publicLog2("mergeEditor.action.smartCombination",{otherAccepted:e})}reportRemoveInvoked(e,t){this.telemetryService.publicLog2("mergeEditor.action.remove",{otherAccepted:t,isInput1:e===1})}reportResetToBaseInvoked(){this.telemetryService.publicLog2("mergeEditor.action.resetToBase",{})}reportNavigationToNextConflict(){this.telemetryService.publicLog2("mergeEditor.action.goToNextConflict",{})}reportNavigationToPreviousConflict(){this.telemetryService.publicLog2("mergeEditor.action.goToPreviousConflict",{})}reportConflictCounterClicked(){this.telemetryService.publicLog2("mergeEditor.action.conflictCounterClicked",{})}};i=s([u(0,h)],i);export{i as MergeEditorTelemetry};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+let MergeEditorTelemetry = class {
+  constructor(telemetryService) {
+    this.telemetryService = telemetryService;
+  }
+  static {
+    __name(this, "MergeEditorTelemetry");
+  }
+  reportMergeEditorOpened(args) {
+    this.telemetryService.publicLog2("mergeEditor.opened", {
+      conflictCount: args.conflictCount,
+      combinableConflictCount: args.combinableConflictCount,
+      baseVisible: args.baseVisible,
+      isColumnView: args.isColumnView,
+      baseTop: args.baseTop
+    });
+  }
+  reportLayoutChange(args) {
+    this.telemetryService.publicLog2("mergeEditor.layoutChanged", {
+      baseVisible: args.baseVisible,
+      isColumnView: args.isColumnView,
+      baseTop: args.baseTop
+    });
+  }
+  reportMergeEditorClosed(args) {
+    this.telemetryService.publicLog2("mergeEditor.closed", {
+      conflictCount: args.conflictCount,
+      combinableConflictCount: args.combinableConflictCount,
+      durationOpenedSecs: args.durationOpenedSecs,
+      remainingConflictCount: args.remainingConflictCount,
+      accepted: args.accepted,
+      conflictsResolvedWithBase: args.conflictsResolvedWithBase,
+      conflictsResolvedWithInput1: args.conflictsResolvedWithInput1,
+      conflictsResolvedWithInput2: args.conflictsResolvedWithInput2,
+      conflictsResolvedWithSmartCombination: args.conflictsResolvedWithSmartCombination,
+      manuallySolvedConflictCountThatEqualNone: args.manuallySolvedConflictCountThatEqualNone,
+      manuallySolvedConflictCountThatEqualSmartCombine: args.manuallySolvedConflictCountThatEqualSmartCombine,
+      manuallySolvedConflictCountThatEqualInput1: args.manuallySolvedConflictCountThatEqualInput1,
+      manuallySolvedConflictCountThatEqualInput2: args.manuallySolvedConflictCountThatEqualInput2,
+      manuallySolvedConflictCountThatEqualNoneAndStartedWithBase: args.manuallySolvedConflictCountThatEqualNoneAndStartedWithBase,
+      manuallySolvedConflictCountThatEqualNoneAndStartedWithInput1: args.manuallySolvedConflictCountThatEqualNoneAndStartedWithInput1,
+      manuallySolvedConflictCountThatEqualNoneAndStartedWithInput2: args.manuallySolvedConflictCountThatEqualNoneAndStartedWithInput2,
+      manuallySolvedConflictCountThatEqualNoneAndStartedWithBothNonSmart: args.manuallySolvedConflictCountThatEqualNoneAndStartedWithBothNonSmart,
+      manuallySolvedConflictCountThatEqualNoneAndStartedWithBothSmart: args.manuallySolvedConflictCountThatEqualNoneAndStartedWithBothSmart
+    });
+  }
+  reportAcceptInvoked(inputNumber, otherAccepted) {
+    this.telemetryService.publicLog2("mergeEditor.action.accept", {
+      otherAccepted,
+      isInput1: inputNumber === 1
+    });
+  }
+  reportSmartCombinationInvoked(otherAccepted) {
+    this.telemetryService.publicLog2("mergeEditor.action.smartCombination", {
+      otherAccepted
+    });
+  }
+  reportRemoveInvoked(inputNumber, otherAccepted) {
+    this.telemetryService.publicLog2("mergeEditor.action.remove", {
+      otherAccepted,
+      isInput1: inputNumber === 1
+    });
+  }
+  reportResetToBaseInvoked() {
+    this.telemetryService.publicLog2("mergeEditor.action.resetToBase", {});
+  }
+  reportNavigationToNextConflict() {
+    this.telemetryService.publicLog2("mergeEditor.action.goToNextConflict", {});
+  }
+  reportNavigationToPreviousConflict() {
+    this.telemetryService.publicLog2("mergeEditor.action.goToPreviousConflict", {});
+  }
+  reportConflictCounterClicked() {
+    this.telemetryService.publicLog2("mergeEditor.action.conflictCounterClicked", {});
+  }
+};
+MergeEditorTelemetry = __decorateClass([
+  __decorateParam(0, ITelemetryService)
+], MergeEditorTelemetry);
+export {
+  MergeEditorTelemetry
+};
+//# sourceMappingURL=telemetry.js.map

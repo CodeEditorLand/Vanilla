@@ -1,1 +1,190 @@
-var h=Object.defineProperty;var M=Object.getOwnPropertyDescriptor;var p=(u,o,e,i)=>{for(var t=i>1?void 0:i?M(o,e):o,a=u.length-1,d;a>=0;a--)(d=u[a])&&(t=(i?d(o,e,t):d(t))||t);return i&&t&&h(o,e,t),t},r=(u,o)=>(e,i)=>o(e,i,u);import{assertFn as b}from"../../../../base/common/assert.js";import{autorun as E}from"../../../../base/common/observable.js";import{isEqual as n}from"../../../../base/common/resources.js";import{isDefined as S}from"../../../../base/common/types.js";import{ITextResourceConfigurationService as C}from"../../../../editor/common/services/textResourceConfiguration.js";import{localize as _}from"../../../../nls.js";import{IConfigurationService as F}from"../../../../platform/configuration/common/configuration.js";import{IFileService as D}from"../../../../platform/files/common/files.js";import{IInstantiationService as R}from"../../../../platform/instantiation/common/instantiation.js";import{ILabelService as T}from"../../../../platform/label/common/label.js";import{DEFAULT_EDITOR_ASSOCIATION as x,EditorInputCapabilities as l,isResourceMergeEditorInput as U}from"../../../common/editor.js";import{AbstractTextResourceEditorInput as L}from"../../../common/editor/textResourceEditorInput.js";import{ICustomEditorLabelService as O}from"../../../services/editor/common/customEditorLabelService.js";import{IEditorService as w}from"../../../services/editor/common/editorService.js";import{IFilesConfigurationService as k}from"../../../services/filesConfiguration/common/filesConfigurationService.js";import{ITextFileService as W}from"../../../services/textfile/common/textfiles.js";import{TempFileMergeEditorModeFactory as A,WorkspaceMergeEditorModeFactory as P}from"./mergeEditorInputModel.js";import{MergeEditorTelemetry as H}from"./telemetry.js";class se{constructor(o,e,i,t){this.uri=o;this.title=e;this.detail=i;this.description=t}}let s=class extends L{constructor(e,i,t,a,d,c,m,v,I,N,f,g,y){super(a,void 0,c,m,v,I,f,g,y);this.base=e;this.input1=i;this.input2=t;this.result=a;this._instaService=d;this.configurationService=N}static ID="mergeEditor.Input";_inputModel;closeHandler={showConfirm:()=>this._inputModel?.shouldConfirmClose()??!1,confirm:async e=>{b(()=>e.every(t=>t.editor instanceof s));const i=e.map(t=>t.editor._inputModel).filter(S);return await this._inputModel.confirmClose(i)}};get useWorkingCopy(){return this.configurationService.getValue("mergeEditor.useWorkingCopy")??!1}dispose(){super.dispose()}get typeId(){return s.ID}get editorId(){return x.id}get capabilities(){let e=super.capabilities|l.MultipleEditors;return this.useWorkingCopy&&(e|=l.Untitled),e}getName(){return _("name","Merging: {0}",super.getName())}mergeEditorModeFactory=this._instaService.createInstance(this.useWorkingCopy?A:P,this._instaService.createInstance(H));async resolve(){if(!this._inputModel){const e=this._register(await this.mergeEditorModeFactory.createInputModel({base:this.base,input1:this.input1,input2:this.input2,result:this.result}));this._inputModel=e,this._register(E(i=>{e.isDirty.read(i),this._onDidChangeDirty.fire()})),await this._inputModel.model.onInitialized}return this._inputModel}async accept(){await this._inputModel?.accept()}async save(e,i){await this._inputModel?.save(i)}toUntyped(){return{input1:{resource:this.input1.uri,label:this.input1.title,description:this.input1.description,detail:this.input1.detail},input2:{resource:this.input2.uri,label:this.input2.title,description:this.input2.description,detail:this.input2.detail},base:{resource:this.base},result:{resource:this.result},options:{override:this.typeId}}}matches(e){return this===e?!0:e instanceof s?n(this.base,e.base)&&n(this.input1.uri,e.input1.uri)&&n(this.input2.uri,e.input2.uri)&&n(this.result,e.result):U(e)?(this.editorId===e.options?.override||e.options?.override===void 0)&&n(this.base,e.base.resource)&&n(this.input1.uri,e.input1.resource)&&n(this.input2.uri,e.input2.resource)&&n(this.result,e.result.resource):!1}async revert(e,i){return this._inputModel?.revert(i)}isDirty(){return this._inputModel?.isDirty.get()??!1}setLanguageId(e,i){this._inputModel?.model.setLanguageId(e,i)}};s=p([r(4,R),r(5,w),r(6,W),r(7,T),r(8,D),r(9,F),r(10,k),r(11,C),r(12,O)],s);export{s as MergeEditorInput,se as MergeEditorInputData};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { assertFn } from "../../../../base/common/assert.js";
+import { autorun } from "../../../../base/common/observable.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { isDefined } from "../../../../base/common/types.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import {
+  DEFAULT_EDITOR_ASSOCIATION,
+  EditorInputCapabilities,
+  isResourceMergeEditorInput
+} from "../../../common/editor.js";
+import { AbstractTextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
+import { ICustomEditorLabelService } from "../../../services/editor/common/customEditorLabelService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
+import {
+  ITextFileService
+} from "../../../services/textfile/common/textfiles.js";
+import {
+  TempFileMergeEditorModeFactory,
+  WorkspaceMergeEditorModeFactory
+} from "./mergeEditorInputModel.js";
+import { MergeEditorTelemetry } from "./telemetry.js";
+class MergeEditorInputData {
+  constructor(uri, title, detail, description) {
+    this.uri = uri;
+    this.title = title;
+    this.detail = detail;
+    this.description = description;
+  }
+  static {
+    __name(this, "MergeEditorInputData");
+  }
+}
+let MergeEditorInput = class extends AbstractTextResourceEditorInput {
+  constructor(base, input1, input2, result, _instaService, editorService, textFileService, labelService, fileService, configurationService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService) {
+    super(result, void 0, editorService, textFileService, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
+    this.base = base;
+    this.input1 = input1;
+    this.input2 = input2;
+    this.result = result;
+    this._instaService = _instaService;
+    this.configurationService = configurationService;
+  }
+  static {
+    __name(this, "MergeEditorInput");
+  }
+  static ID = "mergeEditor.Input";
+  _inputModel;
+  closeHandler = {
+    showConfirm: /* @__PURE__ */ __name(() => this._inputModel?.shouldConfirmClose() ?? false, "showConfirm"),
+    confirm: /* @__PURE__ */ __name(async (editors) => {
+      assertFn(
+        () => editors.every((e) => e.editor instanceof MergeEditorInput)
+      );
+      const inputModels = editors.map((e) => e.editor._inputModel).filter(isDefined);
+      return await this._inputModel.confirmClose(inputModels);
+    }, "confirm")
+  };
+  get useWorkingCopy() {
+    return this.configurationService.getValue("mergeEditor.useWorkingCopy") ?? false;
+  }
+  dispose() {
+    super.dispose();
+  }
+  get typeId() {
+    return MergeEditorInput.ID;
+  }
+  get editorId() {
+    return DEFAULT_EDITOR_ASSOCIATION.id;
+  }
+  get capabilities() {
+    let capabilities = super.capabilities | EditorInputCapabilities.MultipleEditors;
+    if (this.useWorkingCopy) {
+      capabilities |= EditorInputCapabilities.Untitled;
+    }
+    return capabilities;
+  }
+  getName() {
+    return localize("name", "Merging: {0}", super.getName());
+  }
+  mergeEditorModeFactory = this._instaService.createInstance(
+    this.useWorkingCopy ? TempFileMergeEditorModeFactory : WorkspaceMergeEditorModeFactory,
+    this._instaService.createInstance(MergeEditorTelemetry)
+  );
+  async resolve() {
+    if (!this._inputModel) {
+      const inputModel = this._register(
+        await this.mergeEditorModeFactory.createInputModel({
+          base: this.base,
+          input1: this.input1,
+          input2: this.input2,
+          result: this.result
+        })
+      );
+      this._inputModel = inputModel;
+      this._register(
+        autorun((reader) => {
+          inputModel.isDirty.read(reader);
+          this._onDidChangeDirty.fire();
+        })
+      );
+      await this._inputModel.model.onInitialized;
+    }
+    return this._inputModel;
+  }
+  async accept() {
+    await this._inputModel?.accept();
+  }
+  async save(group, options) {
+    await this._inputModel?.save(options);
+    return void 0;
+  }
+  toUntyped() {
+    return {
+      input1: {
+        resource: this.input1.uri,
+        label: this.input1.title,
+        description: this.input1.description,
+        detail: this.input1.detail
+      },
+      input2: {
+        resource: this.input2.uri,
+        label: this.input2.title,
+        description: this.input2.description,
+        detail: this.input2.detail
+      },
+      base: { resource: this.base },
+      result: { resource: this.result },
+      options: {
+        override: this.typeId
+      }
+    };
+  }
+  matches(otherInput) {
+    if (this === otherInput) {
+      return true;
+    }
+    if (otherInput instanceof MergeEditorInput) {
+      return isEqual(this.base, otherInput.base) && isEqual(this.input1.uri, otherInput.input1.uri) && isEqual(this.input2.uri, otherInput.input2.uri) && isEqual(this.result, otherInput.result);
+    }
+    if (isResourceMergeEditorInput(otherInput)) {
+      return (this.editorId === otherInput.options?.override || otherInput.options?.override === void 0) && isEqual(this.base, otherInput.base.resource) && isEqual(this.input1.uri, otherInput.input1.resource) && isEqual(this.input2.uri, otherInput.input2.resource) && isEqual(this.result, otherInput.result.resource);
+    }
+    return false;
+  }
+  async revert(group, options) {
+    return this._inputModel?.revert(options);
+  }
+  // ---- FileEditorInput
+  isDirty() {
+    return this._inputModel?.isDirty.get() ?? false;
+  }
+  setLanguageId(languageId, source) {
+    this._inputModel?.model.setLanguageId(languageId, source);
+  }
+  // implement get/set encoding
+};
+MergeEditorInput = __decorateClass([
+  __decorateParam(4, IInstantiationService),
+  __decorateParam(5, IEditorService),
+  __decorateParam(6, ITextFileService),
+  __decorateParam(7, ILabelService),
+  __decorateParam(8, IFileService),
+  __decorateParam(9, IConfigurationService),
+  __decorateParam(10, IFilesConfigurationService),
+  __decorateParam(11, ITextResourceConfigurationService),
+  __decorateParam(12, ICustomEditorLabelService)
+], MergeEditorInput);
+export {
+  MergeEditorInput,
+  MergeEditorInputData
+};
+//# sourceMappingURL=mergeEditorInput.js.map

@@ -1,1 +1,14 @@
-import{createDecorator as i}from"../../../../../platform/instantiation/common/instantiation.js";const t=i("terminalQuickFixService");var n=(e=>(e[e.TerminalCommand=0]="TerminalCommand",e[e.Opener=1]="Opener",e[e.Port=2]="Port",e[e.VscodeCommand=3]="VscodeCommand",e))(n||{});export{t as ITerminalQuickFixService,n as TerminalQuickFixType};
+import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
+const ITerminalQuickFixService = createDecorator("terminalQuickFixService");
+var TerminalQuickFixType = /* @__PURE__ */ ((TerminalQuickFixType2) => {
+  TerminalQuickFixType2[TerminalQuickFixType2["TerminalCommand"] = 0] = "TerminalCommand";
+  TerminalQuickFixType2[TerminalQuickFixType2["Opener"] = 1] = "Opener";
+  TerminalQuickFixType2[TerminalQuickFixType2["Port"] = 2] = "Port";
+  TerminalQuickFixType2[TerminalQuickFixType2["VscodeCommand"] = 3] = "VscodeCommand";
+  return TerminalQuickFixType2;
+})(TerminalQuickFixType || {});
+export {
+  ITerminalQuickFixService,
+  TerminalQuickFixType
+};
+//# sourceMappingURL=quickFix.js.map

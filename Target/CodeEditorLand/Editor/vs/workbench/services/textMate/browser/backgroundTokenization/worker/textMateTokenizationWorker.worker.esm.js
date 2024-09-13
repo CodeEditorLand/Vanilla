@@ -1,1 +1,4 @@
-import{bootstrapSimpleWorker as r}from"../../../../../../base/common/worker/simpleWorkerBootstrap.js";import{create as o}from"./textMateTokenizationWorker.worker.js";r(o);
+import { bootstrapSimpleWorker } from "../../../../../../base/common/worker/simpleWorkerBootstrap.js";
+import { create } from "./textMateTokenizationWorker.worker.js";
+bootstrapSimpleWorker(create);
+//# sourceMappingURL=textMateTokenizationWorker.worker.esm.js.map

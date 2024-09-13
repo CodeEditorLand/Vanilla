@@ -1,1 +1,37 @@
-import{getActiveWindow as t}from"../../../../base/browser/dom.js";import{KeyCode as i,KeyMod as n}from"../../../../base/common/keyCodes.js";import*as m from"../../../../base/common/platform.js";import{KeybindingsRegistry as d}from"../../../../platform/keybinding/common/keybindingsRegistry.js";if(m.isMacintosh){let e=function(r){return()=>{t().document.execCommand(r)}};var C=e;d.registerCommandAndKeybindingRule({id:"execCut",primary:n.CtrlCmd|i.KeyX,handler:e("cut"),weight:0,when:void 0}),d.registerCommandAndKeybindingRule({id:"execCopy",primary:n.CtrlCmd|i.KeyC,handler:e("copy"),weight:0,when:void 0}),d.registerCommandAndKeybindingRule({id:"execPaste",primary:n.CtrlCmd|i.KeyV,handler:e("paste"),weight:0,when:void 0})}
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getActiveWindow } from "../../../../base/browser/dom.js";
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import * as platform from "../../../../base/common/platform.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+if (platform.isMacintosh) {
+  let bindExecuteCommand = function(command) {
+    return () => {
+      getActiveWindow().document.execCommand(command);
+    };
+  };
+  var bindExecuteCommand2 = bindExecuteCommand;
+  __name(bindExecuteCommand, "bindExecuteCommand");
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: "execCut",
+    primary: KeyMod.CtrlCmd | KeyCode.KeyX,
+    handler: bindExecuteCommand("cut"),
+    weight: 0,
+    when: void 0
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: "execCopy",
+    primary: KeyMod.CtrlCmd | KeyCode.KeyC,
+    handler: bindExecuteCommand("copy"),
+    weight: 0,
+    when: void 0
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: "execPaste",
+    primary: KeyMod.CtrlCmd | KeyCode.KeyV,
+    handler: bindExecuteCommand("paste"),
+    weight: 0,
+    when: void 0
+  });
+}
+//# sourceMappingURL=inputClipboardActions.js.map

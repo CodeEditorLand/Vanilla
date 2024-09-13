@@ -1,1 +1,85 @@
-var h=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var I=(i,o,r,a)=>{for(var e=a>1?void 0:a?f(o,r):o,t=i.length-1,n;t>=0;t--)(n=i[t])&&(e=(a?n(o,r,e):n(e))||e);return a&&e&&h(o,r,e),e},p=(i,o)=>(r,a)=>o(r,a,i);import{Color as s,RGBA as k}from"../../../../base/common/color.js";import{Disposable as u}from"../../../../base/common/lifecycle.js";import{IEditorWorkerService as x}from"../../../common/services/editorWorker.js";import{ILanguageFeaturesService as b}from"../../../common/services/languageFeatures.js";let l=class{constructor(o){this._editorWorkerService=o}async provideDocumentColors(o,r){return this._editorWorkerService.computeDefaultDocumentColors(o.uri)}provideColorPresentations(o,r,a){const e=r.range,t=r.color,n=t.alpha,m=new s(new k(Math.round(255*t.red),Math.round(255*t.green),Math.round(255*t.blue),n)),d=n?s.Format.CSS.formatRGB(m):s.Format.CSS.formatRGBA(m),C=n?s.Format.CSS.formatHSL(m):s.Format.CSS.formatHSLA(m),g=n?s.Format.CSS.formatHex(m):s.Format.CSS.formatHexA(m),c=[];return c.push({label:d,textEdit:{range:e,text:d}}),c.push({label:C,textEdit:{range:e,text:C}}),c.push({label:g,textEdit:{range:e,text:g}}),c}};l=I([p(0,x)],l);let S=class extends u{constructor(o,r){super(),this._register(o.colorProvider.register("*",new l(r)))}};S=I([p(0,b),p(1,x)],S);export{l as DefaultDocumentColorProvider,S as DefaultDocumentColorProviderFeature};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Color, RGBA } from "../../../../base/common/color.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+let DefaultDocumentColorProvider = class {
+  constructor(_editorWorkerService) {
+    this._editorWorkerService = _editorWorkerService;
+  }
+  static {
+    __name(this, "DefaultDocumentColorProvider");
+  }
+  async provideDocumentColors(model, _token) {
+    return this._editorWorkerService.computeDefaultDocumentColors(
+      model.uri
+    );
+  }
+  provideColorPresentations(_model, colorInfo, _token) {
+    const range = colorInfo.range;
+    const colorFromInfo = colorInfo.color;
+    const alpha = colorFromInfo.alpha;
+    const color = new Color(
+      new RGBA(
+        Math.round(255 * colorFromInfo.red),
+        Math.round(255 * colorFromInfo.green),
+        Math.round(255 * colorFromInfo.blue),
+        alpha
+      )
+    );
+    const rgb = alpha ? Color.Format.CSS.formatRGB(color) : Color.Format.CSS.formatRGBA(color);
+    const hsl = alpha ? Color.Format.CSS.formatHSL(color) : Color.Format.CSS.formatHSLA(color);
+    const hex = alpha ? Color.Format.CSS.formatHex(color) : Color.Format.CSS.formatHexA(color);
+    const colorPresentations = [];
+    colorPresentations.push({
+      label: rgb,
+      textEdit: { range, text: rgb }
+    });
+    colorPresentations.push({
+      label: hsl,
+      textEdit: { range, text: hsl }
+    });
+    colorPresentations.push({
+      label: hex,
+      textEdit: { range, text: hex }
+    });
+    return colorPresentations;
+  }
+};
+DefaultDocumentColorProvider = __decorateClass([
+  __decorateParam(0, IEditorWorkerService)
+], DefaultDocumentColorProvider);
+let DefaultDocumentColorProviderFeature = class extends Disposable {
+  static {
+    __name(this, "DefaultDocumentColorProviderFeature");
+  }
+  constructor(_languageFeaturesService, editorWorkerService) {
+    super();
+    this._register(
+      _languageFeaturesService.colorProvider.register(
+        "*",
+        new DefaultDocumentColorProvider(editorWorkerService)
+      )
+    );
+  }
+};
+DefaultDocumentColorProviderFeature = __decorateClass([
+  __decorateParam(0, ILanguageFeaturesService),
+  __decorateParam(1, IEditorWorkerService)
+], DefaultDocumentColorProviderFeature);
+export {
+  DefaultDocumentColorProvider,
+  DefaultDocumentColorProviderFeature
+};
+//# sourceMappingURL=defaultDocumentColorProvider.js.map

@@ -1,1 +1,57 @@
-var d=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var c=(n,r,o,t)=>{for(var e=t>1?void 0:t?p(r,o):r,s=n.length-1,a;s>=0;s--)(a=n[s])&&(e=(t?a(r,o,e):a(e))||e);return t&&e&&d(r,o,e),e},m=(n,r)=>(o,t)=>r(o,t,n);import{PlatformToString as l,platform as x}from"../../../../base/common/platform.js";import{IProductService as u}from"../../../../platform/product/common/productService.js";import{ExtensionRecommendationReason as v}from"../../../services/extensionRecommendations/common/extensionRecommendations.js";import{ExtensionRecommendations as y}from"./extensionRecommendations.js";let i=class extends y{constructor(o){super();this.productService=o}_recommendations=[];get recommendations(){return this._recommendations}async doActivate(){const o={...this.productService.remoteExtensionTips,...this.productService.virtualWorkspaceExtensionTips},t=l(x);this._recommendations=Object.values(o).filter(({supportedPlatforms:e})=>!e||e.includes(t)).map(e=>({extension:e.extensionId.toLowerCase(),reason:{reasonId:v.Application,reasonText:""}}))}};i=c([m(0,u)],i);export{i as RemoteRecommendations};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  PlatformToString,
+  platform
+} from "../../../../base/common/platform.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ExtensionRecommendationReason } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
+import {
+  ExtensionRecommendations
+} from "./extensionRecommendations.js";
+let RemoteRecommendations = class extends ExtensionRecommendations {
+  constructor(productService) {
+    super();
+    this.productService = productService;
+  }
+  static {
+    __name(this, "RemoteRecommendations");
+  }
+  _recommendations = [];
+  get recommendations() {
+    return this._recommendations;
+  }
+  async doActivate() {
+    const extensionTips = {
+      ...this.productService.remoteExtensionTips,
+      ...this.productService.virtualWorkspaceExtensionTips
+    };
+    const currentPlatform = PlatformToString(platform);
+    this._recommendations = Object.values(extensionTips).filter(
+      ({ supportedPlatforms }) => !supportedPlatforms || supportedPlatforms.includes(currentPlatform)
+    ).map((extension) => ({
+      extension: extension.extensionId.toLowerCase(),
+      reason: {
+        reasonId: ExtensionRecommendationReason.Application,
+        reasonText: ""
+      }
+    }));
+  }
+};
+RemoteRecommendations = __decorateClass([
+  __decorateParam(0, IProductService)
+], RemoteRecommendations);
+export {
+  RemoteRecommendations
+};
+//# sourceMappingURL=remoteRecommendations.js.map

@@ -1,1 +1,138 @@
-import{MarkdownString as r}from"../../../../base/common/htmlContent.js";import{Disposable as d}from"../../../../base/common/lifecycle.js";import*as e from"../../../../nls.js";import{SyncDescriptor as l}from"../../../../platform/instantiation/common/descriptors.js";import{Registry as p}from"../../../../platform/registry/common/platform.js";import{Extensions as g}from"../../../services/extensionManagement/common/extensionFeatures.js";import{languagesExtPoint as u}from"../../../services/language/common/languageService.js";var m=(o=>(o.languages="languages",o.actions="actions",o.kind="kind",o.title="title",o.description="description",o))(m||{});const y=Object.freeze({type:"array",markdownDescription:e.localize("contributes.codeActions","Configure which editor to use for a resource."),items:{type:"object",required:["languages","actions"],properties:{languages:{type:"array",description:e.localize("contributes.codeActions.languages","Language modes that the code actions are enabled for."),items:{type:"string"}},actions:{type:"object",required:["kind","title"],properties:{kind:{type:"string",markdownDescription:e.localize("contributes.codeActions.kind","`CodeActionKind` of the contributed code action.")},title:{type:"string",description:e.localize("contributes.codeActions.title","Label for the code action used in the UI.")},description:{type:"string",description:e.localize("contributes.codeActions.description","Description of what the code action does.")}}}}}}),I={extensionPoint:"codeActions",deps:[u],jsonSchema:y};class x extends d{type="table";shouldRender(i){return!!i.contributes?.codeActions}render(i){const s=i.contributes?.codeActions||[];if(!s.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const a=s.flatMap(t=>t.actions.map(n=>({...n,languages:t.languages}))),c=[e.localize("codeActions.title","Title"),e.localize("codeActions.kind","Kind"),e.localize("codeActions.description","Description"),e.localize("codeActions.languages","Languages")],o=a.sort((t,n)=>t.title.localeCompare(n.title)).map(t=>[t.title,new r().appendMarkdown(`\`${t.kind}\``),t.description??"",new r().appendMarkdown(`${t.languages.map(n=>`\`${n}\``).join("&nbsp;")}`)]);return{data:{headers:c,rows:o},dispose:()=>{}}}}p.as(g.ExtensionFeaturesRegistry).registerExtensionFeature({id:"codeActions",label:e.localize("codeactions","Code Actions"),access:{canToggle:!1},renderer:new l(x)});export{I as codeActionsExtensionPointDescriptor};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import * as nls from "../../../../nls.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  Extensions as ExtensionFeaturesExtensions
+} from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { languagesExtPoint } from "../../../services/language/common/languageService.js";
+var CodeActionExtensionPointFields = /* @__PURE__ */ ((CodeActionExtensionPointFields2) => {
+  CodeActionExtensionPointFields2["languages"] = "languages";
+  CodeActionExtensionPointFields2["actions"] = "actions";
+  CodeActionExtensionPointFields2["kind"] = "kind";
+  CodeActionExtensionPointFields2["title"] = "title";
+  CodeActionExtensionPointFields2["description"] = "description";
+  return CodeActionExtensionPointFields2;
+})(CodeActionExtensionPointFields || {});
+const codeActionsExtensionPointSchema = Object.freeze({
+  type: "array",
+  markdownDescription: nls.localize(
+    "contributes.codeActions",
+    "Configure which editor to use for a resource."
+  ),
+  items: {
+    type: "object",
+    required: [
+      "languages" /* languages */,
+      "actions" /* actions */
+    ],
+    properties: {
+      ["languages" /* languages */]: {
+        type: "array",
+        description: nls.localize(
+          "contributes.codeActions.languages",
+          "Language modes that the code actions are enabled for."
+        ),
+        items: { type: "string" }
+      },
+      ["actions" /* actions */]: {
+        type: "object",
+        required: [
+          "kind" /* kind */,
+          "title" /* title */
+        ],
+        properties: {
+          ["kind" /* kind */]: {
+            type: "string",
+            markdownDescription: nls.localize(
+              "contributes.codeActions.kind",
+              "`CodeActionKind` of the contributed code action."
+            )
+          },
+          ["title" /* title */]: {
+            type: "string",
+            description: nls.localize(
+              "contributes.codeActions.title",
+              "Label for the code action used in the UI."
+            )
+          },
+          ["description" /* description */]: {
+            type: "string",
+            description: nls.localize(
+              "contributes.codeActions.description",
+              "Description of what the code action does."
+            )
+          }
+        }
+      }
+    }
+  }
+});
+const codeActionsExtensionPointDescriptor = {
+  extensionPoint: "codeActions",
+  deps: [languagesExtPoint],
+  jsonSchema: codeActionsExtensionPointSchema
+};
+class CodeActionsTableRenderer extends Disposable {
+  static {
+    __name(this, "CodeActionsTableRenderer");
+  }
+  type = "table";
+  shouldRender(manifest) {
+    return !!manifest.contributes?.codeActions;
+  }
+  render(manifest) {
+    const codeActions = manifest.contributes?.codeActions || [];
+    if (!codeActions.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const flatActions = codeActions.flatMap(
+      (contribution) => contribution.actions.map((action) => ({
+        ...action,
+        languages: contribution.languages
+      }))
+    );
+    const headers = [
+      nls.localize("codeActions.title", "Title"),
+      nls.localize("codeActions.kind", "Kind"),
+      nls.localize("codeActions.description", "Description"),
+      nls.localize("codeActions.languages", "Languages")
+    ];
+    const rows = flatActions.sort((a, b) => a.title.localeCompare(b.title)).map((action) => {
+      return [
+        action.title,
+        new MarkdownString().appendMarkdown(`\`${action.kind}\``),
+        action.description ?? "",
+        new MarkdownString().appendMarkdown(
+          `${action.languages.map((lang) => `\`${lang}\``).join("&nbsp;")}`
+        )
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+Registry.as(
+  ExtensionFeaturesExtensions.ExtensionFeaturesRegistry
+).registerExtensionFeature({
+  id: "codeActions",
+  label: nls.localize("codeactions", "Code Actions"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(CodeActionsTableRenderer)
+});
+export {
+  codeActionsExtensionPointDescriptor
+};
+//# sourceMappingURL=codeActionsExtensionPoint.js.map

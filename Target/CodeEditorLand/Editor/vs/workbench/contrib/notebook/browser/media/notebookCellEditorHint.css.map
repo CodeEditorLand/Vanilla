@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/contrib/notebook/browser/media/notebookCellEditorHint.css"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\n.monaco-workbench\n\t.notebookOverlay\n\t.monaco-editor\n\t.contentWidgets\n\t.empty-editor-hint {\n\tcursor: auto;\n}\n"],
+  "mappings": "AAKA,CAAC,iBACA,CAAC,gBACD,CAAC,cACD,CAAC,eACD,CAAC;AACD,UAAQ;AACT;",
+  "names": []
+}

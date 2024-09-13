@@ -1,1 +1,84 @@
-import{CancellationToken as t}from"../../../base/common/cancellation.js";import{Emitter as s}from"../../../base/common/event.js";import{toDisposable as d}from"../../../base/common/lifecycle.js";import{MainContext as a}from"./extHost.protocol.js";class c{_proxy;_provider=new Map;_onDidChange=new s;onDidChange=this._onDidChange.event;_allKnownModels=new Set;_handlePool=0;constructor(i){this._proxy=i.getProxy(a.MainThreadEmbeddings)}registerEmbeddingsProvider(i,e,o){if(this._allKnownModels.has(e))throw new Error("An embeddings provider for this model is already registered");const n=this._handlePool++;return this._proxy.$registerEmbeddingProvider(n,e),this._provider.set(n,{id:e,provider:o}),d(()=>{this._allKnownModels.delete(e),this._proxy.$unregisterEmbeddingProvider(n),this._provider.delete(n)})}async computeEmbeddings(i,e,o){o??=t.None;let n=!1;typeof e=="string"&&(e=[e],n=!0);const r=await this._proxy.$computeEmbeddings(i,e,o);if(r.length!==e.length)throw new Error;if(n){if(r.length!==1)throw new Error;return r[0]}return r}async $provideEmbeddings(i,e,o){const n=this._provider.get(i);if(!n)return[];const r=await n.provider.provideEmbeddings(e,o);return r||[]}get embeddingsModels(){return Array.from(this._allKnownModels)}$acceptEmbeddingModels(i){this._allKnownModels=new Set(i),this._onDidChange.fire()}}export{c as ExtHostEmbeddings};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  toDisposable
+} from "../../../base/common/lifecycle.js";
+import {
+  MainContext
+} from "./extHost.protocol.js";
+class ExtHostEmbeddings {
+  static {
+    __name(this, "ExtHostEmbeddings");
+  }
+  _proxy;
+  _provider = /* @__PURE__ */ new Map();
+  _onDidChange = new Emitter();
+  onDidChange = this._onDidChange.event;
+  _allKnownModels = /* @__PURE__ */ new Set();
+  _handlePool = 0;
+  constructor(mainContext) {
+    this._proxy = mainContext.getProxy(MainContext.MainThreadEmbeddings);
+  }
+  registerEmbeddingsProvider(_extension, embeddingsModel, provider) {
+    if (this._allKnownModels.has(embeddingsModel)) {
+      throw new Error(
+        "An embeddings provider for this model is already registered"
+      );
+    }
+    const handle = this._handlePool++;
+    this._proxy.$registerEmbeddingProvider(handle, embeddingsModel);
+    this._provider.set(handle, { id: embeddingsModel, provider });
+    return toDisposable(() => {
+      this._allKnownModels.delete(embeddingsModel);
+      this._proxy.$unregisterEmbeddingProvider(handle);
+      this._provider.delete(handle);
+    });
+  }
+  async computeEmbeddings(embeddingsModel, input, token) {
+    token ??= CancellationToken.None;
+    let returnSingle = false;
+    if (typeof input === "string") {
+      input = [input];
+      returnSingle = true;
+    }
+    const result = await this._proxy.$computeEmbeddings(
+      embeddingsModel,
+      input,
+      token
+    );
+    if (result.length !== input.length) {
+      throw new Error();
+    }
+    if (returnSingle) {
+      if (result.length !== 1) {
+        throw new Error();
+      }
+      return result[0];
+    }
+    return result;
+  }
+  async $provideEmbeddings(handle, input, token) {
+    const data = this._provider.get(handle);
+    if (!data) {
+      return [];
+    }
+    const result = await data.provider.provideEmbeddings(input, token);
+    if (!result) {
+      return [];
+    }
+    return result;
+  }
+  get embeddingsModels() {
+    return Array.from(this._allKnownModels);
+  }
+  $acceptEmbeddingModels(models) {
+    this._allKnownModels = new Set(models);
+    this._onDidChange.fire();
+  }
+}
+export {
+  ExtHostEmbeddings
+};
+//# sourceMappingURL=extHostEmbedding.js.map
