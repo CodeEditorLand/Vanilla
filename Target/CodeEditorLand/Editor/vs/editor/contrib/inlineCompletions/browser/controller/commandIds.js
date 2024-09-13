@@ -1,9 +1,1 @@
-const inlineSuggestCommitId = "editor.action.inlineSuggest.commit";
-const showPreviousInlineSuggestionActionId = "editor.action.inlineSuggest.showPrevious";
-const showNextInlineSuggestionActionId = "editor.action.inlineSuggest.showNext";
-export {
-  inlineSuggestCommitId,
-  showNextInlineSuggestionActionId,
-  showPreviousInlineSuggestionActionId
-};
-//# sourceMappingURL=commandIds.js.map
+const i="editor.action.inlineSuggest.commit",o="editor.action.inlineSuggest.showPrevious",t="editor.action.inlineSuggest.showNext";export{i as inlineSuggestCommitId,t as showNextInlineSuggestionActionId,o as showPreviousInlineSuggestionActionId};

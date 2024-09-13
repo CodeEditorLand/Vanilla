@@ -1,13 +1,1 @@
-import { Event } from "../../../base/common/event.js";
-import { ICodeEditor, IDiffEditor } from "../editorBrowser.js";
-import { IDecorationRenderOptions } from "../../common/editorCommon.js";
-import { IModelDecorationOptions, ITextModel } from "../../common/model.js";
-import { ITextResourceEditorInput } from "../../../platform/editor/common/editor.js";
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { URI } from "../../../base/common/uri.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-const ICodeEditorService = createDecorator("codeEditorService");
-export {
-  ICodeEditorService
-};
-//# sourceMappingURL=codeEditorService.js.map
+import"../../../base/common/event.js";import"../editorBrowser.js";import"../../common/editorCommon.js";import"../../common/model.js";import"../../../platform/editor/common/editor.js";import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";import"../../../base/common/uri.js";import"../../../base/common/lifecycle.js";const D=e("codeEditorService");export{D as ICodeEditorService};
