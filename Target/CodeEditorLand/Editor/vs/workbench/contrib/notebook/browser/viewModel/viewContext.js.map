@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/contrib/notebook/browser/viewModel/viewContext.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport type { IBaseCellEditorOptions } from \"../notebookBrowser.js\";\nimport type { NotebookOptions } from \"../notebookOptions.js\";\nimport type { NotebookEventDispatcher } from \"./eventDispatcher.js\";\n\nexport class ViewContext {\n\tconstructor(\n\t\treadonly notebookOptions: NotebookOptions,\n\t\treadonly eventDispatcher: NotebookEventDispatcher,\n\t\treadonly getBaseCellEditorOptions: (\n\t\t\tlanguage: string,\n\t\t) => IBaseCellEditorOptions,\n\t) {}\n}\n"],
-  "mappings": ";;AASO,MAAM,YAAY;AAAA,EACxB,YACU,iBACA,iBACA,0BAGR;AALQ;AACA;AACA;AAAA,EAGP;AAAA,EAhBJ,OASyB;AAAA;AAAA;AAQzB;",
-  "names": []
-}
