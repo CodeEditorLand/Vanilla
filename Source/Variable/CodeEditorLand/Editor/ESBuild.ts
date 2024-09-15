@@ -1,11 +1,11 @@
 import type { BuildOptions } from "esbuild";
 
-export const Development =
+export const On =
 	process.env["NODE_ENV"] === "development" ||
 	process.env["TAURI_ENV_DEBUG"] === "true";
 
-const Dependency = "CodeEditorLand/Editor";
-const TypeScript = `Source/Notation/${Dependency}/tsconfig${Development ? "" : ".no-types"}.json`;
+export const Dependency = "CodeEditorLand/Editor";
+export const TypeScript = `Source/Notation/${Dependency}/tsconfig${On ? "" : ".no-types"}.json`;
 
 /**
  * @module ESBuild
@@ -16,19 +16,19 @@ export default {
 	format: "esm",
 	logLevel: "error",
 	metafile: true,
-	minify: !Development,
+	minify: !On,
 	outdir: `Target/${Dependency}`,
 	platform: "node",
 	target: "esnext",
 	tsconfig: TypeScript,
 	write: true,
-	legalComments: Development ? "inline" : "none",
+	legalComments: On ? "inline" : "none",
 	bundle: false,
 	assetNames: "Asset/[name]-[hash]",
-	sourcemap: Development,
-	drop: Development ? [] : ["console", "debugger"],
-	ignoreAnnotations: !Development,
-	keepNames: Development,
+	sourcemap: On,
+	drop: On ? [] : ["console", "debugger"],
+	ignoreAnnotations: !On,
+	keepNames: On,
 	plugins: [
 		{
 			name: "Target",
@@ -66,7 +66,6 @@ export default {
 							"Source/vs/workbench/services/search/test/node/fixtures",
 							"Source/vs/workbench/services/search/test/node/fixtures/examples",
 							"Source/vs/workbench/services/textfile/test/node/encoding/fixtures",
-							"Source/vs/platform/files/test/node/fixtures/resolver/examples",
 
 							".d.ts",
 						].some((Search) =>
